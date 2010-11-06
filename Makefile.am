@@ -13,6 +13,8 @@ vimpc_SOURCES = src/actions.cpp \
                 src/handler.hpp \
                 src/help.cpp \
                 src/help.hpp \
+                src/inputmode.cpp \
+                src/inputmode.hpp \
                 src/main.cpp \
                 src/modewindow.cpp \
                 src/modewindow.hpp \
@@ -24,6 +26,8 @@ vimpc_SOURCES = src/actions.cpp \
                 src/playlist.hpp \
                 src/screen.cpp \
                 src/screen.hpp \
+                src/search.cpp \
+                src/search.hpp \
                 src/settings.cpp \
                 src/settings.hpp \
 					 src/song.hpp \

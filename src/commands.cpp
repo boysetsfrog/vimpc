@@ -1,27 +1,25 @@
 #include "commands.hpp"
 
-#include <limits>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 #include "console.hpp"
 #include "dbc.hpp"
+#include "screen.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
 
 using namespace Ui;
 
-int  const PromptSize      = 1;
-char const CommandPrompt[] = ":";
+char const CommandPrompt   = ':';
 
 // COMMANDS
 Commands::Commands(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+   InputMode          (CommandPrompt, screen),
    Player             (screen, client),
    settings_          (settings),
-   window_            (NULL),
-   cursor_            (command_),
-   command_           (""),
-   initHistorySearch_ (true),
+   screen_            (screen),
    initTabCompletion_ (true)
 {
    // \todo add :quit! to quit and force song stop ?
@@ -45,64 +43,42 @@ Commands::Commands(Ui::Screen & screen, Mpc::Client & client, Main::Settings & s
    commandTable_["random"]    = &Commands::Random;
    commandTable_["set"]       = &Commands::Set;
    commandTable_["stop"]      = &Commands::Stop;
-
-   window_ = screen_.CreateModeWindow();
 }
 
 Commands::~Commands()
 {
-   delete window_;
-   window_ = NULL;
 }
 
 
 void Commands::InitialiseMode()
 {
-   initHistorySearch_  = true;
    initTabCompletion_  = true;
 
-   window_->ShowCursor();
-   window_->SetCursorPosition(cursor_.Position());
-   window_->SetLine(CommandPrompt);
-
-   ENSURE(command_.empty() == true);
-}
-
-void Commands::FinaliseMode()
-{
-   AddCommandToHistory(command_);
-
-   command_.clear();
-   cursor_.ResetCursorPosition();
-   window_->HideCursor();
-   window_->SetLine("");
-
-   ENSURE(command_.empty() == true);
+   InputMode::InitialiseMode();
 }
 
 bool Commands::Handle(int const input)
 {
-   bool result = true;
+   ResetTabCompletion(input);
 
-   if (HasCommandToExecute(input) == true)
+   return InputMode::Handle(input);
+}
+
+void Commands::GenerateInputString(int input)
+{
+   if (input == '\t')
    {
-      result = ExecuteCommand(command_);
-
-      screen_.Update();
+      inputString_ = TabComplete(inputString_);
    }
    else
    {
-      ResetHistory(input);
-      ResetTabCompletion(input);
-      GenerateCommandFromInput(input);
-
-      int64_t const newCursorPosition = cursor_.UpdatePosition(input);
-
-      window_->SetCursorPosition(newCursorPosition);
-      window_->SetLine("%s%s", CommandPrompt, command_.c_str());
+      InputMode::GenerateInputString(input);
    }
-
-   return result;
+}
+ 
+bool Commands::InputModeHandler(std::string input)
+{
+   return ExecuteCommand(inputString_);
 }
 
 
@@ -130,47 +106,7 @@ bool Commands::ExecuteCommand(std::string const & input)
    return result;
 }
 
-bool Commands::HasCommandToExecute(int input) const
-{
-   return (input == '\n');
-}
 
-bool Commands::InputIsValidCharacter(int input)
-{
-   return (input < std::numeric_limits<char>::max()) 
-       && (input != 27) 
-       && (input != '\n');
-}
-
-void Commands::GenerateCommandFromInput(int input)
-{
-   // \todo this could use a refactor
-   int64_t const cursorPosition = (cursor_.Position() - PromptSize);
-
-   if ((input == KEY_UP) || (input == KEY_DOWN))
-   {
-      Direction const direction = (input == KEY_UP) ? Up : Down;
-      command_ = History(direction, command_);
-   }
-   else if (input == '\t')
-   {
-      command_ = TabComplete(command_);
-   }
-   else if (((input == KEY_BACKSPACE) || (input == KEY_DC)) && ((command_.empty() == false)))
-   {
-      const int cursorMovement = (input == KEY_BACKSPACE) ? 1 : 0;
-
-      if ((cursorPosition - cursorMovement) >= 0)
-      {
-         command_.erase((cursorPosition - cursorMovement), 1);
-      }
-   }
-   else if (InputIsValidCharacter(input) == true)
-   {
-      command_.insert((std::string::size_type) (cursorPosition), 1, (char) input);
-   }
-}
- 
 bool Commands::ExecuteCommand(std::string const & command, std::string const & arguments)
 {
    std::string commandToExecute  = command;
@@ -260,95 +196,12 @@ bool Commands::Alias(std::string const & input)
 }
 
 
-void Commands::ResetHistory(int input)
-{
-   if ((input != KEY_UP) && (input != KEY_DOWN))
-   {
-      initHistorySearch_ = true;
-   }
-}
-
 void Commands::ResetTabCompletion(int input)
 {
    if (input != '\t')
    {
       initTabCompletion_ = true;
    }
-}
-
-
-void Commands::AddCommandToHistory(std::string const & command)
-{
-   if (command.empty() == false)
-   {
-      //Remove this command if it is already in the history
-      commandHistory_.erase(std::remove(commandHistory_.begin(), 
-                                        commandHistory_.end(), 
-                                        command),
-                            commandHistory_.end());
-
-      //Then add it to the back (as the most recent command)
-      commandHistory_.push_back(command);
-   }
-}
-
-void Commands::InitialiseHistorySearch(std::string const & command)
-{
-   searchCommandHistory_.clear();
-   searchCommandHistory_.reserve(commandHistory_.size());
-
-   std::remove_copy_if(commandHistory_.begin(), 
-                       commandHistory_.end(),
-                       std::back_inserter(searchCommandHistory_),
-                       HistoryNotCompletionMatch(command));
-}
-
-std::string Commands::History(Direction direction, std::string const & command)
-{
-   static CommandHistory::const_reverse_iterator historyIterator;
-   static std::string historyLastResult(command);
-   static std::string historyStart     (command);
-
-   std::string result;
-
-   if (initHistorySearch_ == true)
-   {
-      initHistorySearch_   = false;
-      historyStart         = command;
-
-      InitialiseHistorySearch(historyStart);
-
-      historyIterator = searchCommandHistory_.rbegin();
-      --historyIterator;
-   }
-
-   if (historyIterator == searchCommandHistory_.rend())
-   {
-      --historyIterator;
-   }
-
-   if (direction == Up)
-   {
-      if (historyIterator < searchCommandHistory_.rend())
-      {
-         ++historyIterator;
-      }
-
-      result = ((historyIterator == searchCommandHistory_.rend()) ? historyLastResult : *historyIterator);
-   }
-   else
-   {
-      if (historyIterator >= searchCommandHistory_.rbegin())
-      {
-         --historyIterator;
-      }
-
-      result = ((historyIterator < searchCommandHistory_.rbegin()) ? historyStart : *historyIterator);
-   }
-
-   historyLastResult = result;
-
-   return result;
 }
 
 
@@ -380,131 +233,4 @@ std::string Commands::TabComplete(std::string const & command)
    }
 
    return result;
-}
-
-
-// Helper Classes
-// CURSOR
-CommandCursor::CommandCursor(std::string & command) :
-   input_   (0),
-   position_(PromptSize),
-   command_ (command)
-{
-}
-
-CommandCursor::~CommandCursor()
-{
-}
-
-uint16_t CommandCursor::Position()
-{
-   return position_;
-}
-
-uint16_t CommandCursor::UpdatePosition(int input)
-{
-   uint16_t const minCursorPosition = PromptSize;
-   uint16_t const maxCursorPosition = (command_.size() + PromptSize);
-
-   input_ = input;
-
-   CursorState newCursorState = CursorMovementState();
-
-   //Determine where the cursor should move to
-   switch (newCursorState)
-   {
-      case CursorLeft:
-         --position_;
-         break;
-
-      case CursorRight:
-         ++position_;
-         break;
-
-      case CursorStart:
-         position_ = minCursorPosition;
-         break;
-
-      case CursorEnd:
-         position_ = maxCursorPosition;
-         break;
-
-      default:
-         break;
-   }
-
-   position_ = LimitCursorPosition(position_);
-
-   return position_;
-}
-
-void CommandCursor::ResetCursorPosition()
-{
-   position_ = PromptSize;
-}
-
-bool CommandCursor::WantCursorLeft()
-{
-   return ((input_ == KEY_LEFT) ||
-           (input_ == KEY_BACKSPACE));
-}
-
-bool CommandCursor::WantCursorEnd()
-{
-   return ((input_ == KEY_UP)   || 
-           (input_ == KEY_DOWN) || 
-           (input_ == '\t'));
-}
-
-bool CommandCursor::WantCursorRight()
-{
-   return ((input_ == KEY_RIGHT) || 
-           (Commands::InputIsValidCharacter(input_) == true));
-}
-
-bool CommandCursor::WantCursorStart()
-{
-   return ((input_ == KEY_HOME));
-}
-
-CommandCursor::CursorState CommandCursor::CursorMovementState()
-{
-   CursorState newCursorState = CursorNoMovement;
-
-   if (WantCursorStart() == true)
-   {
-      newCursorState = CursorStart;
-   }
-   else if (WantCursorEnd() == true)
-   {
-      newCursorState = CursorEnd;
-   }
-   else if (WantCursorLeft() == true)
-   {
-      newCursorState = CursorLeft;
-   }
-   else if (WantCursorRight() == true)
-   {
-      newCursorState = CursorRight;
-   }
-
-   return newCursorState;
-}
-
-uint16_t CommandCursor::LimitCursorPosition(uint16_t position) const
-{
-   uint16_t const minCursorPosition = PromptSize;
-   uint16_t const maxCursorPosition = (command_.size() + PromptSize);
-
-   //Ensure that the cursor is in a valid range
-   if (position_ < minCursorPosition)
-   {
-      position = minCursorPosition;
-   }
-   else if (position_ > maxCursorPosition)
-   {
-      position = maxCursorPosition;
-   }
-
-   return position;
 }

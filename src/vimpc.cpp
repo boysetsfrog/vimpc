@@ -6,6 +6,7 @@
 #include "dbc.hpp"
 #include "handler.hpp"
 #include "settings.hpp"
+#include "search.hpp"
 
 using namespace Main;
 
@@ -18,6 +19,7 @@ Vimpc::Vimpc() :
 {
    handlerTable_[Normal]  = new Ui::Actions (screen_, client_);
    handlerTable_[Command] = new Ui::Commands(screen_, client_, settings_);
+   handlerTable_[Search]  = new Ui::Search  (screen_, client_, settings_);
 
    ENSURE(handlerTable_.size() == ModeCount);
 }
@@ -77,13 +79,17 @@ Vimpc::Mode Vimpc::ModeAfterInput() const
 {
    Mode newMode = currentMode_;
 
-   if ((currentMode_ == Command) && ((input_ == '\n') || (input_ == 27)))
+   if (((currentMode_ == Command) || (currentMode_ == Search)) && ((input_ == '\n') || (input_ == 27)))
    {
       newMode = Normal;
    }
    else if ((currentMode_ == Normal) && (input_ == ':'))
    {
       newMode = Command;
+   }
+   else if ((currentMode_ == Normal) && (input_ == '/'))
+   {
+      newMode = Search;
    }
 
    return newMode;

@@ -29,6 +29,7 @@ namespace Main
       {
          Command,
          Normal,
+         Search,
          ModeCount
       } Mode;
 
