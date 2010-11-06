@@ -46,9 +46,9 @@ namespace Project
       static std::ostringstream versionBuffer;
       versionBuffer << PACKAGE_STRING  
 #ifdef PACKAGE_SVN_REVISION
-                    << " " << PACKAGE_SVN_REVISION 
+                    << " [" << PACKAGE_SVN_REVISION << "]"
 #endif
-                    << std::endl;
+                    ;
       static std::string const VersionString(versionBuffer.str());
 
       return VersionString;

@@ -15,8 +15,10 @@ else
    AC_MSG_RESULT(no)
 fi
 
-PACKAGE_SVN_REVISION=`svnversion`
-AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", "Define to the subversion repository version of this package.")
+if type -P svnversion; then
+   PACKAGE_SVN_REVISION=`svnversion`
+   AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", "Define to the subversion repository version of this package.")
+fi
 
 AC_CHECK_LIB([ncurses],
              [initscr],
