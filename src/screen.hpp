@@ -47,6 +47,7 @@ namespace Ui
       void ScrollTo(uint32_t line);
       void Update() const;
       void Clear();
+      void Search(std::string const & searchString) const;
 
    public:
       uint32_t MaxRows()      const;

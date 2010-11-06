@@ -25,6 +25,7 @@ namespace Ui
       void Confirm() const;
       void Scroll(int32_t scrollCount);
       void ScrollTo(uint16_t scrollLine);
+      void Search(std::string const & searchString) const;
 
    private:
       size_t BufferSize() const { return buffer_.size(); }

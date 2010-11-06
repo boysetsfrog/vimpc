@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 #include <stdint.h>
+#include <string>
 #include <vector>
 
 namespace Ui
@@ -21,6 +22,7 @@ namespace Ui
       virtual void Confirm() const;
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
+      virtual void Search(std::string const & searchString) const;
 
    public:
       void Erase();

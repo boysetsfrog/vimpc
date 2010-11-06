@@ -30,10 +30,10 @@ vimpc_SOURCES = src/actions.cpp \
                 src/search.hpp \
                 src/settings.cpp \
                 src/settings.hpp \
-					 src/song.hpp \
+                src/song.hpp \
                 src/vimpc.cpp \
                 src/vimpc.hpp \
                 src/window.cpp \
                 src/window.hpp
 
-					 dist_noinst_SCRIPTS = autogen.sh
+dist_noinst_SCRIPTS = autogen.sh

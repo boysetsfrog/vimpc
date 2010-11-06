@@ -56,6 +56,16 @@ namespace Mpc
          return title_;
       }
 
+      std::string SongInformation()
+      {
+         std::string songInformation;
+
+         songInformation += artist_;
+         songInformation += title_;
+
+         return songInformation;
+      }
+
    private:
       int32_t     id_;
       std::string artist_;

@@ -65,6 +65,11 @@ void Window::ScrollTo(uint16_t scrollLine)
    }
 }
 
+void Window::Search(std::string const & searchString) const
+{
+
+}
+
 
 void Window::Erase()
 {
@@ -75,7 +80,6 @@ void Window::Refresh()
 {
    wnoutrefresh(N_WINDOW());
 }
-
 
 void Window::SetAutoScroll(bool autoScroll)
 {

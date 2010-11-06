@@ -1,7 +1,7 @@
 AC_INIT([vimpc], [0.01], [nathan.sweetman@gmail.com], [vimpc], [http://vimpc.sourceforge.net/])
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CXX
 
 AC_MSG_CHECKING(whether to enable debugging)
@@ -14,6 +14,9 @@ if test "x$enable_debug" = "xyes"; then
 else
    AC_MSG_RESULT(no)
 fi
+
+PACKAGE_SVN_REVISION=`svnversion`
+AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", "Define to the subversion repository version of this package.")
 
 AC_CHECK_LIB([ncurses],
              [initscr],

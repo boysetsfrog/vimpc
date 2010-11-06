@@ -143,6 +143,11 @@ void Screen::Update() const
    }
 }
 
+void Screen::Search(std::string const & searchString) const
+{
+   mainWindows_[window_]->Search(searchString);
+}
+
 void Screen::Clear()
 {
    consoleWindow_->Clear();
