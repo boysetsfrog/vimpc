@@ -40,8 +40,7 @@ Settings::Settings() :
 {
    settingsTable_["window"] = &Settings::SetWindow;
 
-   // \todo this should not need to know what the windows are... figure this dickballs
-   // cockofag out
+   // \todo this should not need to know what the windows are... 
    // \todo should probably put this in screen.hpp and
    // allow that to do the cahnge for me
    windowTable_["console"]  = Ui::Screen::Console;
