@@ -88,8 +88,7 @@ int main(int argc, char** argv)
       {
          {"version",    no_argument, 0, 'v'},
          {"url",        no_argument, 0, 'u'},
-         {"bugreport",  no_argument, 0, 'b'},
-         {0, 0, 0, 0}
+         {"bugreport",  no_argument, 0, 'b'}
       };
 
       option = getopt_long (argc, argv, "vub", long_options, &option_index);

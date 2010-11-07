@@ -51,7 +51,9 @@ namespace Ui
       bool Quit(uint32_t count)        { return Quit(""); }
       bool Pause(uint32_t count)       { return Pause(""); }
       bool Next(uint32_t count);
+      bool NextArtist(uint32_t count);
       bool Previous(uint32_t count);
+      bool PreviousArtist(uint32_t count);
       bool Stop(uint32_t count)        { return Stop(""); }
       bool Random(uint32_t count)      { return Random(""); }
 

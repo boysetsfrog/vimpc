@@ -52,6 +52,9 @@ Actions::Actions(Ui::Screen & screen, Mpc::Client & client) :
    actionTable_['r'] = &Actions::Random;
    actionTable_['s'] = &Actions::Stop;
 
+   actionTable_['L'] = &Actions::NextArtist;
+   actionTable_['H'] = &Actions::PreviousArtist;
+
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];
    actionTable_[KEY_DOWN]  = actionTable_['j'];

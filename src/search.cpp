@@ -44,6 +44,5 @@ Search::~Search()
 bool Search::InputModeHandler(std::string input)
 {
    screen_.Search(input);
-
    return true;
 }

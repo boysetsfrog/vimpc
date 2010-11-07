@@ -67,7 +67,6 @@ Screen::Screen(Mpc::Client & client, Main::Settings const & settings) :
    mainWindows_[Console]  = consoleWindow_;
    mainWindows_[Library]  = libraryWindow_;
    mainWindows_[Help]     = helpWindow_;
-
    keypad(commandWindow_, true);
    curs_set(0);
 
@@ -194,6 +193,31 @@ uint32_t Screen::WaitForInput() const
    return wgetch(commandWindow_);
 }
 
+Screen::MainWindow Screen::GetWindowFromName(std::string const & windowName)
+{
+   static WindowTable windowTable;
+   static MainWindow  window = Playlist;
+
+   if (windowTable.size() != MainWindowCount)
+   {
+      // Names for each of the windows
+      windowTable["console"]  = Console;
+      windowTable["playlist"] = Playlist;
+      windowTable["library"]  = Library;
+      windowTable["help"]     = Help;
+   }
+
+   WindowTable::const_iterator it = windowTable.find(windowName);
+
+   if (it != windowTable.end())
+   {
+      window = it->second;
+   }
+   
+   return window;
+
+   ENSURE(windowTable.size() == MainWindowCount);
+}
 
 void Screen::SetActiveWindow(MainWindow window)
 {

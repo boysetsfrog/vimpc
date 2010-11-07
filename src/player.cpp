@@ -22,7 +22,9 @@
 
 #include "console.hpp"
 #include "mpdclient.hpp"
+#include "playlist.hpp"
 #include "screen.hpp"
+#include "song.hpp"
 
 #include <stdlib.h>
 
@@ -54,6 +56,28 @@ bool Player::Next(uint32_t count)
    return true;
 }
 
+bool Player::NextArtist(uint32_t count)
+{
+   uint32_t  const         currentSong  = GetCurrentSong();
+   Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(currentSong);
+   Mpc::Song const *       newSong      = NULL;
+   uint32_t                skipCount    = 0;
+
+   if (song != NULL)
+   {
+      do 
+      {
+         ++skipCount;
+         newSong = screen_.PlaylistWindow().GetSong(currentSong + skipCount);
+      }
+      while ((newSong != NULL) && (newSong->Artist().compare(song->Artist()) == 0));
+   }
+
+   client_.Play(currentSong + skipCount);
+
+   return true;
+}
+
 bool Player::Previous(uint32_t count)
 {
    if (count <= 1)
@@ -64,6 +88,28 @@ bool Player::Previous(uint32_t count)
    {
       client_.Play(GetCurrentSong() - count);
    }
+
+   return true;
+}
+
+bool Player::PreviousArtist(uint32_t count)
+{
+   uint32_t  const         currentSong  = GetCurrentSong();
+   Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(currentSong);
+   Mpc::Song const *       newSong      = NULL;
+   uint32_t                skipCount    = 0;
+
+   if (song != NULL)
+   {
+      do 
+      {
+         ++skipCount;
+         newSong = screen_.PlaylistWindow().GetSong(currentSong - skipCount);
+      }
+      while ((newSong != NULL) && (newSong->Artist().compare(song->Artist()) == 0));
+   }
+
+   client_.Play(currentSong - skipCount);
 
    return true;
 }

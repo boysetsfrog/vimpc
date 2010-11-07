@@ -24,6 +24,9 @@
 #include "dbc.hpp"
 #include "modewindow.hpp"
 
+#include <map>
+#include <string>
+
 namespace Main
 {
    class Settings;
@@ -75,7 +78,10 @@ namespace Ui
       uint32_t WaitForInput() const;
 
    public:
+      static MainWindow GetWindowFromName(std::string const & windowName);
+
       void SetActiveWindow(MainWindow window);
+      void SetDefaultWindow(MainWindow window);
       Ui::ConsoleWindow  & ConsoleWindow()  const;
       Ui::PlaylistWindow & PlaylistWindow() const; 
 
@@ -83,22 +89,24 @@ namespace Ui
       bool WindowsAreInitialised();
 
    private:
-      MainWindow   window_;
-      
+      typedef std::map<std::string, Ui::Screen::MainWindow> WindowTable;
+
+   private:
+      MainWindow           window_;
+      MainWindow           defaultWindow_;
       Ui::PlaylistWindow * playlistWindow_;
       Ui::ConsoleWindow  * consoleWindow_;
       Window             * libraryWindow_;
       Window             * helpWindow_;
-
-      Window * mainWindows_[MainWindowCount];
-      WINDOW * statusWindow_;
-      WINDOW * commandWindow_;
+      Window             * mainWindows_[MainWindowCount];
+      WINDOW             * statusWindow_;
+      WINDOW             * commandWindow_;
 
       Main::Settings const & settings_;
 
-      bool     started_;
-      uint32_t maxRows_;
-      uint32_t maxColumns_;
+      bool        started_;
+      uint32_t    maxRows_;
+      uint32_t    maxColumns_;
    };
 }
 #endif

@@ -51,9 +51,6 @@ namespace Main
          typedef void (Main::Settings::*ptrToMember)(std::string const &);
          typedef std::map<std::string, ptrToMember> SettingsTable;
          SettingsTable settingsTable_;
-
-         typedef std::map<std::string, Ui::Screen::MainWindow> WindowTable;
-         WindowTable windowTable_;
    };
 }
 

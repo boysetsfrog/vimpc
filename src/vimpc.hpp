@@ -70,7 +70,7 @@ namespace Main
       int          input_;
       Mode         currentMode_;
 
-      Settings &   settings_;
+      Settings   & settings_;
       Ui::Screen   screen_;
       Mpc::Client  client_;
       HandlerTable handlerTable_;

@@ -39,16 +39,6 @@ Settings::Settings() :
    defaultWindow_(Ui::Screen::Console)
 {
    settingsTable_["window"] = &Settings::SetWindow;
-
-   // \todo this should not need to know what the windows are... 
-   // \todo should probably put this in screen.hpp and
-   // allow that to do the cahnge for me
-   windowTable_["console"]  = Ui::Screen::Console;
-   windowTable_["playlist"] = Ui::Screen::Playlist;
-   windowTable_["library"]  = Ui::Screen::Library;
-   windowTable_["help"]     = Ui::Screen::Help;
-
-   ENSURE(windowTable_.size() == Ui::Screen::MainWindowCount);
 }
 
 Settings::~Settings()
@@ -82,8 +72,5 @@ void Settings::SetWindow(std::string const & arguments)
    std::string window(arguments);
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
-   if (windowTable_.find(window) != windowTable_.end())
-   {
-      defaultWindow_ = windowTable_[window]; 
-   }
+   defaultWindow_ = Ui::Screen::GetWindowFromName(window);
 }

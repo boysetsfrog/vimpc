@@ -51,6 +51,18 @@ void PlaylistWindow::AddSong(Mpc::Song * newSong)
    }
 }
 
+Mpc::Song const * const PlaylistWindow::GetSong(uint32_t songIndex)
+{
+   Mpc::Song const * song = NULL;
+
+   if (songIndex < buffer_.size())
+   {
+      song = buffer_.at(songIndex);
+   }
+
+   return song; 
+}
+
 
 void PlaylistWindow::Print(uint32_t line) const
 {
@@ -147,6 +159,7 @@ void PlaylistWindow::ScrollTo(uint16_t scrollLine)
 
 void PlaylistWindow::Search(std::string const & searchString) const
 {
+   
 }
 
 

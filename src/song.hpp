@@ -37,7 +37,7 @@ namespace Mpc
       { }
 
    public:
-      int32_t Id()
+      int32_t Id() const
       {
          return id_;
       }
@@ -54,7 +54,7 @@ namespace Mpc
          }
       }
 
-      std::string & Artist()
+      std::string const & Artist() const
       {
          return artist_;
       }
@@ -71,12 +71,12 @@ namespace Mpc
          }
       }
 
-      std::string & Title()
+      std::string const & Title() const
       {
          return title_;
       }
 
-      std::string SongInformation()
+      std::string SongInformation() const
       {
          std::string songInformation;
 
