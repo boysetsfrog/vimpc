@@ -62,8 +62,6 @@ namespace Main
          ModeCount
       } Mode;
 
-      typedef std::map<Mode, Ui::Handler *> HandlerTable;
-
    private:
       //! Check if the given \p input will require the curently active mode
       //! to be changed
@@ -78,6 +76,8 @@ namespace Main
 
    private:
       Mode         currentMode_;
+
+      typedef std::map<Mode, Ui::Handler *> HandlerTable;
       HandlerTable handlerTable_;
 
       Settings   & settings_;

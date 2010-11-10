@@ -57,9 +57,9 @@ int main(int argc, char** argv)
    {
       static struct option long_options[] =
       {
-         {"version",    no_argument, 0, 'v'},
+         {"bugreport",  no_argument, 0, 'b'},
          {"url",        no_argument, 0, 'u'},
-         {"bugreport",  no_argument, 0, 'b'}
+         {"version",    no_argument, 0, 'v'}
       };
 
       option = getopt_long (argc, argv, "vub", long_options, &option_index);

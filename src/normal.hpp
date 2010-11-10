@@ -25,7 +25,10 @@
 
 #include "handler.hpp"
 #include "modewindow.hpp"
+#include "mpdclient.hpp"
 #include "player.hpp"
+#include "playlist.hpp"
+#include "screen.hpp"
 
 namespace Main
 {
@@ -48,25 +51,60 @@ namespace Ui
       bool CausesModeStart(int input);
 
    private:
+      bool Confirm(uint32_t count);
+      bool RepeatLastAction(uint32_t count);
+
+   //Scrolling
+   private:
       typedef enum
       {
          Up,
          Down
       } Direction;
 
-   private:
-      bool Confirm(uint32_t count);
-      bool ScrollToCurrent(uint32_t count);
-      bool ScrollToStart(uint32_t count);
-      bool ScrollToEnd(uint32_t count);
-      bool ScrollPageUp(uint32_t);
-      bool ScrollPageDown(uint32_t);
-      bool ScrollPage(Direction, int64_t);
-      bool ScrollUp(uint32_t);
-      bool ScrollDown(uint32_t);
-      bool Scroll(Direction, int64_t);
+      typedef enum
+      {
+         Current,
+         Start,
+         End
+      } Location;
 
-      bool RepeatLastAction(uint32_t);
+   private:
+      template <Direction DIRECTION>
+      bool ScrollPage(uint32_t count)
+      {
+         count *= ((screen_.MaxRows() + 1) / 2);
+         Scroll<DIRECTION>(count);
+         return true;
+      }
+
+      template <Direction DIRECTION>
+      bool Scroll(uint32_t count)
+      {
+         count *= (DIRECTION == Up) ? -1 : 1;
+         screen_.Scroll(count);
+         return true;
+      }
+
+      template <Location LOCATION>
+      bool ScrollTo(uint32_t count)
+      {
+         switch (LOCATION)
+         {
+            case Current:
+               screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
+               break;
+            case Start:
+               screen_.ScrollTo(0);
+               break;
+            case End:
+               screen_.ScrollTo(client_.TotalNumberOfSongs());
+               break;
+            default:
+               ASSERT(false);
+         }
+         return true;
+      }
 
    private:
       ModeWindow * window_;

@@ -19,9 +19,6 @@
    */
 
 #include "normal.hpp"
-
-#include "playlist.hpp"
-#include "screen.hpp"
 #include "vimpc.hpp"
 
 #include <limits>
@@ -44,10 +41,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client) :
    // \todo display current count somewhere
    actionTable_['.']       = &Normal::RepeatLastAction;
    actionTable_['c']       = &Normal::ClearScreen;
-   actionTable_['f']       = &Normal::ScrollToCurrent;
    actionTable_['h']       = &Normal::Previous;
-   actionTable_['j']       = &Normal::ScrollDown;
-   actionTable_['k']       = &Normal::ScrollUp;
    actionTable_['l']       = &Normal::Next;
    actionTable_['p']       = &Normal::Pause;
    actionTable_['r']       = &Normal::Random;
@@ -56,10 +50,15 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client) :
    actionTable_['H']       = &Normal::PreviousArtist;
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
-   actionTable_[KEY_HOME]  = &Normal::ScrollToStart;
-   actionTable_[KEY_END]   = &Normal::ScrollToEnd;
-   actionTable_[KEY_PPAGE] = &Normal::ScrollPageUp;
-   actionTable_[KEY_NPAGE] = &Normal::ScrollPageDown;
+
+   actionTable_['j']       = &Normal::Scroll<Down>;
+   actionTable_['k']       = &Normal::Scroll<Up>;
+   actionTable_['f']       = &Normal::ScrollTo<Current>;
+   actionTable_[KEY_HOME]  = &Normal::ScrollTo<Start>;
+   actionTable_[KEY_END]   = &Normal::ScrollTo<End>;
+   actionTable_[KEY_NPAGE] = &Normal::ScrollPage<Down>;
+   actionTable_[KEY_PPAGE] = &Normal::ScrollPage<Up>;
+
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];
    actionTable_[KEY_DOWN]  = actionTable_['j'];
@@ -139,62 +138,6 @@ bool Normal::Confirm(uint32_t count)
    screen_.Confirm();
    return true;
 }
-
-// \todo figure out a better way
-// to have the scrolling functions combined into one
-bool Normal::ScrollToCurrent(uint32_t count)
-{
-   screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
-   return true;
-}
-
-bool Normal::ScrollToStart(uint32_t count)
-{
-   screen_.ScrollTo(0);
-   return true;
-}
-
-bool Normal::ScrollToEnd(uint32_t count)
-{
-   screen_.ScrollTo(client_.TotalNumberOfSongs());
-   return true;
-}
-
-bool Normal::ScrollPageUp(uint32_t count)
-{
-   return ScrollPage(Up, count);
-}
-
-bool Normal::ScrollPageDown(uint32_t count)
-{
-   return ScrollPage(Down, count);
-}
-
-bool Normal::ScrollPage(Direction direction, int64_t count)
-{
-   count *= ((screen_.MaxRows() + 1) / 2);
-   count *= (direction == Ui::Normal::Up) ? -1 : 1;
-   screen_.Scroll(count);
-   return true;
-}
-
-bool Normal::ScrollUp(uint32_t count)
-{
-   return Scroll(Up, count);
-}
-
-bool Normal::ScrollDown(uint32_t count)
-{
-   return Scroll(Down, count);
-}
-
-bool Normal::Scroll(Direction direction, int64_t count)
-{
-   count *= (direction == Ui::Normal::Up) ? -1 : 1;
-   screen_.Scroll(count);
-   return true;
-}
-
 
 bool Normal::RepeatLastAction(uint32_t count)
 {
