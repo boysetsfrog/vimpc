@@ -24,8 +24,8 @@
 #include <sstream>
 #include <stdlib.h>
 
+#include "project.hpp"
 #include "vimpc.hpp"
-#include "config.h"
 
 #ifdef _DEBUG
 
@@ -46,35 +46,6 @@ extern void assert_failed(const char * file, int line)
 }
 
 #endif
-
-namespace Project
-{
-   static std::string const & BugReport()
-   {
-      static std::string bugReport(PACKAGE_BUGREPORT);
-      return bugReport;
-   }
-   
-   static std::string const & URL()
-   {
-      static std::string url(PACKAGE_URL);
-      return url;
-   }
-
-   static std::string const & Version()
-   {
-      static std::ostringstream versionBuffer;
-      versionBuffer << PACKAGE_STRING  
-#ifdef PACKAGE_SVN_REVISION
-                    << " [" << PACKAGE_SVN_REVISION << "]"
-#endif
-                    ;
-      static std::string const VersionString(versionBuffer.str());
-
-      return VersionString;
-   }
-
-}
 
 int main(int argc, char** argv)
 {
@@ -101,15 +72,15 @@ int main(int argc, char** argv)
 
          if (option == 'b') 
          {
-            output = Project::BugReport();
+            output = Main::Project::BugReport();
          }
          else if (option == 'u')
          {
-            output = Project::URL();
+            output = Main::Project::URL();
          }
          else if (option == 'v')
          {
-            output = Project::Version();
+            output = Main::Project::Version();
          }
 
          std::cout << output << std::endl;

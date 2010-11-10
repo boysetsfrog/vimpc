@@ -98,19 +98,19 @@ namespace Ui
    public:
       typedef bool (Ui::Command::*ptrToMember)(std::string const &);
 
-   private: 
-      Main::Settings & settings_;
-      Ui::Screen     & screen_;
-      bool             initTabCompletion_;
-
-      //Tables
+   private:
       typedef std::map<std::string, std::string> AliasTable;
       typedef std::map<std::string, ptrToMember> CommandTable;
 
-      AliasTable     aliasTable_;
-      CommandTable   commandTable_;
+   private: 
+      bool             initTabCompletion_;
+      AliasTable       aliasTable_;
+      CommandTable     commandTable_;
 
-      // Command completion classes
+      Main::Settings & settings_;
+      Ui::Screen     & screen_;
+
+      // Tab completion searching class
       class TabCompletionMatch 
       {
       public:

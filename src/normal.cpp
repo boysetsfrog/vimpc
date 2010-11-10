@@ -42,31 +42,28 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client) :
 
    // \todo add proper handling of combination actions ie 'gt' and 'gg' etc
    // \todo display current count somewhere
-   actionTable_['.'] = &Normal::RepeatLastAction;
-   actionTable_['c'] = &Normal::ClearScreen;
-   actionTable_['f'] = &Normal::ScrollToCurrent;
-   actionTable_['h'] = &Normal::Previous;
-   actionTable_['j'] = &Normal::ScrollDown;
-   actionTable_['k'] = &Normal::ScrollUp;
-   actionTable_['l'] = &Normal::Next;
-   actionTable_['p'] = &Normal::Pause;
-   actionTable_['r'] = &Normal::Random;
-   actionTable_['s'] = &Normal::Stop;
-
-   actionTable_['L'] = &Normal::NextArtist;
-   actionTable_['H'] = &Normal::PreviousArtist;
-
-   actionTable_[KEY_LEFT]  = actionTable_['h'];
-   actionTable_[KEY_RIGHT] = actionTable_['l'];
-   actionTable_[KEY_DOWN]  = actionTable_['j'];
-   actionTable_[KEY_UP]    = actionTable_['k'];
-
+   actionTable_['.']       = &Normal::RepeatLastAction;
+   actionTable_['c']       = &Normal::ClearScreen;
+   actionTable_['f']       = &Normal::ScrollToCurrent;
+   actionTable_['h']       = &Normal::Previous;
+   actionTable_['j']       = &Normal::ScrollDown;
+   actionTable_['k']       = &Normal::ScrollUp;
+   actionTable_['l']       = &Normal::Next;
+   actionTable_['p']       = &Normal::Pause;
+   actionTable_['r']       = &Normal::Random;
+   actionTable_['s']       = &Normal::Stop;
+   actionTable_['L']       = &Normal::NextArtist;
+   actionTable_['H']       = &Normal::PreviousArtist;
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
    actionTable_[KEY_HOME]  = &Normal::ScrollToStart;
    actionTable_[KEY_END]   = &Normal::ScrollToEnd;
    actionTable_[KEY_PPAGE] = &Normal::ScrollPageUp;
    actionTable_[KEY_NPAGE] = &Normal::ScrollPageDown;
+   actionTable_[KEY_LEFT]  = actionTable_['h'];
+   actionTable_[KEY_RIGHT] = actionTable_['l'];
+   actionTable_[KEY_DOWN]  = actionTable_['j'];
+   actionTable_[KEY_UP]    = actionTable_['k'];
 
    window_ = screen.CreateModeWindow();
 }

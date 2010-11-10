@@ -38,9 +38,11 @@ char const CommandPrompt   = ':';
 Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode          (CommandPrompt, screen),
    Player             (screen, client),
+   initTabCompletion_ (true),
+   aliasTable_        (),
+   commandTable_      (),
    settings_          (settings),
-   screen_            (screen),
-   initTabCompletion_ (true)
+   screen_            (screen)
 {
    // \todo add :quit! to quit and force song stop ?
    // \todo find a away to add aliases to tab completion

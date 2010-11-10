@@ -24,6 +24,7 @@ vimpc_SOURCES = src/command.cpp \
                 src/player.hpp \
                 src/playlist.cpp \
                 src/playlist.hpp \
+                src/project.hpp \
                 src/screen.cpp \
                 src/screen.hpp \
                 src/search.cpp \
