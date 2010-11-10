@@ -58,6 +58,12 @@ namespace Ui
    private:
       typedef enum
       {
+         Line,
+         Page
+      } Size;
+
+      typedef enum
+      {
          Up,
          Down
       } Direction;
@@ -68,12 +74,6 @@ namespace Ui
          Start,
          End
       } Location;
-
-      typedef enum
-      {
-         Single,
-         Page
-      } Size;
 
    private:
       template <Size SIZE, Direction DIRECTION>
@@ -110,18 +110,18 @@ namespace Ui
       }
 
    private:
-      ModeWindow * window_;
+      ModeWindow *  window_;
+      uint32_t      actionCount_;
+      int32_t       lastAction_;
+      uint32_t      lastActionCount_;
 
-      uint32_t actionCount_;
-      int32_t  lastAction_;
-      uint32_t lastActionCount_;
+      typedef bool (Ui::Normal::*ptrToMember)(uint32_t);
+      typedef std::map<int, ptrToMember> ActionTable;
+      ActionTable   actionTable_;
 
       Mpc::Client & client_;
       Ui::Screen  & screen_;
 
-      typedef bool (Ui::Normal::*ptrToMember)(uint32_t);
-      typedef std::map<int, ptrToMember> ActionTable;
-      ActionTable actionTable_;
    };
 }
 
