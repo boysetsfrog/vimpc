@@ -42,9 +42,18 @@ namespace Main
       ~Vimpc();
 
    public:
+      //! Start vimpc
       void Run();
 
    private:
+      //! Read input from the screen
+      int  Input() const;
+
+      //! Handle the input using the currently active mode
+      bool Handle(int input);
+
+   private:
+      //! All available modes
       typedef enum
       {
          Command,
@@ -56,24 +65,24 @@ namespace Main
       typedef std::map<Mode, Ui::Handler *> HandlerTable;
 
    private:
-      bool Handle(int input);
+      //! Check if the given \p input will require the curently active mode
+      //! to be changed
+      bool RequiresModeChange(int input) const;
+
+      //! Determines the mode that will be active after the next call to
+      //! ChangeMode with the \p input given
+      Mode ModeAfterInput(int input)     const;
+
+      //! Change the currently active mode based on \p input
+      void ChangeMode(int input);
 
    private:
-      bool RequiresModeChange() const;
-      Mode ModeAfterInput() const;
-      void ChangeMode();
-
-   private:
-      int Input() const;
-
-   private:
-      int          input_;
       Mode         currentMode_;
+      HandlerTable handlerTable_;
 
       Settings   & settings_;
       Ui::Screen   screen_;
       Mpc::Client  client_;
-      HandlerTable handlerTable_;
    };
 }
 

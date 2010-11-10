@@ -20,22 +20,24 @@
 
 #include "vimpc.hpp"
 
+// Mode handlers
+#include "handler.hpp"
 #include "actions.hpp"
 #include "commands.hpp"
+#include "search.hpp"
+
 #include "config.hpp"
 #include "dbc.hpp"
-#include "handler.hpp"
 #include "settings.hpp"
-#include "search.hpp"
 
 using namespace Main;
 
 Vimpc::Vimpc() :
-   input_      (0),
-   currentMode_(Normal),
-   settings_   (Main::Settings::Instance()),
-   screen_     (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
-   client_     (screen_)
+   currentMode_ (Normal),
+   handlerTable_(),
+   settings_    (Main::Settings::Instance()),
+   screen_      (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
+   client_      (screen_)
 {
    handlerTable_[Normal]  = new Ui::Actions (screen_, client_);
    handlerTable_[Command] = new Ui::Commands(screen_, client_, settings_);
@@ -71,6 +73,11 @@ void Vimpc::Run()
 }
 
 
+int Vimpc::Input() const
+{
+   return screen_.WaitForInput();
+}
+
 bool Vimpc::Handle(int input)
 {
    Ui::Handler * handler = handlerTable_[currentMode_];
@@ -78,40 +85,41 @@ bool Vimpc::Handle(int input)
    ASSERT(handler != NULL);
 
    // Input must be handled before mode is changed
-   input_ = input;
-   bool const result = handler->Handle(input_);
+   bool const result = handler->Handle(input);
 
-   if (RequiresModeChange() == true)
+   if (RequiresModeChange(input) == true)
    {
-      ChangeMode();
+      ChangeMode(input);
    }
 
    return result;
 }
 
-
-bool Vimpc::RequiresModeChange() const
+bool Vimpc::RequiresModeChange(int input) const
 {
-   return (currentMode_ != ModeAfterInput());
+   return (currentMode_ != ModeAfterInput(input));
 }
 
-Vimpc::Mode Vimpc::ModeAfterInput() const
+Vimpc::Mode Vimpc::ModeAfterInput(int input) const
 {
    Mode newMode = currentMode_;
 
    // Check if we are returning to normal mode
-   if ((currentMode_ != Normal) && (handlerTable_.at(Normal)->CausesModeStart(input_) == true))
+   if (currentMode_ != Normal)
    {
-      newMode = Normal;
+      if (handlerTable_.at(Normal)->CausesModeStart(input) == true)
+      {   
+         newMode = Normal;
+      }
    }
    // Must be in normal mode to be able to enter any other mode
-   else if (currentMode_ == Normal) 
+   else
    {
       for (HandlerTable::const_iterator it = handlerTable_.begin(); (it != handlerTable_.end()); ++it)
       {
          ASSERT(it->second != NULL);
 
-         if ((it->second)->CausesModeStart(input_) == true)
+         if ((it->second)->CausesModeStart(input) == true)
          {
             newMode = it->first;
          }
@@ -121,10 +129,10 @@ Vimpc::Mode Vimpc::ModeAfterInput() const
    return newMode;
 }
 
-void Vimpc::ChangeMode()
+void Vimpc::ChangeMode(int input)
 {
    Mode const oldMode = currentMode_;
-   Mode const newMode = ModeAfterInput();
+   Mode const newMode = ModeAfterInput(input);
 
    if (newMode != oldMode)
    {
@@ -133,10 +141,3 @@ void Vimpc::ChangeMode()
       handlerTable_[newMode]->InitialiseMode();
    }
 }
-
-
-int Vimpc::Input() const
-{
-   return screen_.WaitForInput();
-}
-
