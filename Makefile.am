@@ -2,10 +2,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS}
 
 bin_PROGRAMS  = vimpc
-vimpc_SOURCES = src/actions.cpp \
-                src/actions.hpp \
-                src/commands.cpp \
-                src/commands.hpp \
+vimpc_SOURCES = src/command.cpp \
+                src/command.hpp \
                 src/config.hpp \
                 src/console.cpp \
                 src/console.hpp \
@@ -20,6 +18,8 @@ vimpc_SOURCES = src/actions.cpp \
                 src/modewindow.hpp \
                 src/mpdclient.cpp \
                 src/mpdclient.hpp \
+                src/normal.cpp \
+                src/normal.hpp \
                 src/player.cpp \
                 src/player.hpp \
                 src/playlist.cpp \
