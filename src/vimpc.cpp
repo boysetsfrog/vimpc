@@ -22,8 +22,8 @@
 
 // Mode handlers
 #include "handler.hpp"
-#include "actions.hpp"
-#include "commands.hpp"
+#include "normal.hpp"
+#include "command.hpp"
 #include "search.hpp"
 
 #include "config.hpp"
@@ -39,9 +39,9 @@ Vimpc::Vimpc() :
    screen_      (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
    client_      (screen_)
 {
-   handlerTable_[Normal]  = new Ui::Actions (screen_, client_);
-   handlerTable_[Command] = new Ui::Commands(screen_, client_, settings_);
-   handlerTable_[Search]  = new Ui::Search  (screen_, client_, settings_);
+   handlerTable_[Normal]  = new Ui::Normal (screen_, client_);
+   handlerTable_[Command] = new Ui::Command(screen_, client_, settings_);
+   handlerTable_[Search]  = new Ui::Search (screen_, client_, settings_);
 
    ENSURE(handlerTable_.size() == ModeCount);
 }
@@ -57,7 +57,7 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run()
 {
-   Ui::Commands * commandHandler = dynamic_cast<Ui::Commands *>(handlerTable_[Command]);
+   Ui::Command * commandHandler = dynamic_cast<Ui::Command *>(handlerTable_[Command]);
 
    ASSERT(commandHandler != NULL);
 

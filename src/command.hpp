@@ -18,8 +18,8 @@
    commands.hpp - ex mode input handling 
    */
 
-#ifndef __UI__COMMANDS
-#define __UI__COMMANDS
+#ifndef __UI__COMMAND
+#define __UI__COMMAND
 
 #include <string>
 #include <map>
@@ -41,12 +41,12 @@ namespace Ui
    class Screen;
 
    // Handles all input received whilst in command mode
-   class Commands : public InputMode, public Player
+   class Command : public InputMode, public Player
    {
 
    public:
-      Commands(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
-      ~Commands();
+      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
+      ~Command();
 
    public: // Ui::Handler Inherits
       void InitialiseMode();
@@ -96,7 +96,7 @@ namespace Ui
       std::string TabComplete(std::string const & command);
 
    public:
-      typedef bool (Ui::Commands::*ptrToMember)(std::string const &);
+      typedef bool (Ui::Command::*ptrToMember)(std::string const &);
 
    private: 
       Main::Settings & settings_;
@@ -119,7 +119,7 @@ namespace Ui
          {}
 
       public:
-         bool operator() (std::pair<std::string const &, Ui::Commands::ptrToMember> element) 
+         bool operator() (std::pair<std::string const &, Ui::Command::ptrToMember> element) 
          {
             std::string input(element.first);
             return (key_.compare(input.substr(0, key_.length())) == 0);

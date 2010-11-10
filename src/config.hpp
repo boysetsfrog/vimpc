@@ -28,11 +28,11 @@ namespace Main
 {
    namespace Config
    {
-      static bool ExecuteConfigCommands(Ui::Commands & handler);
+      static bool ExecuteConfigCommands(Ui::Command & handler);
    }
 }
 
-bool Main::Config::ExecuteConfigCommands(Ui::Commands & handler)
+bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
 {
    static char const * const vimpcrcFile = "/.vimpcrc";
    static char const * const homeEnv     = "HOME";

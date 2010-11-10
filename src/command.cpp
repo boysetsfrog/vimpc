@@ -15,10 +15,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   commands.cpp - ex mode input handling 
+   command.cpp - ex mode input handling 
    */
 
-#include "commands.hpp"
+#include "command.hpp"
 
 #include <sstream>
 #include <algorithm>
@@ -35,7 +35,7 @@ using namespace Ui;
 char const CommandPrompt   = ':';
 
 // COMMANDS
-Commands::Commands(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode          (CommandPrompt, screen),
    Player             (screen, client),
    settings_          (settings),
@@ -46,45 +46,45 @@ Commands::Commands(Ui::Screen & screen, Mpc::Client & client, Main::Settings & s
    // \todo find a away to add aliases to tab completion
    // \todo allow aliases to be multiple commands, ie alias quit! stop; quit
    // or something similar
-   commandTable_["!mpc"]      = &Commands::Mpc;
-   commandTable_["alias"]     = &Commands::Alias;
-   commandTable_["clear"]     = &Commands::ClearScreen;
-   commandTable_["console"]   = &Commands::Console;
-   commandTable_["connect"]   = &Commands::Connect;
-   commandTable_["echo"]      = &Commands::Echo;
-   commandTable_["help"]      = &Commands::Help;
-   commandTable_["library"]   = &Commands::Library;
-   commandTable_["next"]      = &Commands::Next;
-   commandTable_["pause"]     = &Commands::Pause;
-   commandTable_["play"]      = &Commands::Play;
-   commandTable_["playlist"]  = &Commands::Playlist;
-   commandTable_["previous"]  = &Commands::Previous;
-   commandTable_["quit"]      = &Commands::Quit;
-   commandTable_["random"]    = &Commands::Random;
-   commandTable_["set"]       = &Commands::Set;
-   commandTable_["stop"]      = &Commands::Stop;
+   commandTable_["!mpc"]      = &Command::Mpc;
+   commandTable_["alias"]     = &Command::Alias;
+   commandTable_["clear"]     = &Command::ClearScreen;
+   commandTable_["console"]   = &Command::Console;
+   commandTable_["connect"]   = &Command::Connect;
+   commandTable_["echo"]      = &Command::Echo;
+   commandTable_["help"]      = &Command::Help;
+   commandTable_["library"]   = &Command::Library;
+   commandTable_["next"]      = &Command::Next;
+   commandTable_["pause"]     = &Command::Pause;
+   commandTable_["play"]      = &Command::Play;
+   commandTable_["playlist"]  = &Command::Playlist;
+   commandTable_["previous"]  = &Command::Previous;
+   commandTable_["quit"]      = &Command::Quit;
+   commandTable_["random"]    = &Command::Random;
+   commandTable_["set"]       = &Command::Set;
+   commandTable_["stop"]      = &Command::Stop;
 }
 
-Commands::~Commands()
+Command::~Command()
 {
 }
 
 
-void Commands::InitialiseMode()
+void Command::InitialiseMode()
 {
    initTabCompletion_  = true;
 
    InputMode::InitialiseMode();
 }
 
-bool Commands::Handle(int const input)
+bool Command::Handle(int const input)
 {
    ResetTabCompletion(input);
 
    return InputMode::Handle(input);
 }
 
-void Commands::GenerateInputString(int input)
+void Command::GenerateInputString(int input)
 {
    if (input == '\t')
    {
@@ -96,13 +96,13 @@ void Commands::GenerateInputString(int input)
    }
 }
  
-bool Commands::InputModeHandler(std::string input)
+bool Command::InputModeHandler(std::string input)
 {
    return ExecuteCommand(inputString_);
 }
 
 
-bool Commands::ExecuteCommand(std::string const & input)
+bool Command::ExecuteCommand(std::string const & input)
 {
    bool result = true;
 
@@ -127,7 +127,7 @@ bool Commands::ExecuteCommand(std::string const & input)
 }
 
 
-bool Commands::ExecuteCommand(std::string const & command, std::string const & arguments)
+bool Command::ExecuteCommand(std::string const & command, std::string const & arguments)
 {
    std::string commandToExecute  = command;
    bool        result            = true;
@@ -162,14 +162,14 @@ bool Commands::ExecuteCommand(std::string const & command, std::string const & a
    return result;
 }
 
-void Commands::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
+void Command::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
 {
    std::stringstream commandStream(input);
    std::getline(commandStream, command,   ' '); 
    std::getline(commandStream, arguments, '\n');
 }
 
-bool Commands::Set(std::string const & arguments)
+bool Command::Set(std::string const & arguments)
 {
    settings_.Set(arguments);
 
@@ -177,7 +177,7 @@ bool Commands::Set(std::string const & arguments)
    return true;
 }
 
-bool Commands::Mpc(std::string const & arguments)
+bool Command::Mpc(std::string const & arguments)
 {
    static uint32_t const bufferSize = 512;
    char   buf[bufferSize];
@@ -203,7 +203,7 @@ bool Commands::Mpc(std::string const & arguments)
    return true;
 }
 
-bool Commands::Alias(std::string const & input)
+bool Command::Alias(std::string const & input)
 {
    std::string command, arguments;
 
@@ -216,7 +216,7 @@ bool Commands::Alias(std::string const & input)
 }
 
 
-void Commands::ResetTabCompletion(int input)
+void Command::ResetTabCompletion(int input)
 {
    if (input != '\t')
    {
@@ -225,7 +225,7 @@ void Commands::ResetTabCompletion(int input)
 }
 
 
-std::string Commands::TabComplete(std::string const & command)
+std::string Command::TabComplete(std::string const & command)
 {
    static std::string tabStart(command);
    static CommandTable::iterator tabIterator(commandTable_.begin());

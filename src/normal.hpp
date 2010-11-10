@@ -15,11 +15,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   actions.hpp - normal mode input handling 
+   normal.hpp - normal mode input handling 
    */
 
-#ifndef __UI__ACTIONS
-#define __UI__ACTIONS
+#ifndef __UI__NORMAL
+#define __UI__NORMAL
 
 #include <map>
 
@@ -35,11 +35,11 @@ namespace Main
 namespace Ui
 {
    // Handles all input received whilst in normal mode
-   class Actions : public Handler, public Player
+   class Normal : public Handler, public Player
    {
    public:
-      Actions(Ui::Screen & screen, Mpc::Client & client);
-      ~Actions();
+      Normal(Ui::Screen & screen, Mpc::Client & client);
+      ~Normal();
 
    public: // Ui::Handler Inherits
       void InitialiseMode();
@@ -78,7 +78,7 @@ namespace Ui
       Mpc::Client & client_;
       Ui::Screen  & screen_;
 
-      typedef bool (Ui::Actions::*ptrToMember)(uint32_t);
+      typedef bool (Ui::Normal::*ptrToMember)(uint32_t);
       typedef std::map<int, ptrToMember> ActionTable;
       ActionTable actionTable_;
    };
