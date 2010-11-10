@@ -130,6 +130,12 @@ bool Actions::Handle(int input)
    return result;
 }
 
+bool Actions::CausesModeStart(int input)
+{
+   return ((input == '\n') || (input == 27));
+}
+
+
 bool Actions::Confirm(uint32_t count)
 {
    screen_.Confirm();

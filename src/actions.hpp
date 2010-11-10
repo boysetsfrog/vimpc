@@ -45,6 +45,7 @@ namespace Ui
       void InitialiseMode();
       void FinaliseMode();
       bool Handle(int input);
+      bool CausesModeStart(int input);
 
    private:
       typedef enum

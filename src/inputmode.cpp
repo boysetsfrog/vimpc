@@ -99,12 +99,11 @@ bool InputMode::Handle(int const input)
    return result;
 }
 
-bool InputMode::InputIsValidCharacter(int input)
+bool InputMode::CausesModeStart(int input)
 {
-   return (input < std::numeric_limits<char>::max()) 
-       && (input != 27) 
-       && (input != '\n');
+   return ((char) input == prompt_[0]);
 }
+
 
 bool InputMode::HasCompleteInput(int input)
 {
@@ -135,6 +134,13 @@ void InputMode::GenerateInputString(int input)
       inputString_.insert((std::string::size_type) (cursorPosition), 1, (char) input);
    }
 }
+
+
+char const * const InputMode::Prompt() const
+{
+   return prompt_;
+}
+
 
 void InputMode::ResetHistory(int input)
 {
@@ -211,6 +217,14 @@ std::string InputMode::SearchHistory(Direction direction, std::string const & in
    historyLastResult = result;
 
    return result;
+}
+
+
+bool InputMode::InputIsValidCharacter(int input)
+{
+   return (input < std::numeric_limits<char>::max()) 
+       && (input != 27) 
+       && (input != '\n');
 }
 
 

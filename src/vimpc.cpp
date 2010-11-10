@@ -99,19 +99,25 @@ Vimpc::Mode Vimpc::ModeAfterInput() const
 {
    Mode newMode = currentMode_;
 
-   if (((currentMode_ == Command) || (currentMode_ == Search)) && ((input_ == '\n') || (input_ == 27)))
+   // Check if we are returning to normal mode
+   if ((currentMode_ != Normal) && (handlerTable_.at(Normal)->CausesModeStart(input_) == true))
    {
       newMode = Normal;
    }
-   else if ((currentMode_ == Normal) && (input_ == ':'))
+   // Must be in normal mode to be able to enter any other mode
+   else if (currentMode_ == Normal) 
    {
-      newMode = Command;
-   }
-   else if ((currentMode_ == Normal) && (input_ == '/'))
-   {
-      newMode = Search;
-   }
+      for (HandlerTable::const_iterator it = handlerTable_.begin(); (it != handlerTable_.end()); ++it)
+      {
+         ASSERT(it->second != NULL);
 
+         if ((it->second)->CausesModeStart(input_) == true)
+         {
+            newMode = it->first;
+         }
+      }
+   }
+  
    return newMode;
 }
 

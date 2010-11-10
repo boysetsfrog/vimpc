@@ -32,6 +32,7 @@ namespace Ui
 		virtual void InitialiseMode()  = 0;
 		virtual void FinaliseMode()    = 0;
 		virtual bool Handle(int input) = 0;
+      virtual bool CausesModeStart(int input) = 0;
 	};
 }
 

@@ -82,10 +82,14 @@ namespace Ui
       virtual void InitialiseMode();
       virtual void FinaliseMode();
       virtual bool Handle(int input);
+      bool CausesModeStart(int input);
 
    public:
       virtual bool HasCompleteInput(int input);
       virtual void GenerateInputString(int input);
+
+   public:
+      char const * const Prompt() const;
 
    public:
       void ResetHistory(int input);
