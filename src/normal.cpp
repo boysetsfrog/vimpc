@@ -51,13 +51,14 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client) :
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
 
-   actionTable_['j']       = &Normal::Scroll<Down>;
-   actionTable_['k']       = &Normal::Scroll<Up>;
+   actionTable_['j']       = &Normal::Scroll<Single, Down>;
+   actionTable_['k']       = &Normal::Scroll<Single, Up>;
+   actionTable_[KEY_NPAGE] = &Normal::Scroll<Page, Down>;
+   actionTable_[KEY_PPAGE] = &Normal::Scroll<Page, Up>;
+
    actionTable_['f']       = &Normal::ScrollTo<Current>;
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Start>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<End>;
-   actionTable_[KEY_NPAGE] = &Normal::ScrollPage<Down>;
-   actionTable_[KEY_PPAGE] = &Normal::ScrollPage<Up>;
 
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];

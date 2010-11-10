@@ -69,18 +69,21 @@ namespace Ui
          End
       } Location;
 
-   private:
-      template <Direction DIRECTION>
-      bool ScrollPage(uint32_t count)
+      typedef enum
       {
-         count *= ((screen_.MaxRows() + 1) / 2);
-         Scroll<DIRECTION>(count);
-         return true;
-      }
+         Single,
+         Page
+      } Size;
 
-      template <Direction DIRECTION>
+   private:
+      template <Size SIZE, Direction DIRECTION>
       bool Scroll(uint32_t count)
       {
+         if (SIZE == Page)
+         {
+           count *= ((screen_.MaxRows() + 1) / 2);
+         }
+
          count *= (DIRECTION == Up) ? -1 : 1;
          screen_.Scroll(count);
          return true;
