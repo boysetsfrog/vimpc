@@ -23,17 +23,17 @@
 
 namespace Ui
 {
-	class Handler
-	{
-	public:
-		virtual ~Handler() { }
+   class Handler
+   {
+   public:
+      virtual ~Handler() { }
 
-	public:
-		virtual void InitialiseMode()  = 0;
-		virtual void FinaliseMode()    = 0;
-		virtual bool Handle(int input) = 0;
+   public:
+      virtual void InitialiseMode()  = 0;
+      virtual void FinaliseMode()    = 0;
+      virtual bool Handle(int input) = 0;
       virtual bool CausesModeToStart(int input) = 0;
-	};
+   };
 }
 
 #endif
