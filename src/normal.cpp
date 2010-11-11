@@ -129,7 +129,7 @@ bool Normal::Handle(int input)
    return result;
 }
 
-bool Normal::CausesModeStart(int input)
+bool Normal::CausesModeToStart(int input)
 {
    return ((input == '\n') || (input == 27));
 }

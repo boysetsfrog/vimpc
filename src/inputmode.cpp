@@ -99,7 +99,7 @@ bool InputMode::Handle(int const input)
    return result;
 }
 
-bool InputMode::CausesModeStart(int input)
+bool InputMode::CausesModeToStart(int input)
 {
    return ((char) input == prompt_[0]);
 }

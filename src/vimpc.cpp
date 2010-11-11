@@ -107,7 +107,7 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
    // Check if we are returning to normal mode
    if (currentMode_ != Normal)
    {
-      if (handlerTable_.at(Normal)->CausesModeStart(input) == true)
+      if (handlerTable_.at(Normal)->CausesModeToStart(input) == true)
       {   
          newMode = Normal;
       }
@@ -119,7 +119,7 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
       {
          ASSERT(it->second != NULL);
 
-         if ((it->second)->CausesModeStart(input) == true)
+         if ((it->second)->CausesModeToStart(input) == true)
          {
             newMode = it->first;
          }

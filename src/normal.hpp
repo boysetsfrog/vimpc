@@ -44,70 +44,26 @@ namespace Ui
       Normal(Ui::Screen & screen, Mpc::Client & client);
       ~Normal();
 
-   public: // Ui::Handler Inherits
+   public: // Ui::Handler
       void InitialiseMode();
       void FinaliseMode();
       bool Handle(int input);
-      bool CausesModeStart(int input);
+      bool CausesModeToStart(int input);
 
    private:
       bool Confirm(uint32_t count);
       bool RepeatLastAction(uint32_t count);
 
-   //Scrolling
-   private:
-      typedef enum
-      {
-         Line,
-         Page
-      } Size;
+   private: //Scrolling
+      typedef enum { Line, Page }          Size;
+      typedef enum { Up, Down }            Direction;
+      typedef enum { Current, Start, End } Location;
 
-      typedef enum
-      {
-         Up,
-         Down
-      } Direction;
-
-      typedef enum
-      {
-         Current,
-         Start,
-         End
-      } Location;
-
-   private:
       template <Size SIZE, Direction DIRECTION>
-      bool Scroll(uint32_t count)
-      {
-         if (SIZE == Page)
-         {
-           count *= ((screen_.MaxRows() + 1) / 2);
-         }
-
-         count *= (DIRECTION == Up) ? -1 : 1;
-         screen_.Scroll(count);
-         return true;
-      }
-
+      bool Scroll(uint32_t count);
+      
       template <Location LOCATION>
-      bool ScrollTo(uint32_t count)
-      {
-         switch (LOCATION)
-         {
-            case Current:
-               screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
-               break;
-            case Start:
-               screen_.ScrollTo(0);
-               break;
-            case End:
-               screen_.ScrollTo(client_.TotalNumberOfSongs());
-               break;
-            default:
-               ASSERT(false);
-         }
-         return true;
-      }
+      bool ScrollTo(uint32_t count);
 
    private:
       ModeWindow *  window_;
@@ -123,6 +79,41 @@ namespace Ui
       Ui::Screen  & screen_;
 
    };
+
+   // Implementation of scrolling functions
+   template <Normal::Size SIZE, Normal::Direction DIRECTION>
+   bool Normal::Scroll(uint32_t count)
+   {
+      if (SIZE == Page)
+      {
+        count *= ((screen_.MaxRows() + 1) / 2);
+      }
+
+      count *= (DIRECTION == Up) ? -1 : 1;
+      screen_.Scroll(count);
+      return true;
+   }
+
+   template <Normal::Location LOCATION>
+   bool Normal::ScrollTo(uint32_t count)
+   {
+      switch (LOCATION)
+      {
+         case Current:
+            screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
+            break;
+         case Start:
+            screen_.ScrollTo(0);
+            break;
+         case End:
+            screen_.ScrollTo(client_.TotalNumberOfSongs());
+            break;
+         default:
+            ASSERT(false);
+      }
+      return true;
+   }
+
 }
 
 #endif

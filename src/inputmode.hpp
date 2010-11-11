@@ -78,11 +78,11 @@ namespace Ui
       InputMode(char const prompt, Ui::Screen & screen);
       virtual ~InputMode();
 
-   public: // Ui::Handler Inherits
+   public: // Ui::Handler
       virtual void InitialiseMode();
       virtual void FinaliseMode();
       virtual bool Handle(int input);
-      bool CausesModeStart(int input);
+      bool CausesModeToStart(int input);
 
    public:
       virtual bool HasCompleteInput(int input);
