@@ -21,7 +21,7 @@
 #ifndef __DBC
 #define __DBC
 
-#ifdef _DEBUG
+#ifdef _VIMPC_DEBUG
 #define ASSERT(_expression)  if (!(_expression)) assert_failed(__FILE__, __LINE__)
 #define REQUIRE(_expression) ASSERT(_expression)
 #define ENSURE(_expression)  ASSERT(_expression)

@@ -19,11 +19,11 @@
    */
 
 #include "search.hpp"
-
-#include <iostream>
-
 #include "vimpc.hpp"
 #include "settings.hpp"
+
+#include <iostream>
+#include <boost/regex.hpp>
 
 using namespace Ui;
 
@@ -43,6 +43,5 @@ Search::~Search()
 
 bool Search::InputModeHandler(std::string input)
 {
-   screen_.Search(input);
    return true;
 }

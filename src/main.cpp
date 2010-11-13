@@ -27,7 +27,7 @@
 #include "project.hpp"
 #include "vimpc.hpp"
 
-#ifdef _DEBUG
+#ifdef _VIMPC_DEBUG
 
 #include <execinfo.h>
 
