@@ -82,14 +82,10 @@ namespace Mpc
          return title_;
       }
 
-      std::string SongInformation() const
+      std::string FullDescription() const
       {
-         std::string songInformation;
-
-         songInformation += artist_;
-         songInformation += title_;
-
-         return songInformation;
+         std::string fullDescription(artist_ + " - " + title_);
+         return fullDescription;
       }
 
    private:

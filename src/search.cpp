@@ -19,8 +19,10 @@
    */
 
 #include "search.hpp"
-#include "vimpc.hpp"
+
+#include "playlist.hpp"
 #include "settings.hpp"
+#include "vimpc.hpp"
 
 #include <iostream>
 #include <boost/regex.hpp>
@@ -43,5 +45,21 @@ Search::~Search()
 
 bool Search::InputModeHandler(std::string input)
 {
+   boost::regex  expression(".*" + input + ".*");
+   boost::cmatch what;
+
+   bool found = false;
+
+   for (uint32_t i = screen_.PlaylistWindow().FirstLine(); ((i <= screen_.PlaylistWindow().LastLine()) && (found == false)); ++i)
+   {
+      std::string songDescription(screen_.PlaylistWindow().GetSong(i)->FullDescription());
+
+      if (boost::regex_match(songDescription.c_str(), what, expression) == true)
+      {
+         found = true;
+         screen_.PlaylistWindow().ScrollTo(i + 1);
+      }
+   }
+
    return true;
 }
