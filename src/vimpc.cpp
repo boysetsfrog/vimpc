@@ -63,7 +63,6 @@ void Vimpc::Run()
 
    if (Config::ExecuteConfigCommands(*commandHandler) == true)
    {
-      client_.Start();
       screen_.Start();
 
       handlerTable_[currentMode_]->InitialiseMode();

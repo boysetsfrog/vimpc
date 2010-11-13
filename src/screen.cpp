@@ -96,8 +96,6 @@ void Screen::Start()
    if (started_ == false)
    {
       started_ = true;
-
-      playlistWindow_->Redraw();
       SetActiveWindow(settings_.Window());
       wrefresh(statusWindow_);
    }

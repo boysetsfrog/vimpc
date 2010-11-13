@@ -31,7 +31,6 @@
 using namespace Mpc;
 
 Client::Client(Ui::Screen & screen) :
-   started_   (false),
    screen_    (screen),
    connection_(NULL)
 {
@@ -46,25 +45,14 @@ Client::~Client()
    }
 }
 
-void Client::Start()
-{
-   REQUIRE(started_ == false);
-
-   if (started_ == false)
-   {
-      started_ = true;
-      DisplaySongInformation();
-   }
-
-   ENSURE(started_ == true);
-}
-
-
 void Client::Connect()
 {
    // \todo needs to take parameters and such properly
    // rather than just using the defaults only
    connection_ = mpd_connection_new("127.0.0.1", 0, 0);
+
+   screen_.PlaylistWindow().Redraw();
+   DisplaySongInformation();
 
    CheckError();
 }

@@ -39,8 +39,6 @@ namespace Mpc
       ~Client();
 
    public:
-      void Start();
-
       void Connect();
       void Play(uint32_t playId);
       void Pause();
@@ -53,12 +51,11 @@ namespace Mpc
       int32_t GetCurrentSong() const;
       int32_t TotalNumberOfSongs() const;
 
-   public:
-      void DisplaySongInformation();
-
-   public:
       template <typename Object>
       void ForAllSongs(Object & object, void (Object::*callBack)(Song const * const));
+
+   public:
+      void DisplaySongInformation();
 
    private:
       void CheckError();
