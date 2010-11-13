@@ -90,6 +90,11 @@ void Window::Search(std::string const & searchString) const
 
 }
 
+void Window::Redraw()
+{
+
+}
+
 
 void Window::Erase()
 {

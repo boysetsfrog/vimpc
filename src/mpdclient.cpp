@@ -24,7 +24,6 @@
 #include "dbc.hpp"
 #include "playlist.hpp"
 #include "screen.hpp"
-#include "song.hpp"
 
 #include <mpd/tag.h>
 #include <mpd/status.h>
@@ -54,24 +53,6 @@ void Client::Start()
    if (started_ == false)
    {
       started_ = true;
-
-      // \todo check that we are connected?
-      mpd_send_list_queue_meta(connection_);
-
-      mpd_song * nextSong  = mpd_recv_song(connection_);
-
-      for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-      {
-         Song * newSong = new Song(mpd_song_get_id(nextSong) + 1);
-
-         newSong->SetArtist(mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0));
-         newSong->SetTitle (mpd_song_get_tag(nextSong, MPD_TAG_TITLE,  0));
-
-         screen_.PlaylistWindow().AddSong(newSong);
-
-         mpd_song_free(nextSong);
-      }
-
       DisplaySongInformation();
    }
 

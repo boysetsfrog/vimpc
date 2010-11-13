@@ -37,7 +37,7 @@ char const CommandPrompt   = ':';
 // COMMANDS
 Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode          (CommandPrompt, screen),
-   Player             (screen, client),
+   Player             (screen, client, settings),
    initTabCompletion_ (true),
    aliasTable_        (),
    commandTable_      (),
@@ -63,6 +63,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["previous"]  = &Command::Previous;
    commandTable_["quit"]      = &Command::Quit;
    commandTable_["random"]    = &Command::Random;
+   commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["set"]       = &Command::Set;
    commandTable_["stop"]      = &Command::Stop;
 }
@@ -217,6 +218,12 @@ bool Command::Alias(std::string const & input)
    return true;
 }
 
+bool Command::Redraw(std::string const & arguments)
+{
+   screen_.Redraw();
+
+   return true;
+}
 
 void Command::ResetTabCompletion(int input)
 {

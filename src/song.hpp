@@ -33,6 +33,12 @@ namespace Mpc
          id_(id)
       { }
 
+      Song(Song const & song) :
+         id_    (song.Id()),
+         artist_(song.Artist()),
+         title_ (song.Title())
+      { }
+
       ~Song()
       { }
 

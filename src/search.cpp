@@ -31,7 +31,7 @@ char const SearchPrompt   = '/';
 
 Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode   (SearchPrompt, screen),
-   Player      (screen, client),
+   Player      (screen, client, settings),
    settings_   (settings),
    screen_     (screen)
 {

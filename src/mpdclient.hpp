@@ -23,6 +23,8 @@
 
 #include <mpd/client.h>
 
+#include "song.hpp"
+
 namespace Ui
 {
    class Screen;
@@ -54,6 +56,10 @@ namespace Mpc
    public:
       void DisplaySongInformation();
 
+   public:
+      template <typename Object>
+      void ForAllSongs(Object & object, void (Object::*callBack)(Song const * const));
+
    private:
       void CheckError();
 
@@ -65,6 +71,29 @@ namespace Mpc
       struct mpd_connection * connection_;
 
    };
+
+
+   //
+   template <typename Object>
+   void Client::ForAllSongs(Object & object, void (Object::*callBack)(Song const * const))
+   {
+      mpd_send_list_queue_meta(connection_);
+
+      mpd_song * nextSong  = mpd_recv_song(connection_);
+
+      for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+      {
+         Song * const newSong = new Song(mpd_song_get_id(nextSong) + 1);
+
+         newSong->SetArtist(mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0));
+         newSong->SetTitle (mpd_song_get_tag(nextSong, MPD_TAG_TITLE,  0));
+         mpd_song_free(nextSong);
+
+         (object.*callBack)(newSong);
+         delete newSong;
+      }
+   }
+
 }
 
 #endif

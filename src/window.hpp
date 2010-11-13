@@ -43,6 +43,7 @@ namespace Ui
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
       virtual void Search(std::string const & searchString) const;
+      virtual void Redraw();
 
    public:
       void Erase();

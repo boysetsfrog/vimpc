@@ -22,7 +22,6 @@
 
 #include "mpdclient.hpp"
 #include "screen.hpp"
-#include "song.hpp"
 
 using namespace Ui;
 
@@ -36,17 +35,15 @@ PlaylistWindow::PlaylistWindow(Ui::Screen const & screen, Mpc::Client & client) 
 
 PlaylistWindow::~PlaylistWindow()
 {
-   for (SongBuffer::iterator it = buffer_.begin(); (it != buffer_.end()); ++it)
-   {
-      delete *it;
-   }
+   DeleteSongs();   
 }
 
 
-void PlaylistWindow::AddSong(Mpc::Song * newSong)
+void PlaylistWindow::AddSong(Mpc::Song const * const song)
 {
-   if ((newSong != NULL) && (newSong->Id() >= 0))
+   if ((song != NULL) && (song->Id() >= 0))
    {
+      Mpc::Song * const newSong = new Mpc::Song(*song);
       buffer_.insert(buffer_.end(), newSong);
    }
 }
@@ -63,6 +60,25 @@ Mpc::Song const * const PlaylistWindow::GetSong(uint32_t songIndex)
    return song; 
 }
 
+void PlaylistWindow::Redraw()
+{
+   Clear();
+   client_.ForAllSongs(*this, &PlaylistWindow::AddSong);
+}
+
+void PlaylistWindow::Clear()
+{
+   DeleteSongs();
+   buffer_.clear();
+}
+
+void PlaylistWindow::DeleteSongs()
+{
+   for (SongBuffer::iterator it = buffer_.begin(); (it != buffer_.end()); ++it)
+   {
+      delete *it;
+   }
+}
 
 void PlaylistWindow::Print(uint32_t line) const
 {
@@ -161,7 +177,6 @@ void PlaylistWindow::Search(std::string const & searchString) const
 {
    
 }
-
 
 int64_t PlaylistWindow::LimitCurrentSelection(int64_t currentSelection) const
 {

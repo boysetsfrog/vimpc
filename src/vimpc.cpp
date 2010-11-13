@@ -39,7 +39,7 @@ Vimpc::Vimpc() :
    screen_      (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
    client_      (screen_)
 {
-   handlerTable_[Normal]  = new Ui::Normal (screen_, client_);
+   handlerTable_[Normal]  = new Ui::Normal (screen_, client_, settings_);
    handlerTable_[Command] = new Ui::Command(screen_, client_, settings_);
    handlerTable_[Search]  = new Ui::Search (screen_, client_, settings_);
 

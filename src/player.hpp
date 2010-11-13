@@ -25,6 +25,11 @@
 
 #include <stdint.h>
 
+namespace Main
+{
+   class Settings;
+}
+
 namespace Mpc
 {
    class Client;
@@ -42,7 +47,7 @@ namespace Ui
    class Player
    {
    public:
-      Player(Ui::Screen & screen, Mpc::Client & client);
+      Player(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
       virtual ~Player();
 
    protected:
@@ -79,8 +84,9 @@ namespace Ui
       uint32_t GetCurrentSong() const;
 
    protected:
-      Ui::Screen  & screen_;
-      Mpc::Client & client_;
+      Ui::Screen     & screen_;
+      Mpc::Client    & client_;
+      Main::Settings & settings_;
    };
 }
 

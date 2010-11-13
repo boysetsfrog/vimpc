@@ -23,6 +23,7 @@
 #include "console.hpp"
 #include "mpdclient.hpp"
 #include "playlist.hpp"
+#include "settings.hpp"
 #include "screen.hpp"
 #include "song.hpp"
 
@@ -30,9 +31,10 @@
 
 using namespace Ui;
 
-Player::Player(Ui::Screen & screen, Mpc::Client & client) :
-   screen_(screen),
-   client_(client)
+Player::Player(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+   screen_  (screen),
+   client_  (client),
+   settings_(settings)
 {
 
 }
@@ -51,6 +53,11 @@ bool Player::Next(uint32_t count)
    else
    {
       client_.Play(GetCurrentSong() + count);
+   }
+
+   if (settings_.AutoScroll() == true)
+   {
+      screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
    }
 
    return true;

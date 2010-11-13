@@ -53,7 +53,6 @@ namespace Ui
 
    private: 
       Main::Settings & settings_;
-      ModeWindow     * window_;
       Ui::Screen     & screen_;
 
   };

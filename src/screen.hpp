@@ -71,6 +71,7 @@ namespace Ui
       void Update() const;
       void Clear();
       void Search(std::string const & searchString) const;
+      void Redraw();
 
    public:
       uint32_t MaxRows()      const;

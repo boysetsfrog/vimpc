@@ -88,6 +88,9 @@ namespace Ui
       // Alias a command to a given string
       bool Alias(std::string const & arguments);
 
+      // Redraws the current window
+      bool Redraw(std::string const & arguments);
+
       //
       void ResetTabCompletion(int input);
 

@@ -136,12 +136,6 @@ void InputMode::GenerateInputString(int input)
 }
 
 
-char const * const InputMode::Prompt() const
-{
-   return prompt_;
-}
-
-
 void InputMode::ResetHistory(int input)
 {
    if ((input != KEY_UP) && (input != KEY_DOWN))

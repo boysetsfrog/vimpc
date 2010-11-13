@@ -89,9 +89,6 @@ namespace Ui
       virtual void GenerateInputString(int input);
 
    public:
-      char const * const Prompt() const;
-
-   public:
       void ResetHistory(int input);
       void AddToHistory(std::string const & inputString);
       void InitialiseHistorySearch(std::string const & inputString);

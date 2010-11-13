@@ -97,8 +97,8 @@ void Screen::Start()
    {
       started_ = true;
 
+      playlistWindow_->Redraw();
       SetActiveWindow(settings_.Window());
-
       wrefresh(statusWindow_);
    }
 
@@ -165,6 +165,11 @@ void Screen::Update() const
 void Screen::Search(std::string const & searchString) const
 {
    mainWindows_[window_]->Search(searchString);
+}
+
+void Screen::Redraw()
+{
+   mainWindows_[window_]->Redraw();
 }
 
 void Screen::Clear()

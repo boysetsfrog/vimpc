@@ -38,7 +38,7 @@ namespace Ui
       ~PlaylistWindow();
 
    public:
-      void AddSong(Mpc::Song * newSong);
+      void AddSong(Mpc::Song const * const newSong);
       Mpc::Song const * const GetSong(uint32_t songIndex);
 
    public:
@@ -47,6 +47,11 @@ namespace Ui
       void Scroll(int32_t scrollCount);
       void ScrollTo(uint16_t scrollLine);
       void Search(std::string const & searchString) const;
+      void Redraw();
+
+   private:
+      void DeleteSongs();
+      void Clear();
 
    private:
       size_t BufferSize() const { return buffer_.size(); }

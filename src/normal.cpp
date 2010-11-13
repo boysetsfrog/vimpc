@@ -25,15 +25,16 @@
 
 using namespace Ui;
 
-Normal::Normal(Ui::Screen & screen, Mpc::Client & client) :
-   Player           (screen, client),
+Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+   Player           (screen, client, settings),
    window_          (NULL),
    actionCount_     (0),
    lastAction_      (0),
    lastActionCount_ (0),
    actionTable_     (),
    client_          (client),
-   screen_          (screen)
+   screen_          (screen),
+   settings_        (settings)
 {
    // \todo figure out how to do alt + ctrl key combinations
    // for things like Ctrl+u and alt+1

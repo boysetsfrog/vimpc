@@ -36,9 +36,12 @@ Settings & Settings::Instance()
 }
 
 Settings::Settings() :
-   defaultWindow_(Ui::Screen::Console)
+   defaultWindow_(Ui::Screen::Console),
+   autoScroll_   (false)
 {
-   settingsTable_["window"] = &Settings::SetWindow;
+   settingsTable_["window"]       = &Settings::SetWindow;
+   settingsTable_["autoscroll"]   = &Settings::SetAutoScroll;
+   settingsTable_["noautoscroll"] = &Settings::SetNoAutoScroll;
 }
 
 Settings::~Settings()
@@ -73,4 +76,19 @@ void Settings::SetWindow(std::string const & arguments)
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
    defaultWindow_ = Ui::Screen::GetWindowFromName(window);
+}
+
+bool Settings::AutoScroll() const
+{
+   return autoScroll_;
+}
+
+void Settings::SetAutoScroll(std::string const & arguments)
+{
+   autoScroll_ = true;    
+}
+
+void Settings::SetNoAutoScroll(std::string const & arguments)
+{
+   autoScroll_ = false;    
 }

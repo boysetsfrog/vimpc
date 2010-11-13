@@ -33,6 +33,7 @@
 namespace Main
 {
    class Vimpc;
+   class Settings;
 }
 
 namespace Ui
@@ -41,7 +42,7 @@ namespace Ui
    class Normal : public Handler, public Player
    {
    public:
-      Normal(Ui::Screen & screen, Mpc::Client & client);
+      Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
       ~Normal();
 
    public: // Ui::Handler
@@ -75,8 +76,9 @@ namespace Ui
       typedef std::map<int, ptrToMember> ActionTable;
       ActionTable   actionTable_;
 
-      Mpc::Client & client_;
-      Ui::Screen  & screen_;
+      Mpc::Client &    client_;
+      Ui::Screen  &    screen_;
+      Main::Settings & settings_;
 
    };
 

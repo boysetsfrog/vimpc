@@ -45,8 +45,14 @@ namespace Main
          Ui::Screen::MainWindow Window() const;
          void SetWindow(std::string const & arguments); 
 
+         //Determines whether to automatically scroll to playing song
+         bool AutoScroll() const;
+         void SetAutoScroll(std::string const & arguments);
+         void SetNoAutoScroll(std::string const & arguments);
+
       private:
          Ui::Screen::MainWindow defaultWindow_;
+         bool autoScroll_;
 
          typedef void (Main::Settings::*ptrToMember)(std::string const &);
          typedef std::map<std::string, ptrToMember> SettingsTable;
