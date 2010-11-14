@@ -74,7 +74,8 @@ bool Search::SearchResult(Skip skip, uint32_t count)
 {
    Direction direction = Forwards;
 
-   if (((direction_ == Backwards) && (skip == Next)) || ((direction_ == Forwards) && (skip == Previous)))
+   if (((direction_ == Backwards) && (skip == Next)) || 
+       ((direction_ == Forwards)  && (skip == Previous)))
    {
       direction = Backwards;
    }
@@ -108,22 +109,17 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
 
 bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t & count)
 {
-   bool found = false;
-
    boost::regex  expression(".*" + search + ".*");
-   boost::cmatch what;
+   bool          found     (false);
 
    std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->FullDescription());
 
-   if (boost::regex_match(songDescription.c_str(), what, expression) == true)
+   if (boost::regex_match(songDescription.c_str(), expression) == true)
    {
-      --count;
       screen_.PlaylistWindow().ScrollTo(songId + 1);
 
-      if (count == 0)
-      {
-         found = true;
-      }
+      --count;
+      found = (count == 0);
    }
 
    return found;

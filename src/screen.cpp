@@ -248,9 +248,9 @@ Screen::MainWindow Screen::GetWindowFromName(std::string const & windowName)
       window = it->second;
    }
    
-   return window;
-
    ENSURE(windowTable.size() == MainWindowCount);
+
+   return window;
 }
 
 void Screen::SetActiveWindow(MainWindow window)
