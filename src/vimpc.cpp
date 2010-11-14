@@ -64,6 +64,10 @@ void Vimpc::Run()
 
    if (Config::ExecuteConfigCommands(*commandHandler) == true)
    {
+      if (client_.Connected() == false)
+      {
+         client_.Connect("127.0.0.1");
+      }
       screen_.Start();
 
       handlerTable_[currentMode_]->InitialiseMode();

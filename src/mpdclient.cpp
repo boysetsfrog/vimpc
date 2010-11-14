@@ -45,11 +45,11 @@ Client::~Client()
    }
 }
 
-void Client::Connect()
+void Client::Connect(std::string const & hostname)
 {
    // \todo needs to take parameters and such properly
    // rather than just using the defaults only
-   connection_ = mpd_connection_new("127.0.0.1", 0, 0);
+   connection_ = mpd_connection_new(hostname.c_str(), 0, 0);
 
    screen_.PlaylistWindow().Redraw();
    DisplaySongInformation();
@@ -103,6 +103,13 @@ void Client::Random(bool const randomOn)
 
    CheckError();
 }
+
+
+bool Client::Connected()
+{
+   return (connection_ != NULL);
+}
+
 
 int32_t Client::GetCurrentSong() const
 {

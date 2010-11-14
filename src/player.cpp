@@ -123,7 +123,7 @@ bool Player::PreviousArtist(uint32_t count)
 
 bool Player::Connect(std::string const & arguments)
 {
-   client_.Connect();
+   client_.Connect("127.0.0.1");
    return true;
 }
 

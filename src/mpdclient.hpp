@@ -39,13 +39,16 @@ namespace Mpc
       ~Client();
 
    public:
-      void Connect();
+      void Connect(std::string const & hostname);
       void Play(uint32_t playId);
       void Pause();
       void Next();
       void Previous();
       void Stop();
       void Random(bool randomOn);
+
+   public:
+      bool Connected();
 
    public:
       int32_t GetCurrentSong() const;
