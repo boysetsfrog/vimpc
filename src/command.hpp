@@ -49,7 +49,7 @@ namespace Ui
       ~Command();
 
    public: // Ui::Handler Inherits
-      void InitialiseMode();
+      void InitialiseMode(int input);
       bool Handle(int input);
 
    private:

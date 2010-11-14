@@ -83,14 +83,14 @@ Normal::~Normal()
    window_ = NULL;
 }
 
-void Normal::InitialiseMode()
+void Normal::InitialiseMode(int input)
 {
    actionCount_ = 0;
 
    window_->SetLine("");
 }
 
-void Normal::FinaliseMode()
+void Normal::FinaliseMode(int input)
 {
 }
 

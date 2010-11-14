@@ -47,28 +47,18 @@ Search::~Search()
 }
 
 
+void Search::InitialiseMode(int input)
+{
+   direction_ = GetDirectionForInput(input);
+
+   InputMode::InitialiseMode(input);
+}
+
 bool Search::CausesModeToStart(int input)
 {
    return ((input == prompt_[Forwards]) || (input == prompt_[Backwards]));
 }
 
-
-void Search::SetDirection(Direction direction)
-{
-   direction_ = direction;
-}
-
-Search::Direction Search::GetDirectionForInput(int input) const
-{
-   Direction direction = Forwards;
-
-   if (input == prompt_[Backwards])
-   {
-      direction = Backwards;
-   }
-
-   return direction;
-}
 
 bool Search::SearchResult(Skip skip, uint32_t count)
 {
@@ -105,6 +95,18 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
    }
 
    return true;
+}
+
+Search::Direction Search::GetDirectionForInput(int input) const
+{
+   Direction direction = Forwards;
+
+   if (input == prompt_[Backwards])
+   {
+      direction = Backwards;
+   }
+
+   return direction;
 }
 
 bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t & count)

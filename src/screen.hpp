@@ -101,18 +101,17 @@ namespace Ui
       uint32_t WaitForInput() const;
 
    public:
-      static MainWindow GetWindowFromName(std::string const & windowName);
-
       void SetActiveWindow(MainWindow window);
       void SetDefaultWindow(MainWindow window);
       Ui::ConsoleWindow  & ConsoleWindow()  const;
       Ui::PlaylistWindow & PlaylistWindow() const; 
 
+   public:
+      static MainWindow GetWindowFromName(std::string const & windowName);
+
    private:
       void Scroll(int32_t count);
       void ScrollTo(uint32_t line);
-
-   private:
       bool WindowsAreInitialised();
 
    private:

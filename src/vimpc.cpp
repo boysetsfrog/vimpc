@@ -70,7 +70,7 @@ void Vimpc::Run()
       }
       screen_.Start();
 
-      handlerTable_[currentMode_]->InitialiseMode();
+      handlerTable_[currentMode_]->InitialiseMode(0);
 
       while (Handle(Input()) == true);
    }
@@ -141,14 +141,7 @@ void Vimpc::ChangeMode(int input)
    if (newMode != oldMode)
    {
       currentMode_ = newMode;
-      handlerTable_[oldMode]->FinaliseMode();
-
-      if (newMode == Search)
-      {
-         Ui::Search * const search = dynamic_cast<Ui::Search * const>(handlerTable_[Search]);
-         search->SetDirection(search->GetDirectionForInput(input));
-      }
-
-      handlerTable_[newMode]->InitialiseMode();
+      handlerTable_[oldMode]->FinaliseMode(input);
+      handlerTable_[newMode]->InitialiseMode(input);
    }
 }

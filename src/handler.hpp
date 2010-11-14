@@ -29,9 +29,9 @@ namespace Ui
       virtual ~Handler() { }
 
    public:
-      virtual void InitialiseMode()  = 0;
-      virtual void FinaliseMode()    = 0;
-      virtual bool Handle(int input) = 0;
+      virtual void InitialiseMode(int input)    = 0;
+      virtual void FinaliseMode(int input)      = 0;
+      virtual bool Handle(int input)            = 0;
       virtual bool CausesModeToStart(int input) = 0;
    };
 }

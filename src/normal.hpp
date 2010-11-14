@@ -47,8 +47,8 @@ namespace Ui
       ~Normal();
 
    public: // Ui::Handler
-      void InitialiseMode();
-      void FinaliseMode();
+      void InitialiseMode(int input);
+      void FinaliseMode(int input);
       bool Handle(int input);
       bool CausesModeToStart(int input);
 

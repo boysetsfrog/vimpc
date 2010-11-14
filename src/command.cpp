@@ -71,11 +71,11 @@ Command::~Command()
 }
 
 
-void Command::InitialiseMode()
+void Command::InitialiseMode(int input)
 {
    initTabCompletion_  = true;
 
-   InputMode::InitialiseMode();
+   InputMode::InitialiseMode(input);
 }
 
 bool Command::Handle(int const input)

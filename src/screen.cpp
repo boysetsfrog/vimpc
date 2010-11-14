@@ -219,6 +219,23 @@ uint32_t Screen::WaitForInput() const
    return wgetch(commandWindow_);
 }
 
+void Screen::SetActiveWindow(MainWindow window)
+{
+   window_ = window;
+   Update();
+}
+
+Ui::ConsoleWindow & Screen::ConsoleWindow() const
+{ 
+   return DBC::Reference<Ui::ConsoleWindow>(consoleWindow_);
+}
+
+Ui::PlaylistWindow & Screen::PlaylistWindow() const
+{ 
+   return DBC::Reference<Ui::PlaylistWindow>(playlistWindow_);
+}
+
+
 Screen::MainWindow Screen::GetWindowFromName(std::string const & windowName)
 {
    static WindowTable windowTable;
@@ -243,22 +260,6 @@ Screen::MainWindow Screen::GetWindowFromName(std::string const & windowName)
    ENSURE(windowTable.size() == MainWindowCount);
 
    return window;
-}
-
-void Screen::SetActiveWindow(MainWindow window)
-{
-   window_ = window;
-   Update();
-}
-
-Ui::ConsoleWindow & Screen::ConsoleWindow() const
-{ 
-   return DBC::Reference<Ui::ConsoleWindow>(consoleWindow_);
-}
-
-Ui::PlaylistWindow & Screen::PlaylistWindow() const
-{ 
-   return DBC::Reference<Ui::PlaylistWindow>(playlistWindow_);
 }
 
 

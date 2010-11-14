@@ -79,8 +79,8 @@ namespace Ui
       virtual ~InputMode();
 
    public: // Ui::Handler
-      virtual void InitialiseMode();
-      virtual void FinaliseMode();
+      virtual void InitialiseMode(int input);
+      virtual void FinaliseMode(int input);
       virtual bool Handle(int input);
       virtual bool CausesModeToStart(int input);
 

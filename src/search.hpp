@@ -53,17 +53,15 @@ namespace Ui
       ~Search();
 
    public:
+      void InitialiseMode(int input);
       bool CausesModeToStart(int input);
 
-   public:
-      void SetDirection(Direction direction);
-      Direction GetDirectionForInput(int input) const;
-
-   public:
       bool SearchResult(Skip skip, uint32_t count);
       bool SearchWindow(Direction direction, std::string search, uint32_t count);
 
    private:
+      Direction GetDirectionForInput(int input) const;
+
       bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);
 
    private:
