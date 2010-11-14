@@ -29,15 +29,17 @@
 
 using namespace Ui;
 
-
 Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Direction direction) :
    InputMode   (screen),
    Player      (screen, client, settings),
    direction_  (direction),
    lastSearch_ (""),
+   prompt_     (),
    settings_   (settings),
    screen_     (screen)
 {
+   prompt_[Forwards]  = '/';
+   prompt_[Backwards] = '?';
 }
 
 Search::~Search()
@@ -47,7 +49,7 @@ Search::~Search()
 
 bool Search::CausesModeToStart(int input)
 {
-   return ((input == '/') || (input == '?'));
+   return ((input == prompt_[Forwards]) || (input == prompt_[Backwards]));
 }
 
 
@@ -60,7 +62,7 @@ Search::Direction Search::GetDirectionForInput(int input) const
 {
    Direction direction = Forwards;
 
-   if (input == '?')
+   if (input == prompt_[Backwards])
    {
       direction = Backwards;
    }
@@ -68,88 +70,71 @@ Search::Direction Search::GetDirectionForInput(int input) const
    return direction;
 }
 
-bool Search::PrevSearchResult()
+bool Search::SearchResult(Skip skip, uint32_t count)
 {
-   if (direction_ == Forwards)
+   Direction direction = Forwards;
+
+   if (((direction_ == Backwards) && (skip == Next)) || ((direction_ == Forwards) && (skip == Previous)))
    {
-      SearchBackwards(lastSearch_);
+      direction = Backwards;
    }
-   else 
-   {
-      SearchForwards(lastSearch_);
-   }
+
+   SearchWindow(direction, lastSearch_, count);
 
    return true;
 }
 
-bool Search::NextSearchResult()
+bool Search::SearchWindow(Direction direction, std::string search, uint32_t count)
 {
-   if (direction_ == Forwards)
-   {
-      SearchForwards(lastSearch_);
-   }
-   else 
-   {
-      SearchBackwards(lastSearch_);
-   }
-
-   return true;
-}
-
-bool Search::SearchForwards(std::string search)
-{
-   boost::regex  expression(".*" + search + ".*");
-   boost::cmatch what;
-
    bool found = false;
 
-   for (int32_t i = screen_.PlaylistWindow().CurrentLine() + 1; ((i <= (int32_t) screen_.PlaylistWindow().LastLine()) && (found == false)); ++i)
+   if (direction == Forwards)
    {
-      std::string songDescription(screen_.PlaylistWindow().GetSong(i)->FullDescription());
-
-      if (boost::regex_match(songDescription.c_str(), what, expression) == true)
+      for (int32_t i = screen_.PlaylistWindow().CurrentLine() + 1; ((i <= (int32_t) screen_.PlaylistWindow().LastLine()) && (found == false)); ++i)
       {
-         found = true;
-         screen_.PlaylistWindow().ScrollTo(i + 1);
+         found = CheckForMatch(search, i, count);
+      }
+   }
+   else
+   {
+      for (int32_t i = screen_.PlaylistWindow().CurrentLine() - 1; ((i >= 0) && (found == false)); --i)
+      {
+         found = CheckForMatch(search, i, count);
       }
    }
 
    return true;
 }
 
-bool Search::SearchBackwards(std::string search)
+bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t & count)
 {
+   bool found = false;
+
    boost::regex  expression(".*" + search + ".*");
    boost::cmatch what;
 
-   bool found = false;
+   std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->FullDescription());
 
-   for (int32_t i = screen_.PlaylistWindow().CurrentLine() - 1; ((i >= 0) && (found == false)); --i)
+   if (boost::regex_match(songDescription.c_str(), what, expression) == true)
    {
-      std::string songDescription(screen_.PlaylistWindow().GetSong(i)->FullDescription());
+      --count;
+      screen_.PlaylistWindow().ScrollTo(songId + 1);
 
-      if (boost::regex_match(songDescription.c_str(), what, expression) == true)
+      if (count == 0)
       {
          found = true;
-         screen_.PlaylistWindow().ScrollTo(i + 1);
       }
    }
 
-   return true;
+   return found;
 }
 
 char const * const Search::Prompt() 
 { 
-   static char SearchPrompt[] = "/";
+   static char SearchPrompt[2] = "";
 
-   if (direction_ == Forwards)
-   {
-      SearchPrompt[0] = '/';
-   }
-   else
-   {
-      SearchPrompt[0] = '?';
-   }
+   SearchPrompt[0] = prompt_[direction_];
+   SearchPrompt[1] = '\0';
 
    return SearchPrompt; 
 }
@@ -157,5 +142,5 @@ char const * const Search::Prompt()
 bool Search::InputModeHandler(std::string input) 
 {
    lastSearch_ = input;
-   return NextSearchResult();
+   return SearchResult(Next, 1);
 }

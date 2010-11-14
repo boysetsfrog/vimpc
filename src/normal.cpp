@@ -58,8 +58,8 @@ Normal::Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
 
-   actionTable_['N']       = &Normal::SearchResult<PreviousSearch>;
-   actionTable_['n']       = &Normal::SearchResult<NextSearch>;
+   actionTable_['N']       = &Normal::SearchResult<Ui::Search::Previous>;
+   actionTable_['n']       = &Normal::SearchResult<Ui::Search::Next>;
 
    actionTable_['k']       = &Normal::Scroll<Line, Up>;
    actionTable_['j']       = &Normal::Scroll<Line, Down>;

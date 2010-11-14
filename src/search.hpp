@@ -45,7 +45,8 @@ namespace Ui
    {
 
    public:
-      typedef enum { Forwards, Backwards } Direction;
+      typedef enum { Next,     Previous  } Skip;
+      typedef enum { Forwards, Backwards, DirectionCount } Direction;
 
    public:
       Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Direction direction = Forwards);
@@ -59,12 +60,11 @@ namespace Ui
       Direction GetDirectionForInput(int input) const;
 
    public:
-      bool PrevSearchResult();
-      bool NextSearchResult();
+      bool SearchResult(Skip skip, uint32_t count);
+      bool SearchWindow(Direction direction, std::string search, uint32_t count);
 
    private:
-      bool SearchForwards(std::string search);
-      bool SearchBackwards(std::string search);
+      bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);
 
    private:
       bool InputModeHandler(std::string input);
@@ -73,6 +73,7 @@ namespace Ui
    private: 
       Direction        direction_;
       std::string      lastSearch_;
+      char             prompt_[DirectionCount];
       Main::Settings & settings_;
       Ui::Screen     & screen_;
 

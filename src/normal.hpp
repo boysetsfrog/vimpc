@@ -57,8 +57,7 @@ namespace Ui
       bool RepeatLastAction(uint32_t count);
 
    private: //Searching
-      typedef enum { NextSearch, PreviousSearch }      Skip;
-      template <Skip SKIP>
+      template <Ui::Search::Skip SKIP>
       bool SearchResult(uint32_t count); 
 
    private: //Scrolling
@@ -91,18 +90,10 @@ namespace Ui
 
 
    //Implementation of searching functions
-   template <Normal::Skip SKIP>
+   template <Ui::Search::Skip SKIP>
    bool Normal::SearchResult(uint32_t count)
    {
-      if (SKIP == NextSearch)
-      {
-         search_.NextSearchResult();
-      }
-      else
-      {
-         search_.PrevSearchResult();
-      }
-      return true;
+      return search_.SearchResult(SKIP, count);
    }
 
 
