@@ -171,7 +171,10 @@ void PlaylistWindow::ScrollTo(uint16_t scrollLine)
    currentSelection_ = ((int64_t) scrollLine - 1);
    currentSelection_ = LimitCurrentSelection(currentSelection_);
 
-   Window::ScrollTo(scrollLine);
+   if ((currentSelection_ > scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
+   {   
+      Window::ScrollTo(scrollLine);
+   }
 }
 
 void PlaylistWindow::Search(std::string const & searchString) const
