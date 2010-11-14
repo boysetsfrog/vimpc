@@ -220,6 +220,6 @@ void Player::HandleAutoScroll()
 {
    if (settings_.AutoScroll() == true)
    {
-      screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
+      screen_.ScrollTo(Screen::Current);
    }
 }

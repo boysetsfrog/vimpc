@@ -134,11 +134,6 @@ void Screen::Confirm()
 }
 
 
-void Screen::Scroll(int32_t count)
-{
-   mainWindows_[window_]->Scroll(count);
-}
-
 void Screen::Scroll(Size size, Direction direction, uint32_t count)
 {
    int32_t scrollCount = count;
@@ -151,11 +146,6 @@ void Screen::Scroll(Size size, Direction direction, uint32_t count)
    scrollCount *= (direction == Up) ? -1 : 1;
 
    Scroll(scrollCount);
-}
-
-void Screen::ScrollTo(uint32_t line)
-{
-   mainWindows_[window_]->ScrollTo(line);
 }
 
 void Screen::ScrollTo(Location location)
@@ -277,6 +267,17 @@ Ui::ConsoleWindow & Screen::ConsoleWindow() const
 Ui::PlaylistWindow & Screen::PlaylistWindow() const
 { 
    return DBC::Reference<Ui::PlaylistWindow>(playlistWindow_);
+}
+
+
+void Screen::Scroll(int32_t count)
+{
+   mainWindows_[window_]->Scroll(count);
+}
+
+void Screen::ScrollTo(uint32_t line)
+{
+   mainWindows_[window_]->ScrollTo(line);
 }
 
 

@@ -86,9 +86,7 @@ namespace Ui
 
    public:
       void Confirm();
-      void Scroll(int32_t count);
       void Scroll(Size size, Direction direction, uint32_t count);
-      void ScrollTo(uint32_t line);
       void ScrollTo(Location location);
       void Update() const;
       void Clear();
@@ -107,6 +105,10 @@ namespace Ui
       void SetDefaultWindow(MainWindow window);
       Ui::ConsoleWindow  & ConsoleWindow()  const;
       Ui::PlaylistWindow & PlaylistWindow() const; 
+
+   private:
+      void Scroll(int32_t count);
+      void ScrollTo(uint32_t line);
 
    private:
       bool WindowsAreInitialised();
