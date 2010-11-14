@@ -84,8 +84,10 @@ namespace Mpc
       {
          Song * const newSong = new Song(mpd_song_get_id(nextSong) + 1);
 
-         newSong->SetArtist(mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0));
-         newSong->SetTitle (mpd_song_get_tag(nextSong, MPD_TAG_TITLE,  0));
+         newSong->SetArtist  (mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0));
+         newSong->SetAlbum   (mpd_song_get_tag(nextSong, MPD_TAG_ALBUM,  0));
+         newSong->SetTitle   (mpd_song_get_tag(nextSong, MPD_TAG_TITLE,  0));
+         newSong->SetDuration(mpd_song_get_duration(nextSong));
          mpd_song_free(nextSong);
 
          (object.*callBack)(newSong);

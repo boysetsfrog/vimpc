@@ -135,7 +135,17 @@ void PlaylistWindow::Print(uint32_t line) const
          wattron(window, COLOR_PAIR(COLOR_PAIRS-2));
       }
 
-      wprintw(window, "%s - %s", nextSong->Artist().c_str(), nextSong->Title().c_str());
+      if (nextSong->Album() != "")
+      {   
+         wprintw(window, "%s - %s - %s", nextSong->Artist().c_str(), nextSong->Album().c_str(), nextSong->Title().c_str());
+      }
+      else 
+      {
+         wprintw(window, "%s - %s", nextSong->Artist().c_str(), nextSong->Title().c_str());
+      }
+
+      std::string const durationString(nextSong->DurationString());
+      mvwprintw(window, line, (screen_.MaxColumns() - durationString.length() - 2), "[%s]", durationString.c_str());
 
       if (nextSong->Id() == client_.GetCurrentSong() + 1)
       {

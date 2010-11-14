@@ -32,6 +32,7 @@ vimpc_SOURCES = src/command.cpp \
                 src/settings.cpp \
                 src/settings.hpp \
                 src/song.hpp \
+                src/song.cpp \
                 src/vimpc.cpp \
                 src/vimpc.hpp \
                 src/window.cpp \

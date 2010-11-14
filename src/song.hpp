@@ -29,69 +29,34 @@ namespace Mpc
    class Song
    {
    public:
-      Song(uint32_t id) :
-         id_(id)
-      { }
-
-      Song(Song const & song) :
-         id_    (song.Id()),
-         artist_(song.Artist()),
-         title_ (song.Title())
-      { }
-
-      ~Song()
-      { }
+      Song(uint32_t id);
+      Song(Song const & song);
+      ~Song();
 
    public:
-      int32_t Id() const
-      {
-         return id_;
-      }
+      int32_t Id() const;
 
-      void SetArtist(const char * artist)
-      {
-         if (artist != NULL)
-         {
-            artist_ = artist;
-         }
-         else
-         {
-            artist_ = "Unknown";
-         }
-      }
+      void SetArtist(const char * artist);
+      std::string const & Artist() const;
+      
+      void SetAlbum(const char * album);
+      std::string const & Album() const;
 
-      std::string const & Artist() const
-      {
-         return artist_;
-      }
+      void SetTitle(const char * title);
+      std::string const & Title() const;
 
-      void SetTitle(const char * title)
-      {
-         if (title != NULL)
-         {
-            title_ = title;
-         }
-         else
-         {
-            title_ = "Unknown";
-         }
-      }
+      void SetDuration(int32_t duration);
+      int32_t Duration() const;
+      std::string DurationString() const;
 
-      std::string const & Title() const
-      {
-         return title_;
-      }
-
-      std::string FullDescription() const
-      {
-         std::string fullDescription(artist_ + " - " + title_);
-         return fullDescription;
-      }
+      std::string FullDescription() const;
 
    private:
       int32_t     id_;
       std::string artist_;
+      std::string album_;
       std::string title_;
+      int32_t     duration_;
    };
 }
 
