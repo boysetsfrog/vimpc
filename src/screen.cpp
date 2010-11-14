@@ -21,6 +21,7 @@
 #include "screen.hpp"
 
 #include "console.hpp"
+#include "mpdclient.hpp"
 #include "playlist.hpp"
 #include "settings.hpp"
 
@@ -32,6 +33,7 @@ Screen::Screen(Mpc::Client & client, Main::Settings const & settings) :
    window_          (Playlist),
    statusWindow_    (NULL),
    commandWindow_   (NULL),
+   client_          (client),
    settings_        (settings),
    started_         (false),
    maxRows_         (0),
@@ -131,14 +133,53 @@ void Screen::Confirm()
    mainWindows_[window_]->Confirm();
 }
 
+
 void Screen::Scroll(int32_t count)
 {
    mainWindows_[window_]->Scroll(count);
 }
 
+void Screen::Scroll(Size size, Direction direction, uint32_t count)
+{
+   int32_t scrollCount = count;
+
+   if (size == Page)
+   {
+     scrollCount *= ((MaxRows() + 1) / 2);
+   }
+
+   scrollCount *= (direction == Up) ? -1 : 1;
+
+   Scroll(scrollCount);
+}
+
 void Screen::ScrollTo(uint32_t line)
 {
    mainWindows_[window_]->ScrollTo(line);
+}
+
+void Screen::ScrollTo(Location location)
+{
+   if (window_ == Playlist)
+   {
+      switch (location)
+      {
+         case Top:
+            ScrollTo(0);
+            break;
+
+         case Current:
+            ScrollTo(client_.GetCurrentSong() + 1);
+            break;
+
+         case Bottom:
+            ScrollTo(client_.TotalNumberOfSongs());
+            break;
+
+         default:
+            ASSERT(false);
+      }
+   }
 }
 
 void Screen::Update() const

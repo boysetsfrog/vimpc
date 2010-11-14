@@ -57,18 +57,14 @@ namespace Ui
       bool RepeatLastAction(uint32_t count);
 
    private: //Searching
-      template <Ui::Search::Skip SKIP>
+      template <Search::Skip SKIP>
       bool SearchResult(uint32_t count); 
 
    private: //Scrolling
-      typedef enum { Line,    Page }       Size;
-      typedef enum { Up,      Down }       Direction;
-      typedef enum { Current, Start, End } Location;
-
-      template <Size SIZE, Direction DIRECTION>
+      template <Screen::Size SIZE, Screen::Direction DIRECTION>
       bool Scroll(uint32_t count);
       
-      template <Location LOCATION>
+      template <Screen::Location LOCATION>
       bool ScrollTo(uint32_t count);
 
    private:
@@ -98,36 +94,17 @@ namespace Ui
 
 
    // Implementation of scrolling functions
-   template <Normal::Size SIZE, Normal::Direction DIRECTION>
+   template <Screen::Size SIZE, Screen::Direction DIRECTION>
    bool Normal::Scroll(uint32_t count)
    {
-      if (SIZE == Page)
-      {
-        count *= ((screen_.MaxRows() + 1) / 2);
-      }
-
-      count *= (DIRECTION == Up) ? -1 : 1;
-      screen_.Scroll(count);
+      screen_.Scroll(SIZE, DIRECTION, count);
       return true;
    }
 
-   template <Normal::Location LOCATION>
+   template <Screen::Location LOCATION>
    bool Normal::ScrollTo(uint32_t count)
    {
-      switch (LOCATION)
-      {
-         case Current:
-            screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
-            break;
-         case Start:
-            screen_.ScrollTo(0);
-            break;
-         case End:
-            screen_.ScrollTo(client_.TotalNumberOfSongs());
-            break;
-         default:
-            ASSERT(false);
-      }
+      screen_.ScrollTo(LOCATION);
       return true;
    }
 

@@ -58,17 +58,16 @@ Normal::Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
 
-   actionTable_['N']       = &Normal::SearchResult<Ui::Search::Previous>;
-   actionTable_['n']       = &Normal::SearchResult<Ui::Search::Next>;
+   actionTable_['N']       = &Normal::SearchResult<Search::Previous>;
+   actionTable_['n']       = &Normal::SearchResult<Search::Next>;
 
-   actionTable_['k']       = &Normal::Scroll<Line, Up>;
-   actionTable_['j']       = &Normal::Scroll<Line, Down>;
-   actionTable_[KEY_PPAGE] = &Normal::Scroll<Page, Up>;
-   actionTable_[KEY_NPAGE] = &Normal::Scroll<Page, Down>;
-
-   actionTable_['f']       = &Normal::ScrollTo<Current>;
-   actionTable_[KEY_HOME]  = &Normal::ScrollTo<Start>;
-   actionTable_[KEY_END]   = &Normal::ScrollTo<End>;
+   actionTable_['k']       = &Normal::Scroll<Screen::Line, Screen::Up>;
+   actionTable_['j']       = &Normal::Scroll<Screen::Line, Screen::Down>;
+   actionTable_[KEY_PPAGE] = &Normal::Scroll<Screen::Page, Screen::Up>;
+   actionTable_[KEY_NPAGE] = &Normal::Scroll<Screen::Page, Screen::Down>;
+   actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
+   actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
+   actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
 
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];

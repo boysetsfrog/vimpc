@@ -65,9 +65,31 @@ namespace Ui
       void SetStatusLine(char const * const fmt, ... );
 
    public:
+      typedef enum 
+      { 
+         Current, 
+         Top, 
+         Bottom
+      } Location;
+      
+      typedef enum 
+      { 
+         Line, 
+         Page 
+      } Size;
+      
+      typedef enum 
+      { 
+         Up, 
+         Down 
+      } Direction;
+
+   public:
       void Confirm();
       void Scroll(int32_t count);
+      void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(uint32_t line);
+      void ScrollTo(Location location);
       void Update() const;
       void Clear();
       void Search(std::string const & searchString) const;
@@ -103,6 +125,7 @@ namespace Ui
       WINDOW             * statusWindow_;
       WINDOW             * commandWindow_;
 
+      Mpc::Client    const & client_;
       Main::Settings const & settings_;
 
       bool        started_;
