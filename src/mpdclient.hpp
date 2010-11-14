@@ -51,11 +51,12 @@ namespace Mpc
       int32_t GetCurrentSong() const;
       int32_t TotalNumberOfSongs() const;
 
-      template <typename Object>
-      void ForAllSongs(Object & object, void (Object::*callBack)(Song const * const));
-
    public:
       void DisplaySongInformation();
+
+   public:
+      template <typename Object>
+      void ForEachSong(Object & object, void (Object::*callBack)(Song const * const));
 
    private:
       void CheckError();
@@ -66,13 +67,11 @@ namespace Mpc
       Ui::Screen & screen_;
 
       struct mpd_connection * connection_;
-
    };
-
 
    //
    template <typename Object>
-   void Client::ForAllSongs(Object & object, void (Object::*callBack)(Song const * const))
+   void Client::ForEachSong(Object & object, void (Object::*callBack)(Song const * const))
    {
       mpd_send_list_queue_meta(connection_);
 

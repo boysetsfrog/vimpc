@@ -32,11 +32,9 @@
 
 using namespace Ui;
 
-char const CommandPrompt   = ':';
-
 // COMMANDS
 Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
-   InputMode          (CommandPrompt, screen),
+   InputMode          (screen),
    Player             (screen, client, settings),
    initTabCompletion_ (true),
    aliasTable_        (),
@@ -99,6 +97,13 @@ void Command::GenerateInputString(int input)
    }
 }
  
+
+char const * const Command::Prompt()
+{
+   static char const CommandPrompt[] = ":";
+   return CommandPrompt;
+}
+
 bool Command::InputModeHandler(std::string input)
 {
    return ExecuteCommand(inputString_);

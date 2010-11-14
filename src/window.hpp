@@ -54,8 +54,9 @@ namespace Ui
       bool AutoScroll() const;
 
    public:
-      uint16_t FirstLine() const;
-      uint32_t LastLine() const { return BufferSize() - 1; }
+      uint16_t FirstLine()   const;
+      virtual  uint16_t CurrentLine() const { return FirstLine(); }
+      uint32_t LastLine()    const { return BufferSize() - 1; }
 
    protected:
       void ResetScroll(); 

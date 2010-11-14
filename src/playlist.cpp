@@ -63,7 +63,8 @@ Mpc::Song const * const PlaylistWindow::GetSong(uint32_t songIndex)
 void PlaylistWindow::Redraw()
 {
    Clear();
-   client_.ForAllSongs(*this, &PlaylistWindow::AddSong);
+
+   client_.ForEachSong(*this, &PlaylistWindow::AddSong);
 }
 
 void PlaylistWindow::Clear()

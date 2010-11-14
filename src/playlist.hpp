@@ -49,6 +49,8 @@ namespace Ui
       void Search(std::string const & searchString) const;
       void Redraw();
 
+      uint16_t CurrentLine() const { return currentSelection_; }
+
    private:
       void DeleteSongs();
       void Clear();

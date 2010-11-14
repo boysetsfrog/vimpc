@@ -29,11 +29,12 @@
 
 using namespace Ui;
 
-char const SearchPrompt   = '/';
 
-Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
-   InputMode   (SearchPrompt, screen),
+Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Direction direction) :
+   InputMode   (screen),
    Player      (screen, client, settings),
+   direction_  (direction),
+   lastSearch_ (""),
    settings_   (settings),
    screen_     (screen)
 {
@@ -43,14 +44,66 @@ Search::~Search()
 {
 }
 
-bool Search::InputModeHandler(std::string input)
+
+bool Search::CausesModeToStart(int input)
 {
-   boost::regex  expression(".*" + input + ".*");
+   return ((input == '/') || (input == '?'));
+}
+
+
+void Search::SetDirection(Direction direction)
+{
+   direction_ = direction;
+}
+
+Search::Direction Search::GetDirectionForInput(int input) const
+{
+   Direction direction = Forwards;
+
+   if (input == '?')
+   {
+      direction = Backwards;
+   }
+
+   return direction;
+}
+
+bool Search::PrevSearchResult()
+{
+   if (direction_ == Forwards)
+   {
+      SearchBackwards(lastSearch_);
+   }
+   else 
+   {
+      SearchForwards(lastSearch_);
+   }
+
+   return true;
+}
+
+bool Search::NextSearchResult()
+{
+   if (direction_ == Forwards)
+   {
+      SearchForwards(lastSearch_);
+   }
+   else 
+   {
+      SearchBackwards(lastSearch_);
+   }
+
+   return true;
+}
+
+bool Search::SearchForwards(std::string search)
+{
+   boost::regex  expression(".*" + search + ".*");
    boost::cmatch what;
 
    bool found = false;
 
-   for (uint32_t i = screen_.PlaylistWindow().FirstLine(); ((i <= screen_.PlaylistWindow().LastLine()) && (found == false)); ++i)
+   for (int32_t i = screen_.PlaylistWindow().CurrentLine() + 1; ((i <= (int32_t) screen_.PlaylistWindow().LastLine()) && (found == false)); ++i)
    {
       std::string songDescription(screen_.PlaylistWindow().GetSong(i)->FullDescription());
 
@@ -62,4 +115,47 @@ bool Search::InputModeHandler(std::string input)
    }
 
    return true;
+}
+
+bool Search::SearchBackwards(std::string search)
+{
+   boost::regex  expression(".*" + search + ".*");
+   boost::cmatch what;
+
+   bool found = false;
+
+   for (int32_t i = screen_.PlaylistWindow().CurrentLine() - 1; ((i >= 0) && (found == false)); --i)
+   {
+      std::string songDescription(screen_.PlaylistWindow().GetSong(i)->FullDescription());
+
+      if (boost::regex_match(songDescription.c_str(), what, expression) == true)
+      {
+         found = true;
+         screen_.PlaylistWindow().ScrollTo(i + 1);
+      }
+   }
+
+   return true;
+}
+
+char const * const Search::Prompt() 
+{ 
+   static char SearchPrompt[] = "/";
+
+   if (direction_ == Forwards)
+   {
+      SearchPrompt[0] = '/';
+   }
+   else
+   {
+      SearchPrompt[0] = '?';
+   }
+
+   return SearchPrompt; 
+}
+
+bool Search::InputModeHandler(std::string input) 
+{
+   lastSearch_ = input;
+   return NextSearchResult();
 }

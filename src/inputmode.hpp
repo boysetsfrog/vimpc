@@ -75,14 +75,14 @@ namespace Ui
    class InputMode : public Handler
    {
    public:
-      InputMode(char const prompt, Ui::Screen & screen);
+      InputMode(Ui::Screen & screen);
       virtual ~InputMode();
 
    public: // Ui::Handler
       virtual void InitialiseMode();
       virtual void FinaliseMode();
       virtual bool Handle(int input);
-      bool CausesModeToStart(int input);
+      virtual bool CausesModeToStart(int input);
 
    public:
       virtual bool HasCompleteInput(int input);
@@ -103,6 +103,7 @@ namespace Ui
       std::string SearchHistory(Direction direction, std::string const & inputString);
 
    public:
+      virtual char const * const Prompt() = 0;
       virtual bool InputModeHandler(std::string input) = 0;
 
    public:
@@ -116,7 +117,6 @@ namespace Ui
 
    private: 
       ModeWindow     * window_;
-      char             prompt_[PromptSize + 1];
       Cursor           cursor_;
       Ui::Screen     & screen_;
       bool             initHistorySearch_;

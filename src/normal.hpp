@@ -28,6 +28,7 @@
 #include "mpdclient.hpp"
 #include "player.hpp"
 #include "playlist.hpp"
+#include "search.hpp"
 #include "screen.hpp"
 
 namespace Main
@@ -42,7 +43,7 @@ namespace Ui
    class Normal : public Handler, public Player
    {
    public:
-      Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
+      Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
       ~Normal();
 
    public: // Ui::Handler
@@ -55,9 +56,14 @@ namespace Ui
       bool Confirm(uint32_t count);
       bool RepeatLastAction(uint32_t count);
 
+   private: //Searching
+      typedef enum { NextSearch, PreviousSearch }      Skip;
+      template <Skip SKIP>
+      bool SearchResult(uint32_t count); 
+
    private: //Scrolling
-      typedef enum { Line, Page }          Size;
-      typedef enum { Up, Down }            Direction;
+      typedef enum { Line,    Page }       Size;
+      typedef enum { Up,      Down }       Direction;
       typedef enum { Current, Start, End } Location;
 
       template <Size SIZE, Direction DIRECTION>
@@ -76,11 +82,29 @@ namespace Ui
       typedef std::map<int, ptrToMember> ActionTable;
       ActionTable   actionTable_;
 
-      Mpc::Client &    client_;
-      Ui::Screen  &    screen_;
-      Main::Settings & settings_;
+      Ui::Search        & search_;
+      Mpc::Client       & client_;
+      Ui::Screen        & screen_;
+      Main::Settings    & settings_;
 
    };
+
+
+   //Implementation of searching functions
+   template <Normal::Skip SKIP>
+   bool Normal::SearchResult(uint32_t count)
+   {
+      if (SKIP == NextSearch)
+      {
+         search_.NextSearchResult();
+      }
+      else
+      {
+         search_.PrevSearchResult();
+      }
+      return true;
+   }
+
 
    // Implementation of scrolling functions
    template <Normal::Size SIZE, Normal::Direction DIRECTION>

@@ -45,13 +45,34 @@ namespace Ui
    {
 
    public:
-      Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
+      typedef enum { Forwards, Backwards } Direction;
+
+   public:
+      Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Direction direction = Forwards);
       ~Search();
+
+   public:
+      bool CausesModeToStart(int input);
+
+   public:
+      void SetDirection(Direction direction);
+      Direction GetDirectionForInput(int input) const;
+
+   public:
+      bool PrevSearchResult();
+      bool NextSearchResult();
+
+   private:
+      bool SearchForwards(std::string search);
+      bool SearchBackwards(std::string search);
 
    private:
       bool InputModeHandler(std::string input);
+      char const * const Prompt();
 
    private: 
+      Direction        direction_;
+      std::string      lastSearch_;
       Main::Settings & settings_;
       Ui::Screen     & screen_;
 

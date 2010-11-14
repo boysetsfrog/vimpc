@@ -39,9 +39,10 @@ Vimpc::Vimpc() :
    screen_      (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
    client_      (screen_)
 {
-   handlerTable_[Normal]  = new Ui::Normal (screen_, client_, settings_);
-   handlerTable_[Command] = new Ui::Command(screen_, client_, settings_);
-   handlerTable_[Search]  = new Ui::Search (screen_, client_, settings_);
+   Ui::Search * const search   = new Ui::Search (screen_,  client_, settings_);
+   handlerTable_[Search]       = search;
+   handlerTable_[Command]      = new Ui::Command(screen_,  client_, settings_);
+   handlerTable_[Normal]       = new Ui::Normal (*search, screen_, client_, settings_);
 
    ENSURE(handlerTable_.size() == ModeCount);
 }
@@ -137,6 +138,13 @@ void Vimpc::ChangeMode(int input)
    {
       currentMode_ = newMode;
       handlerTable_[oldMode]->FinaliseMode();
+
+      if (newMode == Search)
+      {
+         Ui::Search * const search = dynamic_cast<Ui::Search * const>(handlerTable_[Search]);
+         search->SetDirection(search->GetDirectionForInput(input));
+      }
+
       handlerTable_[newMode]->InitialiseMode();
    }
 }

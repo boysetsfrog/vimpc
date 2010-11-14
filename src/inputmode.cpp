@@ -30,15 +30,13 @@
 using namespace Ui;
 
 
-InputMode::InputMode(char prompt, Ui::Screen & screen) :
+InputMode::InputMode(Ui::Screen & screen) :
    inputString_       (""),
    window_            (NULL),
    cursor_            (inputString_),
    screen_            (screen),
    initHistorySearch_ (true)
 {
-   prompt_[0] = prompt;
-   prompt_[1] = 0;
    window_    = screen.CreateModeWindow();
 }
 
@@ -57,7 +55,7 @@ void InputMode::InitialiseMode()
 
    window_->ShowCursor();
    window_->SetCursorPosition(cursor_.Position());
-   window_->SetLine(prompt_);
+   window_->SetLine(Prompt());
 
    ENSURE(inputString_.empty() == true);
 }
@@ -93,7 +91,7 @@ bool InputMode::Handle(int const input)
       int64_t const newCursorPosition = cursor_.UpdatePosition(input);
 
       window_->SetCursorPosition(newCursorPosition);
-      window_->SetLine("%s%s", prompt_, inputString_.c_str());
+      window_->SetLine("%s%s", Prompt(), inputString_.c_str());
    }
 
    return result;
@@ -101,7 +99,7 @@ bool InputMode::Handle(int const input)
 
 bool InputMode::CausesModeToStart(int input)
 {
-   return ((char) input == prompt_[0]);
+   return ((char) input == Prompt()[0]);
 }
 
 

@@ -19,19 +19,21 @@
    */
 
 #include "normal.hpp"
+
 #include "vimpc.hpp"
 
 #include <limits>
 
 using namespace Ui;
 
-Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+Normal::Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    Player           (screen, client, settings),
    window_          (NULL),
    actionCount_     (0),
    lastAction_      (0),
    lastActionCount_ (0),
    actionTable_     (),
+   search_          (search),
    client_          (client),
    screen_          (screen),
    settings_        (settings)
@@ -43,15 +45,21 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // \todo display current count somewhere
    actionTable_['.']       = &Normal::RepeatLastAction;
    actionTable_['c']       = &Normal::ClearScreen;
-   actionTable_['h']       = &Normal::Previous;
-   actionTable_['l']       = &Normal::Next;
+
    actionTable_['p']       = &Normal::Pause;
    actionTable_['r']       = &Normal::Random;
    actionTable_['s']       = &Normal::Stop;
+
+   actionTable_['l']       = &Normal::Next;
+   actionTable_['h']       = &Normal::Previous;
    actionTable_['L']       = &Normal::NextArtist;
    actionTable_['H']       = &Normal::PreviousArtist;
+
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
+
+   actionTable_['N']       = &Normal::SearchResult<PreviousSearch>;
+   actionTable_['n']       = &Normal::SearchResult<NextSearch>;
 
    actionTable_['k']       = &Normal::Scroll<Line, Up>;
    actionTable_['j']       = &Normal::Scroll<Line, Down>;
