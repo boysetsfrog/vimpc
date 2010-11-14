@@ -55,10 +55,7 @@ bool Player::Next(uint32_t count)
       client_.Play(GetCurrentSong() + count);
    }
 
-   if (settings_.AutoScroll() == true)
-   {
-      screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
-   }
+   HandleAutoScroll();
 
    return true;
 }
@@ -82,6 +79,8 @@ bool Player::NextArtist(uint32_t count)
 
    client_.Play(currentSong + skipCount);
 
+   HandleAutoScroll();
+
    return true;
 }
 
@@ -95,6 +94,8 @@ bool Player::Previous(uint32_t count)
    {
       client_.Play(GetCurrentSong() - count);
    }
+
+   HandleAutoScroll();
 
    return true;
 }
@@ -115,6 +116,8 @@ bool Player::PreviousArtist(uint32_t count)
       }
       while ((newSong != NULL) && (newSong->Artist().compare(song->Artist()) == 0));
    }
+   
+   HandleAutoScroll();
 
    client_.Play(currentSong - skipCount);
 
@@ -211,4 +214,12 @@ bool Player::Library(std::string const & arguments)
 uint32_t Player::GetCurrentSong() const
 {
    return client_.GetCurrentSong();
+}
+
+void Player::HandleAutoScroll()
+{
+   if (settings_.AutoScroll() == true)
+   {
+      screen_.PlaylistWindow().ScrollTo(GetCurrentSong() + 1);
+   }
 }

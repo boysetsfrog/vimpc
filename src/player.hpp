@@ -83,6 +83,9 @@ namespace Ui
    protected:
       uint32_t GetCurrentSong() const;
 
+   private:
+      void HandleAutoScroll();
+
    protected:
       Ui::Screen     & screen_;
       Mpc::Client    & client_;
