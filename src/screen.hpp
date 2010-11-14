@@ -58,18 +58,13 @@ namespace Ui
          Library,
          MainWindowCount
       } MainWindow;
-
-   public:
-      void Start();
-      ModeWindow * CreateModeWindow();
-      void SetStatusLine(char const * const fmt, ... );
-
-   public:
+   
       typedef enum 
       { 
          Current, 
          Top, 
-         Bottom
+         Bottom,
+         LocationCount
       } Location;
       
       typedef enum 
@@ -85,12 +80,19 @@ namespace Ui
       } Direction;
 
    public:
-      void Confirm();
+      void Start();
+      ModeWindow * CreateModeWindow();
+      void SetStatusLine(char const * const fmt, ... );
+
+   public:
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(Location location);
-      void Update() const;
-      void Clear();
       void Search(std::string const & searchString) const;
+
+   public:
+      void Confirm();
+      void Clear();
+      void Update() const;
       void Redraw();
 
    public:

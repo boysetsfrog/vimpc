@@ -128,47 +128,54 @@ void Screen::SetStatusLine(char const * const fmt, ...)
 }
 
 
-void Screen::Confirm()
-{
-   mainWindows_[window_]->Confirm();
-}
-
-
 void Screen::Scroll(Size size, Direction direction, uint32_t count)
 {
    int32_t scrollCount = count;
 
    if (size == Page)
    {
-     scrollCount *= ((MaxRows() + 1) / 2);
+      scrollCount *= ((MaxRows() + 1) / 2);
    }
 
-   scrollCount *= (direction == Up) ? -1 : 1;
+   if (direction == Up)
+   {
+      scrollCount *= -1;
+   }
 
    Scroll(scrollCount);
 }
 
 void Screen::ScrollTo(Location location)
 {
+   uint32_t scroll[LocationCount] = { 0, 0, 0 };
+
    if (window_ == Playlist)
    {
-      switch (location)
-      {
-         case Top:
-            ScrollTo(0);
-            break;
+      scroll[Current] = client_.GetCurrentSong() + 1;
+      scroll[Bottom]  = client_.TotalNumberOfSongs();
+   }
 
-         case Current:
-            ScrollTo(client_.GetCurrentSong() + 1);
-            break;
+   ScrollTo(scroll[location]);
+}
 
-         case Bottom:
-            ScrollTo(client_.TotalNumberOfSongs());
-            break;
+void Screen::Search(std::string const & searchString) const
+{
+   mainWindows_[window_]->Search(searchString);
+}
 
-         default:
-            ASSERT(false);
-      }
+
+void Screen::Confirm()
+{
+   mainWindows_[window_]->Confirm();
+}
+
+void Screen::Clear()
+{
+   consoleWindow_->Clear();
+
+   if (window_ == Console)
+   {
+      Update();
    }
 }
 
@@ -191,24 +198,9 @@ void Screen::Update() const
    }
 }
 
-void Screen::Search(std::string const & searchString) const
-{
-   mainWindows_[window_]->Search(searchString);
-}
-
 void Screen::Redraw()
 {
    mainWindows_[window_]->Redraw();
-}
-
-void Screen::Clear()
-{
-   consoleWindow_->Clear();
-
-   if (window_ == Console)
-   {
-      Update();
-   }
 }
 
 
