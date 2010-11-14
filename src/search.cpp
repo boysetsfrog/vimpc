@@ -29,10 +29,10 @@
 
 using namespace Ui;
 
-Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Direction direction) :
+Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode   (screen),
    Player      (screen, client, settings),
-   direction_  (direction),
+   direction_  (Forwards),
    lastSearch_ (""),
    prompt_     (),
    settings_   (settings),
@@ -62,12 +62,11 @@ bool Search::CausesModeToStart(int input)
 
 bool Search::SearchResult(Skip skip, uint32_t count)
 {
-   Direction direction = Forwards;
+   Direction direction = direction_;
 
-   if (((direction_ == Backwards) && (skip == Next)) || 
-       ((direction_ == Forwards)  && (skip == Previous)))
+   if (skip == Previous)
    {
-      direction = Backwards;
+      direction = SwapDirection(direction);
    }
 
    SearchWindow(direction, lastSearch_, count);
@@ -95,6 +94,12 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
    }
 
    return true;
+}
+
+
+Search::Direction Search::SwapDirection(Direction direction) const
+{
+   return ((direction == Forwards) ? Backwards : Forwards);
 }
 
 Search::Direction Search::GetDirectionForInput(int input) const
@@ -129,7 +134,7 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
 
 char const * const Search::Prompt() 
 { 
-   static char SearchPrompt[2] = "";
+   static char SearchPrompt[PromptSize + 1] = "";
 
    SearchPrompt[0] = prompt_[direction_];
    SearchPrompt[1] = '\0';

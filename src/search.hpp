@@ -45,26 +45,37 @@ namespace Ui
    {
 
    public:
-      typedef enum { Next,     Previous  } Skip;
-      typedef enum { Forwards, Backwards, DirectionCount } Direction;
-
-   public:
-      Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Direction direction = Forwards);
+      Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
       ~Search();
 
    public:
+      typedef enum 
+      { 
+         Next,
+         Previous
+      } Skip;
+
+      typedef enum 
+      { 
+         Forwards, 
+         Backwards, 
+         DirectionCount 
+      } Direction;
+
+   public: //Ui::Handler
       void InitialiseMode(int input);
       bool CausesModeToStart(int input);
 
+   public:
       bool SearchResult(Skip skip, uint32_t count);
       bool SearchWindow(Direction direction, std::string search, uint32_t count);
 
    private:
+      Direction SwapDirection(Direction direction) const;
       Direction GetDirectionForInput(int input) const;
-
       bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);
 
-   private:
+   private: //Ui::InputMode
       bool InputModeHandler(std::string input);
       char const * const Prompt();
 

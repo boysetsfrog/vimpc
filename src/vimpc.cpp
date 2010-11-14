@@ -68,6 +68,7 @@ void Vimpc::Run()
       {
          client_.Connect("127.0.0.1");
       }
+
       screen_.Start();
 
       handlerTable_[currentMode_]->InitialiseMode(0);
