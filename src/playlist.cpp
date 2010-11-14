@@ -168,14 +168,15 @@ void PlaylistWindow::Scroll(int32_t scrollCount)
 
 void PlaylistWindow::ScrollTo(uint16_t scrollLine)
 {
-   currentSelection_ = ((int64_t) scrollLine - 1);
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
+   int64_t oldSelection = currentSelection_;
+   currentSelection_    = ((int64_t) scrollLine - 1);
+   currentSelection_    = LimitCurrentSelection(currentSelection_);
 
-   if (currentSelection_ == scrollLine_)
+   if ((currentSelection_ == scrollLine_) && (currentSelection_ - oldSelection == 1))
    {
       Window::Scroll(1);
    }
-   else if (currentSelection_ == scrollLine_ - screen_.MaxRows() - 1)
+   else if ((currentSelection_ == scrollLine_ - screen_.MaxRows() - 1) && (currentSelection_ - oldSelection == -1))
    {
       Window::Scroll(-1);
    }
