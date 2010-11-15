@@ -80,7 +80,7 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
 
    if (direction == Forwards)
    {
-      for (int32_t i = screen_.PlaylistWindow().CurrentLine() + 1; ((i <= (int32_t) screen_.PlaylistWindow().LastLine()) && (found == false)); ++i)
+      for (int32_t i = screen_.PlaylistWindow().CurrentLine() + 1; ((i <= (int32_t) screen_.PlaylistWindow().ContentSize()) && (found == false)); ++i)
       {
          found = CheckForMatch(search, i, count);
       }

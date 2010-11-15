@@ -38,12 +38,24 @@ namespace Ui
       virtual ~Window();
 
    public:
+      typedef enum 
+      { 
+         First,
+         Middle,
+         Last,
+         PositionCount
+      } Position;
+
+   public:
       virtual void Print(uint32_t line) const = 0;
       virtual void Confirm() const;
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
       virtual void Search(std::string const & searchString) const;
       virtual void Redraw();
+
+   public:
+      bool Select(Position position, uint32_t count);
 
    public:
       void Erase();
@@ -56,7 +68,9 @@ namespace Ui
    public:
       uint16_t FirstLine()   const;
       virtual  uint16_t CurrentLine() const { return FirstLine(); }
-      uint32_t LastLine()    const { return BufferSize() - 1; }
+      uint32_t LastLine()    const { return ScrollLine(); }
+
+      uint32_t ContentSize() const { return BufferSize() - 1; }
 
    protected:
       void ResetScroll(); 

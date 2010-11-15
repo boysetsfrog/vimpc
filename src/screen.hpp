@@ -86,6 +86,7 @@ namespace Ui
       void SetStatusLine(char const * const fmt, ... );
 
    public:
+      void Select(Window::Position position, uint32_t count);
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(Location location, uint32_t line = 0);
       void Search(std::string const & searchString) const;

@@ -56,6 +56,10 @@ namespace Ui
       bool Confirm(uint32_t count);
       bool RepeatLastAction(uint32_t count);
 
+   private: //Selecting
+      template <Window::Position POSITION>
+      bool Select(uint32_t count); 
+
    private: //Searching
       template <Search::Skip SKIP>
       bool SearchResult(uint32_t count); 
@@ -84,6 +88,16 @@ namespace Ui
       Main::Settings    & settings_;
 
    };
+
+   // \todo this should be implemented using the window
+   // somehow
+   //Implementation of selecting functions
+   template <Window::Position POSITION>
+   bool Normal::Select(uint32_t count)
+   {
+      screen_.Select(POSITION, count);
+      return true;
+   }
 
 
    //Implementation of searching functions

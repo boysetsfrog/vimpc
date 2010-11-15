@@ -95,6 +95,38 @@ void Window::Redraw()
 
 }
 
+bool Window::Select(Position position, uint32_t count)
+{
+   if (position == Window::First)
+   {
+      int32_t scroll = FirstLine() + count;
+
+      if (scroll > (int32_t) LastLine()) 
+      { 
+         scroll = LastLine(); 
+      }
+
+      ScrollTo(scroll);
+   }
+   else if (position == Window::Last)
+   {
+      int32_t scroll = LastLine() - count + 1;
+
+      if (scroll < (int32_t) FirstLine() + 1) 
+      { 
+         scroll = FirstLine() + 1; 
+      }
+
+      ScrollTo(scroll);
+   }
+   else if (position == Window::Middle)
+   {
+      ScrollTo(FirstLine() + ((LastLine() - FirstLine() + 1) / 2) );
+   }
+
+   return true;
+}
+
 
 void Window::Erase()
 {

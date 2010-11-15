@@ -128,6 +128,11 @@ void Screen::SetStatusLine(char const * const fmt, ...)
 }
 
 
+void Screen::Select(Window::Position position, uint32_t count)
+{
+   mainWindows_[window_]->Select(position, count);
+}
+
 void Screen::Scroll(Size size, Direction direction, uint32_t count)
 {
    int32_t scrollCount = count;

@@ -53,8 +53,13 @@ Normal::Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, M
 
    actionTable_['l']       = &Normal::Next;
    actionTable_['h']       = &Normal::Previous;
-   actionTable_['L']       = &Normal::NextArtist;
-   actionTable_['H']       = &Normal::PreviousArtist;
+
+   actionTable_['x']       = &Normal::NextArtist;
+   actionTable_['z']       = &Normal::PreviousArtist;
+
+   actionTable_['H']       = &Normal::Select<Window::First>;
+   actionTable_['M']       = &Normal::Select<Window::Middle>;
+   actionTable_['L']       = &Normal::Select<Window::Last>;
 
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
