@@ -28,6 +28,23 @@
 
 namespace Main
 {
+   //holds the value of a single setting
+   template <typename T>
+   class Setting
+   {
+      public:
+         Setting() { }
+         Setting(T v) : value_(v) { }
+         ~Setting() { }
+
+         T Get() const { return value_; }
+         void Set(T v) { value_ = v; }
+
+      private:
+         T value_;
+   };
+
+   // Manages settings which are set via :set command
    class Settings
    {
       public:
@@ -41,22 +58,32 @@ namespace Main
          //Calls the correct setter function based upon the given input
          void Set(std::string const & input);
 
-         //Sets or Gets the default startup window
+         //Gets the default startup window
          Ui::Screen::MainWindow Window() const;
-         void SetWindow(std::string const & arguments); 
 
-         //Determines whether to automatically scroll to playing song
+         //Whether to autmatically scroll to playing song
          bool AutoScroll() const;
-         void SetAutoScroll(std::string const & arguments);
-         void SetNoAutoScroll(std::string const & arguments);
+
+      private:
+         void SetSpecificSetting(std::string setting, std::string arguments);
+         void SetSingleSetting(std::string setting);
+
+      private:
+         bool Get(std::string setting) const { return toggleTable_.at(setting)->Get(); }
+
+      private:
+         //Sets the startup window
+         void SetWindow(std::string const & arguments); 
 
       private:
          Ui::Screen::MainWindow defaultWindow_;
-         bool autoScroll_;
 
          typedef void (Main::Settings::*ptrToMember)(std::string const &);
-         typedef std::map<std::string, ptrToMember> SettingsTable;
-         SettingsTable settingsTable_;
+         typedef std::map<std::string, ptrToMember> SettingsFunctionTable;
+         SettingsFunctionTable settingsTable_;
+
+         typedef std::map<std::string, Setting<bool> * > SettingsToggleTable;
+         SettingsToggleTable   toggleTable_;
    };
 }
 

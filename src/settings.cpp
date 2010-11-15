@@ -22,12 +22,15 @@
 
 #include "dbc.hpp"
 
-#include <stdlib.h>
 #include <algorithm>
+#include <boost/regex.hpp>
+#include <iostream>
 #include <sstream>
+#include <stdlib.h>
 
 using namespace Main;
 
+char const * const AutoScrollSetting = "autoscroll";
 
 Settings & Settings::Instance()
 {
@@ -36,12 +39,11 @@ Settings & Settings::Instance()
 }
 
 Settings::Settings() :
-   defaultWindow_(Ui::Screen::Console),
-   autoScroll_   (false)
+   defaultWindow_(Ui::Screen::Console)
 {
-   settingsTable_["window"]       = &Settings::SetWindow;
-   settingsTable_["autoscroll"]   = &Settings::SetAutoScroll;
-   settingsTable_["noautoscroll"] = &Settings::SetNoAutoScroll;
+   settingsTable_["window"]        = &Settings::SetWindow;
+
+   toggleTable_[AutoScrollSetting] = new Setting<bool>(false);
 }
 
 Settings::~Settings()
@@ -57,10 +59,56 @@ void Settings::Set(std::string const & input)
    std::getline(settingStream, setting,   ' '); 
    std::getline(settingStream, arguments, '\n');
 
+   if (arguments == "")
+   {
+      SetSingleSetting(setting);
+   }
+   else
+   {
+      SetSpecificSetting(setting, arguments);
+   }
+
+}
+
+void Settings::SetSpecificSetting(std::string setting, std::string arguments)
+{
    if (settingsTable_.find(setting) != settingsTable_.end())
    {
       ptrToMember settingFunc = settingsTable_[setting];
       (*this.*settingFunc)(arguments);
+   }
+}
+
+void Settings::SetSingleSetting(std::string setting)
+{
+   boost::regex const toggleCheck("^.*!$");
+   boost::regex const offCheck   ("^no.*");
+
+   bool const toggle(boost::regex_match(setting.c_str(), toggleCheck));
+   bool const off   (boost::regex_match(setting.c_str(), offCheck));
+
+   if (toggle == true)
+   {
+      setting = setting.substr(0, setting.length() - 1);
+   }
+
+   if ((off == true) && (toggleTable_.find(setting) == toggleTable_.end()))
+   {
+      setting = setting.substr(2, setting.length() - 2);
+   }
+
+   if (toggleTable_.find(setting) != toggleTable_.end())
+   {
+      Setting<bool> * const set = toggleTable_[setting];
+
+      if (toggle == true)
+      {
+         set->Set(!(set->Get()));
+      }
+      else
+      {
+         set->Set((off == false));
+      }
    }
 }
 
@@ -70,25 +118,16 @@ Ui::Screen::MainWindow Settings::Window() const
    return defaultWindow_;
 }
 
+bool Settings::AutoScroll() const
+{
+   return Get(AutoScrollSetting);
+}
+
+
 void Settings::SetWindow(std::string const & arguments)
 {
    std::string window(arguments);
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
    defaultWindow_ = Ui::Screen::GetWindowFromName(window);
-}
-
-bool Settings::AutoScroll() const
-{
-   return autoScroll_;
-}
-
-void Settings::SetAutoScroll(std::string const & arguments)
-{
-   autoScroll_ = true;    
-}
-
-void Settings::SetNoAutoScroll(std::string const & arguments)
-{
-   autoScroll_ = false;    
 }
