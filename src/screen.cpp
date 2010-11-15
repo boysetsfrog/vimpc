@@ -145,9 +145,11 @@ void Screen::Scroll(Size size, Direction direction, uint32_t count)
    Scroll(scrollCount);
 }
 
-void Screen::ScrollTo(Location location)
+void Screen::ScrollTo(Location location, uint32_t line)
 {
-   uint32_t scroll[LocationCount] = { 0, 0, 0 };
+   uint32_t scroll[LocationCount] = { 0, 0, 0, 0 };
+
+   scroll[Specific] = line;
 
    if (window_ == Playlist)
    {

@@ -72,7 +72,7 @@ namespace Ui
    protected:
       Ui::Screen const & screen_;
       WINDOW   * window_;
-      uint16_t    scrollLine_;
+      uint16_t   scrollLine_;
       bool       autoScroll_;
    };
 }

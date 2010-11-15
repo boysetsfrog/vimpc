@@ -65,13 +65,14 @@ namespace Ui
       bool Scroll(uint32_t count);
       
       template <Screen::Location LOCATION>
-      bool ScrollTo(uint32_t count);
+      bool ScrollTo(uint32_t line);
 
    private:
       ModeWindow *  window_;
       uint32_t      actionCount_;
       int32_t       lastAction_;
       uint32_t      lastActionCount_;
+      bool          wasSpecificCount_;
 
       typedef bool (Ui::Normal::*ptrToMember)(uint32_t);
       typedef std::map<int, ptrToMember> ActionTable;
@@ -102,9 +103,16 @@ namespace Ui
    }
 
    template <Screen::Location LOCATION>
-   bool Normal::ScrollTo(uint32_t count)
+   bool Normal::ScrollTo(uint32_t line)
    {
-      screen_.ScrollTo(LOCATION);
+      if ((LOCATION == Screen::Specific) && (wasSpecificCount_ == false))
+      {
+         screen_.ScrollTo(Screen::Bottom);
+      }
+      else
+      {
+         screen_.ScrollTo(LOCATION, line);
+      }
       return true;
    }
 

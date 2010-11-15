@@ -46,7 +46,6 @@ namespace Ui
       void Confirm() const;
       void Scroll(int32_t scrollCount);
       void ScrollTo(uint16_t scrollLine);
-      void Search(std::string const & searchString) const;
       void Redraw();
 
       uint16_t CurrentLine() const { return currentSelection_; }

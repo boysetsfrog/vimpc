@@ -32,6 +32,7 @@ Normal::Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, M
    actionCount_     (0),
    lastAction_      (0),
    lastActionCount_ (0),
+   wasSpecificCount_(false),
    actionTable_     (),
    search_          (search),
    client_          (client),
@@ -68,7 +69,7 @@ Normal::Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
    actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
-   actionTable_['G']       = &Normal::ScrollTo<Screen::Bottom>;
+   actionTable_['G']       = &Normal::ScrollTo<Screen::Specific>;
 
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];
@@ -118,6 +119,8 @@ bool Normal::Handle(int input)
 
    else if (actionTable_.find(input) != actionTable_.end())
    {
+      wasSpecificCount_ = (actionCount_ != 0);
+
       uint32_t count = (actionCount_ > 0) ? actionCount_ : 1;
 
       if (input != '.')

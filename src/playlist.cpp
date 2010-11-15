@@ -192,11 +192,6 @@ void PlaylistWindow::ScrollTo(uint16_t scrollLine)
    }
 }
 
-void PlaylistWindow::Search(std::string const & searchString) const
-{
-   
-}
-
 int64_t PlaylistWindow::LimitCurrentSelection(int64_t currentSelection) const
 {
    if (currentSelection < 0)
