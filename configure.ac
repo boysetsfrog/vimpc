@@ -37,7 +37,7 @@ debug_default="no"
 AC_ARG_ENABLE(debug, [ --enable-debug=[no/yes] turn on debugging [default=$debug_default]],, enable_debug=$debug_default)
 if test "x$enable_debug" = "xyes"; then
    CXXFLAGS=""
-   CPPFLAGS="$CPPFLAGS -g -D_VIMPC_DEBUG -Wall -Werror"
+   CPPFLAGS="$CPPFLAGS -g -D__DEBUG_ASSERT -Wall -Werror"
    AC_MSG_RESULT(yes)
 else
    AC_MSG_RESULT(no)

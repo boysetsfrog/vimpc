@@ -20,14 +20,11 @@
 
 #include <getopt.h>
 #include <iostream>
-#include <ncurses.h>
-#include <sstream>
-#include <stdlib.h>
 
 #include "project.hpp"
 #include "vimpc.hpp"
 
-#ifdef _VIMPC_DEBUG
+#ifdef __DEBUG_ASSERT
 
 #include <execinfo.h>
 

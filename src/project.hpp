@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <sstream>
+
 namespace Main
 {
    namespace Project
