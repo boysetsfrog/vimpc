@@ -28,14 +28,14 @@
 
 #include <execinfo.h>
 
-extern void assert_failed(const char * file, int line)
+extern void assert_failed(const char * file, const char * function, int line)
 {
    int const BufferSize = 128;
    void    * buffer[BufferSize];
    int       nptrs;
 
    endwin();
-   std::cout << "ASSERTION FAILED: " << file << " on line " << line << std::endl << std::endl;
+   std::cout << "ASSERTION FAILED: " << file << " in " << function << " on line " << line << std::endl << std::endl;
 
    nptrs = backtrace(buffer, BufferSize);
    backtrace_symbols_fd(buffer, nptrs, STDERR_FILENO);

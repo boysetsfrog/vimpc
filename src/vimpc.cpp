@@ -59,11 +59,11 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run()
 {
-   Ui::Command & commandHandler = Assert::Reference(dynamic_cast<Ui::Command *>(handlerTable_[Command]));
+   Ui::Command & commandHandler = assert_reference(dynamic_cast<Ui::Command *>(handlerTable_[Command]));
 
    if (Config::ExecuteConfigCommands(commandHandler) == true)
    {
-      Ui::Handler & handler = Assert::Reference(handlerTable_[currentMode_]);
+      Ui::Handler & handler = assert_reference(handlerTable_[currentMode_]);
 
       if (client_.Connected() == false)
       {
@@ -85,7 +85,7 @@ int Vimpc::Input() const
 
 bool Vimpc::Handle(int input)
 {
-   Ui::Handler & handler = Assert::Reference(handlerTable_[currentMode_]);
+   Ui::Handler & handler = assert_reference(handlerTable_[currentMode_]);
 
    // Input must be handled before mode is changed
    bool const result = handler.Handle(input);
@@ -123,7 +123,7 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
    // Check if we are returning to normal mode
    if (currentMode_ != Normal)
    {
-      Ui::Handler const & normalHandler = Assert::Reference(handlerTable_.at(Normal));
+      Ui::Handler const & normalHandler = assert_reference(handlerTable_.at(Normal));
 
       if (normalHandler.CausesModeToStart(input) == true)
       {   
@@ -135,7 +135,7 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
    {
       for (HandlerTable::const_iterator it = handlerTable_.begin(); (it != handlerTable_.end()); ++it)
       {
-         Ui::Handler const & handler = Assert::Reference(it->second);
+         Ui::Handler const & handler = assert_reference(it->second);
 
          if (handler.CausesModeToStart(input) == true)
          {
@@ -154,8 +154,8 @@ void Vimpc::ChangeMode(int input)
 
    if (newMode != oldMode)
    {
-      Ui::Handler & oldHandler = Assert::Reference(handlerTable_[oldMode]);
-      Ui::Handler & newHandler = Assert::Reference(handlerTable_[newMode]);
+      Ui::Handler & oldHandler = assert_reference(handlerTable_[oldMode]);
+      Ui::Handler & newHandler = assert_reference(handlerTable_[newMode]);
 
       currentMode_ = newMode;
 

@@ -190,7 +190,7 @@ void Screen::Update() const
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
-      Ui::Window & mainWindow = Assert::Reference<Ui::Window>(mainWindows_[window_]);
+      Ui::Window & mainWindow = assert_reference(mainWindows_[window_]);
 
       mainWindow.Erase();
 
@@ -234,12 +234,12 @@ void Screen::SetActiveWindow(MainWindow window)
 
 Ui::ConsoleWindow & Screen::ConsoleWindow() const
 { 
-   return Assert::Reference<Ui::ConsoleWindow>(consoleWindow_);
+   return assert_reference(consoleWindow_);
 }
 
 Ui::PlaylistWindow & Screen::PlaylistWindow() const
 { 
-   return Assert::Reference<Ui::PlaylistWindow>(playlistWindow_);
+   return assert_reference(playlistWindow_);
 }
 
 
