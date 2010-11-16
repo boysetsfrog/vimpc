@@ -26,7 +26,7 @@
 
 using namespace Ui;
 
-Normal::Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search) :
    Player           (screen, client, settings),
    window_          (NULL),
    actionCount_     (0),
@@ -146,7 +146,7 @@ bool Normal::Handle(int input)
    return result;
 }
 
-bool Normal::CausesModeToStart(int input)
+bool Normal::CausesModeToStart(int input) const
 {
    return ((input == '\n') || (input == 27));
 }

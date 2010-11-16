@@ -43,14 +43,14 @@ namespace Ui
    class Normal : public Handler, public Player
    {
    public:
-      Normal(Ui::Search & search, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
+      Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search);
       ~Normal();
 
    public: // Ui::Handler
       void InitialiseMode(int input);
       void FinaliseMode(int input);
       bool Handle(int input);
-      bool CausesModeToStart(int input);
+      bool CausesModeToStart(int input) const;
 
    private:
       bool Confirm(uint32_t count);

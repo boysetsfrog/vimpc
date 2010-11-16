@@ -15,11 +15,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   dbc.hpp - provides error checking and verification 
+   assert.hpp - provides error checking and verification 
    */
 
-#ifndef __DBC
-#define __DBC
+#ifndef __ASSERT
+#define __ASSERT
 
 #ifdef _VIMPC_DEBUG
 #define ASSERT(_expression)  if (!(_expression)) assert_failed(__FILE__, __LINE__)
@@ -40,7 +40,7 @@ template<>     struct static_assert_failed<true> {};
 #endif
 
 #include "stdlib.h"
-namespace DBC
+namespace Assert
 {
    // Ensure that any null pointers cause asserts rather than seg fault
    template <typename T>

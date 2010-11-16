@@ -97,6 +97,7 @@ void Window::Redraw()
 
 bool Window::Select(Position position, uint32_t count)
 {
+   // \todo prevent this from affecting things like the console window
    if (position == Window::First)
    {
       int32_t scroll = FirstLine() + count;

@@ -20,7 +20,7 @@
 
 #include "settings.hpp"
 
-#include "dbc.hpp"
+#include "assert.hpp"
 
 #include <algorithm>
 #include <boost/regex.hpp>

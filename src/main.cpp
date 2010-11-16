@@ -38,7 +38,7 @@ extern void assert_failed(const char * file, int line)
    int       nptrs;
 
    endwin();
-   std::cout << "DBC ASSERTION FAILED: " << file << " on line " << line << std::endl << std::endl;
+   std::cout << "ASSERTION FAILED: " << file << " on line " << line << std::endl << std::endl;
 
    nptrs = backtrace(buffer, BufferSize);
    backtrace_symbols_fd(buffer, nptrs, STDERR_FILENO);

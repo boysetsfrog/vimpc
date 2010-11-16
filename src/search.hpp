@@ -64,7 +64,7 @@ namespace Ui
 
    public: //Ui::Handler
       void InitialiseMode(int input);
-      bool CausesModeToStart(int input);
+      bool CausesModeToStart(int input) const;
 
    public:
       bool SearchResult(Skip skip, uint32_t count);
@@ -77,7 +77,7 @@ namespace Ui
 
    private: //Ui::InputMode
       bool InputModeHandler(std::string input);
-      char const * const Prompt();
+      char const * const Prompt() const;
 
    private: 
       Direction        direction_;

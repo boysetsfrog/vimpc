@@ -26,25 +26,26 @@
 #include "command.hpp"
 #include "search.hpp"
 
+#include "assert.hpp"
 #include "config.hpp"
-#include "dbc.hpp"
 #include "settings.hpp"
 
 using namespace Main;
 
 Vimpc::Vimpc() :
    currentMode_ (Normal),
-   handlerTable_(),
    settings_    (Main::Settings::Instance()),
    screen_      (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
-   client_      (screen_)
+   client_      (screen_),
+   handlerTable_()
 {
-   Ui::Search * const search   = new Ui::Search (screen_,  client_, settings_);
+   Ui::Search * const search   = new Ui::Search (screen_, client_, settings_);
+   handlerTable_[Command]      = new Ui::Command(screen_, client_, settings_);
+   handlerTable_[Normal]       = new Ui::Normal (screen_, client_, settings_, *search);
    handlerTable_[Search]       = search;
-   handlerTable_[Command]      = new Ui::Command(screen_,  client_, settings_);
-   handlerTable_[Normal]       = new Ui::Normal (*search, screen_, client_, settings_);
 
-   ENSURE(handlerTable_.size() == ModeCount);
+   ENSURE(handlerTable_.size()     == ModeCount);
+   ENSURE(HandlersAreInitialised() == true);
 }
 
 Vimpc::~Vimpc()
@@ -58,20 +59,19 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run()
 {
-   Ui::Command * commandHandler = dynamic_cast<Ui::Command *>(handlerTable_[Command]);
+   Ui::Command & commandHandler = Assert::Reference(dynamic_cast<Ui::Command *>(handlerTable_[Command]));
 
-   ASSERT(commandHandler != NULL);
-
-   if (Config::ExecuteConfigCommands(*commandHandler) == true)
+   if (Config::ExecuteConfigCommands(commandHandler) == true)
    {
+      Ui::Handler & handler = Assert::Reference(handlerTable_[currentMode_]);
+
       if (client_.Connected() == false)
       {
          client_.Connect("127.0.0.1");
       }
 
       screen_.Start();
-
-      handlerTable_[currentMode_]->InitialiseMode(0);
+      handler.InitialiseMode(0);
 
       while (Handle(Input()) == true);
    }
@@ -85,12 +85,10 @@ int Vimpc::Input() const
 
 bool Vimpc::Handle(int input)
 {
-   Ui::Handler * handler = handlerTable_[currentMode_];
-
-   ASSERT(handler != NULL);
+   Ui::Handler & handler = Assert::Reference(handlerTable_[currentMode_]);
 
    // Input must be handled before mode is changed
-   bool const result = handler->Handle(input);
+   bool const result = handler.Handle(input);
 
    if (RequiresModeChange(input) == true)
    {
@@ -99,6 +97,19 @@ bool Vimpc::Handle(int input)
 
    return result;
 }
+
+bool Vimpc::HandlersAreInitialised()
+{
+   bool result = true;
+
+   for (HandlerTable::iterator it = handlerTable_.begin(); ((it != handlerTable_.end()) && (result == true)); ++it)
+   {
+      result = (it->second != NULL);
+   }
+   
+   return result;
+}
+
 
 bool Vimpc::RequiresModeChange(int input) const
 {
@@ -112,7 +123,9 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
    // Check if we are returning to normal mode
    if (currentMode_ != Normal)
    {
-      if (handlerTable_.at(Normal)->CausesModeToStart(input) == true)
+      Ui::Handler const & normalHandler = Assert::Reference(handlerTable_.at(Normal));
+
+      if (normalHandler.CausesModeToStart(input) == true)
       {   
          newMode = Normal;
       }
@@ -122,9 +135,9 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
    {
       for (HandlerTable::const_iterator it = handlerTable_.begin(); (it != handlerTable_.end()); ++it)
       {
-         ASSERT(it->second != NULL);
+         Ui::Handler const & handler = Assert::Reference(it->second);
 
-         if ((it->second)->CausesModeToStart(input) == true)
+         if (handler.CausesModeToStart(input) == true)
          {
             newMode = it->first;
          }
@@ -141,8 +154,12 @@ void Vimpc::ChangeMode(int input)
 
    if (newMode != oldMode)
    {
+      Ui::Handler & oldHandler = Assert::Reference(handlerTable_[oldMode]);
+      Ui::Handler & newHandler = Assert::Reference(handlerTable_[newMode]);
+
       currentMode_ = newMode;
-      handlerTable_[oldMode]->FinaliseMode(input);
-      handlerTable_[newMode]->InitialiseMode(input);
+
+      oldHandler.FinaliseMode(input);
+      newHandler.InitialiseMode(input);
    }
 }

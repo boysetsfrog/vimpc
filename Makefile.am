@@ -2,12 +2,12 @@ AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS}
 
 bin_PROGRAMS  = vimpc
-vimpc_SOURCES = src/command.cpp \
+vimpc_SOURCES = src/assert.hpp \
+                src/command.cpp \
                 src/command.hpp \
                 src/config.hpp \
                 src/console.cpp \
                 src/console.hpp \
-                src/dbc.hpp \
                 src/handler.hpp \
                 src/help.cpp \
                 src/help.hpp \

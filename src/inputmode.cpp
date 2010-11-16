@@ -23,8 +23,8 @@
 #include <limits>
 #include <algorithm>
 
+#include "assert.hpp"
 #include "console.hpp"
-#include "dbc.hpp"
 #include "screen.hpp"
 
 using namespace Ui;
@@ -97,7 +97,7 @@ bool InputMode::Handle(int const input)
    return result;
 }
 
-bool InputMode::CausesModeToStart(int input)
+bool InputMode::CausesModeToStart(int input) const
 {
    return ((char) input == Prompt()[0]);
 }

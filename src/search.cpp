@@ -54,7 +54,7 @@ void Search::InitialiseMode(int input)
    InputMode::InitialiseMode(input);
 }
 
-bool Search::CausesModeToStart(int input)
+bool Search::CausesModeToStart(int input) const
 {
    return ((input == prompt_[Forwards]) || (input == prompt_[Backwards]));
 }
@@ -132,7 +132,7 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
    return found;
 }
 
-char const * const Search::Prompt() 
+char const * const Search::Prompt() const
 { 
    static char SearchPrompt[PromptSize + 1] = "";
 

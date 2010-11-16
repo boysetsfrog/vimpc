@@ -24,8 +24,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include "assert.hpp"
 #include "console.hpp"
-#include "dbc.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
@@ -98,7 +98,7 @@ void Command::GenerateInputString(int input)
 }
  
 
-char const * const Command::Prompt()
+char const * const Command::Prompt() const
 {
    static char const CommandPrompt[] = ":";
    return CommandPrompt;

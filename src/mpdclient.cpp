@@ -20,8 +20,8 @@
 
 #include "mpdclient.hpp"
 
+#include "assert.hpp"
 #include "console.hpp"
-#include "dbc.hpp"
 #include "playlist.hpp"
 #include "screen.hpp"
 

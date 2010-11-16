@@ -83,7 +83,7 @@ void PlaylistWindow::DeleteSongs()
 
 void PlaylistWindow::Print(uint32_t line) const
 {
-   std::string const BlankLine(screen_.MaxColumns(), ' ');
+   static std::string const BlankLine(screen_.MaxColumns(), ' ');
 
    WINDOW * window = N_WINDOW();
 

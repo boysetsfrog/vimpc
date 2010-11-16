@@ -52,6 +52,10 @@ namespace Main
       //! Handle the input using the currently active mode
       bool Handle(int input);
 
+      //! Checks that the handler for each mode is valid
+      //! \todo Possibly template this kind of check?
+      bool HandlersAreInitialised();
+
    private:
       //! All available modes
       typedef enum
@@ -62,7 +66,6 @@ namespace Main
          ModeCount
       } Mode;
 
-   private:
       //! Check if the given \p input will require the curently active mode
       //! to be changed
       bool RequiresModeChange(int input) const;
@@ -75,14 +78,14 @@ namespace Main
       void ChangeMode(int input);
 
    private:
-      Mode         currentMode_;
-
       typedef std::map<Mode, Ui::Handler *> HandlerTable;
-      HandlerTable handlerTable_;
 
-      Settings   & settings_;
-      Ui::Screen   screen_;
-      Mpc::Client  client_;
+   private:
+      Mode           currentMode_;
+      Settings     & settings_;
+      Ui::Screen     screen_;
+      Mpc::Client    client_;
+      HandlerTable   handlerTable_;
    };
 }
 

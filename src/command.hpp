@@ -56,7 +56,7 @@ namespace Ui
       //
       void GenerateInputString(int const input);
 
-      char const * const Prompt();
+      char const * const Prompt() const;
       bool InputModeHandler(std::string input);
 
    public:

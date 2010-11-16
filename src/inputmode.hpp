@@ -82,7 +82,7 @@ namespace Ui
       virtual void InitialiseMode(int input);
       virtual void FinaliseMode(int input);
       virtual bool Handle(int input);
-      virtual bool CausesModeToStart(int input);
+      virtual bool CausesModeToStart(int input) const;
 
    public:
       virtual bool HasCompleteInput(int input);
@@ -103,7 +103,7 @@ namespace Ui
       std::string SearchHistory(Direction direction, std::string const & inputString);
 
    public:
-      virtual char const * const Prompt() = 0;
+      virtual char const * const Prompt() const = 0;
       virtual bool InputModeHandler(std::string input) = 0;
 
    public:
