@@ -21,15 +21,15 @@
 #ifndef __UI__INPUTMODE
 #define __UI__INPUTMODE
 
-#include <string>
-#include <map>
-#include <vector>
-
 #include "handler.hpp"
-#include "modewindow.hpp"
+
+#include <stdint.h>
+#include <string>
+#include <vector>
 
 namespace Ui
 {
+   class ModeWindow;
    class Screen;
 
    static int const PromptSize = 1;
@@ -42,7 +42,7 @@ namespace Ui
       ~Cursor();
 
    public:
-      uint16_t Position();
+      uint16_t Position() const;
       uint16_t UpdatePosition(int input);
       void     ResetCursorPosition();
 
@@ -59,10 +59,10 @@ namespace Ui
    private:
       CursorState CursorMovementState();
       uint16_t LimitCursorPosition(uint16_t position) const;
-      bool WantCursorLeft();
-      bool WantCursorRight();
-      bool WantCursorStart();
-      bool WantCursorEnd();
+      bool WantCursorLeft() const;
+      bool WantCursorRight() const;
+      bool WantCursorStart() const;
+      bool WantCursorEnd() const;
 
    private:
       int           input_;
@@ -88,7 +88,15 @@ namespace Ui
       virtual bool HasCompleteInput(int input);
       virtual void GenerateInputString(int input);
 
-   public:
+   private:
+      virtual bool InputStringHandler(std::string input) = 0;
+      virtual char const * const Prompt() const = 0;
+
+   private:
+      bool RequireDeletion(int input) const;
+
+   private:
+      bool RequireHistorySearch(int input) const;
       void ResetHistory(int input);
       void AddToHistory(std::string const & inputString);
       void InitialiseHistorySearch(std::string const & inputString);
@@ -101,10 +109,6 @@ namespace Ui
          Down
       } Direction;
       std::string SearchHistory(Direction direction, std::string const & inputString);
-
-   public:
-      virtual char const * const Prompt() const = 0;
-      virtual bool InputModeHandler(std::string input) = 0;
 
    public:
       static bool InputIsValidCharacter(int input);

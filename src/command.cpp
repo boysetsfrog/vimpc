@@ -98,31 +98,16 @@ void Command::GenerateInputString(int input)
 }
  
 
-char const * const Command::Prompt() const
-{
-   static char const CommandPrompt[] = ":";
-   return CommandPrompt;
-}
-
-bool Command::InputModeHandler(std::string input)
-{
-   return ExecuteCommand(inputString_);
-}
-
-
 bool Command::ExecuteCommand(std::string const & input)
 {
-   bool result = true;
-
+   bool        result = true;
    std::string command, arguments;
 
    SplitCommand(input, command, arguments);
 
    if (aliasTable_.find(command) != aliasTable_.end())
    {
-      std::string resolvedAlias(aliasTable_[command]);
-      resolvedAlias.append(" ");
-      resolvedAlias.append(arguments);
+      std::string const resolvedAlias(aliasTable_[command] + " " + arguments);
 
       result = ExecuteCommand(resolvedAlias);
    }
@@ -132,6 +117,18 @@ bool Command::ExecuteCommand(std::string const & input)
    }
 
    return result;
+}
+
+
+char const * const Command::Prompt() const
+{
+   static char const CommandPrompt[] = ":";
+   return CommandPrompt;
+}
+
+bool Command::InputStringHandler(std::string input)
+{
+   return ExecuteCommand(input);
 }
 
 
@@ -162,9 +159,10 @@ bool Command::ExecuteCommand(std::string const & command, std::string const & ar
    // If we have found a command execute it, with \p arguments
    if (matchingCommand == true)
    {
-      CommandTable::const_iterator it = commandTable_.find(commandToExecute);
-      ptrToMember commandFunc = it->second;
-      result = (*this.*commandFunc)(arguments);
+      CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
+      CommandFunction const commandFunction = it->second;
+
+      result = (*this.*commandFunction)(arguments);
    }
 
    return result;
@@ -180,34 +178,30 @@ void Command::SplitCommand(std::string const & input, std::string & command, std
 bool Command::Set(std::string const & arguments)
 {
    settings_.Set(arguments);
-
-   // \todo work out wtf i am doing with these returns, seriously
    return true;
 }
 
 bool Command::Mpc(std::string const & arguments)
 {
    static uint32_t const bufferSize = 512;
-   char   buf[bufferSize];
+   char   buffer[bufferSize];
 
-   std::string command("mpc ");
-   command.append(arguments);
+   std::string const command("mpc " + arguments);
 
    screen_.ConsoleWindow().OutputLine("> %s", command.c_str());
 
-   FILE * mpcOutput = popen(command.c_str(), "r");
+   FILE * const mpcOutput = popen(command.c_str(), "r");
 
    if (mpcOutput != NULL)
    {
-      while (fgets(buf, bufferSize - 1, mpcOutput) != NULL)
+      while (fgets(buffer, bufferSize - 1, mpcOutput) != NULL)
       {
-         screen_.ConsoleWindow().OutputLine("%s", buf);
+         screen_.ConsoleWindow().OutputLine("%s", buffer);
       }
 
       pclose(mpcOutput);
    }
 
-   // \todo
    return true;
 }
 
@@ -219,14 +213,12 @@ bool Command::Alias(std::string const & input)
 
    aliasTable_[command] = arguments;
 
-   //\todo 
    return true;
 }
 
 bool Command::Redraw(std::string const & arguments)
 {
    screen_.Redraw();
-
    return true;
 }
 

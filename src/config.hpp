@@ -35,7 +35,7 @@ namespace Main
 bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
 {
    static char const * const vimpcrcFile = "/.vimpcrc";
-   static char const * const homeEnv     = "HOME";
+   static char const * const home        = "HOME";
    static bool configCommandsExecuted    = false;
 
    bool result = false;
@@ -44,7 +44,7 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
    {
       configCommandsExecuted = true;
 
-      std::string configFile(getenv(homeEnv));
+      std::string configFile(getenv(home));
       configFile.append(vimpcrcFile);
       
       std::string   input;

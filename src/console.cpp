@@ -38,11 +38,12 @@ ConsoleWindow::~ConsoleWindow()
 
 void ConsoleWindow::Print(uint32_t line) const
 {
-   uint32_t currentLine(FirstLine() + line);
+   uint32_t const currentLine(FirstLine() + line);
 
    if (currentLine < BufferSize())
    {
-      std::string output = buffer_[currentLine].substr(0, buffer_[currentLine].find("\n"));
+      std::string const output = buffer_[currentLine].substr(0, buffer_[currentLine].find("\n"));
+
       mvwprintw(N_WINDOW(), line, 0, "%s", output.c_str());
    }
 }
@@ -51,11 +52,11 @@ void ConsoleWindow::Print(uint32_t line) const
 void ConsoleWindow::OutputLine(char const * const fmt, ...)
 {
    static uint16_t const InputBufferSize = 256;
-   char   buf[InputBufferSize];
+   char   buffer[InputBufferSize];
 
    va_list args;
    va_start(args, fmt);
-   vsnprintf(buf, InputBufferSize - 1, fmt, args);
+   vsnprintf(buffer, InputBufferSize - 1, fmt, args);
    va_end(args);
 
    if ((AutoScroll() == true) && (BufferSize() == ScrollLine()))
@@ -64,7 +65,7 @@ void ConsoleWindow::OutputLine(char const * const fmt, ...)
       SetScrollLine(ScrollLine() + 1);
    }
 
-   buffer_.insert(buffer_.end(), buf);
+   buffer_.insert(buffer_.end(), buffer);
 }
 
 void ConsoleWindow::Clear() 
@@ -72,4 +73,10 @@ void ConsoleWindow::Clear()
    buffer_.clear(); 
    werase(N_WINDOW());
    ResetScroll(); 
+}
+
+
+size_t ConsoleWindow::BufferSize() const 
+{ 
+   return buffer_.size();
 }

@@ -23,17 +23,13 @@
 
 #include <string>
 #include <map>
-#include <vector>
 
-#include "handler.hpp"
 #include "inputmode.hpp"
-#include "modewindow.hpp"
 #include "player.hpp"
 
 namespace Main
 {
    class Settings;
-   class Vimpc;
 }
 
 namespace Ui
@@ -48,16 +44,10 @@ namespace Ui
       Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
       ~Command();
 
-   public: // Ui::Handler Inherits
+   public: // Ui::InputMode
       void InitialiseMode(int input);
       bool Handle(int input);
-
-   private:
-      //
       void GenerateInputString(int const input);
-
-      char const * const Prompt() const;
-      bool InputModeHandler(std::string input);
 
    public:
       // Checks if there is any aliases defined for a command, recursively calling
@@ -66,7 +56,11 @@ namespace Ui
       // \param[in] input The command string to execute, including the arguments
       bool ExecuteCommand(std::string const & input);
 
+   private: //Ui::InputMode
+      bool InputStringHandler(std::string input);
+      char const * const Prompt() const;
 
+   private:
       // Executes \p command using \p arguments
       //
       // \param[in] command   The command to execute
@@ -91,7 +85,7 @@ namespace Ui
 
       // Redraws the current window
       bool Redraw(std::string const & arguments);
-
+   
       //
       void ResetTabCompletion(int input);
 
@@ -99,18 +93,15 @@ namespace Ui
       // for commands that begin with the currently set command
       std::string TabComplete(std::string const & command);
 
-   public:
-      typedef bool (Ui::Command::*ptrToMember)(std::string const &);
-
    private:
-      typedef std::map<std::string, std::string> AliasTable;
-      typedef std::map<std::string, ptrToMember> CommandTable;
+      typedef bool (Ui::Command::*CommandFunction)(std::string const &);
+      typedef std::map<std::string, std::string>     AliasTable;
+      typedef std::map<std::string, CommandFunction> CommandTable;
 
    private: 
       bool             initTabCompletion_;
       AliasTable       aliasTable_;
       CommandTable     commandTable_;
-
       Main::Settings & settings_;
       Ui::Screen     & screen_;
 
@@ -123,7 +114,7 @@ namespace Ui
          {}
 
       public:
-         bool operator() (std::pair<std::string const &, Ui::Command::ptrToMember> element) 
+         bool operator() (std::pair<std::string const &, Ui::Command::CommandFunction> element) 
          {
             std::string input(element.first);
             return (key_.compare(input.substr(0, key_.length())) == 0);

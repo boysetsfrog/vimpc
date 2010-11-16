@@ -37,7 +37,7 @@ InputMode::InputMode(Ui::Screen & screen) :
    screen_            (screen),
    initHistorySearch_ (true)
 {
-   window_    = screen.CreateModeWindow();
+   window_ = screen.CreateModeWindow();
 }
 
 InputMode::~InputMode()
@@ -53,6 +53,7 @@ void InputMode::InitialiseMode(int input)
 
    inputString_.clear();
 
+   cursor_.ResetCursorPosition();
    window_->ShowCursor();
    window_->SetCursorPosition(cursor_.Position());
    window_->SetLine(Prompt());
@@ -63,14 +64,7 @@ void InputMode::InitialiseMode(int input)
 void InputMode::FinaliseMode(int input)
 {
    AddToHistory(inputString_);
-
-   inputString_.clear();
-   cursor_.ResetCursorPosition();
-
    window_->HideCursor();
-   window_->SetLine("");
-
-   ENSURE(inputString_.empty() == true);
 }
 
 bool InputMode::Handle(int const input)
@@ -79,18 +73,15 @@ bool InputMode::Handle(int const input)
 
    if (HasCompleteInput(input) == true)
    {
-      result = InputModeHandler(inputString_);
+      result = InputStringHandler(inputString_);
       screen_.Update();
    }
    else
    {
       ResetHistory(input);
-      
       GenerateInputString(input);
 
-      int64_t const newCursorPosition = cursor_.UpdatePosition(input);
-
-      window_->SetCursorPosition(newCursorPosition);
+      window_->SetCursorPosition(cursor_.UpdatePosition(input));
       window_->SetLine("%s%s", Prompt(), inputString_.c_str());
    }
 
@@ -113,12 +104,13 @@ void InputMode::GenerateInputString(int input)
    // \todo this could use a refactor
    int64_t const cursorPosition = (cursor_.Position() - PromptSize);
 
-   if ((input == KEY_UP) || (input == KEY_DOWN))
+   if (RequireHistorySearch(input) == true)
    {
       Direction const direction = (input == KEY_UP) ? Up : Down;
+
       inputString_ = SearchHistory(direction, inputString_);
    }
-   else if (((input == KEY_BACKSPACE) || (input == KEY_DC)) && ((inputString_.empty() == false)))
+   else if (RequireDeletion(input) == true)
    {
       const int cursorMovement = (input == KEY_BACKSPACE) ? 1 : 0;
 
@@ -134,14 +126,24 @@ void InputMode::GenerateInputString(int input)
 }
 
 
+bool InputMode::RequireDeletion(int input) const
+{
+   return (((input == KEY_BACKSPACE) || (input == KEY_DC)) && (inputString_.empty() == false));
+}
+
+
+bool InputMode::RequireHistorySearch(int input) const
+{
+   return ((input == KEY_UP) || (input == KEY_DOWN));
+}
+
 void InputMode::ResetHistory(int input)
 {
-   if ((input != KEY_UP) && (input != KEY_DOWN))
+   if (RequireHistorySearch(input) == false)
    {
       initHistorySearch_ = true;
    }
 }
-
 
 void InputMode::AddToHistory(std::string const & inputString)
 {
@@ -233,7 +235,7 @@ Cursor::~Cursor()
 {
 }
 
-uint16_t Cursor::Position()
+uint16_t Cursor::Position() const
 {
    return position_;
 }
@@ -280,26 +282,26 @@ void Cursor::ResetCursorPosition()
    position_ = PromptSize;
 }
 
-bool Cursor::WantCursorLeft()
+bool Cursor::WantCursorLeft() const
 {
    return ((input_ == KEY_LEFT) ||
            (input_ == KEY_BACKSPACE));
 }
 
-bool Cursor::WantCursorEnd()
+bool Cursor::WantCursorEnd() const
 {
    return ((input_ == KEY_UP)   || 
            (input_ == KEY_DOWN) || 
            (input_ == '\t'));
 }
 
-bool Cursor::WantCursorRight()
+bool Cursor::WantCursorRight() const
 {
    return ((input_ == KEY_RIGHT) || 
            (InputMode::InputIsValidCharacter(input_) == true));
 }
 
-bool Cursor::WantCursorStart()
+bool Cursor::WantCursorStart() const
 {
    return ((input_ == KEY_HOME));
 }

@@ -33,7 +33,6 @@
 namespace Main
 {
    class Settings;
-   class Vimpc;
 }
 
 namespace Ui
@@ -62,7 +61,7 @@ namespace Ui
          DirectionCount 
       } Direction;
 
-   public: //Ui::Handler
+   public: //Ui::InputMode
       void InitialiseMode(int input);
       bool CausesModeToStart(int input) const;
 
@@ -76,7 +75,7 @@ namespace Ui
       bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);
 
    private: //Ui::InputMode
-      bool InputModeHandler(std::string input);
+      bool InputStringHandler(std::string input);
       char const * const Prompt() const;
 
    private: 

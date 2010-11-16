@@ -142,7 +142,7 @@ char const * const Search::Prompt() const
    return SearchPrompt; 
 }
 
-bool Search::InputModeHandler(std::string input) 
+bool Search::InputStringHandler(std::string input) 
 {
    lastSearch_ = input;
    return SearchResult(Next, 1);
