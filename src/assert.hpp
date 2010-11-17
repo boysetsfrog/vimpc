@@ -24,11 +24,11 @@
 #include "stdlib.h"
 
 #ifdef __DEBUG_ASSERT
-#define assert_reference(_expression)               Assert::Reference(_expression, __FILE__, __func__, __LINE__)
-#define ASSERT_INFO(_expression, file, func, line)  if (!(_expression)) assert_failed(file, func, line)
-#define ASSERT (_expression)                        if (!(_expression)) assert_failed(__FILE__, __func__, __LINE__)
-#define REQUIRE(_expression)                        ASSERT(_expression)
-#define ENSURE (_expression)                        ASSERT(_expression)
+#define assert_reference(_expression)              Assert::Reference(_expression, __FILE__, __func__, __LINE__)
+#define ASSERT_INFO(_expression, file, func, line) if (!(_expression)) assert_failed(file, func, line)
+#define ASSERT(_expression)                        if (!(_expression)) assert_failed(__FILE__, __func__, __LINE__)
+#define REQUIRE(_expression)                       ASSERT(_expression)
+#define ENSURE(_expression)                        ASSERT(_expression)
 extern void assert_failed(const char * file, const char * function, int line);
 
 #define STATIC_ASSERT(exp) (static_assert_failed <(exp) >())
@@ -54,9 +54,9 @@ namespace Assert
 #else
 #define assert_reference(_expression) Assert::Reference(_expression)
 #define ASSERT_INFO(ignore, file, func, line) ((void) 0)
-#define ASSERT (ignore)       ((void) 0)
+#define ASSERT(ignore)        ((void) 0)
 #define REQUIRE(ignore)       ((void) 0)
-#define ENSURE (ignore)       ((void) 0)
+#define ENSURE(ignore)        ((void) 0)
 #define STATIC_ASSERT(ignore) ((void) 0)
 
 namespace Assert
