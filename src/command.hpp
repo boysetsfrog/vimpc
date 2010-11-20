@@ -66,7 +66,7 @@ namespace Ui
       bool Connect(std::string const & arguments)     { return Player::Connect(arguments); }
       bool Pause(std::string const & arguments)       { return Player::Pause(); }
       bool Play(std::string const & arguments)        { return Player::Play(atoi(arguments.c_str())); }
-      bool Quit(std::string const & arguments)        { return Player::Quit(); }
+      bool Quit(std::string const & arguments);
       bool Random(std::string const & arguments)      { return Player::Random(true); }
       bool Redraw(std::string const & arguments)      { return Player::Redraw(); }
       bool Stop(std::string const & arguments)        { return Player::Stop(); }
@@ -83,7 +83,7 @@ namespace Ui
       //
       // \param[in] command   The command to execute
       // \param[in] arguments The arguments to pass to the command
-      bool ExecuteCommand(std::string const & command, std::string const & arguments);
+      bool ExecuteCommand(std::string command, std::string const & arguments);
 
       // Splits the input into command and argument parts
       //
@@ -115,6 +115,7 @@ namespace Ui
 
    private: 
       bool                 initTabCompletion_;
+      bool                 forceCommand_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       Main::Settings     & settings_;
@@ -147,6 +148,7 @@ namespace Ui
       return Player::SkipSong(SKIP, atoi(arguments.c_str()));
    }
 
+   //Implementation of window change function
    template <Ui::Screen::MainWindow MAINWINDOW>
    bool Command::SetActiveWindow(std::string const & arguments)
    {

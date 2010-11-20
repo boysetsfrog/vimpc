@@ -20,9 +20,10 @@
 
 #include "command.hpp"
 
-#include <sstream>
 #include <algorithm>
+#include <boost/regex.hpp>
 #include <iostream>
+#include <sstream>
 
 #include "assert.hpp"
 #include "console.hpp"
@@ -36,12 +37,12 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    InputMode           (screen),
    Player              (screen, client, settings),
    initTabCompletion_  (true),
+   forceCommand_       (false),
    aliasTable_         (),
    commandTable_       (),
    settings_           (settings),
    console_            (screen.ConsoleWindow())
 {
-   // \todo add :quit! to quit and force song stop ?
    // \todo find a away to add aliases to tab completion
    // \todo allow aliases to be multiple commands, ie alias quit! stop; quit
    // or something similar
@@ -133,14 +134,34 @@ bool Command::InputStringHandler(std::string input)
 }
 
 
-bool Command::ExecuteCommand(std::string const & command, std::string const & arguments)
+bool Command::Quit(std::string const & arguments)
+{ 
+   // \todo is this how i want to handle this?
+   if (forceCommand_ == true)
+   {
+      Player::Stop();
+   }
+
+   return Player::Quit();
+}
+
+bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 {
-   std::string commandToExecute  = command;
-   bool        result            = true;
-   bool        matchingCommand   = (commandTable_.find(commandToExecute) != commandTable_.end());
+   boost::regex const forceCheck("^.*!$");
+   bool         result          = true;
+   forceCommand_                = false;
+
+   if (boost::regex_match(command, forceCheck))
+   {
+      forceCommand_  = true;
+      command        = command.substr(0, command.length() - 1);
+   }
 
    // If we can't find the exact command, look for a unique command that starts
    // with the input command
+   std::string commandToExecute  = command;
+   bool matchingCommand          = (commandTable_.find(commandToExecute) != commandTable_.end());
+
    if (matchingCommand == false)
    {
       uint32_t validCommandCount = 0;
@@ -165,6 +186,9 @@ bool Command::ExecuteCommand(std::string const & command, std::string const & ar
 
       result = (*this.*commandFunction)(arguments);
    }
+
+   // \todo will probably have a setting that always forces commands
+   forceCommand_ = false;
 
    return result;
 }
