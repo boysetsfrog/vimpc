@@ -52,6 +52,12 @@ namespace Ui
       bool Handle(int input);
       bool CausesModeToStart(int input) const;
 
+   private: //Player wrapper functions
+      bool ClearScreen(uint32_t count) { return Player::ClearScreen(); }
+      bool Pause(uint32_t count)       { return Player::Pause(); }
+      bool Random(uint32_t count)      { return Player::Random(true); }
+      bool Stop(uint32_t count)        { return Player::Stop(); }
+
    private:
       bool Confirm(uint32_t count);
       bool RepeatLastAction(uint32_t count);
@@ -63,6 +69,13 @@ namespace Ui
    private: //Searching
       template <Search::Skip SKIP>
       bool SearchResult(uint32_t count); 
+
+   private: //Skipping
+      template <Player::Skip SKIP>
+      bool SkipSong(uint32_t count); 
+
+      template <Player::Skip SKIP>
+      bool SkipArtist(uint32_t count); 
 
    private: //Scrolling
       template <Screen::Size SIZE, Screen::Direction DIRECTION>
@@ -97,6 +110,20 @@ namespace Ui
    {
       screen_.Select(POSITION, count);
       return true;
+   }
+
+
+   //Implementation of skipping functions
+   template <Ui::Player::Skip SKIP>
+   bool Normal::SkipSong(uint32_t count)
+   {
+      return Player::SkipSong(SKIP, count);
+   }
+
+   template <Ui::Player::Skip SKIP>
+   bool Normal::SkipArtist(uint32_t count)
+   {
+      return Player::SkipArtist(SKIP, count);
    }
 
 

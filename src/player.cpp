@@ -24,7 +24,6 @@
 #include "mpdclient.hpp"
 #include "playlist.hpp"
 #include "settings.hpp"
-#include "screen.hpp"
 #include "song.hpp"
 
 #include <stdlib.h>
@@ -44,101 +43,19 @@ Player::~Player()
 
 }
 
-bool Player::Next(uint32_t count)
-{
-   if (count <= 1)
-   {
-      Next("");
-   }
-   else
-   {
-      client_.Play(GetCurrentSong() + count);
-   }
-
-   HandleAutoScroll();
-
-   return true;
-}
-
-bool Player::NextArtist(uint32_t count)
-{
-   uint32_t  const         currentSong  = GetCurrentSong();
-   Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(currentSong);
-   Mpc::Song const *       newSong      = NULL;
-   uint32_t                skipCount    = 0;
-
-   if (song != NULL)
-   {
-      do 
-      {
-         ++skipCount;
-         newSong = screen_.PlaylistWindow().GetSong(currentSong + skipCount);
-      }
-      while ((newSong != NULL) && (newSong->Artist().compare(song->Artist()) == 0));
-   }
-
-   client_.Play(currentSong + skipCount);
-
-   HandleAutoScroll();
-
-   return true;
-}
-
-bool Player::Previous(uint32_t count)
-{
-   if (count <= 1)
-   {
-      Previous("");
-   }
-   else
-   {
-      client_.Play(GetCurrentSong() - count);
-   }
-
-   HandleAutoScroll();
-
-   return true;
-}
-
-bool Player::PreviousArtist(uint32_t count)
-{
-   uint32_t  const         currentSong  = GetCurrentSong();
-   Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(currentSong);
-   Mpc::Song const *       newSong      = NULL;
-   uint32_t                skipCount    = 0;
-
-   if (song != NULL)
-   {
-      do 
-      {
-         ++skipCount;
-         newSong = screen_.PlaylistWindow().GetSong(currentSong - skipCount);
-      }
-      while ((newSong != NULL) && (newSong->Artist().compare(song->Artist()) == 0));
-   }
-   
-   HandleAutoScroll();
-
-   client_.Play(currentSong - skipCount);
-
-   return true;
-}
-
-bool Player::Connect(std::string const & arguments)
-{
-   client_.Connect("127.0.0.1");
-   return true;
-}
-
-bool Player::ClearScreen(std::string const & arguments)
+bool Player::ClearScreen()
 {
    screen_.Clear();
    return true;
 }
 
-bool Player::Quit(std::string const & arguments)
+bool Player::Connect(std::string const & host, uint32_t port)
 {
-   return false;
+   // \todo handle port properly
+   client_.Connect(host);
+   //client_.Connect(host, port);
+
+   return true;
 }
 
 bool Player::Echo(std::string const & arguments)
@@ -147,69 +64,84 @@ bool Player::Echo(std::string const & arguments)
    return true;
 }
 
-bool Player::Play(std::string const & arguments)
-{
-   client_.Play(atoi(arguments.c_str()) - 1);
-   return true;
-}
 
-bool Player::Pause(std::string const & arguments)
+
+bool Player::Pause()
 {
    client_.Pause();
    return true;
 }
 
-bool Player::Next(std::string const & arguments)
+bool Player::Play(uint32_t id)
 {
-   client_.Next();
+   client_.Play(id - 1);
    return true;
 }
 
-bool Player::Previous(std::string const & arguments)
+bool Player::Quit()
 {
-   client_.Previous();
+   return false;
+}
+
+bool Player::Random(bool random)
+{
+   client_.Random(random);
    return true;
 }
 
-bool Player::Stop(std::string const & arguments)
+bool Player::SetActiveWindow(Ui::Screen::MainWindow window)
+{
+   screen_.SetActiveWindow(window);
+   return true;
+}
+
+bool Player::Stop()
 {
    client_.Stop();
    return true;
 }
 
-bool Player::Random(std::string const & arguments)
-{
-   const bool randomOn = (arguments.compare("on") == 0);
 
-   client_.Random(randomOn);
+bool Player::SkipSong(Skip skip, uint32_t count)
+{
+   int64_t directionCount = count;
+
+   if (skip == Previous)
+   {
+      directionCount *= -1;
+   }
+
+   client_.Play(GetCurrentSong() + directionCount);
+
+   HandleAutoScroll();
+
    return true;
 }
 
-
-bool Player::Console(std::string const & arguments)
+bool Player::SkipArtist(Skip skip, uint32_t count)
 {
-   screen_.SetActiveWindow(Ui::Screen::Console);
+   uint32_t  const         currentSong  = GetCurrentSong();
+   Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(currentSong);
+   Mpc::Song const *       newSong      = NULL;
+   uint32_t                skipCount    = 0;
+   int64_t                 direction    = (skip == Previous) ? -1 : 1;
+
+   if (song != NULL)
+   {
+      do 
+      {
+         ++skipCount;
+         newSong = screen_.PlaylistWindow().GetSong(currentSong + (skipCount * direction));
+      }
+      while ((newSong != NULL) && (newSong->Artist().compare(song->Artist()) == 0));
+   }
+
+   client_.Play(currentSong + (skipCount * direction));
+
+   HandleAutoScroll();
+
    return true;
 }
-
-bool Player::Help(std::string const & arguments)
-{
-   screen_.SetActiveWindow(Ui::Screen::Help);
-   return true;
-}
-
-bool Player::Playlist(std::string const & arguments)
-{
-   screen_.SetActiveWindow(Ui::Screen::Playlist);
-   return true;
-}
-
-bool Player::Library(std::string const & arguments)
-{
-   screen_.SetActiveWindow(Ui::Screen::Library);
-   return true;
-}
-
 
 uint32_t Player::GetCurrentSong() const
 {
@@ -223,3 +155,9 @@ void Player::HandleAutoScroll()
       screen_.ScrollTo(Screen::Current);
    }
 }
+
+
+
+
+
+

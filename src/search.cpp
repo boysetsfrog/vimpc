@@ -31,7 +31,6 @@ using namespace Ui;
 
 Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode   (screen),
-   Player      (screen, client, settings),
    direction_  (Forwards),
    lastSearch_ (""),
    prompt_     (),

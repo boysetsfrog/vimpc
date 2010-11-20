@@ -26,7 +26,6 @@
 
 #include "assert.hpp"
 #include "console.hpp"
-#include "screen.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
 
@@ -34,13 +33,13 @@ using namespace Ui;
 
 // COMMANDS
 Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
-   InputMode          (screen),
-   Player             (screen, client, settings),
-   initTabCompletion_ (true),
-   aliasTable_        (),
-   commandTable_      (),
-   settings_          (settings),
-   screen_            (screen)
+   InputMode           (screen),
+   Player              (screen, client, settings),
+   initTabCompletion_  (true),
+   aliasTable_         (),
+   commandTable_       (),
+   settings_           (settings),
+   screen_             (screen)
 {
    // \todo add :quit! to quit and force song stop ?
    // \todo find a away to add aliases to tab completion
@@ -49,21 +48,23 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["!mpc"]      = &Command::Mpc;
    commandTable_["alias"]     = &Command::Alias;
    commandTable_["clear"]     = &Command::ClearScreen;
-   commandTable_["console"]   = &Command::Console;
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["echo"]      = &Command::Echo;
-   commandTable_["help"]      = &Command::Help;
-   commandTable_["library"]   = &Command::Library;
-   commandTable_["next"]      = &Command::Next;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
-   commandTable_["playlist"]  = &Command::Playlist;
-   commandTable_["previous"]  = &Command::Previous;
    commandTable_["quit"]      = &Command::Quit;
    commandTable_["random"]    = &Command::Random;
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["set"]       = &Command::Set;
    commandTable_["stop"]      = &Command::Stop;
+
+   commandTable_["next"]      = &Command::SkipSong<Player::Next>;
+   commandTable_["previous"]  = &Command::SkipSong<Player::Previous>;
+
+   commandTable_["console"]   = &Command::SetActiveWindow<Ui::Screen::Console>;
+   commandTable_["help"]      = &Command::SetActiveWindow<Ui::Screen::Help>;
+   commandTable_["library"]   = &Command::SetActiveWindow<Ui::Screen::Library>;
+   commandTable_["playlist"]  = &Command::SetActiveWindow<Ui::Screen::Playlist>;
 }
 
 Command::~Command()

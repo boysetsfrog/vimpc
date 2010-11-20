@@ -26,6 +26,7 @@
 
 #include "inputmode.hpp"
 #include "player.hpp"
+#include "screen.hpp"
 
 namespace Main
 {
@@ -34,8 +35,6 @@ namespace Main
 
 namespace Ui
 {
-   class Screen;
-
    // Handles all input received whilst in command mode
    class Command : public InputMode, public Player
    {
@@ -59,6 +58,22 @@ namespace Ui
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
       char const * const Prompt() const;
+
+   private: //Player wrapper functions
+      bool ClearScreen(std::string const & arguments) { return Player::ClearScreen(); }
+      bool Connect(std::string const & arguments)     { return Player::Connect(arguments); }
+      bool Pause(std::string const & arguments)       { return Player::Pause(); }
+      bool Play(std::string const & arguments)        { return Player::Play(atoi(arguments.c_str())); }
+      bool Quit(std::string const & arguments)        { return Player::Quit(); }
+      bool Random(std::string const & arguments)      { return Player::Random(true); }
+      bool Stop(std::string const & arguments)        { return Player::Stop(); }
+
+   private:
+      template <Player::Skip SKIP>
+      bool SkipSong(std::string const & arguments); 
+
+      template <Ui::Screen::MainWindow MAINWINDOW>
+      bool SetActiveWindow(std::string const & arguments); 
 
    private:
       // Executes \p command using \p arguments
@@ -124,6 +139,20 @@ namespace Ui
          std::string key_;
       };
    };
+
+   //Implementation of skipping functions
+   template <Ui::Player::Skip SKIP>
+   bool Command::SkipSong(std::string const & arguments)
+   {
+      return Player::SkipSong(SKIP, atoi(arguments.c_str()));
+   }
+
+   template <Ui::Screen::MainWindow MAINWINDOW>
+   bool Command::SetActiveWindow(std::string const & arguments)
+   {
+      return Player::SetActiveWindow(MAINWINDOW);
+   }
+
 }
 
 #endif

@@ -40,7 +40,7 @@ namespace Ui
    class Screen;
 
    // Handles all input received whilst in search mode
-   class Search : public InputMode, public Player
+   class Search : public InputMode
    {
 
    public:

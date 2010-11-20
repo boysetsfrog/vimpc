@@ -22,8 +22,10 @@
 #define __UI__PLAYER
 
 #include <string>
-
 #include <stdint.h>
+
+#include "mpdclient.hpp"
+#include "screen.hpp"
 
 namespace Main
 {
@@ -48,37 +50,30 @@ namespace Ui
    {
    public:
       Player(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
-      virtual ~Player();
+      virtual ~Player() = 0;
 
    protected:
-      //Single argument commands
-      bool ClearScreen(uint32_t count) { return ClearScreen(""); }
-      bool Quit(uint32_t count)        { return Quit(""); }
-      bool Pause(uint32_t count)       { return Pause(""); }
-      bool Next(uint32_t count);
-      bool NextArtist(uint32_t count);
-      bool Previous(uint32_t count);
-      bool PreviousArtist(uint32_t count);
-      bool Stop(uint32_t count)        { return Stop(""); }
-      bool Random(uint32_t count)      { return Random(""); }
-
-      //Commands which can have multiple arguments
-      bool Connect(std::string const & arguments);
-      bool ClearScreen(std::string const & arguments);
-      bool Quit(std::string const & arguments);
+      //Commands which may be called by the mode
+      bool ClearScreen();
+      bool Connect(std::string const & host, uint32_t port = 0);
       bool Echo(std::string const & arguments);
-      bool Play(std::string const & arguments);
-      bool Pause(std::string const & arguments);
-      bool Next(std::string const & arguments);
-      bool Previous(std::string const & arguments);
-      bool Stop(std::string const & arguments);
-      bool Random(std::string const & arguments);
+      bool Pause();
+      bool Play(uint32_t id);
+      bool Quit();
+      bool Random(bool random);
+      bool SetActiveWindow(Ui::Screen::MainWindow window);
+      bool Stop();
 
-      //Commands related to windows
-      bool Console(std::string const & arguments);
-      bool Help(std::string const & arguments);
-      bool Playlist(std::string const & arguments);
-      bool Library(std::string const & arguments);
+   protected:
+      typedef enum 
+      { 
+         Next,
+         Previous
+      } Skip;
+
+      bool SkipSong(Skip skip, uint32_t count);
+      //bool SkipAlbum(Skip skip, uint32_t count);
+      bool SkipArtist(Skip skip, uint32_t count);
 
    protected:
       uint32_t GetCurrentSong() const;
@@ -91,6 +86,7 @@ namespace Ui
       Mpc::Client    & client_;
       Main::Settings & settings_;
    };
+
 }
 
 #endif

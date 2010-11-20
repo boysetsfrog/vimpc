@@ -45,17 +45,16 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // \todo add proper handling of combination actions ie 'gt' and 'gg' etc
    // \todo display current count somewhere
    actionTable_['.']       = &Normal::RepeatLastAction;
-   actionTable_['c']       = &Normal::ClearScreen;
 
+   actionTable_['c']       = &Normal::ClearScreen;
    actionTable_['p']       = &Normal::Pause;
    actionTable_['r']       = &Normal::Random;
    actionTable_['s']       = &Normal::Stop;
 
-   actionTable_['l']       = &Normal::Next;
-   actionTable_['h']       = &Normal::Previous;
-
-   actionTable_['x']       = &Normal::NextArtist;
-   actionTable_['z']       = &Normal::PreviousArtist;
+   actionTable_['l']       = &Normal::SkipSong<Player::Next>;
+   actionTable_['h']       = &Normal::SkipSong<Player::Previous>;
+   actionTable_['x']       = &Normal::SkipArtist<Player::Next>;
+   actionTable_['z']       = &Normal::SkipArtist<Player::Previous>;
 
    actionTable_['H']       = &Normal::Select<Window::First>;
    actionTable_['M']       = &Normal::Select<Window::Middle>;
