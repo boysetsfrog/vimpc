@@ -34,7 +34,7 @@ namespace Mpc
       ~Song();
 
    public:
-      int32_t Id() const;
+      uint32_t Id() const;
 
       void SetArtist(const char * artist);
       std::string const & Artist() const;
@@ -52,7 +52,7 @@ namespace Mpc
       std::string FullDescription() const;
 
    private:
-      int32_t     id_;
+      uint32_t     id_;
       std::string artist_;
       std::string album_;
       std::string title_;

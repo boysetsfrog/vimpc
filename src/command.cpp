@@ -26,6 +26,7 @@
 #include <sstream>
 
 #include "assert.hpp"
+#include "error.hpp"
 #include "console.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
@@ -196,6 +197,10 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
       CommandFunction const commandFunction = it->second;
 
       result = (*this.*commandFunction)(arguments);
+   }
+   else
+   {
+      Error(1, "Command not found");
    }
 
    // \todo will probably have a setting that always forces commands

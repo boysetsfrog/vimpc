@@ -29,6 +29,7 @@
 #include "playlist.hpp"
 #include "search.hpp"
 #include "screen.hpp"
+#include "scrollwindow.hpp"
 
 namespace Main
 {
@@ -62,7 +63,7 @@ namespace Ui
       bool RepeatLastAction(uint32_t count);
 
    private: //Selecting
-      template <Window::Position POSITION>
+      template <ScrollWindow::Position POSITION>
       bool Select(uint32_t count); 
 
    private: //Searching
@@ -103,7 +104,7 @@ namespace Ui
    // \todo this should be implemented using the window
    // somehow
    //Implementation of selecting functions
-   template <Window::Position POSITION>
+   template <ScrollWindow::Position POSITION>
    bool Normal::Select(uint32_t count)
    {
       screen_.Select(POSITION, count);

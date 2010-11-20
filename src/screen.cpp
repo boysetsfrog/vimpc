@@ -21,7 +21,7 @@
 #include "screen.hpp"
 
 #include "console.hpp"
-#include "mpdclient.hpp"
+#include "error.hpp"
 #include "playlist.hpp"
 #include "settings.hpp"
 
@@ -29,11 +29,10 @@
 
 using namespace Ui;
 
-Screen::Screen(Mpc::Client & client, Main::Settings const & settings) :
+Screen::Screen(Main::Settings const & settings, Mpc::Client & client) :
    window_          (Playlist),
    statusWindow_    (NULL),
    commandWindow_   (NULL),
-   client_          (client),
    settings_        (settings),
    started_         (false),
    maxRows_         (0),
@@ -86,7 +85,7 @@ Screen::~Screen()
    }
 
    delwin(statusWindow_);
-   delwin(commandWindow_);
+   //delwin(commandWindow_); //This is just an alias to statusWindow
    endwin();
 }
 
@@ -103,14 +102,18 @@ void Screen::Start()
    }
 
    ENSURE(started_ == true);
+
+   //Need to call this to prevent a warning
+   //\ todo do properly
+   Error(0, "");
 }
 
 ModeWindow * Screen::CreateModeWindow()
 {
-   return (new ModeWindow(*this));
+   return (new ModeWindow());
 }
 
-void Screen::SetStatusLine(char const * const fmt, ...)
+void Screen::SetStatusLine(char const * const fmt, ...) const
 {
    // \todo needs to be a different colour to the selection
    std::string const BlankLine(maxColumns_, ' ');
@@ -128,7 +131,7 @@ void Screen::SetStatusLine(char const * const fmt, ...)
 }
 
 
-void Screen::Select(Window::Position position, uint32_t count)
+void Screen::Select(ScrollWindow::Position position, uint32_t count)
 {
    mainWindows_[window_]->Select(position, count);
 }
@@ -158,8 +161,8 @@ void Screen::ScrollTo(Location location, uint32_t line)
 
    if (window_ == Playlist)
    {
-      scroll[Current] = client_.GetCurrentSong() + 1;
-      scroll[Bottom]  = client_.TotalNumberOfSongs();
+      scroll[Current] = PlaylistWindow().GetCurrentSong(); 
+      scroll[Bottom]  = PlaylistWindow().TotalNumberOfSongs(); 
    }
 
    ScrollTo(scroll[location]);
@@ -223,7 +226,21 @@ uint32_t Screen::MaxColumns() const
 
 uint32_t Screen::WaitForInput() const
 {
-   return wgetch(commandWindow_);
+   // \todo this doesn't seem to work if constructed
+   // when the screen is constructed, find out why
+   Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
+
+   if (errorWindow.HasError() == true)
+   {
+      errorWindow.Print(1);
+   }
+
+   uint32_t input = wgetch(commandWindow_);
+
+   // \todo make own function
+   errorWindow.ClearError();
+
+   return input;
 }
 
 void Screen::SetActiveWindow(MainWindow window)
@@ -289,7 +306,7 @@ bool Screen::WindowsAreInitialised()
    {
       result = (mainWindows_[i] != NULL);
    }
-   
+
    return result;
 }
 

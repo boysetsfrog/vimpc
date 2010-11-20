@@ -53,7 +53,11 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
       while (!inputStream.eof())
       {
          std::getline(inputStream, input);
-         result = handler.ExecuteCommand(input);
+         
+         if (input != "")
+         {
+            result = handler.ExecuteCommand(input);
+         }
       }
    }
 

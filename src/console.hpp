@@ -21,12 +21,12 @@
 #ifndef __UI__CONSOLE
 #define __UI__CONSOLE
 
-#include "window.hpp"
+#include "scrollwindow.hpp"
 
 namespace Ui
 {
    //
-   class ConsoleWindow : public Ui::Window
+   class ConsoleWindow : public Ui::ScrollWindow
    {
    public:
       ConsoleWindow(Ui::Screen const & screen);

@@ -55,9 +55,9 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['x']       = &Normal::SkipArtist<Player::Next>;
    actionTable_['z']       = &Normal::SkipArtist<Player::Previous>;
 
-   actionTable_['H']       = &Normal::Select<Window::First>;
-   actionTable_['M']       = &Normal::Select<Window::Middle>;
-   actionTable_['L']       = &Normal::Select<Window::Last>;
+   actionTable_['H']       = &Normal::Select<ScrollWindow::First>;
+   actionTable_['M']       = &Normal::Select<ScrollWindow::Middle>;
+   actionTable_['L']       = &Normal::Select<ScrollWindow::Last>;
 
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
@@ -131,6 +131,8 @@ bool Normal::Handle(int input)
          lastAction_      = input;
          lastActionCount_ = actionCount_;
       }
+      
+      window_->SetLine("LAST: %u%c COUNT: %u", lastActionCount_, lastAction_, actionCount_);
 
       ptrToMember actionFunc = actionTable_[input];
       result = (*this.*actionFunc)(count);
@@ -138,8 +140,6 @@ bool Normal::Handle(int input)
 
       screen_.Update();
    }
-
-   window_->SetLine("LAST: %u%c COUNT: %u", lastActionCount_, lastAction_, actionCount_);
 
    return result;
 }

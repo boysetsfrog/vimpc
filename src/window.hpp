@@ -28,54 +28,24 @@
 
 namespace Ui
 {
-   class Screen;
-
    class Window
    {
    public:
-      Window(Ui::Screen const & screen);
-      Window(Ui::Screen const & screen, int h, int w, int x, int y);
+      Window(int h, int w, int x, int y);
       virtual ~Window();
-
-   public:
-      typedef enum 
-      { 
-         First,
-         Middle,
-         Last,
-         PositionCount
-      } Position;
 
    public:
       virtual void Print(uint32_t line) const = 0;
       virtual void Confirm() const;
-      virtual void Scroll(int32_t scrollCount);
-      virtual void ScrollTo(uint16_t scrollLine);
       virtual void Search(std::string const & searchString) const;
       virtual void Redraw();
-
-   public:
-      bool Select(Position position, uint32_t count);
 
    public:
       void Erase();
       void Refresh();
 
    public:
-      void SetAutoScroll(bool autoScroll);
-      bool AutoScroll() const;
-
-   public:
-      uint16_t FirstLine()   const;
-      virtual  uint16_t CurrentLine() const { return FirstLine(); }
-      uint32_t LastLine()    const { return ScrollLine(); }
-
       uint32_t ContentSize() const { return BufferSize() - 1; }
-
-   protected:
-      void ResetScroll(); 
-      void SetScrollLine(uint16_t scrollLine);
-      uint16_t ScrollLine() const;
 
    protected:
       WINDOW * const N_WINDOW() const { return window_;}
@@ -83,11 +53,8 @@ namespace Ui
    private:
       virtual size_t BufferSize() const = 0;
 
-   protected:
-      Ui::Screen const & screen_;
-      WINDOW   * window_;
-      uint16_t   scrollLine_;
-      bool       autoScroll_;
+   private:
+      WINDOW * const window_;
    };
 }
 

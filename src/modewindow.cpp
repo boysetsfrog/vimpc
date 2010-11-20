@@ -22,12 +22,10 @@
 
 #include <ncurses.h>
 
-#include "screen.hpp"
-
 using namespace Ui;
 
-ModeWindow::ModeWindow(Ui::Screen const & screen) :
-   Window         (screen, 0, screen.MaxColumns(), screen.MaxRows() + 1, 0),
+ModeWindow::ModeWindow() :
+   Window         (0, COLS, LINES - 1, 0),
    cursorVisible_ (false),
    cursorPosition_(0)
 {
@@ -51,13 +49,9 @@ void ModeWindow::SetLine(char const * const fmt, ...)
    Print(1);
 }
 
-void ModeWindow::Scroll(int32_t scrollCount)
-{
-}
-
 void ModeWindow::Print(uint32_t line) const
 {
-   WINDOW * window = N_WINDOW();
+   WINDOW * const window = N_WINDOW();
 
    curs_set((cursorVisible_ == true) ? 2 : 0);
 

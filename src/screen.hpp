@@ -23,6 +23,7 @@
 
 #include "assert.hpp"
 #include "modewindow.hpp"
+#include "scrollwindow.hpp"
 
 #include <map>
 #include <string>
@@ -41,12 +42,13 @@ namespace Ui
 {
    class Window;
    class ConsoleWindow;
+   class ErrorWindow;
    class PlaylistWindow;
 
    class Screen
    {
    public:
-      Screen(Mpc::Client & client, Main::Settings const & settings);
+      Screen(Main::Settings const & settings, Mpc::Client & client);
       ~Screen();
 
    public:
@@ -83,10 +85,10 @@ namespace Ui
    public:
       void Start();
       ModeWindow * CreateModeWindow();
-      void SetStatusLine(char const * const fmt, ... );
+      void SetStatusLine(char const * const fmt, ... ) const;
 
    public:
-      void Select(Window::Position position, uint32_t count);
+      void Select(ScrollWindow::Position position, uint32_t count);
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(Location location, uint32_t line = 0);
       void Search(std::string const & searchString) const;
@@ -121,16 +123,14 @@ namespace Ui
 
    private:
       MainWindow           window_;
-      MainWindow           defaultWindow_;
       Ui::PlaylistWindow * playlistWindow_;
       Ui::ConsoleWindow  * consoleWindow_;
-      Window             * libraryWindow_;
-      Window             * helpWindow_;
-      Window             * mainWindows_[MainWindowCount];
+      ScrollWindow       * libraryWindow_;
+      ScrollWindow       * helpWindow_;
+      ScrollWindow       * mainWindows_[MainWindowCount];
       WINDOW             * statusWindow_;
       WINDOW             * commandWindow_;
 
-      Mpc::Client    const & client_;
       Main::Settings const & settings_;
 
       bool        started_;

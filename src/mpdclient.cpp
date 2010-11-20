@@ -21,6 +21,7 @@
 #include "mpdclient.hpp"
 
 #include "assert.hpp"
+#include "error.hpp"
 #include "console.hpp"
 #include "playlist.hpp"
 #include "screen.hpp"
@@ -30,14 +31,15 @@
 
 using namespace Mpc;
 
-Client::Client(Ui::Screen & screen) :
-   screen_    (screen),
-   connection_(NULL)
+Client::Client(Ui::Screen const & screen) :
+   connection_(NULL),
+   screen_    (screen)
 {
 }
 
 Client::~Client()
 {
+   // \todo make a function for this
    if (connection_ != NULL)
    {
       mpd_connection_free(connection_);
@@ -49,6 +51,12 @@ void Client::Connect(std::string const & hostname)
 {
    // \todo needs to take parameters and such properly
    // rather than just using the defaults only
+   if (connection_ != NULL)
+   {
+      mpd_connection_free(connection_);
+      connection_ = NULL;
+   }
+
    connection_ = mpd_connection_new(hostname.c_str(), 0, 0);
 
    screen_.PlaylistWindow().Redraw();
@@ -111,7 +119,7 @@ bool Client::Connected()
 }
 
 
-int32_t Client::GetCurrentSong() const
+int32_t Client::GetCurrentSongId() const
 {
    int32_t songId = - 1;
    mpd_song * currentSong = mpd_run_current_song(connection_);
@@ -176,6 +184,15 @@ void Client::CheckError()
 {
    if (mpd_connection_get_error(connection_) != MPD_ERROR_SUCCESS)
    {
-      screen_.ConsoleWindow().OutputLine("Client Error: %s", mpd_connection_get_error_message(connection_));
+      // \todo fix and make critical error
+      char error[255];
+      snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
+      Error(2, error);
+
+      if (connection_ != NULL)
+      {
+         mpd_connection_free(connection_);
+         connection_ = NULL;
+      }
    }
 }

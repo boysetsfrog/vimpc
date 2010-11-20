@@ -8,6 +8,7 @@ vimpc_SOURCES = src/assert.hpp \
                 src/config.hpp \
                 src/console.cpp \
                 src/console.hpp \
+                src/error.hpp \
                 src/help.cpp \
                 src/help.hpp \
                 src/inputmode.cpp \
@@ -31,6 +32,8 @@ vimpc_SOURCES = src/assert.hpp \
                 src/search.hpp \
                 src/settings.cpp \
                 src/settings.hpp \
+                src/scrollwindow.hpp \
+                src/scrollwindow.cpp \
                 src/song.hpp \
                 src/song.cpp \
                 src/vimpc.cpp \

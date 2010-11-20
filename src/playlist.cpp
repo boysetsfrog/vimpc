@@ -26,7 +26,7 @@
 using namespace Ui;
 
 PlaylistWindow::PlaylistWindow(Ui::Screen const & screen, Mpc::Client & client) :
-   Window           (screen),
+   ScrollWindow     (screen),
    currentSelection_(0),
    client_          (client)
 {
@@ -59,6 +59,18 @@ Mpc::Song const * const PlaylistWindow::GetSong(uint32_t songIndex)
 
    return song; 
 }
+
+
+uint32_t PlaylistWindow::GetCurrentSong() const 
+{ 
+   return client_.GetCurrentSongId() + 1;
+}
+
+uint32_t PlaylistWindow::TotalNumberOfSongs() const 
+{ 
+   return client_.TotalNumberOfSongs(); 
+}
+
 
 void PlaylistWindow::Redraw()
 {
@@ -100,7 +112,7 @@ void PlaylistWindow::Print(uint32_t line) const
          wattron(window, A_REVERSE);
       }
 
-      if (nextSong->Id() == client_.GetCurrentSong() + 1)
+      if (nextSong->Id() == GetCurrentSong())
       {
          wattron(window, A_BOLD);
          wattron(window, COLOR_PAIR(COLOR_PAIRS-2));
@@ -110,14 +122,14 @@ void PlaylistWindow::Print(uint32_t line) const
       wattron(window, A_BOLD);
       mvwprintw(window, line, 0, "[");
 
-      if (nextSong->Id() != client_.GetCurrentSong() + 1)
+      if (nextSong->Id() != GetCurrentSong())
       {
          wattron(window, COLOR_PAIR(COLOR_PAIRS-1));
       }
 
       wprintw(window, "%4d", nextSong->Id());
 
-      if (nextSong->Id() != client_.GetCurrentSong() + 1)
+      if (nextSong->Id() != GetCurrentSong())
       {
          wattroff(window, COLOR_PAIR(COLOR_PAIRS-1));
       }
@@ -128,8 +140,7 @@ void PlaylistWindow::Print(uint32_t line) const
       // \todo make it reprint the current song when
       // it changes and is on screen, this also needs to be done
       // for the status
-      // \todo maybe make the current song do the +1
-      if (nextSong->Id() == client_.GetCurrentSong() + 1)
+      if (nextSong->Id() == GetCurrentSong())
       {
          wattron(window, A_BOLD);
          wattron(window, COLOR_PAIR(COLOR_PAIRS-2));
@@ -143,7 +154,7 @@ void PlaylistWindow::Print(uint32_t line) const
       //mvwprintw(window, line, (screen_.MaxColumns() - durationString.length() - albumString.length() - 5), "%s   [%s]", nextSong->Album().c_str(), durationString.c_str());
       mvwprintw(window, line, (screen_.MaxColumns() - durationString.length() - 2), "[%s]", durationString.c_str());
 
-      if (nextSong->Id() == client_.GetCurrentSong() + 1)
+      if (nextSong->Id() == GetCurrentSong())
       {
          wattroff(window, A_BOLD);
          wattroff(window, COLOR_PAIR(COLOR_PAIRS-2));
@@ -168,7 +179,7 @@ void PlaylistWindow::Scroll(int32_t scrollCount)
 
    if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
    {   
-      Window::Scroll(scrollCount);
+      ScrollWindow::Scroll(scrollCount);
    }
 }
 
@@ -180,15 +191,15 @@ void PlaylistWindow::ScrollTo(uint16_t scrollLine)
 
    if ((currentSelection_ == scrollLine_) && (currentSelection_ - oldSelection == 1))
    {
-      Window::Scroll(1);
+      ScrollWindow::Scroll(1);
    }
    else if ((currentSelection_ == scrollLine_ - screen_.MaxRows() - 1) && (currentSelection_ - oldSelection == -1))
    {
-      Window::Scroll(-1);
+      ScrollWindow::Scroll(-1);
    }
    else if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
    {   
-      Window::ScrollTo(scrollLine);
+      ScrollWindow::ScrollTo(scrollLine);
    }
 }
 

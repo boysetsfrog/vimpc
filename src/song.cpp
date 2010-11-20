@@ -39,7 +39,7 @@ Song::Song(Song const & song) :
 Song::~Song()
 { }
 
-int32_t Song::Id() const
+uint32_t Song::Id() const
 {
    return id_;
 }

@@ -22,7 +22,7 @@
 #define __UI__PLAYLIST
 
 #include "song.hpp"
-#include "window.hpp"
+#include "scrollwindow.hpp"
 
 namespace Mpc
 {
@@ -31,15 +31,19 @@ namespace Mpc
 
 namespace Ui
 {
-   class PlaylistWindow : public Ui::Window
+   class PlaylistWindow : public Ui::ScrollWindow
    {
    public:
-      PlaylistWindow(Ui::Screen const & screen, Mpc::Client& client);
+      PlaylistWindow(Ui::Screen const & screen, Mpc::Client & client);
       ~PlaylistWindow();
 
    public:
       void AddSong(Mpc::Song const * const newSong);
       Mpc::Song const * const GetSong(uint32_t songIndex);
+
+   public:
+      uint32_t GetCurrentSong()     const;
+      uint32_t TotalNumberOfSongs() const;
 
    public:
       void Print(uint32_t line) const;

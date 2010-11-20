@@ -35,7 +35,7 @@ namespace Mpc
    class Client
    {
    public:
-      Client(Ui::Screen & screen);
+      Client(Ui::Screen const & screen);
       ~Client();
 
    public:
@@ -51,7 +51,7 @@ namespace Mpc
       bool Connected();
 
    public:
-      int32_t GetCurrentSong() const;
+      int32_t GetCurrentSongId() const;
       int32_t TotalNumberOfSongs() const;
 
    public:
@@ -65,11 +65,8 @@ namespace Mpc
       void CheckError();
 
    private:
-      bool started_;
-
-      Ui::Screen & screen_;
-
       struct mpd_connection * connection_;
+      Ui::Screen      const & screen_;
    };
 
    //

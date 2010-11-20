@@ -35,7 +35,7 @@ using namespace Main;
 Vimpc::Vimpc() :
    currentMode_ (Normal),
    settings_    (Main::Settings::Instance()),
-   screen_      (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
+   screen_      (settings_, client_),
    client_      (screen_),
    modeTable_   ()
 {
@@ -46,6 +46,7 @@ Vimpc::Vimpc() :
 
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
+
 }
 
 Vimpc::~Vimpc()
@@ -67,7 +68,7 @@ void Vimpc::Run()
 
       if (client_.Connected() == false)
       {
-         client_.Connect("127.0.0.1");
+         client_.Connect("localhost");
       }
 
       screen_.Start();
@@ -94,6 +95,7 @@ bool Vimpc::Handle(int input)
    {
       ChangeMode(input);
    }
+
 
    return result;
 }

@@ -31,13 +31,12 @@ namespace Ui
    class ModeWindow : public Ui::Window
    {
    public:
-      ModeWindow(Ui::Screen const &);
-      ~ModeWindow();
+      ModeWindow();
+      virtual ~ModeWindow();
 
    public:
       void SetLine(char const * const fmt, ... );
-      void Scroll(int32_t scrollCount);
-      void Print(uint32_t line) const;
+      virtual void Print(uint32_t line) const;
 
       size_t BufferSize() const;
       void SetCursorPosition(uint32_t cursorPosition);
