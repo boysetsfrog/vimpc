@@ -137,7 +137,7 @@ bool Command::InputStringHandler(std::string input)
 bool Command::Quit(std::string const & arguments)
 { 
    // \todo is this how i want to handle this?
-   if (forceCommand_ == true)
+   if (forceCommand_ != true)
    {
       Player::Stop();
    }
