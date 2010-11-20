@@ -145,7 +145,9 @@ namespace Ui
    template <Ui::Player::Skip SKIP>
    bool Command::SkipSong(std::string const & arguments)
    {
-      return Player::SkipSong(SKIP, atoi(arguments.c_str()));
+      uint32_t count = atoi(arguments.c_str());
+      count = (count == 0) ? 1 : count;
+      return Player::SkipSong(SKIP, count);
    }
 
    //Implementation of window change function

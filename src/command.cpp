@@ -44,8 +44,6 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    console_            (screen.ConsoleWindow())
 {
    // \todo find a away to add aliases to tab completion
-   // \todo allow aliases to be multiple commands, ie alias quit! stop; quit
-   // or something similar
    commandTable_["!mpc"]      = &Command::Mpc;
    commandTable_["alias"]     = &Command::Alias;
    commandTable_["clear"]     = &Command::ClearScreen;
@@ -109,9 +107,22 @@ bool Command::ExecuteCommand(std::string const & input)
 
    if (aliasTable_.find(command) != aliasTable_.end())
    {
-      std::string const resolvedAlias(aliasTable_[command] + " " + arguments);
+      boost::regex const blankCommand("^\\s*$");
+      boost::regex const multipleCommandAlias("^(\\s*([^;]+)\\s*;?).*$");
+      std::string        resolvedAlias(aliasTable_[command] + " " + arguments);
+      boost::cmatch      match;
 
-      result = ExecuteCommand(resolvedAlias);
+      while (boost::regex_match(resolvedAlias.c_str(), match, multipleCommandAlias) == true)
+      {
+         std::string const matchString  (match[1].first, match[1].second);
+         std::string const commandString(match[2].first, match[2].second);
+         resolvedAlias = resolvedAlias.substr(matchString.size(), resolvedAlias.size());
+
+         if (boost::regex_match(commandString, blankCommand) == false)
+         {   
+            result = ExecuteCommand(commandString);
+         }
+      }
    }
    else
    {
