@@ -28,6 +28,7 @@
 
 #include "assert.hpp"
 #include "config.hpp"
+#include "error.hpp"
 #include "settings.hpp"
 
 using namespace Main;
@@ -62,13 +63,22 @@ void Vimpc::Run()
 {
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
 
-   if (Config::ExecuteConfigCommands(commandMode) == true)
+   bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
+
+   if (configExecutionResult == true)
    {
       Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
 
+      // If we didn't connect to a host from the config file, just connect to the localhost
       if (client_.Connected() == false)
       {
-         client_.Connect("localhost");
+         client_.Connect();
+      }
+
+      // If we still have no connection, report an error
+      if (client_.Connected() == false)
+      {
+         Error(1, "Failed to connect to server, please ensure it is running and type :connect <server>");
       }
 
       screen_.Start();

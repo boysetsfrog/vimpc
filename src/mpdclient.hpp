@@ -39,7 +39,7 @@ namespace Mpc
       ~Client();
 
    public:
-      void Connect(std::string const & hostname);
+      void Connect(std::string const & hostname = "");
       void Play(uint32_t playId);
       void Pause();
       void Next();
@@ -48,7 +48,7 @@ namespace Mpc
       void Random(bool randomOn);
 
    public:
-      bool Connected();
+      bool Connected() const;
 
    public:
       int32_t GetCurrentSongId() const;

@@ -20,6 +20,7 @@
 
 #include "search.hpp"
 
+#include "error.hpp"
 #include "playlist.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
@@ -90,6 +91,11 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
       {
          found = CheckForMatch(search, i, count);
       }
+   }
+
+   if (found == false)
+   {
+      Error(1, "Pattern not found: " + search); 
    }
 
    return true;
