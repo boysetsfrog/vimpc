@@ -20,8 +20,8 @@
 
 #include "vimpc.hpp"
 
-// Mode handlers
-#include "handler.hpp"
+// Modes
+#include "mode.hpp"
 #include "normal.hpp"
 #include "command.hpp"
 #include "search.hpp"
@@ -37,20 +37,20 @@ Vimpc::Vimpc() :
    settings_    (Main::Settings::Instance()),
    screen_      (client_, settings_), // \todo surely this use of screen_/client_ coupling is bad
    client_      (screen_),
-   handlerTable_()
+   modeTable_   ()
 {
-   Ui::Search * const search   = new Ui::Search (screen_, client_, settings_);
-   handlerTable_[Command]      = new Ui::Command(screen_, client_, settings_);
-   handlerTable_[Normal]       = new Ui::Normal (screen_, client_, settings_, *search);
-   handlerTable_[Search]       = search;
+   Ui::Search * const search = new Ui::Search (screen_, client_, settings_);
+   modeTable_[Command]       = new Ui::Command(screen_, client_, settings_);
+   modeTable_[Normal]        = new Ui::Normal (screen_, client_, settings_, *search);
+   modeTable_[Search]        = search;
 
-   ENSURE(handlerTable_.size()     == ModeCount);
-   ENSURE(HandlersAreInitialised() == true);
+   ENSURE(modeTable_.size()     == ModeCount);
+   ENSURE(ModesAreInitialised() == true);
 }
 
 Vimpc::~Vimpc()
 {
-   for (HandlerTable::iterator it = handlerTable_.begin(); (it != handlerTable_.end()); ++it)
+   for (ModeTable::iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
    {
       delete (it->second);
       it->second = NULL;
@@ -59,11 +59,11 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run()
 {
-   Ui::Command & commandHandler = assert_reference(dynamic_cast<Ui::Command *>(handlerTable_[Command]));
+   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
 
-   if (Config::ExecuteConfigCommands(commandHandler) == true)
+   if (Config::ExecuteConfigCommands(commandMode) == true)
    {
-      Ui::Handler & handler = assert_reference(handlerTable_[currentMode_]);
+      Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
 
       if (client_.Connected() == false)
       {
@@ -71,7 +71,7 @@ void Vimpc::Run()
       }
 
       screen_.Start();
-      handler.InitialiseMode(0);
+      mode.Initialise(0);
 
       while (Handle(Input()) == true);
    }
@@ -85,10 +85,10 @@ int Vimpc::Input() const
 
 bool Vimpc::Handle(int input)
 {
-   Ui::Handler & handler = assert_reference(handlerTable_[currentMode_]);
+   Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
 
    // Input must be handled before mode is changed
-   bool const result = handler.Handle(input);
+   bool const result = mode.Handle(input);
 
    if (RequiresModeChange(input) == true)
    {
@@ -98,11 +98,11 @@ bool Vimpc::Handle(int input)
    return result;
 }
 
-bool Vimpc::HandlersAreInitialised()
+bool Vimpc::ModesAreInitialised()
 {
    bool result = true;
 
-   for (HandlerTable::iterator it = handlerTable_.begin(); ((it != handlerTable_.end()) && (result == true)); ++it)
+   for (ModeTable::iterator it = modeTable_.begin(); ((it != modeTable_.end()) && (result == true)); ++it)
    {
       result = (it->second != NULL);
    }
@@ -116,16 +116,16 @@ bool Vimpc::RequiresModeChange(int input) const
    return (currentMode_ != ModeAfterInput(input));
 }
 
-Vimpc::Mode Vimpc::ModeAfterInput(int input) const
+Vimpc::ModeName Vimpc::ModeAfterInput(int input) const
 {
-   Mode newMode = currentMode_;
+   ModeName newMode = currentMode_;
 
    // Check if we are returning to normal mode
    if (currentMode_ != Normal)
    {
-      Ui::Handler const & normalHandler = assert_reference(handlerTable_.at(Normal));
+      Ui::Mode const & normalMode = assert_reference(modeTable_.at(Normal));
 
-      if (normalHandler.CausesModeToStart(input) == true)
+      if (normalMode.CausesModeToStart(input) == true)
       {   
          newMode = Normal;
       }
@@ -133,11 +133,11 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
    // Must be in normal mode to be able to enter any other mode
    else
    {
-      for (HandlerTable::const_iterator it = handlerTable_.begin(); (it != handlerTable_.end()); ++it)
+      for (ModeTable::const_iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
       {
-         Ui::Handler const & handler = assert_reference(it->second);
+         Ui::Mode const & mode = assert_reference(it->second);
 
-         if (handler.CausesModeToStart(input) == true)
+         if (mode.CausesModeToStart(input) == true)
          {
             newMode = it->first;
          }
@@ -149,17 +149,17 @@ Vimpc::Mode Vimpc::ModeAfterInput(int input) const
 
 void Vimpc::ChangeMode(int input)
 {
-   Mode const oldMode = currentMode_;
-   Mode const newMode = ModeAfterInput(input);
+   ModeName const oldModeName = currentMode_;
+   ModeName const newModeName = ModeAfterInput(input);
 
-   if (newMode != oldMode)
+   if (newModeName != oldModeName)
    {
-      Ui::Handler & oldHandler = assert_reference(handlerTable_[oldMode]);
-      Ui::Handler & newHandler = assert_reference(handlerTable_[newMode]);
+      currentMode_ = newModeName;
 
-      currentMode_ = newMode;
+      Ui::Mode & oldMode = assert_reference(modeTable_[oldModeName]);
+      Ui::Mode & newMode = assert_reference(modeTable_[newModeName]);
 
-      oldHandler.FinaliseMode(input);
-      newHandler.InitialiseMode(input);
+      oldMode.Finalise(input);
+      newMode.Initialise(input);
    }
 }

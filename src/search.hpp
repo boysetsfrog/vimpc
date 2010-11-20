@@ -25,7 +25,6 @@
 #include <map>
 #include <vector>
 
-#include "handler.hpp"
 #include "inputmode.hpp"
 #include "modewindow.hpp"
 #include "player.hpp"
@@ -62,7 +61,7 @@ namespace Ui
       } Direction;
 
    public: //Ui::InputMode
-      void InitialiseMode(int input);
+      void Initialise(int input);
       bool CausesModeToStart(int input) const;
 
    public:

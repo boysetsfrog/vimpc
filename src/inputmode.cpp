@@ -47,7 +47,7 @@ InputMode::~InputMode()
 }
 
 
-void InputMode::InitialiseMode(int input)
+void InputMode::Initialise(int input)
 {
    initHistorySearch_  = true;
 
@@ -61,7 +61,7 @@ void InputMode::InitialiseMode(int input)
    ENSURE(inputString_.empty() == true);
 }
 
-void InputMode::FinaliseMode(int input)
+void InputMode::Finalise(int input)
 {
    AddToHistory(inputString_);
    window_->HideCursor();

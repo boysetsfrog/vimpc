@@ -23,9 +23,8 @@
 
 #include <map>
 
-#include "handler.hpp"
+#include "mode.hpp"
 #include "modewindow.hpp"
-#include "mpdclient.hpp"
 #include "player.hpp"
 #include "playlist.hpp"
 #include "search.hpp"
@@ -40,19 +39,19 @@ namespace Main
 namespace Ui
 {
    // Handles all input received whilst in normal mode
-   class Normal : public Handler, public Player
+   class Normal : public Mode, public Player
    {
    public:
       Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search);
       ~Normal();
 
-   public: // Ui::Handler
-      void InitialiseMode(int input);
-      void FinaliseMode(int input);
+   public: // Ui::Mode
+      void Initialise(int input);
+      void Finalise(int input);
       bool Handle(int input);
       bool CausesModeToStart(int input) const;
 
-   private: //Player wrapper functions
+   private: // Ui::Player wrapper functions
       bool ClearScreen(uint32_t count) { return Player::ClearScreen(); }
       bool Pause(uint32_t count)       { return Player::Pause(); }
       bool Random(uint32_t count)      { return Player::Random(true); }
@@ -96,7 +95,6 @@ namespace Ui
       ActionTable   actionTable_;
 
       Ui::Search        & search_;
-      Mpc::Client       & client_;
       Ui::Screen        & screen_;
       Main::Settings    & settings_;
 

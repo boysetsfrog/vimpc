@@ -35,7 +35,6 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    wasSpecificCount_(false),
    actionTable_     (),
    search_          (search),
-   client_          (client),
    screen_          (screen),
    settings_        (settings)
 {
@@ -89,14 +88,14 @@ Normal::~Normal()
    window_ = NULL;
 }
 
-void Normal::InitialiseMode(int input)
+void Normal::Initialise(int input)
 {
    actionCount_ = 0;
 
    window_->SetLine("");
 }
 
-void Normal::FinaliseMode(int input)
+void Normal::Finalise(int input)
 {
 }
 

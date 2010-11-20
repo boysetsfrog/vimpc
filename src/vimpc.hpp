@@ -28,7 +28,7 @@
 
 namespace Ui
 {
-   class Handler;
+   class Mode;
 }
 
 namespace Main
@@ -52,9 +52,9 @@ namespace Main
       //! Handle the input using the currently active mode
       bool Handle(int input);
 
-      //! Checks that the handler for each mode is valid
+      //! Checks that the each is valid
       //! \todo Possibly template this kind of check?
-      bool HandlersAreInitialised();
+      bool ModesAreInitialised();
 
    private:
       //! All available modes
@@ -64,7 +64,7 @@ namespace Main
          Normal,
          Search,
          ModeCount
-      } Mode;
+      } ModeName;
 
       //! Check if the given \p input will require the curently active mode
       //! to be changed
@@ -72,20 +72,20 @@ namespace Main
 
       //! Determines the mode that will be active after the next call to
       //! ChangeMode with the \p input given
-      Mode ModeAfterInput(int input)     const;
+      ModeName ModeAfterInput(int input)     const;
 
       //! Change the currently active mode based on \p input
       void ChangeMode(int input);
 
    private:
-      typedef std::map<Mode, Ui::Handler *> HandlerTable;
+      typedef std::map<ModeName, Ui::Mode *> ModeTable;
 
    private:
-      Mode           currentMode_;
+      ModeName       currentMode_;
       Settings     & settings_;
       Ui::Screen     screen_;
       Mpc::Client    client_;
-      HandlerTable   handlerTable_;
+      ModeTable      modeTable_;
    };
 }
 

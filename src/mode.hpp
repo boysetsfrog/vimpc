@@ -15,23 +15,39 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   handler.hpp - abstract class for all modes 
+   mode.hpp - abstract class for all modes 
    */
 
-#ifndef __UI__HANDLER
-#define __UI__HANDLER
+#ifndef __UI__MODE
+#define __UI__MODE
 
 namespace Ui
 {
-   class Handler
+   class Mode
    {
    public:
-      virtual ~Handler() { }
+      virtual ~Mode() { }
 
    public:
-      virtual void InitialiseMode(int input)          = 0;
-      virtual void FinaliseMode(int input)            = 0;
-      virtual bool Handle(int input)                  = 0;
+      //! Called whenever the mode is initialised
+      //! 
+      //! \param input The input that caused the mode change
+      virtual void Initialise(int input) = 0;
+
+      //! Called whenever a mode is going to be canceled/completed
+      //!
+      //! \param input The input that caused the mode change
+      virtual void Finalise(int input) = 0;
+
+      //! Handles the given input
+      //!
+      //! \param input Single character input to handle
+      virtual bool Handle(int input) = 0;
+
+      //! Determines whether the given input will cause a switch
+      //! to this mode
+      //!
+      //! \param input input to check for a mode change
       virtual bool CausesModeToStart(int input) const = 0;
    };
 }

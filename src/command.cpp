@@ -39,7 +39,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    aliasTable_         (),
    commandTable_       (),
    settings_           (settings),
-   screen_             (screen)
+   console_            (screen.ConsoleWindow())
 {
    // \todo add :quit! to quit and force song stop ?
    // \todo find a away to add aliases to tab completion
@@ -72,11 +72,11 @@ Command::~Command()
 }
 
 
-void Command::InitialiseMode(int input)
+void Command::Initialise(int input)
 {
    initTabCompletion_  = true;
 
-   InputMode::InitialiseMode(input);
+   InputMode::Initialise(input);
 }
 
 bool Command::Handle(int const input)
@@ -189,7 +189,7 @@ bool Command::Mpc(std::string const & arguments)
 
    std::string const command("mpc " + arguments);
 
-   screen_.ConsoleWindow().OutputLine("> %s", command.c_str());
+   console_.OutputLine("> %s", command.c_str());
 
    FILE * const mpcOutput = popen(command.c_str(), "r");
 
@@ -197,7 +197,7 @@ bool Command::Mpc(std::string const & arguments)
    {
       while (fgets(buffer, bufferSize - 1, mpcOutput) != NULL)
       {
-         screen_.ConsoleWindow().OutputLine("%s", buffer);
+         console_.OutputLine("%s", buffer);
       }
 
       pclose(mpcOutput);
@@ -214,12 +214,6 @@ bool Command::Alias(std::string const & input)
 
    aliasTable_[command] = arguments;
 
-   return true;
-}
-
-bool Command::Redraw(std::string const & arguments)
-{
-   screen_.Redraw();
    return true;
 }
 

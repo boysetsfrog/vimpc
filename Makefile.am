@@ -8,12 +8,12 @@ vimpc_SOURCES = src/assert.hpp \
                 src/config.hpp \
                 src/console.cpp \
                 src/console.hpp \
-                src/handler.hpp \
                 src/help.cpp \
                 src/help.hpp \
                 src/inputmode.cpp \
                 src/inputmode.hpp \
                 src/main.cpp \
+                src/mode.hpp \
                 src/modewindow.cpp \
                 src/modewindow.hpp \
                 src/mpdclient.cpp \

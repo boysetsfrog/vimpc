@@ -46,11 +46,11 @@ Search::~Search()
 }
 
 
-void Search::InitialiseMode(int input)
+void Search::Initialise(int input)
 {
    direction_ = GetDirectionForInput(input);
 
-   InputMode::InitialiseMode(input);
+   InputMode::Initialise(input);
 }
 
 bool Search::CausesModeToStart(int input) const

@@ -28,7 +28,7 @@
 
 namespace Main
 {
-   //holds the value of a single setting
+   //! Holds the value of an individual setting
    template <typename T>
    class Setting
    {
@@ -44,7 +44,7 @@ namespace Main
          T value_;
    };
 
-   // Manages settings which are set via :set command
+   //! Manages settings which are set via :set command
    class Settings
    {
       public:
@@ -55,24 +55,28 @@ namespace Main
          ~Settings();
 
       public:
-         //Calls the correct setter function based upon the given input
+         //! Calls the correct setter function based upon the given input
          void Set(std::string const & input);
 
-         //Gets the default startup window
+         //! Gets the default startup window
          Ui::Screen::MainWindow Window() const;
 
-         //Whether to autmatically scroll to playing song
+         //! Determints whether to autmatically scroll to playing song
          bool AutoScroll() const;
 
       private:
+         //! Used to handle settings that require very specific paramters
          void SetSpecificSetting(std::string setting, std::string arguments);
+
+         //! Handles settings which are treated as an on/off setting
          void SetSingleSetting(std::string setting);
 
       private:
+         //! Get the value for the given \p setting
          bool Get(std::string setting) const { return toggleTable_.at(setting)->Get(); }
 
       private:
-         //Sets the startup window
+         //! Sets the startup window
          void SetWindow(std::string const & arguments); 
 
       private:

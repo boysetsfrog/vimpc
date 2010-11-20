@@ -35,6 +35,8 @@ namespace Main
 
 namespace Ui
 {
+   class ConsoleWindow;
+
    // Handles all input received whilst in command mode
    class Command : public InputMode, public Player
    {
@@ -43,11 +45,6 @@ namespace Ui
       Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
       ~Command();
 
-   public: // Ui::InputMode
-      void InitialiseMode(int input);
-      bool Handle(int input);
-      void GenerateInputString(int const input);
-
    public:
       // Checks if there is any aliases defined for a command, recursively calling
       // until a proper command is found then executes that command
@@ -55,20 +52,26 @@ namespace Ui
       // \param[in] input The command string to execute, including the arguments
       bool ExecuteCommand(std::string const & input);
 
+   public: // Ui::InputMode
+      void Initialise(int input);
+      bool Handle(int input);
+      void GenerateInputString(int const input);
+
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
       char const * const Prompt() const;
 
-   private: //Player wrapper functions
+   private: //Ui::Player wrapper functions
       bool ClearScreen(std::string const & arguments) { return Player::ClearScreen(); }
       bool Connect(std::string const & arguments)     { return Player::Connect(arguments); }
       bool Pause(std::string const & arguments)       { return Player::Pause(); }
       bool Play(std::string const & arguments)        { return Player::Play(atoi(arguments.c_str())); }
       bool Quit(std::string const & arguments)        { return Player::Quit(); }
       bool Random(std::string const & arguments)      { return Player::Random(true); }
+      bool Redraw(std::string const & arguments)      { return Player::Redraw(); }
       bool Stop(std::string const & arguments)        { return Player::Stop(); }
 
-   private:
+   private: //Ui::Player
       template <Player::Skip SKIP>
       bool SkipSong(std::string const & arguments); 
 
@@ -98,10 +101,7 @@ namespace Ui
       // Alias a command to a given string
       bool Alias(std::string const & arguments);
 
-      // Redraws the current window
-      bool Redraw(std::string const & arguments);
-   
-      //
+      // Clears the current tab completion
       void ResetTabCompletion(int input);
 
       // Complete the current command, by searching through the command table
@@ -114,11 +114,11 @@ namespace Ui
       typedef std::map<std::string, CommandFunction> CommandTable;
 
    private: 
-      bool             initTabCompletion_;
-      AliasTable       aliasTable_;
-      CommandTable     commandTable_;
-      Main::Settings & settings_;
-      Ui::Screen     & screen_;
+      bool                 initTabCompletion_;
+      AliasTable           aliasTable_;
+      CommandTable         commandTable_;
+      Main::Settings     & settings_;
+      Ui::ConsoleWindow  & console_;
 
       // Tab completion searching class
       class TabCompletionMatch 

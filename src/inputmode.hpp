@@ -21,7 +21,7 @@
 #ifndef __UI__INPUTMODE
 #define __UI__INPUTMODE
 
-#include "handler.hpp"
+#include "mode.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -72,15 +72,15 @@ namespace Ui
 
 
    // Handles all input received whilst in a line input mode
-   class InputMode : public Handler
+   class InputMode : public Mode
    {
    public:
       InputMode(Ui::Screen & screen);
       virtual ~InputMode();
 
-   public: // Ui::Handler
-      virtual void InitialiseMode(int input);
-      virtual void FinaliseMode(int input);
+   public: // Ui::Mode
+      virtual void Initialise(int input);
+      virtual void Finalise(int input);
       virtual bool Handle(int input);
       virtual bool CausesModeToStart(int input) const;
 

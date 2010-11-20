@@ -58,9 +58,9 @@ bool Player::Connect(std::string const & host, uint32_t port)
    return true;
 }
 
-bool Player::Echo(std::string const & arguments)
+bool Player::Echo(std::string const & echo)
 {
-   screen_.ConsoleWindow().OutputLine("%s", arguments.c_str());
+   screen_.ConsoleWindow().OutputLine("%s", echo.c_str());
    return true;
 }
 
@@ -86,6 +86,12 @@ bool Player::Quit()
 bool Player::Random(bool random)
 {
    client_.Random(random);
+   return true;
+}
+
+bool Player::Redraw()
+{
+   screen_.Redraw();
    return true;
 }
 
