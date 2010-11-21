@@ -52,7 +52,7 @@ namespace Mpc
 
    public:
       int32_t GetCurrentSongId() const;
-      int32_t TotalNumberOfSongs() const;
+      int32_t TotalNumberOfSongs();
 
    public:
       void DisplaySongInformation();

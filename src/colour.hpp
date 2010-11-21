@@ -37,11 +37,13 @@
 #define YELLOWONBLACK (COLOR_PAIRS - 2)
 #define WHITEONBLACK  (COLOR_PAIRS - 3)
 #define WHITEONRED    (COLOR_PAIRS - 4)
+#define WHITEONBLUE   (COLOR_PAIRS - 5)
 
-#define SONGCOLOUR           WHITEONBLACK 
 #define CURRENTSONGCOLOUR    BLUEONBLACK 
-#define SONGIDCOLOUR         YELLOWONBLACK 
 #define ERRORCOLOUR          WHITEONRED 
+#define SONGCOLOUR           WHITEONBLACK 
+#define SONGIDCOLOUR         YELLOWONBLACK 
+#define STATUSLINECOLOUR     WHITEONBLUE
 
 namespace Ui
 {
@@ -60,10 +62,11 @@ namespace Ui
             start_color();
             use_default_colors();
 
-            init_pair(WHITEONBLACK,  -1, -1);
+            init_pair(WHITEONBLACK,  -1,           -1);
             init_pair(YELLOWONBLACK, COLOR_YELLOW, -1);
-            init_pair(BLUEONBLACK,   COLOR_BLUE, -1);
-            init_pair(WHITEONRED,    COLOR_WHITE, COLOR_RED);
+            init_pair(BLUEONBLACK,   COLOR_BLUE,   -1);
+            init_pair(WHITEONRED,    COLOR_WHITE,  COLOR_RED);
+            init_pair(WHITEONBLUE,   COLOR_WHITE,  COLOR_BLUE);
          }
       }
    }

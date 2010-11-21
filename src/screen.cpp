@@ -118,7 +118,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    // \todo needs to be a different colour to the selection
    std::string const BlankLine(maxColumns_, ' ');
 
-   wattron(statusWindow_,   A_REVERSE | A_BOLD);
+   wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR) | A_BOLD);
    mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
    wmove(statusWindow_,     0, 0);
 

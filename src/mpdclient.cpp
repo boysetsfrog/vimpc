@@ -162,14 +162,22 @@ int32_t Client::GetCurrentSongId() const
    return songId;
 }
 
-int32_t Client::TotalNumberOfSongs() const
+int32_t Client::TotalNumberOfSongs()
 {
    int32_t songTotal = -1;
 
    if (Connected() == true)
    {
-      songTotal = mpd_status_get_queue_length(mpd_run_status(connection_));
+      mpd_status * const status = mpd_run_status(connection_);
+
+      if (status != NULL)
+      {
+         songTotal = mpd_status_get_queue_length(status);
+         mpd_status_free(status);
+      }
    }
+
+   CheckError();
 
    return songTotal;
 }
@@ -182,39 +190,42 @@ void Client::DisplaySongInformation()
 
       if (currentSong != NULL)
       {
-         mpd_status * status  = mpd_run_status(connection_);
-         uint32_t songId      = mpd_song_get_id(currentSong);
-         uint32_t duration    = mpd_song_get_duration(currentSong);
+         mpd_status * const status = mpd_run_status(connection_);
+         uint32_t const songId     = mpd_song_get_id(currentSong);
+         uint32_t const duration   = mpd_song_get_duration(currentSong);
 
-         mpd_state state = mpd_status_get_state(status);
-
-         std::string currentState;
-
-         switch (state)
+         if (status != NULL)
          {
-            case MPD_STATE_UNKNOWN:
-               currentState = "Unknown";
-               break;
-            case MPD_STATE_STOP:
-               currentState = "Stopped";
-               break;
-            case MPD_STATE_PLAY:
-               currentState = "Playing";
-               break;
-            case MPD_STATE_PAUSE:
-               currentState = "Paused";
-               break;
+            mpd_state state = mpd_status_get_state(status);
+
+            std::string currentState;
+
+            switch (state)
+            {
+               case MPD_STATE_UNKNOWN:
+                  currentState = "Unknown";
+                  break;
+               case MPD_STATE_STOP:
+                  currentState = "Stopped";
+                  break;
+               case MPD_STATE_PLAY:
+                  currentState = "Playing";
+                  break;
+               case MPD_STATE_PAUSE:
+                  currentState = "Paused";
+                  break;
+            }
+
+            uint32_t const minutes = static_cast<uint32_t>(duration / 60);
+            uint32_t const seconds = (duration - (minutes * 60));
+
+            screen_.SetStatusLine("[%s...][%u/%u] %s - %s [%s | %s] [%d:%.2d]", currentState.c_str(), songId + 1, mpd_status_get_queue_length(status),
+                  mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0), mpd_song_get_tag(currentSong, MPD_TAG_TITLE,0), mpd_song_get_tag(currentSong, MPD_TAG_TRACK,0),
+                  mpd_song_get_tag(currentSong, MPD_TAG_ALBUM,0), minutes, seconds);
+
+            mpd_song_free(currentSong);
+            mpd_status_free(status);
          }
-
-         uint32_t const minutes = static_cast<uint32_t>(duration / 60);
-         uint32_t const seconds = (duration - (minutes * 60));
-
-         screen_.SetStatusLine("[%s...][%u/%u] %s - %s [%s | %s] [%d:%.2d]", currentState.c_str(), songId + 1, mpd_status_get_queue_length(status),
-               mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0), mpd_song_get_tag(currentSong, MPD_TAG_TITLE,0), mpd_song_get_tag(currentSong, MPD_TAG_TRACK,0),
-               mpd_song_get_tag(currentSong, MPD_TAG_ALBUM,0), minutes, seconds);
-
-         mpd_song_free(currentSong);
-         mpd_status_free(status);
       }
    }
 }
