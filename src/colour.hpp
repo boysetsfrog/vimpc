@@ -51,13 +51,20 @@ namespace Ui
 
       void InitialiseColours()
       {
-         start_color();
-         use_default_colors();
+         static bool coloursInitialised = false;
 
-         init_pair(WHITEONBLACK,  -1, -1);
-         init_pair(YELLOWONBLACK, COLOR_YELLOW, -1);
-         init_pair(BLUEONBLACK,   COLOR_BLUE, -1);
-         init_pair(WHITEONRED,    COLOR_WHITE, COLOR_RED);
+         if (coloursInitialised == false)
+         {
+            coloursInitialised = true;
+
+            start_color();
+            use_default_colors();
+
+            init_pair(WHITEONBLACK,  -1, -1);
+            init_pair(YELLOWONBLACK, COLOR_YELLOW, -1);
+            init_pair(BLUEONBLACK,   COLOR_BLUE, -1);
+            init_pair(WHITEONRED,    COLOR_WHITE, COLOR_RED);
+         }
       }
    }
 }

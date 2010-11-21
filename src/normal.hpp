@@ -85,6 +85,9 @@ namespace Ui
       bool ScrollTo(uint32_t line);
 
    private:
+      void DisplayModeLine();
+
+   private:
       ModeWindow *  window_;
       uint32_t      actionCount_;
       int32_t       lastAction_;

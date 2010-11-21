@@ -23,6 +23,7 @@
 #include "vimpc.hpp"
 
 #include <limits>
+#include <sstream>
 
 using namespace Ui;
 
@@ -91,8 +92,7 @@ Normal::~Normal()
 void Normal::Initialise(int input)
 {
    actionCount_ = 0;
-
-   window_->SetLine("");
+   DisplayModeLine();
 }
 
 void Normal::Finalise(int input)
@@ -132,11 +132,11 @@ bool Normal::Handle(int input)
          lastActionCount_ = actionCount_;
       }
       
-      window_->SetLine("LAST: %u%c COUNT: %u SCROLL: %u", lastActionCount_, lastAction_, actionCount_, ((int) ((screen_.PlaylistWindow().CurrentLine() + 1) * 100)/((int) screen_.PlaylistWindow().TotalNumberOfSongs())) );
-
       ptrToMember actionFunc = actionTable_[input];
       result = (*this.*actionFunc)(count);
       actionCount_ = 0;
+
+      DisplayModeLine();
 
       screen_.Update();
    }
@@ -166,4 +166,32 @@ bool Normal::RepeatLastAction(uint32_t count)
    }
 
    return true;
+}
+
+void Normal::DisplayModeLine()
+{
+   std::ostringstream modeStream;
+   float currentScroll = ((screen_.PlaylistWindow().CurrentLine())/((float) screen_.PlaylistWindow().TotalNumberOfSongs()));
+
+   currentScroll += .005;
+
+   modeStream << (screen_.PlaylistWindow().CurrentLine() + 1) << "/" << screen_.PlaylistWindow().TotalNumberOfSongs() << " -- ";
+   
+   if (currentScroll <= .010)
+   {
+      modeStream << "Top ";
+   }
+   else if (currentScroll >= 1.0)
+   {
+      modeStream << "Bot ";
+   }
+   else
+   {
+      modeStream << (int) (currentScroll * 100) << "%%";
+   }
+
+   std::string modeLine(modeStream.str());
+   std::string blankLine(screen_.MaxColumns() - (modeLine.size() - 1), ' ');
+
+   window_->SetLine("%s%s", blankLine.c_str(), modeLine.c_str());
 }
