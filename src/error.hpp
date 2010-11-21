@@ -21,10 +21,21 @@
 #ifndef __UI__ERROR
 #define __UI__ERROR
 
+#include "colour.hpp"
 #include "modewindow.hpp"
 
 #include <stdint.h>
 #include <string>
+
+#ifdef __GNUC__
+#ifndef FUNCION_IS_NOT_USED
+#define FUNCTION_IS_NOT_USED __attribute__ ((unused))
+#endif
+#else
+#ifndef FUNCION_IS_NOT_USED
+#define FUNCTION_IS_NOT_USED
+#endif
+#endif
 
 namespace Ui
 {
@@ -44,15 +55,9 @@ namespace Ui
    public:
       void Print(uint32_t line) const
       {
-         // \todo colour library
-         init_pair(COLOR_PAIRS-5, COLOR_WHITE, COLOR_RED);
-         wattron(N_WINDOW(), COLOR_PAIR(COLOR_PAIRS-5));
-         wattron(N_WINDOW(), A_BOLD);
-
+         wattron(N_WINDOW(), COLOR_PAIR(ERRORCOLOUR) | A_BOLD);
          ModeWindow::Print(line); 
-
-         wattroff(N_WINDOW(), A_BOLD);
-         wattroff(N_WINDOW(), COLOR_PAIR(COLOR_PAIRS-5));
+         wattroff(N_WINDOW(), COLOR_PAIR(ERRORCOLOUR) | A_BOLD);
       }
 
       void ClearError()             { hasError_ = false; }
@@ -64,7 +69,9 @@ namespace Ui
    };
 }
 
-static void Error(uint32_t errorNumber, std::string errorString)
+static void Error(uint32_t errorNumber, std::string errorString) FUNCTION_IS_NOT_USED;
+
+void Error(uint32_t errorNumber, std::string errorString)
 {
    if (errorNumber != 0)
    {

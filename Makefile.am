@@ -3,6 +3,7 @@ ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS}
 
 bin_PROGRAMS  = vimpc
 vimpc_SOURCES = src/assert.hpp \
+                src/colour.hpp \
                 src/command.cpp \
                 src/command.hpp \
                 src/config.hpp \
@@ -13,6 +14,8 @@ vimpc_SOURCES = src/assert.hpp \
                 src/help.hpp \
                 src/inputmode.cpp \
                 src/inputmode.hpp \
+                src/library.cpp \
+                src/library.hpp \
                 src/main.cpp \
                 src/mode.hpp \
                 src/modewindow.cpp \

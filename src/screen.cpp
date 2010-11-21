@@ -21,7 +21,10 @@
 #include "screen.hpp"
 
 #include "console.hpp"
+#include "colour.hpp"
 #include "error.hpp"
+#include "help.hpp"
+#include "library.hpp"
 #include "playlist.hpp"
 #include "settings.hpp"
 
@@ -43,8 +46,9 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client) :
    // \todo for some reason when i run this
    // using gnuscreen the cursor doesn't appear?
    initscr();
-   start_color();
-   use_default_colors();
+
+   Ui::Colour::InitialiseColours();
+
    cbreak();
    noecho();
 
@@ -56,8 +60,8 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client) :
    //Windows
    playlistWindow_        = new Ui::PlaylistWindow(*this, client);
    consoleWindow_         = new Ui::ConsoleWindow (*this);
-   libraryWindow_         = new Ui::ConsoleWindow (*this); // \todo
-   helpWindow_            = new Ui::ConsoleWindow (*this); // \todo
+   libraryWindow_         = new Ui::LibraryWindow (*this); 
+   helpWindow_            = new Ui::HelpWindow    (*this);
    statusWindow_          = newwin(0, maxColumns_, maxRows_, 0);
 
    //Commands must be read through a window that is always visible
@@ -102,10 +106,6 @@ void Screen::Start()
    }
 
    ENSURE(started_ == true);
-
-   //Need to call this to prevent a warning
-   //\ todo do properly
-   Error(0, "");
 }
 
 ModeWindow * Screen::CreateModeWindow()

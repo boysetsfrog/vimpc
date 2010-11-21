@@ -20,6 +20,7 @@
 
 #include "playlist.hpp"
 
+#include "colour.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
@@ -99,13 +100,11 @@ void PlaylistWindow::Print(uint32_t line) const
 
    WINDOW * window = N_WINDOW();
 
-   // \todo make a library file for color definitions
-   init_pair(COLOR_PAIRS-1, COLOR_YELLOW, COLOR_BLACK);
-   init_pair(COLOR_PAIRS-2, COLOR_BLUE, COLOR_BLACK);
-
    if (line + FirstLine() < BufferSize())
    {
       Mpc::Song * nextSong = buffer_[line + FirstLine()];
+
+      wattron(window, COLOR_PAIR(SONGCOLOUR) | WA_BOLD | WA_BLINK);
 
       if (line + FirstLine() == currentSelection_)
       {
@@ -114,8 +113,7 @@ void PlaylistWindow::Print(uint32_t line) const
 
       if (nextSong->Id() == GetCurrentSong())
       {
-         wattron(window, A_BOLD);
-         wattron(window, COLOR_PAIR(COLOR_PAIRS-2));
+         wattron(window, COLOR_PAIR(CURRENTSONGCOLOUR) | A_BOLD);
       }
 
       mvwprintw(window, line, 0, BlankLine.c_str());
@@ -124,14 +122,14 @@ void PlaylistWindow::Print(uint32_t line) const
 
       if (nextSong->Id() != GetCurrentSong())
       {
-         wattron(window, COLOR_PAIR(COLOR_PAIRS-1));
+         wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
       wprintw(window, "%4d", nextSong->Id());
 
       if (nextSong->Id() != GetCurrentSong())
       {
-         wattroff(window, COLOR_PAIR(COLOR_PAIRS-1));
+         wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
       wprintw(window, "] ");
@@ -142,8 +140,7 @@ void PlaylistWindow::Print(uint32_t line) const
       // for the status
       if (nextSong->Id() == GetCurrentSong())
       {
-         wattron(window, A_BOLD);
-         wattron(window, COLOR_PAIR(COLOR_PAIRS-2));
+         wattron(window, COLOR_PAIR(CURRENTSONGCOLOUR) | WA_BOLD | WA_BLINK);
       }
 
       wprintw(window, "%s - %s", nextSong->Artist().c_str(), nextSong->Title().c_str());
@@ -156,14 +153,15 @@ void PlaylistWindow::Print(uint32_t line) const
 
       if (nextSong->Id() == GetCurrentSong())
       {
-         wattroff(window, A_BOLD);
-         wattroff(window, COLOR_PAIR(COLOR_PAIRS-2));
+         wattroff(window, COLOR_PAIR(CURRENTSONGCOLOUR) | A_BOLD);
       }
 
       if (line + FirstLine() == currentSelection_)
       {
          wattroff(window, A_REVERSE);
       }
+
+      wattroff(window, COLOR_PAIR(SONGCOLOUR) | A_BOLD | A_BLINK);
    }
 }
 

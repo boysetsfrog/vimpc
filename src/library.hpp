@@ -15,21 +15,21 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   help.hpp - help window 
+   library.hpp - handling of the mpd music library 
    */
 
-#ifndef __UI__HELP
-#define __UI__HELP
+#ifndef __UI__LIBRARY
+#define __UI__LIBRARY
 
 #include "scrollwindow.hpp"
 
 namespace Ui
 {
-   class HelpWindow : public Ui::ScrollWindow
+   class LibraryWindow : public Ui::ScrollWindow
    {
    public:
-      HelpWindow(Ui::Screen const & screen);
-      ~HelpWindow();
+      LibraryWindow(Ui::Screen const & screen);
+      ~LibraryWindow();
 
    public:
       void Print(uint32_t line) const;

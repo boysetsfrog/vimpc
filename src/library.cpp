@@ -15,37 +15,37 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   help.cpp - window to display help about commands 
+   library.cpp - handling of the mpd music library 
    */
 
-#include "help.hpp"
+#include "library.hpp"
 
 #include "screen.hpp"
 
 using namespace Ui;
 
-HelpWindow::HelpWindow(Ui::Screen const & screen) :
+LibraryWindow::LibraryWindow(Ui::Screen const & screen) :
    ScrollWindow     (screen)
 {
-   buffer_.push_back("Help");
+   buffer_.push_back("Library");
 }
 
-HelpWindow::~HelpWindow()
+LibraryWindow::~LibraryWindow()
 {
 }
 
 
-void HelpWindow::Redraw()
+void LibraryWindow::Redraw()
 {
    Clear();
 }
 
-void HelpWindow::Clear()
+void LibraryWindow::Clear()
 {
    buffer_.clear();
 }
 
-void HelpWindow::Print(uint32_t line) const
+void LibraryWindow::Print(uint32_t line) const
 {
    static std::string const BlankLine(screen_.MaxColumns(), ' ');
 
@@ -57,16 +57,16 @@ void HelpWindow::Print(uint32_t line) const
    }
 }
 
-void HelpWindow::Confirm() const
+void LibraryWindow::Confirm() const
 {
 }
 
-void HelpWindow::Scroll(int32_t scrollCount)
+void LibraryWindow::Scroll(int32_t scrollCount)
 {
    ScrollWindow::Scroll(scrollCount);
 }
 
-void HelpWindow::ScrollTo(uint16_t scrollLine)
+void LibraryWindow::ScrollTo(uint16_t scrollLine)
 {
    ScrollWindow::ScrollTo(scrollLine);
 }

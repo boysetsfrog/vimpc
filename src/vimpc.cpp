@@ -106,7 +106,6 @@ bool Vimpc::Handle(int input)
       ChangeMode(input);
    }
 
-
    return result;
 }
 
