@@ -132,7 +132,7 @@ bool Normal::Handle(int input)
          lastActionCount_ = actionCount_;
       }
       
-      window_->SetLine("LAST: %u%c COUNT: %u", lastActionCount_, lastAction_, actionCount_);
+      window_->SetLine("LAST: %u%c COUNT: %u SCROLL: %u", lastActionCount_, lastAction_, actionCount_, ((int) ((screen_.PlaylistWindow().CurrentLine() + 1) * 100)/((int) screen_.PlaylistWindow().TotalNumberOfSongs())) );
 
       ptrToMember actionFunc = actionTable_[input];
       result = (*this.*actionFunc)(count);

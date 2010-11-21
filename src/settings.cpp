@@ -21,6 +21,7 @@
 #include "settings.hpp"
 
 #include "assert.hpp"
+#include "error.hpp"
 
 #include <algorithm>
 #include <boost/regex.hpp>
@@ -31,6 +32,7 @@
 using namespace Main;
 
 char const * const AutoScrollSetting = "autoscroll";
+char const * const StopOnQuitSetting = "stoponquit";
 
 Settings & Settings::Instance()
 {
@@ -44,6 +46,7 @@ Settings::Settings() :
    settingsTable_["window"]        = &Settings::SetWindow;
 
    toggleTable_[AutoScrollSetting] = new Setting<bool>(false);
+   toggleTable_[StopOnQuitSetting] = new Setting<bool>(true);
 }
 
 Settings::~Settings()
@@ -76,6 +79,10 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
    {
       ptrToMember settingFunc = settingsTable_[setting];
       (*this.*settingFunc)(arguments);
+   }
+   else
+   {
+      Error(1, "No such setting: " + setting);
    }
 }
 
@@ -110,6 +117,10 @@ void Settings::SetSingleSetting(std::string setting)
          set->Set((off == false));
       }
    }
+   else
+   {
+      Error(1, "No such setting: " + setting);
+   }
 }
 
 
@@ -121,6 +132,11 @@ Ui::Screen::MainWindow Settings::Window() const
 bool Settings::AutoScroll() const
 {
    return Get(AutoScrollSetting);
+}
+
+bool Settings::StopOnQuit() const
+{
+   return Get(StopOnQuitSetting);
 }
 
 

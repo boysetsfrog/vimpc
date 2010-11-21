@@ -148,8 +148,7 @@ bool Command::InputStringHandler(std::string input)
 
 bool Command::Quit(std::string const & arguments)
 { 
-   // \todo is this how i want to handle this?
-   if (forceCommand_ != true)
+   if ((forceCommand_ != true) && (settings_.StopOnQuit() == true))
    {
       Player::Stop();
    }
@@ -172,11 +171,11 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    // If we can't find the exact command, look for a unique command that starts
    // with the input command
    std::string commandToExecute  = command;
-   bool matchingCommand          = (commandTable_.find(commandToExecute) != commandTable_.end());
+   bool        matchingCommand   = (commandTable_.find(commandToExecute) != commandTable_.end());
+   uint32_t    validCommandCount = 0;
 
    if (matchingCommand == false)
    {
-      uint32_t validCommandCount = 0;
 
       for (CommandTable::const_iterator it = commandTable_.begin(); it != commandTable_.end(); ++it)
       {
@@ -188,6 +187,7 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
       }
 
       matchingCommand = (validCommandCount == 1);
+
    }
 
    // If we have found a command execute it, with \p arguments
@@ -198,9 +198,13 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 
       result = (*this.*commandFunction)(arguments);
    }
+   else if (validCommandCount > 1)
+   {
+      Error(1, "Command is ambigous, please be more specific: " + command);
+   }
    else
    {
-      Error(1, "Command not found");
+      Error(1, "Command not found: " + command);
    }
 
    // \todo will probably have a setting that always forces commands
@@ -227,6 +231,8 @@ bool Command::Mpc(std::string const & arguments)
    static uint32_t const bufferSize = 512;
    char   buffer[bufferSize];
 
+   // \todo add a check to see if mpc exists
+
    std::string const command("mpc " + arguments);
 
    console_.OutputLine("> %s", command.c_str());
@@ -241,6 +247,10 @@ bool Command::Mpc(std::string const & arguments)
       }
 
       pclose(mpcOutput);
+   }
+   else
+   {
+      Error(1, "Executing program mpc failed");
    }
 
    return true;

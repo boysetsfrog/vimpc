@@ -64,6 +64,9 @@ namespace Main
          //! Determints whether to autmatically scroll to playing song
          bool AutoScroll() const;
 
+         //! Determines whether we should stop palying when we quit
+         bool StopOnQuit() const;
+
       private:
          //! Used to handle settings that require very specific paramters
          void SetSpecificSetting(std::string setting, std::string arguments);
