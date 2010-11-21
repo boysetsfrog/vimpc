@@ -120,14 +120,14 @@ void PlaylistWindow::Print(uint32_t line) const
       wattron(window, A_BOLD);
       mvwprintw(window, line, 0, "[");
 
-      if (nextSong->Id() != GetCurrentSong())
+      if ((nextSong->Id() != GetCurrentSong()) && (line + FirstLine() != currentSelection_))
       {
          wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
-      wprintw(window, "%4d", nextSong->Id());
+      wprintw(window, "%5d", nextSong->Id());
 
-      if (nextSong->Id() != GetCurrentSong())
+      if ((nextSong->Id() != GetCurrentSong()) && (line + FirstLine() != currentSelection_))
       {
          wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }

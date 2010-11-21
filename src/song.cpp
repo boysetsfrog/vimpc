@@ -112,7 +112,7 @@ std::string Song::DurationString() const
    uint32_t const minutes = static_cast<uint32_t>(duration_ / 60);
    uint32_t const seconds = (duration_ - (minutes * 60));
 
-   snprintf(duration, 32, "%d:%.2d", minutes, seconds);
+   snprintf(duration, 32, "%2d:%.2d", minutes, seconds);
 
    return (std::string(duration));
 }

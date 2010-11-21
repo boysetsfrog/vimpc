@@ -232,17 +232,20 @@ void Client::DisplaySongInformation()
 
 void Client::CheckError()
 {
-   if (mpd_connection_get_error(connection_) != MPD_ERROR_SUCCESS)
+   if (connection_ != NULL)
    {
-      // \todo fix and make critical error
-      char error[255];
-      snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
-      Error(2, error);
-
-      if (connection_ != NULL)
+      if (mpd_connection_get_error(connection_) != MPD_ERROR_SUCCESS)
       {
-         mpd_connection_free(connection_);
-         connection_ = NULL;
+         // \todo fix and make critical error
+         char error[255];
+         snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
+         Error(2, error);
+
+         if (connection_ != NULL)
+         {
+            mpd_connection_free(connection_);
+            connection_ = NULL;
+         }
       }
    }
 }
