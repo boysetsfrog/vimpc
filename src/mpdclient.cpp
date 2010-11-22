@@ -141,30 +141,34 @@ void Client::Random(bool const randomOn)
 
 std::string Client::CurrentState()
 {
-   mpd_status * const status = mpd_run_status(connection_);
-   std::string  currentState("");
+   std::string currentState("");
 
-   if (status != NULL)
+   if (Connected() == true)
    {
-      mpd_state state = mpd_status_get_state(status);
+      mpd_status * const status = mpd_run_status(connection_);
 
-      switch (state)
+      if (status != NULL)
       {
-         case MPD_STATE_UNKNOWN:
-            currentState = "Unknown";
-            break;
-         case MPD_STATE_STOP:
-            currentState = "Stopped";
-            break;
-         case MPD_STATE_PLAY:
-            currentState = "Playing";
-            break;
-         case MPD_STATE_PAUSE:
-            currentState = "Paused";
-            break;
-      }
+         mpd_state state = mpd_status_get_state(status);
 
-      mpd_status_free(status);
+         switch (state)
+         {
+            case MPD_STATE_UNKNOWN:
+               currentState = "Unknown";
+               break;
+            case MPD_STATE_STOP:
+               currentState = "Stopped";
+               break;
+            case MPD_STATE_PLAY:
+               currentState = "Playing";
+               break;
+            case MPD_STATE_PAUSE:
+               currentState = "Paused";
+               break;
+         }
+
+         mpd_status_free(status);
+      }
    }
 
    return currentState;
@@ -238,7 +242,7 @@ void Client::DisplaySongInformation()
          durationStream << "[" << std::setw(2) << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << "]";
          std::string durationString(durationStream.str());
 
-         std::string blankLine(screen_.MaxColumns() - statusString.size() - durationString.size(), ' ');
+         std::string blankLine(screen_.MaxColumns() - statusString.size() - (durationString.size() - 1), ' ');
 
          statusString += blankLine + durationString;
 
