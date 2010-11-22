@@ -26,6 +26,8 @@
 #include "playlist.hpp"
 #include "screen.hpp"
 
+#include <iomanip>
+#include <sstream>
 #include <mpd/tag.h>
 #include <mpd/status.h>
 
@@ -137,6 +139,37 @@ void Client::Random(bool const randomOn)
    }
 }
 
+std::string Client::CurrentState()
+{
+   mpd_status * const status = mpd_run_status(connection_);
+   std::string  currentState("");
+
+   if (status != NULL)
+   {
+      mpd_state state = mpd_status_get_state(status);
+
+      switch (state)
+      {
+         case MPD_STATE_UNKNOWN:
+            currentState = "Unknown";
+            break;
+         case MPD_STATE_STOP:
+            currentState = "Stopped";
+            break;
+         case MPD_STATE_PLAY:
+            currentState = "Playing";
+            break;
+         case MPD_STATE_PAUSE:
+            currentState = "Paused";
+            break;
+      }
+
+      mpd_status_free(status);
+   }
+
+   return currentState;
+}
+
 
 bool Client::Connected() const
 {
@@ -190,45 +223,32 @@ void Client::DisplaySongInformation()
 
       if (currentSong != NULL)
       {
-         mpd_status * const status = mpd_run_status(connection_);
-         uint32_t const songId     = mpd_song_get_id(currentSong);
-         uint32_t const duration   = mpd_song_get_duration(currentSong);
+         uint32_t const songId   = mpd_song_get_id(currentSong);
+         uint32_t const duration = mpd_song_get_duration(currentSong);
+         uint32_t const minutes  = static_cast<uint32_t>(duration / 60);
+         uint32_t const seconds  = (duration - (minutes * 60));
 
-         if (status != NULL)
-         {
-            mpd_state state = mpd_status_get_state(status);
+         std::ostringstream statusStream;
 
-            std::string currentState;
+         statusStream << "[" << std::setw(5) << songId + 1 << "] " <<  mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0) << " - " << mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
+         std::string statusString(statusStream.str());
 
-            switch (state)
-            {
-               case MPD_STATE_UNKNOWN:
-                  currentState = "Unknown";
-                  break;
-               case MPD_STATE_STOP:
-                  currentState = "Stopped";
-                  break;
-               case MPD_STATE_PLAY:
-                  currentState = "Playing";
-                  break;
-               case MPD_STATE_PAUSE:
-                  currentState = "Paused";
-                  break;
-            }
+         std::ostringstream durationStream;
 
-            uint32_t const minutes = static_cast<uint32_t>(duration / 60);
-            uint32_t const seconds = (duration - (minutes * 60));
+         durationStream << "[" << std::setw(2) << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << "]";
+         std::string durationString(durationStream.str());
 
-            screen_.SetStatusLine("[%s...][%u/%u] %s - %s [%s | %s] [%d:%.2d]", currentState.c_str(), songId + 1, mpd_status_get_queue_length(status),
-                  mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0), mpd_song_get_tag(currentSong, MPD_TAG_TITLE,0), mpd_song_get_tag(currentSong, MPD_TAG_TRACK,0),
-                  mpd_song_get_tag(currentSong, MPD_TAG_ALBUM,0), minutes, seconds);
+         std::string blankLine(screen_.MaxColumns() - statusString.size() - durationString.size(), ' ');
 
-            mpd_song_free(currentSong);
-            mpd_status_free(status);
-         }
+         statusString += blankLine + durationString;
+
+         screen_.SetStatusLine("%s", statusString.c_str());
+
+         mpd_song_free(currentSong);
       }
    }
 }
+
 
 void Client::CheckError()
 {

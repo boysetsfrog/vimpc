@@ -20,6 +20,7 @@
 
 #include "normal.hpp"
 
+#include "mpdclient.hpp"
 #include "vimpc.hpp"
 
 #include <limits>
@@ -37,6 +38,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_     (),
    search_          (search),
    screen_          (screen),
+   client_          (client),
    settings_        (settings)
 {
    // \todo figure out how to do alt + ctrl key combinations
@@ -190,8 +192,9 @@ void Normal::DisplayModeLine()
       modeStream << (int) (currentScroll * 100) << "%%";
    }
 
+   std::string currentState(client_.CurrentState() + "...");
    std::string modeLine(modeStream.str());
-   std::string blankLine(screen_.MaxColumns() - (modeLine.size() - 1), ' ');
+   std::string blankLine(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');
 
-   window_->SetLine("%s%s", blankLine.c_str(), modeLine.c_str());
+   window_->SetLine("%s%s%s", currentState.c_str(),  blankLine.c_str(), modeLine.c_str());
 }

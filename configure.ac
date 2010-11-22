@@ -16,10 +16,10 @@ else
    AC_MSG_RESULT(no)
 fi
 
-AC_CHECK_LIB([ncurses],
-             [initscr],
-             [LIBS="$LIBS -lncurses"],
-             [AC_MSG_ERROR(ncurses library is required)])
+AC_CHECK_LIB([ncursesw],
+             [addwstr],
+             [LIBS="$LIBS -lncursesw"],
+             [AC_MSG_ERROR(ncursesw library is required)])
 
 AC_CHECK_LIB([mpdclient],
              [mpd_connection_new],

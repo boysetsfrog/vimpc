@@ -46,6 +46,7 @@ namespace Mpc
       void Previous();
       void Stop();
       void Random(bool randomOn);
+      std::string CurrentState();
 
    public:
       bool Connected() const;

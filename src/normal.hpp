@@ -37,6 +37,11 @@ namespace Main
    class Settings;
 }
 
+namespace Mpd
+{
+   class Client;
+}
+
 namespace Ui
 {
    // Handles all input received whilst in normal mode
@@ -100,6 +105,7 @@ namespace Ui
 
       Ui::Search        & search_;
       Ui::Screen        & screen_;
+      Mpc::Client       & client_;
       Main::Settings    & settings_;
 
    };

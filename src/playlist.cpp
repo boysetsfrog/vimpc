@@ -21,6 +21,7 @@
 #include "playlist.hpp"
 
 #include "colour.hpp"
+#include "console.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
@@ -96,29 +97,22 @@ void PlaylistWindow::DeleteSongs()
 
 void PlaylistWindow::Print(uint32_t line) const
 {
-   static std::string const BlankLine(screen_.MaxColumns(), ' ');
-
    WINDOW * window = N_WINDOW();
 
    if (line + FirstLine() < BufferSize())
    {
       Mpc::Song * nextSong = buffer_[line + FirstLine()];
 
-      wattron(window, COLOR_PAIR(SONGCOLOUR) | WA_BOLD | WA_BLINK);
+      wattron(window, (nextSong->Id() != GetCurrentSong()) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
 
       if (line + FirstLine() == currentSelection_)
       {
          wattron(window, A_REVERSE);
       }
 
-      if (nextSong->Id() == GetCurrentSong())
-      {
-         wattron(window, COLOR_PAIR(CURRENTSONGCOLOUR) | A_BOLD);
-      }
-
-      mvwprintw(window, line, 0, BlankLine.c_str());
       wattron(window, A_BOLD);
-      mvwprintw(window, line, 0, "[");
+      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
+      mvwaddstr(window, line, 0, "[");
 
       if ((nextSong->Id() != GetCurrentSong()) && (line + FirstLine() != currentSelection_))
       {
@@ -132,36 +126,28 @@ void PlaylistWindow::Print(uint32_t line) const
          wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
-      wprintw(window, "] ");
-      wattroff(window, A_BOLD);
+      waddstr(window, "] ");
 
       // \todo make it reprint the current song when
       // it changes and is on screen, this also needs to be done
       // for the status
-      if (nextSong->Id() == GetCurrentSong())
+      if (nextSong->Id() != GetCurrentSong())
       {
-         wattron(window, COLOR_PAIR(CURRENTSONGCOLOUR) | WA_BOLD | WA_BLINK);
+         wattroff(window, A_BOLD);
       }
-
-      wprintw(window, "%s - %s", nextSong->Artist().c_str(), nextSong->Title().c_str());
 
       std::string const durationString(nextSong->DurationString());
-      std::string const albumString   (nextSong->Album());
 
-      //mvwprintw(window, line, (screen_.MaxColumns() - durationString.length() - albumString.length() - 5), "%s   [%s]", nextSong->Album().c_str(), durationString.c_str());
-      mvwprintw(window, line, (screen_.MaxColumns() - durationString.length() - 2), "[%s]", durationString.c_str());
+      waddstr(window, nextSong->Artist().c_str());
+      waddstr(window, " - ");
+      waddstr(window, nextSong->Title().c_str());
 
-      if (nextSong->Id() == GetCurrentSong())
-      {
-         wattroff(window, COLOR_PAIR(CURRENTSONGCOLOUR) | A_BOLD);
-      }
+      wmove(window, line, (screen_.MaxColumns() - durationString.size() - 2));
+      wprintw(window, "[%s]", durationString.c_str());
 
-      if (line + FirstLine() == currentSelection_)
-      {
-         wattroff(window, A_REVERSE);
-      }
-
-      wattroff(window, COLOR_PAIR(SONGCOLOUR) | A_BOLD | A_BLINK);
+      wattroff(window, A_BOLD | A_REVERSE);
+      wattroff(window, (nextSong->Id() != GetCurrentSong()) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
+      wredrawln(window, line, 1);
    }
 }
 

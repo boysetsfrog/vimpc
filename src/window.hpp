@@ -21,7 +21,7 @@
 #ifndef __UI__WINDOW
 #define __UI__WINDOW
 
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 #include <stdint.h>
 #include <string>
 #include <vector>

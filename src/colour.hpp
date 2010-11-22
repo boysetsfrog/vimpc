@@ -21,7 +21,7 @@
 #ifndef __UI__COLOUR
 #define __UI__COLOUR
 
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 
 #ifdef __GNUC__
 #ifndef FUNCION_IS_NOT_USED

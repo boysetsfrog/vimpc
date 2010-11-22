@@ -20,8 +20,6 @@
 
 #include "modewindow.hpp"
 
-#include <ncurses.h>
-
 using namespace Ui;
 
 ModeWindow::ModeWindow() :

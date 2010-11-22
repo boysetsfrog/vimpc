@@ -87,6 +87,8 @@ int main(int argc, char** argv)
 
    if (runVimpc == true)
    {
+      setlocale(LC_ALL, "");
+
       Main::Vimpc vimpc;
       vimpc.Run();
    }
