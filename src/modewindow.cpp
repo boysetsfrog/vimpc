@@ -20,6 +20,8 @@
 
 #include "modewindow.hpp"
 
+#include <iostream>
+
 using namespace Ui;
 
 ModeWindow::ModeWindow() :
@@ -51,7 +53,8 @@ void ModeWindow::Print(uint32_t line) const
 {
    WINDOW * const window = N_WINDOW();
 
-   curs_set((cursorVisible_ == true) ? 2 : 0);
+   curs_set((cursorVisible_ == true) ? 1 : 0);
+   noecho();
 
    werase(window);
    mvwprintw(window, 0, 0, buffer_.c_str());

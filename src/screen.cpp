@@ -73,7 +73,6 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client) :
    mainWindows_[Library]  = libraryWindow_;
    mainWindows_[Help]     = helpWindow_;
    keypad(commandWindow_, true);
-   curs_set(0);
 
    consoleWindow_->SetAutoScroll(true);
    SetStatusLine("%s", "");
