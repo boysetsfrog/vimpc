@@ -85,7 +85,10 @@ namespace Ui
    public:
       void Start();
       ModeWindow * CreateModeWindow();
+
+      void ClearStatus() const;
       void SetStatusLine(char const * const fmt, ... ) const;
+      void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;
 
    public:
       void Select(ScrollWindow::Position position, uint32_t count);

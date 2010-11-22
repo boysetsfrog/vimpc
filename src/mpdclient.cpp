@@ -227,26 +227,15 @@ void Client::DisplaySongInformation()
 
       if (currentSong != NULL)
       {
-         uint32_t const songId   = mpd_song_get_id(currentSong);
-         uint32_t const duration = mpd_song_get_duration(currentSong);
-         uint32_t const minutes  = static_cast<uint32_t>(duration / 60);
-         uint32_t const seconds  = (duration - (minutes * 60));
+         uint32_t const songId    = mpd_song_get_id(currentSong);
+         uint32_t const duration  = mpd_song_get_duration(currentSong);
+         uint32_t const minutes   = static_cast<uint32_t>(duration / 60);
+         uint32_t const seconds   = (duration - (minutes * 60));
+         std::string const artist = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
+         std::string const title  = mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
 
-         std::ostringstream statusStream;
-
-         statusStream << "[" << std::setw(5) << songId + 1 << "] " <<  mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0) << " - " << mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
-         std::string statusString(statusStream.str());
-
-         std::ostringstream durationStream;
-
-         durationStream << "[" << std::setw(2) << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << "]";
-         std::string durationString(durationStream.str());
-
-         std::string blankLine(screen_.MaxColumns() - statusString.size() - (durationString.size() - 1), ' ');
-
-         statusString += blankLine + durationString;
-
-         screen_.SetStatusLine("%s", statusString.c_str());
+         screen_.SetStatusLine("[%5u] %s - %s", songId + 1, artist.c_str(), title.c_str());
+         screen_.MoveSetStatus(screen_.MaxColumns() - 7, "[%2d:%.2d]", minutes, seconds);
 
          mpd_song_free(currentSong);
       }

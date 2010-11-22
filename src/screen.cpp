@@ -112,14 +112,32 @@ ModeWindow * Screen::CreateModeWindow()
    return (new ModeWindow());
 }
 
+void Screen::ClearStatus() const
+{
+   static std::string const BlankLine(maxColumns_, ' ');
+
+   wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR));
+   mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
+}
+
+
 void Screen::SetStatusLine(char const * const fmt, ...) const
 {
-   // \todo needs to be a different colour to the selection
-   std::string const BlankLine(maxColumns_, ' ');
+   ClearStatus();
 
-   wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR) | A_BOLD);
-   mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
-   wmove(statusWindow_,     0, 0);
+   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR) | A_BOLD);
+   wmove(statusWindow_, 0, 0);
+
+   va_list args;
+   va_start(args, fmt);
+   vw_printw(statusWindow_, fmt, args);
+   va_end(args);
+}
+
+void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
+{
+   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR) | A_BOLD);
+   wmove(statusWindow_, 0, x);
 
    va_list args;
    va_start(args, fmt);
