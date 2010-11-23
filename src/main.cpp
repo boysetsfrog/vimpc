@@ -28,7 +28,7 @@
 
 #include <execinfo.h>
 
-extern void assert_failed(const char * file, const char * function, int line)
+ASSERT_FUNCTION()
 {
    int const BufferSize = 128;
    void    * buffer[BufferSize];

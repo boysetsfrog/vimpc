@@ -29,7 +29,9 @@
 #define ASSERT(_expression)                        if (!(_expression)) assert_failed(__FILE__, __func__, __LINE__)
 #define REQUIRE(_expression)                       ASSERT(_expression)
 #define ENSURE(_expression)                        ASSERT(_expression)
-extern void assert_failed(const char * file, const char * function, int line);
+#define ASSERT_FUNCTION()                          void assert_failed(const char * file, const char * function, int line)
+
+extern ASSERT_FUNCTION();
 
 #define STATIC_ASSERT(exp) (static_assert_failed <(exp) >())
 template<bool> struct static_assert_failed;

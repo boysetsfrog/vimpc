@@ -24,13 +24,26 @@ AC_CHECK_LIB([ncursesw],
 AC_CHECK_LIB([mpdclient],
              [mpd_connection_new],
              [LIBS="$LIBS -lmpdclient"],
-             [AC_MSG_ERROR(mpd client library is required)])
+             [AC_MSG_ERROR(mpdclient library is required)])
 
 AX_BOOST_BASE([1.40],
               [LIBS="$LIBS -lboost_regex-mt"],
               [AC_MSG_ERROR(boost library > 1.40 is required)])
 
 AX_BOOST_REGEX
+
+AC_CHECK_HEADER(ncursesw/ncurses.h,
+                [],
+                [AC_MSG_ERROR(ncursesw-dev library is required)])
+
+AC_CHECK_HEADER(mpd/connection.h,
+                [],
+                [AC_MSG_ERROR(mpdclient-dev library is required)])
+
+AC_CHECK_HEADER(boost/regex.hpp,
+                [],
+                [AC_MSG_ERROR(boost-regex-dev library is required)])
+
 
 AC_MSG_CHECKING(whether to enable debugging)
 debug_default="no"
