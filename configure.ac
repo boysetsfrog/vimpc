@@ -1,4 +1,4 @@
-AC_INIT([vimpc], [0.01], [nathan.sweetman@gmail.com], [vimpc], [http://vimpc.sourceforge.net/])
+AC_INIT([vimpc], [0.01], [http://sourceforge.net/apps/trac/], [vimpc], [http://vimpc.sourceforge.net/])
 
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_regex.m4])
