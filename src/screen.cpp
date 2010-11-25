@@ -175,11 +175,11 @@ void Screen::ScrollTo(Location location, uint32_t line)
    uint32_t scroll[LocationCount] = { 0, 0, 0, 0 };
 
    scroll[Specific] = line;
+   scroll[Bottom]   = mainWindows_[window_]->ContentSize() + 1; 
 
    if (window_ == Playlist)
    {
       scroll[Current] = PlaylistWindow().GetCurrentSong(); 
-      scroll[Bottom]  = PlaylistWindow().TotalNumberOfSongs(); 
    }
 
    ScrollTo(scroll[location]);

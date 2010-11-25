@@ -32,16 +32,15 @@ namespace Ui
       ~HelpWindow();
 
    public:
+      void Redraw();
       void Print(uint32_t line) const;
       void Confirm() const;
-      void Scroll(int32_t scrollCount);
-      void ScrollTo(uint16_t scrollLine);
-      void Redraw();
 
       uint16_t CurrentLine() const { return 0; }
 
    private:
       void Clear();
+      void LoadHelpFile();
 
    private:
       size_t BufferSize() const { return buffer_.size(); }

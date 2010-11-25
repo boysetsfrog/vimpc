@@ -1,0 +1,78 @@
+Vimpc Help
+--------------------------------------------------
+
+NORMAL MODE
+--------------------
+
+MOTION:
+
+           k, Up    : scroll up in current window
+           j, Down  : scroll down in current window
+
+PLAYING:
+      
+    [count]h        : skip to the previous song, if count is specified, skips back [count] songs
+    [count]l        : skip to the next song, if count is specified, skips forward [count] songs
+           p        : toggle the pause on/off
+           s        : stop playback
+
+SEARCHING:
+          /<exp>    : searches forward for the given expression which is treated as a regular expression
+          ?<exp>    : searches forward for the given expression which is treated as a regular expression
+          n         : go to the next result
+          N         : go to the previous result
+
+
+COMMAND MODE
+----------------------
+
+          :<com>    : executes the command <com>
+                      to execute a command the full-name does not need to be given provided that
+                      it is a unique match ie :con does not work as it could be :console or :connect
+                      but :conn will call the :connect command
+
+WINDOWS:
+          :playlist : change to the playlist window
+          :console  : change to the console window
+          :library  : change to the library window
+          :help     : change to the help window (this one)
+
+MISC:
+          !mpc <command-string>  : executes the command line program mpc with the given <command-string>
+                                   the result is output in the console window
+
+          alias <name> <commands> : creates an alias called <name> which executes the given commands,
+                                    each command may be seperated by ;
+                                    i.e alias hello echo "hello"; echo "world";
+
+          clear    : clears the playlist window
+
+          connect [hostname] : connects to the given hostname if none is specficied, uses localhost
+
+          echo <string> : echos the given string to the console window
+
+          next [count]     : skips forward to the next song, or if given the next [count] songs
+          previous [count] : skips backward to the previous song, or if given the previous [count] songs
+          play <song id>   : play the song with the given id in the current playlist
+
+          quit[!]          : stop playback and quit vimpc, if [!] is appended, playback will not be stopped
+          
+          random           : toggles random on/off
+
+          redraw           : redraws the current window
+
+          set              : sets a configurable setting, see SETTINGS section
+
+          stop             : stop playback
+
+
+
+SETTINGS
+---------------------
+         :set [no]autoscroll[!] : sets whether to automatically scroll to the playing song, if no is specified turned off
+                                  otherwise turned on. If ! is specified the current setting is toggled
+
+         :set window <window>   : sets the window the start vimpc with focus, only useful if called from ~/.vimpcrc file
+
+          
+

@@ -20,40 +20,42 @@
 
 #include "help.hpp"
 
+#include "error.hpp"
 #include "screen.hpp"
+
+#include <fstream>
+
+char const * const HelpFile = "doc/help.txt";
 
 using namespace Ui;
 
 HelpWindow::HelpWindow(Ui::Screen const & screen) :
    ScrollWindow     (screen)
 {
-   buffer_.push_back("Help");
+   // \todo instead of using a help.txt file, may want to add
+   // descriptions for each normal and command mode function
+   // and then just iterate over their handler tables printing them out
+
+   LoadHelpFile();
 }
 
 HelpWindow::~HelpWindow()
 {
 }
 
-
 void HelpWindow::Redraw()
 {
    Clear();
-}
-
-void HelpWindow::Clear()
-{
-   buffer_.clear();
+   LoadHelpFile();
 }
 
 void HelpWindow::Print(uint32_t line) const
 {
-   static std::string const BlankLine(screen_.MaxColumns(), ' ');
-
    WINDOW * window = N_WINDOW();
 
-   if (line < buffer_.size())
+   if ((FirstLine() + line) < buffer_.size())
    {
-      mvwprintw(window, 0, 0, "%s", buffer_.at(line).c_str());
+      mvwaddstr(window, line, 0, buffer_.at(FirstLine() + line).c_str());
    }
 }
 
@@ -61,12 +63,34 @@ void HelpWindow::Confirm() const
 {
 }
 
-void HelpWindow::Scroll(int32_t scrollCount)
+
+void HelpWindow::LoadHelpFile()
 {
-   ScrollWindow::Scroll(scrollCount);
+   std::ifstream helpFile(HelpFile);
+   std::string   nextLine;
+
+   if (helpFile.is_open() == true)
+   {
+      while (helpFile.eof() == false)
+      {
+         getline(helpFile, nextLine);
+
+         if (helpFile.eof() == false)
+         {
+            buffer_.push_back(nextLine);
+         }
+      }
+
+      helpFile.close();
+   }
+   else 
+   {
+      Error(4, "Unable to open help file"); 
+   }
 }
 
-void HelpWindow::ScrollTo(uint16_t scrollLine)
+void HelpWindow::Clear()
 {
-   ScrollWindow::ScrollTo(scrollLine);
+   buffer_.clear();
 }
+

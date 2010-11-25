@@ -115,7 +115,7 @@ bool ScrollWindow::AutoScroll() const
 }
 
 
-uint16_t ScrollWindow::FirstLine() const
+uint32_t ScrollWindow::FirstLine() const
 {
    uint16_t result = 0;
 
