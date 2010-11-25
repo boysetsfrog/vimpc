@@ -77,12 +77,13 @@ uint32_t PlaylistWindow::TotalNumberOfSongs() const
 void PlaylistWindow::Redraw()
 {
    Clear();
-
    client_.ForEachSong(*this, &PlaylistWindow::AddSong);
 }
 
 void PlaylistWindow::Clear()
 {
+   ScrollTo(0);
+
    DeleteSongs();
    buffer_.clear();
 }

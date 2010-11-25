@@ -53,7 +53,7 @@ namespace Mpc
 
    public:
       int32_t GetCurrentSongId() const;
-      int32_t TotalNumberOfSongs();
+      uint32_t TotalNumberOfSongs();
 
    public:
       void DisplaySongInformation();
@@ -74,22 +74,25 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachSong(Object & object, void (Object::*callBack)(Song const * const))
    {
-      mpd_send_list_queue_meta(connection_);
-
-      mpd_song * nextSong  = mpd_recv_song(connection_);
-
-      for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+      if (Connected() == true)
       {
-         Song * const newSong = new Song(mpd_song_get_id(nextSong) + 1);
+         mpd_send_list_queue_meta(connection_);
 
-         newSong->SetArtist  (mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0));
-         newSong->SetAlbum   (mpd_song_get_tag(nextSong, MPD_TAG_ALBUM,  0));
-         newSong->SetTitle   (mpd_song_get_tag(nextSong, MPD_TAG_TITLE,  0));
-         newSong->SetDuration(mpd_song_get_duration(nextSong));
-         mpd_song_free(nextSong);
+         mpd_song * nextSong  = mpd_recv_song(connection_);
 
-         (object.*callBack)(newSong);
-         delete newSong;
+         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         {
+            Song * const newSong = new Song(mpd_song_get_id(nextSong) + 1);
+
+            newSong->SetArtist  (mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0));
+            newSong->SetAlbum   (mpd_song_get_tag(nextSong, MPD_TAG_ALBUM,  0));
+            newSong->SetTitle   (mpd_song_get_tag(nextSong, MPD_TAG_TITLE,  0));
+            newSong->SetDuration(mpd_song_get_duration(nextSong));
+            mpd_song_free(nextSong);
+
+            (object.*callBack)(newSong);
+            delete newSong;
+         }
       }
    }
 

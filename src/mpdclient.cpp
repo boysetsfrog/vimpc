@@ -199,9 +199,9 @@ int32_t Client::GetCurrentSongId() const
    return songId;
 }
 
-int32_t Client::TotalNumberOfSongs()
+uint32_t Client::TotalNumberOfSongs()
 {
-   int32_t songTotal = -1;
+   uint32_t songTotal = 0;
 
    if (Connected() == true)
    {
@@ -258,6 +258,7 @@ void Client::CheckError()
          {
             mpd_connection_free(connection_);
             connection_ = NULL;
+            screen_.PlaylistWindow().Redraw();
          }
       }
    }

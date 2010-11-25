@@ -173,23 +173,30 @@ bool Normal::RepeatLastAction(uint32_t count)
 void Normal::DisplayModeLine()
 {
    std::ostringstream modeStream;
-   float currentScroll = ((screen_.PlaylistWindow().CurrentLine())/((float) screen_.PlaylistWindow().TotalNumberOfSongs()));
-
-   currentScroll += .005;
-
-   modeStream << (screen_.PlaylistWindow().CurrentLine() + 1) << "/" << screen_.PlaylistWindow().TotalNumberOfSongs() << " -- ";
    
-   if (currentScroll <= .010)
+   float currentScroll = 0.0;
+
+   if (screen_.PlaylistWindow().TotalNumberOfSongs() > 0)
    {
-      modeStream << "Top ";
+      currentScroll = ((screen_.PlaylistWindow().CurrentLine())/((float) screen_.PlaylistWindow().TotalNumberOfSongs()));
+      currentScroll += .005;
+      modeStream << (screen_.PlaylistWindow().CurrentLine() + 1) << "/" << screen_.PlaylistWindow().TotalNumberOfSongs() << " -- ";
    }
-   else if (currentScroll >= 1.0)
+
+   if (screen_.PlaylistWindow().TotalNumberOfSongs() > screen_.MaxRows())
    {
-      modeStream << "Bot ";
-   }
-   else
-   {
-      modeStream << (int) (currentScroll * 100) << "%%";
+      if (currentScroll <= .010)
+      {
+         modeStream << "Top ";
+      }
+      else if (currentScroll >= 1.0)
+      {
+         modeStream << "Bot ";
+      }
+      else
+      {
+         modeStream << (int) (currentScroll * 100) << "%%";
+      }
    }
 
    std::string currentState(client_.CurrentState() + "...");
