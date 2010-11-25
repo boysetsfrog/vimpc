@@ -67,7 +67,7 @@ namespace Ui
       bool Pause(std::string const & arguments)       { return Player::Pause(); }
       bool Play(std::string const & arguments)        { return Player::Play(atoi(arguments.c_str())); }
       bool Quit(std::string const & arguments);
-      bool Random(std::string const & arguments)      { return Player::Random(true); }
+      bool Random(std::string const & arguments);
       bool Redraw(std::string const & arguments)      { return Player::Redraw(); }
       bool Stop(std::string const & arguments)        { return Player::Stop(); }
 

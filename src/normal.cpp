@@ -50,7 +50,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    actionTable_['c']       = &Normal::ClearScreen;
    actionTable_['p']       = &Normal::Pause;
-   actionTable_['r']       = &Normal::Random;
+   //actionTable_['r']       = &Normal::Random; // \todo add back once i can be bothered toggling this properly
    actionTable_['s']       = &Normal::Stop;
 
    actionTable_['l']       = &Normal::SkipSong<Player::Next>;
@@ -172,6 +172,8 @@ bool Normal::RepeatLastAction(uint32_t count)
 
 void Normal::DisplayModeLine()
 {
+   // \todo need to display random, repeat, single, consume state somewhere
+
    std::ostringstream modeStream;
    
    float currentScroll = 0.0;

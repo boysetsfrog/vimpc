@@ -156,6 +156,13 @@ bool Command::Quit(std::string const & arguments)
    return Player::Quit();
 }
 
+bool Command::Random(std::string const & arguments)
+{ 
+   bool const value = (arguments.compare("on") == 0);
+   return Player::Random(value);
+}
+
+
 bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 {
    boost::regex const forceCheck("^.*!$");
@@ -232,6 +239,7 @@ bool Command::Mpc(std::string const & arguments)
    char   buffer[bufferSize];
 
    // \todo add a check to see if mpc exists
+   // \todo redirect std:error results into the console window too
 
    std::string const command("mpc " + arguments);
 
