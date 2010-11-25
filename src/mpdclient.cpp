@@ -141,7 +141,7 @@ void Client::Random(bool const randomOn)
 
 std::string Client::CurrentState()
 {
-   std::string currentState("");
+   std::string currentState("Disconnected");
 
    if (Connected() == true)
    {
