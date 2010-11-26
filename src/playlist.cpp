@@ -98,13 +98,23 @@ void PlaylistWindow::DeleteSongs()
 
 void PlaylistWindow::Print(uint32_t line) const
 {
+   static uint32_t currentSong = 0;
+
+   if (line == 0)
+   {
+      //Saves us from querying mpd all the time
+      // \todo will eventually cache this in mpd client for a second at a time
+      //       when that is done return to setting this for each print (will no longer need to be static)
+      currentSong = GetCurrentSong();
+   }
+
    WINDOW * window = N_WINDOW();
 
    if (line + FirstLine() < BufferSize())
    {
       Mpc::Song * nextSong = buffer_[line + FirstLine()];
 
-      wattron(window, (nextSong->Id() != GetCurrentSong()) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
+      wattron(window, (nextSong->Id() != currentSong) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
 
       if (line + FirstLine() == currentSelection_)
       {
@@ -115,14 +125,14 @@ void PlaylistWindow::Print(uint32_t line) const
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 0, "[");
 
-      if ((nextSong->Id() != GetCurrentSong()) && (line + FirstLine() != currentSelection_))
+      if ((nextSong->Id() != currentSong) && (line + FirstLine() != currentSelection_))
       {
          wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
       wprintw(window, "%5d", nextSong->Id());
 
-      if ((nextSong->Id() != GetCurrentSong()) && (line + FirstLine() != currentSelection_))
+      if ((nextSong->Id() != currentSong) && (line + FirstLine() != currentSelection_))
       {
          wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }
@@ -132,7 +142,7 @@ void PlaylistWindow::Print(uint32_t line) const
       // \todo make it reprint the current song when
       // it changes and is on screen, this also needs to be done
       // for the status
-      if (nextSong->Id() != GetCurrentSong())
+      if (nextSong->Id() != currentSong)
       {
          wattroff(window, A_BOLD);
       }
@@ -147,7 +157,7 @@ void PlaylistWindow::Print(uint32_t line) const
       wprintw(window, "[%s]", durationString.c_str());
 
       wattroff(window, A_BOLD | A_REVERSE);
-      wattroff(window, (nextSong->Id() != GetCurrentSong()) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
+      wattroff(window, (nextSong->Id() != currentSong) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
       wredrawln(window, line, 1);
    }
 }

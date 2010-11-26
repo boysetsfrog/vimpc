@@ -95,10 +95,17 @@ void Normal::Initialise(int input)
 {
    actionCount_ = 0;
    DisplayModeLine();
+   Refresh();
 }
 
 void Normal::Finalise(int input)
 {
+   Refresh();
+}
+
+void Normal::Refresh()
+{
+   window_->Print(1);
 }
 
 bool Normal::Handle(int input)

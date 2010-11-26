@@ -57,6 +57,7 @@ void InputMode::Initialise(int input)
    window_->ShowCursor();
    window_->SetCursorPosition(cursor_.Position());
    window_->SetLine(Prompt());
+   Refresh();
 
    ENSURE(inputString_.empty() == true);
 }
@@ -65,6 +66,12 @@ void InputMode::Finalise(int input)
 {
    AddToHistory(inputString_);
    window_->HideCursor();
+   Refresh();
+}
+
+void InputMode::Refresh()
+{
+   window_->Print(1);
 }
 
 bool InputMode::Handle(int const input)

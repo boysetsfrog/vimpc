@@ -54,6 +54,7 @@ namespace Ui
    public: // Ui::Mode
       void Initialise(int input);
       void Finalise(int input);
+      void Refresh();
       bool Handle(int input);
       bool CausesModeToStart(int input) const;
 

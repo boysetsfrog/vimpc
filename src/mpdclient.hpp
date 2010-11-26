@@ -63,6 +63,10 @@ namespace Mpc
       void ForEachSong(Object & object, void (Object::*callBack)(Song const * const));
 
    private:
+      uint32_t SecondsToMinutes(uint32_t duration) const;
+      uint32_t RemainingSeconds(uint32_t duration) const;
+
+   private:
       void CheckError();
 
    private:

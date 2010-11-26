@@ -81,6 +81,7 @@ namespace Ui
    public: // Ui::Mode
       virtual void Initialise(int input);
       virtual void Finalise(int input);
+      virtual void Refresh();
       virtual bool Handle(int input);
       virtual bool CausesModeToStart(int input) const;
 

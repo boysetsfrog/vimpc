@@ -49,7 +49,7 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client) :
 
    Ui::Colour::InitialiseColours();
 
-   cbreak();
+   halfdelay(1);
    noecho();
 
    getmaxyx(stdscr, maxRows_, maxColumns_);
@@ -132,6 +132,8 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    va_start(args, fmt);
    vw_printw(statusWindow_, fmt, args);
    va_end(args);
+
+   wrefresh(statusWindow_);
 }
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
@@ -254,8 +256,11 @@ uint32_t Screen::WaitForInput() const
 
    uint32_t input = wgetch(commandWindow_);
 
-   // \todo make own function
-   errorWindow.ClearError();
+   if (input != ERR)
+   {
+      // \todo make own function
+      errorWindow.ClearError();
+   }
 
    return input;
 }

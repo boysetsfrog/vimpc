@@ -60,7 +60,10 @@ Vimpc::~Vimpc()
 }
 
 void Vimpc::Run()
-{
+{  
+   // \todo this is a hack
+   static uint32_t updateCount = 0;
+
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
 
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
@@ -84,7 +87,36 @@ void Vimpc::Run()
       screen_.Start();
       mode.Initialise(0);
 
-      while (Handle(Input()) == true);
+      bool running = true;
+
+      while (running == true)
+      {
+         int input = Input();
+
+         if (input != ERR)
+         {
+            running = Handle(input);
+         }
+         // \todo do this properly
+         // currently if you hold down a scroll times will not update
+         else //Should happen every .5 of a second regardless
+         {
+            if (updateCount > 15)
+            {
+               updateCount = 0;
+               screen_.Update(); //Should happen every 1.5 seconds
+            }
+            else
+            {
+               updateCount++;
+            }
+
+            // \todo make this more efficient
+            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+            client_.DisplaySongInformation();
+            mode.Refresh();
+         }
+      }
    }
 }
 

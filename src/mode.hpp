@@ -39,6 +39,10 @@ namespace Ui
       //! \param input The input that caused the mode change
       virtual void Finalise(int input) = 0;
 
+      //! Called when the screen requires refreshing, which
+      //! may require a change to the mode
+      virtual void Refresh() = 0;
+
       //! Handles the given input
       //!
       //! \param input Single character input to handle

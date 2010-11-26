@@ -46,6 +46,9 @@ void ModeWindow::SetLine(char const * const fmt, ...)
    va_end(args);
 
    buffer_ = buf;
+
+   // \todo once all windows are being updated correctly
+   // this can be removed?
    Print(1);
 }
 
