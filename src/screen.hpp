@@ -44,11 +44,12 @@ namespace Ui
    class ConsoleWindow;
    class ErrorWindow;
    class PlaylistWindow;
+   class Search;
 
    class Screen
    {
    public:
-      Screen(Main::Settings const & settings, Mpc::Client & client);
+      Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search);
       ~Screen();
 
    public:
@@ -94,7 +95,6 @@ namespace Ui
       void Select(ScrollWindow::Position position, uint32_t count);
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(Location location, uint32_t line = 0);
-      void Search(std::string const & searchString) const;
 
    public:
       void Confirm();

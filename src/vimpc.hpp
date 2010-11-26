@@ -83,6 +83,7 @@ namespace Main
    private:
       ModeName       currentMode_;
       Settings     & settings_;
+      Ui::Search   & search_;
       Ui::Screen     screen_;
       Mpc::Client    client_;
       ModeTable      modeTable_;

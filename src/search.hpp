@@ -65,6 +65,7 @@ namespace Ui
       bool CausesModeToStart(int input) const;
 
    public:
+      std::string LastSearchString() const;
       bool SearchResult(Skip skip, uint32_t count);
       bool SearchWindow(Direction direction, std::string search, uint32_t count);
 

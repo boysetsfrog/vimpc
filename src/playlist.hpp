@@ -24,6 +24,11 @@
 #include "song.hpp"
 #include "scrollwindow.hpp"
 
+namespace Main
+{
+   class Settings;
+}
+
 namespace Mpc
 {
    class Client;
@@ -31,10 +36,12 @@ namespace Mpc
 
 namespace Ui
 {
+   class Search;
+
    class PlaylistWindow : public Ui::ScrollWindow
    {
    public:
-      PlaylistWindow(Ui::Screen const & screen, Mpc::Client & client);
+      PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
       ~PlaylistWindow();
 
    public:
@@ -67,7 +74,9 @@ namespace Ui
    private:
       int64_t currentSelection_;
 
-      Mpc::Client & client_;
+      Main::Settings const & settings_;
+      Mpc::Client          & client_;
+      Ui::Search     const & search_;
 
       typedef std::vector<Mpc::Song *> SongBuffer;
       SongBuffer buffer_;

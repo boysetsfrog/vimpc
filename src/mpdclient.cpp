@@ -210,7 +210,7 @@ uint32_t Client::TotalNumberOfSongs()
 
 void Client::DisplaySongInformation()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       mpd_song * currentSong = mpd_run_current_song(connection_);
 
@@ -230,6 +230,10 @@ void Client::DisplaySongInformation()
 
          mpd_song_free(currentSong);
       }
+   }
+   else
+   {
+      screen_.SetStatusLine("");
    }
 }
 

@@ -23,14 +23,20 @@
 #include "colour.hpp"
 #include "console.hpp"
 #include "mpdclient.hpp"
+#include "search.hpp"
+#include "settings.hpp"
 #include "screen.hpp"
+
+#include <boost/regex.hpp>
 
 using namespace Ui;
 
-PlaylistWindow::PlaylistWindow(Ui::Screen const & screen, Mpc::Client & client) :
+PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
    ScrollWindow     (screen),
    currentSelection_(0),
-   client_          (client)
+   settings_        (settings),
+   client_          (client),
+   search_          (search)
 {
    // \todo class requires a lot of cleaning up
 }
@@ -114,7 +120,27 @@ void PlaylistWindow::Print(uint32_t line) const
    {
       Mpc::Song * nextSong = buffer_[line + FirstLine()];
 
-      wattron(window, (nextSong->Id() != currentSong) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
+      uint32_t colour = SONGCOLOUR;
+
+      std::string const lastSearch(search_.LastSearchString());
+
+      if ((lastSearch != "") && (settings_.HightlightSearch() == true))
+      {
+         boost::regex expression(".*" + lastSearch + ".*");
+
+         if (boost::regex_match(nextSong->FullDescription(), expression))
+         {
+            colour = SONGMATCHCOLOUR;
+            wattron(window, A_BOLD);
+         } 
+      }
+
+      if (nextSong->Id() == currentSong)
+      {
+         colour = CURRENTSONGCOLOUR;
+      }
+
+      wattron(window, COLOR_PAIR(colour));
 
       if (line + FirstLine() == currentSelection_)
       {
@@ -125,24 +151,26 @@ void PlaylistWindow::Print(uint32_t line) const
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 0, "[");
 
-      if ((nextSong->Id() != currentSong) && (line + FirstLine() != currentSelection_))
+      if (colour == SONGCOLOUR)
       {
          wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
       wprintw(window, "%5d", nextSong->Id());
 
-      if ((nextSong->Id() != currentSong) && (line + FirstLine() != currentSelection_))
+      if (colour == SONGCOLOUR)
       {
          wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }
+
+      wattron(window, COLOR_PAIR(colour));
 
       waddstr(window, "] ");
 
       // \todo make it reprint the current song when
       // it changes and is on screen, this also needs to be done
       // for the status
-      if (nextSong->Id() != currentSong)
+      if (colour == SONGCOLOUR)
       {
          wattroff(window, A_BOLD);
       }
@@ -157,7 +185,7 @@ void PlaylistWindow::Print(uint32_t line) const
       wprintw(window, "[%s]", durationString.c_str());
 
       wattroff(window, A_BOLD | A_REVERSE);
-      wattroff(window, (nextSong->Id() != currentSong) ? COLOR_PAIR(SONGCOLOUR) : COLOR_PAIR(CURRENTSONGCOLOUR));
+      wattroff(window, COLOR_PAIR(colour));
       wredrawln(window, line, 1);
    }
 }

@@ -67,6 +67,9 @@ namespace Main
          //! Determines whether we should stop palying when we quit
          bool StopOnQuit() const;
 
+         //! Determine whether to show search results in a different colour
+         bool HightlightSearch() const;
+
       private:
          //! Used to handle settings that require very specific paramters
          void SetSpecificSetting(std::string setting, std::string arguments);

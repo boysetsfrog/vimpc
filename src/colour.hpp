@@ -33,16 +33,21 @@
 #endif
 #endif
 
-#define BLUEONBLACK   (COLOR_PAIRS - 1)
-#define YELLOWONBLACK (COLOR_PAIRS - 2)
-#define WHITEONBLACK  (COLOR_PAIRS - 3)
-#define WHITEONRED    (COLOR_PAIRS - 4)
-#define WHITEONBLUE   (COLOR_PAIRS - 5)
+#define BLUEONBLACK    (COLOR_PAIRS - 1)
+#define YELLOWONBLACK  (COLOR_PAIRS - 2)
+#define REDONBLACK     (COLOR_PAIRS - 3)
+#define WHITEONBLACK   (COLOR_PAIRS - 4)
+#define CYANONBLACK    (COLOR_PAIRS - 5)
+#define GREENONBLACK   (COLOR_PAIRS - 6)
+#define MAGENTAONBLACK (COLOR_PAIRS - 7)
+#define WHITEONRED     (COLOR_PAIRS - 8)
+#define WHITEONBLUE    (COLOR_PAIRS - 9)
 
 #define CURRENTSONGCOLOUR    BLUEONBLACK 
 #define ERRORCOLOUR          WHITEONRED 
 #define SONGCOLOUR           WHITEONBLACK 
 #define SONGIDCOLOUR         YELLOWONBLACK 
+#define SONGMATCHCOLOUR      GREENONBLACK 
 #define STATUSLINECOLOUR     WHITEONBLUE
 
 namespace Ui
@@ -62,11 +67,15 @@ namespace Ui
             start_color();
             use_default_colors();
 
-            init_pair(WHITEONBLACK,  -1,           -1);
-            init_pair(YELLOWONBLACK, COLOR_YELLOW, -1);
-            init_pair(BLUEONBLACK,   COLOR_BLUE,   -1);
-            init_pair(WHITEONRED,    COLOR_WHITE,  COLOR_RED);
-            init_pair(WHITEONBLUE,   COLOR_WHITE,  COLOR_BLUE);
+            init_pair(BLUEONBLACK,    COLOR_BLUE,     -1);
+            init_pair(YELLOWONBLACK,  COLOR_YELLOW,   -1);
+            init_pair(REDONBLACK,     COLOR_RED,      -1);
+            init_pair(WHITEONBLACK,   -1,             -1);
+            init_pair(CYANONBLACK,    COLOR_CYAN,     -1);
+            init_pair(GREENONBLACK,   COLOR_GREEN,    -1);
+            init_pair(MAGENTAONBLACK, COLOR_MAGENTA,  -1);
+            init_pair(WHITEONRED,     COLOR_WHITE,    COLOR_RED);
+            init_pair(WHITEONBLUE,    COLOR_WHITE,    COLOR_BLUE);
          }
       }
    }

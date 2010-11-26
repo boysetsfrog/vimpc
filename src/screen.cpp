@@ -32,7 +32,7 @@
 
 using namespace Ui;
 
-Screen::Screen(Main::Settings const & settings, Mpc::Client & client) :
+Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
    statusWindow_    (NULL),
    commandWindow_   (NULL),
@@ -58,7 +58,7 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client) :
    maxRows_ -= 2;
 
    //Windows
-   playlistWindow_        = new Ui::PlaylistWindow(*this, client);
+   playlistWindow_        = new Ui::PlaylistWindow(settings, *this, client, search);
    consoleWindow_         = new Ui::ConsoleWindow (*this);
    libraryWindow_         = new Ui::LibraryWindow (*this); 
    helpWindow_            = new Ui::HelpWindow    (*this);
@@ -186,12 +186,6 @@ void Screen::ScrollTo(Location location, uint32_t line)
 
    ScrollTo(scroll[location]);
 }
-
-void Screen::Search(std::string const & searchString) const
-{
-   mainWindows_[window_]->Search(searchString);
-}
-
 
 void Screen::Confirm()
 {

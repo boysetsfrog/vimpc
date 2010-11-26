@@ -60,6 +60,11 @@ bool Search::CausesModeToStart(int input) const
 }
 
 
+std::string Search::LastSearchString() const
+{ 
+   return lastSearch_;
+}
+
 bool Search::SearchResult(Skip skip, uint32_t count)
 {
    Direction direction = direction_;

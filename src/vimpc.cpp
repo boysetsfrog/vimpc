@@ -36,17 +36,19 @@
 
 using namespace Main;
 
+// \todo the coupling and requirements on the way everything needs to be constructed is awful
+// this really needs to be fixed and the coupling removed
 Vimpc::Vimpc() :
    currentMode_ (Normal),
    settings_    (Main::Settings::Instance()),
-   screen_      (settings_, client_),
+   search_      (*(new Ui::Search (screen_, client_, settings_))),
+   screen_      (settings_, client_, search_),
    client_      (screen_),
    modeTable_   ()
 {
-   Ui::Search * const search = new Ui::Search (screen_, client_, settings_);
    modeTable_[Command]       = new Ui::Command(screen_, client_, settings_);
-   modeTable_[Normal]        = new Ui::Normal (screen_, client_, settings_, *search);
-   modeTable_[Search]        = search;
+   modeTable_[Normal]        = new Ui::Normal (screen_, client_, settings_, search_);
+   modeTable_[Search]        = &search_;
 
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
@@ -98,7 +100,7 @@ void Vimpc::Run()
 
          gettimeofday(&start, NULL);
          int input = Input();
-         gettimeofday(&end, NULL);
+         gettimeofday(&end,   NULL);
 
          long const seconds  = end.tv_sec  - start.tv_sec;
          long const useconds = end.tv_usec - start.tv_usec;

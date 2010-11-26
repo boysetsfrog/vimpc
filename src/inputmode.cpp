@@ -37,7 +37,6 @@ InputMode::InputMode(Ui::Screen & screen) :
    screen_            (screen),
    initHistorySearch_ (true)
 {
-   window_ = screen.CreateModeWindow();
 }
 
 InputMode::~InputMode()
@@ -49,6 +48,14 @@ InputMode::~InputMode()
 
 void InputMode::Initialise(int input)
 {
+   // \todo this should really be in the constructor
+   // but that breaks the search at the moment as the screen is constructed
+   // after the search... fix this
+   if (window_ == NULL)
+   {
+      window_ = screen_.CreateModeWindow();
+   }
+
    initHistorySearch_  = true;
 
    inputString_.clear();
