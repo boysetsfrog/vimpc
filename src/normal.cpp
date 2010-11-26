@@ -23,6 +23,7 @@
 #include "mpdclient.hpp"
 #include "vimpc.hpp"
 
+#include <iomanip>
 #include <limits>
 #include <sstream>
 
@@ -204,7 +205,7 @@ void Normal::DisplayModeLine()
       }
       else
       {
-         modeStream << (int) (currentScroll * 100) << "%%";
+         modeStream << std::setw(2) << (int) (currentScroll * 100) << "%%";
       }
    }
 

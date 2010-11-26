@@ -31,6 +31,9 @@
 #include "error.hpp"
 #include "settings.hpp"
 
+#include <sys/time.h>
+#include <unistd.h>
+
 using namespace Main;
 
 Vimpc::Vimpc() :
@@ -61,9 +64,6 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run()
 {  
-   // \todo this is a hack
-   static uint32_t updateCount = 0;
-
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
 
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
@@ -91,27 +91,40 @@ void Vimpc::Run()
 
       while (running == true)
       {
-         int input = Input();
+         static long updateTime    = 0;
+         static long refreshTime   = 0;
 
+         struct timeval start, end;
+
+         gettimeofday(&start, NULL);
+         int input = Input();
+         gettimeofday(&end, NULL);
+
+         long const seconds  = end.tv_sec  - start.tv_sec;
+         long const useconds = end.tv_usec - start.tv_usec;
+         long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
+
+         updateTime  += mtime;
+         refreshTime += mtime;
+         
          if (input != ERR)
          {
             running = Handle(input);
          }
-         // \todo do this properly
-         // currently if you hold down a scroll times will not update
-         else //Should happen every .5 of a second regardless
-         {
-            if (updateCount > 15)
-            {
-               updateCount = 0;
-               screen_.Update(); //Should happen every 1.5 seconds
-            }
-            else
-            {
-               updateCount++;
-            }
+         
+         bool screenWasRefreshed = false;
 
-            // \todo make this more efficient
+         if ((updateTime >= 1500) && (input == ERR))
+         {
+            updateTime = 0;
+            screenWasRefreshed = true;
+            screen_.Update();
+         }
+
+         if ((screenWasRefreshed == true) || (refreshTime >= 100))
+         {
+            refreshTime = 0;
+
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
             client_.DisplaySongInformation();
             mode.Refresh();
