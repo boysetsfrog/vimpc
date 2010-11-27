@@ -123,7 +123,6 @@ void PlaylistWindow::Print(uint32_t line) const
          if (boost::regex_match(nextSong->FullDescription(), expression))
          {
             colour = SONGMATCHCOLOUR;
-            wattron(window, A_BOLD);
          } 
       }
 
@@ -138,31 +137,35 @@ void PlaylistWindow::Print(uint32_t line) const
       {
          wattron(window, A_REVERSE);
       }
+      else if (colour != CURRENTSONGCOLOUR)
+      {
+         wattron(window, COLOR_PAIR(SONGCOLOUR));
+      }
 
       wattron(window, A_BOLD);
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 0, "[");
 
-      if ((colour == SONGCOLOUR) && (line + FirstLine() != currentSelection_))
+      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != currentSelection_))
       {
          wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
       wprintw(window, "%5d", nextSong->Id());
 
-      if ((colour == SONGCOLOUR) && (line + FirstLine() != currentSelection_))
+      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != currentSelection_))
       {
          wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
-      wattron(window, COLOR_PAIR(colour));
-
       waddstr(window, "] ");
+
+      wattron(window, COLOR_PAIR(colour));
 
       // \todo make it reprint the current song when
       // it changes and is on screen, this also needs to be done
       // for the status
-      if (colour == SONGCOLOUR)
+      if (colour != CURRENTSONGCOLOUR)
       {
          wattroff(window, A_BOLD);
       }
@@ -172,6 +175,12 @@ void PlaylistWindow::Print(uint32_t line) const
       waddstr(window, nextSong->Artist().c_str());
       waddstr(window, " - ");
       waddstr(window, nextSong->Title().c_str());
+
+      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != currentSelection_))
+      {
+         wattron(window, COLOR_PAIR(SONGCOLOUR));
+         wattroff(window, A_BOLD);
+      }
 
       wmove(window, line, (screen_.MaxColumns() - durationString.size() - 2));
       wprintw(window, "[%s]", durationString.c_str());
