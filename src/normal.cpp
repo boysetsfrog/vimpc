@@ -193,7 +193,7 @@ void Normal::DisplayModeLine()
       modeStream << (screen_.PlaylistWindow().CurrentLine() + 1) << "/" << screen_.PlaylistWindow().TotalNumberOfSongs() << " -- ";
    }
 
-   if (screen_.PlaylistWindow().TotalNumberOfSongs() > screen_.MaxRows())
+   if (screen_.PlaylistWindow().TotalNumberOfSongs() > screen_.MaxRows() - 1)
    {
       if (currentScroll <= .010)
       {

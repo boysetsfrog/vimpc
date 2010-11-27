@@ -30,6 +30,7 @@ namespace Ui
    class Screen;
 }
 
+// \todo cache all the values that we can
 namespace Mpc
 {
    class Client

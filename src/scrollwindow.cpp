@@ -27,9 +27,9 @@
 using namespace Ui;
 
 ScrollWindow::ScrollWindow(Ui::Screen const & screen) :
-   Window     (screen.MaxRows(), screen.MaxColumns(), 0, 0),
+   Window     (screen.MaxRows() - 1, screen.MaxColumns(), 1, 0),
    screen_    (screen),
-   scrollLine_(screen.MaxRows()),
+   scrollLine_(screen.MaxRows() - 1),
    autoScroll_(false)
 {
 }
@@ -43,9 +43,9 @@ void ScrollWindow::Scroll(int32_t scrollCount)
 {
    uint16_t const newLine = (scrollLine_ + scrollCount);
 
-   if (newLine < screen_.MaxRows())
+   if (newLine < screen_.MaxRows() - 1)
    {
-      scrollLine_ = screen_.MaxRows();
+      scrollLine_ = screen_.MaxRows() - 1;
    }
    else if (newLine > BufferSize())
    {
@@ -61,9 +61,9 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
 {
    scrollLine_ = scrollLine + (screen_.MaxRows() / 2);
 
-   if (scrollLine_ < screen_.MaxRows())
+   if (scrollLine_ < screen_.MaxRows() - 1)
    {
-      scrollLine_ = screen_.MaxRows();
+      scrollLine_ = screen_.MaxRows() - 1;
    }
    else if (scrollLine_ > BufferSize())
    {
@@ -119,9 +119,9 @@ uint32_t ScrollWindow::FirstLine() const
 {
    uint16_t result = 0;
 
-   if ((scrollLine_ - screen_.MaxRows()) > 0)
+   if ((scrollLine_ - (screen_.MaxRows() - 1)) > 0)
    {
-      result = (scrollLine_ - screen_.MaxRows());
+      result = (scrollLine_ - (screen_.MaxRows() - 1));
    }
 
    return result;

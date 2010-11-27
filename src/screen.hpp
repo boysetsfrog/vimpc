@@ -132,6 +132,7 @@ namespace Ui
       ScrollWindow       * helpWindow_;
       ScrollWindow       * mainWindows_[MainWindowCount];
       WINDOW             * statusWindow_;
+      WINDOW             * topWindow_;
       WINDOW             * commandWindow_;
 
       Main::Settings const & settings_;

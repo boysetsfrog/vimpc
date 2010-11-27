@@ -104,15 +104,7 @@ void PlaylistWindow::DeleteSongs()
 
 void PlaylistWindow::Print(uint32_t line) const
 {
-   static uint32_t currentSong = 0;
-
-   if (line == 0)
-   {
-      //Saves us from querying mpd all the time
-      // \todo will eventually cache this in mpd client for a second at a time
-      //       when that is done return to setting this for each print (will no longer need to be static)
-      currentSong = GetCurrentSong();
-   }
+   uint32_t currentSong = GetCurrentSong();
 
    WINDOW * window = N_WINDOW();
 
@@ -200,7 +192,7 @@ void PlaylistWindow::Scroll(int32_t scrollCount)
    currentSelection_ += scrollCount;
    currentSelection_  = LimitCurrentSelection(currentSelection_);
 
-   if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
+   if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - (screen_.MaxRows() - 1)))
    {   
       ScrollWindow::Scroll(scrollCount);
    }
@@ -216,11 +208,11 @@ void PlaylistWindow::ScrollTo(uint16_t scrollLine)
    {
       ScrollWindow::Scroll(1);
    }
-   else if ((currentSelection_ == scrollLine_ - screen_.MaxRows() - 1) && (currentSelection_ - oldSelection == -1))
+   else if ((currentSelection_ == scrollLine_ - screen_.MaxRows()) && (currentSelection_ - oldSelection == -1))
    {
       ScrollWindow::Scroll(-1);
    }
-   else if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
+   else if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - (screen_.MaxRows() - 1)))
    {   
       ScrollWindow::ScrollTo(scrollLine);
    }

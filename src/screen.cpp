@@ -62,7 +62,8 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    consoleWindow_         = new Ui::ConsoleWindow (*this);
    libraryWindow_         = new Ui::LibraryWindow (*this); 
    helpWindow_            = new Ui::HelpWindow    (*this);
-   statusWindow_          = newwin(0, maxColumns_, maxRows_, 0);
+   statusWindow_          = newwin(1, maxColumns_, maxRows_, 0);
+   topWindow_             = newwin(1, maxColumns_, 0, 0);
 
    //Commands must be read through a window that is always visible
    commandWindow_         = statusWindow_;    
@@ -118,6 +119,18 @@ void Screen::ClearStatus() const
 
    wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR));
    mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
+
+
+   // \todo remove once i actually do the top window properly
+   werase(topWindow_);
+   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE));
+   mvwprintw(topWindow_, 0, 0, BlankLine.c_str());
+   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
+   mvwprintw(topWindow_, 0, 0, " help  playlist  library  console ");
+   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
+   mvwprintw(topWindow_, 0, 6, " playlist ");
+   wattroff(topWindow_, A_REVERSE | A_BOLD | A_UNDERLINE);
+   wrefresh(topWindow_);
 }
 
 
@@ -161,7 +174,7 @@ void Screen::Scroll(Size size, Direction direction, uint32_t count)
 
    if (size == Page)
    {
-      scrollCount *= ((MaxRows() + 1) / 2);
+      scrollCount *= (MaxRows() / 2);
    }
 
    if (direction == Up)
@@ -210,12 +223,13 @@ void Screen::Update() const
 
       mainWindow.Erase();
 
-      for (uint32_t i = 0; (i < maxRows_); ++i)
+      for (uint32_t i = 0; (i < maxRows_ - 1); ++i)
       {
          mainWindow.Print(i);
       }
 
       mainWindow.Refresh();
+      wnoutrefresh(topWindow_);
       wnoutrefresh(statusWindow_);
       doupdate();
    }

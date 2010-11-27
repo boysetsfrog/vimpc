@@ -28,6 +28,9 @@
 
 #include <iomanip>
 #include <sstream>
+
+#include <sys/time.h>
+#include <unistd.h>
 #include <mpd/tag.h>
 #include <mpd/status.h>
 
@@ -171,17 +174,30 @@ bool Client::Connected() const
 
 int32_t Client::GetCurrentSongId() const
 {
-   // \todo cache this value for a second
-   int32_t songId = - 1;
+   static int32_t  songId = - 1;
+   static struct   timeval start;
 
-   if (Connected() == true)
+   struct timeval current;
+
+   gettimeofday(&current, NULL);
+
+   long const seconds  = current.tv_sec  - start.tv_sec;
+   long const useconds = current.tv_usec - start.tv_usec;
+   long const time     = (seconds * 1000 + (useconds/1000.0)) + 0.5;
+
+   if ((time > 500) || (songId == -1))
    {
-      mpd_song * currentSong = mpd_run_current_song(connection_);
-
-      if (currentSong != NULL)
+      if (Connected() == true)
       {
-         songId = mpd_song_get_id(currentSong);
-         mpd_song_free(currentSong);
+         gettimeofday(&start, NULL);
+
+         mpd_song * currentSong = mpd_run_current_song(connection_);
+
+         if (currentSong != NULL)
+         {
+            songId = mpd_song_get_id(currentSong);
+            mpd_song_free(currentSong);
+         }
       }
    }
 
@@ -210,6 +226,8 @@ uint32_t Client::TotalNumberOfSongs()
 
 void Client::DisplaySongInformation()
 {
+   // \todo should cache this information
+
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       mpd_song * currentSong = mpd_run_current_song(connection_);
