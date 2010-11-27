@@ -55,7 +55,7 @@ namespace Ui
    public:
       typedef enum
       {
-         Console,
+         Console = 0,
          Help,
          Playlist,
          Library,
@@ -87,6 +87,7 @@ namespace Ui
       void Start();
       ModeWindow * CreateModeWindow();
 
+      void SetTopWindow();
       void ClearStatus() const;
       void SetStatusLine(char const * const fmt, ... ) const;
       void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;
@@ -115,6 +116,7 @@ namespace Ui
 
    public:
       static MainWindow GetWindowFromName(std::string const & windowName);
+      static std::string GetNameFromWindow(MainWindow window);
 
    private:
       void Scroll(int32_t count);

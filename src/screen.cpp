@@ -113,26 +113,44 @@ ModeWindow * Screen::CreateModeWindow()
    return (new ModeWindow());
 }
 
+void Screen::SetTopWindow()
+{
+   static std::string const BlankLine(maxColumns_, ' ');
+
+   werase(topWindow_);
+   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE));
+   mvwprintw(topWindow_, 0, 0, BlankLine.c_str());
+
+   std::string name   = "";
+   uint32_t    length = 0;
+
+   for (int i = 0; i < MainWindowCount; ++i)
+   {
+      wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
+      name = GetNameFromWindow((MainWindow) i);
+
+      if (i == window_)
+      {
+         wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
+      }
+
+      mvwprintw(topWindow_, 0, length, " %s ", name.c_str());
+      wattroff(topWindow_, A_REVERSE | A_BOLD);
+
+      length += name.size() + 2;
+   }
+
+   wattroff(topWindow_, A_UNDERLINE);
+   wrefresh(topWindow_);
+}
+
 void Screen::ClearStatus() const
 {
    static std::string const BlankLine(maxColumns_, ' ');
 
    wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR));
    mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
-
-
-   // \todo remove once i actually do the top window properly
-   werase(topWindow_);
-   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE));
-   mvwprintw(topWindow_, 0, 0, BlankLine.c_str());
-   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
-   mvwprintw(topWindow_, 0, 0, " help  playlist  library  console ");
-   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
-   mvwprintw(topWindow_, 0, 6, " playlist ");
-   wattroff(topWindow_, A_REVERSE | A_BOLD | A_UNDERLINE);
-   wrefresh(topWindow_);
 }
-
 
 void Screen::SetStatusLine(char const * const fmt, ...) const
 {
@@ -276,6 +294,8 @@ uint32_t Screen::WaitForInput() const
 void Screen::SetActiveWindow(MainWindow window)
 {
    window_ = window;
+
+   SetTopWindow();
    Update();
 }
 
@@ -314,6 +334,37 @@ Screen::MainWindow Screen::GetWindowFromName(std::string const & windowName)
    ENSURE(windowTable.size() == MainWindowCount);
 
    return window;
+}
+
+
+std::string Screen::GetNameFromWindow(Screen::MainWindow window)
+{
+   std::string name("");
+
+   switch (window)
+   {
+      case Console:
+         name = "console";
+         break;
+
+      case Help:
+         name = "help";
+         break;
+
+      case Playlist:
+         name = "playlist";
+         break;
+
+      case Library:
+         name = "library";
+         break;
+
+      case MainWindowCount:
+         ASSERT(false);
+         break;
+   }
+
+   return name;
 }
 
 
