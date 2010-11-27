@@ -143,14 +143,14 @@ void PlaylistWindow::Print(uint32_t line) const
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 0, "[");
 
-      if (colour == SONGCOLOUR)
+      if ((colour == SONGCOLOUR) && (line + FirstLine() != currentSelection_))
       {
          wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
       wprintw(window, "%5d", nextSong->Id());
 
-      if (colour == SONGCOLOUR)
+      if ((colour == SONGCOLOUR) && (line + FirstLine() != currentSelection_))
       {
          wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }
