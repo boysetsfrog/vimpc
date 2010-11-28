@@ -55,8 +55,8 @@ namespace Ui
    public:
       typedef enum
       {
-         Console = 0,
-         Help,
+         Help = 0,
+         Console,
          Playlist,
          Library,
          MainWindowCount

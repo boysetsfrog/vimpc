@@ -90,7 +90,7 @@ namespace Ui
       template <Screen::Location LOCATION>
       bool ScrollTo(uint32_t line);
 
-   private:
+   private: //Windows
       template <Screen::Skip SKIP>
       bool SetActiveWindow(uint32_t count);
 
@@ -171,12 +171,22 @@ namespace Ui
       return true;
    }
 
+   // Implementation of window functions
    template <Screen::Skip SKIP>
    bool Normal::SetActiveWindow(uint32_t count)
    {
       if ((SKIP == Screen::Next) && (wasSpecificCount_ == true))
       {
          screen_.SetActiveWindow((Screen::MainWindow) (count - 1));
+      }
+      else if ((SKIP == Screen::Previous) && (wasSpecificCount_ == true))
+      {
+         count = (count % Screen::MainWindowCount);
+
+         for (uint32_t i = 0; i < count; ++i)
+         {
+            screen_.SetActiveWindow(SKIP);
+         }
       }
       else
       {
