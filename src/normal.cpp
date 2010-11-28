@@ -76,14 +76,14 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
    actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
-   actionTable_['G']       = &Normal::ScrollTo<Screen::Specific>;
+   actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
 
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];
    actionTable_[KEY_DOWN]  = actionTable_['j'];
    actionTable_[KEY_UP]    = actionTable_['k'];
 
-   jumpTable_['g']         = &Normal::ScrollTo<Screen::Top>;
+   jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
    jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next>;
    jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous>;
 

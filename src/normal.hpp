@@ -86,8 +86,11 @@ namespace Ui
    private: //Scrolling
       template <Screen::Size SIZE, Screen::Direction DIRECTION>
       bool Scroll(uint32_t count);
-      
+
       template <Screen::Location LOCATION>
+      bool ScrollTo(uint32_t line);
+
+      template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
       bool ScrollTo(uint32_t line);
 
    private: //Windows
@@ -160,16 +163,24 @@ namespace Ui
    template <Screen::Location LOCATION>
    bool Normal::ScrollTo(uint32_t line)
    {
-      if ((LOCATION == Screen::Specific) && (wasSpecificCount_ == false))
+      screen_.ScrollTo(LOCATION);
+      return true;
+   }
+
+   template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
+   bool Normal::ScrollTo(uint32_t line)
+   {
+      if ((SPECIFIC == Screen::Specific) && (wasSpecificCount_ == false))
       {
-         screen_.ScrollTo(Screen::Bottom);
+         ScrollTo<ENDLOCATION>(line);
       }
       else
       {
-         screen_.ScrollTo(LOCATION, line);
+         screen_.ScrollTo(SPECIFIC, line);
       }
-      return true;
    }
+
+
 
    // Implementation of window functions
    template <Screen::Skip SKIP>
