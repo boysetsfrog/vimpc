@@ -91,6 +91,10 @@ namespace Ui
       bool ScrollTo(uint32_t line);
 
    private:
+      template <Screen::Skip SKIP>
+      bool SetActiveWindow(uint32_t count);
+
+   private:
       void DisplayModeLine();
 
    private:
@@ -103,6 +107,7 @@ namespace Ui
       typedef bool (Ui::Normal::*ptrToMember)(uint32_t);
       typedef std::map<int, ptrToMember> ActionTable;
       ActionTable   actionTable_;
+      ActionTable   jumpTable_;
 
       Ui::Search        & search_;
       Ui::Screen        & screen_;
@@ -163,6 +168,21 @@ namespace Ui
       {
          screen_.ScrollTo(LOCATION, line);
       }
+      return true;
+   }
+
+   template <Screen::Skip SKIP>
+   bool Normal::SetActiveWindow(uint32_t count)
+   {
+      if ((SKIP == Screen::Next) && (wasSpecificCount_ == true))
+      {
+         screen_.SetActiveWindow((Screen::MainWindow) (count - 1));
+      }
+      else
+      {
+         screen_.SetActiveWindow(SKIP);
+      }
+
       return true;
    }
 

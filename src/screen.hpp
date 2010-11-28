@@ -83,6 +83,12 @@ namespace Ui
          Down 
       } Direction;
 
+      typedef enum 
+      { 
+         Next, 
+         Previous 
+      } Skip;
+
    public:
       void Start();
       ModeWindow * CreateModeWindow();
@@ -110,6 +116,7 @@ namespace Ui
 
    public:
       void SetActiveWindow(MainWindow window);
+      void SetActiveWindow(Skip skip);
       void SetDefaultWindow(MainWindow window);
       Ui::ConsoleWindow  & ConsoleWindow()  const;
       Ui::PlaylistWindow & PlaylistWindow() const; 

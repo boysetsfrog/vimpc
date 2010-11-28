@@ -293,10 +293,33 @@ uint32_t Screen::WaitForInput() const
 
 void Screen::SetActiveWindow(MainWindow window)
 {
-   window_ = window;
+   if (window < MainWindowCount)
+   {
+      window_ = window;
+   }
 
    SetTopWindow();
    Update();
+}
+
+void Screen::SetActiveWindow(Skip skip)
+{
+   MainWindow window;
+
+   if ((window_ == 0) && (skip == Previous))
+   {
+      window = ((MainWindow) (MainWindowCount - 1));
+   }
+   else if ((window_ == (MainWindowCount - 1)) && (skip == Next))
+   {
+      window = ((MainWindow) 0);
+   }
+   else
+   {
+      window = (MainWindow) (window_ + ((skip == Next) ? 1 : -1));
+   }
+
+   SetActiveWindow(window);
 }
 
 Ui::ConsoleWindow & Screen::ConsoleWindow() const

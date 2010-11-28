@@ -83,6 +83,10 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_DOWN]  = actionTable_['j'];
    actionTable_[KEY_UP]    = actionTable_['k'];
 
+   jumpTable_['g']         = &Normal::ScrollTo<Screen::Top>;
+   jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next>;
+   jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous>;
+
    window_ = screen.CreateModeWindow();
 }
 
@@ -111,6 +115,8 @@ void Normal::Refresh()
 
 bool Normal::Handle(int input)
 {
+   static ActionTable * action = &actionTable_;
+
    // \todo work out how to handle 
    // ALT+<number> to change windows
    bool result = true;
@@ -127,10 +133,10 @@ bool Normal::Handle(int input)
    // \todo use a symbol
    else if (input == 27)
    {
+      action       = &actionTable_;
       actionCount_ = 0;
    }
-
-   else if (actionTable_.find(input) != actionTable_.end())
+   else if (action->find(input) != action->end())
    {
       wasSpecificCount_ = (actionCount_ != 0);
 
@@ -142,13 +148,23 @@ bool Normal::Handle(int input)
          lastActionCount_ = actionCount_;
       }
       
-      ptrToMember actionFunc = actionTable_[input];
+      ptrToMember actionFunc = (*action)[input];
       result = (*this.*actionFunc)(count);
       actionCount_ = 0;
+
+      action = &actionTable_;
 
       DisplayModeLine();
 
       screen_.Update();
+   }
+   else if (input == 'g')
+   {
+      action = &jumpTable_;
+   }
+   else
+   {
+      action = &actionTable_;
    }
 
    return result;
