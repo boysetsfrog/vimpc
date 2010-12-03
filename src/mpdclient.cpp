@@ -37,8 +37,9 @@
 using namespace Mpc;
 
 Client::Client(Ui::Screen const & screen) :
-   connection_(NULL),
-   screen_    (screen)
+   connection_           (NULL),
+   currentSongHasChanged_(true),
+   screen_               (screen)
 {
 }
 
@@ -79,6 +80,8 @@ void Client::Play(uint32_t const playId)
 {
    if (Connected() == true)
    {
+      currentSongHasChanged_ = true;
+
       mpd_run_play_id(connection_, playId);
       CheckError();
    }
@@ -97,6 +100,8 @@ void Client::Next()
 {
    if (Connected() == true)
    {
+      currentSongHasChanged_ = true;
+
       mpd_run_next(connection_);
       CheckError();
    }
@@ -106,6 +111,8 @@ void Client::Previous()
 {
    if (Connected() == true)
    {
+      currentSongHasChanged_ = true;
+
       mpd_run_previous(connection_);
       CheckError();
    }
@@ -185,8 +192,10 @@ int32_t Client::GetCurrentSongId() const
    long const useconds = current.tv_usec - start.tv_usec;
    long const time     = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-   if ((time > 500) || (songId == -1))
+   if ((time > 500) || (songId == -1) || (currentSongHasChanged_ == true))
    {
+      currentSongHasChanged_ = false;
+
       if (Connected() == true)
       {
          gettimeofday(&start, NULL);

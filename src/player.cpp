@@ -160,6 +160,7 @@ void Player::HandleAutoScroll()
    {
       screen_.ScrollTo(Screen::Current);
    }
+
 }
 
 

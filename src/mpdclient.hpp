@@ -72,6 +72,7 @@ namespace Mpc
 
    private:
       struct mpd_connection * connection_;
+      bool mutable currentSongHasChanged_;
       Ui::Screen      const & screen_;
    };
 
