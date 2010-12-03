@@ -70,6 +70,7 @@ namespace Ui
       bool SearchWindow(Direction direction, std::string search, uint32_t count);
 
    private:
+      bool SearchForResult(Direction direction, std::string search, uint32_t count, int32_t startLine);
       Direction SwapDirection(Direction direction) const;
       Direction GetDirectionForInput(int input) const;
       bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);

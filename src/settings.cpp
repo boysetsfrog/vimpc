@@ -32,8 +32,9 @@
 using namespace Main;
 
 char const * const AutoScrollSetting      = "autoscroll";
-char const * const StopOnQuitSetting      = "stoponquit";
 char const * const HighlightSearchSetting = "hlsearch";
+char const * const SearchWrapSetting      = "searchwrap";
+char const * const StopOnQuitSetting      = "stoponquit";
 
 Settings & Settings::Instance()
 {
@@ -47,8 +48,9 @@ Settings::Settings() :
    settingsTable_["window"]             = &Settings::SetWindow;
 
    toggleTable_[AutoScrollSetting]      = new Setting<bool>(false);
-   toggleTable_[StopOnQuitSetting]      = new Setting<bool>(true);
    toggleTable_[HighlightSearchSetting] = new Setting<bool>(true);
+   toggleTable_[SearchWrapSetting]      = new Setting<bool>(true);
+   toggleTable_[StopOnQuitSetting]      = new Setting<bool>(true);
 }
 
 Settings::~Settings()
@@ -131,19 +133,25 @@ Ui::Screen::MainWindow Settings::Window() const
    return defaultWindow_;
 }
 
+
 bool Settings::AutoScroll() const
 {
    return Get(AutoScrollSetting);
 }
 
-bool Settings::StopOnQuit() const
-{
-   return Get(StopOnQuitSetting);
-}
-
 bool Settings::HightlightSearch() const
 {
    return Get(HighlightSearchSetting);
+}
+
+bool Settings::SearchWrap() const
+{
+   return Get(SearchWrapSetting);
+}
+
+bool Settings::StopOnQuit() const
+{
+   return Get(StopOnQuitSetting);
 }
 
 

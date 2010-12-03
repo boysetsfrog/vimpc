@@ -58,17 +58,22 @@ namespace Main
          //! Calls the correct setter function based upon the given input
          void Set(std::string const & input);
 
+      public: //Specific Settings
          //! Gets the default startup window
          Ui::Screen::MainWindow Window() const;
 
+      public: //Toggle Settings
          //! Determints whether to autmatically scroll to playing song
          bool AutoScroll() const;
 
-         //! Determines whether we should stop palying when we quit
-         bool StopOnQuit() const;
-
          //! Determine whether to show search results in a different colour
          bool HightlightSearch() const;
+
+         //! Determine whether to wrap searching
+         bool SearchWrap() const;
+
+         //! Determines whether we should stop palying when we quit
+         bool StopOnQuit() const;
 
       private:
          //! Used to handle settings that require very specific paramters

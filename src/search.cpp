@@ -83,18 +83,17 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
 {
    bool found = false;
 
-   if (direction == Forwards)
+   found = SearchForResult(direction, search, count, screen_.PlaylistWindow().CurrentLine());
+
+   if ((found == false) && (settings_.SearchWrap() == true))
    {
-      for (int32_t i = screen_.PlaylistWindow().CurrentLine() + 1; ((i <= (int32_t) screen_.PlaylistWindow().ContentSize()) && (found == false)); ++i)
+      if (direction == Forwards)
       {
-         found = CheckForMatch(search, i, count);
+         found = SearchForResult(direction, search, count, -1);
       }
-   }
-   else
-   {
-      for (int32_t i = screen_.PlaylistWindow().CurrentLine() - 1; ((i >= 0) && (found == false)); --i)
+      else
       {
-         found = CheckForMatch(search, i, count);
+         found = SearchForResult(direction, search, count, screen_.PlaylistWindow().ContentSize());
       }
    }
 
@@ -106,6 +105,28 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
    return true;
 }
 
+
+bool Search::SearchForResult(Direction direction,  std::string search, uint32_t count, int32_t startLine)
+{
+   bool found = false;
+
+   if (direction == Forwards)
+   {
+      for (int32_t i = startLine + 1; ((i <= (int32_t) screen_.PlaylistWindow().ContentSize()) && (found == false)); ++i)
+      {
+         found = CheckForMatch(search, i, count);
+      }
+   }
+   else
+   {
+      for (int32_t i = startLine - 1; ((i >= 0) && (found == false)); --i)
+      {
+         found = CheckForMatch(search, i, count);
+      }
+   }
+
+   return found;
+}
 
 Search::Direction Search::SwapDirection(Direction direction) const
 {
