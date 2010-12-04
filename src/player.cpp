@@ -24,9 +24,9 @@
 #include "mpdclient.hpp"
 #include "playlist.hpp"
 #include "settings.hpp"
-#include "song.hpp"
 
 #include <stdlib.h>
+#include <iostream>
 
 using namespace Ui;
 
@@ -124,22 +124,56 @@ bool Player::SkipSong(Skip skip, uint32_t count)
    return true;
 }
 
+bool Player::SkipAlbum(Skip skip, uint32_t count)
+{
+   SkipSongByInformation(skip, count, &Mpc::Song::Album);
+}
+
 bool Player::SkipArtist(Skip skip, uint32_t count)
+{
+   SkipSongByInformation(skip, count, &Mpc::Song::Artist);
+}
+
+
+uint32_t Player::GetCurrentSong() const
+{
+   return client_.GetCurrentSongId();
+}
+
+
+bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction)
 {
    uint32_t  const         currentSong  = GetCurrentSong();
    Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(currentSong);
    Mpc::Song const *       newSong      = NULL;
    uint32_t                skipCount    = 0;
    int64_t                 direction    = (skip == Previous) ? -1 : 1;
+   bool                    first        = false;
 
-   if (song != NULL)
+   if ((song != NULL) && (skip == Previous))
+   {
+      skipCount = First(song, songFunction);
+   }
+
+   if ((song != NULL) && (skipCount == 0))
    {
       do 
       {
          ++skipCount;
          newSong = screen_.PlaylistWindow().GetSong(currentSong + (skipCount * direction));
       }
-      while ((newSong != NULL) && (newSong->Artist().compare(song->Artist()) == 0));
+      while ((newSong != NULL) && ((newSong->*songFunction)().compare((song->*songFunction)()) == 0));
+
+      if (newSong == NULL)
+      {
+         skipCount = 0;
+         newSong   = screen_.PlaylistWindow().GetSong(currentSong);
+      }
+
+      if (skip == Previous)
+      {
+         skipCount += First(newSong, songFunction);
+      }
    }
 
    client_.Play(currentSong + (skipCount * direction));
@@ -149,10 +183,25 @@ bool Player::SkipArtist(Skip skip, uint32_t count)
    return true;
 }
 
-uint32_t Player::GetCurrentSong() const
+
+uint32_t Player::First(Mpc::Song const * const song, Mpc::Song::SongInformationFunction songFunction)
 {
-   return client_.GetCurrentSongId();
+   uint32_t  const   currentSong  = GetCurrentSong();
+   Mpc::Song const * firstSong    = song;
+   uint32_t          skipCount    = 0;
+
+   do
+   {
+      ++skipCount;
+      firstSong = screen_.PlaylistWindow().GetSong(song->Id() - skipCount - 1);
+   }
+   while ((firstSong != NULL) && (firstSong != song) && ((song->*songFunction)().compare((firstSong->*songFunction)()) == 0));
+
+   --skipCount;
+
+   return skipCount;
 }
+
 
 void Player::HandleAutoScroll()
 {

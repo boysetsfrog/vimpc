@@ -93,7 +93,7 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
       }
       else
       {
-         found = SearchForResult(direction, search, count, screen_.PlaylistWindow().ContentSize());
+         found = SearchForResult(direction, search, count, screen_.PlaylistWindow().ContentSize() + 1);
       }
    }
 

@@ -47,7 +47,7 @@ Settings::Settings() :
 {
    settingsTable_["window"]             = &Settings::SetWindow;
 
-   toggleTable_[AutoScrollSetting]      = new Setting<bool>(false);
+   toggleTable_[AutoScrollSetting]      = new Setting<bool>(true);
    toggleTable_[HighlightSearchSetting] = new Setting<bool>(true);
    toggleTable_[SearchWrapSetting]      = new Setting<bool>(true);
    toggleTable_[StopOnQuitSetting]      = new Setting<bool>(true);

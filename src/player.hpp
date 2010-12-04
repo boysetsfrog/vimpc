@@ -27,6 +27,7 @@
 
 #include "mpdclient.hpp"
 #include "screen.hpp"
+#include "song.hpp"
 
 namespace Main
 {
@@ -103,6 +104,8 @@ namespace Ui
       //! \param skip  Direction to skip in playlist
       //! \param count Number of songs to skip
       bool SkipSong(Skip skip, uint32_t count);
+
+      bool SkipAlbum(Skip skip, uint32_t count);
       
       //! Skips forwards or backwards a given number of artists
       //!
@@ -115,6 +118,10 @@ namespace Ui
       //!
       //! \return Id of currently playing song
       uint32_t GetCurrentSong() const;
+
+   private:
+      bool SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);
+      uint32_t First(Mpc::Song const * const song, Mpc::Song::SongInformationFunction songFunction);
 
    private:
       //! Based upon the auto scroll setting, will determine whether to

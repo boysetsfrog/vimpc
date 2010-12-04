@@ -81,6 +81,9 @@ namespace Ui
       bool SkipSong(uint32_t count); 
 
       template <Player::Skip SKIP>
+      bool SkipAlbum(uint32_t count); 
+
+      template <Player::Skip SKIP>
       bool SkipArtist(uint32_t count); 
 
    private: //Scrolling
@@ -135,6 +138,12 @@ namespace Ui
    bool Normal::SkipSong(uint32_t count)
    {
       return Player::SkipSong(SKIP, count);
+   }
+
+   template <Ui::Player::Skip SKIP>
+   bool Normal::SkipAlbum(uint32_t count)
+   {
+      return Player::SkipAlbum(SKIP, count);
    }
 
    template <Ui::Player::Skip SKIP>

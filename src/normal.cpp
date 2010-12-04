@@ -58,6 +58,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['h']       = &Normal::SkipSong<Player::Previous>;
    actionTable_['x']       = &Normal::SkipArtist<Player::Next>;
    actionTable_['z']       = &Normal::SkipArtist<Player::Previous>;
+   actionTable_['X']       = &Normal::SkipAlbum<Player::Next>;
+   actionTable_['Z']       = &Normal::SkipAlbum<Player::Previous>;
 
    actionTable_['H']       = &Normal::Select<ScrollWindow::First>;
    actionTable_['M']       = &Normal::Select<ScrollWindow::Middle>;

@@ -34,6 +34,9 @@ namespace Mpc
       ~Song();
 
    public:
+      typedef std::string const & (Mpc::Song::*SongInformationFunction)() const;
+
+   public:
       uint32_t Id() const;
 
       void SetArtist(const char * artist);
