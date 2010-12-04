@@ -113,7 +113,7 @@ ModeWindow * Screen::CreateModeWindow()
    return (new ModeWindow());
 }
 
-void Screen::SetTopWindow()
+void Screen::SetTopWindow() const
 {
    static std::string const BlankLine(maxColumns_, ' ');
 
@@ -134,7 +134,26 @@ void Screen::SetTopWindow()
          wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
       }
 
-      mvwprintw(topWindow_, 0, length, " %s ", name.c_str());
+      wmove(topWindow_, 0, length);
+
+      if (settings_.WindowNumbers() == true)
+      {
+         waddstr(topWindow_, "[");
+         wattron(topWindow_, A_BOLD);
+         wprintw(topWindow_, "%d", i + 1);
+      
+         if (i != window_)
+         {
+            wattroff(topWindow_, A_BOLD);
+         }
+
+         waddstr(topWindow_, "]");
+
+         length += 3;
+      }
+      
+      wprintw(topWindow_, " %s ", name.c_str());
+
       wattroff(topWindow_, A_REVERSE | A_BOLD);
 
       length += name.size() + 2;
@@ -237,6 +256,8 @@ void Screen::Update() const
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
+      SetTopWindow();
+
       Ui::Window & mainWindow = assert_reference(mainWindows_[window_]);
 
       mainWindow.Erase();

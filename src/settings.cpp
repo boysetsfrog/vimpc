@@ -35,6 +35,7 @@ char const * const AutoScrollSetting      = "autoscroll";
 char const * const HighlightSearchSetting = "hlsearch";
 char const * const SearchWrapSetting      = "searchwrap";
 char const * const StopOnQuitSetting      = "stoponquit";
+char const * const WindowNumbersSetting   = "windownumbers";
 
 Settings & Settings::Instance()
 {
@@ -51,6 +52,7 @@ Settings::Settings() :
    toggleTable_[HighlightSearchSetting] = new Setting<bool>(true);
    toggleTable_[SearchWrapSetting]      = new Setting<bool>(true);
    toggleTable_[StopOnQuitSetting]      = new Setting<bool>(true);
+   toggleTable_[WindowNumbersSetting]   = new Setting<bool>(false);
 }
 
 Settings::~Settings()
@@ -74,7 +76,6 @@ void Settings::Set(std::string const & input)
    {
       SetSpecificSetting(setting, arguments);
    }
-
 }
 
 void Settings::SetSpecificSetting(std::string setting, std::string arguments)
@@ -86,7 +87,7 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
    }
    else
    {
-      Error(1, "No such setting: " + setting);
+      Error(ErrorNumber::SettingNonexistant, "No such setting: " + setting);
    }
 }
 
@@ -123,7 +124,7 @@ void Settings::SetSingleSetting(std::string setting)
    }
    else
    {
-      Error(1, "No such setting: " + setting);
+      Error(ErrorNumber::SettingNonexistant, "No such setting: " + setting);
    }
 }
 
@@ -152,6 +153,11 @@ bool Settings::SearchWrap() const
 bool Settings::StopOnQuit() const
 {
    return Get(StopOnQuitSetting);
+}
+
+bool Settings::WindowNumbers() const
+{
+   return Get(WindowNumbersSetting);
 }
 
 

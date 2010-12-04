@@ -93,7 +93,7 @@ namespace Ui
       void Start();
       ModeWindow * CreateModeWindow();
 
-      void SetTopWindow();
+      void SetTopWindow() const;
       void ClearStatus() const;
       void SetStatusLine(char const * const fmt, ... ) const;
       void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;

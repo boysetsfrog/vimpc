@@ -117,6 +117,12 @@ std::string Song::DurationString() const
    return (std::string(duration));
 }
 
+std::string Song::PlaylistDescription() const
+{
+   std::string fullDescription(artist_ + " - " + title_ + " " + DurationString());
+   return fullDescription;
+}
+
 std::string Song::FullDescription() const
 {
    std::string fullDescription(artist_ + " - " + title_ + " " + album_ + " " + DurationString());

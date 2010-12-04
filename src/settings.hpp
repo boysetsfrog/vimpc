@@ -75,6 +75,9 @@ namespace Main
          //! Determines whether we should stop palying when we quit
          bool StopOnQuit() const;
 
+         //! Show window numbers next to each window in the tab list
+         bool WindowNumbers() const;
+
       private:
          //! Used to handle settings that require very specific paramters
          void SetSpecificSetting(std::string setting, std::string arguments);

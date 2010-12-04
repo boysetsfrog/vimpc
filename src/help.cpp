@@ -53,6 +53,8 @@ void HelpWindow::Redraw()
 
 void HelpWindow::Print(uint32_t line) const
 {
+   // \todo add specific help file formatting?
+
    WINDOW * window = N_WINDOW();
 
    if ((FirstLine() + line) < buffer_.size())
@@ -108,7 +110,7 @@ void HelpWindow::LoadHelpFile()
    }
    else 
    {
-      Error(4, "Unable to open help file"); 
+      Error(ErrorNumber::HelpFileNonexistant, "Unable to open help file"); 
    }
 }
 

@@ -99,7 +99,7 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
 
    if (found == false)
    {
-      Error(1, "Pattern not found: " + search); 
+      Error(ErrorNumber::SearchNoResults, "Pattern not found: " + search); 
    }
 
    return true;
@@ -150,7 +150,7 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
    boost::regex  expression(".*" + search + ".*");
    bool          found     (false);
 
-   std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->FullDescription());
+   std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->PlaylistDescription());
 
    if (boost::regex_match(songDescription.c_str(), expression) == true)
    {

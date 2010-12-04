@@ -22,6 +22,7 @@
 #define __UI__ERROR
 
 #include "colour.hpp"
+#include "errorcodes.hpp"
 #include "modewindow.hpp"
 
 #include <stdint.h>

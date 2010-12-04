@@ -207,11 +207,11 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    }
    else if (validCommandCount > 1)
    {
-      Error(1, "Command is ambigous, please be more specific: " + command);
+      Error(ErrorNumber::CommandAmbiguous, "Command is ambigous, please be more specific: " + command);
    }
    else
    {
-      Error(1, "Command not found: " + command);
+      Error(ErrorNumber::CommandNonexistant, "Command not found: " + command);
    }
 
    // \todo will probably have a setting that always forces commands
@@ -258,7 +258,7 @@ bool Command::Mpc(std::string const & arguments)
    }
    else
    {
-      Error(1, "Executing program mpc failed");
+      Error(ErrorNumber::ExternalProgramError, "Executing program mpc failed");
    }
 
    return true;

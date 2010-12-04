@@ -52,7 +52,8 @@ namespace Mpc
       int32_t Duration() const;
       std::string DurationString() const;
 
-      std::string FullDescription() const;
+      std::string PlaylistDescription() const;
+      std::string FullDescription()     const;
 
    private:
       uint32_t     id_;
