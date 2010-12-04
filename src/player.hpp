@@ -120,7 +120,8 @@ namespace Ui
       uint32_t GetCurrentSong() const;
 
    private:
-      bool SkipSongByInformation(Skip skip, Mpc::Song::SongInformationFunction songFunction);
+      bool     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);
+      uint32_t NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction);
       uint32_t First(Mpc::Song const * const song, Mpc::Song::SongInformationFunction songFunction);
 
    private:
