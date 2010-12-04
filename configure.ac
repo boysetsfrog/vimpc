@@ -56,5 +56,7 @@ else
    AC_MSG_RESULT(no)
 fi
 
+CPPFLAGS="$CPPFLAGS -DHELP_DIRECTORY='\"$docdir\"'"
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

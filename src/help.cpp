@@ -25,8 +25,9 @@
 
 #include <fstream>
 
-char const * const LocalHelpFile    = "doc/help.txt";
-char const * const SpecificHelpFile = "/usr/share/vimpc/doc/help.txt";
+char const * const Local    = "doc";
+char const * const Specific = HELP_DIRECTORY;
+char const * const HelpFile = "/help.txt";
 
 using namespace Ui;
 
@@ -67,25 +68,32 @@ void HelpWindow::Confirm() const
 
 void HelpWindow::LoadHelpFile()
 {
-   std::ifstream testFile(LocalHelpFile);
-   std::string   nextLine;
+   std::string testFile(Local);
+
+   testFile += HelpFile;
+
+   std::ifstream testStream(testFile.c_str());
    std::string   file;
 
-   if (testFile.is_open() == true)
+   if (testStream.is_open() == true)
    {
-      file = LocalHelpFile;
+      file = Local;
    }
    else
    {
-      file = SpecificHelpFile;
+      file = Specific;
    }
+
+   file += HelpFile;
    
-   testFile.close();
+   testStream.close();
 
    std::ifstream helpFile(file.c_str());
 
    if (helpFile.is_open() == true)
    {
+      std::string nextLine;
+
       while (helpFile.eof() == false)
       {
          getline(helpFile, nextLine);

@@ -3,6 +3,7 @@ ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS}
 
 bin_PROGRAMS     = vimpc
 man_MANS         = doc/vimpc.1
+doc_DATA         = doc/help.txt
 vimpc_SOURCES    = src/assert.hpp \
                    src/colour.hpp \
                    src/command.cpp \
