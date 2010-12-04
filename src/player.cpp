@@ -126,12 +126,18 @@ bool Player::SkipSong(Skip skip, uint32_t count)
 
 bool Player::SkipAlbum(Skip skip, uint32_t count)
 {
-   SkipSongByInformation(skip, count, &Mpc::Song::Album);
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      SkipSongByInformation(skip, &Mpc::Song::Album);
+   }
 }
 
 bool Player::SkipArtist(Skip skip, uint32_t count)
 {
-   SkipSongByInformation(skip, count, &Mpc::Song::Artist);
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      SkipSongByInformation(skip, &Mpc::Song::Artist);
+   }
 }
 
 
@@ -141,7 +147,7 @@ uint32_t Player::GetCurrentSong() const
 }
 
 
-bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction)
+bool Player::SkipSongByInformation(Skip skip, Mpc::Song::SongInformationFunction songFunction)
 {
    uint32_t  const         currentSong  = GetCurrentSong();
    Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(currentSong);
