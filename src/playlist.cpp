@@ -120,7 +120,7 @@ void PlaylistWindow::Print(uint32_t line) const
       {
          boost::regex expression(".*" + lastSearch + ".*");
 
-         if (boost::regex_match(nextSong->FullDescription(), expression))
+         if (boost::regex_match(nextSong->PlaylistDescription(), expression))
          {
             colour = SONGMATCHCOLOUR;
          } 

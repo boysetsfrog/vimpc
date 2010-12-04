@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   errorcodes.hpp - modewindow used to display an error 
+   errorcodes.hpp - error numbers for each type of error that may occur
    */
 
 #ifndef __ERRORCODES
@@ -27,6 +27,7 @@ namespace ErrorNumber
    {
       CommandAmbiguous = 1,
       CommandNonexistant,
+      ClientError,
       ClientNoConnection,
       ExternalProgramError,
       HelpFileNonexistant,

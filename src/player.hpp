@@ -92,6 +92,13 @@ namespace Ui
       //! Stops playback
       bool Stop();
 
+   public:
+      //! Rescan the library
+      bool Rescan();
+
+      //! Update the library
+      bool Update();
+
    protected:
       typedef enum 
       { 

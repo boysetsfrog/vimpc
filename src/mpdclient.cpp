@@ -137,6 +137,28 @@ void Client::Random(bool const randomOn)
    }
 }
 
+
+void Client::Rescan()
+{ 
+   if (Connected() == true)
+   {
+      mpd_run_rescan(connection_, ".");
+
+      CheckError();
+   }
+}
+
+void Client::Update()
+{
+   if (Connected() == true)
+   {
+      mpd_run_update(connection_, ".");
+
+      CheckError();
+   }
+}
+
+
 std::string Client::CurrentState()
 {
    std::string currentState("Disconnected");
@@ -283,10 +305,9 @@ void Client::CheckError()
    {
       if (mpd_connection_get_error(connection_) != MPD_ERROR_SUCCESS)
       {
-         // \todo fix and make critical error
          char error[255];
          snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
-         Error(2, error);
+         Error(ErrorNumber::ClientError, error);
 
          if (connection_ != NULL)
          {

@@ -71,6 +71,9 @@ namespace Ui
       bool Redraw(std::string const & arguments)      { return Player::Redraw(); }
       bool Stop(std::string const & arguments)        { return Player::Stop(); }
 
+      bool Rescan(std::string const & arguments)      { return Player::Rescan(); }
+      bool Update(std::string const & arguments)      { return Player::Update(); }
+
    private: //Ui::Player
       template <Player::Skip SKIP>
       bool SkipSong(std::string const & arguments); 

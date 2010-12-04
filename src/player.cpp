@@ -108,6 +108,19 @@ bool Player::Stop()
 }
 
 
+bool Player::Rescan()
+{
+   client_.Rescan();
+   return true;
+}
+
+bool Player::Update()
+{
+   client_.Update();
+   return true;
+}
+
+
 bool Player::SkipSong(Skip skip, uint32_t count)
 {
    int64_t directionCount = count;

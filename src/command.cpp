@@ -58,6 +58,9 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["set"]       = &Command::Set;
    commandTable_["stop"]      = &Command::Stop;
 
+   commandTable_["rescan"]    = &Command::Rescan;
+   commandTable_["update"]    = &Command::Update;
+
    commandTable_["next"]      = &Command::SkipSong<Player::Next>;
    commandTable_["previous"]  = &Command::SkipSong<Player::Previous>;
 

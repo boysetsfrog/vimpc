@@ -47,6 +47,12 @@ namespace Mpc
       void Previous();
       void Stop();
       void Random(bool randomOn);
+
+   public: //Database
+      void Rescan();
+      void Update();
+
+   public:
       std::string CurrentState();
 
    public:
