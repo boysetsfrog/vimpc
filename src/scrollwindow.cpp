@@ -43,17 +43,20 @@ void ScrollWindow::Scroll(int32_t scrollCount)
 {
    uint16_t const newLine = (scrollLine_ + scrollCount);
 
-   if (newLine < screen_.MaxRows() - 1)
+   if (BufferSize() > screen_.MaxRows() - 1)
    {
-      scrollLine_ = screen_.MaxRows() - 1;
-   }
-   else if (newLine > BufferSize())
-   {
-      scrollLine_ = BufferSize();
-   }
-   else
-   {
-      scrollLine_ = newLine;
+      if (newLine < screen_.MaxRows() - 1)
+      {
+         scrollLine_ = screen_.MaxRows() - 1;
+      }
+      else if (newLine > BufferSize())
+      {
+         scrollLine_ = BufferSize();
+      }
+      else
+      {
+         scrollLine_ = newLine;
+      }
    }
 }
 
@@ -61,13 +64,16 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
 {
    scrollLine_ = scrollLine + (screen_.MaxRows() / 2);
 
-   if (scrollLine_ < screen_.MaxRows() - 1)
+   if (BufferSize() > screen_.MaxRows() - 1)
    {
-      scrollLine_ = screen_.MaxRows() - 1;
-   }
-   else if (scrollLine_ > BufferSize())
-   {
-      scrollLine_ = BufferSize();
+      if (scrollLine_ < screen_.MaxRows() - 1)
+      {
+         scrollLine_ = screen_.MaxRows() - 1;
+      }
+      else if (scrollLine_ > BufferSize())
+      {
+         scrollLine_ = BufferSize();
+      }
    }
 }
 
