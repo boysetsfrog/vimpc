@@ -36,8 +36,8 @@ WINDOWS:
    [count] gT                     | change to the previous window, or change back [count] windows if count is specified
                                  
 SEARCHING:                        
-           /<exp>                 | searches forward for the given expression which is treated as a regular expression
-           ?<exp>                 | searches forward for the given expression which is treated as a regular expression
+           /<exp>                 | searches forward for <exp> (a regular expression)
+           ?<exp>                 | searches backward for <exp> (a regular expression)
    [count] n                      | go to the next result
    [count] N                      | go to the previous result
 

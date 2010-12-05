@@ -63,11 +63,26 @@ namespace Ui
       size_t BufferSize() const { return buffer_.size(); }
 
    private:
+      typedef enum
+      {
+         ArtistType = 0,
+         AlbumType,
+         SongType
+      } EntryType;
+
+      struct LibraryEntry
+      {
+         EntryType   type_;
+         std::string str_;
+         Mpc::Song * song_;
+         bool        expanded_;
+      };
+
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
 
-      typedef std::vector<Mpc::Song *> SongBuffer;
+      typedef std::vector<LibraryEntry *> SongBuffer;
       SongBuffer buffer_;
    };
 }

@@ -25,7 +25,11 @@
 using namespace Mpc;
 
 Song::Song(uint32_t id) :
-   id_(id)
+   id_       (id),
+   artist_   (""),
+   album_    (""),
+   title_    (""),
+   duration_ (0)
 { }
 
 Song::Song(Song const & song) :
@@ -116,6 +120,7 @@ std::string Song::DurationString() const
 
    return (std::string(duration));
 }
+
 
 std::string Song::PlaylistDescription() const
 {

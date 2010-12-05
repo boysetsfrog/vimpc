@@ -20,6 +20,7 @@
 
 #include "library.hpp"
 
+#include "colour.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "search.hpp"
@@ -41,10 +42,48 @@ LibraryWindow::~LibraryWindow()
 
 void LibraryWindow::AddSong(Mpc::Song const * const song)
 {
+   static std::string artist("");
+   static std::string album("");
+
+   if (artist.compare(song->Artist()) != 0)
+   {
+      LibraryEntry * const libraryEntry = new LibraryEntry();
+
+      libraryEntry->expanded_ = true;
+      libraryEntry->str_      = song->Artist();
+      libraryEntry->song_     = NULL;
+      libraryEntry->type_     = ArtistType;
+
+      buffer_.insert(buffer_.end(), libraryEntry);
+
+      artist = song->Artist();
+   }
+
+   if (album.compare(song->Album()) != 0)
+   {
+      LibraryEntry * const libraryEntry = new LibraryEntry();
+
+      libraryEntry->expanded_ = true;
+      libraryEntry->str_      = (song->Album());
+      libraryEntry->song_     = NULL;
+      libraryEntry->type_     = AlbumType;
+
+      buffer_.insert(buffer_.end(), libraryEntry);
+
+      album = song->Album();
+   }
+
    if ((song != NULL) && (song->Id() >= 0))
    {
-      Mpc::Song * const newSong = new Mpc::Song(*song);
-      buffer_.insert(buffer_.end(), newSong);
+      LibraryEntry * const libraryEntry = new LibraryEntry();
+      Mpc::Song    * const newSong      = new Mpc::Song(*song);
+
+      libraryEntry->expanded_ = true;
+      libraryEntry->str_      = (song->Artist() + "::" + song->Album());
+      libraryEntry->song_     = newSong;
+      libraryEntry->type_     = SongType;
+
+      buffer_.insert(buffer_.end(), libraryEntry);
    }
 
 }
@@ -69,7 +108,23 @@ void LibraryWindow::Print(uint32_t line) const
 
    if (line < buffer_.size())
    {
-      mvwprintw(window, line, 0, "%s", buffer_.at(line + FirstLine())->PlaylistDescription().c_str());
+      if (buffer_.at(line + FirstLine())->type_ == SongType)
+      {
+         mvwprintw(window, line, 0, "    %s", buffer_.at(line + FirstLine())->song_->Title().c_str());
+      }
+      else if (buffer_.at(line + FirstLine())->type_ == AlbumType)
+      {
+         wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD);
+         mvwprintw(window, line, 0, "-  %s", buffer_.at(line + FirstLine())->str_.c_str());
+         wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD);
+      }
+      else if (buffer_.at(line + FirstLine())->type_ == ArtistType)
+      {
+         wattron(window, COLOR_PAIR(YELLOWONDEFAULT) | A_BOLD);
+         mvwprintw(window, line, 0, "- %s", buffer_.at(line + FirstLine())->str_.c_str());
+         wattroff(window, COLOR_PAIR(YELLOWONDEFAULT) | A_BOLD);
+      }
+
    }
 }
 
