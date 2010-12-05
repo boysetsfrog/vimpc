@@ -62,10 +62,10 @@ void ScrollWindow::Scroll(int32_t scrollCount)
 
 void ScrollWindow::ScrollTo(uint16_t scrollLine)
 {
-   scrollLine_ = scrollLine + (screen_.MaxRows() / 2);
-
    if (BufferSize() > screen_.MaxRows() - 1)
    {
+      scrollLine_ = scrollLine + (screen_.MaxRows() / 2);
+
       if (scrollLine_ < screen_.MaxRows() - 1)
       {
          scrollLine_ = screen_.MaxRows() - 1;
