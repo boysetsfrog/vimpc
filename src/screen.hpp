@@ -43,6 +43,7 @@ namespace Ui
    class Window;
    class ConsoleWindow;
    class ErrorWindow;
+   class LibraryWindow;
    class PlaylistWindow;
    class Search;
 
@@ -118,7 +119,8 @@ namespace Ui
       void SetActiveWindow(MainWindow window);
       void SetActiveWindow(Skip skip);
       void SetDefaultWindow(MainWindow window);
-      Ui::ConsoleWindow  & ConsoleWindow()  const;
+      Ui::ConsoleWindow  & ConsoleWindow() const;
+      Ui::LibraryWindow  & LibraryWindow() const; 
       Ui::PlaylistWindow & PlaylistWindow() const; 
 
    public:
@@ -137,7 +139,7 @@ namespace Ui
       MainWindow           window_;
       Ui::PlaylistWindow * playlistWindow_;
       Ui::ConsoleWindow  * consoleWindow_;
-      ScrollWindow       * libraryWindow_;
+      Ui::LibraryWindow  * libraryWindow_;
       ScrollWindow       * helpWindow_;
       ScrollWindow       * mainWindows_[MainWindowCount];
       WINDOW             * statusWindow_;

@@ -67,7 +67,13 @@ namespace Mpc
 
    public:
       template <typename Object>
-      void ForEachSong(Object & object, void (Object::*callBack)(Song const * const));
+      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Song const * const));
+
+      template <typename Object>
+      void ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const));
+
+   private:
+      Song * const CreateSong(mpd_song const * const) const;
 
    private:
       uint32_t SecondsToMinutes(uint32_t duration) const;
@@ -84,26 +90,53 @@ namespace Mpc
 
    //
    template <typename Object>
-   void Client::ForEachSong(Object & object, void (Object::*callBack)(Song const * const))
+   void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Song const * const))
    {
       if (Connected() == true)
       {
          mpd_send_list_queue_meta(connection_);
 
-         mpd_song * nextSong  = mpd_recv_song(connection_);
+         mpd_song * nextSong = mpd_recv_song(connection_);
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            Song * const newSong = new Song(mpd_song_get_id(nextSong) + 1);
-
-            newSong->SetArtist  (mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0));
-            newSong->SetAlbum   (mpd_song_get_tag(nextSong, MPD_TAG_ALBUM,  0));
-            newSong->SetTitle   (mpd_song_get_tag(nextSong, MPD_TAG_TITLE,  0));
-            newSong->SetDuration(mpd_song_get_duration(nextSong));
-            mpd_song_free(nextSong);
+            Song const * const newSong = CreateSong(nextSong);
 
             (object.*callBack)(newSong);
+
+            mpd_song_free(nextSong);
             delete newSong;
+         }
+      }
+   }
+
+   //
+   template <typename Object>
+   void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const))
+   {
+      if (Connected() == true)
+      {
+         mpd_send_list_all_meta(connection_, "/");
+
+         mpd_entity * nextEntity = mpd_recv_entity(connection_);
+
+         for(; nextEntity != NULL; nextEntity = mpd_recv_entity(connection_))
+         {
+            if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_SONG)
+            {
+               mpd_song const * const nextSong = mpd_entity_get_song(nextEntity);
+
+               if (nextSong != NULL)
+               {
+                  Song const * const newSong = CreateSong(nextSong);
+
+                  (object.*callBack)(newSong);
+
+                  delete newSong;
+               }
+            }
+
+            mpd_entity_free(nextEntity);
          }
       }
    }

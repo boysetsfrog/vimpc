@@ -23,6 +23,7 @@
 #include "assert.hpp"
 #include "error.hpp"
 #include "console.hpp"
+#include "library.hpp"
 #include "playlist.hpp"
 #include "screen.hpp"
 
@@ -73,6 +74,7 @@ void Client::Connect(std::string const & hostname)
    }
 
    screen_.PlaylistWindow().Redraw();
+   screen_.LibraryWindow().Redraw();
    CheckError();
 }
 
@@ -142,7 +144,7 @@ void Client::Rescan()
 { 
    if (Connected() == true)
    {
-      mpd_run_rescan(connection_, ".");
+      mpd_run_rescan(connection_, "/");
 
       CheckError();
    }
@@ -152,7 +154,7 @@ void Client::Update()
 {
    if (Connected() == true)
    {
-      mpd_run_update(connection_, ".");
+      mpd_run_update(connection_, "/");
 
       CheckError();
    }
@@ -287,6 +289,19 @@ void Client::DisplaySongInformation()
 }
 
 
+Song * const Client::CreateSong(mpd_song const * const song) const
+{
+   Song * const newSong = new Song(mpd_song_get_id(song) + 1);
+
+   newSong->SetArtist  (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
+   newSong->SetAlbum   (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
+   newSong->SetTitle   (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
+   newSong->SetDuration(mpd_song_get_duration(song));
+
+   return newSong;
+}
+
+
 uint32_t Client::SecondsToMinutes(uint32_t duration) const
 {
    return static_cast<uint32_t>(duration / 60);
@@ -314,6 +329,7 @@ void Client::CheckError()
             mpd_connection_free(connection_);
             connection_ = NULL;
             screen_.PlaylistWindow().Redraw();
+            screen_.LibraryWindow().Redraw();
          }
       }
    }

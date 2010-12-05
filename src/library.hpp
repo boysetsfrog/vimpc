@@ -22,14 +22,30 @@
 #define __UI__LIBRARY
 
 #include "scrollwindow.hpp"
+#include "song.hpp"
+
+namespace Main
+{
+   class Settings;
+}
+
+namespace Mpc
+{
+   class Client;
+}
 
 namespace Ui
 {
+   class Search;
+
    class LibraryWindow : public Ui::ScrollWindow
    {
    public:
-      LibraryWindow(Ui::Screen const & screen);
+      LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
       ~LibraryWindow();
+
+   public:
+      void AddSong(Mpc::Song const * const song);
 
    public:
       void Print(uint32_t line) const;
@@ -47,8 +63,12 @@ namespace Ui
       size_t BufferSize() const { return buffer_.size(); }
 
    private:
-      typedef std::vector<std::string> HelpBuffer;
-      HelpBuffer buffer_;
+      Main::Settings const & settings_;
+      Mpc::Client          & client_;
+      Ui::Search     const & search_;
+
+      typedef std::vector<Mpc::Song *> SongBuffer;
+      SongBuffer buffer_;
    };
 }
 

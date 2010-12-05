@@ -59,8 +59,8 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
 
    //Windows
    playlistWindow_        = new Ui::PlaylistWindow(settings, *this, client, search);
+   libraryWindow_         = new Ui::LibraryWindow (settings, *this, client, search); 
    consoleWindow_         = new Ui::ConsoleWindow (*this);
-   libraryWindow_         = new Ui::LibraryWindow (*this); 
    helpWindow_            = new Ui::HelpWindow    (*this);
    statusWindow_          = newwin(1, maxColumns_, maxRows_, 0);
    topWindow_             = newwin(1, maxColumns_, 0, 0);
@@ -346,6 +346,11 @@ void Screen::SetActiveWindow(Skip skip)
 Ui::ConsoleWindow & Screen::ConsoleWindow() const
 { 
    return assert_reference(consoleWindow_);
+}
+
+Ui::LibraryWindow & Screen::LibraryWindow() const
+{ 
+   return assert_reference(libraryWindow_);
 }
 
 Ui::PlaylistWindow & Screen::PlaylistWindow() const

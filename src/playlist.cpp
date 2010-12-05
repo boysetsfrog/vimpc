@@ -83,7 +83,7 @@ uint32_t PlaylistWindow::TotalNumberOfSongs() const
 void PlaylistWindow::Redraw()
 {
    Clear();
-   client_.ForEachSong(*this, &PlaylistWindow::AddSong);
+   client_.ForEachQueuedSong(*this, &PlaylistWindow::AddSong);
 }
 
 void PlaylistWindow::Clear()

@@ -3,98 +3,96 @@ Vimpc Help
 
 NORMAL MODE
 --------------------------------------------------
-   [count] .                      : repeat the last normal mode action, if count is specified
-                                    changes the count that was used for the last action to [count]
+   [count] .                      | repeat the last normal mode action, if count is specified
+                                  | changes the count that was used for the last action to [count]
 
 MOTION:
+   [count] k, Up                  | scroll up in current window
 
-   [count] k, Up                  : scroll up in current window
+   [count] j, Down                | scroll down in current window
 
-   [count] j, Down                : scroll down in current window
+   [count] PageUp                 | scroll up by a page in current window
 
-   [count] PageUp                 : scroll up by a page in current window
+   [count] PageDown               | scroll down by a page in current window
 
-   [count] PageDown               : scroll down by a page in current window
-
-           Home                   : scroll to top of the screen
+           Home                   | scroll to top of the screen
            
-           End                    : scroll to the bottom of the screen
+           End                    | scroll to the bottom of the screen
    
-           f                      : scroll to the currently playing song
+           f                      | scroll to the currently playing song
    
-   [count] gg                     : goes to top of the screen, or the line [count] if specified
-   [count] G                      : goes to bottom of the screen, or the line [count] if specified
+   [count] gg                     | goes to top of the screen, or the line [count] if specified
+   [count] G                      | goes to bottom of the screen, or the line [count] if specified
 
-   [count] H                      : selects the song at the top of the currently active section of window,
-                                    if count is specified, selects [count] down from the top.
-   [count] M                      : selects the song in the middle of the currently active section of window.
+   [count] H                      | selects the song at the top of the currently active section of window,
+                                  | if count is specified, selects [count] down from the top.
+   [count] M                      | selects the song in the middle of the currently active section of window.
 
-   [count] L                      : selects the song at the bottom of the currently active section of window,
-                                    if count is specified, selects [count] up from the bottom.
+   [count] L                      | selects the song at the bottom of the currently active section of window,
+                                  | if count is specified, selects [count] up from the bottom.
 
 WINDOWS:
-   [count] gt                     : change to the next window, or to the [count] window if count is specified
-   [count] gT                     : change to the previous window, or change back [count] windows if count is specified
+   [count] gt                     | change to the next window, or to the [count] window if count is specified
+   [count] gT                     | change to the previous window, or change back [count] windows if count is specified
                                  
 SEARCHING:                        
-           /<exp>                 : searches forward for the given expression which is treated as a regular expression
-           ?<exp>                 : searches forward for the given expression which is treated as a regular expression
-   [count] n                      : go to the next result
-   [count] N                      : go to the previous result
+           /<exp>                 | searches forward for the given expression which is treated as a regular expression
+           ?<exp>                 | searches forward for the given expression which is treated as a regular expression
+   [count] n                      | go to the next result
+   [count] N                      | go to the previous result
 
 PLAYING:                          
-                                  
-   [count] h                      : skip to the previous song, if count is specified, skips back [count] songs
-   [count] l                      : skip to the next song, if count is specified, skips forward [count] songs
-   [count] z                      : skip to the previous artist, if count is specified, skips back [count] artists
-   [count] x                      : skip to the next artist, if count is specified, skips forward [count] artists
-   [count] Z                      : skip to the previous album, if count is specified, skips back [count] albums
-   [count] X                      : skip to the next album, if count is specified, skips forward [count] albums
-           p                      : toggle the pause on/off
-           s                      : stop playback
+   [count] h                      | skip to the previous song, if count is specified, skips back [count] songs
+   [count] l                      | skip to the next song, if count is specified, skips forward [count] songs
+   [count] z                      | skip to the previous artist, if count is specified, skips back [count] artists
+   [count] x                      | skip to the next artist, if count is specified, skips forward [count] artists
+   [count] Z                      | skip to the previous album, if count is specified, skips back [count] albums
+   [count] X                      | skip to the next album, if count is specified, skips forward [count] albums
+           p                      | toggle the pause on/off
+           s                      | stop playback
  
 
 COMMAND MODE
 --------------------------------------------------
 
-          :<com>                  : executes the command <com>
-                                    to execute a command the full-name does not need to be given provided that
-                                    it is a unique match ie :con does not work as it could be :console or :connect
-                                    but :conn will call the :connect command
+          :<command>              | executes the command <command>
+                                  | to execute a command the full-name does not need to be given provided that
+                                  | it is a unique match ie :con does not work as it could be :console or :connect
+                                  | but :conn will call the :connect command
 
 WINDOWS:
-          :playlist               : change to the playlist window
-          :console                : change to the console window
-          :library                : change to the library window
-          :help                   : change to the help window (this one)
+          playlist                | change to the playlist window
+          console                 | change to the console window
+          library                 | change to the library window
+          help                    | change to the help window (this one)
 
 MISC:
-          !mpc <command-string>   : executes the command line program mpc with the given <command-string>
-                                    the result is output in the console window
+          !mpc <command-string>   | executes the command line program mpc with the given <command-string>
+                                  | the result is output in the console window
 
-          alias <name> <commands> : creates an alias called <name> which executes the given commands,
-                                    each command may be seperated by ;
-                                    i.e alias hello echo "hello"; echo "world";
+          alias <name> <commands> | creates an alias called <name> which executes the given commands,
+                                  | each command may be seperated by ;
+                                  | i.e alias hello echo "hello"; echo "world";
 
-          clear                   : clears the playlist window
+          clear                   | clears the playlist window
 
-          connect [hostname]      : connects to the given hostname if none is specficied, uses localhost
+          connect [hostname]      | connects to the given hostname if none is specficied, uses localhost
                                   
-          echo <string>           : echos the given string to the console window
+          echo <string>           | echos the given string to the console window
                                   
-          next [count]            : skips forward to the next song, or if given the next [count] songs
-          previous [count]        : skips backward to the previous song, or if given the previous [count] songs
-          play <song id>          : play the song with the given id in the current playlist
+          next [count]            | skips forward to the next song, or if given the next [count] songs
+          previous [count]        | skips backward to the previous song, or if given the previous [count] songs
+          play <song id>          | play the song with the given id in the current playlist
                                   
-          quit[!]                 : stop playback and quit vimpc, if [!] is appended, playback will not be stopped
+          quit[!]                 | stop playback and quit vimpc, if [!] is appended, playback will not be stopped
                                   
-          random                  : toggles random on/off
+          random                  | toggles random on/off
                                   
-          redraw                  : redraws the current window
+          redraw                  | redraws the current window
                                   
-          set                     : sets a configurable setting, see SETTINGS section
+          set                     | sets a configurable setting, see SETTINGS section
                                   
-          stop                    : stop playback
+          stop                    | stop playback
 
 
 
@@ -104,17 +102,15 @@ SETTINGS
          All settings can be prefixed with no, which will disable the setting, or postfixed with ! which will toggle the
          setting.
 
-         :set [no]autoscroll[!]    : automatically scroll to the playing song, when a h, l, z, x, Z, X, etc is performed 
-
-         :set [no]hlsearch[!]      : highlight search results
- 
-         :set  [no]searchwrap[!]   : wrap search results when using n/N
-
-         :set [no]stoponquit[!]    : automatically stop playback when vimpc is quit
+            [no]autoscroll[!]     | automatically scroll to the playing song, when a h, l, z, x, Z, X, etc is performed 
                                   
-         :set [no]windownumbers[!] : display the number next to the window in the tab bar
-
-         :set window <window>      : sets the window that will start with focus, only useful if called from ~/.vimpcrc file
-
-          
+            [no]hlsearch[!]       | highlight search results
+                                  
+            [no]searchwrap[!]     | wrap search results when using n/N
+                                  
+            [no]stoponquit[!]     | automatically stop playback when vimpc is quit
+                                  
+            [no]windownumbers[!]  | display the number next to the window in the tab bar
+                                  
+            window <window>       | sets the window that will start with focus, only useful if called from ~/.vimpcrc file
 

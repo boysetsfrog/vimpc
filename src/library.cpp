@@ -20,14 +20,18 @@
 
 #include "library.hpp"
 
+#include "mpdclient.hpp"
 #include "screen.hpp"
+#include "search.hpp"
 
 using namespace Ui;
 
-LibraryWindow::LibraryWindow(Ui::Screen const & screen) :
-   ScrollWindow     (screen)
+LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
+   ScrollWindow     (screen),
+   settings_        (settings),
+   client_          (client),
+   search_          (search)
 {
-   buffer_.push_back("Library");
 }
 
 LibraryWindow::~LibraryWindow()
@@ -35,9 +39,21 @@ LibraryWindow::~LibraryWindow()
 }
 
 
+void LibraryWindow::AddSong(Mpc::Song const * const song)
+{
+   if ((song != NULL) && (song->Id() >= 0))
+   {
+      Mpc::Song * const newSong = new Mpc::Song(*song);
+      buffer_.insert(buffer_.end(), newSong);
+   }
+
+}
+
+
 void LibraryWindow::Redraw()
 {
    Clear();
+   client_.ForEachLibrarySong(*this, &LibraryWindow::AddSong);
 }
 
 void LibraryWindow::Clear()
@@ -53,7 +69,7 @@ void LibraryWindow::Print(uint32_t line) const
 
    if (line < buffer_.size())
    {
-      mvwprintw(window, 0, 0, "%s", buffer_.at(line).c_str());
+      mvwprintw(window, line, 0, "%s", buffer_.at(line + FirstLine())->PlaylistDescription().c_str());
    }
 }
 
