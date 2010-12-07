@@ -25,6 +25,8 @@
 #include "screen.hpp"
 #include "search.hpp"
 
+#include <iostream>
+
 using namespace Ui;
 
 LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
@@ -37,53 +39,53 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const &
 
 LibraryWindow::~LibraryWindow()
 {
+   //! \todo delete the ridiculous amount of newed objects
 }
 
 
 void LibraryWindow::AddSong(Mpc::Song const * const song)
 {
-   static std::string artist("");
-   static std::string album("");
+   //! \todo could use a massive refactor, there is lots of repeated code here
 
-   if (artist.compare(song->Artist()) != 0)
+   if (library_.find(song->Artist()) == library_.end())
    {
-      LibraryEntry * const libraryEntry = new LibraryEntry();
+      LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
 
-      libraryEntry->expanded_ = true;
-      libraryEntry->str_      = song->Artist();
-      libraryEntry->song_     = NULL;
-      libraryEntry->type_     = ArtistType;
+      entry->libraryEntry_.expanded_ = false;
+      entry->libraryEntry_.str_      = song->Artist();
+      entry->libraryEntry_.song_     = NULL;
+      entry->libraryEntry_.type_     = ArtistType;
 
-      buffer_.insert(buffer_.end(), libraryEntry);
-
-      artist = song->Artist();
+      library_[song->Artist()] = entry;
    }
 
-   if (album.compare(song->Album()) != 0)
+   LibraryHeirachyEntry * const artistEntry = library_.find(song->Artist())->second;
+
+   if (artistEntry->children_.find(song->Album()) == artistEntry->children_.end())
    {
-      LibraryEntry * const libraryEntry = new LibraryEntry();
+      LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
 
-      libraryEntry->expanded_ = true;
-      libraryEntry->str_      = (song->Album());
-      libraryEntry->song_     = NULL;
-      libraryEntry->type_     = AlbumType;
+      entry->libraryEntry_.expanded_ = false;
+      entry->libraryEntry_.str_      = (song->Album());
+      entry->libraryEntry_.song_     = NULL;
+      entry->libraryEntry_.type_     = AlbumType;
 
-      buffer_.insert(buffer_.end(), libraryEntry);
-
-      album = song->Album();
+      artistEntry->children_[song->Album()] = entry;
    }
+
+   LibraryHeirachyEntry * const albumEntry = (artistEntry->children_.find(song->Album()))->second;
 
    if ((song != NULL) && (song->Id() >= 0))
    {
-      LibraryEntry * const libraryEntry = new LibraryEntry();
-      Mpc::Song    * const newSong      = new Mpc::Song(*song);
+      LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
+      Mpc::Song * const newSong      = new Mpc::Song(*song);
 
-      libraryEntry->expanded_ = true;
-      libraryEntry->str_      = (song->Artist() + "::" + song->Album());
-      libraryEntry->song_     = newSong;
-      libraryEntry->type_     = SongType;
+      entry->libraryEntry_.expanded_ = false;
+      entry->libraryEntry_.str_      = (song->Artist() + "::" + song->Album());
+      entry->libraryEntry_.song_     = newSong;
+      entry->libraryEntry_.type_     = SongType;
 
-      buffer_.insert(buffer_.end(), libraryEntry);
+      albumEntry->children_[song->Title()] = entry;
    }
 
 }
@@ -93,6 +95,7 @@ void LibraryWindow::Redraw()
 {
    Clear();
    client_.ForEachLibrarySong(*this, &LibraryWindow::AddSong);
+   PopulateBuffer();
 }
 
 void LibraryWindow::Clear()
@@ -100,31 +103,69 @@ void LibraryWindow::Clear()
    buffer_.clear();
 }
 
+void LibraryWindow::PopulateBuffer()
+{
+   //! \todo need to delete library heirachy objects first
+   Clear();
+
+   //! \todo try and make this a bit more efficient, two data structures is a bit dodgy
+   //        and will almost certainly be quite slow
+   for (Library::iterator artistIt = library_.begin(); artistIt != library_.end(); ++artistIt)
+   {
+      buffer_.insert(buffer_.end(), &(artistIt->second->libraryEntry_)); 
+
+      if (artistIt->second->libraryEntry_.expanded_ == true)
+      {
+         for (Library::iterator albumIt = artistIt->second->children_.begin(); albumIt != artistIt->second->children_.end(); ++albumIt)
+         {
+            buffer_.insert(buffer_.end(), &(albumIt->second->libraryEntry_)); 
+
+            if (albumIt->second->libraryEntry_.expanded_ == true)
+            {
+               for (Library::iterator songIt = albumIt->second->children_.begin(); songIt != albumIt->second->children_.end(); ++songIt)
+               {
+                  buffer_.insert(buffer_.end(), &(songIt->second->libraryEntry_)); 
+               }
+            }
+         }
+      }
+   }
+}
+
 void LibraryWindow::Print(uint32_t line) const
 {
    static std::string const BlankLine(screen_.MaxColumns(), ' ');
+   static uint32_t          offsetCount = 0;
+
+   if (line == 0)
+   {
+      offsetCount = 0;
+   }
 
    WINDOW * window = N_WINDOW();
 
-   if (line < buffer_.size())
+   if ((line + offsetCount) < buffer_.size())
    {
-      if (buffer_.at(line + FirstLine())->type_ == SongType)
+      uint32_t printLine = (line + offsetCount + FirstLine());
+
+      char expand = (buffer_.at(printLine)->expanded_ == true) ? '-' : '+';
+
+      if (buffer_.at(printLine)->type_ == SongType)
       {
-         mvwprintw(window, line, 0, "    %s", buffer_.at(line + FirstLine())->song_->Title().c_str());
+         mvwprintw(window, line, 0, "    %s", buffer_.at(printLine)->song_->Title().c_str());
       }
-      else if (buffer_.at(line + FirstLine())->type_ == AlbumType)
+      else if (buffer_.at(printLine)->type_ == AlbumType)
       {
          wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD);
-         mvwprintw(window, line, 0, "-  %s", buffer_.at(line + FirstLine())->str_.c_str());
+         mvwprintw(window, line, 0, "%c  %s", expand, buffer_.at(printLine)->str_.c_str());
          wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD);
       }
-      else if (buffer_.at(line + FirstLine())->type_ == ArtistType)
+      else if (buffer_.at(printLine)->type_ == ArtistType)
       {
          wattron(window, COLOR_PAIR(YELLOWONDEFAULT) | A_BOLD);
-         mvwprintw(window, line, 0, "- %s", buffer_.at(line + FirstLine())->str_.c_str());
+         mvwprintw(window, line, 0, "%c %s", expand, buffer_.at(printLine)->str_.c_str());
          wattroff(window, COLOR_PAIR(YELLOWONDEFAULT) | A_BOLD);
       }
-
    }
 }
 

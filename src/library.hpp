@@ -24,6 +24,8 @@
 #include "scrollwindow.hpp"
 #include "song.hpp"
 
+#include <map>
+
 namespace Main
 {
    class Settings;
@@ -58,9 +60,17 @@ namespace Ui
 
    private:
       void Clear();
+      void PopulateBuffer();
 
    private:
       size_t BufferSize() const { return buffer_.size(); }
+
+   private:
+      struct LibraryEntry;
+      struct LibraryHeirachyEntry;
+
+      typedef std::map<std::string, LibraryHeirachyEntry *>  Library;
+      typedef std::vector<LibraryEntry *> SongBuffer;
 
    private:
       typedef enum
@@ -78,11 +88,21 @@ namespace Ui
          bool        expanded_;
       };
 
+      struct LibraryHeirachyEntry
+      {
+         LibraryEntry libraryEntry_;
+         Library      children_;
+      };
+
+
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
 
-      typedef std::vector<LibraryEntry *> SongBuffer;
+      // Maintains the current tree heirachy of the library
+      Library   library_;
+
+      // Used to actually print the entries
       SongBuffer buffer_;
    };
 }
