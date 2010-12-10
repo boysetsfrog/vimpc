@@ -34,7 +34,8 @@ char const * const HelpFile = "/help.txt";
 using namespace Ui;
 
 HelpWindow::HelpWindow(Ui::Screen const & screen) :
-   ScrollWindow     (screen)
+   ScrollWindow     (screen),
+   buffer_          ()
 {
    // \todo instead of using a help.txt file, may want to add
    // descriptions for each normal and command mode function

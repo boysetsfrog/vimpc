@@ -51,6 +51,10 @@ namespace Ui
       Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search);
       ~Normal();
 
+   private:
+      Normal(Normal & normal);
+      Normal & operator=(Normal & normal);
+
    public: // Ui::Mode
       void Initialise(int input);
       void Finalise(int input);
@@ -199,7 +203,7 @@ namespace Ui
    {
       if ((SKIP == Screen::Next) && (wasSpecificCount_ == true))
       {
-         screen_.SetActiveWindow((Screen::MainWindow) (count - 1));
+         screen_.SetActiveWindow(static_cast<Screen::MainWindow>(count - 1));
       }
       else if ((SKIP == Screen::Previous) && (wasSpecificCount_ == true))
       {

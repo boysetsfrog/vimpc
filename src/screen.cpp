@@ -34,7 +34,12 @@ using namespace Ui;
 
 Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
+   playlistWindow_  (NULL),
+   consoleWindow_   (NULL),
+   libraryWindow_   (NULL),
+   helpWindow_      (NULL),
    statusWindow_    (NULL),
+   topWindow_       (NULL),
    commandWindow_   (NULL),
    settings_        (settings),
    started_         (false),
@@ -127,7 +132,7 @@ void Screen::SetTopWindow() const
    for (int i = 0; i < MainWindowCount; ++i)
    {
       wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
-      name = GetNameFromWindow((MainWindow) i);
+      name = GetNameFromWindow(static_cast<MainWindow>(i));
 
       if (i == window_)
       {
@@ -329,15 +334,15 @@ void Screen::SetActiveWindow(Skip skip)
 
    if ((window_ == 0) && (skip == Previous))
    {
-      window = ((MainWindow) (MainWindowCount - 1));
+      window = static_cast<MainWindow>(MainWindowCount - 1);
    }
    else if ((window_ == (MainWindowCount - 1)) && (skip == Next))
    {
-      window = ((MainWindow) 0);
+      window = static_cast<MainWindow>(0);
    }
    else
    {
-      window = (MainWindow) (window_ + ((skip == Next) ? 1 : -1));
+      window = static_cast<MainWindow>(window_ + ((skip == Next) ? 1 : -1));
    }
 
    SetActiveWindow(window);

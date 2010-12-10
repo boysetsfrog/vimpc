@@ -53,6 +53,10 @@ namespace Ui
       Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search);
       ~Screen();
 
+   private:
+      Screen(Screen & screen);
+      Screen & operator=(Screen & screen);
+
    public:
       typedef enum
       {

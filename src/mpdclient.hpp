@@ -39,6 +39,10 @@ namespace Mpc
       Client(Ui::Screen const & screen);
       ~Client();
 
+   private:
+      Client(Client & client);
+      Client & operator=(Client & client);
+
    public:
       void Connect(std::string const & hostname = "");
       void Play(uint32_t playId);

@@ -78,6 +78,10 @@ namespace Ui
       InputMode(Ui::Screen & screen);
       virtual ~InputMode();
 
+   private:
+      InputMode(InputMode & inputMode);
+      InputMode & operator=(InputMode & inputMode);
+
    public: // Ui::Mode
       virtual void Initialise(int input);
       virtual void Finalise(int input);

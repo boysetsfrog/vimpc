@@ -27,7 +27,8 @@ using namespace Ui;
 ModeWindow::ModeWindow() :
    Window         (0, COLS, LINES - 1, 0),
    cursorVisible_ (false),
-   cursorPosition_(0)
+   cursorPosition_(0),
+   buffer_        ("")
 {
 }
 

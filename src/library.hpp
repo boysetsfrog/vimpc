@@ -80,16 +80,36 @@ namespace Ui
          SongType
       } EntryType;
 
-      struct LibraryEntry
+      class LibraryEntry
       {
+      public:
+         LibraryEntry() :
+            type_    (SongType),
+            str_     (""),
+            song_    (NULL),
+            expanded_(false)
+         { }
+
+      private:
+         LibraryEntry(LibraryEntry & entry);
+         LibraryEntry & operator=(LibraryEntry & entry);
+
+      public:
          EntryType   type_;
          std::string str_;
          Mpc::Song * song_;
          bool        expanded_;
       };
 
-      struct LibraryHeirachyEntry
+      class LibraryHeirachyEntry
       {
+      public:
+         LibraryHeirachyEntry() :
+            libraryEntry_(),
+            children_    ()
+         { }
+
+      public:
          LibraryEntry libraryEntry_;
          Library      children_;
       };

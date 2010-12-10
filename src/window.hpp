@@ -34,6 +34,10 @@ namespace Ui
       Window(int h, int w, int x, int y);
       virtual ~Window();
 
+   private:
+      Window(Window & window);
+      Window & operator=(Window & window);
+
    public:
       virtual void Print(uint32_t line) const = 0;
       virtual void Confirm() const;

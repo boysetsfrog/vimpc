@@ -84,7 +84,7 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    {
       int32_t scroll = FirstLine() + count;
 
-      if (scroll > (int32_t) LastLine()) 
+      if (scroll > static_cast<int32_t>(LastLine())) 
       { 
          scroll = LastLine(); 
       }
@@ -95,7 +95,7 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    {
       int32_t scroll = LastLine() - count + 1;
 
-      if (scroll < (int32_t) FirstLine() + 1) 
+      if (scroll < static_cast<int32_t>(FirstLine() + 1)) 
       { 
          scroll = FirstLine() + 1; 
       }

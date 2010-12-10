@@ -35,7 +35,9 @@ InputMode::InputMode(Ui::Screen & screen) :
    window_            (NULL),
    cursor_            (inputString_),
    screen_            (screen),
-   initHistorySearch_ (true)
+   initHistorySearch_ (true),
+   history_           (),
+   searchHistory_     ()
 {
 }
 
@@ -104,7 +106,7 @@ bool InputMode::Handle(int const input)
 
 bool InputMode::CausesModeToStart(int input) const
 {
-   return ((char) input == Prompt()[0]);
+   return (static_cast<char>(input) == Prompt()[0]);
 }
 
 
@@ -135,7 +137,7 @@ void InputMode::GenerateInputString(int input)
    }
    if (InputIsValidCharacter(input) == true)
    {
-      inputString_.insert((std::string::size_type) (cursorPosition), 1, (char) input);
+      inputString_.insert(static_cast<std::string::size_type>(cursorPosition), 1, static_cast<char>(input));
    }
 }
 

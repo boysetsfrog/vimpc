@@ -36,7 +36,8 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const
    currentSelection_(0),
    settings_        (settings),
    client_          (client),
-   search_          (search)
+   search_          (search),
+   buffer_          ()
 {
    // \todo class requires a lot of cleaning up
 }
@@ -193,7 +194,7 @@ void PlaylistWindow::Print(uint32_t line) const
 
 void PlaylistWindow::Confirm() const
 {
-   client_.Play((uint32_t) currentSelection_);
+   client_.Play(static_cast<uint32_t>(currentSelection_));
 }
 
 void PlaylistWindow::Scroll(int32_t scrollCount)
@@ -210,7 +211,7 @@ void PlaylistWindow::Scroll(int32_t scrollCount)
 void PlaylistWindow::ScrollTo(uint16_t scrollLine)
 {
    int64_t oldSelection = currentSelection_;
-   currentSelection_    = ((int64_t) scrollLine - 1);
+   currentSelection_    = (static_cast<int64_t>(scrollLine - 1));
    currentSelection_    = LimitCurrentSelection(currentSelection_);
 
    if ((currentSelection_ == scrollLine_) && (currentSelection_ - oldSelection == 1))

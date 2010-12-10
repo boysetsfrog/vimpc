@@ -44,7 +44,9 @@ Settings & Settings::Instance()
 }
 
 Settings::Settings() :
-   defaultWindow_(Ui::Screen::Playlist)
+   defaultWindow_(Ui::Screen::Playlist),
+   settingsTable_(),
+   toggleTable_  ()
 {
    settingsTable_["window"]             = &Settings::SetWindow;
 

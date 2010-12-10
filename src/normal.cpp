@@ -37,6 +37,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    lastActionCount_ (0),
    wasSpecificCount_(false),
    actionTable_     (),
+   jumpTable_       (),
    search_          (search),
    screen_          (screen),
    client_          (client),
@@ -206,7 +207,7 @@ void Normal::DisplayModeLine()
 
    if (screen_.PlaylistWindow().TotalNumberOfSongs() > 0)
    {
-      currentScroll = ((screen_.PlaylistWindow().CurrentLine())/((float) screen_.PlaylistWindow().TotalNumberOfSongs()));
+      currentScroll = ((screen_.PlaylistWindow().CurrentLine())/(static_cast<float>(screen_.PlaylistWindow().TotalNumberOfSongs())));
       currentScroll += .005;
       modeStream << (screen_.PlaylistWindow().CurrentLine() + 1) << "/" << screen_.PlaylistWindow().TotalNumberOfSongs() << " -- ";
    }
@@ -223,7 +224,7 @@ void Normal::DisplayModeLine()
       }
       else
       {
-         modeStream << std::setw(2) << (int) (currentScroll * 100) << "%%";
+         modeStream << std::setw(2) << static_cast<int>(currentScroll * 100) << "%%";
       }
    }
 

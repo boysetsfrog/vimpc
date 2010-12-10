@@ -27,7 +27,8 @@
 using namespace Ui;
 
 ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :
-   ScrollWindow(screen)
+   ScrollWindow(screen),
+   buffer_     ()
 {
 }
 

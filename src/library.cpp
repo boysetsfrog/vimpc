@@ -34,7 +34,9 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const &
    ScrollWindow     (screen),
    settings_        (settings),
    client_          (client),
-   search_          (search)
+   search_          (search),
+   library_         (),
+   buffer_          ()
 {
 }
 
