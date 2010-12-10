@@ -301,7 +301,7 @@ uint32_t Screen::WaitForInput() const
       errorWindow.Print(1);
    }
 
-   uint32_t input = wgetch(commandWindow_);
+   int32_t input = wgetch(commandWindow_);
 
    if (input != ERR)
    {

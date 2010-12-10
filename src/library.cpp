@@ -25,6 +25,7 @@
 #include "screen.hpp"
 #include "search.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 using namespace Ui;
@@ -47,7 +48,13 @@ void LibraryWindow::AddSong(Mpc::Song const * const song)
 {
    //! \todo could use a massive refactor, there is lots of repeated code here
 
-   if (library_.find(song->Artist()) == library_.end())
+   std::string artist = song->Artist();
+   std::transform(artist.begin(), artist.end(), artist.begin(), ::toupper);
+
+   std::string album = song->Album();
+   std::transform(album.begin(), album.end(), album.begin(), ::toupper);
+
+   if (library_.find(artist) == library_.end())
    {
       LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
 
@@ -56,24 +63,26 @@ void LibraryWindow::AddSong(Mpc::Song const * const song)
       entry->libraryEntry_.song_     = NULL;
       entry->libraryEntry_.type_     = ArtistType;
 
-      library_[song->Artist()] = entry;
+      library_[artist] = entry;
    }
 
-   LibraryHeirachyEntry * const artistEntry = library_.find(song->Artist())->second;
+   LibraryHeirachyEntry * const artistEntry = library_.find(artist)->second;
 
-   if (artistEntry->children_.find(song->Album()) == artistEntry->children_.end())
+   if (artistEntry->children_.find(album) == artistEntry->children_.end())
    {
       LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
 
       entry->libraryEntry_.expanded_ = false;
-      entry->libraryEntry_.str_      = (song->Album());
+      entry->libraryEntry_.str_      = song->Album();
       entry->libraryEntry_.song_     = NULL;
       entry->libraryEntry_.type_     = AlbumType;
 
-      artistEntry->children_[song->Album()] = entry;
+
+      artistEntry->children_[album] = entry;
    }
 
-   LibraryHeirachyEntry * const albumEntry = (artistEntry->children_.find(song->Album()))->second;
+
+   LibraryHeirachyEntry * const albumEntry = (artistEntry->children_.find(album))->second;
 
    if ((song != NULL) && (song->Id() >= 0))
    {
@@ -81,7 +90,7 @@ void LibraryWindow::AddSong(Mpc::Song const * const song)
       Mpc::Song * const newSong      = new Mpc::Song(*song);
 
       entry->libraryEntry_.expanded_ = false;
-      entry->libraryEntry_.str_      = (song->Artist() + "::" + song->Album());
+      entry->libraryEntry_.str_      = song->Title();
       entry->libraryEntry_.song_     = newSong;
       entry->libraryEntry_.type_     = SongType;
 

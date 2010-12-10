@@ -187,6 +187,8 @@ namespace Ui
       {
          screen_.ScrollTo(SPECIFIC, line);
       }
+
+      return true;
    }
 
 

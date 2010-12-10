@@ -140,11 +140,13 @@ bool Player::SkipSong(Skip skip, uint32_t count)
 bool Player::SkipAlbum(Skip skip, uint32_t count)
 {
    SkipSongByInformation(skip, count, &Mpc::Song::Album);
+   return true;
 }
 
 bool Player::SkipArtist(Skip skip, uint32_t count)
 {
    SkipSongByInformation(skip, count, &Mpc::Song::Artist);
+   return true;
 }
 
 
@@ -166,6 +168,8 @@ bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInf
    client_.Play(skipResult);
 
    HandleAutoScroll();
+
+   return true;
 }
 
 uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction)
@@ -174,7 +178,6 @@ uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song:
    Mpc::Song const *       newSong      = NULL;
    uint32_t                skipCount    = 0;
    int64_t                 direction    = (skip == Previous) ? -1 : 1;
-   bool                    first        = false;
 
    if ((song != NULL) && (skip == Previous))
    {

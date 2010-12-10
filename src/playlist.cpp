@@ -112,7 +112,7 @@ void PlaylistWindow::Print(uint32_t line) const
    {
       Mpc::Song * nextSong = buffer_[line + FirstLine()];
 
-      uint32_t colour = SONGCOLOUR;
+      int32_t colour = SONGCOLOUR;
 
       std::string const lastSearch(search_.LastSearchString());
 
