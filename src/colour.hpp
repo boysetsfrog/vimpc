@@ -23,15 +23,7 @@
 
 #include <ncursesw/ncurses.h>
 
-#ifdef __GNUC__
-#ifndef FUNCION_IS_NOT_USED
-#define FUNCTION_IS_NOT_USED __attribute__ ((unused))
-#endif
-#else
-#ifndef FUNCION_IS_NOT_USED
-#define FUNCTION_IS_NOT_USED
-#endif
-#endif
+#include "attributes.hpp"
 
 #define DEFAULT          (COLOR_PAIRS - 1)
 #define BLUEONDEFAULT    (COLOR_PAIRS - 2)

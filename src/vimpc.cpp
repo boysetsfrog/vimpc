@@ -72,8 +72,6 @@ void Vimpc::Run()
 
    if (configExecutionResult == true)
    {
-      Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-
       // If we didn't connect to a host from the config file, just connect to the localhost
       if (client_.Connected() == false)
       {
@@ -87,7 +85,11 @@ void Vimpc::Run()
       }
 
       screen_.Start();
-      mode.Initialise(0);
+
+      {
+         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+         mode.Initialise(0);
+      }
 
       bool running = true;
 

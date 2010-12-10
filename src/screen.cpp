@@ -303,7 +303,7 @@ uint32_t Screen::WaitForInput() const
 
    if (errorWindow.HasError() == true)
    {
-      errorWindow.Print(1);
+      errorWindow.Print(0);
    }
 
    int32_t input = wgetch(commandWindow_);
@@ -414,6 +414,10 @@ std::string Screen::GetNameFromWindow(Screen::MainWindow window)
          break;
 
       case MainWindowCount:
+         ASSERT(false);
+         break;
+
+      default:
          ASSERT(false);
          break;
    }

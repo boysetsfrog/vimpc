@@ -50,7 +50,12 @@ debug_default="no"
 AC_ARG_ENABLE(debug, [ --enable-debug=[no/yes] turn on debugging [default=$debug_default]],, enable_debug=$debug_default)
 if test "x$enable_debug" = "xyes"; then
    CXXFLAGS=""
-   CPPFLAGS="$CPPFLAGS -g -D__DEBUG_ASSERT -Wall -Weffc++ -Wold-style-cast -Woverloaded-virtual -Werror"
+   CPPFLAGS="$CPPFLAGS -g -pg \\
+            -D__DEBUG_ASSERT -Wall -Wextra \\
+            -Wformat -Weffc++ -Wold-style-cast -Woverloaded-virtual -Wctor-dtor-privacy \\
+            -Wswitch-default -Wswitch-enum -Wfloat-equal -Wshadow \\
+            -Wcast-qual -Wcast-align -Wmissing-declarations \\
+            -Werror -pedantic"
    AC_MSG_RESULT(yes)
 else
    AC_MSG_RESULT(no)

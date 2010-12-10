@@ -77,7 +77,7 @@ namespace Ui
 
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
-      char const * const Prompt() const;
+      char const * Prompt() const;
 
    private: 
       Direction        direction_;

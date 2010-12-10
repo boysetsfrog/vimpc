@@ -99,21 +99,21 @@ Normal::~Normal()
    window_ = NULL;
 }
 
-void Normal::Initialise(int input)
+void Normal::Initialise(UNUSED int input)
 {
    actionCount_ = 0;
    DisplayModeLine();
    Refresh();
 }
 
-void Normal::Finalise(int input)
+void Normal::Finalise(UNUSED int input)
 {
    Refresh();
 }
 
 void Normal::Refresh()
 {
-   window_->Print(1);
+   window_->Print(0);
 }
 
 bool Normal::Handle(int input)
@@ -179,7 +179,28 @@ bool Normal::CausesModeToStart(int input) const
 }
 
 
-bool Normal::Confirm(uint32_t count)
+bool Normal::ClearScreen(UNUSED uint32_t count)
+{ 
+   return Player::ClearScreen();
+}
+
+bool Normal::Pause(UNUSED uint32_t count)
+{ 
+   return Player::Pause();
+}
+
+bool Normal::Random(UNUSED uint32_t count)
+{ 
+   return Player::Random(true);
+}
+
+bool Normal::Stop(UNUSED uint32_t count)
+{ 
+   return Player::Stop();
+}
+
+
+bool Normal::Confirm(UNUSED uint32_t count)
 {
    screen_.Confirm();
    return true;

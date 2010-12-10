@@ -5,6 +5,7 @@ bin_PROGRAMS     = vimpc
 man_MANS         = doc/vimpc.1
 doc_DATA         = doc/help.txt
 vimpc_SOURCES    = src/assert.hpp \
+                   src/attributes.hpp \
                    src/colour.hpp \
                    src/command.cpp \
                    src/command.hpp \

@@ -24,6 +24,7 @@
 #include <string>
 #include <map>
 
+#include "attributes.hpp"
 #include "inputmode.hpp"
 #include "player.hpp"
 #include "screen.hpp"
@@ -59,20 +60,20 @@ namespace Ui
 
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
-      char const * const Prompt() const;
+      char const * Prompt() const;
 
    private: //Ui::Player wrapper functions
-      bool ClearScreen(std::string const & arguments) { return Player::ClearScreen(); }
-      bool Connect(std::string const & arguments)     { return Player::Connect(arguments); }
-      bool Pause(std::string const & arguments)       { return Player::Pause(); }
-      bool Play(std::string const & arguments)        { return Player::Play(atoi(arguments.c_str())); }
+      bool ClearScreen(std::string const & arguments);
+      bool Connect(std::string const & arguments);
+      bool Pause(std::string const & arguments);
+      bool Play(std::string const & arguments);
       bool Quit(std::string const & arguments);
       bool Random(std::string const & arguments);
-      bool Redraw(std::string const & arguments)      { return Player::Redraw(); }
-      bool Stop(std::string const & arguments)        { return Player::Stop(); }
+      bool Redraw(std::string const & arguments);
+      bool Stop(std::string const & arguments);
 
-      bool Rescan(std::string const & arguments)      { return Player::Rescan(); }
-      bool Update(std::string const & arguments)      { return Player::Update(); }
+      bool Rescan(std::string const & arguments);
+      bool Update(std::string const & arguments);
 
    private: //Ui::Player
       template <Player::Skip SKIP>
@@ -155,7 +156,7 @@ namespace Ui
 
    //Implementation of window change function
    template <Ui::Screen::MainWindow MAINWINDOW>
-   bool Command::SetActiveWindow(std::string const & arguments)
+   bool Command::SetActiveWindow(UNUSED std::string const & arguments)
    {
       return Player::SetActiveWindow(MAINWINDOW);
    }

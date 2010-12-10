@@ -46,7 +46,7 @@ namespace Ui
 
    public:
       void AddSong(Mpc::Song const * const newSong);
-      Mpc::Song const * const GetSong(uint32_t songIndex);
+      Mpc::Song const * GetSong(uint32_t songIndex);
 
    public:
       uint32_t GetCurrentSong()     const;

@@ -187,6 +187,9 @@ std::string Client::CurrentState()
             case MPD_STATE_PAUSE:
                currentState = "Paused";
                break;
+
+            default:
+               break;
          }
 
          mpd_status_free(status);
@@ -289,7 +292,7 @@ void Client::DisplaySongInformation()
 }
 
 
-Song * const Client::CreateSong(mpd_song const * const song) const
+Song * Client::CreateSong(mpd_song const * const song) const
 {
    Song * const newSong = new Song(mpd_song_get_id(song) + 1);
 

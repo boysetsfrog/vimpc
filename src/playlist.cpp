@@ -50,14 +50,14 @@ PlaylistWindow::~PlaylistWindow()
 
 void PlaylistWindow::AddSong(Mpc::Song const * const song)
 {
-   if ((song != NULL) && (song->Id() >= 0))
+   if (song != NULL)
    {
       Mpc::Song * const newSong = new Mpc::Song(*song);
       buffer_.insert(buffer_.end(), newSong);
    }
 }
 
-Mpc::Song const * const PlaylistWindow::GetSong(uint32_t songIndex)
+Mpc::Song const * PlaylistWindow::GetSong(uint32_t songIndex)
 {
    Mpc::Song const * song = NULL;
 

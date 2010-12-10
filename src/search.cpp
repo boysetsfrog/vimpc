@@ -20,6 +20,7 @@
 
 #include "search.hpp"
 
+#include "attributes.hpp"
 #include "error.hpp"
 #include "playlist.hpp"
 #include "settings.hpp"
@@ -30,7 +31,7 @@
 
 using namespace Ui;
 
-Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+Search::Search(Ui::Screen & screen, UNUSED Mpc::Client & client, Main::Settings & settings) :
    InputMode   (screen),
    direction_  (Forwards),
    lastSearch_ (""),
@@ -163,7 +164,7 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
    return found;
 }
 
-char const * const Search::Prompt() const
+char const * Search::Prompt() const
 { 
    static char SearchPrompt[PromptSize + 1] = "";
 

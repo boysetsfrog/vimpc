@@ -86,7 +86,7 @@ void LibraryWindow::AddSong(Mpc::Song const * const song)
 
    LibraryHeirachyEntry * const albumEntry = (artistEntry->children_.find(album))->second;
 
-   if ((song != NULL) && (song->Id() >= 0))
+   if (song != NULL)
    {
       LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
       Mpc::Song * const newSong      = new Mpc::Song(*song);

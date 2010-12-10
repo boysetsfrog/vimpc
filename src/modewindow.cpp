@@ -48,19 +48,21 @@ void ModeWindow::SetLine(char const * const fmt, ...)
 
    buffer_ = buf;
 
-   Print(1);
+   Print(0);
 }
 
 void ModeWindow::Print(uint32_t line) const
 {
+   line = 0;
+
    WINDOW * const window = N_WINDOW();
 
    curs_set((cursorVisible_ == true) ? 1 : 0);
    noecho();
 
    werase(window);
-   mvwprintw(window, 0, 0, buffer_.c_str());
-   wmove(window, 0, cursorPosition_);
+   mvwprintw(window, line, 0, buffer_.c_str());
+   wmove(window, line, cursorPosition_);
    wrefresh(window);
 }
 

@@ -15,25 +15,18 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   errorcodes.hpp - error numbers for each type of error that may occur
+   attributes.hpp - defines gcc attribute macros 
    */
 
-#ifndef __ERRORCODES
-#define __ERRORCODES
+#ifndef __ATTRIBUTES
+#define __ATTRIBUTES
 
-namespace ErrorNumber
-{
-   enum 
-   {
-      CommandAmbiguous = 1,
-      CommandNonexistant,
-      ClientError,
-      ClientNoConnection,
-      ExternalProgramError,
-      HelpFileNonexistant,
-      SettingNonexistant,
-      SearchNoResults
-   };
-}
+#ifdef __GNUC__
+#define UNUSED __attribute__ ((unused))
+#define FUNCTION_IS_NOT_USED __attribute__ ((unused))
+#else
+#define UNUSED
+#define FUNCTION_IS_NOT_USED
+#endif
 
 #endif

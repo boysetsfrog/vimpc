@@ -24,6 +24,7 @@
 #include <algorithm>
 
 #include "assert.hpp"
+#include "attributes.hpp"
 #include "console.hpp"
 #include "screen.hpp"
 
@@ -48,7 +49,7 @@ InputMode::~InputMode()
 }
 
 
-void InputMode::Initialise(int input)
+void InputMode::Initialise(UNUSED int input)
 {
    // \todo this should really be in the constructor
    // but that breaks the search at the moment as the screen is constructed
@@ -71,7 +72,7 @@ void InputMode::Initialise(int input)
    ENSURE(inputString_.empty() == true);
 }
 
-void InputMode::Finalise(int input)
+void InputMode::Finalise(UNUSED int input)
 {
    AddToHistory(inputString_);
    window_->HideCursor();
@@ -80,7 +81,7 @@ void InputMode::Finalise(int input)
 
 void InputMode::Refresh()
 {
-   window_->Print(1);
+   window_->Print(0);
 }
 
 bool InputMode::Handle(int const input)
@@ -284,7 +285,11 @@ uint16_t Cursor::UpdatePosition(int input)
          position_ = maxCursorPosition;
          break;
 
+      case CursorNoMovement:
+         break;
+
       default:
+         ASSERT(false);
          break;
    }
 

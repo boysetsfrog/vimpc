@@ -137,7 +137,7 @@ bool Command::ExecuteCommand(std::string const & input)
 }
 
 
-char const * const Command::Prompt() const
+char const * Command::Prompt() const
 {
    static char const CommandPrompt[] = ":";
    return CommandPrompt;
@@ -149,7 +149,27 @@ bool Command::InputStringHandler(std::string input)
 }
 
 
-bool Command::Quit(std::string const & arguments)
+bool Command::ClearScreen(UNUSED std::string const & arguments) 
+{ 
+   return Player::ClearScreen();
+}
+
+bool Command::Connect(std::string const & arguments) 
+{ 
+   return Player::Connect(arguments);
+}
+
+bool Command::Pause(UNUSED std::string const & arguments)
+{ 
+   return Player::Pause(); 
+}
+
+bool Command::Play(std::string const & arguments)
+{ 
+   return Player::Play(atoi(arguments.c_str())); 
+}
+
+bool Command::Quit(UNUSED std::string const & arguments)
 { 
    if ((forceCommand_ != true) && (settings_.StopOnQuit() == true))
    {
@@ -163,6 +183,26 @@ bool Command::Random(std::string const & arguments)
 { 
    bool const value = (arguments.compare("on") == 0);
    return Player::Random(value);
+}
+
+bool Command::Redraw(UNUSED std::string const & arguments)
+{ 
+   return Player::Redraw(); 
+}
+
+bool Command::Stop(UNUSED std::string const & arguments)
+{ 
+   return Player::Stop(); 
+}
+
+bool Command::Rescan(UNUSED std::string const & arguments)
+{ 
+   return Player::Rescan();
+}
+
+bool Command::Update(UNUSED std::string const & arguments)
+{ 
+   return Player::Update(); 
 }
 
 

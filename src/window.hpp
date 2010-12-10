@@ -51,7 +51,7 @@ namespace Ui
       uint32_t ContentSize() const { return BufferSize() - 1; }
 
    protected:
-      WINDOW * const N_WINDOW() const { return window_;}
+      WINDOW * N_WINDOW() const { return window_; }
 
    private:
       virtual size_t BufferSize() const = 0;

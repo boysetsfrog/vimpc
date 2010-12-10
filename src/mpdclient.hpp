@@ -77,7 +77,7 @@ namespace Mpc
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const));
 
    private:
-      Song * const CreateSong(mpd_song const * const) const;
+      Song * CreateSong(mpd_song const * const) const;
 
    private:
       uint32_t SecondsToMinutes(uint32_t duration) const;

@@ -20,6 +20,7 @@
 
 #include "player.hpp"
 
+#include "attributes.hpp"
 #include "console.hpp"
 #include "mpdclient.hpp"
 #include "playlist.hpp"
@@ -49,7 +50,7 @@ bool Player::ClearScreen()
    return true;
 }
 
-bool Player::Connect(std::string const & host, uint32_t port)
+bool Player::Connect(std::string const & host, UNUSED uint32_t port)
 {
    // \todo handle port properly
    client_.Connect(host);

@@ -21,22 +21,13 @@
 #ifndef __UI__ERROR
 #define __UI__ERROR
 
+#include "attributes.hpp"
 #include "colour.hpp"
 #include "errorcodes.hpp"
 #include "modewindow.hpp"
 
 #include <stdint.h>
 #include <string>
-
-#ifdef __GNUC__
-#ifndef FUNCION_IS_NOT_USED
-#define FUNCTION_IS_NOT_USED __attribute__ ((unused))
-#endif
-#else
-#ifndef FUNCION_IS_NOT_USED
-#define FUNCTION_IS_NOT_USED
-#endif
-#endif
 
 namespace Ui
 {

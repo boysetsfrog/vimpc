@@ -95,7 +95,7 @@ namespace Ui
 
    private:
       virtual bool InputStringHandler(std::string input) = 0;
-      virtual char const * const Prompt() const = 0;
+      virtual char const * Prompt() const = 0;
 
    private:
       bool RequireDeletion(int input) const;

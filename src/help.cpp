@@ -23,6 +23,10 @@
 #include "error.hpp"
 #include "screen.hpp"
 
+#ifndef HELP_DIRECTORY
+#define HELP_DIRECTORY ""
+#endif
+
 #include <algorithm>
 #include <fstream>
 #include <string>

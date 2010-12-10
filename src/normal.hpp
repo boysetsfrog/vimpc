@@ -23,6 +23,7 @@
 
 #include <map>
 
+#include "attributes.hpp"
 #include "mode.hpp"
 #include "modewindow.hpp"
 #include "player.hpp"
@@ -63,10 +64,10 @@ namespace Ui
       bool CausesModeToStart(int input) const;
 
    private: // Ui::Player wrapper functions
-      bool ClearScreen(uint32_t count) { return Player::ClearScreen(); }
-      bool Pause(uint32_t count)       { return Player::Pause(); }
-      bool Random(uint32_t count)      { return Player::Random(true); }
-      bool Stop(uint32_t count)        { return Player::Stop(); }
+      bool ClearScreen(uint32_t count);
+      bool Pause(uint32_t count);
+      bool Random(uint32_t count);
+      bool Stop(uint32_t count);
 
    private:
       bool Confirm(uint32_t count);
@@ -174,7 +175,7 @@ namespace Ui
    }
 
    template <Screen::Location LOCATION>
-   bool Normal::ScrollTo(uint32_t line)
+   bool Normal::ScrollTo(UNUSED uint32_t line)
    {
       screen_.ScrollTo(LOCATION);
       return true;
