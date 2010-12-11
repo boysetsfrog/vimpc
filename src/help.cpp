@@ -100,7 +100,7 @@ void HelpWindow::Print(uint32_t line) const
    wattroff(window, A_BOLD | COLOR_PAIR(REDONDEFAULT) | COLOR_PAIR(BLUEONDEFAULT));
 }
 
-void HelpWindow::Confirm() const
+void HelpWindow::Confirm()
 {
 }
 

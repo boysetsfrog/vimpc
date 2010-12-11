@@ -40,7 +40,7 @@ namespace Ui
 
    public:
       virtual void Print(uint32_t line) const = 0;
-      virtual void Confirm() const;
+      virtual void Confirm();
       virtual void Redraw();
 
    public:

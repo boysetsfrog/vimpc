@@ -282,6 +282,7 @@ void Client::DisplaySongInformation()
                                SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
                                SecondsToMinutes(duration), RemainingSeconds(duration));
 
+         mpd_status_free(status);
          mpd_song_free(currentSong);
       }
    }

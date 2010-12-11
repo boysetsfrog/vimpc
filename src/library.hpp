@@ -21,7 +21,7 @@
 #ifndef __UI__LIBRARY
 #define __UI__LIBRARY
 
-#include "scrollwindow.hpp"
+#include "selectwindow.hpp"
 #include "song.hpp"
 
 #include <map>
@@ -40,25 +40,26 @@ namespace Ui
 {
    class Search;
 
-   class LibraryWindow : public Ui::ScrollWindow
+   class LibraryWindow : public Ui::SelectWindow
    {
    public:
       LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
       ~LibraryWindow();
+
+   private:
+      LibraryWindow(LibraryWindow & library);
+      LibraryWindow & operator=(LibraryWindow & library);
 
    public:
       void AddSong(Mpc::Song const * const song);
 
    public:
       void Print(uint32_t line) const;
-      void Confirm() const;
-      void Scroll(int32_t scrollCount);
-      void ScrollTo(uint16_t scrollLine);
+      void Confirm();
       void Redraw();
 
-      uint16_t CurrentLine() const { return 0; }
-
    private:
+      void Expand(uint32_t line);
       void Clear();
       void PopulateBuffer();
 
@@ -85,7 +86,8 @@ namespace Ui
       public:
          LibraryEntry() :
             type_    (SongType),
-            str_     (""),
+            artist_  (""),
+            album_   (""),
             song_    (NULL),
             expanded_(false)
          { }
@@ -96,7 +98,8 @@ namespace Ui
 
       public:
          EntryType   type_;
-         std::string str_;
+         std::string artist_;
+         std::string album_;
          Mpc::Song * song_;
          bool        expanded_;
       };
@@ -120,7 +123,7 @@ namespace Ui
       Ui::Search     const & search_;
 
       // Maintains the current tree heirachy of the library
-      Library   library_;
+      Library * library_;
 
       // Used to actually print the entries
       SongBuffer buffer_;

@@ -34,7 +34,7 @@ namespace Ui
    public:
       void Redraw();
       void Print(uint32_t line) const;
-      void Confirm() const;
+      void Confirm();
 
       uint16_t CurrentLine() const { return 0; }
 

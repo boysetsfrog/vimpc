@@ -40,6 +40,8 @@ vimpc_SOURCES    = src/assert.hpp \
                    src/settings.hpp \
                    src/scrollwindow.hpp \
                    src/scrollwindow.cpp \
+                   src/selectwindow.hpp \
+                   src/selectwindow.cpp \
                    src/song.hpp \
                    src/song.cpp \
                    src/vimpc.cpp \

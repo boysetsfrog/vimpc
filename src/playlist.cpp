@@ -32,8 +32,7 @@
 using namespace Ui;
 
 PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
-   ScrollWindow     (screen),
-   currentSelection_(0),
+   SelectWindow     (screen),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -134,7 +133,7 @@ void PlaylistWindow::Print(uint32_t line) const
 
       wattron(window, COLOR_PAIR(colour));
 
-      if (line + FirstLine() == currentSelection_)
+      if (line + FirstLine() == CurrentLine())
       {
          wattron(window, A_REVERSE);
       }
@@ -147,14 +146,14 @@ void PlaylistWindow::Print(uint32_t line) const
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 0, "[");
 
-      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != currentSelection_))
+      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != CurrentLine()))
       {
          wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
       wprintw(window, "%5d", nextSong->Id());
 
-      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != currentSelection_))
+      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != CurrentLine()))
       {
          wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
       }
@@ -177,7 +176,7 @@ void PlaylistWindow::Print(uint32_t line) const
       waddstr(window, " - ");
       waddstr(window, nextSong->Title().c_str());
 
-      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != currentSelection_))
+      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != CurrentLine()))
       {
          wattron(window, COLOR_PAIR(SONGCOLOUR));
          wattroff(window, A_BOLD);
@@ -192,52 +191,8 @@ void PlaylistWindow::Print(uint32_t line) const
    }
 }
 
-void PlaylistWindow::Confirm() const
+void PlaylistWindow::Confirm()
 {
-   client_.Play(static_cast<uint32_t>(currentSelection_));
+   client_.Play(static_cast<uint32_t>(CurrentLine()));
 }
 
-void PlaylistWindow::Scroll(int32_t scrollCount)
-{
-   currentSelection_ += scrollCount;
-   currentSelection_  = LimitCurrentSelection(currentSelection_);
-
-   if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - (screen_.MaxRows() - 1)))
-   {   
-      ScrollWindow::Scroll(scrollCount);
-   }
-}
-
-void PlaylistWindow::ScrollTo(uint16_t scrollLine)
-{
-   int64_t oldSelection = currentSelection_;
-   currentSelection_    = (static_cast<int64_t>(scrollLine - 1));
-   currentSelection_    = LimitCurrentSelection(currentSelection_);
-
-   if ((currentSelection_ == scrollLine_) && (currentSelection_ - oldSelection == 1))
-   {
-      ScrollWindow::Scroll(1);
-   }
-   else if ((currentSelection_ == scrollLine_ - screen_.MaxRows()) && (currentSelection_ - oldSelection == -1))
-   {
-      ScrollWindow::Scroll(-1);
-   }
-   else if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - (screen_.MaxRows() - 1)))
-   {   
-      ScrollWindow::ScrollTo(scrollLine);
-   }
-}
-
-int64_t PlaylistWindow::LimitCurrentSelection(int64_t currentSelection) const
-{
-   if (currentSelection < 0)
-   {
-      currentSelection = 0;
-   }
-   else if (currentSelection_ >= BufferSize())
-   {
-      currentSelection = BufferSize() - 1;
-   }
-
-   return currentSelection;
-}

@@ -59,6 +59,10 @@ Settings::Settings() :
 
 Settings::~Settings()
 {
+   for (SettingsToggleTable::iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   {
+      delete it->second;
+   }
 }
 
 

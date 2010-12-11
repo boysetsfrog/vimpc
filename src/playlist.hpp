@@ -22,7 +22,7 @@
 #define __UI__PLAYLIST
 
 #include "song.hpp"
-#include "scrollwindow.hpp"
+#include "selectwindow.hpp"
 
 namespace Main
 {
@@ -38,7 +38,7 @@ namespace Ui
 {
    class Search;
 
-   class PlaylistWindow : public Ui::ScrollWindow
+   class PlaylistWindow : public Ui::SelectWindow
    {
    public:
       PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
@@ -54,12 +54,8 @@ namespace Ui
 
    public:
       void Print(uint32_t line) const;
-      void Confirm() const;
-      void Scroll(int32_t scrollCount);
-      void ScrollTo(uint16_t scrollLine);
+      void Confirm();
       void Redraw();
-
-      uint16_t CurrentLine() const { return currentSelection_; }
 
    private:
       void DeleteSongs();
@@ -69,11 +65,6 @@ namespace Ui
       size_t BufferSize() const { return buffer_.size(); }
 
    private:
-      int64_t LimitCurrentSelection(int64_t currentSelection) const;
-
-   private:
-      int64_t currentSelection_;
-
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;

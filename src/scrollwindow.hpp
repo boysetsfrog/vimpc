@@ -66,7 +66,7 @@ namespace Ui
       void SetScrollLine(uint16_t scrollLine);
       uint16_t ScrollLine() const;
 
-   private:
+   protected:
       virtual size_t BufferSize() const = 0;
 
    protected:

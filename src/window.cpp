@@ -34,7 +34,7 @@ Window::~Window()
    delwin(window_);
 }
 
-void Window::Confirm() const
+void Window::Confirm()
 {
 }
 

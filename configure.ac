@@ -51,10 +51,10 @@ AC_ARG_ENABLE(debug, [ --enable-debug=[no/yes] turn on debugging [default=$debug
 if test "x$enable_debug" = "xyes"; then
    CXXFLAGS=""
    CPPFLAGS="$CPPFLAGS -g -pg \\
-            -D__DEBUG_ASSERT -Wall -Wextra \\
-            -Wformat -Weffc++ -Wold-style-cast -Woverloaded-virtual -Wctor-dtor-privacy \\
-            -Wswitch-default -Wswitch-enum -Wfloat-equal -Wshadow \\
-            -Wcast-qual -Wcast-align -Wmissing-declarations \\
+            -D__DEBUG_ASSERT -Wall -Wextra -W \\
+            -Wformat -Weffc++ -Wold-style-cast -Woverloaded-virtual -Wctor-dtor-privacy -Wsign-promo \\
+            -Wswitch-default -Wswitch-enum -Wfloat-equal -Wshadow -Winit-self -Wformat-security \\
+            -Wcast-qual -Wcast-align -Wmissing-declarations -Wcomment \\
             -Werror -pedantic"
    AC_MSG_RESULT(yes)
 else
