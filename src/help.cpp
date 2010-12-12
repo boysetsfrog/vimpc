@@ -73,11 +73,11 @@ void HelpWindow::Print(uint32_t line) const
 
       if ((FirstLine() == 0) && (line == 0))
       {
-         wattron(window, A_BOLD | COLOR_PAIR(REDONDEFAULT));
+         wattron(window, A_BOLD | COLOR_PAIR(BLUEONDEFAULT));
       }
       else if (currentLine.compare(currentLineUpper) == 0)
       {
-         wattron(window, A_BOLD | COLOR_PAIR(BLUEONDEFAULT));
+         wattron(window, A_BOLD | COLOR_PAIR(REDONDEFAULT));
       }
 
       if (currentLine.find('|') != std::string::npos)
@@ -85,10 +85,10 @@ void HelpWindow::Print(uint32_t line) const
          std::string firstHalf = currentLine.substr(0, currentLine.find_last_of('|') - 1);
          std::string lastHalf = currentLine.substr(currentLine.find_last_of('|') + 1);
 
-         wattron(window, A_BOLD | COLOR_PAIR(GREENONDEFAULT));
+         wattron(window, A_BOLD);
          mvwaddstr(window, line, 0, firstHalf.c_str());
 
-         wattroff(window, A_BOLD | COLOR_PAIR(GREENONDEFAULT));
+         wattroff(window, A_BOLD);
          waddstr(window, lastHalf.c_str());
       }
       else
