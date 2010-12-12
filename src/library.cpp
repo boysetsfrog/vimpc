@@ -228,44 +228,49 @@ void LibraryWindow::PopulateBuffer()
 void LibraryWindow::Print(uint32_t line) const
 {
    static std::string const BlankLine(screen_.MaxColumns(), ' ');
-   static uint32_t          offsetCount = 0;
-
-   if (line == 0)
-   {
-      offsetCount = 0;
-   }
 
    WINDOW * window = N_WINDOW();
 
-   if ((line + offsetCount) < buffer_.size())
+   if (line  < buffer_.size())
    {
-      uint32_t printLine = (line + offsetCount + FirstLine());
+      uint32_t printLine = (line + FirstLine());
 
       char expand = (buffer_.at(printLine)->expanded_ == true) ? '-' : '+';
 
-      if (FirstLine() + line == CurrentLine())
+      if (printLine == CurrentLine())
       {
          wattron(window, A_REVERSE);
       }
 
+      mvwprintw(window, line, 0, BlankLine.c_str());
+
       if ((buffer_.at(printLine)->type_ == SongType) && (buffer_.at(printLine)->song_ != NULL))
       {
-         mvwprintw(window, line, 0, BlankLine.c_str());
-         mvwprintw(window, line, 0, "    %s", buffer_.at(printLine)->song_->Title().c_str());
+         mvwprintw(window, line, 1, "|   |--- %s", buffer_.at(printLine)->song_->Title().c_str());
       }
       else if (buffer_.at(printLine)->type_ == AlbumType)
       {
-         wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD);
-         mvwprintw(window, line, 0, BlankLine.c_str());
-         mvwprintw(window, line, 0, "%c  %s", expand, buffer_.at(printLine)->album_.c_str());
-         wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD);
+         mvwprintw(window, line, 1, "|--[");
+         if (printLine != CurrentLine()) { wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
+         mvwprintw(window, line, 5, "%c", expand);
+         if (printLine != CurrentLine()) { wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
+         mvwprintw(window, line, 6, "]");
+
+         wattron(window, A_BOLD);
+         mvwprintw(window, line, 8, "%s", buffer_.at(printLine)->album_.c_str());
+         wattroff(window, A_BOLD);
       }
       else if (buffer_.at(printLine)->type_ == ArtistType)
       {
-         wattron(window, COLOR_PAIR(YELLOWONDEFAULT) | A_BOLD);
-         mvwprintw(window, line, 0, BlankLine.c_str());
-         mvwprintw(window, line, 0, "%c %s", expand, buffer_.at(printLine)->artist_.c_str());
-         wattroff(window, COLOR_PAIR(YELLOWONDEFAULT) | A_BOLD);
+         mvwprintw(window, line, 0, "[");
+         if (printLine != CurrentLine()) { wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
+         mvwprintw(window, line, 1, "%c", expand);
+         if (printLine != CurrentLine()) { wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
+         mvwprintw(window, line, 2, "]");
+         
+         wattron(window, A_BOLD);
+         mvwprintw(window, line, 4, "%s", buffer_.at(printLine)->artist_.c_str());
+         wattroff(window, A_BOLD);
       }
 
       wattroff(window, A_REVERSE);
