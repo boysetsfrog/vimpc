@@ -28,6 +28,8 @@
 
 namespace Ui
 {
+   class Player;
+
    class Window
    {
    public:
@@ -40,6 +42,8 @@ namespace Ui
 
    public:
       virtual void Print(uint32_t line) const = 0;
+      virtual void Left(Ui::Player & player, uint32_t count);
+      virtual void Right(Ui::Player & player, uint32_t count);
       virtual void Confirm();
       virtual void Redraw();
 

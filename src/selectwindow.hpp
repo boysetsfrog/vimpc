@@ -38,10 +38,9 @@ namespace Ui
 
       uint16_t CurrentLine() const;
 
-   private:
+   protected:
       int64_t LimitCurrentSelection(int64_t currentSelection) const;
 
-   private:
       int64_t currentSelection_;
    };
 }

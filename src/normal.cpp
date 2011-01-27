@@ -21,11 +21,14 @@
 #include "normal.hpp"
 
 #include "mpdclient.hpp"
+#include "playlist.hpp"
 #include "vimpc.hpp"
 
 #include <iomanip>
 #include <limits>
 #include <sstream>
+
+#define ESCAPE_KEY 27
 
 using namespace Ui;
 
@@ -46,32 +49,45 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // \todo figure out how to do alt + ctrl key combinations
    // for things like Ctrl+u and alt+1
 
-   // \todo add proper handling of combination actions ie 'gt' and 'gg' etc
    // \todo display current count somewhere
    actionTable_['.']       = &Normal::RepeatLastAction;
-
    actionTable_['c']       = &Normal::ClearScreen;
+
+   // Player
    actionTable_['p']       = &Normal::Pause;
    //actionTable_['r']       = &Normal::Random; // \todo add back once i can be bothered toggling this properly
    actionTable_['s']       = &Normal::Stop;
 
-   actionTable_['l']       = &Normal::SkipSong<Player::Next>;
-   actionTable_['h']       = &Normal::SkipSong<Player::Previous>;
+   //! \todo make it so these can be used to navigate the library
+   // Skipping
    actionTable_['x']       = &Normal::SkipArtist<Player::Next>;
    actionTable_['z']       = &Normal::SkipArtist<Player::Previous>;
    actionTable_['X']       = &Normal::SkipAlbum<Player::Next>;
    actionTable_['Z']       = &Normal::SkipAlbum<Player::Previous>;
 
+   // Selection
    actionTable_['H']       = &Normal::Select<ScrollWindow::First>;
    actionTable_['M']       = &Normal::Select<ScrollWindow::Middle>;
    actionTable_['L']       = &Normal::Select<ScrollWindow::Last>;
 
+   // Playlist
+   // ! \todo these should only work if the current window is the correct one
+   actionTable_['d']       = &Normal::DeleteSong<Mpc::Song::Single>;
+   actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
+   actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;
+   actionTable_['A']       = &Normal::AddSong<Mpc::Song::All>;
+
+   // Navigation
+   actionTable_['l']       = &Normal::Right;
+   actionTable_['h']       = &Normal::Left;
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
-
+   
+   // Searching
    actionTable_['N']       = &Normal::SearchResult<Search::Previous>;
    actionTable_['n']       = &Normal::SearchResult<Search::Next>;
 
+   // Scrolling
    actionTable_['k']       = &Normal::Scroll<Screen::Line, Screen::Up>;
    actionTable_['j']       = &Normal::Scroll<Screen::Line, Screen::Down>;
    actionTable_[KEY_PPAGE] = &Normal::Scroll<Screen::Page, Screen::Up>;
@@ -81,11 +97,13 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
 
+   //
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];
    actionTable_[KEY_DOWN]  = actionTable_['j'];
    actionTable_[KEY_UP]    = actionTable_['k'];
 
+   // Jumping
    jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
    jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next>;
    jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous>;
@@ -133,8 +151,7 @@ bool Normal::Handle(int input)
          actionCount_ = newActionCount;
       }
    }
-   // \todo use a symbol
-   else if (input == 27)
+   else if (input == ESCAPE_KEY)
    {
       action       = &actionTable_;
       actionCount_ = 0;
@@ -200,6 +217,18 @@ bool Normal::Stop(UNUSED uint32_t count)
 }
 
 
+bool Normal::Left(uint32_t count)
+{
+   screen_.Left(*this, count);
+   return true;
+}
+
+bool Normal::Right(uint32_t count)
+{
+   screen_.Right(*this, count);
+   return true;
+}
+
 bool Normal::Confirm(UNUSED uint32_t count)
 {
    screen_.Confirm();
@@ -228,7 +257,7 @@ void Normal::DisplayModeLine()
 
    if (screen_.PlaylistWindow().TotalNumberOfSongs() > 0)
    {
-      currentScroll = ((screen_.PlaylistWindow().CurrentLine())/(static_cast<float>(screen_.PlaylistWindow().TotalNumberOfSongs())));
+      currentScroll = ((screen_.PlaylistWindow().CurrentLine())/(static_cast<float>(screen_.PlaylistWindow().TotalNumberOfSongs()) - 1));
       currentScroll += .005;
       modeStream << (screen_.PlaylistWindow().CurrentLine() + 1) << "/" << screen_.PlaylistWindow().TotalNumberOfSongs() << " -- ";
    }

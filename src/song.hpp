@@ -36,6 +36,12 @@ namespace Mpc
    public:
       typedef std::string const & (Mpc::Song::*SongInformationFunction)() const;
 
+      typedef enum 
+      {
+         Single,
+         All
+      } SongCollection;
+
    public:
       uint32_t Id() const;
 
@@ -48,6 +54,9 @@ namespace Mpc
       void SetTitle(const char * title);
       std::string const & Title() const;
 
+      void SetURI(const char * uri);
+      std::string const & URI() const;
+
       void SetDuration(int32_t duration);
       int32_t Duration() const;
       std::string DurationString() const;
@@ -56,10 +65,11 @@ namespace Mpc
       std::string FullDescription()     const;
 
    private:
-      uint32_t     id_;
+      uint32_t    id_;
       std::string artist_;
       std::string album_;
       std::string title_;
+      std::string uri_;
       int32_t     duration_;
    };
 }

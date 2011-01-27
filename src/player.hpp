@@ -99,7 +99,6 @@ namespace Ui
       //! Update the library
       bool Update();
 
-   protected:
       typedef enum 
       { 
          Next,

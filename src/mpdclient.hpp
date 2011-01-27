@@ -50,7 +50,13 @@ namespace Mpc
       void Next();
       void Previous();
       void Stop();
-      void Random(bool randomOn);
+      void Random(bool random);
+      void Single(bool single);
+
+   public: //Queue
+      uint32_t Add(Mpc::Song const & song);
+      void Delete(uint32_t position);
+      void Clear();
 
    public: //Database
       void Rescan();
@@ -63,7 +69,8 @@ namespace Mpc
       bool Connected() const;
 
    public:
-      int32_t GetCurrentSongId() const;
+      int32_t  FirstSong() const;
+      int32_t  GetCurrentSongId() const;
       uint32_t TotalNumberOfSongs();
 
    public:
@@ -77,7 +84,7 @@ namespace Mpc
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const));
 
    private:
-      Song * CreateSong(mpd_song const * const) const;
+      Song * CreateSong(uint32_t id, mpd_song const * const) const;
 
    private:
       uint32_t SecondsToMinutes(uint32_t duration) const;
@@ -85,8 +92,11 @@ namespace Mpc
 
    private:
       void CheckError();
+      void DeleteConnection();
 
    private:
+      int32_t firstSong_;
+
       struct mpd_connection * connection_;
       bool mutable currentSongHasChanged_;
       Ui::Screen      const & screen_;
@@ -96,6 +106,9 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Song const * const))
    {
+      uint32_t id = 0;
+      firstSong_  = -1;
+
       if (Connected() == true)
       {
          mpd_send_list_queue_meta(connection_);
@@ -104,7 +117,12 @@ namespace Mpc
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            Song const * const newSong = CreateSong(nextSong);
+            Song const * const newSong = CreateSong(++id, nextSong);
+
+            if (firstSong_ == -1)
+            {
+               firstSong_ = mpd_song_get_id(nextSong);
+            }
 
             (object.*callBack)(newSong);
 
@@ -118,6 +136,8 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const))
    {
+      uint32_t id = 0;
+
       if (Connected() == true)
       {
          mpd_send_list_all_meta(connection_, "/");
@@ -132,14 +152,13 @@ namespace Mpc
 
                if (nextSong != NULL)
                {
-                  Song const * const newSong = CreateSong(nextSong);
+                  Song const * const newSong = CreateSong(++id, nextSong);
 
                   (object.*callBack)(newSong);
 
                   delete newSong;
                }
             }
-
             mpd_entity_free(nextEntity);
          }
       }

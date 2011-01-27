@@ -36,6 +36,9 @@ namespace Ui
       void Print(uint32_t line) const;
       void Confirm();
 
+      //! \todo work out why this doesn't work properly
+      std::string SearchPattern(int32_t id) { return buffer_.at(id); }
+
       uint16_t CurrentLine() const { return 0; }
 
    private:

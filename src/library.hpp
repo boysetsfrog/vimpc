@@ -55,11 +55,18 @@ namespace Ui
 
    public:
       void Print(uint32_t line) const;
+      void Left(Ui::Player & player, uint32_t count);
+      void Right(Ui::Player & player, uint32_t count);
       void Confirm();
+      int32_t AddSongs();
       void Redraw();
+
+   public:
+      std::string SearchPattern(int32_t id);
 
    private:
       void Expand(uint32_t line);
+      void Collapse(uint32_t line);
       void Clear();
       void PopulateBuffer();
 
@@ -72,6 +79,9 @@ namespace Ui
 
       typedef std::map<std::string, LibraryHeirachyEntry *>  Library;
       typedef std::vector<LibraryEntry *> SongBuffer;
+
+   private:
+      int32_t DetermineSongColour(LibraryEntry const * const entry) const;
 
    private:
       typedef enum

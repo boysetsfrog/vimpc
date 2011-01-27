@@ -84,7 +84,7 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
 {
    bool found = false;
 
-   found = SearchForResult(direction, search, count, screen_.PlaylistWindow().CurrentLine());
+   found = SearchForResult(direction, search, count, screen_.ActiveWindow().CurrentLine());
 
    if ((found == false) && (settings_.SearchWrap() == true))
    {
@@ -94,7 +94,7 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
       }
       else
       {
-         found = SearchForResult(direction, search, count, screen_.PlaylistWindow().ContentSize() + 1);
+         found = SearchForResult(direction, search, count, screen_.ActiveWindow().ContentSize() + 1);
       }
    }
 
@@ -113,7 +113,7 @@ bool Search::SearchForResult(Direction direction,  std::string search, uint32_t 
 
    if (direction == Forwards)
    {
-      for (int32_t i = startLine + 1; ((i <= static_cast<int32_t>(screen_.PlaylistWindow().ContentSize())) && (found == false)); ++i)
+      for (int32_t i = startLine + 1; ((i <= static_cast<int32_t>(screen_.ActiveWindow().ContentSize())) && (found == false)); ++i)
       {
          found = CheckForMatch(search, i, count);
       }
@@ -151,11 +151,12 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
    boost::regex  expression(".*" + search + ".*");
    bool          found     (false);
 
-   std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->PlaylistDescription());
+   //std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->PlaylistDescription());
+   std::string searchPattern(screen_.ActiveWindow().SearchPattern(songId));
 
-   if (boost::regex_match(songDescription.c_str(), expression) == true)
+   if (boost::regex_match(searchPattern.c_str(), expression) == true)
    {
-      screen_.PlaylistWindow().ScrollTo(songId + 1);
+      screen_.ScrollTo(songId + 1);
 
       --count;
       found = (count == 0);

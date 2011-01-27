@@ -38,6 +38,7 @@
 using namespace Mpc;
 
 Client::Client(Ui::Screen const & screen) :
+   firstSong_            (-1),
    connection_           (NULL),
    currentSongHasChanged_(true),
    screen_               (screen)
@@ -46,23 +47,15 @@ Client::Client(Ui::Screen const & screen) :
 
 Client::~Client()
 {
-   // \todo make a function for this
-   if (connection_ != NULL)
-   {
-      mpd_connection_free(connection_);
-      connection_ = NULL;
-   }
+   DeleteConnection();
 }
+
 
 void Client::Connect(std::string const & hostname)
 {
    // \todo needs to take parameters and such properly
    // rather than just using the defaults only
-   if (connection_ != NULL)
-   {
-      mpd_connection_free(connection_);
-      connection_ = NULL;
-   }
+   DeleteConnection();
 
    if (hostname == "")
    {
@@ -82,9 +75,10 @@ void Client::Play(uint32_t const playId)
 {
    if (Connected() == true)
    {
+      uint32_t id = playId + FirstSong();
       currentSongHasChanged_ = true;
 
-      mpd_run_play_id(connection_, playId);
+      mpd_run_play_id(connection_, id);
       CheckError();
    }
 }
@@ -129,12 +123,55 @@ void Client::Stop()
    }
 }
 
-void Client::Random(bool const randomOn)
+void Client::Random(bool const random)
 {
    if (Connected() == true)
    {
-      mpd_run_random(connection_, randomOn);
+      mpd_run_random(connection_, random);
+      CheckError();
+   }
+}
 
+void Client::Single(bool const single)
+{
+   if (Connected() == true)
+   {
+      mpd_run_single(connection_, single);
+      CheckError();
+   }
+}
+
+
+uint32_t Client::Add(Mpc::Song const & song)
+{
+   uint32_t id = 0; 
+
+   if (Connected() == true)
+   {
+      id = mpd_run_add_id(connection_, song.URI().c_str());
+      CheckError();
+
+      screen_.PlaylistWindow().Redraw();
+
+      id -= FirstSong();
+   }
+
+   return id;
+}
+
+void Client::Delete(uint32_t position)
+{
+   if ((Connected() == true) && (TotalNumberOfSongs() > 0))
+   {
+      mpd_run_delete(connection_, position);
+   }
+}
+
+void Client::Clear()
+{
+   if (Connected() == true)
+   {
+      mpd_run_clear(connection_);
       CheckError();
    }
 }
@@ -145,7 +182,6 @@ void Client::Rescan()
    if (Connected() == true)
    {
       mpd_run_rescan(connection_, "/");
-
       CheckError();
    }
 }
@@ -206,6 +242,11 @@ bool Client::Connected() const
 }
 
 
+int32_t Client::FirstSong() const
+{
+   return firstSong_;
+}
+
 int32_t Client::GetCurrentSongId() const
 {
    static int32_t  songId = - 1;
@@ -232,6 +273,7 @@ int32_t Client::GetCurrentSongId() const
          if (currentSong != NULL)
          {
             songId = mpd_song_get_id(currentSong);
+            songId -= FirstSong();
             mpd_song_free(currentSong);
          }
       }
@@ -271,7 +313,7 @@ void Client::DisplaySongInformation()
       if (currentSong != NULL)
       {
          mpd_status * const status = mpd_run_status(connection_);
-         uint32_t const songId     = mpd_song_get_id(currentSong);
+         uint32_t const songId     = mpd_song_get_id(currentSong) - FirstSong();
          uint32_t const duration   = mpd_song_get_duration(currentSong);
          uint32_t const elapsed    = mpd_status_get_elapsed_time(status);
          std::string const artist  = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
@@ -293,13 +335,14 @@ void Client::DisplaySongInformation()
 }
 
 
-Song * Client::CreateSong(mpd_song const * const song) const
+Song * Client::CreateSong(uint32_t id, mpd_song const * const song) const
 {
-   Song * const newSong = new Song(mpd_song_get_id(song) + 1);
+   Song * const newSong = new Song(id);
 
    newSong->SetArtist  (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
    newSong->SetAlbum   (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
    newSong->SetTitle   (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
+   newSong->SetURI     (mpd_song_get_uri(song)); 
    newSong->SetDuration(mpd_song_get_duration(song));
 
    return newSong;
@@ -330,11 +373,22 @@ void Client::CheckError()
 
          if (connection_ != NULL)
          {
-            mpd_connection_free(connection_);
-            connection_ = NULL;
             screen_.PlaylistWindow().Redraw();
             screen_.LibraryWindow().Redraw();
          }
+
+         DeleteConnection();
       }
    }
 }
+
+void Client::DeleteConnection()
+{
+   if (connection_ != NULL)
+   {
+      mpd_connection_free(connection_);
+      connection_ = NULL;
+   }
+}
+
+

@@ -47,17 +47,24 @@ namespace Ui
    public:
       void AddSong(Mpc::Song const * const newSong);
       Mpc::Song const * GetSong(uint32_t songIndex);
+      void RemoveSong(uint32_t count);
 
    public:
       uint32_t GetCurrentSong()     const;
       uint32_t TotalNumberOfSongs() const;
 
    public:
-      void Print(uint32_t line) const;
-      void Confirm();
       void Redraw();
+      void Print(uint32_t line) const;
+      void Left(Ui::Player & player, uint32_t count);
+      void Right(Ui::Player & player, uint32_t count);
+      void Confirm();
+
+   public:
+      std::string SearchPattern(int32_t id) { return GetSong(id)->PlaylistDescription(); }
 
    private:
+      int32_t DetermineSongColour(Mpc::Song const * const nextSong) const;
       void DeleteSongs();
       void Clear();
 

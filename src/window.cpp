@@ -18,6 +18,8 @@
    window.cpp - class representing an ncurses window
    */
 
+#include "attributes.hpp"
+#include "player.hpp"
 #include "window.hpp"
 
 #include <iostream>
@@ -32,6 +34,16 @@ Window::Window(int h, int w, int x, int y) :
 Window::~Window()
 {
    delwin(window_);
+}
+
+void Window::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
+{
+
+}
+
+void Window::Right(UNUSED Ui::Player & player, UNUSED uint32_t count)
+{
+
 }
 
 void Window::Confirm()

@@ -21,6 +21,7 @@
 #ifndef __UI__SCROLLWINDOW
 #define __UI__SCROLLWINDOW
 
+#include "attributes.hpp"
 #include "window.hpp"
 
 namespace Ui
@@ -53,6 +54,9 @@ namespace Ui
    public:
       void SetAutoScroll(bool autoScroll);
       bool AutoScroll() const;
+
+   public:
+      virtual std::string SearchPattern(UNUSED int32_t id) { return ""; }
 
    public:
       uint32_t FirstLine()   const;

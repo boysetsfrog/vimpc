@@ -109,6 +109,8 @@ namespace Ui
       void ScrollTo(Location location, uint32_t line = 0);
 
    public:
+      void Left(Ui::Player & player, uint32_t count);
+      void Right(Ui::Player & player, uint32_t count);
       void Confirm();
       void Clear();
       void Update() const;
@@ -123,6 +125,7 @@ namespace Ui
       void SetActiveWindow(MainWindow window);
       void SetActiveWindow(Skip skip);
       void SetDefaultWindow(MainWindow window);
+      Ui::ScrollWindow   & ActiveWindow() const;
       Ui::ConsoleWindow  & ConsoleWindow() const;
       Ui::LibraryWindow  & LibraryWindow() const; 
       Ui::PlaylistWindow & PlaylistWindow() const; 
@@ -131,9 +134,10 @@ namespace Ui
       static MainWindow GetWindowFromName(std::string const & windowName);
       static std::string GetNameFromWindow(MainWindow window);
 
-   private:
       void Scroll(int32_t count);
       void ScrollTo(uint32_t line);
+
+   private:
       bool WindowsAreInitialised();
 
    private:

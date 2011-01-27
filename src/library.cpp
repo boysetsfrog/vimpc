@@ -24,11 +24,17 @@
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "search.hpp"
+#include "settings.hpp"
 
 #include <algorithm>
+#include <boost/regex.hpp>
 #include <iostream>
 
 using namespace Ui;
+
+//! \todo this entire class needs massive refactoring
+//
+//! \todo the tracks are not sorted properly within the albums
 
 LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (screen),
@@ -43,8 +49,8 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const &
 
 LibraryWindow::~LibraryWindow()
 {
+   Clear();
    delete library_;
-   //! \todo delete the ridiculous amount of newed objects
 }
 
 
@@ -119,6 +125,36 @@ void LibraryWindow::Redraw()
    PopulateBuffer();
 }
 
+
+std::string LibraryWindow::SearchPattern(int32_t id)
+{
+   //! \todo add a search that searches in collapsed songs and
+   //! expands things as necessary
+   std::string pattern("");
+
+   switch (buffer_.at(id)->type_)
+   {
+      case ArtistType:
+         pattern = buffer_.at(id)->artist_;
+         break;
+      
+      case AlbumType:
+         pattern = buffer_.at(id)->album_;
+         break;
+
+      case SongType:
+         pattern = buffer_.at(id)->song_->Title();
+         break;
+
+      default:
+         ASSERT(false);
+         break;
+   }
+
+   return pattern;
+}
+
+
 void LibraryWindow::Expand(uint32_t line)
 {
    if (buffer_.at(line)->expanded_ == false)
@@ -141,7 +177,6 @@ void LibraryWindow::Expand(uint32_t line)
 
          if (it != library_->end())
          {
-
             for (Library::reverse_iterator children = it->second->children_.rbegin(); children != it->second->children_.rend(); ++children)
             {
                position = buffer_.insert(position, &(children->second->libraryEntry_));
@@ -170,6 +205,80 @@ void LibraryWindow::Expand(uint32_t line)
          }
       }
 
+   }
+}
+
+void LibraryWindow::Collapse(uint32_t line)
+{
+   if ((buffer_.at(line)->expanded_ == false) && (buffer_.at(line)->type_ == ArtistType))
+   {
+      Scroll(-1);
+   }
+   else
+   {
+      EntryType endType = SongType;
+
+      if ((buffer_.at(line)->type_ == SongType) || ((buffer_.at(line)->type_ == AlbumType) && (buffer_.at(line)->expanded_ == true)))
+      {
+         while (buffer_.at(line)->type_ == SongType)
+         {
+            --currentSelection_;
+            --line;
+         }
+
+         endType = AlbumType;
+      }
+      else if ((buffer_.at(line)->type_ == AlbumType) || ((buffer_.at(line)->type_ == ArtistType) && (buffer_.at(line)->expanded_ == true)))
+      {
+         while (buffer_.at(line)->type_ != ArtistType)
+         {
+            --currentSelection_;
+            --line;
+         }
+
+         endType = ArtistType;
+      }
+
+      if (buffer_.at(line)->expanded_ == true)
+      {
+         buffer_.at(line)->expanded_ = false;
+      }
+
+      ++line;
+
+      SongBuffer::iterator position = buffer_.begin();
+
+      for (uint32_t i = 0; i < line; ++i)
+      {
+         ++position;
+      }
+
+      if (endType == AlbumType)
+      {
+         while ((position != buffer_.end()) && (buffer_.at(line)->type_ == SongType))
+         {
+            buffer_.at(line)->expanded_ = false;
+            position = buffer_.erase(position);
+         }
+      }
+      else if (endType == ArtistType)
+      {
+         while ((position != buffer_.end()) && ((buffer_.at(line)->type_ == SongType) || (buffer_.at(line)->type_ == AlbumType)))
+         {
+            buffer_.at(line)->expanded_ = false;
+            position = buffer_.erase(position);
+         }
+      }
+
+      if (FirstLine() + screen_.MaxRows() - 1 > BufferSize())
+      {
+         scrollLine_ = BufferSize();
+      }
+
+      if (scrollLine_ > currentSelection_)
+      {
+         ScrollTo(currentSelection_ + 1);
+      }
    }
 }
 
@@ -227,57 +336,213 @@ void LibraryWindow::PopulateBuffer()
 
 void LibraryWindow::Print(uint32_t line) const
 {
+   //! \todo make songs that are currently in the playlist display a different colour?
    static std::string const BlankLine(screen_.MaxColumns(), ' ');
+   static int32_t trackCount = 0;
 
    WINDOW * window = N_WINDOW();
 
-   if (line  < buffer_.size())
+   if (line < buffer_.size())
    {
       uint32_t printLine = (line + FirstLine());
 
-      char expand = (buffer_.at(printLine)->expanded_ == true) ? '-' : '+';
+      int colour = DetermineSongColour(buffer_.at(printLine));
 
       if (printLine == CurrentLine())
       {
+         wattron(window, COLOR_PAIR(colour));
          wattron(window, A_REVERSE);
       }
 
       mvwprintw(window, line, 0, BlankLine.c_str());
 
-      if ((buffer_.at(printLine)->type_ == SongType) && (buffer_.at(printLine)->song_ != NULL))
+      if ((buffer_.at(printLine)->type_ == AlbumType) || (buffer_.at(printLine)->type_ == ArtistType))
       {
-         mvwprintw(window, line, 1, "|   |--- %s", buffer_.at(printLine)->song_->Title().c_str());
-      }
-      else if (buffer_.at(printLine)->type_ == AlbumType)
-      {
-         mvwprintw(window, line, 1, "|--[");
-         if (printLine != CurrentLine()) { wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
-         mvwprintw(window, line, 5, "%c", expand);
-         if (printLine != CurrentLine()) { wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
-         mvwprintw(window, line, 6, "]");
+         trackCount = 0;
+         uint8_t expandCol = 0;
 
-         wattron(window, A_BOLD);
-         mvwprintw(window, line, 8, "%s", buffer_.at(printLine)->album_.c_str());
-         wattroff(window, A_BOLD);
-      }
-      else if (buffer_.at(printLine)->type_ == ArtistType)
-      {
-         mvwprintw(window, line, 0, "[");
-         if (printLine != CurrentLine()) { wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
-         mvwprintw(window, line, 1, "%c", expand);
-         if (printLine != CurrentLine()) { wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); }
-         mvwprintw(window, line, 2, "]");
+         if (buffer_.at(printLine)->type_ == AlbumType)
+         {
+            mvwprintw(window, line, 1, "|--");
+            expandCol = 4;
+         }
          
+         mvwprintw(window, line, expandCol, "[ ]");
+
+         if (printLine != CurrentLine()) 
+         { 
+            wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); 
+         }
+         
+         char expand = (buffer_.at(printLine)->expanded_ == true) ? '-' : '+';
+         mvwprintw(window, line, expandCol + 1, "%c", expand);
+
+         if (printLine != CurrentLine()) 
+         { 
+            wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); 
+         }
+
+         wattron(window, A_BOLD | COLOR_PAIR(colour));
+         wmove(window, line, expandCol + 4);
+
+         if (buffer_.at(printLine)->type_ == ArtistType)
+         {
+            waddstr(window, buffer_.at(printLine)->artist_.c_str());
+         }
+         else if (buffer_.at(printLine)->type_ == AlbumType)
+         {
+            waddstr(window, buffer_.at(printLine)->album_.c_str());
+         }
+
+         wattroff(window, A_BOLD | COLOR_PAIR(colour));
+      }
+      else if ((buffer_.at(printLine)->type_ == SongType) && (buffer_.at(printLine)->song_ != NULL))
+      {
+         trackCount++;
+         mvwprintw(window, line, 1, "|   |-- ");
+
          wattron(window, A_BOLD);
-         mvwprintw(window, line, 4, "%s", buffer_.at(printLine)->artist_.c_str());
+         wprintw(window, "%2d", trackCount);
          wattroff(window, A_BOLD);
+
+         waddstr(window, ". ");
+         wattron(window, COLOR_PAIR(colour));
+
+         std::string title = buffer_.at(printLine)->song_->Title();
+
+         if (title == "Unknown")
+         {
+            title = buffer_.at(printLine)->song_->URI();
+         }
+
+         if (title.length() >= 48)
+         {
+            title  = title.substr(0, 45);
+            title += "...";
+         }
+
+         waddstr(window, title.c_str());
+
+         mvwprintw(window, line, 61, " [");
+         waddstr(window, buffer_.at(printLine)->song_->DurationString().c_str());
+         waddstr(window, "]");
       }
 
-      wattroff(window, A_REVERSE);
+      wattroff(window, A_REVERSE | COLOR_PAIR(colour));
    }
+}
+
+void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
+{
+   Collapse(CurrentLine());
+}
+
+void LibraryWindow::Right(UNUSED Ui::Player & player, UNUSED uint32_t count)
+{
+   Expand(CurrentLine());
+   Scroll(1);
 }
 
 void LibraryWindow::Confirm()
 {
-   Expand(CurrentLine());
+   client_.Clear();
+   
+   int32_t song = AddSongs();
+
+   if (song != -1)
+   {
+      client_.Play(song);
+   }
+}
+
+int32_t LibraryWindow::AddSongs()
+{
+   int32_t firstSong = -1;
+
+   if (buffer_.at(CurrentLine())->type_ == SongType)
+   {
+      if (buffer_.at(CurrentLine())->song_ != NULL)
+      {
+         firstSong = client_.Add(*(buffer_.at(CurrentLine())->song_));
+      }
+   }
+
+   else if (buffer_.at(CurrentLine())->type_ == ArtistType)
+   {
+      std::string searchString = buffer_.at(CurrentLine())->artist_;
+      std::transform(searchString.begin(), searchString.end(),searchString.begin(), ::toupper);
+
+      Library::iterator it = library_->find(searchString);
+
+      Library const * const library = &(it->second->children_);
+
+      for (Library::const_iterator it2 = library->begin(); it2 != library->end(); ++it2)
+      {
+         Library const * const library2 = &(it2->second->children_);
+
+         for (Library::const_iterator it3 = library2->begin(); it3 != library2->end(); ++it3)
+         {
+            int32_t added = client_.Add(*(it3->second->libraryEntry_.song_));
+
+            if (firstSong == -1)
+            {
+               firstSong = added;
+            }
+         }
+      }
+   }
+
+   else if (buffer_.at(CurrentLine())->type_ == AlbumType)
+   {
+      std::string searchString = buffer_.at(CurrentLine())->artist_;
+      std::transform(searchString.begin(), searchString.end(),searchString.begin(), ::toupper);
+
+      std::string searchString2 = buffer_.at(CurrentLine())->album_;
+      std::transform(searchString2.begin(), searchString2.end(), searchString2.begin(), ::toupper);
+
+      Library::iterator it = library_->find(searchString);
+
+      Library const * const library = &(it->second->children_);
+
+      Library::const_iterator it2 = library->find(searchString2);
+
+      Library const * const library2 = &(it2->second->children_);
+
+      for (Library::const_iterator it3 = library2->begin(); it3 != library2->end(); ++it3)
+      {
+         int32_t added = client_.Add(*(it3->second->libraryEntry_.song_));
+
+         if (firstSong == -1)
+         {
+            firstSong = added;
+         }
+      }
+   }
+
+   return firstSong;
+}
+
+int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) const
+{
+   int32_t colour = SONGCOLOUR;
+
+   //! \todo work out how to colour current song
+   //if (nextSong->Id() == GetCurrentSong())
+   //{
+   //   colour = CURRENTSONGCOLOUR;
+   //}
+   //
+   if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+   {
+      boost::regex expression(".*" + search_.LastSearchString() + ".*");
+
+      if (((entry->type_ == ArtistType) && (boost::regex_match(entry->artist_, expression))) ||
+          ((entry->type_ == AlbumType)  && (boost::regex_match(entry->album_,  expression))) ||
+          ((entry->type_ == SongType)   && (boost::regex_match(entry->song_->Title(), expression))))
+      {
+         colour = SONGMATCHCOLOUR;
+      } 
+   }
+
+   return colour;
 }

@@ -48,8 +48,6 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
 {
    STATIC_ASSERT((sizeof(mainWindows_)/sizeof(Window *)) == MainWindowCount);
 
-   // \todo for some reason when i run this
-   // using gnuscreen the cursor doesn't appear?
    initscr();
 
    Ui::Colour::InitialiseColours();
@@ -242,6 +240,17 @@ void Screen::ScrollTo(Location location, uint32_t line)
    ScrollTo(scroll[location]);
 }
 
+
+void Screen::Left(Ui::Player & player, uint32_t count)
+{
+   mainWindows_[window_]->Left(player, count);
+}
+
+void Screen::Right(Ui::Player & player, uint32_t count)
+{
+   mainWindows_[window_]->Right(player, count);
+}
+
 void Screen::Confirm()
 {
    mainWindows_[window_]->Confirm();
@@ -346,6 +355,11 @@ void Screen::SetActiveWindow(Skip skip)
    }
 
    SetActiveWindow(window);
+}
+
+Ui::ScrollWindow & Screen::ActiveWindow() const
+{
+   return assert_reference(mainWindows_[window_]);
 }
 
 Ui::ConsoleWindow & Screen::ConsoleWindow() const

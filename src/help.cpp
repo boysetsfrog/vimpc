@@ -41,10 +41,6 @@ HelpWindow::HelpWindow(Ui::Screen const & screen) :
    ScrollWindow     (screen),
    buffer_          ()
 {
-   // \todo instead of using a help.txt file, may want to add
-   // descriptions for each normal and command mode function
-   // and then just iterate over their handler tables printing them out
-
    LoadHelpFile();
 }
 
@@ -60,8 +56,6 @@ void HelpWindow::Redraw()
 
 void HelpWindow::Print(uint32_t line) const
 {
-   // \todo add specific help file formatting?
-
    WINDOW * window = N_WINDOW();
 
    if ((FirstLine() + line) < buffer_.size())

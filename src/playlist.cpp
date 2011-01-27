@@ -68,6 +68,33 @@ Mpc::Song const * PlaylistWindow::GetSong(uint32_t songIndex)
    return song; 
 }
 
+void PlaylistWindow::RemoveSong(uint32_t count)
+{
+   SongBuffer::iterator it = buffer_.begin(); 
+
+   for (uint32_t id = 0; id != CurrentLine(); ++id)
+   {
+      it++;
+   }
+
+   for(uint32_t i = count; i > 0; --i)
+   {
+      //! \todo delete invalidates the playlist id numbers, this needs to be fixed
+      Mpc::Song const * song = GetSong(CurrentLine());
+
+      client_.Delete(CurrentLine());
+
+      if (it != buffer_.end())
+      {
+         it = buffer_.erase(it);
+      }
+
+      delete song;
+   }
+
+   currentSelection_ = LimitCurrentSelection(currentSelection_);
+}
+
 
 uint32_t PlaylistWindow::GetCurrentSong() const 
 { 
@@ -86,12 +113,110 @@ void PlaylistWindow::Redraw()
    client_.ForEachQueuedSong(*this, &PlaylistWindow::AddSong);
 }
 
-void PlaylistWindow::Clear()
+void PlaylistWindow::Print(uint32_t line) const
 {
-   ScrollTo(0);
+   uint32_t printLine = line + FirstLine();
 
-   DeleteSongs();
-   buffer_.clear();
+   if (printLine < BufferSize())
+   {
+      WINDOW    * window      = N_WINDOW();
+      Mpc::Song * nextSong    = buffer_[printLine];
+      int32_t     colour      = DetermineSongColour(nextSong);
+      
+      wattron(window, COLOR_PAIR(colour) | A_BOLD);
+
+      if (printLine == CurrentLine())
+      {
+         wattron(window, A_REVERSE);
+      }
+      else if (colour != CURRENTSONGCOLOUR)
+      {
+         wattron(window, COLOR_PAIR(SONGCOLOUR));
+      }
+
+      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
+      mvwaddstr(window, line, 0, "[");
+
+      if ((colour != CURRENTSONGCOLOUR) && (printLine != CurrentLine()))
+      {
+         wattron(window, COLOR_PAIR(SONGIDCOLOUR));
+      }
+
+      wprintw(window, "%5d", nextSong->Id());
+
+      if ((colour != CURRENTSONGCOLOUR) && (printLine != CurrentLine()))
+      {
+         wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
+      }
+
+      waddstr(window, "] ");
+
+      if (colour != CURRENTSONGCOLOUR)
+      {
+         wattroff(window, A_BOLD);
+      }
+
+      wattron(window, COLOR_PAIR(colour));
+
+      std::string artist = nextSong->Artist().c_str();
+      std::string title  = nextSong->Title().c_str();
+
+      if (title == "Unknown")
+      {
+         title = nextSong->URI().c_str();
+      }
+
+      wprintw(window, "%s - %s", artist.c_str(), title.c_str());
+
+      if ((colour != CURRENTSONGCOLOUR) && (printLine != CurrentLine()))
+      {
+         wattron(window, COLOR_PAIR(SONGCOLOUR));
+      }
+
+      std::string const durationString(nextSong->DurationString());
+      mvwprintw(window, line, (screen_.MaxColumns() - durationString.size() - 2), "[%s]", durationString.c_str());
+
+      wattroff(window, A_BOLD | A_REVERSE | COLOR_PAIR(colour));
+      wredrawln(window, line, 1);
+   }
+}
+
+void PlaylistWindow::Left(Ui::Player & player, uint32_t count)
+{
+   player.SkipSong(Ui::Player::Previous, count);
+}
+
+void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
+{
+   player.SkipSong(Ui::Player::Next, count);
+}
+
+void PlaylistWindow::Confirm()
+{
+   Mpc::Song const * const song = buffer_.at(CurrentLine());
+   client_.Play(static_cast<uint32_t>(song->Id() - 1));
+}
+
+
+int32_t PlaylistWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
+{
+   int32_t colour = SONGCOLOUR;
+
+   if (nextSong->Id() == GetCurrentSong())
+   {
+      colour = CURRENTSONGCOLOUR;
+   }
+   else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+   {
+      boost::regex expression(".*" + search_.LastSearchString() + ".*");
+
+      if (boost::regex_match(nextSong->PlaylistDescription(), expression))
+      {
+         colour = SONGMATCHCOLOUR;
+      } 
+   }
+
+   return colour;
 }
 
 void PlaylistWindow::DeleteSongs()
@@ -102,97 +227,10 @@ void PlaylistWindow::DeleteSongs()
    }
 }
 
-void PlaylistWindow::Print(uint32_t line) const
+void PlaylistWindow::Clear()
 {
-   uint32_t currentSong = GetCurrentSong();
+   ScrollTo(0);
 
-   WINDOW * window = N_WINDOW();
-
-   if (line + FirstLine() < BufferSize())
-   {
-      Mpc::Song * nextSong = buffer_[line + FirstLine()];
-
-      int32_t colour = SONGCOLOUR;
-
-      std::string const lastSearch(search_.LastSearchString());
-
-      if ((lastSearch != "") && (settings_.HightlightSearch() == true))
-      {
-         boost::regex expression(".*" + lastSearch + ".*");
-
-         if (boost::regex_match(nextSong->PlaylistDescription(), expression))
-         {
-            colour = SONGMATCHCOLOUR;
-         } 
-      }
-
-      if (nextSong->Id() == currentSong)
-      {
-         colour = CURRENTSONGCOLOUR;
-      }
-
-      wattron(window, COLOR_PAIR(colour));
-
-      if (line + FirstLine() == CurrentLine())
-      {
-         wattron(window, A_REVERSE);
-      }
-      else if (colour != CURRENTSONGCOLOUR)
-      {
-         wattron(window, COLOR_PAIR(SONGCOLOUR));
-      }
-
-      wattron(window, A_BOLD);
-      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-      mvwaddstr(window, line, 0, "[");
-
-      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != CurrentLine()))
-      {
-         wattron(window, COLOR_PAIR(SONGIDCOLOUR));
-      }
-
-      wprintw(window, "%5d", nextSong->Id());
-
-      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != CurrentLine()))
-      {
-         wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
-      }
-
-      waddstr(window, "] ");
-
-      wattron(window, COLOR_PAIR(colour));
-
-      // \todo make it reprint the current song when
-      // it changes and is on screen, this also needs to be done
-      // for the status
-      if (colour != CURRENTSONGCOLOUR)
-      {
-         wattroff(window, A_BOLD);
-      }
-
-      std::string const durationString(nextSong->DurationString());
-
-      waddstr(window, nextSong->Artist().c_str());
-      waddstr(window, " - ");
-      waddstr(window, nextSong->Title().c_str());
-
-      if ((colour != CURRENTSONGCOLOUR) && (line + FirstLine() != CurrentLine()))
-      {
-         wattron(window, COLOR_PAIR(SONGCOLOUR));
-         wattroff(window, A_BOLD);
-      }
-
-      wmove(window, line, (screen_.MaxColumns() - durationString.size() - 2));
-      wprintw(window, "[%s]", durationString.c_str());
-
-      wattroff(window, A_BOLD | A_REVERSE);
-      wattroff(window, COLOR_PAIR(colour));
-      wredrawln(window, line, 1);
-   }
+   DeleteSongs();
+   buffer_.clear();
 }
-
-void PlaylistWindow::Confirm()
-{
-   client_.Play(static_cast<uint32_t>(CurrentLine()));
-}
-

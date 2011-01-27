@@ -23,14 +23,18 @@
 
 #include <map>
 
+//! \todo try and reduce the number of headers required
+//!       this is due to the amount of templated functions in this file
 #include "attributes.hpp"
+#include "library.hpp"
 #include "mode.hpp"
 #include "modewindow.hpp"
 #include "player.hpp"
 #include "playlist.hpp"
-#include "search.hpp"
 #include "screen.hpp"
 #include "scrollwindow.hpp"
+#include "search.hpp"
+#include "song.hpp"
 
 namespace Main
 {
@@ -70,8 +74,17 @@ namespace Ui
       bool Stop(uint32_t count);
 
    private:
+      bool Left(uint32_t count);
+      bool Right(uint32_t count);
       bool Confirm(uint32_t count);
       bool RepeatLastAction(uint32_t count);
+
+   private:
+      template <Mpc::Song::SongCollection COLLECTION>
+      bool AddSong(uint32_t count);
+
+      template <Mpc::Song::SongCollection COLLECTION>
+      bool DeleteSong(uint32_t count);
 
    private: //Selecting
       template <ScrollWindow::Position POSITION>
@@ -126,6 +139,30 @@ namespace Ui
       Main::Settings    & settings_;
 
    };
+
+   //Implemenation of library functions
+   template <Mpc::Song::SongCollection COLLECTION>
+   bool Normal::AddSong(uint32_t count)
+   {
+      //! \todo use count to add more than one song
+      //! \todo handle adding all songs
+      (void) count;
+
+      screen_.LibraryWindow().AddSongs();
+      return true;
+   }
+
+   template <Mpc::Song::SongCollection COLLECTION>
+   bool Normal::DeleteSong(uint32_t count)
+   {
+      //! \todo Make delete and add take a movement operation?
+      //!       ie to do stuff like dG, this may require making some kind of movement
+      //!          table or something rather than the way it currently works
+      //! \todo handle deleting all songs
+      screen_.PlaylistWindow().RemoveSong(count);
+      return true;
+   }
+
 
    // \todo this should be implemented using the window
    // somehow

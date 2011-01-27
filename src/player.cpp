@@ -131,7 +131,18 @@ bool Player::SkipSong(Skip skip, uint32_t count)
       directionCount *= -1;
    }
 
-   client_.Play(GetCurrentSong() + directionCount);
+   int32_t song = GetCurrentSong() + directionCount;
+
+   if ((GetCurrentSong() + directionCount) < 0)
+   {
+      song = 0;
+   }
+   else if ((GetCurrentSong() + directionCount) >= client_.TotalNumberOfSongs())
+   {
+      song = client_.TotalNumberOfSongs() - 1;
+   }
+
+   client_.Play(song);
 
    HandleAutoScroll();
 

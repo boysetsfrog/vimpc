@@ -79,7 +79,6 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
 
 bool ScrollWindow::Select(Position position, uint32_t count)
 {
-   // \todo prevent this from affecting things like the console window
    if (position == ScrollWindow::First)
    {
       int32_t scroll = FirstLine() + count;

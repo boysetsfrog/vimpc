@@ -52,7 +52,7 @@ namespace Main
       //! Handle the input using the currently active mode
       bool Handle(int input);
 
-      //! Checks that the each is valid
+      //! Checks that each mode is valid
       //! \todo Possibly template this kind of check?
       bool ModesAreInitialised();
 
