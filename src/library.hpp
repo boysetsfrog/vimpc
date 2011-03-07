@@ -55,30 +55,28 @@ namespace Ui
 
    public:
       void Print(uint32_t line) const;
+
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
-      int32_t AddSongs();
+      int32_t AddSongsToPlaylist(Mpc::Song::SongCollection Collection);
       void Redraw();
 
    public:
       std::string SearchPattern(int32_t id);
 
    private:
+      struct LibraryEntry;
+      typedef std::vector<LibraryEntry *> Library;
+
+   private:
       void Expand(uint32_t line);
       void Collapse(uint32_t line);
       void Clear();
-      void PopulateBuffer();
+      void AddSongsToPlaylist(LibraryEntry const * const entry, int32_t & songToPlay);
 
    private:
       size_t BufferSize() const { return buffer_.size(); }
-
-   private:
-      struct LibraryEntry;
-      struct LibraryHeirachyEntry;
-
-      typedef std::map<std::string, LibraryHeirachyEntry *>  Library;
-      typedef std::vector<LibraryEntry *> SongBuffer;
 
    private:
       int32_t DetermineSongColour(LibraryEntry const * const entry) const;
@@ -99,44 +97,47 @@ namespace Ui
             artist_  (""),
             album_   (""),
             song_    (NULL),
-            expanded_(false)
+            expanded_(false),
+            children_(),
+            parent_  ()
          { }
+
+      public:
+         ~LibraryEntry()
+         {
+            if (expanded_ == false)
+            {
+               for (Library::iterator it = children_.begin(); it != children_.end(); ++it)
+               {
+                  delete *it;
+               }
+            }
+
+            children_.clear();
+
+            delete song_;
+         }
 
       private:
          LibraryEntry(LibraryEntry & entry);
          LibraryEntry & operator=(LibraryEntry & entry);
 
       public:
-         EntryType   type_;
-         std::string artist_;
-         std::string album_;
-         Mpc::Song * song_;
-         bool        expanded_;
+         EntryType      type_;
+         std::string    artist_;
+         std::string    album_;
+         Mpc::Song *    song_;
+         bool           expanded_;
+         Library        children_;
+         LibraryEntry * parent_;
       };
-
-      class LibraryHeirachyEntry
-      {
-      public:
-         LibraryHeirachyEntry() :
-            libraryEntry_(),
-            children_    ()
-         { }
-
-      public:
-         LibraryEntry libraryEntry_;
-         Library      children_;
-      };
-
 
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
 
-      // Maintains the current tree heirachy of the library
-      Library * library_;
-
-      // Used to actually print the entries
-      SongBuffer buffer_;
+      // Maintains the library and used to print
+      Library buffer_;
    };
 }
 

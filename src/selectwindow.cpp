@@ -51,6 +51,11 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
    currentSelection_    = (static_cast<int64_t>(scrollLine - 1));
    currentSelection_    = LimitCurrentSelection(currentSelection_);
 
+   if (scrollLine_ > BufferSize())
+   {
+      scrollLine_ = BufferSize();
+   }
+
    if ((currentSelection_ == scrollLine_) && (currentSelection_ - oldSelection == 1))
    {
       ScrollWindow::Scroll(1);

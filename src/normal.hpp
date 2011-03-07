@@ -148,7 +148,7 @@ namespace Ui
       //! \todo handle adding all songs
       (void) count;
 
-      screen_.LibraryWindow().AddSongs();
+      screen_.LibraryWindow().AddSongsToPlaylist(COLLECTION);
       return true;
    }
 

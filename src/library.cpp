@@ -41,80 +41,73 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const &
    settings_        (settings),
    client_          (client),
    search_          (search),
-   library_         (),
    buffer_          ()
 {
-   library_ = new Library();
 }
 
 LibraryWindow::~LibraryWindow()
 {
    Clear();
-   delete library_;
 }
 
 
-void LibraryWindow::AddSong(Mpc::Song const * const song)
+void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
 {
-   //! \todo could use a massive refactor, there is lots of repeated code here
-   static uint32_t nextSong = 0;
+   static LibraryEntry * LastArtistEntry = NULL;
+   static LibraryEntry * LastAlbumEntry  = NULL;
+   static std::string    LastArtist      = "";
+   static std::string    LastAlbum       = "";
 
    std::string artist = song->Artist();
    std::transform(artist.begin(), artist.end(), artist.begin(), ::toupper);
 
    std::string album = song->Album();
    std::transform(album.begin(), album.end(), album.begin(), ::toupper);
-
-   if (library_->find(artist) == library_->end())
+   
+   if ((LastArtistEntry == NULL) || (LastArtist != artist))
    {
-      nextSong = 0;
+      LibraryEntry * const entry = new LibraryEntry();
 
-      LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
+      entry->expanded_ = false;
+      entry->artist_   = song->Artist();
+      entry->type_     = ArtistType;
+      
+      buffer_.push_back(entry);
 
-      entry->libraryEntry_.artist_   = song->Artist();
-      entry->libraryEntry_.type_     = ArtistType;
-
-      (*library_)[artist] = entry;
+      LastArtistEntry = entry;
+      LastArtist      = artist;
    }
 
-   LibraryHeirachyEntry * const artistEntry = library_->find(artist)->second;
-
-   if (artistEntry->children_.find(album) == artistEntry->children_.end())
+   if ((LastAlbumEntry == NULL) || (LastAlbum != album))
    {
-      nextSong = 0;
+      LibraryEntry * const entry = new LibraryEntry();
 
-      LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
+      entry->expanded_ = false;
+      entry->artist_   = song->Artist();
+      entry->album_    = song->Album();
+      entry->type_     = AlbumType;
+      entry->parent_   = LastArtistEntry;
 
-      entry->libraryEntry_.artist_   = song->Artist();
-      entry->libraryEntry_.album_    = song->Album();
-      entry->libraryEntry_.type_     = AlbumType;
+      LastArtistEntry->children_.push_back(entry);
 
-      artistEntry->children_[album] = entry;
+      LastAlbumEntry = entry;
+      LastAlbum      = album;
    }
 
-
-   LibraryHeirachyEntry * const albumEntry = (artistEntry->children_.find(album))->second;
-
-   if (song != NULL)
+   if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) && (LastArtist == artist) && (LastAlbum == album))
    {
-      char songIdBuffer[32];
+      LibraryEntry * const entry   = new LibraryEntry();
+      Mpc::Song * const    newSong = new Mpc::Song(*song);
 
-      LibraryHeirachyEntry * const entry = new LibraryHeirachyEntry();
-      Mpc::Song * const newSong      = new Mpc::Song(*song);
+      entry->expanded_ = true;
+      entry->artist_   = song->Artist();
+      entry->album_    = song->Album();
+      entry->song_     = newSong;
+      entry->type_     = SongType;
+      entry->parent_   = LastAlbumEntry;
 
-      entry->libraryEntry_.expanded_ = false;
-      entry->libraryEntry_.artist_   = song->Artist();
-      entry->libraryEntry_.album_    = song->Album();
-      entry->libraryEntry_.song_     = newSong;
-      entry->libraryEntry_.type_     = SongType;
-
-      snprintf(songIdBuffer, 32, "%d", nextSong++);
-
-      std::string songId(songIdBuffer);
-
-      albumEntry->children_[songId] = entry;
+      LastAlbumEntry->children_.push_back(entry);
    }
-
 }
 
 
@@ -122,11 +115,10 @@ void LibraryWindow::Redraw()
 {
    Clear();
    client_.ForEachLibrarySong(*this, &LibraryWindow::AddSong);
-   PopulateBuffer();
 }
 
 
-std::string LibraryWindow::SearchPattern(int32_t id)
+std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
 {
    //! \todo add a search that searches in collapsed songs and
    //! expands things as necessary
@@ -155,183 +147,66 @@ std::string LibraryWindow::SearchPattern(int32_t id)
 }
 
 
-void LibraryWindow::Expand(uint32_t line)
+void LibraryWindow::Expand(UNUSED uint32_t line)
 {
    if (buffer_.at(line)->expanded_ == false)
    {
       buffer_.at(line)->expanded_ = true;
 
-      SongBuffer::iterator position = buffer_.begin();
+      Library::iterator position = buffer_.begin();
 
       for (uint32_t i = 0; i <= line; ++i)
       {
          ++position;
       }
 
-      if (buffer_.at(line)->type_ == ArtistType)
+      for (Library::reverse_iterator it = buffer_.at(line)->children_.rbegin(); it != buffer_.at(line)->children_.rend(); ++it)
       {
-         std::string searchString = buffer_.at(line)->artist_;
-         std::transform(searchString.begin(), searchString.end(),searchString.begin(), ::toupper);
-
-         Library::iterator it = library_->find(searchString);
-
-         if (it != library_->end())
-         {
-            for (Library::reverse_iterator children = it->second->children_.rbegin(); children != it->second->children_.rend(); ++children)
-            {
-               position = buffer_.insert(position, &(children->second->libraryEntry_));
-            }
-         }
+         position = buffer_.insert(position, *it);
       }
-      
-      if (buffer_.at(line)->type_ == AlbumType)
-      {
-         std::string searchString = buffer_.at(line)->artist_;
-         std::transform(searchString.begin(), searchString.end(), searchString.begin(), ::toupper);
-
-         std::string searchString2 = buffer_.at(line)->album_;
-         std::transform(searchString2.begin(), searchString2.end(), searchString2.begin(), ::toupper);
-
-         Library::iterator it = library_->find(searchString);
-
-         if (it != library_->end())
-         {
-            Library::iterator it2 = it->second->children_.find(searchString2);
-
-            for (Library::reverse_iterator children = it2->second->children_.rbegin(); children != it2->second->children_.rend(); ++children)
-            {
-               position = buffer_.insert(position, &(children->second->libraryEntry_));
-            }
-         }
-      }
-
    }
 }
 
-void LibraryWindow::Collapse(uint32_t line)
+void LibraryWindow::Collapse(UNUSED uint32_t line)
 {
-   if ((buffer_.at(line)->expanded_ == false) && (buffer_.at(line)->type_ == ArtistType))
+   if ((buffer_.at(line)->expanded_ == true) || (buffer_.at(line)->type_ != ArtistType))
    {
-      Scroll(-1);
+      LibraryEntry * const parent     = buffer_.at(line)->parent_;
+      Library::iterator    position   = buffer_.begin();
+      int                  parentLine = 1;
+
+      parent->expanded_ = false;
+
+      for(; (((*position) != parent) && (position != buffer_.end())); ++position, ++parentLine);
+
+      if (position != buffer_.end())
+      {
+         ++position;
+
+         for (; position != buffer_.end() && (((*position)->parent_ == parent) || (((*position)->parent_ != NULL) && ((*position)->parent_->parent_ == parent)));)
+         {
+            (*position)->expanded_ = false;
+            position = buffer_.erase(position);
+         }
+      }
+
+      ScrollTo(parentLine);
    }
    else
    {
-      EntryType endType = SongType;
-
-      if ((buffer_.at(line)->type_ == SongType) || ((buffer_.at(line)->type_ == AlbumType) && (buffer_.at(line)->expanded_ == true)))
-      {
-         while (buffer_.at(line)->type_ == SongType)
-         {
-            --currentSelection_;
-            --line;
-         }
-
-         endType = AlbumType;
-      }
-      else if ((buffer_.at(line)->type_ == AlbumType) || ((buffer_.at(line)->type_ == ArtistType) && (buffer_.at(line)->expanded_ == true)))
-      {
-         while (buffer_.at(line)->type_ != ArtistType)
-         {
-            --currentSelection_;
-            --line;
-         }
-
-         endType = ArtistType;
-      }
-
-      if (buffer_.at(line)->expanded_ == true)
-      {
-         buffer_.at(line)->expanded_ = false;
-      }
-
-      ++line;
-
-      SongBuffer::iterator position = buffer_.begin();
-
-      for (uint32_t i = 0; i < line; ++i)
-      {
-         ++position;
-      }
-
-      if (endType == AlbumType)
-      {
-         while ((position != buffer_.end()) && (buffer_.at(line)->type_ == SongType))
-         {
-            buffer_.at(line)->expanded_ = false;
-            position = buffer_.erase(position);
-         }
-      }
-      else if (endType == ArtistType)
-      {
-         while ((position != buffer_.end()) && ((buffer_.at(line)->type_ == SongType) || (buffer_.at(line)->type_ == AlbumType)))
-         {
-            buffer_.at(line)->expanded_ = false;
-            position = buffer_.erase(position);
-         }
-      }
-
-      if (FirstLine() + screen_.MaxRows() - 1 > BufferSize())
-      {
-         scrollLine_ = BufferSize();
-      }
-
-      if (scrollLine_ > currentSelection_)
-      {
-         ScrollTo(currentSelection_ + 1);
-      }
+      Scroll(-1);
    }
 }
 
 void LibraryWindow::Clear()
 {
+   //! \todo this may cause problems if deleted when expanded!
+   for (Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
+   {
+      delete *it;
+   }
+
    buffer_.clear();
-
-   for (Library::iterator it = library_->begin(); it != library_->end(); ++it)
-   {
-      for (Library::iterator it2 = it->second->children_.begin(); it2 != it->second->children_.end(); ++it2)
-      {
-         for (Library::iterator it3 = it2->second->children_.begin(); it3 != it2->second->children_.end(); ++it3)
-         {
-            delete it3->second->libraryEntry_.song_;
-            delete it3->second;
-         }
-
-         it2->second->children_.clear();
-         delete it2->second;
-      }
-      
-      it->second->children_.clear();
-      delete it->second;
-   }
-
-   library_->clear();
-
-}
-
-void LibraryWindow::PopulateBuffer()
-{
-   //! \todo try and make this a bit more efficient, two data structures is a bit dodgy
-   //        and will almost certainly be quite slow
-   for (Library::iterator artistIt = library_->begin(); artistIt != library_->end(); ++artistIt)
-   {
-      buffer_.insert(buffer_.end(), &(artistIt->second->libraryEntry_)); 
-
-      if (artistIt->second->libraryEntry_.expanded_ == true)
-      {
-         for (Library::iterator albumIt = artistIt->second->children_.begin(); albumIt != artistIt->second->children_.end(); ++albumIt)
-         {
-            buffer_.insert(buffer_.end(), &(albumIt->second->libraryEntry_)); 
-
-            if (albumIt->second->libraryEntry_.expanded_ == true)
-            {
-               for (Library::iterator songIt = albumIt->second->children_.begin(); songIt != albumIt->second->children_.end(); ++songIt)
-               {
-                  buffer_.insert(buffer_.end(), &(songIt->second->libraryEntry_)); 
-               }
-            }
-         }
-      }
-   }
 }
 
 void LibraryWindow::Print(uint32_t line) const
@@ -342,7 +217,7 @@ void LibraryWindow::Print(uint32_t line) const
 
    WINDOW * window = N_WINDOW();
 
-   if (line < buffer_.size())
+   if ((line + FirstLine()) < BufferSize())
    {
       uint32_t printLine = (line + FirstLine());
 
@@ -447,7 +322,7 @@ void LibraryWindow::Confirm()
 {
    client_.Clear();
    
-   int32_t song = AddSongs();
+   int32_t song = AddSongsToPlaylist(Mpc::Song::Single);
 
    if (song != -1)
    {
@@ -455,71 +330,46 @@ void LibraryWindow::Confirm()
    }
 }
 
-int32_t LibraryWindow::AddSongs()
+int32_t LibraryWindow::AddSongsToPlaylist(Mpc::Song::SongCollection Collection)
 {
-   int32_t firstSong = -1;
+   int32_t songToPlay = -1;
 
-   if (buffer_.at(CurrentLine())->type_ == SongType)
+   if (Collection == Mpc::Song::Single)
    {
-      if (buffer_.at(CurrentLine())->song_ != NULL)
-      {
-         firstSong = client_.Add(*(buffer_.at(CurrentLine())->song_));
-      }
+      AddSongsToPlaylist(buffer_.at(CurrentLine()), songToPlay);
    }
-
-   else if (buffer_.at(CurrentLine())->type_ == ArtistType)
+   else
    {
-      std::string searchString = buffer_.at(CurrentLine())->artist_;
-      std::transform(searchString.begin(), searchString.end(),searchString.begin(), ::toupper);
-
-      Library::iterator it = library_->find(searchString);
-
-      Library const * const library = &(it->second->children_);
-
-      for (Library::const_iterator it2 = library->begin(); it2 != library->end(); ++it2)
+      for (Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
       {
-         Library const * const library2 = &(it2->second->children_);
-
-         for (Library::const_iterator it3 = library2->begin(); it3 != library2->end(); ++it3)
+         if ((*it)->type_ == ArtistType)
          {
-            int32_t added = client_.Add(*(it3->second->libraryEntry_.song_));
-
-            if (firstSong == -1)
-            {
-               firstSong = added;
-            }
+            AddSongsToPlaylist((*it), songToPlay);
          }
       }
    }
 
-   else if (buffer_.at(CurrentLine())->type_ == AlbumType)
+   return songToPlay;
+}
+
+void LibraryWindow::AddSongsToPlaylist(LibraryEntry const * const entry, int32_t & songToPlay)
+{
+   if ((entry->type_ == SongType) && (entry->song_ != NULL))
    {
-      std::string searchString = buffer_.at(CurrentLine())->artist_;
-      std::transform(searchString.begin(), searchString.end(),searchString.begin(), ::toupper);
+       int32_t const songAdded = client_.Add(*(entry->song_));
 
-      std::string searchString2 = buffer_.at(CurrentLine())->album_;
-      std::transform(searchString2.begin(), searchString2.end(), searchString2.begin(), ::toupper);
-
-      Library::iterator it = library_->find(searchString);
-
-      Library const * const library = &(it->second->children_);
-
-      Library::const_iterator it2 = library->find(searchString2);
-
-      Library const * const library2 = &(it2->second->children_);
-
-      for (Library::const_iterator it3 = library2->begin(); it3 != library2->end(); ++it3)
+       if (songToPlay == -1)
+       {
+          songToPlay = songAdded;
+       }
+   }
+   else 
+   {
+      for (Library::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
-         int32_t added = client_.Add(*(it3->second->libraryEntry_.song_));
-
-         if (firstSong == -1)
-         {
-            firstSong = added;
-         }
+         AddSongsToPlaylist((*it), songToPlay);
       }
    }
-
-   return firstSong;
 }
 
 int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) const

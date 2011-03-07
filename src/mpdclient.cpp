@@ -312,12 +312,12 @@ void Client::DisplaySongInformation()
 
       if (currentSong != NULL)
       {
-         mpd_status * const status = mpd_run_status(connection_);
-         uint32_t const songId     = mpd_song_get_id(currentSong) - FirstSong();
-         uint32_t const duration   = mpd_song_get_duration(currentSong);
-         uint32_t const elapsed    = mpd_status_get_elapsed_time(status);
-         std::string const artist  = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
-         std::string const title   = mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
+         mpd_status * const status   = mpd_run_status(connection_);
+         uint32_t     const songId   = mpd_song_get_id(currentSong) - FirstSong();
+         uint32_t     const duration = mpd_song_get_duration(currentSong);
+         uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
+         std::string  const artist   = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
+         std::string  const title    = mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
 
          screen_.SetStatusLine("[%5u] %s - %s", songId + 1, artist.c_str(), title.c_str());
          screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]", 
