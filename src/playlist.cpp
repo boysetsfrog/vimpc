@@ -110,12 +110,14 @@ uint32_t PlaylistWindow::TotalNumberOfSongs() const
 void PlaylistWindow::Redraw()
 {
    uint16_t currentLine = CurrentLine();
+   uint16_t scrollLine  = ScrollLine();
 
    Clear();
 
    client_.ForEachQueuedSong(*this, &PlaylistWindow::AddSong);
 
-   SelectWindow::ScrollTo(++currentLine);
+   SetScrollLine(scrollLine);
+   ScrollTo(++currentLine);
 }
 
 void PlaylistWindow::Print(uint32_t line) const
