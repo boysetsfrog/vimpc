@@ -234,7 +234,7 @@ void Screen::ScrollTo(Location location, uint32_t line)
 
    if (window_ == Playlist)
    {
-      scroll[Current] = PlaylistWindow().GetCurrentSong(); 
+      scroll[Current] = PlaylistWindow().GetCurrentSong() + 1; 
    }
 
    ScrollTo(scroll[location]);

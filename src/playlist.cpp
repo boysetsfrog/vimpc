@@ -98,7 +98,7 @@ void PlaylistWindow::RemoveSong(uint32_t count)
 
 uint32_t PlaylistWindow::GetCurrentSong() const 
 { 
-   return client_.GetCurrentSongId() + 1;
+   return client_.GetCurrentSong();
 }
 
 uint32_t PlaylistWindow::TotalNumberOfSongs() const 
@@ -109,8 +109,13 @@ uint32_t PlaylistWindow::TotalNumberOfSongs() const
 
 void PlaylistWindow::Redraw()
 {
+   uint16_t currentLine = CurrentLine();
+
    Clear();
+
    client_.ForEachQueuedSong(*this, &PlaylistWindow::AddSong);
+
+   ScrollTo(++currentLine);
 }
 
 void PlaylistWindow::Print(uint32_t line) const
@@ -121,7 +126,7 @@ void PlaylistWindow::Print(uint32_t line) const
    {
       WINDOW    * window      = N_WINDOW();
       Mpc::Song * nextSong    = buffer_[printLine];
-      int32_t     colour      = DetermineSongColour(nextSong);
+      int32_t     colour      = DetermineSongColour(line + FirstLine(), nextSong);
       
       wattron(window, COLOR_PAIR(colour) | A_BOLD);
 
@@ -198,11 +203,11 @@ void PlaylistWindow::Confirm()
 }
 
 
-int32_t PlaylistWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
+int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const
 {
    int32_t colour = SONGCOLOUR;
 
-   if (nextSong->Id() == GetCurrentSong())
+   if (line == GetCurrentSong())
    {
       colour = CURRENTSONGCOLOUR;
    }

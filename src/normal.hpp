@@ -160,6 +160,7 @@ namespace Ui
       //!          table or something rather than the way it currently works
       //! \todo handle deleting all songs
       screen_.PlaylistWindow().RemoveSong(count);
+      Player::Redraw();
       return true;
    }
 

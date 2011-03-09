@@ -164,7 +164,7 @@ bool Player::SkipArtist(Skip skip, uint32_t count)
 
 uint32_t Player::GetCurrentSong() const
 {
-   return client_.GetCurrentSongId();
+   return client_.GetCurrentSong();
 }
 
 
@@ -245,7 +245,6 @@ void Player::HandleAutoScroll()
    {
       screen_.ScrollTo(Screen::Current);
    }
-
 }
 
 

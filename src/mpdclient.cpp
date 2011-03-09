@@ -38,7 +38,6 @@
 using namespace Mpc;
 
 Client::Client(Ui::Screen const & screen) :
-   firstSong_            (-1),
    connection_           (NULL),
    currentSongHasChanged_(true),
    screen_               (screen)
@@ -75,10 +74,10 @@ void Client::Play(uint32_t const playId)
 {
    if (Connected() == true)
    {
-      uint32_t id = playId + FirstSong();
+      uint32_t id = playId;
       currentSongHasChanged_ = true;
 
-      mpd_run_play_id(connection_, id);
+      mpd_run_play_pos(connection_, id);
       CheckError();
    }
 }
@@ -144,19 +143,15 @@ void Client::Single(bool const single)
 
 uint32_t Client::Add(Mpc::Song const & song)
 {
-   uint32_t id = 0; 
-
    if (Connected() == true)
    {
-      id = mpd_run_add_id(connection_, song.URI().c_str());
+      mpd_run_add(connection_, song.URI().c_str());
       CheckError();
 
       screen_.PlaylistWindow().Redraw();
-
-      id -= FirstSong();
    }
 
-   return id;
+   return TotalNumberOfSongs() - 1;
 }
 
 void Client::Delete(uint32_t position)
@@ -242,41 +237,15 @@ bool Client::Connected() const
 }
 
 
-int32_t Client::FirstSong() const
+int32_t Client::GetCurrentSong() const
 {
-   return firstSong_;
-}
+   static int32_t  songId = -1;
 
-int32_t Client::GetCurrentSongId() const
-{
-   static int32_t  songId = - 1;
-   static struct   timeval start;
+   mpd_song * currentSong = mpd_run_current_song(connection_);
 
-   struct timeval current;
-
-   gettimeofday(&current, NULL);
-
-   long const seconds  = current.tv_sec  - start.tv_sec;
-   long const useconds = current.tv_usec - start.tv_usec;
-   long const time     = (seconds * 1000 + (useconds/1000.0)) + 0.5;
-
-   if ((time > 500) || (songId == -1) || (currentSongHasChanged_ == true))
+   if (currentSong != NULL)
    {
-      currentSongHasChanged_ = false;
-
-      if (Connected() == true)
-      {
-         gettimeofday(&start, NULL);
-
-         mpd_song * currentSong = mpd_run_current_song(connection_);
-
-         if (currentSong != NULL)
-         {
-            songId = mpd_song_get_id(currentSong);
-            songId -= FirstSong();
-            mpd_song_free(currentSong);
-         }
-      }
+      songId = mpd_song_get_pos(currentSong);
    }
 
    return songId;
@@ -313,13 +282,12 @@ void Client::DisplaySongInformation()
       if (currentSong != NULL)
       {
          mpd_status * const status   = mpd_run_status(connection_);
-         uint32_t     const songId   = mpd_song_get_id(currentSong) - FirstSong();
          uint32_t     const duration = mpd_song_get_duration(currentSong);
          uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
          std::string  const artist   = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
          std::string  const title    = mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
 
-         screen_.SetStatusLine("[%5u] %s - %s", songId + 1, artist.c_str(), title.c_str());
+         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
          screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]", 
                                SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
                                SecondsToMinutes(duration), RemainingSeconds(duration));

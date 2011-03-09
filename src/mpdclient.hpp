@@ -69,8 +69,7 @@ namespace Mpc
       bool Connected() const;
 
    public:
-      int32_t  FirstSong() const;
-      int32_t  GetCurrentSongId() const;
+      int32_t  GetCurrentSong() const;
       uint32_t TotalNumberOfSongs();
 
    public:
@@ -95,8 +94,6 @@ namespace Mpc
       void DeleteConnection();
 
    private:
-      int32_t firstSong_;
-
       struct mpd_connection * connection_;
       bool mutable currentSongHasChanged_;
       Ui::Screen      const & screen_;
@@ -107,7 +104,6 @@ namespace Mpc
    void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Song const * const))
    {
       uint32_t id = 0;
-      firstSong_  = -1;
 
       if (Connected() == true)
       {
@@ -118,11 +114,6 @@ namespace Mpc
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
             Song const * const newSong = CreateSong(++id, nextSong);
-
-            if (firstSong_ == -1)
-            {
-               firstSong_ = mpd_song_get_id(nextSong);
-            }
 
             (object.*callBack)(newSong);
 
