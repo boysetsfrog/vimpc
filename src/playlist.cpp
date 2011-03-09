@@ -115,7 +115,7 @@ void PlaylistWindow::Redraw()
 
    client_.ForEachQueuedSong(*this, &PlaylistWindow::AddSong);
 
-   ScrollTo(++currentLine);
+   SelectWindow::ScrollTo(++currentLine);
 }
 
 void PlaylistWindow::Print(uint32_t line) const
