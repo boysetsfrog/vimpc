@@ -52,9 +52,7 @@ bool Player::ClearScreen()
 
 bool Player::Connect(std::string const & host, UNUSED uint32_t port)
 {
-   // \todo handle port properly
-   client_.Connect(host);
-   //client_.Connect(host, port);
+   client_.Connect(host, port);
 
    return true;
 }
@@ -84,10 +82,21 @@ bool Player::Quit()
    return false;
 }
 
+bool Player::ToggleRandom()
+{
+   Random(!GetRandom());
+   return true;
+}
+
 bool Player::Random(bool random)
 {
    client_.Random(random);
    return true;
+}
+
+bool Player::GetRandom()
+{
+   return client_.GetRandom();
 }
 
 bool Player::Redraw()

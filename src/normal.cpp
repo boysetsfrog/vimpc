@@ -49,13 +49,13 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // \todo figure out how to do alt + ctrl key combinations
    // for things like Ctrl+u and alt+1
 
-   // \todo display current count somewhere
+   // \todo display current count somewhere ?
    actionTable_['.']       = &Normal::RepeatLastAction;
    actionTable_['c']       = &Normal::ClearScreen;
 
    // Player
    actionTable_['p']       = &Normal::Pause;
-   //actionTable_['r']       = &Normal::Random; // \todo add back once i can be bothered toggling this properly
+   actionTable_['r']       = &Normal::Random;
    actionTable_['s']       = &Normal::Stop;
 
    //! \todo make it so these can be used to navigate the library
@@ -208,7 +208,7 @@ bool Normal::Pause(UNUSED uint32_t count)
 
 bool Normal::Random(UNUSED uint32_t count)
 { 
-   return Player::Random(true);
+   return Player::ToggleRandom();
 }
 
 bool Normal::Stop(UNUSED uint32_t count)

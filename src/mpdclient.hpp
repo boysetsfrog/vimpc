@@ -44,7 +44,10 @@ namespace Mpc
       Client & operator=(Client & client);
 
    public:
-      void Connect(std::string const & hostname = "");
+      bool GetRandom();
+
+   public:
+      void Connect(std::string const & hostname = "localhost", uint16_t port = 0);
       void Play(uint32_t playId);
       void Pause();
       void Next();
@@ -69,6 +72,7 @@ namespace Mpc
       bool Connected() const;
 
    public:
+      std::string GetCurrentSongURI() const;
       int32_t  GetCurrentSong() const;
       uint32_t TotalNumberOfSongs();
 
@@ -127,8 +131,6 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const))
    {
-      uint32_t id = 0;
-
       if (Connected() == true)
       {
          mpd_send_list_all_meta(connection_, "/");
@@ -143,7 +145,8 @@ namespace Mpc
 
                if (nextSong != NULL)
                {
-                  Song const * const newSong = CreateSong(++id, nextSong);
+                  //! \todo do i need any kind of id parameter?
+                  Song const * const newSong = CreateSong(0, nextSong);
 
                   (object.*callBack)(newSong);
 

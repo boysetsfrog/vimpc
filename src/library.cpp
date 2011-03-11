@@ -32,8 +32,6 @@
 
 using namespace Ui;
 
-//! \todo this entire class needs massive refactoring
-//
 //! \todo the tracks are not sorted properly within the albums
 
 LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
@@ -200,7 +198,6 @@ void LibraryWindow::Collapse(UNUSED uint32_t line)
 
 void LibraryWindow::Clear()
 {
-   //! \todo this may cause problems if deleted when expanded!
    for (Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
    {
       delete *it;
@@ -278,7 +275,11 @@ void LibraryWindow::Print(uint32_t line) const
 
          wattron(window, A_BOLD);
          wprintw(window, "%2d", trackCount);
-         wattroff(window, A_BOLD);
+
+         if (colour != CURRENTSONGCOLOUR)
+         {
+            wattroff(window, A_BOLD);
+         }
 
          waddstr(window, ". ");
          wattron(window, COLOR_PAIR(colour));
@@ -377,11 +378,11 @@ int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) con
    int32_t colour = SONGCOLOUR;
 
    //! \todo work out how to colour current song
-   //if (nextSong->Id() == GetCurrentSong())
-   //{
-   //   colour = CURRENTSONGCOLOUR;
-   //}
-   //
+   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+   {
+      colour = CURRENTSONGCOLOUR;
+   }
+   
    if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
       boost::regex expression(".*" + search_.LastSearchString() + ".*");

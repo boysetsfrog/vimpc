@@ -156,7 +156,11 @@ bool Command::ClearScreen(UNUSED std::string const & arguments)
 
 bool Command::Connect(std::string const & arguments) 
 { 
-   return Player::Connect(arguments);
+   size_t pos = arguments.find_first_of(" ");
+   std::string hostname = arguments.substr(0, pos);
+   std::string port     = arguments.substr(pos + 1);
+
+   return Player::Connect(hostname, std::atoi(port.c_str()));
 }
 
 bool Command::Pause(UNUSED std::string const & arguments)

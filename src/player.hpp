@@ -78,8 +78,14 @@ namespace Ui
       //! Quits the program
       bool Quit();
 
+      //! Toggles random on or off
+      bool ToggleRandom();
+
       //! Disables/Enables random functionality
       bool Random(bool random);
+
+      //! Get the current random state
+      bool GetRandom();
 
       //! Redraws the current window
       bool Redraw();

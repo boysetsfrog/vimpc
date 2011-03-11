@@ -50,20 +50,21 @@ Client::~Client()
 }
 
 
-void Client::Connect(std::string const & hostname)
+bool Client::GetRandom()
+{
+   mpd_status * status = mpd_run_status(connection_);
+
+   return mpd_status_get_random(status);
+}
+
+
+void Client::Connect(std::string const & hostname, uint16_t port)
 {
    // \todo needs to take parameters and such properly
    // rather than just using the defaults only
    DeleteConnection();
 
-   if (hostname == "")
-   {
-      connection_ = mpd_connection_new("localhost", 0, 0);
-   }
-   else
-   {
-      connection_ = mpd_connection_new(hostname.c_str(), 0, 0);
-   }
+   connection_ = mpd_connection_new(hostname.c_str(), port, 0);
 
    screen_.PlaylistWindow().Redraw();
    screen_.LibraryWindow().Redraw();
@@ -236,19 +237,33 @@ bool Client::Connected() const
    return (connection_ != NULL);
 }
 
-
-int32_t Client::GetCurrentSong() const
+std::string Client::GetCurrentSongURI() const
 {
-   static int32_t  songId = -1;
+   std::string song;
 
    mpd_song * currentSong = mpd_run_current_song(connection_);
 
    if (currentSong != NULL)
    {
-      songId = mpd_song_get_pos(currentSong);
+      song = mpd_song_get_uri(currentSong);
    }
 
-   return songId;
+   return song;
+}
+
+//! \todo rename to GetCurrentSongPos
+int32_t Client::GetCurrentSong() const
+{
+   static int32_t song = -1;
+
+   mpd_song * currentSong = mpd_run_current_song(connection_);
+
+   if (currentSong != NULL)
+   {
+      song = mpd_song_get_pos(currentSong);
+   }
+
+   return song;
 }
 
 uint32_t Client::TotalNumberOfSongs()

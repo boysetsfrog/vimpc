@@ -40,7 +40,8 @@ Song::Song(Song const & song) :
    title_    (song.Title()),
    uri_      (song.URI()),
    duration_ (song.Duration())
-{ }
+{ 
+}
 
 Song::~Song()
 { }
