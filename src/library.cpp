@@ -239,11 +239,12 @@ void LibraryWindow::Print(uint32_t line) const
             expandCol = 4;
          }
          
+         wattron(window, A_BOLD); 
          mvwprintw(window, line, expandCol, "[ ]");
 
          if (printLine != CurrentLine()) 
          { 
-            wattron(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); 
+            wattron(window, COLOR_PAIR(REDONDEFAULT)); 
          }
          
          char expand = (buffer_.at(printLine)->expanded_ == true) ? '-' : '+';
@@ -251,10 +252,11 @@ void LibraryWindow::Print(uint32_t line) const
 
          if (printLine != CurrentLine()) 
          { 
-            wattroff(window, COLOR_PAIR(REDONDEFAULT) | A_BOLD); 
+            wattroff(window, COLOR_PAIR(REDONDEFAULT)); 
          }
 
-         wattron(window, A_BOLD | COLOR_PAIR(colour));
+         wattroff(window, A_BOLD);
+         wattron(window, COLOR_PAIR(colour));
          wmove(window, line, expandCol + 4);
 
          if (buffer_.at(printLine)->type_ == ArtistType)
@@ -266,7 +268,7 @@ void LibraryWindow::Print(uint32_t line) const
             waddstr(window, buffer_.at(printLine)->album_.c_str());
          }
 
-         wattroff(window, A_BOLD | COLOR_PAIR(colour));
+         wattroff(window, COLOR_PAIR(colour));
       }
       else if ((buffer_.at(printLine)->type_ == SongType) && (buffer_.at(printLine)->song_ != NULL))
       {
