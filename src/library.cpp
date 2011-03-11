@@ -304,7 +304,7 @@ void LibraryWindow::Print(uint32_t line) const
          waddstr(window, "]");
       }
 
-      wattroff(window, A_REVERSE | COLOR_PAIR(colour));
+      wattroff(window, A_BOLD | A_REVERSE | COLOR_PAIR(colour));
    }
 }
 
