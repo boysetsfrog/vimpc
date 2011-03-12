@@ -77,6 +77,9 @@ namespace Mpc
       uint32_t TotalNumberOfSongs();
 
    public:
+      bool SongIsInQueue(Mpc::Song & song) const;
+
+   public:
       void DisplaySongInformation();
 
    public:
@@ -145,8 +148,8 @@ namespace Mpc
 
                if (nextSong != NULL)
                {
-                  //! \todo do i need any kind of id parameter?
-                  Song const * const newSong = CreateSong(0, nextSong);
+                  uint32_t const id = mpd_song_get_id(nextSong);
+                  Song const * const newSong = CreateSong(id, nextSong);
 
                   (object.*callBack)(newSong);
 

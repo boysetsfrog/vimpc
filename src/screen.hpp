@@ -62,8 +62,8 @@ namespace Ui
       {
          Help = 0,
          Console,
-         Playlist,
          Library,
+         Playlist,
          MainWindowCount
       } MainWindow;
    

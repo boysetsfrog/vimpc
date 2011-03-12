@@ -70,8 +70,8 @@ namespace Ui
       bool RepeatLastAction(uint32_t count);
 
    private:
-      bool ToggleExpand(uint32_t count);
       bool Expand(uint32_t count);
+      bool Collapse(uint32_t count);
 
    private:
       template <Mpc::Song::SongCollection COLLECTION>

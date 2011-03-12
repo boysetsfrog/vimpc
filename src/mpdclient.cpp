@@ -286,6 +286,36 @@ uint32_t Client::TotalNumberOfSongs()
    return songTotal;
 }
 
+
+bool Client::SongIsInQueue(Mpc::Song & song) const
+{
+   //! \todo need to find a better way to do this
+   //! this will surely be waaaay too intensive over a network
+   mpd_search_queue_songs(connection_, true);
+   mpd_search_add_uri_constraint(connection_, MPD_OPERATOR_DEFAULT, song.URI().c_str());
+   mpd_search_commit(connection_);
+
+   mpd_connection_clear_error(connection_);
+
+   mpd_song * mpdSong = NULL;
+
+   bool matchingSong = false;
+   
+   do 
+   {
+      mpdSong = mpd_recv_song(connection_);
+
+      if (mpdSong != NULL)
+      {
+         matchingSong = true;
+         mpd_song_free(mpdSong);
+      }
+   } while (mpdSong != NULL);
+
+   return matchingSong;
+}
+
+
 void Client::DisplaySongInformation()
 {
    // \todo should cache this information

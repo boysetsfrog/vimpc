@@ -59,6 +59,12 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['r']       = &Normal::Random;
    actionTable_['s']       = &Normal::Stop;
 
+   // Console
+   // \todo add an "insert" mode to console that just stays in command entry mode
+   //actionTable_['i']       = &Normal::Insert;
+
+   //! \todo z should really be used to changed the scroll location ala vim
+
    //! \todo make it so these can be used to navigate the library
    // Skipping
    actionTable_['x']       = &Normal::SkipArtist<Player::Next>;
@@ -105,7 +111,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_UP]    = actionTable_['k'];
 
    // Library
-   actionTable_['o']       = &Normal::ToggleExpand;
+   actionTable_['o']       = &Normal::Expand;
+   actionTable_['u']       = &Normal::Collapse;
 
    // Jumping
    jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
@@ -251,13 +258,19 @@ bool Normal::RepeatLastAction(uint32_t count)
    return true;
 }
 
-bool Normal::ToggleExpand(UNUSED uint32_t count)
+bool Normal::Expand(UNUSED uint32_t count)
 {
-   screen_.LibraryWindow().ToggleExpand(screen_.LibraryWindow().CurrentLine());
+   screen_.LibraryWindow().Expand(screen_.LibraryWindow().CurrentLine());
 
    return true;
 }
 
+bool Normal::Collapse(UNUSED uint32_t count)
+{
+   screen_.LibraryWindow().Collapse(screen_.LibraryWindow().CurrentLine());
+
+   return true;
+}
 
 // Implementation of library actions
 //

@@ -63,7 +63,6 @@ namespace Ui
       void Redraw();
 
    public:
-      void ToggleExpand(uint32_t line);
       void Expand(uint32_t line);
       void Collapse(uint32_t line);
 

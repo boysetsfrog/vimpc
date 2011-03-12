@@ -159,22 +159,9 @@ void LibraryWindow::Redraw()
    }
 }
 
-void LibraryWindow::ToggleExpand(uint32_t line)
-{
-   if (((buffer_.at(line)->parent_ == NULL) || (buffer_.at(line)->parent_->expanded_ == false)) && (buffer_.at(line)->type_ != SongType))
-   {
-      Expand(line);
-   }
-   else
-   {
-      Collapse(line);
-   }
-}
-
-
 void LibraryWindow::Expand(uint32_t line)
 {
-   if (buffer_.at(line)->expanded_ == false)
+   if ((buffer_.at(line)->expanded_ == false) && (buffer_.at(line)->type_ != SongType))
    {
       buffer_.at(line)->expanded_ = true;
 
@@ -217,7 +204,7 @@ void LibraryWindow::Collapse(uint32_t line)
 
          for (; position != buffer_.end() && (((*position)->parent_ == parent) || (((*position)->parent_ != NULL) && ((*position)->parent_->parent_ == parent)));)
          {
-            (*position)->expanded_ = false;
+            //(*position)->expanded_ = false;
             position = buffer_.erase(position);
          }
       }
@@ -458,12 +445,6 @@ int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) con
 {
    int32_t colour = SONGCOLOUR;
 
-   //! \todo work out how to colour current song
-   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
-   {
-      colour = CURRENTSONGCOLOUR;
-   }
-   
    if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
       boost::regex expression(".*" + search_.LastSearchString() + ".*");
@@ -474,6 +455,45 @@ int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) con
       {
          colour = SONGMATCHCOLOUR;
       } 
+   }
+
+   //! \todo this needs to be dramatically improved in speed it really is a PoC at the moment
+   //        and is way to slow to be usable in anyway
+#ifdef __DEBUG_PRINTS
+   if ((entry->type_ == SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
+   {
+      colour = GREENONDEFAULT;
+   }
+   else if ((entry->type_ != SongType) && (entry->children_.size() > 0))
+   {
+      Library::const_iterator it = entry->children_.begin();
+
+      unsigned int count = 0;
+
+      for (; (it != entry->children_.end()); ++it)
+      {
+         int32_t newColour = DetermineSongColour(*it);
+
+         if ((newColour == GREENONDEFAULT) || (newColour == CURRENTSONGCOLOUR) || (newColour == CYANONDEFAULT))
+         {
+            if ((newColour == GREENONDEFAULT) || (newColour == CURRENTSONGCOLOUR))
+            {
+               count++;
+            }
+            colour = CYANONDEFAULT;
+         }
+      }
+
+      if (count == entry->children_.size())
+      {
+         colour = GREENONDEFAULT;
+      }
+   }
+#endif
+   
+   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+   {
+      colour = CURRENTSONGCOLOUR;
    }
 
    return colour;
