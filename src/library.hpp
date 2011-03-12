@@ -106,6 +106,17 @@ namespace Ui
          { }
 
       public:
+         struct LibraryEntryComparator 
+         {
+            bool operator() (LibraryEntry * i, LibraryEntry * j) { return (*i<*j);}
+         };
+
+         bool operator<(LibraryEntry const & rhs)
+         {
+            return ((artist_ < rhs.artist_) || (album_ < rhs.album_));
+         }
+
+      public:
          ~LibraryEntry()
          {
             if (expanded_ == false)
@@ -135,7 +146,7 @@ namespace Ui
          LibraryEntry * parent_;
       };
 
-      Main::Settings const & settings_;
+            Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
 

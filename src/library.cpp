@@ -144,11 +144,19 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
    }
 }
 
-
 void LibraryWindow::Redraw()
 {
    Clear();
    client_.ForEachLibrarySong(*this, &LibraryWindow::AddSong);
+
+   LibraryEntry::LibraryEntryComparator Comparator;
+
+   std::sort(buffer_.begin(), buffer_.end(), Comparator);
+
+   for (Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
+   {
+      std::sort((*it)->children_.begin(), (*it)->children_.end(), Comparator);
+   }
 }
 
 void LibraryWindow::ToggleExpand(uint32_t line)
