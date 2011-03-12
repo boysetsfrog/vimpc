@@ -96,18 +96,36 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
 
    if ((LastAlbumEntry == NULL) || (LastAlbum != album))
    {
-      LibraryEntry * const entry = new LibraryEntry();
+      LibraryEntry * entry = NULL;
 
-      entry->expanded_ = false;
-      entry->artist_   = song->Artist();
-      entry->album_    = song->Album();
-      entry->type_     = AlbumType;
-      entry->parent_   = LastArtistEntry;
+      for (Library::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
+      {
+         std::string currentAlbum = (*it)->album_;
+         std::transform(currentAlbum.begin(), currentAlbum.end(), currentAlbum.begin(), ::toupper);
 
-      LastArtistEntry->children_.push_back(entry);
+         if (currentAlbum == album)
+         {
+            entry           = (*it);
+            LastAlbumEntry  = entry;
+            LastAlbum       = currentAlbum;
+         }
+      }
 
-      LastAlbumEntry = entry;
-      LastAlbum      = album;
+      if (entry == NULL)
+      {
+         entry = new LibraryEntry();
+
+         entry->expanded_ = false;
+         entry->artist_   = song->Artist();
+         entry->album_    = song->Album();
+         entry->type_     = AlbumType;
+         entry->parent_   = LastArtistEntry;
+
+         LastArtistEntry->children_.push_back(entry);
+
+         LastAlbumEntry = entry;
+         LastAlbum      = album;
+      }
    }
 
    if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) && (LastArtist == artist) && (LastAlbum == album))
