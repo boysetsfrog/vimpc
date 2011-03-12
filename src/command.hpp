@@ -24,10 +24,8 @@
 #include <string>
 #include <map>
 
-#include "attributes.hpp"
 #include "inputmode.hpp"
 #include "player.hpp"
-#include "screen.hpp"
 
 namespace Main
 {
@@ -145,22 +143,6 @@ namespace Ui
       };
    };
 
-   //Implementation of skipping functions
-   template <Ui::Player::Skip SKIP>
-   bool Command::SkipSong(std::string const & arguments)
-   {
-      uint32_t count = atoi(arguments.c_str());
-      count = (count == 0) ? 1 : count;
-      return Player::SkipSong(SKIP, count);
    }
-
-   //Implementation of window change function
-   template <Ui::Screen::MainWindow MAINWINDOW>
-   bool Command::SetActiveWindow(UNUSED std::string const & arguments)
-   {
-      return Player::SetActiveWindow(MAINWINDOW);
-   }
-
-}
 
 #endif
