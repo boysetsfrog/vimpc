@@ -63,6 +63,11 @@ namespace Ui
       void Redraw();
 
    public:
+      void ToggleExpand(uint32_t line);
+      void Expand(uint32_t line);
+      void Collapse(uint32_t line);
+
+   public:
       std::string SearchPattern(int32_t id);
 
    private:
@@ -70,8 +75,6 @@ namespace Ui
       typedef std::vector<LibraryEntry *> Library;
 
    private:
-      void Expand(uint32_t line);
-      void Collapse(uint32_t line);
       void Clear();
       void AddSongsToPlaylist(LibraryEntry const * const entry, int32_t & songToPlay);
 

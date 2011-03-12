@@ -64,16 +64,34 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
    
    if ((LastArtistEntry == NULL) || (LastArtist != artist))
    {
-      LibraryEntry * const entry = new LibraryEntry();
+      LibraryEntry * entry = NULL;
 
-      entry->expanded_ = false;
-      entry->artist_   = song->Artist();
-      entry->type_     = ArtistType;
-      
-      buffer_.push_back(entry);
+      for (Library::iterator it = buffer_.begin(); ((it != buffer_.end()) && (entry == NULL)); ++it)
+      {
+         std::string currentArtist = (*it)->artist_;
+         std::transform(currentArtist.begin(), currentArtist.end(), currentArtist.begin(), ::toupper);
 
-      LastArtistEntry = entry;
-      LastArtist      = artist;
+         if (currentArtist == artist)
+         {
+            entry           = (*it);
+            LastArtistEntry = entry;
+            LastArtist      = currentArtist;
+         }
+      }
+
+      if (entry == NULL)
+      {
+         entry = new LibraryEntry();
+
+         entry->expanded_ = false;
+         entry->artist_   = song->Artist();
+         entry->type_     = ArtistType;
+         
+         buffer_.push_back(entry);
+
+         LastArtistEntry = entry;
+         LastArtist      = artist;
+      }
    }
 
    if ((LastAlbumEntry == NULL) || (LastAlbum != album))
@@ -115,6 +133,79 @@ void LibraryWindow::Redraw()
    client_.ForEachLibrarySong(*this, &LibraryWindow::AddSong);
 }
 
+void LibraryWindow::ToggleExpand(uint32_t line)
+{
+   if (((buffer_.at(line)->parent_ == NULL) || (buffer_.at(line)->parent_->expanded_ == false)) && (buffer_.at(line)->type_ != SongType))
+   {
+      Expand(line);
+   }
+   else
+   {
+      Collapse(line);
+   }
+}
+
+
+void LibraryWindow::Expand(uint32_t line)
+{
+   if (buffer_.at(line)->expanded_ == false)
+   {
+      buffer_.at(line)->expanded_ = true;
+
+      Library::iterator position = buffer_.begin();
+
+      for (uint32_t i = 0; i <= line; ++i)
+      {
+         ++position;
+      }
+
+      for (Library::reverse_iterator it = buffer_.at(line)->children_.rbegin(); it != buffer_.at(line)->children_.rend(); ++it)
+      {
+         position = buffer_.insert(position, *it);
+      }
+   }
+
+   Scroll(1);
+}
+
+void LibraryWindow::Collapse(uint32_t line)
+{
+   if ((buffer_.at(line)->expanded_ == true) || (buffer_.at(line)->type_ != ArtistType))
+   {
+      LibraryEntry *       parent     = buffer_.at(line);
+      Library::iterator    position   = buffer_.begin();
+      int                  parentLine = 1;
+
+      if ((buffer_.at(line)->expanded_ == false) || (buffer_.at(line)->type_ == SongType))
+      {
+         parent = buffer_.at(line)->parent_;
+      }
+
+      parent->expanded_ = false;
+
+      for(; (((*position) != parent) && (position != buffer_.end())); ++position, ++parentLine);
+
+      if (position != buffer_.end())
+      {
+         ++position;
+
+         for (; position != buffer_.end() && (((*position)->parent_ == parent) || (((*position)->parent_ != NULL) && ((*position)->parent_->parent_ == parent)));)
+         {
+            (*position)->expanded_ = false;
+            position = buffer_.erase(position);
+         }
+      }
+
+      ScrollTo(parentLine);
+   }
+   else
+   {
+      Scroll(-1);
+   }
+}
+
+
+
 
 std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
 {
@@ -144,57 +235,6 @@ std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
    return pattern;
 }
 
-
-void LibraryWindow::Expand(UNUSED uint32_t line)
-{
-   if (buffer_.at(line)->expanded_ == false)
-   {
-      buffer_.at(line)->expanded_ = true;
-
-      Library::iterator position = buffer_.begin();
-
-      for (uint32_t i = 0; i <= line; ++i)
-      {
-         ++position;
-      }
-
-      for (Library::reverse_iterator it = buffer_.at(line)->children_.rbegin(); it != buffer_.at(line)->children_.rend(); ++it)
-      {
-         position = buffer_.insert(position, *it);
-      }
-   }
-}
-
-void LibraryWindow::Collapse(UNUSED uint32_t line)
-{
-   if ((buffer_.at(line)->expanded_ == true) || (buffer_.at(line)->type_ != ArtistType))
-   {
-      LibraryEntry * const parent     = buffer_.at(line)->parent_;
-      Library::iterator    position   = buffer_.begin();
-      int                  parentLine = 1;
-
-      parent->expanded_ = false;
-
-      for(; (((*position) != parent) && (position != buffer_.end())); ++position, ++parentLine);
-
-      if (position != buffer_.end())
-      {
-         ++position;
-
-         for (; position != buffer_.end() && (((*position)->parent_ == parent) || (((*position)->parent_ != NULL) && ((*position)->parent_->parent_ == parent)));)
-         {
-            (*position)->expanded_ = false;
-            position = buffer_.erase(position);
-         }
-      }
-
-      ScrollTo(parentLine);
-   }
-   else
-   {
-      Scroll(-1);
-   }
-}
 
 void LibraryWindow::Clear()
 {
@@ -273,17 +313,31 @@ void LibraryWindow::Print(uint32_t line) const
       else if ((buffer_.at(printLine)->type_ == SongType) && (buffer_.at(printLine)->song_ != NULL))
       {
          trackCount++;
-         mvwprintw(window, line, 1, "|   |-- ");
+         mvwprintw(window, line, 1, "|   |--");
 
          wattron(window, A_BOLD);
-         wprintw(window, "%2d", trackCount);
+         wprintw(window, "[");
+
+         if (printLine != CurrentLine()) 
+         {
+            wattron(window, COLOR_PAIR(REDONDEFAULT)); 
+         }
+
+         wprintw(window, "%2d" , trackCount);
+
+         if (printLine != CurrentLine()) 
+         {
+            wattroff(window, COLOR_PAIR(REDONDEFAULT)); 
+         }
+         
+         wprintw(window, "]");
 
          if (colour != CURRENTSONGCOLOUR)
          {
             wattroff(window, A_BOLD);
          }
 
-         waddstr(window, ". ");
+         waddstr(window, " ");
          wattron(window, COLOR_PAIR(colour));
 
          std::string title = buffer_.at(printLine)->song_->Title();
@@ -318,7 +372,6 @@ void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
 void LibraryWindow::Right(UNUSED Ui::Player & player, UNUSED uint32_t count)
 {
    Expand(CurrentLine());
-   Scroll(1);
 }
 
 void LibraryWindow::Confirm()

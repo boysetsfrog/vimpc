@@ -22,7 +22,6 @@
 
 #include <algorithm>
 #include <boost/regex.hpp>
-#include <iostream>
 #include <sstream>
 
 #include "assert.hpp"

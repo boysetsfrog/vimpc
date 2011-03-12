@@ -70,6 +70,10 @@ namespace Ui
       bool RepeatLastAction(uint32_t count);
 
    private:
+      bool ToggleExpand(uint32_t count);
+      bool Expand(uint32_t count);
+
+   private:
       template <Mpc::Song::SongCollection COLLECTION>
       bool AddSong(uint32_t count);
 
@@ -112,21 +116,23 @@ namespace Ui
       void DisplayModeLine();
 
    private:
-      ModeWindow *  window_;
-      uint32_t      actionCount_;
-      int32_t       lastAction_;
-      uint32_t      lastActionCount_;
-      bool          wasSpecificCount_;
-
       typedef bool (Ui::Normal::*ptrToMember)(uint32_t);
       typedef std::map<int, ptrToMember> ActionTable;
-      ActionTable   actionTable_;
-      ActionTable   jumpTable_;
 
-      Ui::Search        & search_;
-      Ui::Screen        & screen_;
-      Mpc::Client       & client_;
-      Main::Settings    & settings_;
+   private:
+      ModeWindow *     window_;
+      uint32_t         actionCount_;
+      int32_t          lastAction_;
+      uint32_t         lastActionCount_;
+      bool             wasSpecificCount_;
+
+      ActionTable      actionTable_;
+      ActionTable      jumpTable_;
+
+      Ui::Search     & search_;
+      Ui::Screen     & screen_;
+      Mpc::Client    & client_;
+      Main::Settings & settings_;
 
    };
 

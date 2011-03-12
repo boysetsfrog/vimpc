@@ -104,6 +104,9 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_DOWN]  = actionTable_['j'];
    actionTable_[KEY_UP]    = actionTable_['k'];
 
+   // Library
+   actionTable_['o']       = &Normal::ToggleExpand;
+
    // Jumping
    jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
    jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next>;
@@ -248,8 +251,17 @@ bool Normal::RepeatLastAction(uint32_t count)
    return true;
 }
 
+bool Normal::ToggleExpand(UNUSED uint32_t count)
+{
+   screen_.LibraryWindow().ToggleExpand(screen_.LibraryWindow().CurrentLine());
+
+   return true;
+}
+
 
 // Implementation of library actions
+//
+// \todo this should be implemented using the window somehow
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {
@@ -405,8 +417,3 @@ void Normal::DisplayModeLine()
 
    window_->SetLine("%s%s%s", currentState.c_str(),  blankLine.c_str(), modeLine.c_str());
 }
-
-
-// \todo this should be implemented using the window somehow
-
-
