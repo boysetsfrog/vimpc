@@ -23,6 +23,8 @@
 
 #include <mpd/client.h>
 
+#include "library.hpp"
+#include "screen.hpp"
 #include "song.hpp"
 
 namespace Ui
@@ -57,7 +59,7 @@ namespace Mpc
       void Single(bool single);
 
    public: //Queue
-      uint32_t Add(Mpc::Song const & song);
+      uint32_t Add(Mpc::Song & song);
       void Delete(uint32_t position);
       void Clear();
 
@@ -84,7 +86,7 @@ namespace Mpc
 
    public:
       template <typename Object>
-      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Song const * const));
+      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Song * const));
 
       template <typename Object>
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const));
@@ -108,10 +110,8 @@ namespace Mpc
 
    //
    template <typename Object>
-   void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Song const * const))
+   void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Song * const))
    {
-      uint32_t id = 0;
-
       if (Connected() == true)
       {
          mpd_send_list_queue_meta(connection_);
@@ -120,9 +120,15 @@ namespace Mpc
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            Song const * const newSong = CreateSong(++id, nextSong);
+            uint32_t const     position = mpd_song_get_pos(nextSong);
+            Song const * const newSong  = CreateSong(position, nextSong);
+            Song * const       oldSong  = screen_.LibraryWindow().FindSong(newSong);
 
-            (object.*callBack)(newSong);
+            if (oldSong != NULL)
+            {
+               oldSong->IncrementReference();
+               (object.*callBack)(oldSong);
+            }
 
             mpd_song_free(nextSong);
             delete newSong;
@@ -148,8 +154,7 @@ namespace Mpc
 
                if (nextSong != NULL)
                {
-                  uint32_t const id = mpd_song_get_id(nextSong);
-                  Song const * const newSong = CreateSong(id, nextSong);
+                  Song const * const newSong = CreateSong(-1, nextSong);
 
                   (object.*callBack)(newSong);
 

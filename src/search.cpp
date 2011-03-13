@@ -156,7 +156,7 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
 
    if (boost::regex_match(searchPattern.c_str(), expression) == true)
    {
-      screen_.ScrollTo(songId + 1);
+      screen_.ScrollTo(songId);
 
       --count;
       found = (count == 0);

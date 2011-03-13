@@ -66,8 +66,8 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    connection_ = mpd_connection_new(hostname.c_str(), port, 0);
 
-   screen_.PlaylistWindow().Redraw();
    screen_.LibraryWindow().Redraw();
+   screen_.PlaylistWindow().Redraw();
    CheckError();
 }
 
@@ -142,14 +142,19 @@ void Client::Single(bool const single)
 }
 
 
-uint32_t Client::Add(Mpc::Song const & song)
+uint32_t Client::Add(Mpc::Song & song)
 {
+   int32_t position = screen_.PlaylistWindow().Playlist().size();
+
    if (Connected() == true)
    {
       mpd_run_add(connection_, song.URI().c_str());
-      CheckError();
 
-      screen_.PlaylistWindow().Redraw();
+      song.IncrementReference();
+
+      screen_.PlaylistWindow().AddSong(&song, position);
+
+      CheckError();
    }
 
    return TotalNumberOfSongs() - 1;
@@ -286,33 +291,9 @@ uint32_t Client::TotalNumberOfSongs()
    return songTotal;
 }
 
-
 bool Client::SongIsInQueue(Mpc::Song & song) const
 {
-   //! \todo need to find a better way to do this
-   //! this will surely be waaaay too intensive over a network
-   mpd_search_queue_songs(connection_, true);
-   mpd_search_add_uri_constraint(connection_, MPD_OPERATOR_DEFAULT, song.URI().c_str());
-   mpd_search_commit(connection_);
-
-   mpd_connection_clear_error(connection_);
-
-   mpd_song * mpdSong = NULL;
-
-   bool matchingSong = false;
-   
-   do 
-   {
-      mpdSong = mpd_recv_song(connection_);
-
-      if (mpdSong != NULL)
-      {
-         matchingSong = true;
-         mpd_song_free(mpdSong);
-      }
-   } while (mpdSong != NULL);
-
-   return matchingSong;
+   return (song.Reference() != 0);
 }
 
 
@@ -348,9 +329,9 @@ void Client::DisplaySongInformation()
 }
 
 
-Song * Client::CreateSong(uint32_t id, mpd_song const * const song) const
+Song * Client::CreateSong(UNUSED uint32_t id, mpd_song const * const song) const
 {
-   Song * const newSong = new Song(id);
+   Song * const newSong = new Song();
 
    newSong->SetArtist  (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
    newSong->SetAlbum   (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));

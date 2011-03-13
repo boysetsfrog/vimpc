@@ -31,6 +31,7 @@ namespace Main
 
 namespace Mpc
 {
+   typedef std::vector<Song * > Playlist;
    class Client;
 }
 
@@ -45,7 +46,9 @@ namespace Ui
       ~PlaylistWindow();
 
    public:
-      void AddSong(Mpc::Song const * const newSong);
+      void AddSong(Mpc::Song * const song);
+      void AddSong(Mpc::Song * const song, uint32_t position);
+
       Mpc::Song const * GetSong(uint32_t songIndex);
       void RemoveSong(uint32_t count);
 
@@ -59,6 +62,9 @@ namespace Ui
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
+
+   public:
+      Mpc::Playlist Playlist() { return buffer_; }
 
    public:
       std::string SearchPattern(int32_t id) { return GetSong(id)->PlaylistDescription(); }
@@ -76,8 +82,7 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
 
-      typedef std::vector<Mpc::Song *> SongBuffer;
-      SongBuffer buffer_;
+      Mpc::Playlist buffer_;
    };
 }
 

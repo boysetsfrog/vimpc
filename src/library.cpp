@@ -22,6 +22,7 @@
 
 #include "colour.hpp"
 #include "mpdclient.hpp"
+#include "playlist.hpp"
 #include "screen.hpp"
 #include "search.hpp"
 #include "settings.hpp"
@@ -49,10 +50,10 @@ LibraryWindow::~LibraryWindow()
 }
 
 
-void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
+void LibraryWindow::AddSong(Mpc::Song const * const song)
 {
-   static LibraryEntry * LastArtistEntry = NULL;
-   static LibraryEntry * LastAlbumEntry  = NULL;
+   static Mpc::LibraryEntry * LastArtistEntry = NULL;
+   static Mpc::LibraryEntry * LastAlbumEntry  = NULL;
    static std::string    LastArtist      = "";
    static std::string    LastAlbum       = "";
 
@@ -64,9 +65,12 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
    
    if ((LastArtistEntry == NULL) || (LastArtist != artist))
    {
-      LibraryEntry * entry = NULL;
+      Mpc::LibraryEntry * entry = NULL;
 
-      for (Library::iterator it = buffer_.begin(); ((it != buffer_.end()) && (entry == NULL)); ++it)
+      LastAlbumEntry  = NULL;
+      LastAlbum       = "";
+
+      for (Mpc::Library::iterator it = buffer_.begin(); ((it != buffer_.end()) && (entry == NULL)); ++it)
       {
          std::string currentArtist = (*it)->artist_;
          std::transform(currentArtist.begin(), currentArtist.end(), currentArtist.begin(), ::toupper);
@@ -81,11 +85,11 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
 
       if (entry == NULL)
       {
-         entry = new LibraryEntry();
+         entry = new Mpc::LibraryEntry();
 
          entry->expanded_ = false;
          entry->artist_   = song->Artist();
-         entry->type_     = ArtistType;
+         entry->type_     = Mpc::ArtistType;
          
          buffer_.push_back(entry);
 
@@ -96,9 +100,9 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
 
    if ((LastAlbumEntry == NULL) || (LastAlbum != album))
    {
-      LibraryEntry * entry = NULL;
+      Mpc::LibraryEntry * entry = NULL;
 
-      for (Library::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
+      for (Mpc::Library::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
       {
          std::string currentAlbum = (*it)->album_;
          std::transform(currentAlbum.begin(), currentAlbum.end(), currentAlbum.begin(), ::toupper);
@@ -113,12 +117,12 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
 
       if (entry == NULL)
       {
-         entry = new LibraryEntry();
+         entry = new Mpc::LibraryEntry();
 
          entry->expanded_ = false;
          entry->artist_   = song->Artist();
          entry->album_    = song->Album();
-         entry->type_     = AlbumType;
+         entry->type_     = Mpc::AlbumType;
          entry->parent_   = LastArtistEntry;
 
          LastArtistEntry->children_.push_back(entry);
@@ -130,30 +134,89 @@ void LibraryWindow::AddSong(UNUSED Mpc::Song const * const song)
 
    if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) && (LastArtist == artist) && (LastAlbum == album))
    {
-      LibraryEntry * const entry   = new LibraryEntry();
+      Mpc::LibraryEntry * const entry   = new Mpc::LibraryEntry();
       Mpc::Song * const    newSong = new Mpc::Song(*song);
 
       entry->expanded_ = true;
       entry->artist_   = song->Artist();
       entry->album_    = song->Album();
       entry->song_     = newSong;
-      entry->type_     = SongType;
+      entry->type_     = Mpc::SongType;
       entry->parent_   = LastAlbumEntry;
 
       LastAlbumEntry->children_.push_back(entry);
    }
 }
 
+
+Mpc::Song * LibraryWindow::FindSong(Mpc::Song const * const song)
+{
+   std::string artist = song->Artist();
+   std::transform(artist.begin(), artist.end(), artist.begin(), ::toupper);
+
+   std::string album = song->Album();
+   std::transform(album.begin(), album.end(), album.begin(), ::toupper);
+
+   Mpc::LibraryEntry * artistEntry = NULL;
+   Mpc::LibraryEntry * albumEntry  = NULL;
+   
+   for (Mpc::Library::iterator it = buffer_.begin(); ((it != buffer_.end()) && (artistEntry == NULL)); ++it)
+   {
+      std::string currentArtist = (*it)->artist_;
+      std::transform(currentArtist.begin(), currentArtist.end(), currentArtist.begin(), ::toupper);
+
+      if (currentArtist == artist)
+      {
+         artistEntry = (*it);
+      }
+   }
+
+   if (artistEntry != NULL)
+   {
+      for (Mpc::Library::iterator it = artistEntry->children_.begin(); ((it != artistEntry->children_.end()) && (albumEntry == NULL)); ++it)
+      {
+         std::string currentAlbum = (*it)->album_;
+         std::transform(currentAlbum.begin(), currentAlbum.end(), currentAlbum.begin(), ::toupper);
+
+         if (currentAlbum == album)
+         {
+            albumEntry = (*it);
+         }
+      }
+   }
+
+   if (albumEntry != NULL)
+   {
+      for (Mpc::Library::iterator it = albumEntry->children_.begin(); (it != albumEntry->children_.end()); ++it)
+      {
+         if (*(*it)->song_ == *song)
+         {
+            return (*it)->song_;
+         }
+      }
+   }
+
+   if (albumEntry != NULL)
+   {
+      std::cout << "FOUND ALBUM" << std::endl;
+   }
+
+   std::cout << "huh?" << std::endl;
+
+   return NULL;
+}
+
+
 void LibraryWindow::Redraw()
 {
    Clear();
    client_.ForEachLibrarySong(*this, &LibraryWindow::AddSong);
 
-   LibraryEntry::LibraryEntryComparator Comparator;
+   Mpc::LibraryEntry::LibraryEntryComparator Comparator;
 
    std::sort(buffer_.begin(), buffer_.end(), Comparator);
 
-   for (Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
+   for (Mpc::Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
    {
       std::sort((*it)->children_.begin(), (*it)->children_.end(), Comparator);
    }
@@ -161,18 +224,18 @@ void LibraryWindow::Redraw()
 
 void LibraryWindow::Expand(uint32_t line)
 {
-   if ((buffer_.at(line)->expanded_ == false) && (buffer_.at(line)->type_ != SongType))
+   if ((buffer_.at(line)->expanded_ == false) && (buffer_.at(line)->type_ != Mpc::SongType))
    {
       buffer_.at(line)->expanded_ = true;
 
-      Library::iterator position = buffer_.begin();
+      Mpc::Library::iterator position = buffer_.begin();
 
       for (uint32_t i = 0; i <= line; ++i)
       {
          ++position;
       }
 
-      for (Library::reverse_iterator it = buffer_.at(line)->children_.rbegin(); it != buffer_.at(line)->children_.rend(); ++it)
+      for (Mpc::Library::reverse_iterator it = buffer_.at(line)->children_.rbegin(); it != buffer_.at(line)->children_.rend(); ++it)
       {
          position = buffer_.insert(position, *it);
       }
@@ -183,13 +246,13 @@ void LibraryWindow::Expand(uint32_t line)
 
 void LibraryWindow::Collapse(uint32_t line)
 {
-   if ((buffer_.at(line)->expanded_ == true) || (buffer_.at(line)->type_ != ArtistType))
+   if ((buffer_.at(line)->expanded_ == true) || (buffer_.at(line)->type_ != Mpc::ArtistType))
    {
-      LibraryEntry *       parent     = buffer_.at(line);
-      Library::iterator    position   = buffer_.begin();
-      int                  parentLine = 1;
+      Mpc::LibraryEntry *     parent     = buffer_.at(line);
+      Mpc::Library::iterator  position   = buffer_.begin();
+      int                     parentLine = 0;
 
-      if ((buffer_.at(line)->expanded_ == false) || (buffer_.at(line)->type_ == SongType))
+      if ((buffer_.at(line)->expanded_ == false) || (buffer_.at(line)->type_ == Mpc::SongType))
       {
          parent = buffer_.at(line)->parent_;
       }
@@ -204,7 +267,7 @@ void LibraryWindow::Collapse(uint32_t line)
 
          for (; position != buffer_.end() && (((*position)->parent_ == parent) || (((*position)->parent_ != NULL) && ((*position)->parent_->parent_ == parent)));)
          {
-            //(*position)->expanded_ = false;
+            (*position)->expanded_ = false;
             position = buffer_.erase(position);
          }
       }
@@ -228,15 +291,15 @@ std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
 
    switch (buffer_.at(id)->type_)
    {
-      case ArtistType:
+      case Mpc::ArtistType:
          pattern = buffer_.at(id)->artist_;
          break;
       
-      case AlbumType:
+      case Mpc::AlbumType:
          pattern = buffer_.at(id)->album_;
          break;
 
-      case SongType:
+      case Mpc::SongType:
          pattern = buffer_.at(id)->song_->Title();
          break;
 
@@ -251,7 +314,7 @@ std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
 
 void LibraryWindow::Clear()
 {
-   for (Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
+   for (Mpc::Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
    {
       delete *it;
    }
@@ -281,12 +344,12 @@ void LibraryWindow::Print(uint32_t line) const
 
       mvwprintw(window, line, 0, BlankLine.c_str());
 
-      if ((buffer_.at(printLine)->type_ == AlbumType) || (buffer_.at(printLine)->type_ == ArtistType))
+      if ((buffer_.at(printLine)->type_ == Mpc::AlbumType) || (buffer_.at(printLine)->type_ == Mpc::ArtistType))
       {
          trackCount = 0;
          uint8_t expandCol = 0;
 
-         if (buffer_.at(printLine)->type_ == AlbumType)
+         if (buffer_.at(printLine)->type_ == Mpc::AlbumType)
          {
             mvwprintw(window, line, 1, "|--");
             expandCol = 4;
@@ -312,18 +375,18 @@ void LibraryWindow::Print(uint32_t line) const
          wattron(window, COLOR_PAIR(colour));
          wmove(window, line, expandCol + 4);
 
-         if (buffer_.at(printLine)->type_ == ArtistType)
+         if (buffer_.at(printLine)->type_ == Mpc::ArtistType)
          {
             waddstr(window, buffer_.at(printLine)->artist_.c_str());
          }
-         else if (buffer_.at(printLine)->type_ == AlbumType)
+         else if (buffer_.at(printLine)->type_ == Mpc::AlbumType)
          {
             waddstr(window, buffer_.at(printLine)->album_.c_str());
          }
 
          wattroff(window, COLOR_PAIR(colour));
       }
-      else if ((buffer_.at(printLine)->type_ == SongType) && (buffer_.at(printLine)->song_ != NULL))
+      else if ((buffer_.at(printLine)->type_ == Mpc::SongType) && (buffer_.at(printLine)->song_ != NULL))
       {
          trackCount++;
          mvwprintw(window, line, 1, "|   |--");
@@ -409,9 +472,9 @@ int32_t LibraryWindow::AddSongsToPlaylist(Mpc::Song::SongCollection Collection)
    }
    else
    {
-      for (Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
+      for (Mpc::Library::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
       {
-         if ((*it)->type_ == ArtistType)
+         if ((*it)->type_ == Mpc::ArtistType)
          {
             AddSongsToPlaylist((*it), songToPlay);
          }
@@ -421,9 +484,9 @@ int32_t LibraryWindow::AddSongsToPlaylist(Mpc::Song::SongCollection Collection)
    return songToPlay;
 }
 
-void LibraryWindow::AddSongsToPlaylist(LibraryEntry const * const entry, int32_t & songToPlay)
+void LibraryWindow::AddSongsToPlaylist(Mpc::LibraryEntry const * const entry, int32_t & songToPlay)
 {
-   if ((entry->type_ == SongType) && (entry->song_ != NULL))
+   if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
        int32_t const songAdded = client_.Add(*(entry->song_));
 
@@ -434,14 +497,14 @@ void LibraryWindow::AddSongsToPlaylist(LibraryEntry const * const entry, int32_t
    }
    else 
    {
-      for (Library::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
+      for (Mpc::Library::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
          AddSongsToPlaylist((*it), songToPlay);
       }
    }
 }
 
-int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) const
+int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry) const
 {
    int32_t colour = SONGCOLOUR;
 
@@ -449,9 +512,9 @@ int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) con
    {
       boost::regex expression(".*" + search_.LastSearchString() + ".*");
 
-      if (((entry->type_ == ArtistType) && (boost::regex_match(entry->artist_, expression))) ||
-          ((entry->type_ == AlbumType)  && (boost::regex_match(entry->album_,  expression))) ||
-          ((entry->type_ == SongType)   && (boost::regex_match(entry->song_->Title(), expression))))
+      if (((entry->type_ == Mpc::ArtistType) && (boost::regex_match(entry->artist_, expression))) ||
+          ((entry->type_ == Mpc::AlbumType)  && (boost::regex_match(entry->album_,  expression))) ||
+          ((entry->type_ == Mpc::SongType)   && (boost::regex_match(entry->song_->Title(), expression))))
       {
          colour = SONGMATCHCOLOUR;
       } 
@@ -460,13 +523,13 @@ int32_t LibraryWindow::DetermineSongColour(LibraryEntry const * const entry) con
    //! \todo this needs to be dramatically improved in speed it really is a PoC at the moment
    //        and is way to slow to be usable in anyway
 #ifdef __DEBUG_PRINTS
-   if ((entry->type_ == SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
+   if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
    {
       colour = GREENONDEFAULT;
    }
-   else if ((entry->type_ != SongType) && (entry->children_.size() > 0))
+   else if ((entry->type_ != Mpc::SongType) && (entry->children_.size() > 0))
    {
-      Library::const_iterator it = entry->children_.begin();
+      Mpc::Library::const_iterator it = entry->children_.begin();
 
       unsigned int count = 0;
 

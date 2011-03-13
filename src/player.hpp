@@ -73,7 +73,7 @@ namespace Ui
       bool Pause();
 
       //! Plays the song with the given \p id
-      bool Play(uint32_t id);
+      bool Play(uint32_t position);
 
       //! Quits the program
       bool Quit();
@@ -134,7 +134,7 @@ namespace Ui
    private:
       bool     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);
       uint32_t NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction);
-      uint32_t First(Mpc::Song const * const song, Mpc::Song::SongInformationFunction songFunction);
+      uint32_t First(Mpc::Song const * const song, uint32_t position, Mpc::Song::SongInformationFunction songFunction);
 
    private:
       //! Based upon the auto scroll setting, will determine whether to

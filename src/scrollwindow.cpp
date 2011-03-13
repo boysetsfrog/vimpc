@@ -27,9 +27,9 @@
 using namespace Ui;
 
 ScrollWindow::ScrollWindow(Ui::Screen const & screen) :
-   Window     (screen.MaxRows() - 1, screen.MaxColumns(), 1, 0),
+   Window     (screen.MaxRows(), screen.MaxColumns(), 1, 0),
    screen_    (screen),
-   scrollLine_(screen.MaxRows() - 1),
+   scrollLine_(screen.MaxRows()),
    autoScroll_(false)
 {
 }
@@ -43,11 +43,11 @@ void ScrollWindow::Scroll(int32_t scrollCount)
 {
    uint16_t const newLine = (scrollLine_ + scrollCount);
 
-   if (BufferSize() > screen_.MaxRows() - 1)
+   if (BufferSize() > screen_.MaxRows())
    {
-      if (newLine < screen_.MaxRows() - 1)
+      if (newLine < screen_.MaxRows())
       {
-         scrollLine_ = screen_.MaxRows() - 1;
+         scrollLine_ = screen_.MaxRows();
       }
       else if (newLine > BufferSize())
       {
@@ -62,13 +62,13 @@ void ScrollWindow::Scroll(int32_t scrollCount)
 
 void ScrollWindow::ScrollTo(uint16_t scrollLine)
 {
-   if (BufferSize() > screen_.MaxRows() - 1)
+   if (BufferSize() > screen_.MaxRows())
    {
       scrollLine_ = scrollLine + (screen_.MaxRows() / 2);
 
-      if (scrollLine_ < screen_.MaxRows() - 1)
+      if (scrollLine_ < screen_.MaxRows())
       {
-         scrollLine_ = screen_.MaxRows() - 1;
+         scrollLine_ = screen_.MaxRows();
       }
       else if (scrollLine_ > BufferSize())
       {
@@ -81,7 +81,7 @@ bool ScrollWindow::Select(Position position, uint32_t count)
 {
    if (position == ScrollWindow::First)
    {
-      int32_t scroll = FirstLine() + count;
+      int32_t scroll = FirstLine() -1 + count;
 
       if (scroll > static_cast<int32_t>(LastLine())) 
       { 
@@ -92,7 +92,7 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    }
    else if (position == ScrollWindow::Last)
    {
-      int32_t scroll = LastLine() - count + 1;
+      int32_t scroll = LastLine() - count;
 
       if (scroll < static_cast<int32_t>(FirstLine() + 1)) 
       { 
@@ -103,7 +103,7 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    }
    else if (position == ScrollWindow::Middle)
    {
-      ScrollTo(FirstLine() + ((LastLine() - FirstLine() + 1) / 2) );
+      ScrollTo(FirstLine() + ((LastLine() - FirstLine() - 1) / 2) );
    }
 
    return true;
@@ -124,9 +124,9 @@ uint32_t ScrollWindow::FirstLine() const
 {
    uint16_t result = 0;
 
-   if ((scrollLine_ - (screen_.MaxRows() - 1)) > 0)
+   if ((scrollLine_ - screen_.MaxRows()) > 0)
    {
-      result = (scrollLine_ - (screen_.MaxRows() - 1));
+      result = (scrollLine_ - screen_.MaxRows());
    }
 
    return result;

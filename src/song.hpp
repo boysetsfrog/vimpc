@@ -29,7 +29,7 @@ namespace Mpc
    class Song
    {
    public:
-      Song(uint32_t id);
+      Song();
       Song(Song const & song);
       ~Song();
 
@@ -43,7 +43,15 @@ namespace Mpc
       } SongCollection;
 
    public:
-      uint32_t Id() const;
+      bool operator==(Song const & rhs)
+      {
+         return (this->uri_ == rhs.URI());
+      }
+
+   public:
+      int32_t Reference() const;
+      void IncrementReference();
+      void DecrementReference();
 
       void SetArtist(const char * artist);
       std::string const & Artist() const;
@@ -65,7 +73,7 @@ namespace Mpc
       std::string FullDescription()     const;
 
    private:
-      uint32_t    id_;
+      int32_t     reference_;
       std::string artist_;
       std::string album_;
       std::string title_;

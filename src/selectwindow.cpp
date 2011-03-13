@@ -39,7 +39,7 @@ void SelectWindow::Scroll(int32_t scrollCount)
    currentSelection_ += scrollCount;
    currentSelection_  = LimitCurrentSelection(currentSelection_);
 
-   if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - (screen_.MaxRows() - 1)))
+   if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
    {   
       ScrollWindow::Scroll(scrollCount);
    }
@@ -48,10 +48,10 @@ void SelectWindow::Scroll(int32_t scrollCount)
 void SelectWindow::ScrollTo(uint16_t scrollLine)
 {
    int64_t oldSelection = currentSelection_;
-   currentSelection_    = (static_cast<int64_t>(scrollLine - 1));
+   currentSelection_    = (static_cast<int64_t>(scrollLine));
    currentSelection_    = LimitCurrentSelection(currentSelection_);
 
-   if ((currentSelection_ == scrollLine_) && (currentSelection_ - oldSelection == 1))
+   if ((currentSelection_ == LastLine()) && (currentSelection_ - oldSelection == 1))
    {
       ScrollWindow::Scroll(1);
    }
@@ -59,7 +59,7 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
    {
       ScrollWindow::Scroll(-1);
    }
-   else if ((currentSelection_ >= scrollLine_) || (currentSelection_ <= (scrollLine_ - screen_.MaxRows())))
+   else if ((currentSelection_ > scrollLine_) || (currentSelection_ < (scrollLine_ - screen_.MaxRows())))
    {   
       ScrollWindow::ScrollTo(scrollLine);
    }

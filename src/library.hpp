@@ -33,6 +33,9 @@ namespace Main
 
 namespace Mpc
 {
+   struct LibraryEntry;
+   typedef std::vector<LibraryEntry *> Library;
+
    class Client;
 }
 
@@ -52,6 +55,7 @@ namespace Ui
 
    public:
       void AddSong(Mpc::Song const * const song);
+      Mpc::Song * FindSong(Mpc::Song const * const song);
 
    public:
       void Print(uint32_t line) const;
@@ -70,87 +74,86 @@ namespace Ui
       std::string SearchPattern(int32_t id);
 
    private:
-      struct LibraryEntry;
-      typedef std::vector<LibraryEntry *> Library;
-
-   private:
       void Clear();
-      void AddSongsToPlaylist(LibraryEntry const * const entry, int32_t & songToPlay);
+      void AddSongsToPlaylist(Mpc::LibraryEntry const * const entry, int32_t & songToPlay);
 
    private:
       size_t BufferSize() const { return buffer_.size(); }
 
    private:
-      int32_t DetermineSongColour(LibraryEntry const * const entry) const;
+      int32_t DetermineSongColour(Mpc::LibraryEntry const * const entry) const;
 
    private:
-      typedef enum
-      {
-         ArtistType = 0,
-         AlbumType,
-         SongType
-      } EntryType;
-
-      class LibraryEntry
-      {
-      public:
-         LibraryEntry() :
-            type_    (SongType),
-            artist_  (""),
-            album_   (""),
-            song_    (NULL),
-            expanded_(false),
-            children_(),
-            parent_  ()
-         { }
-
-      public:
-         struct LibraryEntryComparator 
-         {
-            bool operator() (LibraryEntry * i, LibraryEntry * j) { return (*i<*j);}
-         };
-
-         bool operator<(LibraryEntry const & rhs)
-         {
-            return ((artist_ < rhs.artist_) || (album_ < rhs.album_));
-         }
-
-      public:
-         ~LibraryEntry()
-         {
-            if (expanded_ == false)
-            {
-               for (Library::iterator it = children_.begin(); it != children_.end(); ++it)
-               {
-                  delete *it;
-               }
-            }
-
-            children_.clear();
-
-            delete song_;
-         }
-
-      private:
-         LibraryEntry(LibraryEntry & entry);
-         LibraryEntry & operator=(LibraryEntry & entry);
-
-      public:
-         EntryType      type_;
-         std::string    artist_;
-         std::string    album_;
-         Mpc::Song *    song_;
-         bool           expanded_;
-         Library        children_;
-         LibraryEntry * parent_;
-      };
-
-            Main::Settings const & settings_;
+      Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
 
       // Maintains the library and used to print
-      Library buffer_;
+      Mpc::Library buffer_;
+   };
+}
+
+namespace Mpc
+{
+   typedef enum
+   {
+      ArtistType = 0,
+      AlbumType,
+      SongType
+   } EntryType;
+
+   class LibraryEntry
+   {
+   public:
+      LibraryEntry() :
+         type_    (SongType),
+         artist_  (""),
+         album_   (""),
+         song_    (NULL),
+         expanded_(false),
+         children_(),
+         parent_  ()
+      { }
+
+   public:
+      struct LibraryEntryComparator 
+      {
+         bool operator() (LibraryEntry * i, LibraryEntry * j) { return (*i<*j);}
+      };
+
+      bool operator<(LibraryEntry const & rhs)
+      {
+         return ((artist_ < rhs.artist_) || (album_ < rhs.album_));
+      }
+
+   public:
+      ~LibraryEntry()
+      {
+         if (expanded_ == false)
+         {
+            for (Library::iterator it = children_.begin(); it != children_.end(); ++it)
+            {
+               delete *it;
+            }
+         }
+
+         children_.clear();
+
+         delete song_;
+      }
+
+   private:
+      LibraryEntry(LibraryEntry & entry);
+      LibraryEntry & operator=(LibraryEntry & entry);
+
+   public:
+      EntryType      type_;
+      std::string    artist_;
+      std::string    album_;
+      Mpc::Song *    song_;
+      bool           expanded_;
+      Library        children_;
+      LibraryEntry * parent_;
    };
 }
 

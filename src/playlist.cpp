@@ -43,16 +43,24 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const
 
 PlaylistWindow::~PlaylistWindow()
 {
-   DeleteSongs();   
 }
 
-
-void PlaylistWindow::AddSong(Mpc::Song const * const song)
+void PlaylistWindow::AddSong(Mpc::Song * const song)
 {
    if (song != NULL)
    {
-      Mpc::Song * const newSong = new Mpc::Song(*song);
-      buffer_.insert(buffer_.end(), newSong);
+      buffer_.insert(buffer_.end(), song);
+   }
+}
+
+void PlaylistWindow::AddSong(Mpc::Song * const song, uint32_t position)
+{
+   if (song != NULL)
+   {
+      if (position == buffer_.size())
+      {
+         AddSong(song);
+      }
    }
 }
 
@@ -70,29 +78,35 @@ Mpc::Song const * PlaylistWindow::GetSong(uint32_t songIndex)
 
 void PlaylistWindow::RemoveSong(uint32_t count)
 {
-   SongBuffer::iterator it = buffer_.begin(); 
+   Mpc::Playlist::iterator it = buffer_.begin(); 
 
-   for (uint32_t id = 0; id != CurrentLine(); ++id)
+   for (uint32_t id = 0; ((id != CurrentLine()) && (it != buffer_.end())); ++id)
    {
       it++;
    }
 
-   for(uint32_t i = count; i > 0; --i)
+   if (it != buffer_.end())
    {
-      //! \todo delete invalidates the playlist id numbers, this needs to be fixed
-      Mpc::Song const * song = GetSong(CurrentLine());
-
-      client_.Delete(CurrentLine());
-
-      if (it != buffer_.end())
+      for(uint32_t i = count; i > 0; --i)
       {
-         it = buffer_.erase(it);
+         //! \todo delete invalidates the playlist id numbers, this needs to be fixed
+         client_.Delete(CurrentLine());
+
+         (*it)->DecrementReference();
+
+         if (it != buffer_.end())
+         {
+            it = buffer_.erase(it);
+         }
       }
 
-      delete song;
+      ScrollTo(currentSelection_);
    }
 
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
+   if (BufferSize() == 0)
+   {
+      currentSelection_ = 0;
+   }
 }
 
 
@@ -117,7 +131,7 @@ void PlaylistWindow::Redraw()
    client_.ForEachQueuedSong(*this, &PlaylistWindow::AddSong);
 
    SetScrollLine(scrollLine);
-   ScrollTo(++currentLine);
+   ScrollTo(currentLine);
 }
 
 void PlaylistWindow::Print(uint32_t line) const
@@ -149,7 +163,7 @@ void PlaylistWindow::Print(uint32_t line) const
          wattron(window, COLOR_PAIR(SONGIDCOLOUR));
       }
 
-      wprintw(window, "%5d", nextSong->Id());
+      wprintw(window, "%5d", FirstLine() + line + 1);
 
       if ((colour != CURRENTSONGCOLOUR) && (printLine != CurrentLine()))
       {
@@ -200,8 +214,15 @@ void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
 
 void PlaylistWindow::Confirm()
 {
-   Mpc::Song const * const song = buffer_.at(CurrentLine());
-   client_.Play(static_cast<uint32_t>(song->Id() - 1));
+   if (buffer_.size() > CurrentLine())
+   {
+      Mpc::Song const * const song = buffer_.at(CurrentLine());
+
+      if (song != NULL)
+      {
+         client_.Play(static_cast<uint32_t>(CurrentLine()));
+      }
+   }
 }
 
 
@@ -226,18 +247,9 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
    return colour;
 }
 
-void PlaylistWindow::DeleteSongs()
-{
-   for (SongBuffer::iterator it = buffer_.begin(); (it != buffer_.end()); ++it)
-   {
-      delete *it;
-   }
-}
-
 void PlaylistWindow::Clear()
 {
    ScrollTo(0);
 
-   DeleteSongs();
    buffer_.clear();
 }

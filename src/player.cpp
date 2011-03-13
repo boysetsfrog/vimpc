@@ -71,9 +71,9 @@ bool Player::Pause()
    return true;
 }
 
-bool Player::Play(uint32_t id)
+bool Player::Play(uint32_t position)
 {
-   client_.Play(id - 1);
+   client_.Play(position);
    return true;
 }
 
@@ -202,7 +202,7 @@ uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song:
 
    if ((song != NULL) && (skip == Previous))
    {
-      skipCount = First(song, songFunction);
+      skipCount = First(song, startSong, songFunction);
    }
 
    if ((song != NULL) && (skipCount == 0))
@@ -222,7 +222,7 @@ uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song:
 
       if (skip == Previous)
       {
-         skipCount += First(newSong, songFunction);
+         skipCount += First(newSong, startSong + (skipCount * direction), songFunction);
       }
    }
 
@@ -230,7 +230,7 @@ uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song:
 }
 
 
-uint32_t Player::First(Mpc::Song const * const song, Mpc::Song::SongInformationFunction songFunction)
+uint32_t Player::First(Mpc::Song const * const song, uint32_t position, Mpc::Song::SongInformationFunction songFunction)
 {
    Mpc::Song const * firstSong    = song;
    uint32_t          skipCount    = 0;
@@ -238,7 +238,7 @@ uint32_t Player::First(Mpc::Song const * const song, Mpc::Song::SongInformationF
    do
    {
       ++skipCount;
-      firstSong = screen_.PlaylistWindow().GetSong(song->Id() - skipCount - 1);
+      firstSong = screen_.PlaylistWindow().GetSong(position - skipCount);
    }
    while ((firstSong != NULL) && (firstSong != song) && ((song->*songFunction)().compare((firstSong->*songFunction)()) == 0));
 

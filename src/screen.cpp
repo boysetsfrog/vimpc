@@ -57,15 +57,15 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
 
    getmaxyx(stdscr, maxRows_, maxColumns_);
 
-   //Status and Mode window use last 2 rows
-   maxRows_ -= 2;
+   //Status and Mode window use last 2 rows, tabline uses top
+   maxRows_ -= 3;
 
    //Windows
-   playlistWindow_        = new Ui::PlaylistWindow(settings, *this, client, search);
    libraryWindow_         = new Ui::LibraryWindow (settings, *this, client, search); 
+   playlistWindow_        = new Ui::PlaylistWindow(settings, *this, client, search);
    consoleWindow_         = new Ui::ConsoleWindow (*this);
    helpWindow_            = new Ui::HelpWindow    (*this);
-   statusWindow_          = newwin(1, maxColumns_, maxRows_, 0);
+   statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
    topWindow_             = newwin(1, maxColumns_, 0, 0);
 
    //Commands must be read through a window that is always visible
@@ -229,12 +229,12 @@ void Screen::ScrollTo(Location location, uint32_t line)
 {
    uint32_t scroll[LocationCount] = { 0, 0, 0, 0 };
 
-   scroll[Specific] = line;
-   scroll[Bottom]   = mainWindows_[window_]->ContentSize() + 1; 
+   scroll[Specific] = line - 1;
+   scroll[Bottom]   = mainWindows_[window_]->ContentSize(); 
 
    if (window_ == Playlist)
    {
-      scroll[Current] = PlaylistWindow().GetCurrentSong() + 1; 
+      scroll[Current] = PlaylistWindow().GetCurrentSong(); 
    }
 
    ScrollTo(scroll[location]);
@@ -276,7 +276,7 @@ void Screen::Update() const
 
       mainWindow.Erase();
 
-      for (uint32_t i = 0; (i < maxRows_ - 1); ++i)
+      for (uint32_t i = 0; (i < maxRows_); ++i)
       {
          mainWindow.Print(i);
       }

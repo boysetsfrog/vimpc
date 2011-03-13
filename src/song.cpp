@@ -24,8 +24,8 @@
 
 using namespace Mpc;
 
-Song::Song(uint32_t id) :
-   id_       (id),
+Song::Song() :
+   reference_(0),
    artist_   (""),
    album_    (""),
    title_    (""),
@@ -34,7 +34,7 @@ Song::Song(uint32_t id) :
 { }
 
 Song::Song(Song const & song) :
-   id_       (song.Id()),
+   reference_(0),
    artist_   (song.Artist()),
    album_    (song.Album()),
    title_    (song.Title()),
@@ -46,9 +46,20 @@ Song::Song(Song const & song) :
 Song::~Song()
 { }
 
-uint32_t Song::Id() const
+
+int32_t Song::Reference() const
 {
-   return id_;
+   return reference_;
+}
+
+void Song::IncrementReference()
+{
+   ++reference_;
+}
+
+void Song::DecrementReference()
+{
+   --reference_;
 }
 
 
@@ -77,7 +88,7 @@ void Song::SetAlbum(const char * album)
    }
    else
    {
-      album_ = "";
+      album_ = "Unknown";
    }
 }
 
