@@ -60,7 +60,7 @@ namespace Ui
 
    public:
       uint32_t FirstLine()   const;
-      uint32_t LastLine()    const { return ScrollLine(); }
+      uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() : ScrollLine(); }
       uint32_t ContentSize() const { return BufferSize() - 1; }
 
       virtual  uint16_t CurrentLine() const { return FirstLine(); }

@@ -310,8 +310,10 @@ void Client::DisplaySongInformation()
          mpd_status * const status   = mpd_run_status(connection_);
          uint32_t     const duration = mpd_song_get_duration(currentSong);
          uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
-         std::string  const artist   = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
-         std::string  const title    = mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
+         char const * const cArtist  = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
+         char const * const cTitle   = mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
+         std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
+         std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
          screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]", 

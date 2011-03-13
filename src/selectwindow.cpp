@@ -71,6 +71,8 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
 
 uint16_t SelectWindow::CurrentLine() const
 { 
+   currentSelection_ = LimitCurrentSelection(currentSelection_);
+
    return currentSelection_; 
 }
 
@@ -80,7 +82,7 @@ int64_t SelectWindow::LimitCurrentSelection(int64_t currentSelection) const
    {
       currentSelection = 0;
    }
-   else if (currentSelection_ >= BufferSize())
+   else if ((currentSelection_ >= BufferSize()) && (BufferSize() > 0))
    {
       currentSelection = BufferSize() - 1;
    }

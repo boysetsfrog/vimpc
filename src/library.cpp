@@ -454,11 +454,13 @@ void LibraryWindow::Confirm()
 {
    client_.Clear();
    
+   // \todo need to remove all the references set on songs in the library
    int32_t song = AddSongsToPlaylist(Mpc::Song::Single);
 
    if (song != -1)
    {
       client_.Play(song);
+      screen_.PlaylistWindow().Redraw();
    }
 }
 

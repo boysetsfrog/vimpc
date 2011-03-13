@@ -102,11 +102,6 @@ void PlaylistWindow::RemoveSong(uint32_t count)
 
       ScrollTo(currentSelection_);
    }
-
-   if (BufferSize() == 0)
-   {
-      currentSelection_ = 0;
-   }
 }
 
 

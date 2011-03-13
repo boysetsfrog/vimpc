@@ -41,7 +41,7 @@ namespace Ui
    protected:
       int64_t LimitCurrentSelection(int64_t currentSelection) const;
 
-      int64_t currentSelection_;
+      mutable int64_t currentSelection_;
    };
 }
 
