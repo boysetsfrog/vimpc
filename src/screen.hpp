@@ -72,6 +72,7 @@ namespace Ui
          Current, 
          Top, 
          Bottom,
+         Centre,
          Specific,
          LocationCount
       } Location;
@@ -107,6 +108,7 @@ namespace Ui
       void Select(ScrollWindow::Position position, uint32_t count);
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(Location location, uint32_t line = 0);
+      void AlignTo(Location location, uint32_t line = 0);
 
    public:
       void Left(Ui::Player & player, uint32_t count);

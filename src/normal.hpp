@@ -108,6 +108,10 @@ namespace Ui
       template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
       bool ScrollTo(uint32_t line);
 
+   private:
+      template <Screen::Location LOCATION>
+      bool AlignTo(uint32_t line);
+
    private: //Windows
       template <Screen::Skip SKIP>
       bool SetActiveWindow(uint32_t count);
@@ -128,6 +132,7 @@ namespace Ui
 
       ActionTable      actionTable_;
       ActionTable      jumpTable_;
+      ActionTable      alignTable_;
 
       Ui::Search     & search_;
       Ui::Screen     & screen_;

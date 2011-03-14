@@ -240,6 +240,22 @@ void Screen::ScrollTo(Location location, uint32_t line)
    ScrollTo(scroll[location]);
 }
 
+void Screen::AlignTo(Location location, UNUSED uint32_t line)
+{
+   if (location == Bottom)
+   {
+      mainWindows_[window_]->ScrollWindow::ScrollTo(mainWindows_[window_]->CurrentLine() + 1 - ((MaxRows()+1) / 2));
+   }
+   else if (location == Centre)
+   {
+      mainWindows_[window_]->ScrollWindow::ScrollTo(mainWindows_[window_]->CurrentLine());
+   }
+   else if (location == Top)
+   {
+      mainWindows_[window_]->ScrollWindow::ScrollTo(mainWindows_[window_]->CurrentLine() + ((MaxRows()+1) / 2));
+   }
+}
+
 
 void Screen::Left(Ui::Player & player, uint32_t count)
 {

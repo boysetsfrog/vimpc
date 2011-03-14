@@ -42,6 +42,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    wasSpecificCount_(false),
    actionTable_     (),
    jumpTable_       (),
+   alignTable_      (),
    search_          (search),
    screen_          (screen),
    client_          (client),
@@ -63,14 +64,12 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // \todo add an "insert" mode to console that just stays in command entry mode
    //actionTable_['i']       = &Normal::Insert;
 
-   //! \todo z should really be used to changed the scroll location ala vim
-
    //! \todo make it so these can be used to navigate the library
    // Skipping
-   actionTable_['x']       = &Normal::SkipArtist<Player::Next>;
-   actionTable_['z']       = &Normal::SkipArtist<Player::Previous>;
-   actionTable_['X']       = &Normal::SkipAlbum<Player::Next>;
-   actionTable_['Z']       = &Normal::SkipAlbum<Player::Previous>;
+   actionTable_['w']       = &Normal::SkipArtist<Player::Next>;
+   actionTable_['q']       = &Normal::SkipArtist<Player::Previous>;
+   actionTable_['W']       = &Normal::SkipAlbum<Player::Next>;
+   actionTable_['Q']       = &Normal::SkipAlbum<Player::Previous>;
 
    // Selection
    actionTable_['H']       = &Normal::Select<ScrollWindow::First>;
@@ -118,6 +117,12 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
    jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next>;
    jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous>;
+
+   // Align the text to a location on the screen
+   // \todo this should only work for selectwindows
+   alignTable_['.']        = &Normal::AlignTo<Screen::Centre>;
+   alignTable_['\n']       = &Normal::AlignTo<Screen::Top>;
+   alignTable_['-']        = &Normal::AlignTo<Screen::Bottom>;
 
    window_ = screen.CreateModeWindow();
 }
@@ -192,6 +197,10 @@ bool Normal::Handle(int input)
    else if (input == 'g')
    {
       action = &jumpTable_;
+   }
+   else if (input == 'z')
+   {
+      action = &alignTable_;
    }
    else
    {
@@ -362,6 +371,20 @@ bool Normal::ScrollTo(uint32_t line)
       screen_.ScrollTo(SPECIFIC, line);
    }
 
+   return true;
+}
+
+
+//Align
+template <Screen::Location LOCATION>
+bool Normal::AlignTo(uint32_t line)
+{
+   if (wasSpecificCount_ == false)
+   {
+      screen_.AlignTo(LOCATION, line);
+   }
+
+   //! \todo handle count
    return true;
 }
 
