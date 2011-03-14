@@ -381,8 +381,10 @@ bool Normal::AlignTo(uint32_t line)
 {
    if (wasSpecificCount_ == false)
    {
-      screen_.AlignTo(LOCATION, line);
+      line = 0;
    }
+
+   screen_.AlignTo(LOCATION, line);
 
    //! \todo handle count
    return true;

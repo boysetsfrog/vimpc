@@ -240,20 +240,33 @@ void Screen::ScrollTo(Location location, uint32_t line)
    ScrollTo(scroll[location]);
 }
 
-void Screen::AlignTo(Location location, UNUSED uint32_t line)
+void Screen::AlignTo(Location location, uint32_t line)
 {
+   if (line == 0)
+   {
+      line = mainWindows_[window_]->CurrentLine();
+   }
+   else
+   {
+      --line;
+   }
+
+   // Uses the scroll window scroll to set the right area of the screen
    if (location == Bottom)
    {
-      mainWindows_[window_]->ScrollWindow::ScrollTo(mainWindows_[window_]->CurrentLine() + 1 - ((MaxRows()+1) / 2));
+      mainWindows_[window_]->ScrollWindow::ScrollTo(line + 1 - ((MaxRows() + 1) / 2));
    }
    else if (location == Centre)
    {
-      mainWindows_[window_]->ScrollWindow::ScrollTo(mainWindows_[window_]->CurrentLine());
+      mainWindows_[window_]->ScrollWindow::ScrollTo(line);
    }
    else if (location == Top)
    {
-      mainWindows_[window_]->ScrollWindow::ScrollTo(mainWindows_[window_]->CurrentLine() + ((MaxRows()+1) / 2));
+      mainWindows_[window_]->ScrollWindow::ScrollTo(line + ((MaxRows() + 1) / 2));
    }
+
+   // Uses the select window scroll to set the current line properly
+   ScrollTo(line);
 }
 
 
