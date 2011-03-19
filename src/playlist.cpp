@@ -89,7 +89,6 @@ void PlaylistWindow::RemoveSong(uint32_t count)
    {
       for(uint32_t i = count; i > 0; --i)
       {
-         //! \todo delete invalidates the playlist id numbers, this needs to be fixed
          client_.Delete(CurrentLine());
 
          (*it)->DecrementReference();

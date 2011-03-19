@@ -33,8 +33,6 @@
 
 using namespace Ui;
 
-//! \todo the tracks are not sorted properly within the albums
-
 LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (screen),
    settings_        (settings),
@@ -324,9 +322,7 @@ void LibraryWindow::Clear()
 
 void LibraryWindow::Print(uint32_t line) const
 {
-   //! \todo make songs that are currently in the playlist display a different colour?
    static std::string const BlankLine(screen_.MaxColumns(), ' ');
-   static int32_t trackCount = 0;
 
    WINDOW * window = N_WINDOW();
 
@@ -346,7 +342,6 @@ void LibraryWindow::Print(uint32_t line) const
 
       if ((buffer_.at(printLine)->type_ == Mpc::AlbumType) || (buffer_.at(printLine)->type_ == Mpc::ArtistType))
       {
-         trackCount = 0;
          uint8_t expandCol = 0;
 
          if (buffer_.at(printLine)->type_ == Mpc::AlbumType)
@@ -388,7 +383,6 @@ void LibraryWindow::Print(uint32_t line) const
       }
       else if ((buffer_.at(printLine)->type_ == Mpc::SongType) && (buffer_.at(printLine)->song_ != NULL))
       {
-         trackCount++;
          mvwprintw(window, line, 1, "|   |--");
 
          wattron(window, A_BOLD);
@@ -399,7 +393,7 @@ void LibraryWindow::Print(uint32_t line) const
             wattron(window, COLOR_PAIR(REDONDEFAULT)); 
          }
 
-         wprintw(window, "%2d" , trackCount);
+         wprintw(window, "%2s" , buffer_.at(printLine)->song_->Track().c_str());
 
          if (printLine != CurrentLine()) 
          {
@@ -526,7 +520,6 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
 
    //! \todo this needs to be dramatically improved in speed it really is a PoC at the moment
    //        and is way to slow to be usable in anyway
-#ifdef __DEBUG_PRINTS
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
    {
       colour = GREENONDEFAULT;
@@ -556,7 +549,6 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
          colour = GREENONDEFAULT;
       }
    }
-#endif
    
    if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
    {

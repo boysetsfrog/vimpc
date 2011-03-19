@@ -93,7 +93,7 @@ MISC:
           previous [count]        | skips backward to the previous song, or if given the previous [count] songs
           play <song id>          | play the song with the given id in the current playlist
                                   
-          quit[!]                 | stop playback and quit vimpc, if [!] is appended, playback will not be stopped
+          quit[!]                 | quit vimpc, if [!] is appended playback will be stopped
                                   
           random                  | toggles random on/off
                                   

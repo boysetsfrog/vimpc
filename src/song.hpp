@@ -62,6 +62,9 @@ namespace Mpc
       void SetTitle(const char * title);
       std::string const & Title() const;
 
+      void SetTrack(const char * track);
+      std::string const & Track() const;
+
       void SetURI(const char * uri);
       std::string const & URI() const;
 
@@ -77,6 +80,7 @@ namespace Mpc
       std::string artist_;
       std::string album_;
       std::string title_;
+      std::string track_;
       std::string uri_;
       int32_t     duration_;
    };

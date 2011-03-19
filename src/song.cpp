@@ -29,6 +29,7 @@ Song::Song() :
    artist_   (""),
    album_    (""),
    title_    (""),
+   track_    (""),
    uri_      (""),
    duration_ (0)
 { }
@@ -38,6 +39,7 @@ Song::Song(Song const & song) :
    artist_   (song.Artist()),
    album_    (song.Album()),
    title_    (song.Title()),
+   track_    (song.Track()),
    uri_      (song.URI()),
    duration_ (song.Duration())
 { 
@@ -112,6 +114,23 @@ void Song::SetTitle(const char * title)
 std::string const & Song::Title() const
 {
    return title_;
+}
+
+void Song::SetTrack(const char * track)
+{
+   if (track != NULL)
+   {
+      track_ = track;
+   }
+   else
+   {
+      track = "";
+   }
+}
+
+std::string const & Song::Track() const
+{
+   return track_;
 }
 
 void Song::SetURI(const char * uri)

@@ -60,8 +60,6 @@ bool Client::GetRandom()
 
 void Client::Connect(std::string const & hostname, uint16_t port)
 {
-   // \todo needs to take parameters and such properly
-   // rather than just using the defaults only
    DeleteConnection();
 
    connection_ = mpd_connection_new(hostname.c_str(), port, 0);
@@ -338,6 +336,7 @@ Song * Client::CreateSong(UNUSED uint32_t id, mpd_song const * const song) const
    newSong->SetArtist  (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
    newSong->SetAlbum   (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
    newSong->SetTitle   (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
+   newSong->SetTrack   (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
    newSong->SetURI     (mpd_song_get_uri(song)); 
    newSong->SetDuration(mpd_song_get_duration(song));
 
