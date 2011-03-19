@@ -185,7 +185,7 @@ bool Command::Quit(UNUSED std::string const & arguments)
 bool Command::Random(std::string const & arguments)
 { 
    bool const value = (arguments.compare("on") == 0);
-   return Player::Random(value);
+   return Player::SetRandom(value);
 }
 
 bool Command::Redraw(UNUSED std::string const & arguments)

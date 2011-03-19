@@ -63,7 +63,7 @@ namespace Ui
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
-      int32_t AddSongsToPlaylist(Mpc::Song::SongCollection Collection);
+      void AddSongsToPlaylist(Mpc::Song::SongCollection Collection);
       void Redraw();
 
    public:
@@ -75,7 +75,7 @@ namespace Ui
 
    private:
       void Clear();
-      void AddSongsToPlaylist(Mpc::LibraryEntry const * const entry, int32_t & songToPlay);
+      void AddSongsToPlaylist(Mpc::LibraryEntry const * const entry);
 
    private:
       size_t BufferSize() const { return buffer_.size(); }

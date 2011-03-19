@@ -448,22 +448,17 @@ void LibraryWindow::Confirm()
 {
    client_.Clear();
    
-   int32_t song = AddSongsToPlaylist(Mpc::Song::Single);
+   AddSongsToPlaylist(Mpc::Song::Single);
 
-   if (song != -1)
-   {
-      client_.Play(song);
-      screen_.PlaylistWindow().Redraw();
-   }
+   client_.Play(0);
+   screen_.Redraw(Ui::Screen::Playlist);
 }
 
-int32_t LibraryWindow::AddSongsToPlaylist(Mpc::Song::SongCollection Collection)
+void LibraryWindow::AddSongsToPlaylist(Mpc::Song::SongCollection Collection)
 {
-   int32_t songToPlay = -1;
-
    if (Collection == Mpc::Song::Single)
    {
-      AddSongsToPlaylist(buffer_.at(CurrentLine()), songToPlay);
+      AddSongsToPlaylist(buffer_.at(CurrentLine()));
    }
    else
    {
@@ -471,30 +466,24 @@ int32_t LibraryWindow::AddSongsToPlaylist(Mpc::Song::SongCollection Collection)
       {
          if ((*it)->type_ == Mpc::ArtistType)
          {
-            AddSongsToPlaylist((*it), songToPlay);
+            AddSongsToPlaylist((*it));
          }
       }
    }
-
-   return songToPlay;
 }
 
-void LibraryWindow::AddSongsToPlaylist(Mpc::LibraryEntry const * const entry, int32_t & songToPlay)
+void LibraryWindow::AddSongsToPlaylist(Mpc::LibraryEntry const * const entry)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
-       int32_t const songAdded = client_.Add(*(entry->song_));
-
-       if (songToPlay == -1)
-       {
-          songToPlay = songAdded;
-       }
+      screen_.PlaylistWindow().AddSong(entry->song_);
+      client_.Add(*(entry->song_));
    }
    else 
    {
       for (Mpc::Library::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
-         AddSongsToPlaylist((*it), songToPlay);
+         AddSongsToPlaylist((*it));
       }
    }
 }

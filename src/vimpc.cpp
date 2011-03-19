@@ -46,9 +46,9 @@ Vimpc::Vimpc() :
    client_      (screen_),
    modeTable_   ()
 {
-   modeTable_[Command]       = new Ui::Command(screen_, client_, settings_);
-   modeTable_[Normal]        = new Ui::Normal (screen_, client_, settings_, search_);
-   modeTable_[Search]        = &search_;
+   modeTable_[Command] = new Ui::Command(screen_, client_, settings_);
+   modeTable_[Normal]  = new Ui::Normal (screen_, client_, settings_, search_);
+   modeTable_[Search]  = &search_;
 
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);

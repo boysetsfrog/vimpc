@@ -21,36 +21,25 @@
 #ifndef __UI__SCREEN
 #define __UI__SCREEN
 
+// Includes
 #include "assert.hpp"
 #include "modewindow.hpp"
 #include "scrollwindow.hpp"
 
-#include <map>
 #include <string>
 
-namespace Main
-{
-   class Settings;
-}
+// Forward declarations
+namespace Main { class Settings; }
+namespace Mpc  { class Client; }
+namespace Ui   { class Search; class ConsoleWindow; class LibraryWindow; class PlaylistWindow; }
 
-namespace Mpc
-{
-   class Client;
-}
-
+// Screen management class
 namespace Ui
 {
-   class Window;
-   class ConsoleWindow;
-   class ErrorWindow;
-   class LibraryWindow;
-   class PlaylistWindow;
-   class Search;
-
    class Screen
    {
    public:
-      Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search);
+      Screen(Main::Settings const & settings, Mpc::Client & client, Search const & search);
       ~Screen();
 
    private:
@@ -58,65 +47,62 @@ namespace Ui
       Screen & operator=(Screen & screen);
 
    public:
-      typedef enum
-      {
-         Help = 0,
-         Console,
-         Library,
-         Playlist,
-         MainWindowCount
-      } MainWindow;
+      // Tabs/Windows that can be used
+      typedef enum { Help = 0, Console, Library, Playlist, MainWindowCount } MainWindow;
    
-      typedef enum 
-      { 
-         Current, 
-         Top, 
-         Bottom,
-         Centre,
-         Specific,
-         LocationCount
-      } Location;
+      // Scroll/Selection locations within a window
+      typedef enum { Current, Top, Bottom, Centre, Specific, LocationCount } Location;
       
-      typedef enum 
-      { 
-         Line, 
-         Page 
-      } Size;
+      // Scroll sizes
+      typedef enum { Line, Page } Size;
       
-      typedef enum 
-      { 
-         Up, 
-         Down 
-      } Direction;
+      // Scroll directions
+      typedef enum { Up, Down } Direction;
 
-      typedef enum 
-      { 
-         Next, 
-         Previous 
-      } Skip;
+      // Navigation directions
+      typedef enum { Next, Previous } Skip;
 
    public:
+      // Get the window value given a window name
+      static MainWindow  GetWindowFromName(std::string const & windowName);
+
+      // Get the window name given the value
+      static std::string GetNameFromWindow(MainWindow window);
+
+   public:
+      // Set the correct window to be active, flag screen as started 
       void Start();
+
+      // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();
 
-      void SetTopWindow() const;
-      void ClearStatus() const;
+      // Update the status line to indicate currently playing song, etc
       void SetStatusLine(char const * const fmt, ... ) const;
       void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;
 
    public:
-      void Select(ScrollWindow::Position position, uint32_t count);
-      void Scroll(Size size, Direction direction, uint32_t count);
-      void ScrollTo(Location location, uint32_t line = 0);
+      // Align the currently selected line to a given location on the screen (z<CR>, z-, z.)
       void AlignTo(Location location, uint32_t line = 0);
 
+      // Select a given (currently visible) line (H, L, M)
+      void Select(ScrollWindow::Position position, uint32_t count);
+
+      // Scroll the window to a location or by a given amount
+      void Scroll(int32_t count);
+      void Scroll(Size size, Direction direction, uint32_t count);
+      void ScrollTo(uint32_t line);
+      void ScrollTo(Location location, uint32_t line = 0);
+
    public:
-      void Left(Ui::Player & player, uint32_t count);
-      void Right(Ui::Player & player, uint32_t count);
-      void Confirm();
+      // Clear the console window
       void Clear();
+
+      // Reprint the currently active main window
       void Update() const;
-      void Redraw();
+
+      // Reinitialise the given main window, ie rebuild playlist, library, etc
+      void Redraw() const;
+      void Redraw(MainWindow window) const;
 
    public:
       uint32_t MaxRows()      const;
@@ -124,43 +110,41 @@ namespace Ui
       uint32_t WaitForInput() const;
 
    public:
+      // Changes the currently active window by setting it explicitly
       void SetActiveWindow(MainWindow window);
+
+      // Changes the currently active window by rotating through those available
       void SetActiveWindow(Skip skip);
-      void SetDefaultWindow(MainWindow window);
+   
+   public: 
+      // Access a specific window
       Ui::ScrollWindow   & ActiveWindow() const;
+      Ui::ScrollWindow   & HelpWindow() const;
       Ui::ConsoleWindow  & ConsoleWindow() const;
       Ui::LibraryWindow  & LibraryWindow() const; 
       Ui::PlaylistWindow & PlaylistWindow() const; 
 
-   public:
-      static MainWindow GetWindowFromName(std::string const & windowName);
-      static std::string GetNameFromWindow(MainWindow window);
-
-      void Scroll(int32_t count);
-      void ScrollTo(uint32_t line);
-
    private:
+      void ClearStatus() const;
+      void UpdateTabWindow() const;
       bool WindowsAreInitialised();
 
    private:
-      typedef std::map<std::string, Ui::Screen::MainWindow> WindowTable;
+      MainWindow             window_;
+      ScrollWindow         * helpWindow_;
+      Ui::ConsoleWindow    * consoleWindow_;
+      Ui::LibraryWindow    * libraryWindow_;
+      Ui::PlaylistWindow   * playlistWindow_;
+      ScrollWindow         * mainWindows_[MainWindowCount];
+      WINDOW               * statusWindow_;
+      WINDOW               * tabWindow_;
+      WINDOW               * commandWindow_;
 
-   private:
-      MainWindow           window_;
-      Ui::PlaylistWindow * playlistWindow_;
-      Ui::ConsoleWindow  * consoleWindow_;
-      Ui::LibraryWindow  * libraryWindow_;
-      ScrollWindow       * helpWindow_;
-      ScrollWindow       * mainWindows_[MainWindowCount];
-      WINDOW             * statusWindow_;
-      WINDOW             * topWindow_;
-      WINDOW             * commandWindow_;
+      bool                   started_;
+      uint32_t               maxRows_;
+      uint32_t               maxColumns_;
 
       Main::Settings const & settings_;
-
-      bool        started_;
-      uint32_t    maxRows_;
-      uint32_t    maxColumns_;
    };
 }
 #endif

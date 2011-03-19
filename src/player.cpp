@@ -53,7 +53,6 @@ bool Player::ClearScreen()
 bool Player::Connect(std::string const & host, UNUSED uint32_t port)
 {
    client_.Connect(host, port);
-
    return true;
 }
 
@@ -62,7 +61,6 @@ bool Player::Echo(std::string const & echo)
    screen_.ConsoleWindow().OutputLine("%s", echo.c_str());
    return true;
 }
-
 
 
 bool Player::Pause()
@@ -84,19 +82,19 @@ bool Player::Quit()
 
 bool Player::ToggleRandom()
 {
-   Random(!GetRandom());
+   SetRandom(!Random());
    return true;
 }
 
-bool Player::Random(bool random)
+bool Player::SetRandom(bool random)
 {
-   client_.Random(random);
+   client_.SetRandom(random);
    return true;
 }
 
-bool Player::GetRandom()
+bool Player::Random()
 {
-   return client_.GetRandom();
+   return client_.Random();
 }
 
 bool Player::Redraw()
@@ -195,7 +193,7 @@ bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInf
 
 uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction)
 {
-   Mpc::Song const * const song         = screen_.PlaylistWindow().GetSong(startSong);
+   Mpc::Song const * const song         = screen_.PlaylistWindow().Song(startSong);
    Mpc::Song const *       newSong      = NULL;
    uint32_t                skipCount    = 0;
    int64_t                 direction    = (skip == Previous) ? -1 : 1;
@@ -210,14 +208,14 @@ uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song:
       do 
       {
          ++skipCount;
-         newSong = screen_.PlaylistWindow().GetSong(startSong + (skipCount * direction));
+         newSong = screen_.PlaylistWindow().Song(startSong + (skipCount * direction));
       }
       while ((newSong != NULL) && ((newSong->*songFunction)().compare((song->*songFunction)()) == 0));
 
       if (newSong == NULL)
       {
          skipCount = 0;
-         newSong   = screen_.PlaylistWindow().GetSong(startSong);
+         newSong   = screen_.PlaylistWindow().Song(startSong);
       }
 
       if (skip == Previous)
@@ -238,7 +236,7 @@ uint32_t Player::First(Mpc::Song const * const song, uint32_t position, Mpc::Son
    do
    {
       ++skipCount;
-      firstSong = screen_.PlaylistWindow().GetSong(position - skipCount);
+      firstSong = screen_.PlaylistWindow().Song(position - skipCount);
    }
    while ((firstSong != NULL) && (firstSong != song) && ((song->*songFunction)().compare((firstSong->*songFunction)()) == 0));
 

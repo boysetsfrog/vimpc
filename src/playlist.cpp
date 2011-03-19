@@ -36,7 +36,7 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const
    settings_        (settings),
    client_          (client),
    search_          (search),
-   buffer_          ()
+   playlist_        ()
 {
    // \todo class requires a lot of cleaning up
 }
@@ -49,7 +49,8 @@ void PlaylistWindow::AddSong(Mpc::Song * const song)
 {
    if (song != NULL)
    {
-      buffer_.insert(buffer_.end(), song);
+      song->IncrementReference();
+      playlist_.insert(playlist_.end(), song);
    }
 }
 
@@ -57,20 +58,20 @@ void PlaylistWindow::AddSong(Mpc::Song * const song, uint32_t position)
 {
    if (song != NULL)
    {
-      if (position == buffer_.size())
+      if (position == playlist_.size())
       {
          AddSong(song);
       }
    }
 }
 
-Mpc::Song const * PlaylistWindow::GetSong(uint32_t songIndex)
+Mpc::Song const * PlaylistWindow::Song(uint32_t songIndex) const
 {
    Mpc::Song const * song = NULL;
 
-   if (songIndex < buffer_.size())
+   if (songIndex < playlist_.size())
    {
-      song = buffer_.at(songIndex);
+      song = playlist_.at(songIndex);
    }
 
    return song; 
@@ -78,14 +79,14 @@ Mpc::Song const * PlaylistWindow::GetSong(uint32_t songIndex)
 
 void PlaylistWindow::RemoveSong(uint32_t count)
 {
-   Mpc::Playlist::iterator it = buffer_.begin(); 
+   Mpc::Playlist::iterator it = playlist_.begin(); 
 
-   for (uint32_t id = 0; ((id != CurrentLine()) && (it != buffer_.end())); ++id)
+   for (uint32_t id = 0; ((id != CurrentLine()) && (it != playlist_.end())); ++id)
    {
       it++;
    }
 
-   if (it != buffer_.end())
+   if (it != playlist_.end())
    {
       for(uint32_t i = count; i > 0; --i)
       {
@@ -93,9 +94,9 @@ void PlaylistWindow::RemoveSong(uint32_t count)
 
          (*it)->DecrementReference();
 
-         if (it != buffer_.end())
+         if (it != playlist_.end())
          {
-            it = buffer_.erase(it);
+            it = playlist_.erase(it);
          }
       }
 
@@ -104,6 +105,7 @@ void PlaylistWindow::RemoveSong(uint32_t count)
 }
 
 
+//! \todo try and remove the need for these
 uint32_t PlaylistWindow::GetCurrentSong() const 
 { 
    return client_.GetCurrentSong();
@@ -121,7 +123,7 @@ void PlaylistWindow::Redraw()
    uint16_t scrollLine  = ScrollLine();
 
    // Flag all the songs in the playlist as no longer in the playlist
-   for (Mpc::Playlist::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
+   for (Mpc::Playlist::iterator it = playlist_.begin(); it != playlist_.end(); ++it)
    {
       (*it)->DecrementReference();
    }
@@ -141,7 +143,7 @@ void PlaylistWindow::Print(uint32_t line) const
    if (printLine < BufferSize())
    {
       WINDOW    * window      = N_WINDOW();
-      Mpc::Song * nextSong    = buffer_[printLine];
+      Mpc::Song * nextSong    = playlist_[printLine];
       int32_t     colour      = DetermineSongColour(line + FirstLine(), nextSong);
       
       wattron(window, COLOR_PAIR(colour) | A_BOLD);
@@ -214,9 +216,9 @@ void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
 
 void PlaylistWindow::Confirm()
 {
-   if (buffer_.size() > CurrentLine())
+   if (playlist_.size() > CurrentLine())
    {
-      Mpc::Song const * const song = buffer_.at(CurrentLine());
+      Mpc::Song const * const song = playlist_.at(CurrentLine());
 
       if (song != NULL)
       {
@@ -251,5 +253,5 @@ void PlaylistWindow::Clear()
 {
    ScrollTo(0);
 
-   buffer_.clear();
+   playlist_.clear();
 }

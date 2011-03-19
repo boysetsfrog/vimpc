@@ -25,7 +25,6 @@
 
 #include "library.hpp"
 #include "screen.hpp"
-#include "song.hpp"
 
 namespace Ui
 {
@@ -35,6 +34,8 @@ namespace Ui
 // \todo cache all the values that we can
 namespace Mpc
 {
+   class Song;
+
    class Client
    {
    public:
@@ -46,17 +47,18 @@ namespace Mpc
       Client & operator=(Client & client);
 
    public:
-      bool GetRandom();
 
    public:
       void Connect(std::string const & hostname = "localhost", uint16_t port = 0);
       void Play(uint32_t playId);
       void Pause();
+      void Stop();
       void Next();
       void Previous();
-      void Stop();
-      void Random(bool random);
       void Single(bool single);
+
+      void SetRandom(bool random);
+      bool Random() const;
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);
@@ -95,16 +97,11 @@ namespace Mpc
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
 
    private:
-      uint32_t SecondsToMinutes(uint32_t duration) const;
-      uint32_t RemainingSeconds(uint32_t duration) const;
-
-   private:
       void CheckError();
       void DeleteConnection();
 
    private:
       struct mpd_connection * connection_;
-      bool mutable currentSongHasChanged_;
       Ui::Screen      const & screen_;
    };
 
@@ -122,11 +119,12 @@ namespace Mpc
          {
             uint32_t const     position = mpd_song_get_pos(nextSong);
             Song const * const newSong  = CreateSong(position, nextSong);
+
+            //! \todo try and remove this
             Song * const       oldSong  = screen_.LibraryWindow().FindSong(newSong);
 
             if (oldSong != NULL)
             {
-               oldSong->IncrementReference();
                (object.*callBack)(oldSong);
             }
 

@@ -35,6 +35,7 @@ namespace Mpc
    class Client;
 }
 
+//! \todo should seperate the playlist and the playlist window
 namespace Ui
 {
    class Search;
@@ -49,7 +50,7 @@ namespace Ui
       void AddSong(Mpc::Song * const song);
       void AddSong(Mpc::Song * const song, uint32_t position);
 
-      Mpc::Song const * GetSong(uint32_t songIndex);
+      Mpc::Song const * Song(uint32_t songIndex) const;
       void RemoveSong(uint32_t count);
 
    public:
@@ -64,25 +65,20 @@ namespace Ui
       void Confirm();
 
    public:
-      Mpc::Playlist Playlist() { return buffer_; }
-
-   public:
-      std::string SearchPattern(int32_t id) { return GetSong(id)->PlaylistDescription(); }
+      std::string SearchPattern(int32_t id) { return Song(id)->PlaylistDescription(); }
 
    private:
       int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
-      void DeleteSongs();
       void Clear();
 
    private:
-      size_t BufferSize() const { return buffer_.size(); }
+      size_t BufferSize() const { return playlist_.size(); }
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-
-      Mpc::Playlist buffer_;
+      Mpc::Playlist          playlist_;
    };
 }
 

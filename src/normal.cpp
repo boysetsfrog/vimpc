@@ -239,19 +239,19 @@ bool Normal::Stop(UNUSED uint32_t count)
 
 bool Normal::Left(uint32_t count)
 {
-   screen_.Left(*this, count);
+   screen_.ActiveWindow().Left(*this, count);
    return true;
 }
 
 bool Normal::Right(uint32_t count)
 {
-   screen_.Right(*this, count);
+   screen_.ActiveWindow().Right(*this, count);
    return true;
 }
 
 bool Normal::Confirm(UNUSED uint32_t count)
 {
-   screen_.Confirm();
+   screen_.ActiveWindow().Confirm();
    return true;
 }
 

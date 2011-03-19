@@ -28,56 +28,51 @@
 #include "playlist.hpp"
 #include "settings.hpp"
 
-#include <iostream>
-
 using namespace Ui;
 
 Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
-   playlistWindow_  (NULL),
+   helpWindow_      (NULL),
    consoleWindow_   (NULL),
    libraryWindow_   (NULL),
-   helpWindow_      (NULL),
+   playlistWindow_  (NULL),
    statusWindow_    (NULL),
-   topWindow_       (NULL),
+   tabWindow_       (NULL),
    commandWindow_   (NULL),
-   settings_        (settings),
    started_         (false),
    maxRows_         (0),
-   maxColumns_      (0)
+   maxColumns_      (0),
+   settings_        (settings)
 {
    STATIC_ASSERT((sizeof(mainWindows_)/sizeof(Window *)) == MainWindowCount);
 
+   // ncurses initialisation
    initscr();
+   halfdelay(1);
+   noecho();
+   getmaxyx(stdscr, maxRows_, maxColumns_);
+   maxRows_ -= 3; //Status and Mode window use last 2 rows, tabline uses top
 
    Ui::Colour::InitialiseColours();
 
-   halfdelay(1);
-   noecho();
-
-   getmaxyx(stdscr, maxRows_, maxColumns_);
-
-   //Status and Mode window use last 2 rows, tabline uses top
-   maxRows_ -= 3;
-
-   //Windows
+   // Create all the windows
+   helpWindow_            = new Ui::HelpWindow    (*this);
+   consoleWindow_         = new Ui::ConsoleWindow (*this);
    libraryWindow_         = new Ui::LibraryWindow (settings, *this, client, search); 
    playlistWindow_        = new Ui::PlaylistWindow(settings, *this, client, search);
-   consoleWindow_         = new Ui::ConsoleWindow (*this);
-   helpWindow_            = new Ui::HelpWindow    (*this);
    statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
-   topWindow_             = newwin(1, maxColumns_, 0, 0);
+   tabWindow_             = newwin(1, maxColumns_, 0, 0);
 
-   //Commands must be read through a window that is always visible
-   commandWindow_         = statusWindow_;    
-
-   //
-   mainWindows_[Playlist] = playlistWindow_;
+   mainWindows_[Help]     = helpWindow_;
    mainWindows_[Console]  = consoleWindow_;
    mainWindows_[Library]  = libraryWindow_;
-   mainWindows_[Help]     = helpWindow_;
+   mainWindows_[Playlist] = playlistWindow_;
+
+   // Commands must be read through a window that is always visible
+   commandWindow_         = statusWindow_;    
    keypad(commandWindow_, true);
 
+   // Window setup
    consoleWindow_->SetAutoScroll(true);
    SetStatusLine("%s", "");
 
@@ -86,14 +81,73 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
 
 Screen::~Screen()
 {
+   delwin(tabWindow_);
+   delwin(statusWindow_);
+
    for (int i = 0; i < MainWindowCount; ++i)
    {
       delete mainWindows_[i];
    }
 
-   delwin(statusWindow_);
-   //delwin(commandWindow_); //This is just an alias to statusWindow
    endwin();
+}
+
+
+/* static */ Screen::MainWindow Screen::GetWindowFromName(std::string const & name)
+{
+   typedef std::map<std::string, MainWindow> WindowTable;
+   static WindowTable windowTable;
+
+   MainWindow window = Playlist;
+
+   if (windowTable.size() != MainWindowCount)
+   {
+      // Names for each of the windows
+      windowTable["help"]     = Help;
+      windowTable["console"]  = Console;
+      windowTable["library"]  = Library;
+      windowTable["playlist"] = Playlist;
+   }
+
+   WindowTable::const_iterator it = windowTable.find(name);
+
+   if (it != windowTable.end())
+   {
+      window = it->second;
+   }
+   
+   ENSURE(windowTable.size() == MainWindowCount);
+
+   return window;
+}
+
+
+/* static */ std::string Screen::GetNameFromWindow(Screen::MainWindow window)
+{
+   typedef std::map<MainWindow, std::string> WindowTable;
+   static WindowTable windowTable;
+
+   std::string name = "unknown";
+
+   if (windowTable.size() != MainWindowCount)
+   {
+      // Values for each of the windows
+      windowTable[Help]     = "help";
+      windowTable[Console]  = "console";
+      windowTable[Library]  = "library";
+      windowTable[Playlist] = "playlist";
+   }
+
+   WindowTable::const_iterator it = windowTable.find(window);
+
+   if (it != windowTable.end())
+   {
+      name = it->second;
+   }
+
+   ENSURE(windowTable.size() == MainWindowCount);
+   
+   return name;
 }
 
 
@@ -116,63 +170,6 @@ ModeWindow * Screen::CreateModeWindow()
    return (new ModeWindow());
 }
 
-void Screen::SetTopWindow() const
-{
-   static std::string const BlankLine(maxColumns_, ' ');
-
-   werase(topWindow_);
-   wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE));
-   mvwprintw(topWindow_, 0, 0, BlankLine.c_str());
-
-   std::string name   = "";
-   uint32_t    length = 0;
-
-   for (int i = 0; i < MainWindowCount; ++i)
-   {
-      wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
-      name = GetNameFromWindow(static_cast<MainWindow>(i));
-
-      if (i == window_)
-      {
-         wattron(topWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
-      }
-
-      wmove(topWindow_, 0, length);
-
-      if (settings_.WindowNumbers() == true)
-      {
-         waddstr(topWindow_, "[");
-         wattron(topWindow_, A_BOLD);
-         wprintw(topWindow_, "%d", i + 1);
-      
-         if (i != window_)
-         {
-            wattroff(topWindow_, A_BOLD);
-         }
-
-         waddstr(topWindow_, "]");
-
-         length += 3;
-      }
-      
-      wprintw(topWindow_, " %s ", name.c_str());
-
-      wattroff(topWindow_, A_REVERSE | A_BOLD);
-
-      length += name.size() + 2;
-   }
-
-   wattroff(topWindow_, A_UNDERLINE);
-   wrefresh(topWindow_);
-}
-
-void Screen::ClearStatus() const
-{
-   static std::string const BlankLine(maxColumns_, ' ');
-
-   wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR));
-   mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
-}
 
 void Screen::SetStatusLine(char const * const fmt, ...) const
 {
@@ -203,9 +200,35 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 }
 
 
+void Screen::AlignTo(Location location, uint32_t line)
+{
+   int scrollLine = (line != 0) ? (line - 1) : ActiveWindow().CurrentLine();
+   int selection  = scrollLine;
+
+   if (location == Bottom)
+   {
+      scrollLine += (1 - ((MaxRows() + 1) / 2));
+   }
+   else if (location == Top)
+   {
+      scrollLine += ((MaxRows() + 1) / 2);
+   }
+
+   // Uses the scroll window scroll to set the right area of the screen
+   ActiveWindow().ScrollWindow::ScrollTo(scrollLine);
+
+   // Uses the select window scroll to set the current line properly
+   ScrollTo(selection);
+}
+
 void Screen::Select(ScrollWindow::Position position, uint32_t count)
 {
-   mainWindows_[window_]->Select(position, count);
+   ActiveWindow().Select(position, count);
+}
+
+void Screen::Scroll(int32_t count)
+{
+   ActiveWindow().Scroll(count);
 }
 
 void Screen::Scroll(Size size, Direction direction, uint32_t count)
@@ -225,12 +248,19 @@ void Screen::Scroll(Size size, Direction direction, uint32_t count)
    Scroll(scrollCount);
 }
 
+void Screen::ScrollTo(uint32_t line)
+{
+   ActiveWindow().ScrollTo(line);
+}
+
 void Screen::ScrollTo(Location location, uint32_t line)
 {
    uint32_t scroll[LocationCount] = { 0, 0, 0, 0 };
 
+   scroll[Top]      = 0;
+   scroll[Bottom]   = ActiveWindow().ContentSize(); 
+   scroll[Current]  = ActiveWindow().CurrentLine();
    scroll[Specific] = line - 1;
-   scroll[Bottom]   = mainWindows_[window_]->ContentSize(); 
 
    if (window_ == Playlist)
    {
@@ -240,50 +270,6 @@ void Screen::ScrollTo(Location location, uint32_t line)
    ScrollTo(scroll[location]);
 }
 
-void Screen::AlignTo(Location location, uint32_t line)
-{
-   if (line == 0)
-   {
-      line = mainWindows_[window_]->CurrentLine();
-   }
-   else
-   {
-      --line;
-   }
-
-   // Uses the scroll window scroll to set the right area of the screen
-   if (location == Bottom)
-   {
-      mainWindows_[window_]->ScrollWindow::ScrollTo(line + 1 - ((MaxRows() + 1) / 2));
-   }
-   else if (location == Centre)
-   {
-      mainWindows_[window_]->ScrollWindow::ScrollTo(line);
-   }
-   else if (location == Top)
-   {
-      mainWindows_[window_]->ScrollWindow::ScrollTo(line + ((MaxRows() + 1) / 2));
-   }
-
-   // Uses the select window scroll to set the current line properly
-   ScrollTo(line);
-}
-
-
-void Screen::Left(Ui::Player & player, uint32_t count)
-{
-   mainWindows_[window_]->Left(player, count);
-}
-
-void Screen::Right(Ui::Player & player, uint32_t count)
-{
-   mainWindows_[window_]->Right(player, count);
-}
-
-void Screen::Confirm()
-{
-   mainWindows_[window_]->Confirm();
-}
 
 void Screen::Clear()
 {
@@ -299,27 +285,27 @@ void Screen::Update() const
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
-      SetTopWindow();
-
-      Ui::Window & mainWindow = assert_reference(mainWindows_[window_]);
-
-      mainWindow.Erase();
+      ActiveWindow().Erase();
+      UpdateTabWindow();
 
       for (uint32_t i = 0; (i < maxRows_); ++i)
       {
-         mainWindow.Print(i);
+         ActiveWindow().Print(i);
       }
 
-      mainWindow.Refresh();
-      wnoutrefresh(topWindow_);
-      wnoutrefresh(statusWindow_);
+      ActiveWindow().Refresh();
       doupdate();
    }
 }
 
-void Screen::Redraw()
+void Screen::Redraw() const
 {
-   mainWindows_[window_]->Redraw();
+   Redraw(window_);
+}
+
+void Screen::Redraw(MainWindow window) const
+{
+   mainWindows_[window]->Redraw();
 }
 
 
@@ -362,33 +348,34 @@ void Screen::SetActiveWindow(MainWindow window)
       window_ = window;
    }
 
-   SetTopWindow();
    Update();
 }
 
 void Screen::SetActiveWindow(Skip skip)
 {
-   MainWindow window;
+   int32_t window = window_ + ((skip == Next) ? 1 : -1);
 
-   if ((window_ == 0) && (skip == Previous))
+   if (window >= MainWindowCount)
    {
-      window = static_cast<MainWindow>(MainWindowCount - 1);
+      window -= MainWindowCount;
    }
-   else if ((window_ == (MainWindowCount - 1)) && (skip == Next))
+   else if (window < 0)
    {
-      window = static_cast<MainWindow>(0);
-   }
-   else
-   {
-      window = static_cast<MainWindow>(window_ + ((skip == Next) ? 1 : -1));
+      window += MainWindowCount;
    }
 
-   SetActiveWindow(window);
+   SetActiveWindow(static_cast<MainWindow>(window));
 }
+
 
 Ui::ScrollWindow & Screen::ActiveWindow() const
 {
    return assert_reference(mainWindows_[window_]);
+}
+
+Ui::ScrollWindow & Screen::HelpWindow() const
+{ 
+   return assert_reference(helpWindow_);
 }
 
 Ui::ConsoleWindow & Screen::ConsoleWindow() const
@@ -407,76 +394,62 @@ Ui::PlaylistWindow & Screen::PlaylistWindow() const
 }
 
 
-Screen::MainWindow Screen::GetWindowFromName(std::string const & windowName)
+void Screen::ClearStatus() const
 {
-   static WindowTable windowTable;
-   static MainWindow  window = Playlist;
+   static std::string const BlankLine(maxColumns_, ' ');
 
-   if (windowTable.size() != MainWindowCount)
-   {
-      // Names for each of the windows
-      windowTable["console"]  = Console;
-      windowTable["playlist"] = Playlist;
-      windowTable["library"]  = Library;
-      windowTable["help"]     = Help;
-   }
-
-   WindowTable::const_iterator it = windowTable.find(windowName);
-
-   if (it != windowTable.end())
-   {
-      window = it->second;
-   }
-   
-   ENSURE(windowTable.size() == MainWindowCount);
-
-   return window;
+   wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR));
+   mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
 }
 
-
-std::string Screen::GetNameFromWindow(Screen::MainWindow window)
+void Screen::UpdateTabWindow() const
 {
-   std::string name("");
+   static std::string const BlankLine(maxColumns_, ' ');
 
-   switch (window)
+   werase(tabWindow_);
+   wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+   mvwprintw(tabWindow_, 0, 0, BlankLine.c_str());
+
+   std::string name   = "";
+   uint32_t    length = 0;
+
+   for (int i = 0; i < MainWindowCount; ++i)
    {
-      case Console:
-         name = "console";
-         break;
+      wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
+      name = GetNameFromWindow(static_cast<MainWindow>(i));
 
-      case Help:
-         name = "help";
-         break;
+      if (i == window_)
+      {
+         wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
+      }
 
-      case Playlist:
-         name = "playlist";
-         break;
+      wmove(tabWindow_, 0, length);
 
-      case Library:
-         name = "library";
-         break;
+      if (settings_.WindowNumbers() == true)
+      {
+         waddstr(tabWindow_, "[");
+         wattron(tabWindow_, A_BOLD);
+         wprintw(tabWindow_, "%d", i + 1);
+      
+         if (i != window_)
+         {
+            wattroff(tabWindow_, A_BOLD);
+         }
 
-      case MainWindowCount:
-         ASSERT(false);
-         break;
+         waddstr(tabWindow_, "]");
 
-      default:
-         ASSERT(false);
-         break;
+         length += 3;
+      }
+      
+      wprintw(tabWindow_, " %s ", name.c_str());
+
+      wattroff(tabWindow_, A_REVERSE | A_BOLD);
+
+      length += name.size() + 2;
    }
 
-   return name;
-}
-
-
-void Screen::Scroll(int32_t count)
-{
-   mainWindows_[window_]->Scroll(count);
-}
-
-void Screen::ScrollTo(uint32_t line)
-{
-   mainWindows_[window_]->ScrollTo(line);
+   wattroff(tabWindow_, A_UNDERLINE);
+   wrefresh(tabWindow_);
 }
 
 

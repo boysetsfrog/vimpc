@@ -82,10 +82,10 @@ namespace Ui
       bool ToggleRandom();
 
       //! Disables/Enables random functionality
-      bool Random(bool random);
+      bool SetRandom(bool random);
 
       //! Get the current random state
-      bool GetRandom();
+      bool Random();
 
       //! Redraws the current window
       bool Redraw();

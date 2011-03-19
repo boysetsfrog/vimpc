@@ -22,24 +22,35 @@
 
 #include "assert.hpp"
 #include "error.hpp"
-#include "console.hpp"
-#include "library.hpp"
-#include "playlist.hpp"
 #include "screen.hpp"
 
-#include <iomanip>
-#include <sstream>
-
-#include <sys/time.h>
-#include <unistd.h>
 #include <mpd/tag.h>
 #include <mpd/status.h>
 
 using namespace Mpc;
 
+
+// Local helper functions
+namespace Mpc
+{
+   uint32_t SecondsToMinutes(uint32_t duration);
+   uint32_t RemainingSeconds(uint32_t duration);
+}
+
+uint32_t Mpc::SecondsToMinutes(uint32_t duration)
+{
+   return static_cast<uint32_t>(duration / 60);
+}
+
+uint32_t Mpc::RemainingSeconds(uint32_t duration)
+{
+   return (duration - (SecondsToMinutes(duration) * 60));
+}
+ 
+
+// Mpc::Client Implementation
 Client::Client(Ui::Screen const & screen) :
    connection_           (NULL),
-   currentSongHasChanged_(true),
    screen_               (screen)
 {
 }
@@ -50,22 +61,14 @@ Client::~Client()
 }
 
 
-bool Client::GetRandom()
-{
-   mpd_status * status = mpd_run_status(connection_);
-
-   return mpd_status_get_random(status);
-}
-
-
 void Client::Connect(std::string const & hostname, uint16_t port)
 {
    DeleteConnection();
 
    connection_ = mpd_connection_new(hostname.c_str(), port, 0);
 
-   screen_.LibraryWindow().Redraw();
-   screen_.PlaylistWindow().Redraw();
+   screen_.Redraw(Ui::Screen::Library);
+   screen_.Redraw(Ui::Screen::Playlist);
    CheckError();
 }
 
@@ -74,8 +77,6 @@ void Client::Play(uint32_t const playId)
    if (Connected() == true)
    {
       uint32_t id = playId;
-      currentSongHasChanged_ = true;
-
       mpd_run_play_pos(connection_, id);
       CheckError();
    }
@@ -90,28 +91,6 @@ void Client::Pause()
    }
 }
 
-void Client::Next()
-{
-   if (Connected() == true)
-   {
-      currentSongHasChanged_ = true;
-
-      mpd_run_next(connection_);
-      CheckError();
-   }
-}
-
-void Client::Previous()
-{
-   if (Connected() == true)
-   {
-      currentSongHasChanged_ = true;
-
-      mpd_run_previous(connection_);
-      CheckError();
-   }
-}
-
 void Client::Stop()
 {
    if (Connected() == true)
@@ -121,14 +100,24 @@ void Client::Stop()
    }
 }
 
-void Client::Random(bool const random)
+void Client::Next()
 {
    if (Connected() == true)
    {
-      mpd_run_random(connection_, random);
+      mpd_run_next(connection_);
       CheckError();
    }
 }
+
+void Client::Previous()
+{
+   if (Connected() == true)
+   {
+      mpd_run_previous(connection_);
+      CheckError();
+   }
+}
+
 
 void Client::Single(bool const single)
 {
@@ -140,18 +129,28 @@ void Client::Single(bool const single)
 }
 
 
+bool Client::Random() const
+{
+   mpd_status * status = mpd_run_status(connection_);
+
+   return mpd_status_get_random(status);
+}
+
+void Client::SetRandom(bool const random)
+{
+   if (Connected() == true)
+   {
+      mpd_run_random(connection_, random);
+      CheckError();
+   }
+}
+
+
 uint32_t Client::Add(Mpc::Song & song)
 {
-   int32_t position = screen_.PlaylistWindow().Playlist().size();
-
    if (Connected() == true)
    {
       mpd_run_add(connection_, song.URI().c_str());
-
-      song.IncrementReference();
-
-      screen_.PlaylistWindow().AddSong(&song, position);
-
       CheckError();
    }
 
@@ -313,6 +312,7 @@ void Client::DisplaySongInformation()
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
          std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
+         //! \todo turn into a single setstatus and use a blank filler rather than a move
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
          screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]", 
                                SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
@@ -344,18 +344,7 @@ Song * Client::CreateSong(UNUSED uint32_t id, mpd_song const * const song) const
 }
 
 
-uint32_t Client::SecondsToMinutes(uint32_t duration) const
-{
-   return static_cast<uint32_t>(duration / 60);
-}
-
-uint32_t Client::RemainingSeconds(uint32_t duration) const
-{
-   return (duration - (SecondsToMinutes(duration) * 60));
-}
-   
-
-
+  
 void Client::CheckError()
 {
    if (connection_ != NULL)
@@ -368,8 +357,8 @@ void Client::CheckError()
 
          if (connection_ != NULL)
          {
-            screen_.PlaylistWindow().Redraw();
-            screen_.LibraryWindow().Redraw();
+            screen_.Redraw(Ui::Screen::Library);
+            screen_.Redraw(Ui::Screen::Playlist);
          }
 
          DeleteConnection();
