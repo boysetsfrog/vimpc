@@ -375,7 +375,7 @@ bool Normal::ScrollTo(uint32_t line)
 }
 
 
-//Align
+// Implementation of align function
 template <Screen::Location LOCATION>
 bool Normal::AlignTo(uint32_t line)
 {
@@ -386,7 +386,6 @@ bool Normal::AlignTo(uint32_t line)
 
    screen_.AlignTo(LOCATION, line);
 
-   //! \todo handle count
    return true;
 }
 

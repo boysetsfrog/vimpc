@@ -454,7 +454,6 @@ void LibraryWindow::Confirm()
 {
    client_.Clear();
    
-   // \todo need to remove all the references set on songs in the library
    int32_t song = AddSongsToPlaylist(Mpc::Song::Single);
 
    if (song != -1)
@@ -506,6 +505,9 @@ void LibraryWindow::AddSongsToPlaylist(Mpc::LibraryEntry const * const entry, in
    }
 }
 
+// \todo should store the current state for each album artist entry in the library
+// and update it when there is an add or delete that way i won't need to do a recursive loop
+// here for every single print, which is plenty slow
 int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry) const
 {
    int32_t colour = SONGCOLOUR;

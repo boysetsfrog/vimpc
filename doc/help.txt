@@ -31,6 +31,15 @@ MOTION:
    [count] L                      | selects the song at the bottom of the currently active section of window,
                                   | if count is specified, selects [count] up from the bottom.
 
+   [count] z<Enter>               | moves the currently selected line to the top
+                                  | if count is specified, moves the [count]th line to the top.
+
+   [count] z.                     | centres the currently selected line
+                                  | if count is specified, centres the [count]th line.
+
+   [count] z-                     | moves the currently selected line to the bottom
+                                  | if count is specified, movies the [count]th line to the bottom.
+
 WINDOWS:
    [count] gt                     | change to the next window, or to the [count] window if count is specified
    [count] gT                     | change to the previous window, or change back [count] windows if count is specified
@@ -44,10 +53,10 @@ SEARCHING:
 PLAYING:                          
    [count] h                      | skip to the previous song, if count is specified, skips back [count] songs
    [count] l                      | skip to the next song, if count is specified, skips forward [count] songs
-   [count] z                      | skip to the previous artist, if count is specified, skips back [count] artists
-   [count] x                      | skip to the next artist, if count is specified, skips forward [count] artists
-   [count] Z                      | skip to the previous album, if count is specified, skips back [count] albums
-   [count] X                      | skip to the next album, if count is specified, skips forward [count] albums
+   [count] q                      | skip to the previous artist, if count is specified, skips back [count] artists
+   [count] w                      | skip to the next artist, if count is specified, skips forward [count] artists
+   [count] Q                      | skip to the previous album, if count is specified, skips back [count] albums
+   [count] W                      | skip to the next album, if count is specified, skips forward [count] albums
            p                      | toggle the pause on/off
            s                      | stop playback
  

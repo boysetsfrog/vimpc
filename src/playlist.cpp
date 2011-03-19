@@ -121,6 +121,12 @@ void PlaylistWindow::Redraw()
    uint16_t currentLine = CurrentLine();
    uint16_t scrollLine  = ScrollLine();
 
+   // Flag all the songs in the playlist as no longer in the playlist
+   for (Mpc::Playlist::iterator it = buffer_.begin(); it != buffer_.end(); ++it)
+   {
+      (*it)->DecrementReference();
+   }
+
    Clear();
 
    client_.ForEachQueuedSong(*this, &PlaylistWindow::AddSong);
