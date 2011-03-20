@@ -311,7 +311,7 @@ bool Normal::DeleteSong(uint32_t count)
 
       for (uint32_t i = 0; i < count; ++i)
       {
-         client_.Delete(currentLine + count - 1);
+         client_.Delete(currentLine);
       }
 
       playlist_.Remove(currentLine, count);
@@ -443,7 +443,7 @@ void Normal::DisplayModeLine()
       //! \todo should make work for ac
       currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().ContentSize()) - 1));
       currentScroll += .005;
-      modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << screen_.ActiveWindow().ContentSize() << " -- ";
+      modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
    }
 
    if (playlist_.Songs() > screen_.MaxRows() - 1)
