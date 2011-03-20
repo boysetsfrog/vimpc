@@ -21,41 +21,55 @@
 #ifndef __UI__PLAYLIST
 #define __UI__PLAYLIST
 
+// Includes
 #include "song.hpp"
 #include "selectwindow.hpp"
 
-namespace Main
-{
-   class Settings;
-}
+// Forward Declarations
+namespace Main { class Settings; }
+namespace Mpc  { class Client; }
+namespace Ui   { class Search; }
 
+// Playlist 
 namespace Mpc
 {
-   typedef std::vector<Song * > Playlist;
-   class Client;
+   class Playlist : private std::vector<Song *>
+   {
+   public:
+      static Playlist & Instance()
+      {
+         static Playlist * instance = NULL;
+
+         if (instance == NULL)
+         {
+            instance = new Playlist();
+         }
+
+         return *instance;
+      }
+
+   private:
+      Playlist()  {} 
+      ~Playlist() {}
+
+   public:
+      Mpc::Song const * Song(uint32_t position) const;
+      void Add(Mpc::Song * const song);
+      void Add(Mpc::Song * const song, uint32_t position);
+      void Remove(uint32_t position, uint32_t count = 1);
+      void Clear();
+      uint32_t Songs() const;
+   };
 }
 
-//! \todo should seperate the playlist and the playlist window
+// Playlist window class
 namespace Ui
 {
-   class Search;
-
    class PlaylistWindow : public Ui::SelectWindow
    {
    public:
       PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
       ~PlaylistWindow();
-
-   public:
-      void AddSong(Mpc::Song * const song);
-      void AddSong(Mpc::Song * const song, uint32_t position);
-
-      Mpc::Song const * Song(uint32_t songIndex) const;
-      void RemoveSong(uint32_t count);
-
-   public:
-      uint32_t GetCurrentSong()     const;
-      uint32_t TotalNumberOfSongs() const;
 
    public:
       void Redraw();
@@ -65,20 +79,22 @@ namespace Ui
       void Confirm();
 
    public:
-      std::string SearchPattern(int32_t id) { return Song(id)->PlaylistDescription(); }
+      uint32_t GetCurrentSong() const;
+      uint32_t Current() const { return GetCurrentSong(); }
+      std::string SearchPattern(int32_t id) { return playlist_.Song(id)->PlaylistDescription(); }
 
    private:
       int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
       void Clear();
 
    private:
-      size_t BufferSize() const { return playlist_.size(); }
+      size_t BufferSize() const { return playlist_.Songs(); }
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      Mpc::Playlist          playlist_;
+      Mpc::Playlist        & playlist_;
    };
 }
 

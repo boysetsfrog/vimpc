@@ -110,6 +110,9 @@ namespace Ui
       uint32_t WaitForInput() const;
 
    public:
+      MainWindow GetActiveWindow() const;
+      Ui::ScrollWindow   & ActiveWindow() const;
+
       // Changes the currently active window by setting it explicitly
       void SetActiveWindow(MainWindow window);
 
@@ -118,11 +121,9 @@ namespace Ui
    
    public: 
       // Access a specific window
-      Ui::ScrollWindow   & ActiveWindow() const;
-      Ui::ScrollWindow   & HelpWindow() const;
+      //! \todo trying to get rid of these
       Ui::ConsoleWindow  & ConsoleWindow() const;
       Ui::LibraryWindow  & LibraryWindow() const; 
-      Ui::PlaylistWindow & PlaylistWindow() const; 
 
    private:
       void ClearStatus() const;
@@ -131,10 +132,13 @@ namespace Ui
 
    private:
       MainWindow             window_;
+
+      //! \todo once i get rid of the accessor functions these can go
       ScrollWindow         * helpWindow_;
       Ui::ConsoleWindow    * consoleWindow_;
       Ui::LibraryWindow    * libraryWindow_;
       Ui::PlaylistWindow   * playlistWindow_;
+
       ScrollWindow         * mainWindows_[MainWindowCount];
       WINDOW               * statusWindow_;
       WINDOW               * tabWindow_;

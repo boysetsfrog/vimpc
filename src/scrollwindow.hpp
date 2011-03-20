@@ -50,6 +50,8 @@ namespace Ui
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
 
+      virtual uint32_t Current() const { return 0; };
+
    public:
       bool Select(Position position, uint32_t count);
 

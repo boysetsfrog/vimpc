@@ -32,9 +32,9 @@ namespace Main
    class Settings;
 }
 
-namespace Mpd
+namespace Mpc
 {
-   class Client;
+   class Playlist;
 }
 
 namespace Ui
@@ -137,8 +137,8 @@ namespace Ui
       Ui::Search     & search_;
       Ui::Screen     & screen_;
       Mpc::Client    & client_;
+      Mpc::Playlist  & playlist_;
       Main::Settings & settings_;
-
    };
 
 }

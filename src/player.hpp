@@ -37,6 +37,7 @@ namespace Main
 namespace Mpc
 {
    class Client;
+   class Playlist;
 }
 
 namespace Ui
@@ -144,6 +145,7 @@ namespace Ui
    private:
       Ui::Screen     & screen_;
       Mpc::Client    & client_;
+      Mpc::Playlist  & playlist_;
       Main::Settings & settings_;
    };
 

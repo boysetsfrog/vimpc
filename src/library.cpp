@@ -476,7 +476,7 @@ void LibraryWindow::AddSongsToPlaylist(Mpc::LibraryEntry const * const entry)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
-      screen_.PlaylistWindow().AddSong(entry->song_);
+      Mpc::Playlist::Instance().Add(entry->song_);
       client_.Add(*(entry->song_));
    }
    else 

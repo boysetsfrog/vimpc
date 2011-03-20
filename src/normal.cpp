@@ -46,6 +46,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    search_          (search),
    screen_          (screen),
    client_          (client),
+   playlist_        (Mpc::Playlist::Instance()),
    settings_        (settings)
 {
    // \todo figure out how to do alt + ctrl key combinations
@@ -302,7 +303,21 @@ bool Normal::DeleteSong(uint32_t count)
    //!       ie to do stuff like dG, this may require making some kind of movement
    //!          table or something rather than the way it currently works
    //! \todo handle deleting all songs
-   screen_.PlaylistWindow().RemoveSong(count);
+
+   //! \todo it seems like this needs to know a lot of stuff, surely i could abstract this out?
+   if (screen_.GetActiveWindow() == Screen::Playlist)
+   {
+      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
+
+      for (uint32_t i = 0; i < count; ++i)
+      {
+         client_.Delete(currentLine + count - 1);
+      }
+
+      playlist_.Remove(currentLine, count);
+      screen_.ScrollTo(currentLine);
+   }
+
    return true;
 }
 
@@ -419,19 +434,19 @@ bool Normal::SetActiveWindow(uint32_t count)
 void Normal::DisplayModeLine()
 {
    // \todo need to display random, repeat, single, consume state somewhere
-
    std::ostringstream modeStream;
-   
+
    float currentScroll = 0.0;
 
-   if (screen_.PlaylistWindow().TotalNumberOfSongs() > 0)
+   if (playlist_.Songs() > 0)
    {
-      currentScroll = ((screen_.PlaylistWindow().CurrentLine())/(static_cast<float>(screen_.PlaylistWindow().TotalNumberOfSongs()) - 1));
+      //! \todo should make work for ac
+      currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().ContentSize()) - 1));
       currentScroll += .005;
-      modeStream << (screen_.PlaylistWindow().CurrentLine() + 1) << "/" << screen_.PlaylistWindow().TotalNumberOfSongs() << " -- ";
+      modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << screen_.ActiveWindow().ContentSize() << " -- ";
    }
 
-   if (screen_.PlaylistWindow().TotalNumberOfSongs() > screen_.MaxRows() - 1)
+   if (playlist_.Songs() > screen_.MaxRows() - 1)
    {
       if (currentScroll <= .010)
       {

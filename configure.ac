@@ -54,7 +54,7 @@ if test "x$enable_debug" = "xyes"; then
             -D__DEBUG_PRINTS  \\
             -D__DEBUG_ASSERT  \\
             -Wall -Wextra -W  \\
-            -Wformat -Weffc++ -Wold-style-cast -Woverloaded-virtual -Wctor-dtor-privacy -Wsign-promo \\
+            -Wformat -Wold-style-cast -Woverloaded-virtual -Wctor-dtor-privacy -Wsign-promo \\
             -Wswitch-default -Wswitch-enum -Wfloat-equal -Wshadow -Winit-self -Wformat-security \\
             -Wcast-qual -Wcast-align -Wmissing-declarations -Wcomment \\
             -Werror -pedantic"

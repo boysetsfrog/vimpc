@@ -259,13 +259,8 @@ void Screen::ScrollTo(Location location, uint32_t line)
 
    scroll[Top]      = 0;
    scroll[Bottom]   = ActiveWindow().ContentSize(); 
-   scroll[Current]  = ActiveWindow().CurrentLine();
+   scroll[Current]  = ActiveWindow().Current(); 
    scroll[Specific] = line - 1;
-
-   if (window_ == Playlist)
-   {
-      scroll[Current] = PlaylistWindow().GetCurrentSong(); 
-   }
 
    ScrollTo(scroll[location]);
 }
@@ -341,6 +336,17 @@ uint32_t Screen::WaitForInput() const
    return input;
 }
 
+
+Ui::ScrollWindow & Screen::ActiveWindow() const
+{
+   return assert_reference(mainWindows_[window_]);
+}
+
+Screen::MainWindow Screen::GetActiveWindow() const
+{
+   return window_;
+}
+
 void Screen::SetActiveWindow(MainWindow window)
 {
    if (window < MainWindowCount)
@@ -368,16 +374,6 @@ void Screen::SetActiveWindow(Skip skip)
 }
 
 
-Ui::ScrollWindow & Screen::ActiveWindow() const
-{
-   return assert_reference(mainWindows_[window_]);
-}
-
-Ui::ScrollWindow & Screen::HelpWindow() const
-{ 
-   return assert_reference(helpWindow_);
-}
-
 Ui::ConsoleWindow & Screen::ConsoleWindow() const
 { 
    return assert_reference(consoleWindow_);
@@ -386,11 +382,6 @@ Ui::ConsoleWindow & Screen::ConsoleWindow() const
 Ui::LibraryWindow & Screen::LibraryWindow() const
 { 
    return assert_reference(libraryWindow_);
-}
-
-Ui::PlaylistWindow & Screen::PlaylistWindow() const
-{ 
-   return assert_reference(playlistWindow_);
 }
 
 

@@ -39,6 +39,7 @@ namespace Mpc
    class Client;
 }
 
+//! \todo seperate library from library window
 namespace Ui
 {
    class Search;

@@ -23,6 +23,7 @@
 
 #include "scrollwindow.hpp"
 
+//! \todo seperate console from console window
 namespace Ui
 {
    //
