@@ -119,12 +119,6 @@ namespace Ui
       // Changes the currently active window by rotating through those available
       void SetActiveWindow(Skip skip);
    
-   public: 
-      // Access a specific window
-      //! \todo trying to get rid of these
-      Ui::ConsoleWindow  & ConsoleWindow() const;
-      Ui::LibraryWindow  & LibraryWindow() const; 
-
    private:
       void ClearStatus() const;
       void UpdateTabWindow() const;
@@ -132,13 +126,6 @@ namespace Ui
 
    private:
       MainWindow             window_;
-
-      //! \todo once i get rid of the accessor functions these can go
-      ScrollWindow         * helpWindow_;
-      Ui::ConsoleWindow    * consoleWindow_;
-      Ui::LibraryWindow    * libraryWindow_;
-      Ui::PlaylistWindow   * playlistWindow_;
-
       ScrollWindow         * mainWindows_[MainWindowCount];
       WINDOW               * statusWindow_;
       WINDOW               * tabWindow_;

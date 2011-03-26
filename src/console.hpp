@@ -21,11 +21,34 @@
 #ifndef __UI__CONSOLE
 #define __UI__CONSOLE
 
+#include <string>
+
+#include "buffer.hpp"
 #include "scrollwindow.hpp"
 
 //! \todo seperate console from console window
 namespace Ui
 {
+   class Console : public Main::Buffer<std::string>
+   {
+   public:
+      static Console & Instance()
+      {
+         static Console * console = NULL;
+
+         if (console == NULL)
+         {
+            console = new Console();
+         }
+
+         return *console;
+      }
+
+   private:
+      Console()  { }
+      ~Console() { }
+   };
+
    //
    class ConsoleWindow : public Ui::ScrollWindow
    {
@@ -33,19 +56,19 @@ namespace Ui
       ConsoleWindow(Ui::Screen const & screen);
       ~ConsoleWindow();
 
-   public: //Ui::Window
-      void Print(uint32_t line) const;
-
    public:
-      void OutputLine(char const * const fmt, ...);
+      void Print(uint32_t line) const;
       void Clear();
 
+   public: //Ui::Window
+      void CallbackOnBufferAdd();
+      void CallbackOnBufferRemove() { }
+
    private: //Ui::Window
-      size_t BufferSize() const;
+      size_t BufferSize() const { return console_.Size(); }
 
    private:
-      typedef std::vector<std::string> WindowBuffer;
-      WindowBuffer buffer_;
+      Console & console_;
    };
 }
 

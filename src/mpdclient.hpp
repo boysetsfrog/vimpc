@@ -119,9 +119,7 @@ namespace Mpc
          {
             uint32_t const     position = mpd_song_get_pos(nextSong);
             Song const * const newSong  = CreateSong(position, nextSong);
-
-            //! \todo try and remove this
-            Song * const       oldSong  = screen_.LibraryWindow().FindSong(newSong);
+            Song * const       oldSong  = Mpc::Library::Instance().Song(newSong);
 
             if (oldSong != NULL)
             {

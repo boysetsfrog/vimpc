@@ -22,13 +22,8 @@
 #define __UI__PLAYLIST
 
 // Includes
+#include <vector>
 #include "song.hpp"
-#include "selectwindow.hpp"
-
-// Forward Declarations
-namespace Main { class Settings; }
-namespace Mpc  { class Client; }
-namespace Ui   { class Search; }
 
 // Playlist 
 namespace Mpc
@@ -61,41 +56,4 @@ namespace Mpc
       uint32_t Songs() const;
    };
 }
-
-// Playlist window class
-namespace Ui
-{
-   class PlaylistWindow : public Ui::SelectWindow
-   {
-   public:
-      PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
-      ~PlaylistWindow();
-
-   public:
-      void Redraw();
-      void Print(uint32_t line) const;
-      void Left(Ui::Player & player, uint32_t count);
-      void Right(Ui::Player & player, uint32_t count);
-      void Confirm();
-
-   public:
-      uint32_t GetCurrentSong() const;
-      uint32_t Current() const { return GetCurrentSong(); }
-      std::string SearchPattern(int32_t id) { return playlist_.Song(id)->PlaylistDescription(); }
-
-   private:
-      int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
-      void Clear();
-
-   private:
-      size_t BufferSize() const { return playlist_.Songs(); }
-
-   private:
-      Main::Settings const & settings_;
-      Mpc::Client          & client_;
-      Ui::Search     const & search_;
-      Mpc::Playlist        & playlist_;
-   };
-}
-
 #endif

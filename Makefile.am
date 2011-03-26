@@ -6,6 +6,7 @@ man_MANS         = doc/vimpc.1
 doc_DATA         = doc/help.txt
 vimpc_SOURCES    = src/assert.hpp \
                    src/attributes.hpp \
+                   src/buffer.hpp \
                    src/colour.hpp \
                    src/command.cpp \
                    src/command.hpp \
@@ -19,6 +20,8 @@ vimpc_SOURCES    = src/assert.hpp \
                    src/inputmode.hpp \
                    src/library.cpp \
                    src/library.hpp \
+                   src/librarywindow.cpp \
+                   src/librarywindow.hpp \
                    src/main.cpp \
                    src/mode.hpp \
                    src/modewindow.cpp \
@@ -31,6 +34,8 @@ vimpc_SOURCES    = src/assert.hpp \
                    src/player.hpp \
                    src/playlist.cpp \
                    src/playlist.hpp \
+                   src/playlistwindow.cpp \
+                   src/playlistwindow.hpp \
                    src/project.hpp \
                    src/screen.cpp \
                    src/screen.hpp \

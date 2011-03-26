@@ -26,15 +26,11 @@
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
-namespace Ui
-{
-   class Mode;
-}
+namespace Ui   { class Mode; }
+namespace Main { class Settings; }
 
 namespace Main
 {
-   class Settings;
-
    class Vimpc
    {
    public:

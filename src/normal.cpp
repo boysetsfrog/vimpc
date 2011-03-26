@@ -270,14 +270,14 @@ bool Normal::RepeatLastAction(uint32_t count)
 
 bool Normal::Expand(UNUSED uint32_t count)
 {
-   screen_.LibraryWindow().Expand(screen_.LibraryWindow().CurrentLine());
+   Mpc::Library::Instance().Expand(screen_.ActiveWindow().CurrentLine());
 
    return true;
 }
 
 bool Normal::Collapse(UNUSED uint32_t count)
 {
-   screen_.LibraryWindow().Collapse(screen_.LibraryWindow().CurrentLine());
+   Mpc::Library::Instance().Collapse(screen_.ActiveWindow().CurrentLine());
 
    return true;
 }
@@ -292,7 +292,7 @@ bool Normal::AddSong(uint32_t count)
    //! \todo handle adding all songs
    (void) count;
 
-   screen_.LibraryWindow().AddSongsToPlaylist(COLLECTION);
+   Mpc::Library::Instance().AddToPlaylist(client_, COLLECTION, screen_.ActiveWindow().CurrentLine());
    return true;
 }
 

@@ -28,8 +28,9 @@ using namespace Ui;
 
 ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :
    ScrollWindow(screen),
-   buffer_     ()
+   console_    (Ui::Console::Instance())
 {
+   console_.AddCallback(Main::BufferState::Entry_Add, this, &Ui::Window::CallbackOnBufferAdd);
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -43,41 +44,23 @@ void ConsoleWindow::Print(uint32_t line) const
 
    if (currentLine < BufferSize())
    {
-      std::string const output = buffer_[currentLine].substr(0, buffer_[currentLine].find("\n"));
+      std::string const output = console_.Get(currentLine);
 
       mvwprintw(N_WINDOW(), line, 0, "%s", output.c_str());
    }
 }
 
-
-void ConsoleWindow::OutputLine(char const * const fmt, ...)
+void ConsoleWindow::CallbackOnBufferAdd()
 {
-   static uint16_t const InputBufferSize = 256;
-   char   buffer[InputBufferSize];
-
-   va_list args;
-   va_start(args, fmt);
-   vsnprintf(buffer, InputBufferSize - 1, fmt, args);
-   va_end(args);
-
-   if ((AutoScroll() == true) && (BufferSize() == ScrollLine()))
+   if ((AutoScroll() == true) && (BufferSize() <= ScrollLine()))
    {
-      wscrl(N_WINDOW(), 1);
-      SetScrollLine(ScrollLine() + 1);
-   }
-
-   buffer_.insert(buffer_.end(), buffer);
+      ScrollTo(console_.Size());
+   } 
 }
 
 void ConsoleWindow::Clear() 
 { 
-   buffer_.clear(); 
+   console_.Clear(); 
    werase(N_WINDOW());
    ResetScroll(); 
-}
-
-
-size_t ConsoleWindow::BufferSize() const 
-{ 
-   return buffer_.size();
 }

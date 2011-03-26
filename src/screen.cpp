@@ -24,18 +24,14 @@
 #include "colour.hpp"
 #include "error.hpp"
 #include "help.hpp"
-#include "library.hpp"
-#include "playlist.hpp"
+#include "librarywindow.hpp"
+#include "playlistwindow.hpp"
 #include "settings.hpp"
 
 using namespace Ui;
 
 Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
-   helpWindow_      (NULL),
-   consoleWindow_   (NULL),
-   libraryWindow_   (NULL),
-   playlistWindow_  (NULL),
    statusWindow_    (NULL),
    tabWindow_       (NULL),
    commandWindow_   (NULL),
@@ -56,24 +52,19 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    Ui::Colour::InitialiseColours();
 
    // Create all the windows
-   helpWindow_            = new Ui::HelpWindow    (*this);
-   consoleWindow_         = new Ui::ConsoleWindow (*this);
-   libraryWindow_         = new Ui::LibraryWindow (settings, *this, client, search); 
-   playlistWindow_        = new Ui::PlaylistWindow(settings, *this, client, search);
+   mainWindows_[Help]     = new Ui::HelpWindow    (*this);
+   mainWindows_[Console]  = new Ui::ConsoleWindow (*this);
+   mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search); 
+   mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
    statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
-
-   mainWindows_[Help]     = helpWindow_;
-   mainWindows_[Console]  = consoleWindow_;
-   mainWindows_[Library]  = libraryWindow_;
-   mainWindows_[Playlist] = playlistWindow_;
 
    // Commands must be read through a window that is always visible
    commandWindow_         = statusWindow_;    
    keypad(commandWindow_, true);
 
    // Window setup
-   consoleWindow_->SetAutoScroll(true);
+   mainWindows_[Console]->SetAutoScroll(true);
    SetStatusLine("%s", "");
 
    ENSURE(WindowsAreInitialised() == true);
@@ -268,7 +259,7 @@ void Screen::ScrollTo(Location location, uint32_t line)
 
 void Screen::Clear()
 {
-   consoleWindow_->Clear();
+   Ui::Console::Instance().Clear();
 
    if (window_ == Console)
    {
@@ -371,17 +362,6 @@ void Screen::SetActiveWindow(Skip skip)
    }
 
    SetActiveWindow(static_cast<MainWindow>(window));
-}
-
-
-Ui::ConsoleWindow & Screen::ConsoleWindow() const
-{ 
-   return assert_reference(consoleWindow_);
-}
-
-Ui::LibraryWindow & Screen::LibraryWindow() const
-{ 
-   return assert_reference(libraryWindow_);
 }
 
 

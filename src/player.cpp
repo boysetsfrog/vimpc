@@ -59,7 +59,7 @@ bool Player::Connect(std::string const & host, UNUSED uint32_t port)
 
 bool Player::Echo(std::string const & echo)
 {
-   screen_.ConsoleWindow().OutputLine("%s", echo.c_str());
+   Ui::Console::Instance().Add(echo);
    return true;
 }
 

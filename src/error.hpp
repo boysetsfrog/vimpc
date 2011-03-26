@@ -33,6 +33,7 @@ namespace Ui
 {
    class ErrorWindow : public Ui::ModeWindow
    {
+   //! \todo why is this a singleton?
    public: 
       static ErrorWindow & Instance()
       {

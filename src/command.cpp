@@ -40,8 +40,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    forceCommand_       (false),
    aliasTable_         (),
    commandTable_       (),
-   settings_           (settings),
-   console_            (screen.ConsoleWindow())
+   settings_           (settings)
 {
    // \todo find a away to add aliases to tab completion
    commandTable_["!mpc"]      = &Command::Mpc;
@@ -174,7 +173,7 @@ bool Command::Play(std::string const & arguments)
 
 bool Command::Quit(UNUSED std::string const & arguments)
 { 
-   if ((forceCommand_ != true) && (settings_.StopOnQuit() == true))
+   if ((forceCommand_ == true) || (settings_.StopOnQuit() == true))
    {
       Player::Stop();
    }
@@ -306,7 +305,7 @@ bool Command::Mpc(std::string const & arguments)
 
    std::string const command("mpc " + arguments);
 
-   console_.OutputLine("> %s", command.c_str());
+   Ui::Console::Instance().Add("> " + command);
 
    FILE * const mpcOutput = popen(command.c_str(), "r");
 
@@ -314,7 +313,7 @@ bool Command::Mpc(std::string const & arguments)
    {
       while (fgets(buffer, bufferSize - 1, mpcOutput) != NULL)
       {
-         console_.OutputLine("%s", buffer);
+         Ui::Console::Instance().Add(buffer);
       }
 
       pclose(mpcOutput);

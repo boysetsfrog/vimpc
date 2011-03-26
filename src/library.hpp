@@ -21,81 +21,20 @@
 #ifndef __UI__LIBRARY
 #define __UI__LIBRARY
 
-#include "selectwindow.hpp"
 #include "song.hpp"
 
-#include <map>
+#include <vector>
 
-namespace Main
-{
-   class Settings;
-}
+namespace Main { class Settings; }
+namespace Ui   { class LibraryWindow; }
 
 namespace Mpc
 {
+   class  Client;
    struct LibraryEntry;
-   typedef std::vector<LibraryEntry *> Library;
 
-   class Client;
-}
+   typedef std::vector<LibraryEntry *> LibraryEntryVector;
 
-//! \todo seperate library from library window
-namespace Ui
-{
-   class Search;
-
-   class LibraryWindow : public Ui::SelectWindow
-   {
-   public:
-      LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
-      ~LibraryWindow();
-
-   private:
-      LibraryWindow(LibraryWindow & library);
-      LibraryWindow & operator=(LibraryWindow & library);
-
-   public:
-      void AddSong(Mpc::Song const * const song);
-      Mpc::Song * FindSong(Mpc::Song const * const song);
-
-   public:
-      void Print(uint32_t line) const;
-
-      void Left(Ui::Player & player, uint32_t count);
-      void Right(Ui::Player & player, uint32_t count);
-      void Confirm();
-      void AddSongsToPlaylist(Mpc::Song::SongCollection Collection);
-      void Redraw();
-
-   public:
-      void Expand(uint32_t line);
-      void Collapse(uint32_t line);
-
-   public:
-      std::string SearchPattern(int32_t id);
-
-   private:
-      void Clear();
-      void AddSongsToPlaylist(Mpc::LibraryEntry const * const entry);
-
-   private:
-      size_t BufferSize() const { return buffer_.size(); }
-
-   private:
-      int32_t DetermineSongColour(Mpc::LibraryEntry const * const entry) const;
-
-   private:
-      Main::Settings const & settings_;
-      Mpc::Client          & client_;
-      Ui::Search     const & search_;
-
-      // Maintains the library and used to print
-      Mpc::Library buffer_;
-   };
-}
-
-namespace Mpc
-{
    typedef enum
    {
       ArtistType = 0,
@@ -122,7 +61,12 @@ namespace Mpc
          bool operator() (LibraryEntry * i, LibraryEntry * j) { return (*i<*j);}
       };
 
-      bool operator<(LibraryEntry const & rhs)
+      bool operator==(LibraryEntry const & rhs) const
+      {
+         return (!((*this) < rhs) && !(rhs < (*this)));
+      }
+
+      bool operator<(LibraryEntry const & rhs) const
       {
          bool comparison = false;
 
@@ -144,7 +88,7 @@ namespace Mpc
       {
          if (expanded_ == false)
          {
-            for (Library::iterator it = children_.begin(); it != children_.end(); ++it)
+            for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
             {
                delete *it;
             }
@@ -160,14 +104,54 @@ namespace Mpc
       LibraryEntry & operator=(LibraryEntry & entry);
 
    public:
-      EntryType      type_;
-      std::string    artist_;
-      std::string    album_;
-      Mpc::Song *    song_;
-      bool           expanded_;
-      Library        children_;
-      LibraryEntry * parent_;
+      EntryType          type_;
+      std::string        artist_;
+      std::string        album_;
+      Mpc::Song *        song_;
+      bool               expanded_;
+      LibraryEntryVector children_;
+      LibraryEntry *     parent_;
    };
+
+
+   // Library class
+   class Library : private LibraryEntryVector
+   {
+   public:
+      static Library & Instance()
+      {
+         static Library * instance = NULL;
+
+         if (instance == NULL)
+         {
+            instance = new Library();
+         }
+
+         return *instance;
+      }
+
+   private:
+      Library()  {}
+      ~Library() {}
+
+   public:
+      Mpc::Song * Song(Mpc::Song const * const song);
+      Mpc::LibraryEntry * Entry(uint32_t entry) { return at(entry); }
+
+      void Clear();
+      void Sort();
+      void Add(Mpc::Song const * const song);
+      void AddToPlaylist(Mpc::Client & client, Mpc::Song::SongCollection Collection, uint32_t position);
+      uint32_t Entries() const { return size(); }
+
+   public:
+      void Expand(uint32_t line);
+      void Collapse(uint32_t line);
+
+   private:
+      void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
+   };
+
 }
 
 #endif

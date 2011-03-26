@@ -121,7 +121,6 @@ namespace Ui
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       Main::Settings     & settings_;
-      Ui::ConsoleWindow  & console_;
 
       // Tab completion searching class
       class TabCompletionMatch 

@@ -48,6 +48,10 @@ namespace Ui
       virtual void Redraw();
 
    public:
+      virtual void CallbackOnBufferAdd() { }
+      virtual void CallbackOnBufferRemove() { }
+
+   public:
       void Erase();
       void Refresh();
 
