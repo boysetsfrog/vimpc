@@ -52,7 +52,7 @@ void ConsoleWindow::Print(uint32_t line) const
 
 void ConsoleWindow::CallbackOnBufferAdd()
 {
-   if ((AutoScroll() == true) && (BufferSize() <= ScrollLine()))
+   if ((AutoScroll() == true) && (ContentSize() <= ScrollLine()))
    {
       ScrollTo(console_.Size());
    } 
