@@ -21,6 +21,7 @@
 #ifndef __UI__BUFFER
 #define __UI__BUFFER
 
+#include <iostream>
 #include <map>
 #include <stdint.h>
 #include <vector>
@@ -37,6 +38,8 @@ namespace Main
       Buffer_Add,
       Buffer_Remove
    } BufferCallbackEvent;
+
+   //! \todo delete callbacks on destruction
 
    //! Window buffer
    template <typename T>

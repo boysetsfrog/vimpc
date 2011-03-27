@@ -87,6 +87,7 @@ namespace Mpc
       void DisplaySongInformation();
 
    public:
+      //! \todo port these over to using the callback object
       template <typename Object>
       void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
 

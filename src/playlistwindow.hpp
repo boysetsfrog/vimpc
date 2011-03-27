@@ -55,8 +55,6 @@ namespace Ui
 
       uint32_t Current() const;
 
-      static void Dumb(Mpc::Song * & song) { std::cout << "shit" << std::endl; song->SetTitle("Fuckhat"); }
-
    public:
       std::string SearchPattern(int32_t id) { return playlist_.Get(id)->PlaylistDescription(); }
 
