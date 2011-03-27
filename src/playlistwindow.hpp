@@ -54,11 +54,11 @@ namespace Ui
       uint32_t Current() const;
 
    public:
-      std::string SearchPattern(int32_t id) { return playlist_.Song(id)->PlaylistDescription(); }
+      std::string SearchPattern(int32_t id) { return playlist_.Get(id)->PlaylistDescription(); }
 
    private:
       void    Clear();
-      size_t  BufferSize() const { return playlist_.Songs(); }
+      size_t  BufferSize() const { return playlist_.Size(); }
       int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
 
    private:

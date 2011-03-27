@@ -26,61 +26,100 @@
 #include <vector>
 
 #include "attributes.hpp"
+#include "callback.hpp"
 #include "window.hpp"
 
 namespace Main
 {
-   namespace BufferState
+   //! Events that will cause a callback
+   typedef enum
    {
-      typedef enum
-      {
-         Entry_Add,
-         Entry_Remove
-      } State;
-   }      
+      Buffer_Add,
+      Buffer_Remove
+   } BufferCallbackEvent;
 
-   template <class T>
-   class BufferInterface
-   {
-   public:
-      virtual T const & Get(uint32_t position) const = 0;
-      virtual void      Add(T entry) = 0; 
-      virtual void      Add(T entry, uint32_t position) = 0;
-      virtual void      Remove(T entry, uint32_t count) = 0;
-      virtual void      Clear() = 0;
-      virtual size_t    Size()  const = 0;
-   };
-
-
-   template <class T>
-   class Buffer : public BufferInterface<T>, private std::vector<T>
+   //! Window buffer
+   template <typename T>
+   class Buffer : private std::vector<T>
    {
    private:
-      typedef void (Ui::Window::*CallbackFunction)();
-      typedef std::pair<Ui::Window *, CallbackFunction> CallbackPair;
-      typedef std::vector<CallbackPair> CallbackList;
-      typedef std::map<BufferState::State, CallbackList> CallbackMap;
+      typedef std::vector<T> BufferType;
+      typedef std::vector<boost::function<void (T &)> > CallbackList;
+      typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
 
    public:
-      void AddCallback(BufferState::State state, Ui::Window * window, CallbackFunction callback) { CallbackPair tmp(window, callback); callback_[state].push_back(tmp); }
+      typedef T BufferParameter;
 
    public:
-      virtual T const & Get(uint32_t position) const    { return std::vector<T>::at(position); }
-      virtual void      Add(T entry)                    { std::vector<T>::push_back(entry); Callback(BufferState::Entry_Add); }
-      virtual void      Add(UNUSED T entry, UNUSED uint32_t position) { Callback(BufferState::Entry_Add); }
-      virtual void      Remove(UNUSED T entry, UNUSED uint32_t count) { Callback(BufferState::Entry_Remove); } 
-      virtual void      Clear()                         { std::vector<T>::clear(); }
-      virtual size_t    Size()  const                   { return std::vector<T>::size(); } 
+      template <class H, class I>
+      void AddCallback(BufferCallbackEvent event, CallbackObject<H, I> * callback)
+      { 
+         callback_[event].push_back(*callback);
+      }
 
-   private:
-      void Callback(BufferState::State state)
-      {
-         for (CallbackList::iterator it = callback_[state].begin(); (it != callback_[state].end()); ++it)
+   public:
+      virtual T const & Get(uint32_t position) const
+      { 
+         return Buffer<T>::at(position);
+      }
+
+      virtual void Add(T entry)
+      { 
+         Buffer<T>::push_back(entry); 
+
+         Callback(Buffer_Add, entry);
+      }
+
+      virtual void Add(T entry, uint32_t position)
+      { 
+         if (position <= Size())
          {
-            Ui::Window * const window = (*it).first;
-            CallbackFunction function = (*it).second;
+            uint32_t pos = 0;
+            typename Buffer<T>::iterator it;
 
-            (window->*function)();
+            for (it = std::vector<T>::begin(); ((pos != position) && (it != std::vector<T>::end())); ++it, ++pos) { }
+
+            std::vector<T>::insert(it, entry);
+
+            Callback(Buffer_Add, entry);
+         }
+      }
+
+      virtual void Remove(uint32_t position, uint32_t count)
+      { 
+         uint32_t pos = 0;
+         typename Buffer<T>::iterator it;
+
+         for (it = Buffer<T>::begin(); ((pos != position) && (it != Buffer<T>::end())); ++it, ++pos) { }
+
+         for (uint32_t c = 0; ((c < count) && (it != Buffer<T>::end())); ++c)
+         {
+            Callback(Buffer_Remove, *it);
+            it = std::vector<T>::erase(it);
+         }
+      } 
+
+      virtual void Clear()
+      { 
+         for (typename Buffer<T>::iterator it = Buffer<T>::begin(); (it != Buffer<T>::end()); ++it)
+         {
+            Callback(Buffer_Remove, *it);
+         }
+
+         Buffer<T>::clear(); 
+      }
+
+      virtual size_t Size() const                   
+      { 
+         return std::vector<T>::size(); 
+      } 
+
+   private:
+      void Callback(BufferCallbackEvent event, T & param)
+      {
+         for (typename CallbackList::iterator it = callback_[event].begin(); (it != callback_[event].end()); ++it)
+         {
+            (*it)(param);
          }
       }
       

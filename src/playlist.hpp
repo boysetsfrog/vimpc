@@ -22,14 +22,19 @@
 #define __UI__PLAYLIST
 
 // Includes
-#include <vector>
+#include "buffer.hpp"
+#include "callback.hpp"
 #include "song.hpp"
 
 // Playlist 
 namespace Mpc
 {
-   class Playlist : private std::vector<Song *>
+   class Playlist : public Main::Buffer<Mpc::Song *>
    {
+   private:
+      typedef Main::Buffer<Mpc::Song *> BufferType;
+      typedef Main::CallbackObject<Mpc::Playlist, Playlist::BufferParameter> Callback;
+
    public:
       static Playlist & Instance()
       {
@@ -44,16 +49,16 @@ namespace Mpc
       }
 
    private:
-      Playlist()  {} 
+      Playlist()  
+      {
+         AddCallback(Main::Buffer_Add,    new Callback(*this, &Mpc::Playlist::IncrementReference));
+         AddCallback(Main::Buffer_Remove, new Callback(*this, &Mpc::Playlist::DecrementReference));
+      } 
       ~Playlist() {}
 
    public:
-      Mpc::Song const * Song(uint32_t position) const;
-      void Add(Mpc::Song * const song);
-      void Add(Mpc::Song * const song, uint32_t position);
-      void Remove(uint32_t position, uint32_t count = 1);
-      void Clear();
-      uint32_t Songs() const;
+      void IncrementReference(Mpc::Song * & song) { song->IncrementReference(); }
+      void DecrementReference(Mpc::Song * & song) { song->DecrementReference(); }
    };
 }
 #endif

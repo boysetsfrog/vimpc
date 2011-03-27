@@ -19,7 +19,6 @@
    */
 
 #include "console.hpp"
-
 #include "screen.hpp"
 
 #include <algorithm>
@@ -30,7 +29,7 @@ ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :
    ScrollWindow(screen),
    console_    (Ui::Console::Instance())
 {
-   console_.AddCallback(Main::BufferState::Entry_Add, this, &Ui::Window::CallbackOnBufferAdd);
+   console_.AddCallback(Main::Buffer_Add, new Callback(*this, &Ui::ConsoleWindow::PerformAutoScroll));
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -50,7 +49,7 @@ void ConsoleWindow::Print(uint32_t line) const
    }
 }
 
-void ConsoleWindow::CallbackOnBufferAdd()
+void ConsoleWindow::PerformAutoScroll(UNUSED Console::BufferParameter & line)
 {
    if ((AutoScroll() == true) && (ContentSize() <= ScrollLine()))
    {

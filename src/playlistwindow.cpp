@@ -52,7 +52,7 @@ void PlaylistWindow::Redraw()
 
    Clear();
 
-   client_.ForEachQueuedSong(playlist_, &Mpc::Playlist::Add);
+   client_.ForEachQueuedSong(playlist_, static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 
    SetScrollLine(scrollLine);
    ScrollTo(currentLine);
@@ -64,7 +64,7 @@ void PlaylistWindow::Print(uint32_t line) const
 
    if (printLine < BufferSize())
    {
-      Mpc::Song const * nextSong    = playlist_.Song(printLine);
+      Mpc::Song const * nextSong    = playlist_.Get(printLine);
       WINDOW          * window      = N_WINDOW();
       int32_t           colour      = DetermineSongColour(line + FirstLine(), nextSong);
       
@@ -138,9 +138,9 @@ void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
 
 void PlaylistWindow::Confirm()
 {
-   if (playlist_.Songs() > CurrentLine())
+   if (playlist_.Size() > CurrentLine())
    {
-      Mpc::Song const * const song = playlist_.Song(CurrentLine());
+      Mpc::Song const * const song = playlist_.Get(CurrentLine());
 
       if (song != NULL)
       {

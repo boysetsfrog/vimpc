@@ -48,10 +48,6 @@ namespace Ui
       virtual void Redraw();
 
    public:
-      virtual void CallbackOnBufferAdd() { }
-      virtual void CallbackOnBufferRemove() { }
-
-   public:
       void Erase();
       void Refresh();
 
@@ -61,7 +57,6 @@ namespace Ui
    protected:
       WINDOW * N_WINDOW() const { return window_; }
 
-   private:
       virtual size_t BufferSize() const = 0;
 
    private:

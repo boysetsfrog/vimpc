@@ -31,6 +31,7 @@ namespace Ui
 {
    class Console : public Main::Buffer<std::string>
    {
+
    public:
       static Console & Instance()
       {
@@ -59,10 +60,10 @@ namespace Ui
    public:
       void Print(uint32_t line) const;
       void Clear();
+      void PerformAutoScroll(UNUSED Console::BufferParameter & string);
 
-   public: //Ui::Window
-      void CallbackOnBufferAdd();
-      void CallbackOnBufferRemove() { }
+   private:
+      typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferParameter> Callback;
 
    private: //Ui::Window
       size_t BufferSize() const { return console_.Size(); }

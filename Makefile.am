@@ -7,6 +7,7 @@ doc_DATA         = doc/help.txt
 vimpc_SOURCES    = src/assert.hpp \
                    src/attributes.hpp \
                    src/buffer.hpp \
+                   src/callback.hpp \
                    src/colour.hpp \
                    src/command.cpp \
                    src/command.hpp \
@@ -32,7 +33,6 @@ vimpc_SOURCES    = src/assert.hpp \
                    src/normal.hpp \
                    src/player.cpp \
                    src/player.hpp \
-                   src/playlist.cpp \
                    src/playlist.hpp \
                    src/playlistwindow.cpp \
                    src/playlistwindow.hpp \

@@ -88,10 +88,10 @@ namespace Mpc
 
    public:
       template <typename Object>
-      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Song * const));
+      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
-      void ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const));
+      void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song const * const));
 
    private:
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
@@ -107,7 +107,7 @@ namespace Mpc
 
    //
    template <typename Object>
-   void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Song * const))
+   void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *))
    {
       if (Connected() == true)
       {

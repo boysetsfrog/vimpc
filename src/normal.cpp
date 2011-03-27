@@ -438,7 +438,7 @@ void Normal::DisplayModeLine()
 
    float currentScroll = 0.0;
 
-   if (playlist_.Songs() > 0)
+   if (playlist_.Size() > 0)
    {
       //! \todo should make work for ac
       currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().ContentSize()) - 1));
@@ -446,7 +446,7 @@ void Normal::DisplayModeLine()
       modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
    }
 
-   if (playlist_.Songs() > screen_.MaxRows() - 1)
+   if (playlist_.Size() > screen_.MaxRows() - 1)
    {
       if (currentScroll <= .010)
       {
