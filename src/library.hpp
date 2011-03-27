@@ -115,7 +115,7 @@ namespace Mpc
 
 
    // Library class
-   class Library : private LibraryEntryVector
+   class Library : public LibraryEntryVector
    {
    public:
       static Library & Instance()

@@ -21,6 +21,7 @@
 #ifndef __UI__HELP
 #define __UI__HELP
 
+#include "buffer.hpp"
 #include "scrollwindow.hpp"
 
 namespace Ui
@@ -37,7 +38,7 @@ namespace Ui
       void Confirm();
 
       //! \todo work out why this doesn't work properly
-      std::string SearchPattern(int32_t id) { return buffer_.at(id); }
+      std::string SearchPattern(int32_t id) { return help_.Get(id); }
 
       uint16_t CurrentLine() const { return 0; }
 
@@ -46,11 +47,11 @@ namespace Ui
       void LoadHelpFile();
 
    private:
-      size_t BufferSize() const { return buffer_.size(); }
+      size_t BufferSize() const { return help_.Size(); }
 
    private:
-      typedef std::vector<std::string> HelpBuffer;
-      HelpBuffer buffer_;
+      typedef Main::Buffer<std::string> HelpBuffer;
+      HelpBuffer help_;
    };
 }
 

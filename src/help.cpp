@@ -39,7 +39,7 @@ using namespace Ui;
 
 HelpWindow::HelpWindow(Ui::Screen const & screen) :
    ScrollWindow     (screen),
-   buffer_          ()
+   help_            ()
 {
    LoadHelpFile();
 }
@@ -58,9 +58,9 @@ void HelpWindow::Print(uint32_t line) const
 {
    WINDOW * window = N_WINDOW();
 
-   if ((FirstLine() + line) < buffer_.size())
+   if ((FirstLine() + line) < help_.Size())
    {
-      std::string currentLine = buffer_.at(FirstLine() + line);
+      std::string currentLine = help_.Get(FirstLine() + line);
 
       std::string currentLineUpper = currentLine;
       std::transform(currentLineUpper.begin(), currentLineUpper.end(), currentLineUpper.begin(), ::toupper);
@@ -133,7 +133,7 @@ void HelpWindow::LoadHelpFile()
 
          if (helpFile.eof() == false)
          {
-            buffer_.push_back(nextLine);
+            help_.Add(nextLine);
          }
       }
 
@@ -147,6 +147,6 @@ void HelpWindow::LoadHelpFile()
 
 void HelpWindow::Clear()
 {
-   buffer_.clear();
+   help_.Clear();
 }
 

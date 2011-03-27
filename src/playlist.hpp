@@ -33,7 +33,8 @@ namespace Mpc
    {
    private:
       typedef Main::Buffer<Mpc::Song *> BufferType;
-      typedef Main::CallbackObject<Mpc::Playlist, Playlist::BufferParameter> Callback;
+      typedef Main::CallbackObject<Mpc::Playlist, Playlist::BufferParameter> CallbackDelegate;
+      typedef Main::CallbackObject<void, Mpc::Song *> CallbackFunction; 
 
    public:
       static Playlist & Instance()
@@ -51,14 +52,10 @@ namespace Mpc
    private:
       Playlist()  
       {
-         AddCallback(Main::Buffer_Add,    new Callback(*this, &Mpc::Playlist::IncrementReference));
-         AddCallback(Main::Buffer_Remove, new Callback(*this, &Mpc::Playlist::DecrementReference));
+         AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
+         AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
       } 
       ~Playlist() {}
-
-   public:
-      void IncrementReference(Mpc::Song * & song) { song->IncrementReference(); }
-      void DecrementReference(Mpc::Song * & song) { song->DecrementReference(); }
    };
 }
 #endif

@@ -54,17 +54,6 @@ int32_t Song::Reference() const
    return reference_;
 }
 
-void Song::IncrementReference()
-{
-   ++reference_;
-}
-
-void Song::DecrementReference()
-{
-   --reference_;
-}
-
-
 void Song::SetArtist(const char * artist)
 {
    if (artist != NULL)

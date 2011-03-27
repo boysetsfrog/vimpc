@@ -60,6 +60,8 @@ void PlaylistWindow::Redraw()
 
 void PlaylistWindow::Print(uint32_t line) const
 {
+   playlist_.ForEach(6, 4, &Ui::PlaylistWindow::Dumb);
+
    uint32_t printLine = line + FirstLine();
 
    if (printLine < BufferSize())

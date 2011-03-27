@@ -38,7 +38,6 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const &
    search_          (search),
    library_         (Mpc::Library::Instance())
 {
-   //Mpc::Library::Instance().RegisterOnAdd(*this, &LibraryWindow::BufferUpdated);
 }
 
 LibraryWindow::~LibraryWindow()

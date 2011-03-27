@@ -30,22 +30,40 @@
 namespace Main
 {
    //! Object to wrap the callback function
-   template <class T, class U>
+   template <class Object, class Parameter>
    class CallbackObject
    {
       private: 
-         typedef void (T::*CallbackFunction)(U &);
+         typedef void (Object::*CallbackFunction)(Parameter &);
 
       public:
-         CallbackObject(T & callee, CallbackFunction callback) :
+         CallbackObject(Object & callee, CallbackFunction callback) :
             callee_   (callee),
             callback_ (callback)
          { }
 
-         void operator() (U & param) { (callee_.*callback_)(param); }
+         void operator() (Parameter & param) { (callee_.*callback_)(param); }
 
       private:
-         T & callee_;
+         Object & callee_;
+         CallbackFunction callback_;
+   };
+
+   //! Object to wrap the callback function
+   template <class Parameter>
+   class CallbackObject<void, Parameter>
+   {
+      private: 
+         typedef void (*CallbackFunction)(Parameter &);
+
+      public:
+         CallbackObject(CallbackFunction callback) :
+            callback_ (callback)
+         { }
+
+         void operator() (Parameter & param) { (*callback_)(param); }
+
+      private:
          CallbackFunction callback_;
    };
 }

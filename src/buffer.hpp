@@ -51,26 +51,26 @@ namespace Main
       typedef T BufferParameter;
 
    public:
-      template <class H, class I>
-      void AddCallback(BufferCallbackEvent event, CallbackObject<H, I> * callback)
+      template <class Object, class Parameter>
+      void AddCallback(BufferCallbackEvent event, CallbackObject<Object, Parameter> * callback)
       { 
          callback_[event].push_back(*callback);
       }
 
    public:
-      virtual T const & Get(uint32_t position) const
+      T const & Get(uint32_t position) const
       { 
          return Buffer<T>::at(position);
       }
 
-      virtual void Add(T entry)
+      void Add(T entry)
       { 
          Buffer<T>::push_back(entry); 
 
          Callback(Buffer_Add, entry);
       }
 
-      virtual void Add(T entry, uint32_t position)
+      void Add(T entry, uint32_t position)
       { 
          if (position <= Size())
          {
@@ -85,7 +85,20 @@ namespace Main
          }
       }
 
-      virtual void Remove(uint32_t position, uint32_t count)
+      void ForEach(uint32_t position, uint32_t count, void (*callback)(T &))
+      {
+         uint32_t pos = 0;
+         typename Buffer<T>::iterator it;
+
+         for (it = Buffer<T>::begin(); ((pos != position) && (it != Buffer<T>::end())); ++it, ++pos) { }
+
+         for (uint32_t c = 0; ((c < count) && (it != Buffer<T>::end())); ++c, ++it)
+         {
+            (*callback)(*it);
+         }
+      }
+
+      void Remove(uint32_t position, uint32_t count)
       { 
          uint32_t pos = 0;
          typename Buffer<T>::iterator it;
@@ -99,7 +112,7 @@ namespace Main
          }
       } 
 
-      virtual void Clear()
+      void Clear()
       { 
          for (typename Buffer<T>::iterator it = Buffer<T>::begin(); (it != Buffer<T>::end()); ++it)
          {
@@ -109,7 +122,7 @@ namespace Main
          Buffer<T>::clear(); 
       }
 
-      virtual size_t Size() const                   
+      size_t Size() const                   
       { 
          return std::vector<T>::size(); 
       } 

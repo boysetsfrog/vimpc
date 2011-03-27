@@ -50,8 +50,9 @@ namespace Mpc
 
    public:
       int32_t Reference() const;
-      void IncrementReference();
-      void DecrementReference();
+
+      static void IncrementReference(Song * & song) { song->reference_ += 1; }
+      static void DecrementReference(Song * & song) { song->reference_ -= 1; }
 
       void SetArtist(const char * artist);
       std::string const & Artist() const;
