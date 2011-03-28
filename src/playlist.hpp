@@ -32,9 +32,8 @@ namespace Mpc
    class Playlist : public Main::Buffer<Mpc::Song *>
    {
    private:
-      typedef Main::Buffer<Mpc::Song *> BufferType;
-      typedef Main::CallbackObject<Mpc::Playlist, Playlist::BufferParameter> CallbackDelegate;
-      typedef Main::CallbackObject<void, Mpc::Song *> CallbackFunction; 
+      typedef Main::CallbackDelegate<Mpc::Playlist, Playlist::BufferType> CallbackDelegate;
+      typedef Main::CallbackFunction<Playlist::BufferType> CallbackFunction; 
 
    public:
       static Playlist & Instance()

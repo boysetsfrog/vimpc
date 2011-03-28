@@ -29,42 +29,49 @@
 
 namespace Main
 {
-   //! Object to wrap the callback function
-   template <class Object, class Parameter>
+   template <class Parameter>
    class CallbackObject
    {
+      public:
+      virtual void operator() (Parameter) = 0;
+   };
+
+   //! Object to wrap the callback function
+   template <class Object, class Parameter>
+   class CallbackDelegate : public CallbackObject<Parameter>
+   {
       private: 
-         typedef void (Object::*CallbackFunction)(Parameter &);
+         typedef void (Object::*Callback)(Parameter);
 
       public:
-         CallbackObject(Object & callee, CallbackFunction callback) :
+         CallbackDelegate(Object & callee, Callback callback) :
             callee_   (callee),
             callback_ (callback)
          { }
 
-         void operator() (Parameter & param) { (callee_.*callback_)(param); }
+         void operator() (Parameter param) { (callee_.*callback_)(param); }
 
       private:
          Object & callee_;
-         CallbackFunction callback_;
+         Callback callback_;
    };
 
    //! Object to wrap the callback function
    template <class Parameter>
-   class CallbackObject<void, Parameter>
+   class CallbackFunction : public CallbackObject<Parameter>
    {
       private: 
-         typedef void (*CallbackFunction)(Parameter &);
+         typedef void (*Callback)(Parameter);
 
       public:
-         CallbackObject(CallbackFunction callback) :
+         CallbackFunction(Callback callback) :
             callback_ (callback)
          { }
 
-         void operator() (Parameter & param) { (*callback_)(param); }
+         void operator() (Parameter param) { (*callback_)(param); }
 
       private:
-         CallbackFunction callback_;
+         Callback callback_;
    };
 }
 

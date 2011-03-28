@@ -46,18 +46,16 @@ namespace Main
    class Buffer : private std::vector<T>
    {
    private:
-      typedef std::vector<T> BufferType;
-      typedef std::vector<boost::function<void (T &)> > CallbackList;
+      typedef std::vector<Main::CallbackObject<T> *> CallbackList;
       typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
 
    public:
-      typedef T BufferParameter;
+      typedef T BufferType;
 
    public:
-      template <class Object, class Parameter>
-      void AddCallback(BufferCallbackEvent event, CallbackObject<Object, Parameter> * callback)
+      void AddCallback(BufferCallbackEvent event, CallbackObject<T> * callback)
       { 
-         callback_[event].push_back(*callback);
+         callback_[event].push_back(callback);
       }
 
    public:
@@ -135,7 +133,7 @@ namespace Main
       {
          for (typename CallbackList::iterator it = callback_[event].begin(); (it != callback_[event].end()); ++it)
          {
-            (*it)(param);
+            (*(*it))(param);
          }
       }
       

@@ -29,7 +29,7 @@ ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :
    ScrollWindow(screen),
    console_    (Ui::Console::Instance())
 {
-   console_.AddCallback(Main::Buffer_Add, new Callback(*this, &Ui::ConsoleWindow::PerformAutoScroll));
+   console_.AddCallback(Main::Buffer_Add, new CallbackDelegate(*this, &Ui::ConsoleWindow::PerformAutoScroll));
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -49,7 +49,7 @@ void ConsoleWindow::Print(uint32_t line) const
    }
 }
 
-void ConsoleWindow::PerformAutoScroll(UNUSED Console::BufferParameter & line)
+void ConsoleWindow::PerformAutoScroll(UNUSED Console::BufferType line)
 {
    if ((AutoScroll() == true) && (ContentSize() <= ScrollLine()))
    {

@@ -48,11 +48,16 @@ namespace Mpc
          return (this->uri_ == rhs.URI());
       }
 
+      bool operator<(Song const & rhs) const
+      {
+         return ((artist_ < rhs.artist_) || (title_ < rhs.title_));
+      }
+
    public:
       int32_t Reference() const;
 
-      static void IncrementReference(Song * & song) { song->reference_ += 1; }
-      static void DecrementReference(Song * & song) { song->reference_ -= 1; }
+      static void IncrementReference(Song * song) { song->reference_ += 1; }
+      static void DecrementReference(Song * song) { song->reference_ -= 1; }
 
       void SetArtist(const char * artist);
       std::string const & Artist() const;

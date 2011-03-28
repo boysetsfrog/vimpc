@@ -60,10 +60,10 @@ namespace Ui
    public:
       void Print(uint32_t line) const;
       void Clear();
-      void PerformAutoScroll(UNUSED Console::BufferParameter & string);
+      void PerformAutoScroll(UNUSED Console::BufferType string);
 
    private:
-      typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferParameter> Callback;
+      typedef Main::CallbackDelegate<Ui::ConsoleWindow, Console::BufferType> CallbackDelegate;
 
    private: //Ui::Window
       size_t BufferSize() const { return console_.Size(); }
