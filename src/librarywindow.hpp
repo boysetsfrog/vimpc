@@ -56,7 +56,7 @@ namespace Ui
 
    private:
       void    Clear();
-      size_t  BufferSize() const { return library_.Entries(); }
+      size_t  BufferSize() const { return library_.Size(); }
       int32_t DetermineSongColour(Mpc::LibraryEntry const * const entry) const;
 
    private:

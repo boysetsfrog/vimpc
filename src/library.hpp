@@ -21,6 +21,7 @@
 #ifndef __UI__LIBRARY
 #define __UI__LIBRARY
 
+#include "buffer.hpp"
 #include "song.hpp"
 
 #include <vector>
@@ -31,6 +32,7 @@ namespace Ui   { class LibraryWindow; }
 namespace Mpc
 {
    class  Client;
+   class  Library;
    struct LibraryEntry;
 
    typedef std::vector<LibraryEntry *> LibraryEntryVector;
@@ -45,6 +47,8 @@ namespace Mpc
    class LibraryEntry
    {
    public:
+      friend class Library;
+
       LibraryEntry() :
          type_    (SongType),
          artist_  (""),
@@ -56,14 +60,14 @@ namespace Mpc
       { }
 
    public:
-      struct LibraryEntryComparator 
-      {
-         bool operator() (LibraryEntry * i, LibraryEntry * j) { return (*i<*j);}
-      };
-
       bool operator==(LibraryEntry const & rhs) const
       {
          return (!((*this) < rhs) && !(rhs < (*this)));
+      }
+
+      bool operator!=(LibraryEntry const & rhs) const
+      {
+         return (((*this) < rhs) || (rhs < (*this)));
       }
 
       bool operator<(LibraryEntry const & rhs) const
@@ -103,6 +107,13 @@ namespace Mpc
       LibraryEntry(LibraryEntry & entry);
       LibraryEntry & operator=(LibraryEntry & entry);
 
+   private:
+      class LibraryComparator
+      {
+         public:
+         bool operator() (LibraryEntry * i, LibraryEntry * j) { return (*i<*j); };
+      };
+
    public:
       EntryType          type_;
       std::string        artist_;
@@ -115,9 +126,12 @@ namespace Mpc
 
 
    // Library class
-   class Library : public LibraryEntryVector
+   class Library : public Main::Buffer<LibraryEntry *>
    {
    public:
+      using Main::Buffer<LibraryEntry *>::Sort;
+      using Main::Buffer<LibraryEntry *>::Add;
+
       static Library & Instance()
       {
          static Library * instance = NULL;
@@ -136,13 +150,11 @@ namespace Mpc
 
    public:
       Mpc::Song * Song(Mpc::Song const * const song);
-      Mpc::LibraryEntry * Entry(uint32_t entry) { return at(entry); }
 
-      void Clear();
       void Sort();
+      void Sort(LibraryEntry * entry);
       void Add(Mpc::Song const * const song);
       void AddToPlaylist(Mpc::Client & client, Mpc::Song::SongCollection Collection, uint32_t position);
-      uint32_t Entries() const { return size(); }
 
    public:
       void Expand(uint32_t line);
@@ -150,6 +162,8 @@ namespace Mpc
 
    private:
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
+
+      typedef Main::CallbackDelegate<Mpc::Library, Library::BufferType> CallbackDelegate;
    };
 
 }

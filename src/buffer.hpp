@@ -39,8 +39,8 @@ namespace Main
       Buffer_Remove
    } BufferCallbackEvent;
 
+   //
    //! \todo delete callbacks on destruction
-
    //! Window buffer
    template <typename T>
    class Buffer : private std::vector<T>
@@ -71,6 +71,22 @@ namespace Main
          Callback(Buffer_Add, entry);
       }
 
+      int32_t Index(T entry)
+      {
+         int32_t pos = 0;
+
+         typename Buffer<T>::iterator it;
+
+         for (it = Buffer<T>::begin(); ((*it != entry) && (it != Buffer<T>::end())); ++pos, ++it) { }
+
+         if (it == Buffer<T>::end())
+         {
+            pos = -1;
+         }
+
+         return pos;
+      }
+
       void Add(T entry, uint32_t position)
       { 
          if (position <= Size())
@@ -78,15 +94,15 @@ namespace Main
             uint32_t pos = 0;
             typename Buffer<T>::iterator it;
 
-            for (it = std::vector<T>::begin(); ((pos != position) && (it != std::vector<T>::end())); ++it, ++pos) { }
+            for (it = Buffer<T>::begin(); ((pos != position) && (it != Buffer<T>::end())); ++it, ++pos) { }
 
-            std::vector<T>::insert(it, entry);
+            Buffer<T>::insert(it, entry);
 
             Callback(Buffer_Add, entry);
          }
       }
 
-      void ForEach(uint32_t position, uint32_t count, void (*callback)(T &))
+      void ForEach(uint32_t position, uint32_t count, CallbackObject<T> * callback)
       {
          uint32_t pos = 0;
          typename Buffer<T>::iterator it;
@@ -104,14 +120,20 @@ namespace Main
          uint32_t pos = 0;
          typename Buffer<T>::iterator it;
 
-         for (it = Buffer<T>::begin(); ((pos != position) && (it != Buffer<T>::end())); ++it, ++pos) { }
+         for (it = Buffer<T>::begin(); ((pos < position) && (it != Buffer<T>::end())); ++it, ++pos) { }
 
          for (uint32_t c = 0; ((c < count) && (it != Buffer<T>::end())); ++c)
          {
             Callback(Buffer_Remove, *it);
-            it = std::vector<T>::erase(it);
+            it = Buffer<T>::erase(it);
          }
       } 
+
+      template <class V>
+      void Sort(V comparator)
+      {
+         std::sort(Buffer<T>::begin(), Buffer<T>::end(), comparator);
+      }
 
       void Clear()
       { 
@@ -125,7 +147,7 @@ namespace Main
 
       size_t Size() const                   
       { 
-         return std::vector<T>::size(); 
+         return Buffer<T>::size(); 
       } 
 
    private:

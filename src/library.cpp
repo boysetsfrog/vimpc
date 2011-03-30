@@ -27,15 +27,7 @@
 
 using namespace Mpc;
 
-void Library::Clear()
-{
-   for (iterator it = begin(); it != end(); ++it)
-   {
-      delete *it;
-   }
-}
-
-void Library::Add(Mpc::Song const * const song)
+void Library::Add(UNUSED Mpc::Song const * const song)
 {
    static Mpc::LibraryEntry * LastArtistEntry = NULL;
    static Mpc::LibraryEntry * LastAlbumEntry  = NULL;
@@ -55,14 +47,14 @@ void Library::Add(Mpc::Song const * const song)
       LastAlbumEntry  = NULL;
       LastAlbum       = "";
 
-      for (iterator it = begin(); ((it != end()) && (entry == NULL)); ++it)
+      for (uint32_t i = 0; i < Size(); ++i)
       {
-         std::string currentArtist = (*it)->artist_;
+         std::string currentArtist = Get(i)->artist_;
          std::transform(currentArtist.begin(), currentArtist.end(), currentArtist.begin(), ::toupper);
 
          if (currentArtist == artist)
          {
-            entry           = (*it);
+            entry           = Get(i);
             LastArtistEntry = entry;
             LastArtist      = currentArtist;
          }
@@ -76,7 +68,7 @@ void Library::Add(Mpc::Song const * const song)
          entry->artist_   = song->Artist();
          entry->type_     = Mpc::ArtistType;
          
-         push_back(entry);
+         Add(entry);
 
          LastArtistEntry = entry;
          LastArtist      = artist;
@@ -87,7 +79,7 @@ void Library::Add(Mpc::Song const * const song)
    {
       Mpc::LibraryEntry * entry = NULL;
 
-      for (Mpc::Library::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
+      for (Mpc::LibraryEntryVector::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
       {
          std::string currentAlbum = (*it)->album_;
          std::transform(currentAlbum.begin(), currentAlbum.end(), currentAlbum.begin(), ::toupper);
@@ -133,7 +125,7 @@ void Library::Add(Mpc::Song const * const song)
    }
 }
 
-Mpc::Song * Library::Song(Mpc::Song const * const song)
+Mpc::Song * Library::Song(UNUSED Mpc::Song const * const song)
 {
    std::string artist = song->Artist();
    std::transform(artist.begin(), artist.end(), artist.begin(), ::toupper);
@@ -144,20 +136,20 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
    Mpc::LibraryEntry * artistEntry = NULL;
    Mpc::LibraryEntry * albumEntry  = NULL;
    
-   for (iterator it = begin(); ((it != end()) && (artistEntry == NULL)); ++it)
+   for (uint32_t i = 0; ((i <= Size()) && (artistEntry == NULL)); ++i)
    {
-      std::string currentArtist = (*it)->artist_;
+      std::string currentArtist = (Get(i))->artist_;
       std::transform(currentArtist.begin(), currentArtist.end(), currentArtist.begin(), ::toupper);
 
       if (currentArtist == artist)
       {
-         artistEntry = (*it);
+         artistEntry = Get(i);
       }
    }
 
    if (artistEntry != NULL)
    {
-      for (Mpc::Library::iterator it = artistEntry->children_.begin(); ((it != artistEntry->children_.end()) && (albumEntry == NULL)); ++it)
+      for (Mpc::LibraryEntryVector::iterator it = artistEntry->children_.begin(); ((it != artistEntry->children_.end()) && (albumEntry == NULL)); ++it)
       {
          std::string currentAlbum = (*it)->album_;
          std::transform(currentAlbum.begin(), currentAlbum.end(), currentAlbum.begin(), ::toupper);
@@ -171,7 +163,7 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
 
    if (albumEntry != NULL)
    {
-      for (Mpc::Library::iterator it = albumEntry->children_.begin(); (it != albumEntry->children_.end()); ++it)
+      for (Mpc::LibraryEntryVector::iterator it = albumEntry->children_.begin(); (it != albumEntry->children_.end()); ++it)
       {
          if (*(*it)->song_ == *song)
          {
@@ -185,13 +177,30 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
 
 void Library::Sort()
 {
-   Mpc::LibraryEntry::LibraryEntryComparator Comparator;
+   Mpc::LibraryEntry::LibraryComparator UNUSED entryComparator;
+   Main::Buffer<Library::BufferType>::Sort(entryComparator);
 
-   std::sort(begin(), end(), Comparator);
-
-   for (iterator it = begin(); it != end(); ++it)
+   for (uint32_t i = 0; (i < Size()); ++i)
    {
-      std::sort((*it)->children_.begin(), (*it)->children_.end(), Comparator);
+      Sort(Get(i));
+   }
+}
+
+void Library::Sort(LibraryEntry * entry)
+{
+   Mpc::LibraryEntry::LibraryComparator entryComparator;
+
+   if (entry->children_.empty() == false)
+   {
+       std::sort(entry->children_.begin(), entry->children_.end(), entryComparator);
+
+       for (LibraryEntryVector::iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
+       {
+          if ((*it)->children_.empty() == false)
+          {
+             Sort(*it);
+          }
+       }
    }
 }
 
@@ -199,16 +208,13 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::Song::SongCollection Coll
 {
    if (Collection == Mpc::Song::Single)
    {
-      AddToPlaylist(client, at(position));
+      AddToPlaylist(client, Get(position));
    }
    else
    {
-      for (iterator it = begin(); it != end(); ++it)
+      for (uint32_t i = 0; i < Size(); ++i)
       {
-         if ((*it)->type_ == Mpc::ArtistType)
-         {
-            AddToPlaylist(client, (*it));
-         }
+         AddToPlaylist(client, Get(i));
       }
    }
 }
@@ -220,7 +226,7 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
       Mpc::Playlist::Instance().Add(entry->song_);
       client.Add(*(entry->song_));
    }
-   else 
+   else if (entry->expanded_ == false)
    {
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
@@ -232,49 +238,29 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
 
 void Library::Expand(uint32_t line)
 {
-   if ((Entry(line)->expanded_ == false) && (Entry(line)->type_ != Mpc::SongType))
+   uint32_t position = line;
+
+   if ((Get(line)->expanded_ == false) && (Get(line)->type_ != Mpc::SongType))
    {
-      Entry(line)->expanded_ = true;
+      Get(line)->expanded_ = true;
 
-      Mpc::Library::iterator position = begin();
-
-      for (uint32_t i = 0; i <= line; ++i)
+      for (Mpc::LibraryEntryVector::iterator it = Get(line)->children_.begin(); it != Get(line)->children_.end(); ++it)
       {
-         ++position;
-      }
-
-      for (Mpc::LibraryEntryVector::reverse_iterator it = Entry(line)->children_.rbegin(); it != Entry(line)->children_.rend(); ++it)
-      {
-         position = insert(position, *it);
+         Add(*it, ++position);
       }
    }
 }
 
 void Library::Collapse(uint32_t line)
 {
-   if ((Entry(line)->expanded_ == true) || (Entry(line)->type_ != Mpc::ArtistType))
+   if ((Get(line)->expanded_ == true) || (Get(line)->type_ != Mpc::ArtistType))
    {
-      Mpc::LibraryEntry *     parent     = Entry(line);
-      Mpc::Library::iterator  position   = begin();
+      Mpc::LibraryEntry * parent = Get(line)->parent_;
 
-      if ((Entry(line)->expanded_ == false) || (Entry(line)->type_ == Mpc::SongType))
+      if (parent != NULL)
       {
-         parent = Entry(line)->parent_;
-      }
-
-      parent->expanded_ = false;
-
-      for(; (((*position) != parent) && (position != end())); ++position);
-
-      if (position != end())
-      {
-         ++position;
-
-         for (; position != end() && (((*position)->parent_ == parent) || (((*position)->parent_ != NULL) && ((*position)->parent_->parent_ == parent)));)
-         {
-            (*position)->expanded_ = false;
-            position = erase(position);
-         }
+         Remove(Index(parent) + 1, parent->children_.size());
+         parent->expanded_ = false;
       }
    }
 }

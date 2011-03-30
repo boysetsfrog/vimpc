@@ -62,7 +62,7 @@ std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
    //! expands things as necessary
    std::string pattern("");
 
-   Mpc::LibraryEntry const * const entry = library_.Entry(id);
+   Mpc::LibraryEntry const * const entry = library_.Get(id);
 
    switch (entry->type_)
    {
@@ -102,7 +102,7 @@ void LibraryWindow::Print(uint32_t line) const
    {
       uint32_t printLine = (line + FirstLine());
 
-      int colour = DetermineSongColour(library_.Entry(printLine));
+      int colour = DetermineSongColour(library_.Get(printLine));
 
       if (printLine == CurrentLine())
       {
@@ -112,11 +112,11 @@ void LibraryWindow::Print(uint32_t line) const
 
       mvwprintw(window, line, 0, BlankLine.c_str());
 
-      if ((library_.Entry(printLine)->type_ == Mpc::AlbumType) || (library_.Entry(printLine)->type_ == Mpc::ArtistType))
+      if ((library_.Get(printLine)->type_ == Mpc::AlbumType) || (library_.Get(printLine)->type_ == Mpc::ArtistType))
       {
          uint8_t expandCol = 0;
 
-         if (library_.Entry(printLine)->type_ == Mpc::AlbumType)
+         if (library_.Get(printLine)->type_ == Mpc::AlbumType)
          {
             mvwprintw(window, line, 1, "|--");
             expandCol = 4;
@@ -130,7 +130,7 @@ void LibraryWindow::Print(uint32_t line) const
             wattron(window, COLOR_PAIR(REDONDEFAULT)); 
          }
          
-         char expand = (library_.Entry(printLine)->expanded_ == true) ? '-' : '+';
+         char expand = (library_.Get(printLine)->expanded_ == true) ? '-' : '+';
          mvwprintw(window, line, expandCol + 1, "%c", expand);
 
          if (printLine != CurrentLine()) 
@@ -142,18 +142,18 @@ void LibraryWindow::Print(uint32_t line) const
          wattron(window, COLOR_PAIR(colour));
          wmove(window, line, expandCol + 4);
 
-         if (library_.Entry(printLine)->type_ == Mpc::ArtistType)
+         if (library_.Get(printLine)->type_ == Mpc::ArtistType)
          {
-            waddstr(window, library_.Entry(printLine)->artist_.c_str());
+            waddstr(window, library_.Get(printLine)->artist_.c_str());
          }
-         else if (library_.Entry(printLine)->type_ == Mpc::AlbumType)
+         else if (library_.Get(printLine)->type_ == Mpc::AlbumType)
          {
-            waddstr(window, library_.Entry(printLine)->album_.c_str());
+            waddstr(window, library_.Get(printLine)->album_.c_str());
          }
 
          wattroff(window, COLOR_PAIR(colour));
       }
-      else if ((library_.Entry(printLine)->type_ == Mpc::SongType) && (library_.Entry(printLine)->song_ != NULL))
+      else if ((library_.Get(printLine)->type_ == Mpc::SongType) && (library_.Get(printLine)->song_ != NULL))
       {
          mvwprintw(window, line, 1, "|   |--");
 
@@ -165,7 +165,7 @@ void LibraryWindow::Print(uint32_t line) const
             wattron(window, COLOR_PAIR(REDONDEFAULT)); 
          }
 
-         wprintw(window, "%2s" , library_.Entry(printLine)->song_->Track().c_str());
+         wprintw(window, "%2s" , library_.Get(printLine)->song_->Track().c_str());
 
          if (printLine != CurrentLine()) 
          {
@@ -182,11 +182,11 @@ void LibraryWindow::Print(uint32_t line) const
          waddstr(window, " ");
          wattron(window, COLOR_PAIR(colour));
 
-         std::string title = library_.Entry(printLine)->song_->Title();
+         std::string title = library_.Get(printLine)->song_->Title();
 
          if (title == "Unknown")
          {
-            title = library_.Entry(printLine)->song_->URI();
+            title = library_.Get(printLine)->song_->URI();
          }
 
          if (title.length() >= 48)
@@ -198,7 +198,7 @@ void LibraryWindow::Print(uint32_t line) const
          waddstr(window, title.c_str());
 
          mvwprintw(window, line, 61, " [");
-         waddstr(window, library_.Entry(printLine)->song_->DurationString().c_str());
+         waddstr(window, library_.Get(printLine)->song_->DurationString().c_str());
          waddstr(window, "]");
       }
 
@@ -208,7 +208,7 @@ void LibraryWindow::Print(uint32_t line) const
 
 void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
 {
-   Mpc::LibraryEntry * const parent = library_.Entry(CurrentLine())->parent_;
+   Mpc::LibraryEntry * const parent = library_.Get(CurrentLine())->parent_;
 
    library_.Collapse(CurrentLine());
 
@@ -219,7 +219,7 @@ void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
    else
    {
       uint32_t parentLine = 0;
-      for (; (parentLine < library_.Entries()) && (library_.Entry(parentLine) != parent); ++parentLine);
+      for (; (parentLine < library_.Size()) && (library_.Get(parentLine) != parent); ++parentLine);
 
       ScrollTo(parentLine);
    }
