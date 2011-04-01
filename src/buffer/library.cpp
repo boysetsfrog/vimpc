@@ -83,10 +83,10 @@ void Library::Add(UNUSED Mpc::Song const * const song)
 
       for (Mpc::LibraryEntryVector::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
       {
-         entry = (*it);
 
-         if (Algorithm::iequals(entry->album_, album) == true)
+         if (Algorithm::iequals((*it)->album_, album) == true)
          {
+            entry           = (*it);
             LastAlbumEntry  = entry;
             LastAlbum       = album;
          }
