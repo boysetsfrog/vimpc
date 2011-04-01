@@ -25,10 +25,10 @@
 #include <sstream>
 
 #include "assert.hpp"
-#include "error.hpp"
-#include "console.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
+#include "window/console.hpp"
+#include "window/error.hpp"
 
 using namespace Ui;
 

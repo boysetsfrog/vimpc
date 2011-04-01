@@ -23,8 +23,8 @@
 
 #include <mpd/client.h>
 
-#include "library.hpp"
 #include "screen.hpp"
+#include "buffer/library.hpp"
 
 namespace Ui
 {

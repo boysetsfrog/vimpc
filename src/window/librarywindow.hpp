@@ -15,36 +15,34 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   playlistwindow.hpp - handling of the mpd playlist interface 
+   librarywindow.hpp - handling of the mpd music library 
    */
 
-#ifndef __UI__PLAYLISTWINDOW
-#define __UI__PLAYLISTWINDOW
+#ifndef __UI__LIBRARYWINDOW
+#define __UI__LIBRARYWINDOW
 
-// Includes
-#include <iostream>
-
-#include "playlist.hpp"
 #include "song.hpp"
-#include "selectwindow.hpp"
+#include "buffer/library.hpp"
+#include "window/selectwindow.hpp"
 
-// Forward Declarations
+#include <map>
+
 namespace Main { class Settings; }
 namespace Mpc  { class Client; }
-namespace Ui   { class Search; }
 
-// Playlist window class
 namespace Ui
 {
-   class PlaylistWindow : public Ui::SelectWindow
+   class Search;
+
+   class LibraryWindow : public Ui::SelectWindow
    {
    public:
-      PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
-      ~PlaylistWindow();
+      LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      ~LibraryWindow();
 
    private:
-      PlaylistWindow(PlaylistWindow & playlist);
-      PlaylistWindow & operator=(PlaylistWindow & playlist);
+      LibraryWindow(LibraryWindow & library);
+      LibraryWindow & operator=(LibraryWindow & library);
 
    public:
       void Print(uint32_t line) const;
@@ -53,22 +51,19 @@ namespace Ui
       void Confirm();
       void Redraw();
 
-      uint32_t Current() const;
-
    public:
-      std::string SearchPattern(int32_t id) { return playlist_.Get(id)->PlaylistDescription(); }
+      std::string SearchPattern(int32_t id);
 
    private:
       void    Clear();
-      size_t  BufferSize() const { return playlist_.Size(); }
-      int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
+      size_t  BufferSize() const { return library_.Size(); }
+      int32_t DetermineSongColour(Mpc::LibraryEntry const * const entry) const;
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      Mpc::Playlist        & playlist_;
+      Mpc::Library         & library_;
    };
 }
-
 #endif

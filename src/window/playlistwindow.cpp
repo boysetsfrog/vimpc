@@ -21,11 +21,11 @@
 #include "playlistwindow.hpp"
 
 #include "colour.hpp"
-#include "console.hpp"
 #include "mpdclient.hpp"
-#include "search.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
+#include "mode/search.hpp"
+#include "window/console.hpp"
 
 #include <boost/regex.hpp>
 

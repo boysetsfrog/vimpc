@@ -23,8 +23,8 @@
 #include "colour.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
-#include "search.hpp"
 #include "settings.hpp"
+#include "mode/search.hpp"
 
 #include <algorithm>
 #include <boost/regex.hpp>
@@ -210,13 +210,20 @@ void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
 {
    Mpc::LibraryEntry * const parent = library_.Get(CurrentLine())->parent_;
 
+   bool scrolled = false;
+
+   if ((library_.Get(CurrentLine())->expanded_ == true) && (library_.Get(CurrentLine())->type_ != Mpc::SongType))
+   {
+      scrolled = true;
+   }
+
    library_.Collapse(CurrentLine());
 
-   if (parent == NULL)
+   if ((parent == NULL) && (scrolled == false))
    {
       Scroll(-1);
    }
-   else
+   else if (scrolled == false)
    {
       uint32_t parentLine = 0;
       for (; (parentLine < library_.Size()) && (library_.Get(parentLine) != parent); ++parentLine);
@@ -235,7 +242,7 @@ void LibraryWindow::Confirm()
 {
    client_.Clear();
    
-   library_.AddToPlaylist(client_, Mpc::Song::Single, CurrentLine());
+   library_.AddToPlaylist(Mpc::Song::Single, client_, CurrentLine());
    client_.Play(0);
    screen_.Redraw(Ui::Screen::Playlist);
 }

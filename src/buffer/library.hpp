@@ -81,7 +81,10 @@ namespace Mpc
 
          if ((song_ != NULL) && (rhs.song_ != NULL) && (comparison == false))
          {
-            comparison = (song_->Track() < rhs.song_->Track());
+            uint32_t track    = atoi(song_->Track().c_str());
+            uint32_t rhsTrack = atoi(rhs.song_->Track().c_str());
+
+            comparison = (track < rhsTrack);
          }
 
          return comparison;
@@ -145,8 +148,8 @@ namespace Mpc
       }
 
    private:
-      Library()  {}
-      ~Library() {}
+      Library();
+      ~Library();
 
    public:
       Mpc::Song * Song(Mpc::Song const * const song);
@@ -154,7 +157,7 @@ namespace Mpc
       void Sort();
       void Sort(LibraryEntry * entry);
       void Add(Mpc::Song const * const song);
-      void AddToPlaylist(Mpc::Client & client, Mpc::Song::SongCollection Collection, uint32_t position);
+      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
    public:
       void Expand(uint32_t line);
@@ -164,8 +167,11 @@ namespace Mpc
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
 
       typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
+      typedef Main::CallbackFunction<Library::BufferType> CallbackFunction; 
    };
 
+   //Flag a library entry as not expanded, this does not actually collapse it however
+   void MarkUnexpanded(LibraryEntry * const entry);
 }
 
 #endif

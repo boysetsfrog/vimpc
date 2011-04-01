@@ -21,8 +21,8 @@
 #include "mpdclient.hpp"
 
 #include "assert.hpp"
-#include "error.hpp"
 #include "screen.hpp"
+#include "window/error.hpp"
 
 #include <mpd/tag.h>
 #include <mpd/status.h>

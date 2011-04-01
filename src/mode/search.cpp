@@ -21,10 +21,10 @@
 #include "search.hpp"
 
 #include "attributes.hpp"
-#include "error.hpp"
-#include "playlist.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
+#include "buffer/playlist.hpp"
+#include "window/error.hpp"
 
 #include <iostream>
 #include <boost/regex.hpp>

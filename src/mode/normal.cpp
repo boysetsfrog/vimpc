@@ -21,9 +21,9 @@
 #include "normal.hpp"
 
 #include "mpdclient.hpp"
-#include "library.hpp"
-#include "playlist.hpp"
 #include "vimpc.hpp"
+#include "buffer/library.hpp"
+#include "buffer/playlist.hpp"
 
 #include <iomanip>
 #include <limits>
@@ -292,7 +292,7 @@ bool Normal::AddSong(uint32_t count)
    //! \todo handle adding all songs
    (void) count;
 
-   Mpc::Library::Instance().AddToPlaylist(client_, COLLECTION, screen_.ActiveWindow().CurrentLine());
+   Mpc::Library::Instance().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine());
    return true;
 }
 

@@ -25,8 +25,8 @@
 
 #include "assert.hpp"
 #include "attributes.hpp"
-#include "console.hpp"
 #include "screen.hpp"
+#include "window/console.hpp"
 
 using namespace Ui;
 

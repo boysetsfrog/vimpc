@@ -20,7 +20,7 @@
 
 #include "attributes.hpp"
 #include "player.hpp"
-#include "window.hpp"
+#include "window/window.hpp"
 
 #include <iostream>
 

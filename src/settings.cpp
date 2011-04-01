@@ -21,7 +21,7 @@
 #include "settings.hpp"
 
 #include "assert.hpp"
-#include "error.hpp"
+#include "window/error.hpp"
 
 #include <algorithm>
 #include <boost/regex.hpp>

@@ -21,8 +21,8 @@
 #ifndef __UI__HELP
 #define __UI__HELP
 
-#include "buffer.hpp"
-#include "scrollwindow.hpp"
+#include "buffer/buffer.hpp"
+#include "window/scrollwindow.hpp"
 
 namespace Ui
 {

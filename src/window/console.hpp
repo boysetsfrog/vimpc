@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "buffer.hpp"
+#include "buffer/buffer.hpp"
 #include "scrollwindow.hpp"
 
 //! \todo seperate console from console window

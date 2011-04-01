@@ -20,16 +20,15 @@
 
 #include "vimpc.hpp"
 
-// Modes
-#include "mode.hpp"
-#include "normal.hpp"
-#include "command.hpp"
-#include "search.hpp"
+#include "mode/mode.hpp"
+#include "mode/normal.hpp"
+#include "mode/command.hpp"
+#include "mode/search.hpp"
 
 #include "assert.hpp"
 #include "config.hpp"
-#include "error.hpp"
 #include "settings.hpp"
+#include "window/error.hpp"
 
 #include <sys/time.h>
 #include <unistd.h>

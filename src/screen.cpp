@@ -20,13 +20,13 @@
 
 #include "screen.hpp"
 
-#include "console.hpp"
 #include "colour.hpp"
-#include "error.hpp"
-#include "help.hpp"
-#include "librarywindow.hpp"
-#include "playlistwindow.hpp"
 #include "settings.hpp"
+#include "window/console.hpp"
+#include "window/error.hpp"
+#include "window/help.hpp"
+#include "window/librarywindow.hpp"
+#include "window/playlistwindow.hpp"
 
 using namespace Ui;
 

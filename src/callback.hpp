@@ -18,13 +18,13 @@
    callback.hpp - 
    */
 
-#ifndef __UI__CALLBACK
-#define __UI__CALLBACK
+#ifndef __MAIN__CALLBACK
+#define __MAIN__CALLBACK
 
 #include <algorithm>
 #include <stdint.h>
 
-#include "window.hpp"
+#include "window/window.hpp"
 
 namespace Main
 {

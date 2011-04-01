@@ -21,10 +21,10 @@
 #include "player.hpp"
 
 #include "attributes.hpp"
-#include "console.hpp"
 #include "mpdclient.hpp"
-#include "playlist.hpp"
 #include "settings.hpp"
+#include "buffer/playlist.hpp"
+#include "window/console.hpp"
 
 #include <stdlib.h>
 #include <iostream>

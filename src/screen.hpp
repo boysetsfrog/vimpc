@@ -23,8 +23,8 @@
 
 // Includes
 #include "assert.hpp"
-#include "modewindow.hpp"
-#include "scrollwindow.hpp"
+#include "window/modewindow.hpp"
+#include "window/scrollwindow.hpp"
 
 #include <string>
 

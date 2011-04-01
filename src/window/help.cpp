@@ -20,12 +20,13 @@
 
 #include "help.hpp"
 
-#include "error.hpp"
-#include "screen.hpp"
-
 #ifndef HELP_DIRECTORY
 #define HELP_DIRECTORY ""
 #endif
+
+#include "algorithm.hpp"
+#include "error.hpp"
+#include "screen.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -62,14 +63,11 @@ void HelpWindow::Print(uint32_t line) const
    {
       std::string currentLine = help_.Get(FirstLine() + line);
 
-      std::string currentLineUpper = currentLine;
-      std::transform(currentLineUpper.begin(), currentLineUpper.end(), currentLineUpper.begin(), ::toupper);
-
       if ((FirstLine() == 0) && (line == 0))
       {
          wattron(window, A_BOLD | COLOR_PAIR(BLUEONDEFAULT));
       }
-      else if (currentLine.compare(currentLineUpper) == 0)
+      else if (Algorithm::isUpper(currentLine) == true)
       {
          wattron(window, A_BOLD | COLOR_PAIR(REDONDEFAULT));
       }

@@ -26,8 +26,8 @@
 #include <vector>
 
 #include "inputmode.hpp"
-#include "modewindow.hpp"
 #include "player.hpp"
+#include "window/modewindow.hpp"
 
 namespace Main
 {

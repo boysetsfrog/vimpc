@@ -21,8 +21,6 @@
 #include "console.hpp"
 #include "screen.hpp"
 
-#include <algorithm>
-
 using namespace Ui;
 
 ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :

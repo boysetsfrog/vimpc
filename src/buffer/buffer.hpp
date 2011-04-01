@@ -27,7 +27,7 @@
 
 #include "attributes.hpp"
 #include "callback.hpp"
-#include "window.hpp"
+#include "window/window.hpp"
 
 namespace Main
 {
