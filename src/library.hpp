@@ -33,7 +33,7 @@ namespace Mpc
 {
    class  Client;
    class  Library;
-   struct LibraryEntry;
+   class  LibraryEntry;
 
    typedef std::vector<LibraryEntry *> LibraryEntryVector;
 
@@ -163,7 +163,7 @@ namespace Mpc
    private:
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
 
-      typedef Main::CallbackDelegate<Mpc::Library, Library::BufferType> CallbackDelegate;
+      typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
    };
 
 }

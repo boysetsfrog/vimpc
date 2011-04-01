@@ -63,7 +63,7 @@ namespace Ui
       void PerformAutoScroll(UNUSED Console::BufferType string);
 
    private:
-      typedef Main::CallbackDelegate<Ui::ConsoleWindow, Console::BufferType> CallbackDelegate;
+      typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferType> CallbackObject;
 
    private: //Ui::Window
       size_t BufferSize() const { return console_.Size(); }

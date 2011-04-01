@@ -21,30 +21,31 @@
 #ifndef __UI__CALLBACK
 #define __UI__CALLBACK
 
+#include <algorithm>
 #include <stdint.h>
-
-#include "boost/function.hpp"
 
 #include "window.hpp"
 
 namespace Main
 {
+   //! Class that provides an interface so that we can provide
+   //! a function callback wrapper and a object/function wrapper
    template <class Parameter>
-   class CallbackObject
+   class CallbackInterface
    {
       public:
       virtual void operator() (Parameter) = 0;
    };
 
-   //! Object to wrap the callback function
+   //! Object to wrap a callback function with an assosciated object
    template <class Object, class Parameter>
-   class CallbackDelegate : public CallbackObject<Parameter>
+   class CallbackObject : public CallbackInterface<Parameter>
    {
       private: 
          typedef void (Object::*Callback)(Parameter);
 
       public:
-         CallbackDelegate(Object & callee, Callback callback) :
+         CallbackObject(Object & callee, Callback callback) :
             callee_   (callee),
             callback_ (callback)
          { }
@@ -56,9 +57,9 @@ namespace Main
          Callback callback_;
    };
 
-   //! Object to wrap the callback function
+   //! Object to wrap a callback function
    template <class Parameter>
-   class CallbackFunction : public CallbackObject<Parameter>
+   class CallbackFunction : public CallbackInterface<Parameter>
    {
       private: 
          typedef void (*Callback)(Parameter);

@@ -21,7 +21,6 @@
 #ifndef __UI__BUFFER
 #define __UI__BUFFER
 
-#include <iostream>
 #include <map>
 #include <stdint.h>
 #include <vector>
@@ -32,7 +31,7 @@
 
 namespace Main
 {
-   //! Events that will cause a callback
+   //! Events that will trigger a registered callback
    typedef enum
    {
       Buffer_Add,
@@ -45,18 +44,16 @@ namespace Main
    template <typename T>
    class Buffer : private std::vector<T>
    {
-   private:
-      typedef std::vector<Main::CallbackObject<T> *> CallbackList;
-      typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
-
    public:
       typedef T BufferType;
 
    public:
-      void AddCallback(BufferCallbackEvent event, CallbackObject<T> * callback)
-      { 
-         callback_[event].push_back(callback);
-      }
+      Buffer<T>() { }
+      ~Buffer<T>() { }
+
+   private:
+      Buffer<T>(Buffer<T> const & buffer);
+      Buffer<T> & operator=(Buffer<T> const & buffer);
 
    public:
       T const & Get(uint32_t position) const
@@ -71,11 +68,11 @@ namespace Main
          Callback(Buffer_Add, entry);
       }
 
-      int32_t Index(T entry)
+      int32_t Index(T entry) const
       {
          int32_t pos = 0;
 
-         typename Buffer<T>::iterator it;
+         typename Buffer<T>::const_iterator it;
 
          for (it = Buffer<T>::begin(); ((*it != entry) && (it != Buffer<T>::end())); ++pos, ++it) { }
 
@@ -102,10 +99,10 @@ namespace Main
          }
       }
 
-      void ForEach(uint32_t position, uint32_t count, CallbackObject<T> * callback)
+      void ForEach(uint32_t position, uint32_t count, CallbackInterface<T> * callback) const
       {
          uint32_t pos = 0;
-         typename Buffer<T>::iterator it;
+         typename Buffer<T>::const_iterator it;
 
          for (it = Buffer<T>::begin(); ((pos != position) && (it != Buffer<T>::end())); ++it, ++pos) { }
 
@@ -150,12 +147,27 @@ namespace Main
          return Buffer<T>::size(); 
       } 
 
+   public:
+      void AddCallback(BufferCallbackEvent event, CallbackInterface<T> * callback)
+      { 
+         callback_[event].push_back(callback);
+      }
+
    private:
-      void Callback(BufferCallbackEvent event, T & param)
+      typedef std::vector<Main::CallbackInterface<T> *> CallbackList;
+      typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
+
+   private:
+      void Callback(BufferCallbackEvent event, T & param) const
       {
-         for (typename CallbackList::iterator it = callback_[event].begin(); (it != callback_[event].end()); ++it)
+         typename CallbackMap::const_iterator entry = callback_.find(event);
+
+         if (entry != callback_.end())
          {
-            (*(*it))(param);
+            for (typename CallbackList::const_iterator it = entry->second.begin(); (it != entry->second.end()); ++it)
+            {
+               (*(*it))(param);
+            }
          }
       }
       
