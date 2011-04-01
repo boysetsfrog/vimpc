@@ -4,54 +4,57 @@ ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS}
 bin_PROGRAMS     = vimpc
 man_MANS         = doc/vimpc.1
 doc_DATA         = doc/help.txt
-vimpc_SOURCES    = src/assert.hpp \
+vimpc_SOURCES    = src/algorithm.cpp \
+                   src/algorithm.hpp \
+                   src/assert.hpp \
                    src/attributes.hpp \
-                   src/buffer.hpp \
                    src/callback.hpp \
                    src/colour.hpp \
-                   src/command.cpp \
-                   src/command.hpp \
                    src/config.hpp \
-                   src/console.cpp \
-                   src/console.hpp \
-                   src/error.hpp \
-                   src/help.cpp \
-                   src/help.hpp \
-                   src/inputmode.cpp \
-                   src/inputmode.hpp \
-                   src/library.cpp \
-                   src/library.hpp \
-                   src/librarywindow.cpp \
-                   src/librarywindow.hpp \
+                   src/errorcodes.hpp \
                    src/main.cpp \
-                   src/mode.hpp \
-                   src/modewindow.cpp \
-                   src/modewindow.hpp \
                    src/mpdclient.cpp \
                    src/mpdclient.hpp \
-                   src/normal.cpp \
-                   src/normal.hpp \
                    src/player.cpp \
                    src/player.hpp \
-                   src/playlist.hpp \
-                   src/playlistwindow.cpp \
-                   src/playlistwindow.hpp \
                    src/project.hpp \
                    src/screen.cpp \
                    src/screen.hpp \
-                   src/search.cpp \
-                   src/search.hpp \
                    src/settings.cpp \
                    src/settings.hpp \
-                   src/scrollwindow.hpp \
-                   src/scrollwindow.cpp \
-                   src/selectwindow.hpp \
-                   src/selectwindow.cpp \
                    src/song.hpp \
                    src/song.cpp \
                    src/vimpc.cpp \
                    src/vimpc.hpp \
-                   src/window.cpp \
-                   src/window.hpp
+                   src/buffer/buffer.hpp \
+                   src/buffer/library.cpp \
+                   src/buffer/library.hpp \
+                   src/buffer/playlist.hpp \
+                   src/mode/command.cpp \
+                   src/mode/command.hpp \
+                   src/mode/inputmode.cpp \
+                   src/mode/inputmode.hpp \
+                   src/mode/mode.hpp \
+                   src/mode/normal.cpp \
+                   src/mode/normal.hpp \
+                   src/mode/search.cpp \
+                   src/mode/search.hpp \
+                   src/window/console.cpp \
+                   src/window/console.hpp \
+                   src/window/error.hpp \
+                   src/window/help.cpp \
+                   src/window/help.hpp \
+                   src/window/librarywindow.cpp \
+                   src/window/librarywindow.hpp \
+                   src/window/modewindow.cpp \
+                   src/window/modewindow.hpp \
+                   src/window/playlistwindow.cpp \
+                   src/window/playlistwindow.hpp \
+                   src/window/scrollwindow.hpp \
+                   src/window/scrollwindow.cpp \
+                   src/window/selectwindow.hpp \
+                   src/window/selectwindow.cpp \
+                   src/window/window.cpp \
+                   src/window/window.hpp
 
 dist_noinst_SCRIPTS = autogen.sh
