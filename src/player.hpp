@@ -95,7 +95,7 @@ namespace Ui
       //! Changes the currently active window
       //!
       //! \param window The window to switch to
-      bool SetActiveWindow(Ui::Screen::MainWindow window);
+      bool SetActiveAndVisible(Ui::Screen::MainWindow window);
 
       //! Stops playback
       bool Stop();

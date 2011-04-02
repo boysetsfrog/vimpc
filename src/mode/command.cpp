@@ -62,10 +62,10 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["next"]      = &Command::SkipSong<Player::Next>;
    commandTable_["previous"]  = &Command::SkipSong<Player::Previous>;
 
-   commandTable_["console"]   = &Command::SetActiveWindow<Ui::Screen::Console>;
-   commandTable_["help"]      = &Command::SetActiveWindow<Ui::Screen::Help>;
-   commandTable_["library"]   = &Command::SetActiveWindow<Ui::Screen::Library>;
-   commandTable_["playlist"]  = &Command::SetActiveWindow<Ui::Screen::Playlist>;
+   commandTable_["console"]   = &Command::SetActiveAndVisible<Ui::Screen::Console>;
+   commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
+   commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
+   commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
 }
 
 Command::~Command()
@@ -219,9 +219,9 @@ bool Command::SkipSong(std::string const & arguments)
 
 //Implementation of window change function
 template <Ui::Screen::MainWindow MAINWINDOW>
-bool Command::SetActiveWindow(UNUSED std::string const & arguments)
+bool Command::SetActiveAndVisible(UNUSED std::string const & arguments)
 {
-   return Player::SetActiveWindow(MAINWINDOW);
+   return Player::SetActiveAndVisible(MAINWINDOW);
 }
 
 

@@ -104,9 +104,9 @@ bool Player::Redraw()
    return true;
 }
 
-bool Player::SetActiveWindow(Ui::Screen::MainWindow window)
+bool Player::SetActiveAndVisible(Ui::Screen::MainWindow window)
 {
-   screen_.SetActiveWindow(window);
+   screen_.SetActiveAndVisible(window);
    return true;
 }
 

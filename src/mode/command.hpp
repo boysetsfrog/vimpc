@@ -78,7 +78,7 @@ namespace Ui
       bool SkipSong(std::string const & arguments); 
 
       template <Ui::Screen::MainWindow MAINWINDOW>
-      bool SetActiveWindow(std::string const & arguments); 
+      bool SetActiveAndVisible(std::string const & arguments); 
 
    private:
       // Executes \p command using \p arguments

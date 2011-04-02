@@ -415,7 +415,7 @@ bool Normal::SetActiveWindow(uint32_t count)
    }
    else if ((SKIP == Screen::Previous) && (wasSpecificCount_ == true))
    {
-      count = (count % Screen::MainWindowCount);
+      count = (count % screen_.VisibleWindows());
 
       for (uint32_t i = 0; i < count; ++i)
       {

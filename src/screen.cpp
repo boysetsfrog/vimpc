@@ -74,6 +74,8 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    SetStatusLine("%s", "");
 
    ENSURE(WindowsAreInitialised() == true);
+
+   SetVisible(Console, false);
 }
 
 Screen::~Screen()
@@ -155,7 +157,7 @@ void Screen::Start()
    if (started_ == false)
    {
       started_ = true;
-      SetActiveWindow(settings_.Window());
+      SetActiveAndVisible(settings_.Window());
       wrefresh(statusWindow_);
    }
 
@@ -405,6 +407,20 @@ void Screen::SetVisible(MainWindow window, bool visible)
       }
    }
 }
+
+void Screen::SetActiveAndVisible(MainWindow window)
+{
+   SetVisible(window, true);
+
+   for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+   {
+      if (visibleWindows_.at(i) == window)
+      {
+         SetActiveWindow(i);
+      }
+   }
+}
+
 
 
 void Screen::ClearStatus() const

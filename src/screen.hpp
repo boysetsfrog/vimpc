@@ -123,6 +123,9 @@ namespace Ui
 
       // Show or hide the given window
       void SetVisible(MainWindow window, bool visible);
+      uint32_t VisibleWindows() { return visibleWindows_.size(); }
+
+      void SetActiveAndVisible(MainWindow window);
    
    private:
       void ClearStatus() const;
