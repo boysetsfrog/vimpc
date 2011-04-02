@@ -26,6 +26,7 @@
 #include "mode/search.hpp"
 
 #include "assert.hpp"
+#include "buffers.hpp"
 #include "config.hpp"
 #include "settings.hpp"
 #include "window/error.hpp"
@@ -45,6 +46,12 @@ Vimpc::Vimpc() :
    client_      (screen_),
    modeTable_   ()
 {
+   //Initialise all the buffers into existance
+   (void) Main::Console();
+   (void) Main::Library();
+   (void) Main::Playlist();
+   (void) Main::PlaylistPasteBuffer();
+
    modeTable_[Command] = new Ui::Command(screen_, client_, settings_);
    modeTable_[Normal]  = new Ui::Normal (screen_, client_, settings_, search_);
    modeTable_[Search]  = &search_;

@@ -20,6 +20,7 @@
 
 #include "librarywindow.hpp"
 
+#include "buffers.hpp"
 #include "colour.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
@@ -36,7 +37,7 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const &
    settings_        (settings),
    client_          (client),
    search_          (search),
-   library_         (Mpc::Library::Instance())
+   library_         (Main::Library())
 {
 }
 

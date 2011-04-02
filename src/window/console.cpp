@@ -19,13 +19,15 @@
    */
 
 #include "console.hpp"
+
+#include "buffers.hpp"
 #include "screen.hpp"
 
 using namespace Ui;
 
 ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :
    ScrollWindow(screen),
-   console_    (Ui::Console::Instance())
+   console_    (Main::Console())
 {
    console_.AddCallback(Main::Buffer_Add, new CallbackObject(*this, &Ui::ConsoleWindow::PerformAutoScroll));
 }

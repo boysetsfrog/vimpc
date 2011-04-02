@@ -21,6 +21,7 @@
 #include "player.hpp"
 
 #include "attributes.hpp"
+#include "buffers.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "buffer/playlist.hpp"
@@ -34,7 +35,7 @@ using namespace Ui;
 Player::Player(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    screen_  (screen),
    client_  (client),
-   playlist_(Mpc::Playlist::Instance()),
+   playlist_(Main::Playlist()),
    settings_(settings)
 {
 
@@ -59,7 +60,7 @@ bool Player::Connect(std::string const & host, UNUSED uint32_t port)
 
 bool Player::Echo(std::string const & echo)
 {
-   Ui::Console::Instance().Add(echo);
+   Main::Console().Add(echo);
    return true;
 }
 

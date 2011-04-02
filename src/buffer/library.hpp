@@ -135,19 +135,6 @@ namespace Mpc
       using Main::Buffer<LibraryEntry *>::Sort;
       using Main::Buffer<LibraryEntry *>::Add;
 
-      static Library & Instance()
-      {
-         static Library * instance = NULL;
-
-         if (instance == NULL)
-         {
-            instance = new Library();
-         }
-
-         return *instance;
-      }
-
-   private:
       Library();
       ~Library();
 

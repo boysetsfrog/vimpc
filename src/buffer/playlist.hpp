@@ -36,23 +36,13 @@ namespace Mpc
       typedef Main::CallbackFunction<Playlist::BufferType> CallbackFunction; 
 
    public:
-      static Playlist & Instance()
+      Playlist(bool IncrementReferences = false)  
       {
-         static Playlist * instance = NULL;
-
-         if (instance == NULL)
+         if (IncrementReferences == true)
          {
-            instance = new Playlist();
+            AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
+            AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
          }
-
-         return *instance;
-      }
-
-   private:
-      Playlist()  
-      {
-         AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
-         AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
       } 
       ~Playlist() {}
    };

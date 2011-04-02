@@ -8,6 +8,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/algorithm.hpp \
                    src/assert.hpp \
                    src/attributes.hpp \
+                   src/buffers.cpp \
+                   src/buffers.hpp \
                    src/callback.hpp \
                    src/colour.hpp \
                    src/config.hpp \

@@ -69,6 +69,7 @@ PLAYLIST:
    [count] Q                      | skip to the previous album, if count is specified, skips back [count] albums
    [count] W                      | skip to the next album, if count is specified, skips forward [count] albums
    [count] d                      | delete the next [count] songs from the playlist
+           D                      | delete all the songs in the current playlist (clear)
            <Enter>                | play the currently selected song
  
 

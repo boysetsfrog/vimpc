@@ -157,6 +157,17 @@ uint32_t Client::Add(Mpc::Song & song)
    return TotalNumberOfSongs() - 1;
 }
 
+uint32_t Client::Add(Mpc::Song & song, uint32_t position)
+{
+   if (Connected() == true)
+   {
+      mpd_run_add_id_to(connection_, song.URI().c_str(), position);
+      CheckError();
+   }
+
+   return TotalNumberOfSongs() - 1;
+}
+
 void Client::Delete(uint32_t position)
 {
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))

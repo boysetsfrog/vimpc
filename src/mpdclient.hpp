@@ -24,6 +24,7 @@
 #include <mpd/client.h>
 
 #include "screen.hpp"
+#include "buffers.hpp"
 #include "buffer/library.hpp"
 
 namespace Ui
@@ -62,6 +63,7 @@ namespace Mpc
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);
+      uint32_t Add(Mpc::Song & song, uint32_t position);
       void Delete(uint32_t position);
       void Clear();
 
@@ -120,7 +122,7 @@ namespace Mpc
          {
             uint32_t const     position = mpd_song_get_pos(nextSong);
             Song const * const newSong  = CreateSong(position, nextSong);
-            Song * const       oldSong  = Mpc::Library::Instance().Song(newSong);
+            Song * const       oldSong  = Main::Library().Song(newSong);
 
             if (oldSong != NULL)
             {

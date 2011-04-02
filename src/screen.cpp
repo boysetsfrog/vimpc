@@ -20,6 +20,7 @@
 
 #include "screen.hpp"
 
+#include "buffers.hpp"
 #include "colour.hpp"
 #include "settings.hpp"
 #include "window/console.hpp"
@@ -267,7 +268,7 @@ void Screen::ScrollTo(Location location, uint32_t line)
 
 void Screen::Clear()
 {
-   Ui::Console::Instance().Clear();
+   Main::Console().Clear();
 
    if (window_ == Console)
    {

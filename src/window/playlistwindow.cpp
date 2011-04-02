@@ -20,6 +20,8 @@
 
 #include "playlistwindow.hpp"
 
+#include "buffers.hpp"
+#include "callback.hpp"
 #include "colour.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
@@ -36,8 +38,11 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const
    settings_        (settings),
    client_          (client),
    search_          (search),
-   playlist_        (Mpc::Playlist::Instance())
+   playlist_        (Main::Playlist()),
+   pasteBuffer_     (Main::PlaylistPasteBuffer())
 {
+   typedef Main::CallbackObject<Mpc::Playlist, Mpc::Playlist::BufferType> CallbackObject;
+   playlist_.AddCallback(Main::Buffer_Remove, new CallbackObject(pasteBuffer_, &Mpc::Playlist::Add));
 }
 
 PlaylistWindow::~PlaylistWindow()

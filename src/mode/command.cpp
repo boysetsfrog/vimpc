@@ -340,7 +340,7 @@ bool Command::Mpc(std::string const & arguments)
 
    std::string const command("mpc " + arguments);
 
-   Ui::Console::Instance().Add("> " + command);
+   Main::Console().Add("> " + command);
 
    FILE * const mpcOutput = popen(command.c_str(), "r");
 
@@ -348,7 +348,7 @@ bool Command::Mpc(std::string const & arguments)
    {
       while (fgets(buffer, bufferSize - 1, mpcOutput) != NULL)
       {
-         Ui::Console::Instance().Add(buffer);
+         Main::Console().Add(buffer);
       }
 
       pclose(mpcOutput);

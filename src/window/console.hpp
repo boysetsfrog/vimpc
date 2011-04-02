@@ -31,21 +31,7 @@ namespace Ui
 {
    class Console : public Main::Buffer<std::string>
    {
-
    public:
-      static Console & Instance()
-      {
-         static Console * console = NULL;
-
-         if (console == NULL)
-         {
-            console = new Console();
-         }
-
-         return *console;
-      }
-
-   private:
       Console()  { }
       ~Console() { }
    };

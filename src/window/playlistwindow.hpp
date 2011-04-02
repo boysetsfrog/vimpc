@@ -68,6 +68,7 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Playlist        & playlist_;
+      Mpc::Playlist        & pasteBuffer_;
    };
 }
 

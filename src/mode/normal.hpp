@@ -80,6 +80,8 @@ namespace Ui
       template <Mpc::Song::SongCollection COLLECTION>
       bool DeleteSong(uint32_t count);
 
+      bool PasteBuffer(uint32_t count);
+
    private: //Selecting
       template <ScrollWindow::Position POSITION>
       bool Select(uint32_t count); 

@@ -214,7 +214,7 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
-      Mpc::Playlist::Instance().Add(entry->song_);
+      Main::Playlist().Add(entry->song_);
       client.Add(*(entry->song_));
    }
    else if (entry->expanded_ == false)

@@ -46,7 +46,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    search_          (search),
    screen_          (screen),
    client_          (client),
-   playlist_        (Mpc::Playlist::Instance()),
+   playlist_        (Main::Playlist()),
    settings_        (settings)
 {
    // \todo figure out how to do alt + ctrl key combinations
@@ -83,6 +83,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
    actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;
    actionTable_['A']       = &Normal::AddSong<Mpc::Song::All>;
+   actionTable_['P']       = &Normal::PasteBuffer;
 
    // Navigation
    actionTable_['l']       = &Normal::Right;
@@ -270,14 +271,14 @@ bool Normal::RepeatLastAction(uint32_t count)
 
 bool Normal::Expand(UNUSED uint32_t count)
 {
-   Mpc::Library::Instance().Expand(screen_.ActiveWindow().CurrentLine());
+   Main::Library().Expand(screen_.ActiveWindow().CurrentLine());
 
    return true;
 }
 
 bool Normal::Collapse(UNUSED uint32_t count)
 {
-   Mpc::Library::Instance().Collapse(screen_.ActiveWindow().CurrentLine());
+   Main::Library().Collapse(screen_.ActiveWindow().CurrentLine());
 
    return true;
 }
@@ -292,7 +293,7 @@ bool Normal::AddSong(uint32_t count)
    //! \todo handle adding all songs
    (void) count;
 
-   Mpc::Library::Instance().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine());
+   Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine());
    return true;
 }
 
@@ -309,13 +310,37 @@ bool Normal::DeleteSong(uint32_t count)
    {
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
 
-      for (uint32_t i = 0; i < count; ++i)
+      if (COLLECTION == Mpc::Song::Single)
       {
-         client_.Delete(currentLine);
+         for (uint32_t i = 0; i < count; ++i)
+         {
+            client_.Delete(currentLine);
+         }
+
+         Main::PlaylistPasteBuffer().Clear();
+         playlist_.Remove(currentLine, count);
+      }
+      else if (COLLECTION == Mpc::Song::All)
+      {
+         client_.Clear();
+         playlist_.Clear();
       }
 
-      playlist_.Remove(currentLine, count);
       screen_.ScrollTo(currentLine);
+   }
+
+   return true;
+}
+
+bool Normal::PasteBuffer(uint32_t count)
+{
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
+      {
+         client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine());
+         Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine());
+      }
    }
 
    return true;
