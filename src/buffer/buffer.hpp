@@ -18,8 +18,8 @@
    buffer.hpp - 
    */
 
-#ifndef __UI__BUFFER
-#define __UI__BUFFER
+#ifndef __MAIN__BUFFER
+#define __MAIN__BUFFER
 
 #include <map>
 #include <stdint.h>

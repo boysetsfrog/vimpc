@@ -23,6 +23,7 @@
 
 // Includes
 #include "assert.hpp"
+#include "buffer/linebuffer.hpp"
 #include "window/modewindow.hpp"
 #include "window/scrollwindow.hpp"
 
@@ -110,14 +111,18 @@ namespace Ui
       uint32_t WaitForInput() const;
 
    public:
+      // Access the active window
       MainWindow GetActiveWindow() const;
       Ui::ScrollWindow   & ActiveWindow() const;
 
       // Changes the currently active window by setting it explicitly
-      void SetActiveWindow(MainWindow window);
+      void SetActiveWindow(uint32_t window);
 
       // Changes the currently active window by rotating through those available
       void SetActiveWindow(Skip skip);
+
+      // Show or hide the given window
+      void SetVisible(MainWindow window, bool visible);
    
    private:
       void ClearStatus() const;
@@ -130,6 +135,8 @@ namespace Ui
       WINDOW               * statusWindow_;
       WINDOW               * tabWindow_;
       WINDOW               * commandWindow_;
+
+      std::vector<MainWindow> visibleWindows_;
 
       bool                   started_;
       uint32_t               maxRows_;

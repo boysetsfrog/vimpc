@@ -15,41 +15,40 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   modewindow.hpp - provides a window for each input mode 
+   linebuffer.hpp - 
    */
 
-#ifndef __UI__MODEWINDOW
-#define __UI__MODEWINDOW
+#ifndef __MAIN__LINEBUFFER
+#define __MAIN__LINEBUFFER
 
-#include "window.hpp"
-
-#include "buffer/linebuffer.hpp"
-
-#include <stdint.h>
 #include <string>
 
-namespace Ui
+#include "buffer/buffer.hpp"
+
+namespace Main
 {
-   class ModeWindow : public Ui::Window
+   class LineBuffer : public Buffer<std::string>
    {
    public:
-      ModeWindow();
-      virtual ~ModeWindow();
+      LineBuffer() { }
+      ~LineBuffer() { }
 
    public:
-      void SetLine(char const * const fmt, ... );
-      virtual void Print(uint32_t line) const;
+      std::string const & Get(UNUSED uint32_t position) const
+      { 
+         return Buffer<LineBuffer::BufferType>::Get(0);
+      }
 
-      size_t BufferSize() const { return buffer_.Size(); }
-      void SetCursorPosition(uint32_t cursorPosition);
-      void ShowCursor();
-      void HideCursor();
+      void Add(std::string entry)
+      {
+         Buffer<LineBuffer::BufferType>::Clear();
+         Buffer<LineBuffer::BufferType>::Add(entry);
+      }
 
-   private:
-      bool             cursorVisible_;
-      uint32_t         cursorPosition_;
-      Main::LineBuffer buffer_;
+      uint32_t Size() const
+      {
+         return 1;
+      }
    };
 }
-
 #endif

@@ -59,6 +59,12 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
 
+   // Mark them all as visible
+   for (uint32_t i = 0; i < MainWindowCount; ++i)
+   {
+      visibleWindows_.push_back(static_cast<MainWindow>(i));
+   }
+
    // Commands must be read through a window that is always visible
    commandWindow_         = statusWindow_;    
    keypad(commandWindow_, true);
@@ -338,11 +344,11 @@ Screen::MainWindow Screen::GetActiveWindow() const
    return window_;
 }
 
-void Screen::SetActiveWindow(MainWindow window)
+void Screen::SetActiveWindow(uint32_t window)
 {
-   if (window < MainWindowCount)
+   if ((window < visibleWindows_.size()))
    {
-      window_ = window;
+      window_ = visibleWindows_.at(window);
    }
 
    Update();
@@ -350,18 +356,54 @@ void Screen::SetActiveWindow(MainWindow window)
 
 void Screen::SetActiveWindow(Skip skip)
 {
-   int32_t window = window_ + ((skip == Next) ? 1 : -1);
+   int32_t currentIndex = -1;
 
-   if (window >= MainWindowCount)
+   for (uint32_t i = 0; ((i < visibleWindows_.size()) && (currentIndex == -1)); ++i)
    {
-      window -= MainWindowCount;
+      if (visibleWindows_.at(i) == window_)
+      {
+         currentIndex = i;
+      }
+   }
+
+   int32_t window = currentIndex + ((skip == Next) ? 1 : -1);
+
+   if (window >= static_cast<int32_t>(visibleWindows_.size()))
+   {
+      window -= visibleWindows_.size();
    }
    else if (window < 0)
    {
-      window += MainWindowCount;
+      window += visibleWindows_.size();
    }
 
    SetActiveWindow(static_cast<MainWindow>(window));
+}
+
+void Screen::SetVisible(MainWindow window, bool visible)
+{
+   bool found = false;
+
+   if (window < MainWindowCount)
+   {
+      for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      {
+         if ((*it) == window)
+         {
+            found = true;
+
+            if (visible == false)
+            {
+               visibleWindows_.erase(it);
+            }
+         }
+      }
+
+      if ((found == false) && (visible == true))
+      {
+         visibleWindows_.push_back(window);
+      }
+   }
 }
 
 
@@ -383,13 +425,14 @@ void Screen::UpdateTabWindow() const
 
    std::string name   = "";
    uint32_t    length = 0;
+   uint32_t    count  = 0;
 
-   for (int i = 0; i < MainWindowCount; ++i)
+   for (std::vector<MainWindow>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
    {
       wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
-      name = GetNameFromWindow(static_cast<MainWindow>(i));
+      name = GetNameFromWindow(static_cast<MainWindow>(*it));
 
-      if (i == window_)
+      if (*it == window_)
       {
          wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
       }
@@ -400,9 +443,9 @@ void Screen::UpdateTabWindow() const
       {
          waddstr(tabWindow_, "[");
          wattron(tabWindow_, A_BOLD);
-         wprintw(tabWindow_, "%d", i + 1);
+         wprintw(tabWindow_, "%d", count + 1);
       
-         if (i != window_)
+         if (*it != window_)
          {
             wattroff(tabWindow_, A_BOLD);
          }
@@ -417,6 +460,7 @@ void Screen::UpdateTabWindow() const
       wattroff(tabWindow_, A_REVERSE | A_BOLD);
 
       length += name.size() + 2;
+      ++count;
    }
 
    wattroff(tabWindow_, A_UNDERLINE);

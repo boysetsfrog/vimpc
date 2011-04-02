@@ -28,7 +28,7 @@ ModeWindow::ModeWindow() :
    Window         (0, COLS, LINES - 1, 0),
    cursorVisible_ (false),
    cursorPosition_(0),
-   buffer_        ("")
+   buffer_        ()
 {
 }
 
@@ -46,7 +46,7 @@ void ModeWindow::SetLine(char const * const fmt, ...)
    vsnprintf(buf, InputBufferSize - 1, fmt, args);
    va_end(args);
 
-   buffer_ = buf;
+   buffer_.Add(buf);
 
    Print(0);
 }
@@ -61,14 +61,9 @@ void ModeWindow::Print(uint32_t line) const
    noecho();
 
    werase(window);
-   mvwprintw(window, line, 0, buffer_.c_str());
+   mvwprintw(window, line, 0, buffer_.Get(0).c_str());
    wmove(window, line, cursorPosition_);
    wrefresh(window);
-}
-
-size_t ModeWindow::BufferSize() const
-{
-   return 1;
 }
 
 void ModeWindow::SetCursorPosition(uint32_t cursorPosition)
