@@ -384,7 +384,13 @@ void Screen::SetActiveWindow(Skip skip)
 
 void Screen::SetVisible(MainWindow window, bool visible)
 {
+   //! \todo Handle the case when there is no visible tabs left and clear the mainwindow
    bool found = false;
+
+   if ((window == window_) && (visible == false))
+   {
+      SetActiveWindow(Ui::Screen::Next);
+   }
 
    if (window < MainWindowCount)
    {
@@ -421,6 +427,40 @@ void Screen::SetActiveAndVisible(MainWindow window)
    }
 }
 
+void Screen::MoveWindow(uint32_t position)
+{
+   MoveWindow(window_, position);
+}
+
+void Screen::MoveWindow(MainWindow window, uint32_t position)
+{
+   bool found = false;
+
+   uint32_t pos = 0;
+
+   if (position >= visibleWindows_.size())
+   {
+      position = visibleWindows_.size() - 1;
+   }
+
+   for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+   {
+      if ((*it) == window)
+      {
+         found = true;
+         visibleWindows_.erase(it);
+      }
+   }
+
+   std::vector<MainWindow>::iterator it;
+
+   for (it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
+
+   if (pos == position)
+   {
+      visibleWindows_.insert(it, window);
+   }
+}
 
 
 void Screen::ClearStatus() const

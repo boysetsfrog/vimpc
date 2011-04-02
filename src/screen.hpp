@@ -125,7 +125,12 @@ namespace Ui
       void SetVisible(MainWindow window, bool visible);
       uint32_t VisibleWindows() { return visibleWindows_.size(); }
 
+      // Show a given window and make it active
       void SetActiveAndVisible(MainWindow window);
+
+      // Move the window to a new position
+      void MoveWindow(uint32_t position);
+      void MoveWindow(MainWindow window, uint32_t position);
    
    private:
       void ClearStatus() const;

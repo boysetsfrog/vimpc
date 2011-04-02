@@ -92,11 +92,6 @@ namespace Ui
       //! Redraws the current window
       bool Redraw();
 
-      //! Changes the currently active window
-      //!
-      //! \param window The window to switch to
-      bool SetActiveAndVisible(Ui::Screen::MainWindow window);
-
       //! Stops playback
       bool Stop();
 

@@ -104,12 +104,6 @@ bool Player::Redraw()
    return true;
 }
 
-bool Player::SetActiveAndVisible(Ui::Screen::MainWindow window)
-{
-   screen_.SetActiveAndVisible(window);
-   return true;
-}
-
 bool Player::Stop()
 {
    client_.Stop();

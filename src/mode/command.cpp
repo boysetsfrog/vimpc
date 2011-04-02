@@ -40,6 +40,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    forceCommand_       (false),
    aliasTable_         (),
    commandTable_       (),
+   screen_             (screen),
    settings_           (settings)
 {
    // \todo find a away to add aliases to tab completion
@@ -55,6 +56,10 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["set"]       = &Command::Set;
    commandTable_["stop"]      = &Command::Stop;
+   commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
+   commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
+   commandTable_["tabhide"]   = &Command::HideWindow;
+   commandTable_["tabmove"]   = &Command::MoveWindow;
 
    commandTable_["rescan"]    = &Command::Rescan;
    commandTable_["update"]    = &Command::Update;
@@ -217,11 +222,41 @@ bool Command::SkipSong(std::string const & arguments)
    return Player::SkipSong(SKIP, count);
 }
 
+
 //Implementation of window change function
 template <Ui::Screen::MainWindow MAINWINDOW>
 bool Command::SetActiveAndVisible(UNUSED std::string const & arguments)
 {
-   return Player::SetActiveAndVisible(MAINWINDOW);
+   screen_.SetActiveAndVisible(MAINWINDOW);
+
+   return true;
+}
+
+template <Command::Location LOCATION>
+bool Command::ChangeToWindow(UNUSED std::string const & arguments)
+{
+   uint32_t active = 0;
+
+   if (LOCATION == Last)
+   {
+      active = screen_.VisibleWindows() - 1;
+   }
+
+   screen_.SetActiveWindow(active);
+
+   return true;
+}
+
+bool Command::HideWindow(UNUSED std::string const & arguments)
+{
+   screen_.SetVisible(screen_.GetActiveWindow(), false);
+   return true;
+}
+
+bool Command::MoveWindow(std::string const & arguments)
+{
+   screen_.MoveWindow(atoi(arguments.c_str()));
+   return true;
 }
 
 

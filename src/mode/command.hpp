@@ -77,8 +77,18 @@ namespace Ui
       template <Player::Skip SKIP>
       bool SkipSong(std::string const & arguments); 
 
+
+   private: // Screen related functionality
       template <Ui::Screen::MainWindow MAINWINDOW>
       bool SetActiveAndVisible(std::string const & arguments); 
+
+      typedef enum { First, Last, LocationCount } Location;
+
+      template <Location LOCATION>
+      bool ChangeToWindow(std::string const & arguments);
+
+      bool HideWindow(std::string const & arguments);
+      bool MoveWindow(std::string const & arguments);
 
    private:
       // Executes \p command using \p arguments
@@ -120,6 +130,7 @@ namespace Ui
       bool                 forceCommand_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
+      Ui::Screen         & screen_;
       Main::Settings     & settings_;
 
       // Tab completion searching class
