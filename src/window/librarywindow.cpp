@@ -25,6 +25,7 @@
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
+#include "buffers.hpp"
 #include "mode/search.hpp"
 
 #include <algorithm>
@@ -242,10 +243,10 @@ void LibraryWindow::Right(UNUSED Ui::Player & player, UNUSED uint32_t count)
 void LibraryWindow::Confirm()
 {
    client_.Clear();
+   Main::Playlist().Clear();
    
    library_.AddToPlaylist(Mpc::Song::Single, client_, CurrentLine());
    client_.Play(0);
-   screen_.Redraw(Ui::Screen::Playlist);
 }
 
 // \todo should store the current state for each album artist entry in the library
@@ -271,7 +272,7 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
    //        and is way to slow to be usable in anyway
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
    {
-      colour = GREENONDEFAULT;
+      colour = FULLADDCOLOUR;
    }
    else if ((entry->type_ != Mpc::SongType) && (entry->children_.size() > 0))
    {
@@ -283,19 +284,19 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
       {
          int32_t newColour = DetermineSongColour(*it);
 
-         if ((newColour == GREENONDEFAULT) || (newColour == CURRENTSONGCOLOUR) || (newColour == CYANONDEFAULT))
+         if ((newColour == FULLADDCOLOUR) || (newColour == CURRENTSONGCOLOUR) || (newColour == PARTIALADDCOLOUR))
          {
-            if ((newColour == GREENONDEFAULT) || (newColour == CURRENTSONGCOLOUR))
+            if ((newColour == FULLADDCOLOUR) || (newColour == CURRENTSONGCOLOUR))
             {
                count++;
             }
-            colour = CYANONDEFAULT;
+            colour = PARTIALADDCOLOUR;
          }
       }
 
       if (count == entry->children_.size())
       {
-         colour = GREENONDEFAULT;
+         colour = FULLADDCOLOUR;
       }
    }
    

@@ -24,6 +24,7 @@
 #include <iostream>
 
 #include "window/console.hpp"
+#include "buffer/browse.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
 
@@ -31,8 +32,9 @@ namespace Main
 {
    Mpc::Playlist & Playlist() FUNCTION_IS_NOT_USED;
    Mpc::Playlist & PlaylistPasteBuffer() FUNCTION_IS_NOT_USED;
-   Mpc::Library & Library() FUNCTION_IS_NOT_USED;
-   Ui::Console & Console() FUNCTION_IS_NOT_USED;
+   Mpc::Browse   & Browse()  FUNCTION_IS_NOT_USED;
+   Mpc::Library  & Library() FUNCTION_IS_NOT_USED;
+   Ui::Console   & Console() FUNCTION_IS_NOT_USED;
 }
 
 #endif

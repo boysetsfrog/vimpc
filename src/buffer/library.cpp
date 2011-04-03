@@ -37,7 +37,7 @@ Library::~Library()
 {
 }
 
-void Library::Add(UNUSED Mpc::Song const * const song)
+void Library::Add(Mpc::Song * song)
 {
    static Mpc::LibraryEntry * LastArtistEntry = NULL;
    static Mpc::LibraryEntry * LastAlbumEntry  = NULL;

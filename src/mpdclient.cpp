@@ -68,6 +68,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    connection_ = mpd_connection_new(hostname.c_str(), port, 0);
 
    screen_.Redraw(Ui::Screen::Library);
+   screen_.Redraw(Ui::Screen::Browse);
    screen_.Redraw(Ui::Screen::Playlist);
    CheckError();
 }
@@ -269,11 +270,14 @@ int32_t Client::GetCurrentSong() const
 {
    static int32_t song = -1;
 
-   mpd_song * currentSong = mpd_run_current_song(connection_);
-
-   if (currentSong != NULL)
+   if (connection_ != NULL)
    {
-      song = mpd_song_get_pos(currentSong);
+      mpd_song * currentSong = mpd_run_current_song(connection_);
+
+      if (currentSong != NULL)
+      {
+         song = mpd_song_get_pos(currentSong);
+      }
    }
 
    return song;
@@ -299,7 +303,7 @@ uint32_t Client::TotalNumberOfSongs()
    return songTotal;
 }
 
-bool Client::SongIsInQueue(Mpc::Song & song) const
+bool Client::SongIsInQueue(Mpc::Song const & song) const
 {
    return (song.Reference() != 0);
 }

@@ -18,8 +18,8 @@
    playlist.hpp - handling of the mpd playlist interface 
    */
 
-#ifndef __UI__PLAYLIST
-#define __UI__PLAYLIST
+#ifndef __MPC__PLAYLIST
+#define __MPC__PLAYLIST
 
 // Includes
 #include "buffer.hpp"

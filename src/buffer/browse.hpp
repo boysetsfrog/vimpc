@@ -15,37 +15,36 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   buffers.cpp - global access to important buffers (playlist, library, console)
+   browse.hpp - handling of the mpd playlist interface 
    */
 
-#include "buffers.hpp"
+#ifndef __MPC__BROWSE
+#define __MPC__BROWSE
 
-Mpc::Playlist & Main::Playlist()
+// Includes
+#include "callback.hpp"
+#include "song.hpp"
+
+#include "buffer/buffer.hpp"
+
+// Browse 
+namespace Mpc
 {
-   static Mpc::Playlist * buffer = new Mpc::Playlist(true);
-   return *buffer;
+   class Client;
+
+   class Browse : public Main::Buffer<Mpc::Song *>
+   {
+   private:
+      typedef Main::CallbackObject<Mpc::Browse, Browse::BufferType> CallbackObject;
+      typedef Main::CallbackFunction<Browse::BufferType> CallbackFunction; 
+
+   public:
+      Browse(bool IncrementReferences = false);
+      ~Browse();
+
+   public:
+   void AddToPlaylist(Mpc::Client & client, uint32_t position);
+   };
 }
 
-Mpc::Playlist & Main::PlaylistPasteBuffer()
-{
-   static Mpc::Playlist * buffer = new Mpc::Playlist();
-   return *buffer;
-}
-
-Mpc::Browse & Main::Browse()
-{
-   static Mpc::Browse * buffer = new Mpc::Browse();
-   return *buffer;
-}
-
-Mpc::Library & Main::Library()
-{
-   static Mpc::Library * buffer = new Mpc::Library();
-   return *buffer;
-}
-
-Ui::Console & Main::Console()
-{
-   static Ui::Console * buffer = new Ui::Console();
-   return *buffer;
-}
+#endif

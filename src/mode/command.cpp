@@ -67,6 +67,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["next"]      = &Command::SkipSong<Player::Next>;
    commandTable_["previous"]  = &Command::SkipSong<Player::Previous>;
 
+   commandTable_["browse"]    = &Command::SetActiveAndVisible<Ui::Screen::Browse>;
    commandTable_["console"]   = &Command::SetActiveAndVisible<Ui::Screen::Console>;
    commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
    commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;

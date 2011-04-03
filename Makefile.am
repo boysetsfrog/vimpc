@@ -28,6 +28,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/song.cpp \
                    src/vimpc.cpp \
                    src/vimpc.hpp \
+                   src/buffer/browse.cpp \
+                   src/buffer/browse.hpp \
                    src/buffer/buffer.hpp \
                    src/buffer/library.cpp \
                    src/buffer/library.hpp \
@@ -41,6 +43,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/mode/normal.hpp \
                    src/mode/search.cpp \
                    src/mode/search.hpp \
+                   src/window/browsewindow.cpp \
+                   src/window/browsewindow.hpp \
                    src/window/console.cpp \
                    src/window/console.hpp \
                    src/window/error.hpp \

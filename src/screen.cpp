@@ -23,6 +23,7 @@
 #include "buffers.hpp"
 #include "colour.hpp"
 #include "settings.hpp"
+#include "window/browsewindow.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"
 #include "window/help.hpp"
@@ -56,6 +57,7 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    mainWindows_[Help]     = new Ui::HelpWindow    (*this);
    mainWindows_[Console]  = new Ui::ConsoleWindow (*this);
    mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search); 
+   mainWindows_[Browse]   = new Ui::BrowseWindow  (settings, *this, client, search); 
    mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
    statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
@@ -106,6 +108,7 @@ Screen::~Screen()
       windowTable["help"]     = Help;
       windowTable["console"]  = Console;
       windowTable["library"]  = Library;
+      windowTable["browse"]   = Browse;
       windowTable["playlist"] = Playlist;
    }
 
@@ -135,6 +138,7 @@ Screen::~Screen()
       windowTable[Help]     = "help";
       windowTable[Console]  = "console";
       windowTable[Library]  = "library";
+      windowTable[Browse]   = "browse";
       windowTable[Playlist] = "playlist";
    }
 

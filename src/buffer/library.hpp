@@ -143,7 +143,7 @@ namespace Mpc
 
       void Sort();
       void Sort(LibraryEntry * entry);
-      void Add(Mpc::Song const * const song);
+      void Add(Mpc::Song * song);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
    public:

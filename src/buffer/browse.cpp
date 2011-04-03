@@ -15,37 +15,35 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   buffers.cpp - global access to important buffers (playlist, library, console)
+   browse.cpp - handling of the mpd playlist interface 
    */
 
+// Includes
 #include "buffers.hpp"
+#include "mpdclient.hpp"
+#include "buffer/browse.hpp"
 
-Mpc::Playlist & Main::Playlist()
+// Browse 
+using namespace Mpc;
+
+Browse::Browse(bool IncrementReferences)  
 {
-   static Mpc::Playlist * buffer = new Mpc::Playlist(true);
-   return *buffer;
+   if (IncrementReferences == true)
+   {
+      AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
+      AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
+   }
+} 
+
+Browse::~Browse()
+{
 }
 
-Mpc::Playlist & Main::PlaylistPasteBuffer()
+void Browse::AddToPlaylist(Mpc::Client & client, uint32_t position)
 {
-   static Mpc::Playlist * buffer = new Mpc::Playlist();
-   return *buffer;
-}
-
-Mpc::Browse & Main::Browse()
-{
-   static Mpc::Browse * buffer = new Mpc::Browse();
-   return *buffer;
-}
-
-Mpc::Library & Main::Library()
-{
-   static Mpc::Library * buffer = new Mpc::Library();
-   return *buffer;
-}
-
-Ui::Console & Main::Console()
-{
-   static Ui::Console * buffer = new Ui::Console();
-   return *buffer;
+   if ((position < Size()) && (Get(position) != NULL))
+   {
+      Main::Playlist().Add(Get(position));
+      client.Add(*(Get(position)));
+   }
 }

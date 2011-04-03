@@ -83,7 +83,7 @@ namespace Mpc
       uint32_t TotalNumberOfSongs();
 
    public:
-      bool SongIsInQueue(Mpc::Song & song) const;
+      bool SongIsInQueue(Mpc::Song const & song) const;
 
    public:
       void DisplaySongInformation();
@@ -94,7 +94,7 @@ namespace Mpc
       void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
-      void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song const * const));
+      void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
    private:
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
@@ -137,7 +137,7 @@ namespace Mpc
 
    //
    template <typename Object>
-   void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Song const * const))
+   void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song * ))
    {
       if (Connected() == true)
       {
@@ -153,7 +153,7 @@ namespace Mpc
 
                if (nextSong != NULL)
                {
-                  Song const * const newSong = CreateSong(-1, nextSong);
+                  Song * const newSong = CreateSong(-1, nextSong);
 
                   (object.*callBack)(newSong);
 
