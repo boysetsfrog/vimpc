@@ -310,22 +310,36 @@ bool Normal::DeleteSong(uint32_t count)
    //!          table or something rather than the way it currently works
 
    //! \todo it seems like this needs to know a lot of stuff, surely i could abstract this out?
-   if (screen_.GetActiveWindow() == Screen::Playlist)
+   if ((screen_.GetActiveWindow() == Screen::Playlist) ||
+       (screen_.GetActiveWindow() == Screen::Browse) || 
+       (COLLECTION == Mpc::Song::All))
    {
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
+
+      Main::PlaylistPasteBuffer().Clear();
 
       if (COLLECTION == Mpc::Song::Single)
       {
          for (uint32_t i = 0; i < count; ++i)
          {
-            client_.Delete(currentLine);
+            int32_t index = currentLine;
+
+            if ((screen_.GetActiveWindow() == Screen::Browse))
+            {
+               index = Main::Playlist().Index(Main::Browse().Get(index + i));
+            }
+
+            if (index >= 0)
+            {
+               client_.Delete(index);
+               playlist_.Remove(index, 1);
+            }
          }
 
-         Main::PlaylistPasteBuffer().Clear();
-         playlist_.Remove(currentLine, count);
       }
       else if (COLLECTION == Mpc::Song::All)
       {
+         Main::PlaylistPasteBuffer().Clear();
          client_.Clear();
          playlist_.Clear();
       }
