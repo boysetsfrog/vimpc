@@ -290,7 +290,6 @@ template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {
    //! \todo use count to add more than one song
-   //! \todo handle adding all songs
    (void) count;
 
    Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine());
@@ -303,7 +302,6 @@ bool Normal::DeleteSong(uint32_t count)
    //! \todo Make delete and add take a movement operation?
    //!       ie to do stuff like dG, this may require making some kind of movement
    //!          table or something rather than the way it currently works
-   //! \todo handle deleting all songs
 
    //! \todo it seems like this needs to know a lot of stuff, surely i could abstract this out?
    if (screen_.GetActiveWindow() == Screen::Playlist)
@@ -334,12 +332,16 @@ bool Normal::DeleteSong(uint32_t count)
 
 bool Normal::PasteBuffer(uint32_t count)
 {
+   uint32_t position = 0;
+
    for (uint32_t i = 0; i < count; ++i)
    {
       for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
       {
-         client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine());
-         Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine());
+         client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
+         Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
+
+         position++;
       }
    }
 

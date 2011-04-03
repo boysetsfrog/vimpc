@@ -84,6 +84,11 @@ namespace Main
          return pos;
       }
 
+      void AddFront(T entry)
+      {
+         Add(entry, 0);
+      }
+
       void Add(T entry, uint32_t position)
       { 
          if (position <= Size())

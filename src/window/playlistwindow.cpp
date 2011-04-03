@@ -42,6 +42,7 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const
    pasteBuffer_     (Main::PlaylistPasteBuffer())
 {
    typedef Main::CallbackObject<Mpc::Playlist, Mpc::Playlist::BufferType> CallbackObject;
+
    playlist_.AddCallback(Main::Buffer_Remove, new CallbackObject(pasteBuffer_, &Mpc::Playlist::Add));
 }
 
