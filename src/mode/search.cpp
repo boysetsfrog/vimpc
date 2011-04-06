@@ -27,7 +27,7 @@
 #include "window/error.hpp"
 
 #include <iostream>
-#include <boost/regex.hpp>
+#include <pcrecpp.h>
 
 using namespace Ui;
 
@@ -148,13 +148,13 @@ Search::Direction Search::GetDirectionForInput(int input) const
 
 bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t & count)
 {
-   boost::regex  expression(".*" + search + ".*");
+   pcrecpp::RE   expression(".*" + search + ".*");
    bool          found     (false);
 
    //std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->PlaylistDescription());
    std::string searchPattern(screen_.ActiveWindow().SearchPattern(songId));
 
-   if (boost::regex_match(searchPattern.c_str(), expression) == true)
+   if (expression.FullMatch(searchPattern.c_str()) == true)
    {
       screen_.ScrollTo(songId);
 

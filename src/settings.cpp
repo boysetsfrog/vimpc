@@ -24,7 +24,7 @@
 #include "window/error.hpp"
 
 #include <algorithm>
-#include <boost/regex.hpp>
+#include <pcrecpp.h>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
@@ -99,11 +99,11 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 
 void Settings::SetSingleSetting(std::string setting)
 {
-   boost::regex const toggleCheck("^.*!$");
-   boost::regex const offCheck   ("^no.*");
+   pcrecpp::RE const toggleCheck("^.*!$");
+   pcrecpp::RE const offCheck   ("^no.*");
 
-   bool const toggle(boost::regex_match(setting.c_str(), toggleCheck));
-   bool const off   (boost::regex_match(setting.c_str(), offCheck));
+   bool const toggle(toggleCheck.FullMatch(setting.c_str()));
+   bool const off   (offCheck.FullMatch(setting.c_str()));
 
    if (toggle == true)
    {

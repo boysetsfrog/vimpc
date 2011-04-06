@@ -29,7 +29,7 @@
 #include "mode/search.hpp"
 
 #include <algorithm>
-#include <boost/regex.hpp>
+#include <pcrecpp.h>
 
 using namespace Ui;
 
@@ -258,11 +258,11 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
 
    if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
-      boost::regex expression(".*" + search_.LastSearchString() + ".*");
+      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*");
 
-      if (((entry->type_ == Mpc::ArtistType) && (boost::regex_match(entry->artist_, expression))) ||
-          ((entry->type_ == Mpc::AlbumType)  && (boost::regex_match(entry->album_,  expression))) ||
-          ((entry->type_ == Mpc::SongType)   && (boost::regex_match(entry->song_->Title(), expression))))
+      if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
+          ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
+          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->Title()) == true)))
       {
          colour = SONGMATCHCOLOUR;
       } 

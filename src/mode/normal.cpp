@@ -289,15 +289,16 @@ bool Normal::Collapse(UNUSED uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {
-   //! \todo use count to add more than one song
-   (void) count;
-   if ((screen_.GetActiveWindow() == Screen::Library) || (COLLECTION == Mpc::Song::All))
+   for (uint32_t i = 0; i < count; ++i)
    {
-      Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine());
-   }
-   else if (screen_.GetActiveWindow() == Screen::Browse)
-   {
-      Main::Browse().AddToPlaylist(client_, screen_.ActiveWindow().CurrentLine());
+      if ((screen_.GetActiveWindow() == Screen::Library) || (COLLECTION == Mpc::Song::All))
+      {
+         Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine() + i);
+      }
+      else if (screen_.GetActiveWindow() == Screen::Browse)
+      {
+         Main::Browse().AddToPlaylist(client_, screen_.ActiveWindow().CurrentLine() + i);
+      }
    }
    return true;
 }

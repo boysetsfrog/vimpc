@@ -20,6 +20,8 @@
 
 #include "browsewindow.hpp"
 
+#include <pcrecpp.h>
+
 #include "buffers.hpp"
 #include "callback.hpp"
 #include "colour.hpp"
@@ -29,8 +31,6 @@
 #include "buffer/library.hpp"
 #include "mode/search.hpp"
 #include "window/console.hpp"
-
-#include <boost/regex.hpp>
 
 using namespace Ui;
 
@@ -176,9 +176,9 @@ int32_t BrowseWindow::DetermineSongColour(Mpc::Song const * const nextSong) cons
    }
    else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
-      boost::regex expression(".*" + search_.LastSearchString() + ".*");
+      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*");
 
-      if (boost::regex_match(nextSong->PlaylistDescription(), expression))
+      if (expression.FullMatch(nextSong->PlaylistDescription()))
       {
          colour = SONGMATCHCOLOUR;
       } 

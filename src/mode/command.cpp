@@ -21,7 +21,7 @@
 #include "command.hpp"
 
 #include <algorithm>
-#include <boost/regex.hpp>
+#include <pcrecpp.h>
 #include <sstream>
 
 #include "assert.hpp"
@@ -115,18 +115,18 @@ bool Command::ExecuteCommand(std::string const & input)
 
    if (aliasTable_.find(command) != aliasTable_.end())
    {
-      boost::regex const blankCommand("^\\s*$");
-      boost::regex const multipleCommandAlias("^(\\s*([^;]+)\\s*;?).*$");
-      std::string        resolvedAlias(aliasTable_[command] + " " + arguments);
-      boost::cmatch      match;
+      pcrecpp::RE const blankCommand("^\\s*$");
+      pcrecpp::RE const multipleCommandAlias("^(\\s*([^;]+)\\s*;?).*$");
+      std::string       resolvedAlias(aliasTable_[command] + " " + arguments);
 
-      while (boost::regex_match(resolvedAlias.c_str(), match, multipleCommandAlias) == true)
+      std::string matchString;
+      std::string commandString; 
+
+      while (multipleCommandAlias.FullMatch(resolvedAlias.c_str(), &matchString, &commandString) == true)
       {
-         std::string const matchString  (match[1].first, match[1].second);
-         std::string const commandString(match[2].first, match[2].second);
          resolvedAlias = resolvedAlias.substr(matchString.size(), resolvedAlias.size());
 
-         if (boost::regex_match(commandString, blankCommand) == false)
+         if (blankCommand.FullMatch(commandString) == false)
          {   
             result = ExecuteCommand(commandString);
          }
@@ -263,11 +263,12 @@ bool Command::MoveWindow(std::string const & arguments)
 
 bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 {
-   boost::regex const forceCheck("^.*!$");
-   bool         result          = true;
-   forceCommand_                = false;
+   pcrecpp::RE const forceCheck("^.*!$");
 
-   if (boost::regex_match(command, forceCheck))
+   bool result     = true;
+   forceCommand_   = false;
+
+   if (forceCheck.FullMatch(command))
    {
       forceCommand_  = true;
       command        = command.substr(0, command.length() - 1);

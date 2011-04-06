@@ -1,8 +1,5 @@
 AC_INIT([vimpc], [0.01], [http://sourceforge.net/apps/trac/], [vimpc], [http://vimpc.sourceforge.net/])
 
-m4_include([m4/ax_boost_base.m4])
-m4_include([m4/ax_boost_regex.m4])
-
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])
 AC_CONFIG_HEADERS([src/config.h])
@@ -26,11 +23,11 @@ AC_CHECK_LIB([mpdclient],
              [LIBS="$LIBS -lmpdclient"],
              [AC_MSG_ERROR(mpdclient library is required)])
 
-AX_BOOST_BASE([1.40],
-              [LIBS="$LIBS -lboost_regex-mt"],
-              [AC_MSG_ERROR(boost library > 1.40 is required)])
+AC_CHECK_LIB([pcrecpp],
+             [pcre_free],
+             [LIBS="$LIBS -lpcrecpp"],
+             [AC_MSG_ERROR(pcre library is required)])
 
-AX_BOOST_REGEX
 
 AC_CHECK_HEADER(ncursesw/ncurses.h,
                 [],
@@ -40,9 +37,9 @@ AC_CHECK_HEADER(mpd/connection.h,
                 [],
                 [AC_MSG_ERROR(mpdclient-dev library is required)])
 
-AC_CHECK_HEADER(boost/regex.hpp,
+AC_CHECK_HEADER(pcre.h,
                 [],
-                [AC_MSG_ERROR(boost-regex-dev library is required)])
+                [AC_MSG_ERROR(pcre library is required)])
 
 
 AC_MSG_CHECKING(whether to enable debugging)
