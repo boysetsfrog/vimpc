@@ -34,6 +34,17 @@ SelectWindow::~SelectWindow()
 {
 }
 
+
+void SelectWindow::Resize(int rows, int columns)
+{
+   if (currentSelection_ >= rows)
+   {
+      currentSelection_ = rows - 1;
+   }
+
+   ScrollWindow::Resize(rows, columns);
+}
+
 void SelectWindow::Scroll(int32_t scrollCount)
 {
    currentSelection_ += scrollCount;

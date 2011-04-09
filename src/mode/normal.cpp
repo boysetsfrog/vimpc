@@ -131,7 +131,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
 Normal::~Normal()
 {
-   delete window_;
+   screen_.DeleteModeWindow(window_);
    window_ = NULL;
 }
 

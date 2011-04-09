@@ -5,6 +5,8 @@ AM_INIT_AUTOMAKE([1.10 no-define])
 AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CXX
 
+AC_CHECK_HEADERS(sys/ioctl.h termios.h) 
+
 AC_MSG_CHECKING(for svnversion)
 if type -P svnversion; then
    PACKAGE_SVN_REVISION=`svnversion`

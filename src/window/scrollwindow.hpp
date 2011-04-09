@@ -47,6 +47,7 @@ namespace Ui
 
    public:
       virtual void Print(uint32_t line) const = 0;
+      virtual void Resize(int rows, int columns);
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
 

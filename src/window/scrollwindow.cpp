@@ -39,6 +39,17 @@ ScrollWindow::~ScrollWindow()
 }
 
 
+void ScrollWindow::Resize(int rows, int columns)
+{
+   if ((scrollLine_ > rows) || (rows > scrollLine_))
+   {
+      scrollLine_ = rows;
+   }
+
+   Window::Resize(rows, columns);
+}
+
+
 void ScrollWindow::Scroll(int32_t scrollCount)
 {
    uint16_t const newLine = (scrollLine_ + scrollCount);

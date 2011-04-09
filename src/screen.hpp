@@ -76,6 +76,7 @@ namespace Ui
 
       // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();
+      void DeleteModeWindow(ModeWindow * window);
 
       // Update the status line to indicate currently playing song, etc
       void SetStatusLine(char const * const fmt, ... ) const;
@@ -99,11 +100,14 @@ namespace Ui
       void Clear();
 
       // Reprint the currently active main window
-      void Update() const;
+      void Update();
 
       // Reinitialise the given main window, ie rebuild playlist, library, etc
       void Redraw() const;
       void Redraw(MainWindow window) const;
+
+      // Handle a screen resize
+      bool Resize(bool forceResize = false);
 
    public:
       uint32_t MaxRows()      const;
@@ -144,7 +148,8 @@ namespace Ui
       WINDOW               * tabWindow_;
       WINDOW               * commandWindow_;
 
-      std::vector<MainWindow> visibleWindows_;
+      std::vector<MainWindow>   visibleWindows_;
+      std::vector<ModeWindow *> modeWindows_;
 
       bool                   started_;
       uint32_t               maxRows_;

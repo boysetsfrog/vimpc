@@ -44,7 +44,7 @@ InputMode::InputMode(Ui::Screen & screen) :
 
 InputMode::~InputMode()
 {
-   delete window_;
+   screen_.DeleteModeWindow(window_);
    window_ = NULL;
 }
 

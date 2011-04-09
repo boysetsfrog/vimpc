@@ -159,7 +159,15 @@ void BrowseWindow::Confirm()
 
 uint32_t BrowseWindow::Current() const
 {
-   return Main::Browse().Index(Main::Playlist().Get(client_.GetCurrentSong()));
+   uint32_t current       = 0;
+   int32_t  currentSongId = client_.GetCurrentSong();
+
+   if (currentSongId != -1)
+   {
+      current = Main::Browse().Index(Main::Playlist().Get(current));
+   }
+   
+   return current;
 }
 
 int32_t BrowseWindow::DetermineSongColour(Mpc::Song const * const nextSong) const

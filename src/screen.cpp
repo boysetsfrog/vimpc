@@ -20,6 +20,14 @@
 
 #include "screen.hpp"
 
+#include "config.h"
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
+#include <signal.h>
+
 #include "buffers.hpp"
 #include "colour.hpp"
 #include "settings.hpp"
@@ -31,6 +39,10 @@
 #include "window/playlistwindow.hpp"
 
 using namespace Ui;
+
+bool WindowResized;
+
+extern "C" void ResizeHandler(int);
 
 Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
@@ -48,8 +60,12 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    initscr();
    halfdelay(1);
    noecho();
+
    getmaxyx(stdscr, maxRows_, maxColumns_);
-   maxRows_ -= 3; //Status and Mode window use last 2 rows, tabline uses top
+   maxRows_   -= 3; //Status and Mode window use last 2 rows, tabline uses top
+
+   //handle a resize signal
+   signal(SIGWINCH, ResizeHandler);
 
    Ui::Colour::InitialiseColours();
 
@@ -171,7 +187,24 @@ void Screen::Start()
 
 ModeWindow * Screen::CreateModeWindow()
 {
-   return (new ModeWindow());
+   ModeWindow * window = new ModeWindow();
+   modeWindows_.push_back(window);
+   return window;
+}
+
+void Screen::DeleteModeWindow(ModeWindow * window)
+{
+   bool found = false;
+
+   for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); ((it != modeWindows_.end()) && (found != true)); ++it)
+   {
+      if (*it == window)
+      {
+         found = true;
+         modeWindows_.erase(it);
+         delete *it;
+      }
+   }
 }
 
 
@@ -280,11 +313,12 @@ void Screen::Clear()
    }
 }
 
-void Screen::Update() const
+void Screen::Update()
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
       ActiveWindow().Erase();
+
       UpdateTabWindow();
 
       for (uint32_t i = 0; (i < maxRows_); ++i)
@@ -305,6 +339,56 @@ void Screen::Redraw() const
 void Screen::Redraw(MainWindow window) const
 {
    mainWindows_[window]->Redraw();
+}
+
+bool Screen::Resize(bool forceResize)
+{
+   bool WasWindowResized = false;
+
+   if ((WindowResized == true) || (forceResize == true))
+   {
+      WasWindowResized = true;
+      WindowResized    = false;
+
+      // Get the window size with thanks to irssi
+#ifdef TIOCGWINSZ
+      struct winsize windowSize;
+
+      if ((ioctl(0, TIOCGWINSZ, &windowSize) >= 0) && (windowSize.ws_row > 0 && windowSize.ws_col > 0))
+      {
+         maxRows_    = windowSize.ws_row;
+         maxColumns_ = windowSize.ws_col;
+      }
+#else
+      endwin();
+      refresh();
+      getmaxyx(stdscr, maxRows_, maxColumns_);
+#endif
+
+      resizeterm(maxRows_, maxColumns_);
+      wresize(stdscr, maxRows_, maxColumns_);
+      refresh();
+
+      maxRows_ -= 3;
+
+      wresize(statusWindow_, 1, maxColumns_);
+      wresize(tabWindow_,    1, maxColumns_);
+      mvwin(statusWindow_, maxRows_ + 1, 0);
+
+      for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
+      {
+         (*it)->Resize(1, maxColumns_);
+         (*it)->Move(maxRows_ + 2, 0);
+      }
+
+      for (int i = 0; (i < MainWindowCount); ++i)
+      {
+         wclear(mainWindows_[i]->N_WINDOW());
+         mainWindows_[i]->Resize(maxRows_, maxColumns_);
+      }
+   }
+
+   return WasWindowResized;
 }
 
 
@@ -470,7 +554,7 @@ void Screen::MoveWindow(MainWindow window, uint32_t position)
 
 void Screen::ClearStatus() const
 {
-   static std::string const BlankLine(maxColumns_, ' ');
+   std::string const BlankLine(maxColumns_, ' ');
 
    wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR));
    mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
@@ -478,7 +562,7 @@ void Screen::ClearStatus() const
 
 void Screen::UpdateTabWindow() const
 {
-   static std::string const BlankLine(maxColumns_, ' ');
+   std::string const BlankLine(maxColumns_, ' ');
 
    werase(tabWindow_);
    wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
@@ -541,3 +625,8 @@ bool Screen::WindowsAreInitialised()
    return result;
 }
 
+
+void ResizeHandler(UNUSED int i)
+{
+   WindowResized = true;
+}

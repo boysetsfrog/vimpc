@@ -96,7 +96,7 @@ void LibraryWindow::Clear()
 
 void LibraryWindow::Print(uint32_t line) const
 {
-   static std::string const BlankLine(screen_.MaxColumns(), ' ');
+   std::string const BlankLine(screen_.MaxColumns(), ' ');
 
    WINDOW * window = N_WINDOW();
 

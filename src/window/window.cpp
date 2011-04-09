@@ -55,6 +55,16 @@ void Window::Redraw()
 
 }
 
+void Window::Move(int row, int column)
+{
+   mvwin(N_WINDOW(), row, column);
+}
+
+void Window::Resize(int rows, int columns)
+{
+   wresize(N_WINDOW(), rows, columns); 
+}
+
 void Window::Erase()
 {
    werase(N_WINDOW());

@@ -121,10 +121,11 @@ void Vimpc::Run()
          {
             running = Handle(input);
          }
-         
-         bool screenWasRefreshed = false;
 
-         if ((updateTime >= 1500) && (input == ERR))
+         bool screenWasRefreshed = false;
+         bool screenWasResized   = screen_.Resize();
+
+         if ((screenWasResized == true) || ((updateTime >= 1500) && (input == ERR)))
          {
             updateTime = 0;
             screenWasRefreshed = true;

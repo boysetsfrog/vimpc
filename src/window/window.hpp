@@ -46,6 +46,8 @@ namespace Ui
       virtual void Right(Ui::Player & player, uint32_t count);
       virtual void Confirm();
       virtual void Redraw();
+      virtual void Move(int row, int column);
+      virtual void Resize(int rows, int columns);
 
    public:
       void Erase();
@@ -54,7 +56,7 @@ namespace Ui
    public:
       uint32_t ContentSize() const { return BufferSize() - 1; }
 
-   protected:
+   public:
       WINDOW * N_WINDOW() const { return window_; }
 
       virtual size_t BufferSize() const = 0;
