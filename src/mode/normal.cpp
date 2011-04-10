@@ -49,17 +49,15 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    playlist_        (Main::Playlist()),
    settings_        (settings)
 {
-   // \todo figure out how to do alt + ctrl key combinations
-   // for things like Ctrl+u and alt+1
-
    // \todo display current count somewhere ?
    actionTable_['.']       = &Normal::RepeatLastAction;
    actionTable_['c']       = &Normal::ClearScreen;
 
    // Player
-   actionTable_['p']       = &Normal::Pause;
-   actionTable_['r']       = &Normal::Random;
-   actionTable_['s']       = &Normal::Stop;
+   actionTable_['p']           = &Normal::Pause;
+   actionTable_['r']           = &Normal::Random;
+   actionTable_['s']           = &Normal::Stop;
+   actionTable_[KEY_BACKSPACE] = &Normal::Stop;
 
    // Console
    // \todo add an "insert" mode to console that just stays in command entry mode
@@ -67,6 +65,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    //! \todo make it so these can be used to navigate the library
    // Skipping
+   actionTable_['>']       = &Normal::SkipSong<Player::Next>;
+   actionTable_['<']       = &Normal::SkipSong<Player::Previous>;
    actionTable_['w']       = &Normal::SkipArtist<Player::Next>;
    actionTable_['q']       = &Normal::SkipArtist<Player::Previous>;
    actionTable_['W']       = &Normal::SkipAlbum<Player::Next>;
@@ -100,6 +100,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['j']       = &Normal::Scroll<Screen::Line, Screen::Down>;
    actionTable_[KEY_PPAGE] = &Normal::Scroll<Screen::Page, Screen::Up>;
    actionTable_[KEY_NPAGE] = &Normal::Scroll<Screen::Page, Screen::Down>;
+   actionTable_['U'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Up>; //CTRL + U
+   actionTable_['D'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Down>; //CTRL + D
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
    actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;

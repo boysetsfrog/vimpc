@@ -132,14 +132,14 @@ void PlaylistWindow::Print(uint32_t line) const
    }
 }
 
-void PlaylistWindow::Left(Ui::Player & player, uint32_t count)
+void PlaylistWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
 {
-   player.SkipSong(Ui::Player::Previous, count);
+   //player.SkipSong(Ui::Player::Previous, count);
 }
 
-void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
+void PlaylistWindow::Right(UNUSED Ui::Player & player, UNUSED uint32_t count)
 {
-   player.SkipSong(Ui::Player::Next, count);
+   //player.SkipSong(Ui::Player::Next, count);
 }
 
 void PlaylistWindow::Confirm()

@@ -43,6 +43,7 @@ MOTION:
 WINDOWS:
    [count] gt                     | change to the next window, or to the [count] window if count is specified
    [count] gT                     | change to the previous window, or change back [count] windows if count is specified
+           Alt+<window number>    | change to the given window number
                                  
 SEARCHING:                        
            /<exp>                 | searches forward for <exp> (a regular expression)
@@ -50,20 +51,20 @@ SEARCHING:
    [count] n                      | go to the next result
    [count] N                      | go to the previous result
 
-PLAYING (also see PLAYLIST):                          
+PLAYING (ALSO SEE PLAYLIST):                          
            p                      | toggle the pause on/off
            s                      | stop playback
 
 LIBRARY:
            a                      | add the currently selected song, album or artist to the current playlist
            A                      | add all the library songs to the current playlist
-           h                      | collapse current selection into parent
-           l                      | expand the current selection
+           h, Left                | collapse current selection into parent
+           l, Right               | expand the current selection
            <Enter>                | clear the current playlist, add the currently selected song/album/artist and begin playing
 
 PLAYLIST:
-   [count] h                      | skip to the previous song, if count is specified, skips back [count] songs
-   [count] l                      | skip to the next song, if count is specified, skips forward [count] songs
+   [count] <                      | skip to the previous song, if count is specified, skips back [count] songs
+   [count] >                      | skip to the next song, if count is specified, skips forward [count] songs
    [count] q                      | skip to the previous artist, if count is specified, skips back [count] artists
    [count] w                      | skip to the next artist, if count is specified, skips forward [count] artists
    [count] Q                      | skip to the previous album, if count is specified, skips back [count] albums
@@ -82,10 +83,11 @@ COMMAND MODE
                                   | but :conn will call the :connect command
 
 WINDOWS:
-          playlist                | change to the playlist window, if window is hidden it is opened
+          browse                  | change to the browse window, if window is hidden it is opened
           console                 | change to the console window, if window is hidden it is opened
-          library                 | change to the library window, if window is hidden it is opened
           help                    | change to the help window (this one), if window is hidden it is opened
+          library                 | change to the library window, if window is hidden it is opened
+          playlist                | change to the playlist window, if window is hidden it is opened
 
 MISC:
           !mpc <command-string>   | executes the command line program mpc with the given <command-string>
