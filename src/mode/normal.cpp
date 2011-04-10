@@ -117,14 +117,24 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    // Jumping
    jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
-   jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next>;
-   jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous>;
+   jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next, 0>;
+   jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous, 0>;
 
    // Align the text to a location on the screen
    // \todo this should only work for selectwindows
    alignTable_['.']        = &Normal::AlignTo<Screen::Centre>;
    alignTable_['\n']       = &Normal::AlignTo<Screen::Top>;
    alignTable_['-']        = &Normal::AlignTo<Screen::Bottom>;
+
+   escapeTable_['1']       = &Normal::SetActiveWindow<Screen::Absolute, 0>;
+   escapeTable_['2']       = &Normal::SetActiveWindow<Screen::Absolute, 1>;
+   escapeTable_['3']       = &Normal::SetActiveWindow<Screen::Absolute, 2>;
+   escapeTable_['4']       = &Normal::SetActiveWindow<Screen::Absolute, 3>;
+   escapeTable_['5']       = &Normal::SetActiveWindow<Screen::Absolute, 4>;
+   escapeTable_['6']       = &Normal::SetActiveWindow<Screen::Absolute, 5>;
+   escapeTable_['7']       = &Normal::SetActiveWindow<Screen::Absolute, 6>;
+   escapeTable_['8']       = &Normal::SetActiveWindow<Screen::Absolute, 7>;
+   escapeTable_['9']       = &Normal::SetActiveWindow<Screen::Absolute, 8>;
 
    window_ = screen.CreateModeWindow();
 }
@@ -156,11 +166,15 @@ bool Normal::Handle(int input)
 {
    static ActionTable * action = &actionTable_;
 
-   // \todo work out how to handle 
-   // ALT+<number> to change windows
    bool result = true;
 
-   if ((input >= '0') && (input <= '9'))
+   if ((input & (1 << 31)) != 0)
+   {
+      input  = (input & 0x7FFFFFFF);
+      action = &escapeTable_;
+   }
+
+   if ((input >= '0') && (input <= '9') && (action != &escapeTable_))
    {
       uint64_t const newActionCount = ((static_cast<uint64_t>(actionCount_) * 10) + (input - '0'));
 
@@ -214,7 +228,7 @@ bool Normal::Handle(int input)
 
 bool Normal::CausesModeToStart(int input) const
 {
-   return ((input == '\n') || (input == 27));
+   return ((input == '\n') || (input == ESCAPE_KEY));
 }
 
 
@@ -464,10 +478,14 @@ bool Normal::AlignTo(uint32_t line)
 
 
 // Implementation of window functions
-template <Screen::Skip SKIP>
+template <Screen::Skip SKIP, uint32_t OFFSET>
 bool Normal::SetActiveWindow(uint32_t count)
 {
-   if ((SKIP == Screen::Next) && (wasSpecificCount_ == true))
+   if (SKIP == Screen::Absolute)
+   {
+      screen_.SetActiveWindow(static_cast<Screen::MainWindow>(OFFSET));
+   }
+   else if ((SKIP == Screen::Next) && (wasSpecificCount_ == true))
    {
       screen_.SetActiveWindow(static_cast<Screen::MainWindow>(count - 1));
    }

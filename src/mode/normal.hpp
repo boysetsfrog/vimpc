@@ -115,7 +115,7 @@ namespace Ui
       bool AlignTo(uint32_t line);
 
    private: //Windows
-      template <Screen::Skip SKIP>
+      template <Screen::Skip SKIP, uint32_t OFFSET>
       bool SetActiveWindow(uint32_t count);
 
    private:
@@ -135,6 +135,7 @@ namespace Ui
       ActionTable      actionTable_;
       ActionTable      jumpTable_;
       ActionTable      alignTable_;
+      ActionTable      escapeTable_;
 
       Ui::Search     & search_;
       Ui::Screen     & screen_;

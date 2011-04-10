@@ -61,7 +61,7 @@ namespace Ui
       typedef enum { Up, Down } Direction;
 
       // Navigation directions
-      typedef enum { Next, Previous } Skip;
+      typedef enum { Next, Previous, Absolute } Skip;
 
    public:
       // Get the window value given a window name

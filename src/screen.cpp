@@ -413,12 +413,26 @@ uint32_t Screen::WaitForInput() const
       errorWindow.Print(0);
    }
 
+   halfdelay(1);
    int32_t input = wgetch(commandWindow_);
 
    if (input != ERR)
    {
       // \todo make own function
       errorWindow.ClearError();
+   }
+
+   if (input == 27)
+   {
+      cbreak();
+
+      int escapeChar = wgetch(commandWindow_);
+
+      if ((escapeChar != ERR) && (escapeChar != 27))
+      {
+         input = escapeChar | (1 << 31);
+      }
+
    }
 
    return input;
