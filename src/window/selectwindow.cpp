@@ -70,7 +70,7 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
    {
       ScrollWindow::Scroll(-1);
    }
-   else if ((currentSelection_ > scrollLine_) || (currentSelection_ < (scrollLine_ - screen_.MaxRows())))
+   else if ((currentSelection_ >= scrollLine_) || (currentSelection_ < (scrollLine_ - screen_.MaxRows())))
    {   
       ScrollWindow::ScrollTo(scrollLine);
    }
