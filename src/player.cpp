@@ -204,7 +204,16 @@ uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song:
       do 
       {
          ++skipCount;
-         newSong = playlist_.Get(startSong + (skipCount * direction));
+
+         if (((skip == Previous) && (startSong >= skipCount)) ||
+            ((skip == Next) && (playlist_.Size() > (startSong + skipCount)))) 
+         {
+            newSong = playlist_.Get(startSong + (skipCount * direction));
+         }
+         else
+         {
+            newSong = NULL;
+         }
       }
       while ((newSong != NULL) && ((newSong->*songFunction)().compare((song->*songFunction)()) == 0));
 
@@ -232,7 +241,15 @@ uint32_t Player::First(Mpc::Song const * const song, uint32_t position, Mpc::Son
    do
    {
       ++skipCount;
-      firstSong = playlist_.Get(position - skipCount);
+
+      if (position > skipCount)
+      {
+         firstSong = playlist_.Get(position - skipCount);
+      }
+      else
+      {
+         firstSong = NULL;
+      }
    }
    while ((firstSong != NULL) && (firstSong != song) && ((song->*songFunction)().compare((firstSong->*songFunction)()) == 0));
 
