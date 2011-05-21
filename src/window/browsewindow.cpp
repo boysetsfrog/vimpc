@@ -55,15 +55,23 @@ void BrowseWindow::Redraw()
 
    Clear();
 
-   client_.ForEachLibrarySong(*this, static_cast<void (Ui::BrowseWindow::*)(Mpc::Song *)>(&Ui::BrowseWindow::Add));
+   Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
+
+   Main::Library().ForEachSong(&callback);
+
+   // Do not need to sort as this will be sorted the same as the library due to the foreach call above
 
    SetScrollLine(scrollLine);
    ScrollTo(currentLine);
 }
 
+
 void BrowseWindow::Add(Mpc::Song * song)
 {
-   browse_.Add(Main::Library().Song(song));
+   if (song != NULL)
+   {
+      browse_.Add(song);
+   }
 }
 
 void BrowseWindow::Print(uint32_t line) const

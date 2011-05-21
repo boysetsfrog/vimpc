@@ -26,6 +26,7 @@
 
 #include "song.hpp"
 #include "buffer/browse.hpp"
+#include "buffer/library.hpp"
 #include "window/selectwindow.hpp"
 
 // Forward Declarations

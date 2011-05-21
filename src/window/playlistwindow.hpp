@@ -56,6 +56,9 @@ namespace Ui
       uint32_t Current() const;
 
    public:
+      void AdjustScroll(Mpc::Song * song);
+
+   public:
       std::string SearchPattern(int32_t id) { return playlist_.Get(id)->PlaylistDescription(); }
 
    private:

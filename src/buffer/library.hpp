@@ -146,6 +146,8 @@ namespace Mpc
       void Add(Mpc::Song * song);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
+      void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
+
    public:
       void Expand(uint32_t line);
       void Collapse(uint32_t line);

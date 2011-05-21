@@ -133,7 +133,7 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
    Mpc::LibraryEntry * artistEntry = NULL;
    Mpc::LibraryEntry * albumEntry  = NULL;
    
-   for (uint32_t i = 0; ((i <= Size()) && (artistEntry == NULL)); ++i)
+   for (uint32_t i = 0; ((i < Size()) && (artistEntry == NULL)); ++i)
    {
       if (Algorithm::iequals((Get(i))->artist_, artist) == true)
       {
@@ -145,7 +145,7 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
    {
       for (Mpc::LibraryEntryVector::iterator it = artistEntry->children_.begin(); ((it != artistEntry->children_.end()) && (albumEntry == NULL)); ++it)
       {
-         if (Algorithm::iequals((*it)->album_ ,album) == true)
+         if (Algorithm::iequals((*it)->album_, album) == true)
          {
             albumEntry = (*it);
          }
@@ -168,8 +168,9 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
 
 void Library::Sort()
 {
-   Mpc::LibraryEntry::LibraryComparator UNUSED entryComparator;
-   Main::Buffer<Library::BufferType>::Sort(entryComparator);
+   Mpc::LibraryEntry::LibraryComparator comparator;
+
+   Main::Buffer<Library::BufferType>::Sort(comparator);
 
    for (uint32_t i = 0; (i < Size()); ++i)
    {
@@ -222,6 +223,27 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
          AddToPlaylist(client, (*it));
+      }
+   }
+}
+
+
+void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
+{
+   for (uint32_t i = 0; i < Size(); ++i)
+   {
+      if (Get(i)->type_ == ArtistType)
+      {
+         for (Mpc::LibraryEntryVector::iterator it = Get(i)->children_.begin(); (it != Get(i)->children_.end()); ++it)
+         {
+            if ((*it)->type_ == AlbumType)
+            {
+               for (Mpc::LibraryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
+               {
+                  (*callback)((*jt)->song_);
+               }
+            }
+         }
       }
    }
 }

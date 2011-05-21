@@ -47,3 +47,9 @@ void Browse::AddToPlaylist(Mpc::Client & client, uint32_t position)
       client.Add(*(Get(position)));
    }
 }
+
+void Browse::Sort()
+{
+   Mpc::Browse::BrowseComparator comparator;
+   Main::Buffer<Browse::BufferType>::Sort(comparator);
+}

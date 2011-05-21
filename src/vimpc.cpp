@@ -46,9 +46,12 @@ Vimpc::Vimpc() :
    client_      (screen_),
    modeTable_   ()
 {
-   //Initialise all the buffers into existance
+   // Bring all the buffers into existance
    (void) Main::Console();
-   (void) Main::Library();
+   
+   // Important to do the library before the others as it is the real location of the songs
+   (void) Main::Library(); 
+   (void) Main::Browse();
    (void) Main::Playlist();
    (void) Main::PlaylistPasteBuffer();
 

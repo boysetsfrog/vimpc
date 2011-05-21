@@ -67,6 +67,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    connection_ = mpd_connection_new(hostname.c_str(), port, 0);
 
+   // Must redraw the library first
    screen_.Redraw(Ui::Screen::Library);
    screen_.Redraw(Ui::Screen::Browse);
    screen_.Redraw(Ui::Screen::Playlist);

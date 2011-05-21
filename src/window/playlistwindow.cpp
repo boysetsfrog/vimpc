@@ -41,9 +41,11 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const
    playlist_        (Main::Playlist()),
    pasteBuffer_     (Main::PlaylistPasteBuffer())
 {
-   typedef Main::CallbackObject<Mpc::Playlist, Mpc::Playlist::BufferType> CallbackObject;
+   typedef Main::CallbackObject<Ui::PlaylistWindow, Mpc::Playlist::BufferType> WindowCallbackObject;
+   typedef Main::CallbackObject<Mpc::Playlist,      Mpc::Playlist::BufferType> PlaylistCallbackObject;
 
-   playlist_.AddCallback(Main::Buffer_Remove, new CallbackObject(pasteBuffer_, &Mpc::Playlist::Add));
+   playlist_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this,        &Ui::PlaylistWindow::AdjustScroll));
+   playlist_.AddCallback(Main::Buffer_Remove, new PlaylistCallbackObject(pasteBuffer_, &Mpc::Playlist::Add));
 }
 
 PlaylistWindow::~PlaylistWindow()
@@ -180,6 +182,13 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
 
    return colour;
 }
+
+
+void PlaylistWindow::AdjustScroll(Mpc::Song *)
+{
+   currentSelection_ = LimitCurrentSelection(currentSelection_);
+}
+
 
 void PlaylistWindow::Clear()
 {

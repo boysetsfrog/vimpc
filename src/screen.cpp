@@ -196,13 +196,17 @@ void Screen::DeleteModeWindow(ModeWindow * window)
 {
    bool found = false;
 
-   for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); ((it != modeWindows_.end()) && (found != true)); ++it)
+   for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); ((it != modeWindows_.end()) && (found != true)); )
    {
       if (*it == window)
       {
          found = true;
-         modeWindows_.erase(it);
          delete *it;
+         it = modeWindows_.erase(it);
+      }
+      else
+      {
+         ++it;
       }
    }
 }
