@@ -88,6 +88,12 @@ bool Player::ToggleRandom()
    return true;
 }
 
+bool Player::ToggleSingle()
+{
+   SetSingle(!Single());
+   return true;
+}
+
 bool Player::SetRandom(bool random)
 {
    client_.SetRandom(random);
@@ -97,6 +103,17 @@ bool Player::SetRandom(bool random)
 bool Player::Random()
 {
    return client_.Random();
+}
+
+bool Player::SetSingle(bool single)
+{
+   client_.SetSingle(single);
+   return true;
+}
+
+bool Player::Single()
+{
+   return client_.Single();
 }
 
 bool Player::Redraw()

@@ -83,11 +83,20 @@ namespace Ui
       //! Toggles random on or off
       bool ToggleRandom();
 
+      //! Toggles single on or off
+      bool ToggleSingle();
+
       //! Disables/Enables random functionality
       bool SetRandom(bool random);
 
       //! Get the current random state
       bool Random();
+
+      //! Disables/Enables single functionality
+      bool SetSingle(bool single);
+
+      //! Get the current single state
+      bool Single();
 
       //! Redraws the current window
       bool Redraw();

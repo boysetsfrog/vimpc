@@ -55,6 +55,7 @@ namespace Ui
       void Redraw();
 
       uint32_t Current() const;
+      uint32_t Playlist(int Offset) const;
 
       void Add(Mpc::Song * song);
 

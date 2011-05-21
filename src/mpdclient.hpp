@@ -56,10 +56,12 @@ namespace Mpc
       void Stop();
       void Next();
       void Previous();
-      void Single(bool single);
 
-      void SetRandom(bool random);
       bool Random() const;
+      void SetRandom(bool random);
+
+      bool Single() const;
+      void SetSingle(bool single);
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);

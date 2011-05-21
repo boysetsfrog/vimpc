@@ -177,6 +177,14 @@ uint32_t BrowseWindow::Current() const
    return current;
 }
 
+uint32_t BrowseWindow::Playlist(int Offset UNUSED) const
+{
+   //! \todo not sure how i am going to do this
+   // but it sure be used to navigate throw the browse window
+   // skipping forward and backwards to songs that are in the playlist only
+   return 0;
+}
+
 int32_t BrowseWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
 {
    int32_t colour = SONGCOLOUR;

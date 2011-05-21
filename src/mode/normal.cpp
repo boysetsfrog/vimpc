@@ -56,6 +56,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // Player
    actionTable_['p']           = &Normal::Pause;
    actionTable_['r']           = &Normal::Random;
+   actionTable_['S']           = &Normal::Single;
    actionTable_['s']           = &Normal::Stop;
    actionTable_[KEY_BACKSPACE] = &Normal::Stop;
 
@@ -104,6 +105,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['D'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Down>; //CTRL + D
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
    actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
+   actionTable_['e']       = &Normal::ScrollTo<Screen::PlaylistNext>;
+   actionTable_['E']       = &Normal::ScrollTo<Screen::PlaylistPrev>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
 
@@ -247,6 +250,11 @@ bool Normal::Pause(UNUSED uint32_t count)
 bool Normal::Random(UNUSED uint32_t count)
 { 
    return Player::ToggleRandom();
+}
+
+bool Normal::Single(UNUSED uint32_t count)
+{ 
+   return Player::ToggleSingle();
 }
 
 bool Normal::Stop(UNUSED uint32_t count)

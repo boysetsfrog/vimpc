@@ -52,7 +52,7 @@ namespace Ui
       typedef enum { Help = 0, Console, Library, Browse, Playlist, MainWindowCount } MainWindow;
    
       // Scroll/Selection locations within a window
-      typedef enum { Current, Top, Bottom, Centre, Specific, LocationCount } Location;
+      typedef enum { Current, Top, Bottom, Centre, Specific, PlaylistNext, PlaylistPrev, LocationCount } Location;
       
       // Scroll sizes
       typedef enum { Line, Page } Size;

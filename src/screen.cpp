@@ -298,10 +298,12 @@ void Screen::ScrollTo(Location location, uint32_t line)
 {
    uint32_t scroll[LocationCount] = { 0, 0, 0, 0 };
 
-   scroll[Top]      = 0;
-   scroll[Bottom]   = ActiveWindow().ContentSize(); 
-   scroll[Current]  = ActiveWindow().Current(); 
-   scroll[Specific] = line - 1;
+   scroll[Top]          = 0;
+   scroll[Bottom]       = ActiveWindow().ContentSize(); 
+   scroll[Current]      = ActiveWindow().Current(); 
+   scroll[PlaylistNext] = ActiveWindow().Playlist(1);
+   scroll[PlaylistPrev] = ActiveWindow().Playlist(-1);
+   scroll[Specific]     = line - 1;
 
    ScrollTo(scroll[location]);
 }

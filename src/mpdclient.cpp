@@ -121,16 +121,6 @@ void Client::Previous()
 }
 
 
-void Client::Single(bool const single)
-{
-   if (Connected() == true)
-   {
-      mpd_run_single(connection_, single);
-      CheckError();
-   }
-}
-
-
 bool Client::Random() const
 {
    mpd_status * status = mpd_run_status(connection_);
@@ -143,6 +133,23 @@ void Client::SetRandom(bool const random)
    if (Connected() == true)
    {
       mpd_run_random(connection_, random);
+      CheckError();
+   }
+}
+
+
+bool Client::Single() const
+{
+   mpd_status * status = mpd_run_status(connection_);
+
+   return mpd_status_get_single(status);
+}
+
+void Client::SetSingle(bool const single)
+{
+   if (Connected() == true)
+   {
+      mpd_run_single(connection_, single);
       CheckError();
    }
 }

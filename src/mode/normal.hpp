@@ -61,6 +61,7 @@ namespace Ui
       bool ClearScreen(uint32_t count);
       bool Pause(uint32_t count);
       bool Random(uint32_t count);
+      bool Single(uint32_t count);
       bool Stop(uint32_t count);
 
    private:
