@@ -57,9 +57,8 @@ void BrowseWindow::Redraw()
 
    Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
 
+   // Do not need to sort as this ensures it will be sorted in the same order as the library
    Main::Library().ForEachSong(&callback);
-
-   // Do not need to sort as this will be sorted the same as the library due to the foreach call above
 
    SetScrollLine(scrollLine);
    ScrollTo(currentLine);
@@ -172,7 +171,7 @@ uint32_t BrowseWindow::Current() const
 
    if (currentSongId != -1)
    {
-      current = Main::Browse().Index(Main::Playlist().Get(current));
+      current = Main::Browse().Index(Main::Playlist().Get(currentSongId));
    }
    
    return current;
