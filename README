@@ -1,0 +1,15 @@
+Version 0.02.1
+---------------- 
+- Added browse window similar to playlist but that contains all songs and can be used to add to playlist
+- Improved adding and delete commands and colour highlighting 
+- Fixed so that it does not require config file
+- Lots of bug fixes 
+
+Version 0.01
+---------------- 
+- First release of vimpc 
+- Still requires a lot of improved functionality and work 
+- Supports playing of music from playlist or library 
+- Basic modifications of the playlist via the library window 
+- In program help by typing :help command 
+- Has many bugs 
