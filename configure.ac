@@ -1,4 +1,4 @@
-AC_INIT([vimpc], [0.01], [http://sourceforge.net/apps/trac/], [vimpc], [http://vimpc.sourceforge.net/])
+AC_INIT([vimpc], [0.03], [http://sourceforge.net/apps/trac/], [vimpc], [http://vimpc.sourceforge.net/])
 
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])

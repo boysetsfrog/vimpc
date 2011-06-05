@@ -38,8 +38,6 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
    static char const * const home        = "HOME";
    static bool configCommandsExecuted    = false;
 
-   bool result = false;
-
    if (configCommandsExecuted == false)
    {
       configCommandsExecuted = true;
@@ -50,17 +48,20 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
       std::string   input;
       std::ifstream inputStream(configFile.c_str());
 
-      while (!inputStream.eof())
+      if (inputStream)
       {
-         std::getline(inputStream, input);
-         
-         if (input != "")
+         while (!inputStream.eof())
          {
-            result = handler.ExecuteCommand(input);
+            std::getline(inputStream, input);
+            
+            if (input != "")
+            {
+               handler.ExecuteCommand(input);
+            }
          }
       }
    }
 
-   return result;
+   return true;
 }
 #endif
