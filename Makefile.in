@@ -54,21 +54,31 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)" \
 	"$(DESTDIR)$(docdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_vimpc_OBJECTS = src/algorithm.$(OBJEXT) src/buffers.$(OBJEXT) \
-	src/main.$(OBJEXT) src/mpdclient.$(OBJEXT) \
-	src/player.$(OBJEXT) src/screen.$(OBJEXT) \
-	src/settings.$(OBJEXT) src/song.$(OBJEXT) src/vimpc.$(OBJEXT) \
-	src/buffer/browse.$(OBJEXT) src/buffer/library.$(OBJEXT) \
-	src/mode/command.$(OBJEXT) src/mode/inputmode.$(OBJEXT) \
-	src/mode/normal.$(OBJEXT) src/mode/search.$(OBJEXT) \
-	src/window/browsewindow.$(OBJEXT) src/window/console.$(OBJEXT) \
-	src/window/help.$(OBJEXT) src/window/librarywindow.$(OBJEXT) \
-	src/window/modewindow.$(OBJEXT) \
-	src/window/playlistwindow.$(OBJEXT) \
-	src/window/scrollwindow.$(OBJEXT) \
-	src/window/selectwindow.$(OBJEXT) src/window/window.$(OBJEXT)
+am_vimpc_OBJECTS = src/vimpc-algorithm.$(OBJEXT) \
+	src/vimpc-buffers.$(OBJEXT) src/vimpc-main.$(OBJEXT) \
+	src/vimpc-mpdclient.$(OBJEXT) src/vimpc-player.$(OBJEXT) \
+	src/vimpc-screen.$(OBJEXT) src/vimpc-settings.$(OBJEXT) \
+	src/vimpc-song.$(OBJEXT) src/vimpc-vimpc.$(OBJEXT) \
+	src/buffer/vimpc-browse.$(OBJEXT) \
+	src/buffer/vimpc-library.$(OBJEXT) \
+	src/mode/vimpc-command.$(OBJEXT) \
+	src/mode/vimpc-inputmode.$(OBJEXT) \
+	src/mode/vimpc-normal.$(OBJEXT) \
+	src/mode/vimpc-search.$(OBJEXT) \
+	src/window/vimpc-browsewindow.$(OBJEXT) \
+	src/window/vimpc-console.$(OBJEXT) \
+	src/window/vimpc-help.$(OBJEXT) \
+	src/window/vimpc-librarywindow.$(OBJEXT) \
+	src/window/vimpc-modewindow.$(OBJEXT) \
+	src/window/vimpc-playlistwindow.$(OBJEXT) \
+	src/window/vimpc-scrollwindow.$(OBJEXT) \
+	src/window/vimpc-selectwindow.$(OBJEXT) \
+	src/window/vimpc-window.$(OBJEXT)
 vimpc_OBJECTS = $(am_vimpc_OBJECTS)
-vimpc_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+vimpc_DEPENDENCIES = $(am__DEPENDENCIES_1)
+vimpc_LINK = $(CXXLD) $(vimpc_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 SCRIPTS = $(dist_noinst_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -166,6 +176,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -201,6 +212,8 @@ localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pcrecpp_CFLAGS = @pcrecpp_CFLAGS@
+pcrecpp_LIBS = @pcrecpp_LIBS@
 pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
@@ -215,6 +228,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
+vimpc_CXXFLAGS = $(pcrecpp_CFLAGS) $(AM_CXXFLAGS)
+vimpc_LDADD = $(pcrecpp_LIBS)
 man_MANS = doc/vimpc.1
 doc_DATA = doc/help.txt
 vimpc_SOURCES = src/algorithm.cpp \
@@ -375,30 +390,33 @@ src/$(am__dirstamp):
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
-src/algorithm.$(OBJEXT): src/$(am__dirstamp) \
+src/vimpc-algorithm.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/buffers.$(OBJEXT): src/$(am__dirstamp) \
+src/vimpc-buffers.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/main.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/mpdclient.$(OBJEXT): src/$(am__dirstamp) \
+src/vimpc-main.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/player.$(OBJEXT): src/$(am__dirstamp) \
+src/vimpc-mpdclient.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/screen.$(OBJEXT): src/$(am__dirstamp) \
+src/vimpc-player.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/settings.$(OBJEXT): src/$(am__dirstamp) \
+src/vimpc-screen.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/song.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/vimpc.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/vimpc-settings.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/vimpc-song.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/vimpc-vimpc.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/buffer/$(am__dirstamp):
 	@$(MKDIR_P) src/buffer
 	@: > src/buffer/$(am__dirstamp)
 src/buffer/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/buffer/$(DEPDIR)
 	@: > src/buffer/$(DEPDIR)/$(am__dirstamp)
-src/buffer/browse.$(OBJEXT): src/buffer/$(am__dirstamp) \
+src/buffer/vimpc-browse.$(OBJEXT): src/buffer/$(am__dirstamp) \
 	src/buffer/$(DEPDIR)/$(am__dirstamp)
-src/buffer/library.$(OBJEXT): src/buffer/$(am__dirstamp) \
+src/buffer/vimpc-library.$(OBJEXT): src/buffer/$(am__dirstamp) \
 	src/buffer/$(DEPDIR)/$(am__dirstamp)
 src/mode/$(am__dirstamp):
 	@$(MKDIR_P) src/mode
@@ -406,13 +424,13 @@ src/mode/$(am__dirstamp):
 src/mode/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/mode/$(DEPDIR)
 	@: > src/mode/$(DEPDIR)/$(am__dirstamp)
-src/mode/command.$(OBJEXT): src/mode/$(am__dirstamp) \
+src/mode/vimpc-command.$(OBJEXT): src/mode/$(am__dirstamp) \
 	src/mode/$(DEPDIR)/$(am__dirstamp)
-src/mode/inputmode.$(OBJEXT): src/mode/$(am__dirstamp) \
+src/mode/vimpc-inputmode.$(OBJEXT): src/mode/$(am__dirstamp) \
 	src/mode/$(DEPDIR)/$(am__dirstamp)
-src/mode/normal.$(OBJEXT): src/mode/$(am__dirstamp) \
+src/mode/vimpc-normal.$(OBJEXT): src/mode/$(am__dirstamp) \
 	src/mode/$(DEPDIR)/$(am__dirstamp)
-src/mode/search.$(OBJEXT): src/mode/$(am__dirstamp) \
+src/mode/vimpc-search.$(OBJEXT): src/mode/$(am__dirstamp) \
 	src/mode/$(DEPDIR)/$(am__dirstamp)
 src/window/$(am__dirstamp):
 	@$(MKDIR_P) src/window
@@ -420,82 +438,82 @@ src/window/$(am__dirstamp):
 src/window/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/window/$(DEPDIR)
 	@: > src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/browsewindow.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-browsewindow.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/console.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-console.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/help.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-help.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/librarywindow.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-librarywindow.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/modewindow.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-modewindow.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/playlistwindow.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-playlistwindow.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/scrollwindow.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-scrollwindow.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/selectwindow.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-selectwindow.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
-src/window/window.$(OBJEXT): src/window/$(am__dirstamp) \
+src/window/vimpc-window.$(OBJEXT): src/window/$(am__dirstamp) \
 	src/window/$(DEPDIR)/$(am__dirstamp)
 vimpc$(EXEEXT): $(vimpc_OBJECTS) $(vimpc_DEPENDENCIES) 
 	@rm -f vimpc$(EXEEXT)
-	$(CXXLINK) $(vimpc_OBJECTS) $(vimpc_LDADD) $(LIBS)
+	$(vimpc_LINK) $(vimpc_OBJECTS) $(vimpc_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f src/algorithm.$(OBJEXT)
-	-rm -f src/buffer/browse.$(OBJEXT)
-	-rm -f src/buffer/library.$(OBJEXT)
-	-rm -f src/buffers.$(OBJEXT)
-	-rm -f src/main.$(OBJEXT)
-	-rm -f src/mode/command.$(OBJEXT)
-	-rm -f src/mode/inputmode.$(OBJEXT)
-	-rm -f src/mode/normal.$(OBJEXT)
-	-rm -f src/mode/search.$(OBJEXT)
-	-rm -f src/mpdclient.$(OBJEXT)
-	-rm -f src/player.$(OBJEXT)
-	-rm -f src/screen.$(OBJEXT)
-	-rm -f src/settings.$(OBJEXT)
-	-rm -f src/song.$(OBJEXT)
-	-rm -f src/vimpc.$(OBJEXT)
-	-rm -f src/window/browsewindow.$(OBJEXT)
-	-rm -f src/window/console.$(OBJEXT)
-	-rm -f src/window/help.$(OBJEXT)
-	-rm -f src/window/librarywindow.$(OBJEXT)
-	-rm -f src/window/modewindow.$(OBJEXT)
-	-rm -f src/window/playlistwindow.$(OBJEXT)
-	-rm -f src/window/scrollwindow.$(OBJEXT)
-	-rm -f src/window/selectwindow.$(OBJEXT)
-	-rm -f src/window/window.$(OBJEXT)
+	-rm -f src/buffer/vimpc-browse.$(OBJEXT)
+	-rm -f src/buffer/vimpc-library.$(OBJEXT)
+	-rm -f src/mode/vimpc-command.$(OBJEXT)
+	-rm -f src/mode/vimpc-inputmode.$(OBJEXT)
+	-rm -f src/mode/vimpc-normal.$(OBJEXT)
+	-rm -f src/mode/vimpc-search.$(OBJEXT)
+	-rm -f src/vimpc-algorithm.$(OBJEXT)
+	-rm -f src/vimpc-buffers.$(OBJEXT)
+	-rm -f src/vimpc-main.$(OBJEXT)
+	-rm -f src/vimpc-mpdclient.$(OBJEXT)
+	-rm -f src/vimpc-player.$(OBJEXT)
+	-rm -f src/vimpc-screen.$(OBJEXT)
+	-rm -f src/vimpc-settings.$(OBJEXT)
+	-rm -f src/vimpc-song.$(OBJEXT)
+	-rm -f src/vimpc-vimpc.$(OBJEXT)
+	-rm -f src/window/vimpc-browsewindow.$(OBJEXT)
+	-rm -f src/window/vimpc-console.$(OBJEXT)
+	-rm -f src/window/vimpc-help.$(OBJEXT)
+	-rm -f src/window/vimpc-librarywindow.$(OBJEXT)
+	-rm -f src/window/vimpc-modewindow.$(OBJEXT)
+	-rm -f src/window/vimpc-playlistwindow.$(OBJEXT)
+	-rm -f src/window/vimpc-scrollwindow.$(OBJEXT)
+	-rm -f src/window/vimpc-selectwindow.$(OBJEXT)
+	-rm -f src/window/vimpc-window.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/algorithm.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/buffers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/mpdclient.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/player.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/screen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/settings.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/song.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/buffer/$(DEPDIR)/browse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/buffer/$(DEPDIR)/library.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/command.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/inputmode.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/normal.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/search.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/browsewindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/console.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/help.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/librarywindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/modewindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/playlistwindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/scrollwindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/selectwindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-algorithm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-buffers.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-mpdclient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-player.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-screen.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-settings.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-song.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/vimpc-vimpc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/buffer/$(DEPDIR)/vimpc-browse.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/buffer/$(DEPDIR)/vimpc-library.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/vimpc-command.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/vimpc-inputmode.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/vimpc-normal.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/mode/$(DEPDIR)/vimpc-search.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-browsewindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-console.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-help.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-librarywindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-modewindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-playlistwindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-scrollwindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-selectwindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/window/$(DEPDIR)/vimpc-window.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -512,6 +530,342 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+src/vimpc-algorithm.o: src/algorithm.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-algorithm.o -MD -MP -MF src/$(DEPDIR)/vimpc-algorithm.Tpo -c -o src/vimpc-algorithm.o `test -f 'src/algorithm.cpp' || echo '$(srcdir)/'`src/algorithm.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-algorithm.Tpo src/$(DEPDIR)/vimpc-algorithm.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/algorithm.cpp' object='src/vimpc-algorithm.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-algorithm.o `test -f 'src/algorithm.cpp' || echo '$(srcdir)/'`src/algorithm.cpp
+
+src/vimpc-algorithm.obj: src/algorithm.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-algorithm.obj -MD -MP -MF src/$(DEPDIR)/vimpc-algorithm.Tpo -c -o src/vimpc-algorithm.obj `if test -f 'src/algorithm.cpp'; then $(CYGPATH_W) 'src/algorithm.cpp'; else $(CYGPATH_W) '$(srcdir)/src/algorithm.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-algorithm.Tpo src/$(DEPDIR)/vimpc-algorithm.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/algorithm.cpp' object='src/vimpc-algorithm.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-algorithm.obj `if test -f 'src/algorithm.cpp'; then $(CYGPATH_W) 'src/algorithm.cpp'; else $(CYGPATH_W) '$(srcdir)/src/algorithm.cpp'; fi`
+
+src/vimpc-buffers.o: src/buffers.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-buffers.o -MD -MP -MF src/$(DEPDIR)/vimpc-buffers.Tpo -c -o src/vimpc-buffers.o `test -f 'src/buffers.cpp' || echo '$(srcdir)/'`src/buffers.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-buffers.Tpo src/$(DEPDIR)/vimpc-buffers.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/buffers.cpp' object='src/vimpc-buffers.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-buffers.o `test -f 'src/buffers.cpp' || echo '$(srcdir)/'`src/buffers.cpp
+
+src/vimpc-buffers.obj: src/buffers.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-buffers.obj -MD -MP -MF src/$(DEPDIR)/vimpc-buffers.Tpo -c -o src/vimpc-buffers.obj `if test -f 'src/buffers.cpp'; then $(CYGPATH_W) 'src/buffers.cpp'; else $(CYGPATH_W) '$(srcdir)/src/buffers.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-buffers.Tpo src/$(DEPDIR)/vimpc-buffers.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/buffers.cpp' object='src/vimpc-buffers.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-buffers.obj `if test -f 'src/buffers.cpp'; then $(CYGPATH_W) 'src/buffers.cpp'; else $(CYGPATH_W) '$(srcdir)/src/buffers.cpp'; fi`
+
+src/vimpc-main.o: src/main.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-main.o -MD -MP -MF src/$(DEPDIR)/vimpc-main.Tpo -c -o src/vimpc-main.o `test -f 'src/main.cpp' || echo '$(srcdir)/'`src/main.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-main.Tpo src/$(DEPDIR)/vimpc-main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/main.cpp' object='src/vimpc-main.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-main.o `test -f 'src/main.cpp' || echo '$(srcdir)/'`src/main.cpp
+
+src/vimpc-main.obj: src/main.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-main.obj -MD -MP -MF src/$(DEPDIR)/vimpc-main.Tpo -c -o src/vimpc-main.obj `if test -f 'src/main.cpp'; then $(CYGPATH_W) 'src/main.cpp'; else $(CYGPATH_W) '$(srcdir)/src/main.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-main.Tpo src/$(DEPDIR)/vimpc-main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/main.cpp' object='src/vimpc-main.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-main.obj `if test -f 'src/main.cpp'; then $(CYGPATH_W) 'src/main.cpp'; else $(CYGPATH_W) '$(srcdir)/src/main.cpp'; fi`
+
+src/vimpc-mpdclient.o: src/mpdclient.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-mpdclient.o -MD -MP -MF src/$(DEPDIR)/vimpc-mpdclient.Tpo -c -o src/vimpc-mpdclient.o `test -f 'src/mpdclient.cpp' || echo '$(srcdir)/'`src/mpdclient.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-mpdclient.Tpo src/$(DEPDIR)/vimpc-mpdclient.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mpdclient.cpp' object='src/vimpc-mpdclient.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-mpdclient.o `test -f 'src/mpdclient.cpp' || echo '$(srcdir)/'`src/mpdclient.cpp
+
+src/vimpc-mpdclient.obj: src/mpdclient.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-mpdclient.obj -MD -MP -MF src/$(DEPDIR)/vimpc-mpdclient.Tpo -c -o src/vimpc-mpdclient.obj `if test -f 'src/mpdclient.cpp'; then $(CYGPATH_W) 'src/mpdclient.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mpdclient.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-mpdclient.Tpo src/$(DEPDIR)/vimpc-mpdclient.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mpdclient.cpp' object='src/vimpc-mpdclient.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-mpdclient.obj `if test -f 'src/mpdclient.cpp'; then $(CYGPATH_W) 'src/mpdclient.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mpdclient.cpp'; fi`
+
+src/vimpc-player.o: src/player.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-player.o -MD -MP -MF src/$(DEPDIR)/vimpc-player.Tpo -c -o src/vimpc-player.o `test -f 'src/player.cpp' || echo '$(srcdir)/'`src/player.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-player.Tpo src/$(DEPDIR)/vimpc-player.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/player.cpp' object='src/vimpc-player.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-player.o `test -f 'src/player.cpp' || echo '$(srcdir)/'`src/player.cpp
+
+src/vimpc-player.obj: src/player.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-player.obj -MD -MP -MF src/$(DEPDIR)/vimpc-player.Tpo -c -o src/vimpc-player.obj `if test -f 'src/player.cpp'; then $(CYGPATH_W) 'src/player.cpp'; else $(CYGPATH_W) '$(srcdir)/src/player.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-player.Tpo src/$(DEPDIR)/vimpc-player.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/player.cpp' object='src/vimpc-player.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-player.obj `if test -f 'src/player.cpp'; then $(CYGPATH_W) 'src/player.cpp'; else $(CYGPATH_W) '$(srcdir)/src/player.cpp'; fi`
+
+src/vimpc-screen.o: src/screen.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-screen.o -MD -MP -MF src/$(DEPDIR)/vimpc-screen.Tpo -c -o src/vimpc-screen.o `test -f 'src/screen.cpp' || echo '$(srcdir)/'`src/screen.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-screen.Tpo src/$(DEPDIR)/vimpc-screen.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/screen.cpp' object='src/vimpc-screen.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-screen.o `test -f 'src/screen.cpp' || echo '$(srcdir)/'`src/screen.cpp
+
+src/vimpc-screen.obj: src/screen.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-screen.obj -MD -MP -MF src/$(DEPDIR)/vimpc-screen.Tpo -c -o src/vimpc-screen.obj `if test -f 'src/screen.cpp'; then $(CYGPATH_W) 'src/screen.cpp'; else $(CYGPATH_W) '$(srcdir)/src/screen.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-screen.Tpo src/$(DEPDIR)/vimpc-screen.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/screen.cpp' object='src/vimpc-screen.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-screen.obj `if test -f 'src/screen.cpp'; then $(CYGPATH_W) 'src/screen.cpp'; else $(CYGPATH_W) '$(srcdir)/src/screen.cpp'; fi`
+
+src/vimpc-settings.o: src/settings.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-settings.o -MD -MP -MF src/$(DEPDIR)/vimpc-settings.Tpo -c -o src/vimpc-settings.o `test -f 'src/settings.cpp' || echo '$(srcdir)/'`src/settings.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-settings.Tpo src/$(DEPDIR)/vimpc-settings.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/settings.cpp' object='src/vimpc-settings.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-settings.o `test -f 'src/settings.cpp' || echo '$(srcdir)/'`src/settings.cpp
+
+src/vimpc-settings.obj: src/settings.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-settings.obj -MD -MP -MF src/$(DEPDIR)/vimpc-settings.Tpo -c -o src/vimpc-settings.obj `if test -f 'src/settings.cpp'; then $(CYGPATH_W) 'src/settings.cpp'; else $(CYGPATH_W) '$(srcdir)/src/settings.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-settings.Tpo src/$(DEPDIR)/vimpc-settings.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/settings.cpp' object='src/vimpc-settings.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-settings.obj `if test -f 'src/settings.cpp'; then $(CYGPATH_W) 'src/settings.cpp'; else $(CYGPATH_W) '$(srcdir)/src/settings.cpp'; fi`
+
+src/vimpc-song.o: src/song.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-song.o -MD -MP -MF src/$(DEPDIR)/vimpc-song.Tpo -c -o src/vimpc-song.o `test -f 'src/song.cpp' || echo '$(srcdir)/'`src/song.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-song.Tpo src/$(DEPDIR)/vimpc-song.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/song.cpp' object='src/vimpc-song.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-song.o `test -f 'src/song.cpp' || echo '$(srcdir)/'`src/song.cpp
+
+src/vimpc-song.obj: src/song.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-song.obj -MD -MP -MF src/$(DEPDIR)/vimpc-song.Tpo -c -o src/vimpc-song.obj `if test -f 'src/song.cpp'; then $(CYGPATH_W) 'src/song.cpp'; else $(CYGPATH_W) '$(srcdir)/src/song.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-song.Tpo src/$(DEPDIR)/vimpc-song.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/song.cpp' object='src/vimpc-song.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-song.obj `if test -f 'src/song.cpp'; then $(CYGPATH_W) 'src/song.cpp'; else $(CYGPATH_W) '$(srcdir)/src/song.cpp'; fi`
+
+src/vimpc-vimpc.o: src/vimpc.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-vimpc.o -MD -MP -MF src/$(DEPDIR)/vimpc-vimpc.Tpo -c -o src/vimpc-vimpc.o `test -f 'src/vimpc.cpp' || echo '$(srcdir)/'`src/vimpc.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-vimpc.Tpo src/$(DEPDIR)/vimpc-vimpc.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/vimpc.cpp' object='src/vimpc-vimpc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-vimpc.o `test -f 'src/vimpc.cpp' || echo '$(srcdir)/'`src/vimpc.cpp
+
+src/vimpc-vimpc.obj: src/vimpc.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/vimpc-vimpc.obj -MD -MP -MF src/$(DEPDIR)/vimpc-vimpc.Tpo -c -o src/vimpc-vimpc.obj `if test -f 'src/vimpc.cpp'; then $(CYGPATH_W) 'src/vimpc.cpp'; else $(CYGPATH_W) '$(srcdir)/src/vimpc.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/$(DEPDIR)/vimpc-vimpc.Tpo src/$(DEPDIR)/vimpc-vimpc.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/vimpc.cpp' object='src/vimpc-vimpc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/vimpc-vimpc.obj `if test -f 'src/vimpc.cpp'; then $(CYGPATH_W) 'src/vimpc.cpp'; else $(CYGPATH_W) '$(srcdir)/src/vimpc.cpp'; fi`
+
+src/buffer/vimpc-browse.o: src/buffer/browse.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/buffer/vimpc-browse.o -MD -MP -MF src/buffer/$(DEPDIR)/vimpc-browse.Tpo -c -o src/buffer/vimpc-browse.o `test -f 'src/buffer/browse.cpp' || echo '$(srcdir)/'`src/buffer/browse.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/buffer/$(DEPDIR)/vimpc-browse.Tpo src/buffer/$(DEPDIR)/vimpc-browse.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/buffer/browse.cpp' object='src/buffer/vimpc-browse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/buffer/vimpc-browse.o `test -f 'src/buffer/browse.cpp' || echo '$(srcdir)/'`src/buffer/browse.cpp
+
+src/buffer/vimpc-browse.obj: src/buffer/browse.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/buffer/vimpc-browse.obj -MD -MP -MF src/buffer/$(DEPDIR)/vimpc-browse.Tpo -c -o src/buffer/vimpc-browse.obj `if test -f 'src/buffer/browse.cpp'; then $(CYGPATH_W) 'src/buffer/browse.cpp'; else $(CYGPATH_W) '$(srcdir)/src/buffer/browse.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/buffer/$(DEPDIR)/vimpc-browse.Tpo src/buffer/$(DEPDIR)/vimpc-browse.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/buffer/browse.cpp' object='src/buffer/vimpc-browse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/buffer/vimpc-browse.obj `if test -f 'src/buffer/browse.cpp'; then $(CYGPATH_W) 'src/buffer/browse.cpp'; else $(CYGPATH_W) '$(srcdir)/src/buffer/browse.cpp'; fi`
+
+src/buffer/vimpc-library.o: src/buffer/library.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/buffer/vimpc-library.o -MD -MP -MF src/buffer/$(DEPDIR)/vimpc-library.Tpo -c -o src/buffer/vimpc-library.o `test -f 'src/buffer/library.cpp' || echo '$(srcdir)/'`src/buffer/library.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/buffer/$(DEPDIR)/vimpc-library.Tpo src/buffer/$(DEPDIR)/vimpc-library.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/buffer/library.cpp' object='src/buffer/vimpc-library.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/buffer/vimpc-library.o `test -f 'src/buffer/library.cpp' || echo '$(srcdir)/'`src/buffer/library.cpp
+
+src/buffer/vimpc-library.obj: src/buffer/library.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/buffer/vimpc-library.obj -MD -MP -MF src/buffer/$(DEPDIR)/vimpc-library.Tpo -c -o src/buffer/vimpc-library.obj `if test -f 'src/buffer/library.cpp'; then $(CYGPATH_W) 'src/buffer/library.cpp'; else $(CYGPATH_W) '$(srcdir)/src/buffer/library.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/buffer/$(DEPDIR)/vimpc-library.Tpo src/buffer/$(DEPDIR)/vimpc-library.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/buffer/library.cpp' object='src/buffer/vimpc-library.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/buffer/vimpc-library.obj `if test -f 'src/buffer/library.cpp'; then $(CYGPATH_W) 'src/buffer/library.cpp'; else $(CYGPATH_W) '$(srcdir)/src/buffer/library.cpp'; fi`
+
+src/mode/vimpc-command.o: src/mode/command.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-command.o -MD -MP -MF src/mode/$(DEPDIR)/vimpc-command.Tpo -c -o src/mode/vimpc-command.o `test -f 'src/mode/command.cpp' || echo '$(srcdir)/'`src/mode/command.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-command.Tpo src/mode/$(DEPDIR)/vimpc-command.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/command.cpp' object='src/mode/vimpc-command.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-command.o `test -f 'src/mode/command.cpp' || echo '$(srcdir)/'`src/mode/command.cpp
+
+src/mode/vimpc-command.obj: src/mode/command.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-command.obj -MD -MP -MF src/mode/$(DEPDIR)/vimpc-command.Tpo -c -o src/mode/vimpc-command.obj `if test -f 'src/mode/command.cpp'; then $(CYGPATH_W) 'src/mode/command.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/command.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-command.Tpo src/mode/$(DEPDIR)/vimpc-command.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/command.cpp' object='src/mode/vimpc-command.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-command.obj `if test -f 'src/mode/command.cpp'; then $(CYGPATH_W) 'src/mode/command.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/command.cpp'; fi`
+
+src/mode/vimpc-inputmode.o: src/mode/inputmode.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-inputmode.o -MD -MP -MF src/mode/$(DEPDIR)/vimpc-inputmode.Tpo -c -o src/mode/vimpc-inputmode.o `test -f 'src/mode/inputmode.cpp' || echo '$(srcdir)/'`src/mode/inputmode.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-inputmode.Tpo src/mode/$(DEPDIR)/vimpc-inputmode.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/inputmode.cpp' object='src/mode/vimpc-inputmode.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-inputmode.o `test -f 'src/mode/inputmode.cpp' || echo '$(srcdir)/'`src/mode/inputmode.cpp
+
+src/mode/vimpc-inputmode.obj: src/mode/inputmode.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-inputmode.obj -MD -MP -MF src/mode/$(DEPDIR)/vimpc-inputmode.Tpo -c -o src/mode/vimpc-inputmode.obj `if test -f 'src/mode/inputmode.cpp'; then $(CYGPATH_W) 'src/mode/inputmode.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/inputmode.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-inputmode.Tpo src/mode/$(DEPDIR)/vimpc-inputmode.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/inputmode.cpp' object='src/mode/vimpc-inputmode.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-inputmode.obj `if test -f 'src/mode/inputmode.cpp'; then $(CYGPATH_W) 'src/mode/inputmode.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/inputmode.cpp'; fi`
+
+src/mode/vimpc-normal.o: src/mode/normal.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-normal.o -MD -MP -MF src/mode/$(DEPDIR)/vimpc-normal.Tpo -c -o src/mode/vimpc-normal.o `test -f 'src/mode/normal.cpp' || echo '$(srcdir)/'`src/mode/normal.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-normal.Tpo src/mode/$(DEPDIR)/vimpc-normal.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/normal.cpp' object='src/mode/vimpc-normal.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-normal.o `test -f 'src/mode/normal.cpp' || echo '$(srcdir)/'`src/mode/normal.cpp
+
+src/mode/vimpc-normal.obj: src/mode/normal.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-normal.obj -MD -MP -MF src/mode/$(DEPDIR)/vimpc-normal.Tpo -c -o src/mode/vimpc-normal.obj `if test -f 'src/mode/normal.cpp'; then $(CYGPATH_W) 'src/mode/normal.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/normal.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-normal.Tpo src/mode/$(DEPDIR)/vimpc-normal.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/normal.cpp' object='src/mode/vimpc-normal.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-normal.obj `if test -f 'src/mode/normal.cpp'; then $(CYGPATH_W) 'src/mode/normal.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/normal.cpp'; fi`
+
+src/mode/vimpc-search.o: src/mode/search.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-search.o -MD -MP -MF src/mode/$(DEPDIR)/vimpc-search.Tpo -c -o src/mode/vimpc-search.o `test -f 'src/mode/search.cpp' || echo '$(srcdir)/'`src/mode/search.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-search.Tpo src/mode/$(DEPDIR)/vimpc-search.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/search.cpp' object='src/mode/vimpc-search.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-search.o `test -f 'src/mode/search.cpp' || echo '$(srcdir)/'`src/mode/search.cpp
+
+src/mode/vimpc-search.obj: src/mode/search.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/mode/vimpc-search.obj -MD -MP -MF src/mode/$(DEPDIR)/vimpc-search.Tpo -c -o src/mode/vimpc-search.obj `if test -f 'src/mode/search.cpp'; then $(CYGPATH_W) 'src/mode/search.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/search.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/mode/$(DEPDIR)/vimpc-search.Tpo src/mode/$(DEPDIR)/vimpc-search.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/mode/search.cpp' object='src/mode/vimpc-search.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/mode/vimpc-search.obj `if test -f 'src/mode/search.cpp'; then $(CYGPATH_W) 'src/mode/search.cpp'; else $(CYGPATH_W) '$(srcdir)/src/mode/search.cpp'; fi`
+
+src/window/vimpc-browsewindow.o: src/window/browsewindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-browsewindow.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-browsewindow.Tpo -c -o src/window/vimpc-browsewindow.o `test -f 'src/window/browsewindow.cpp' || echo '$(srcdir)/'`src/window/browsewindow.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-browsewindow.Tpo src/window/$(DEPDIR)/vimpc-browsewindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/browsewindow.cpp' object='src/window/vimpc-browsewindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-browsewindow.o `test -f 'src/window/browsewindow.cpp' || echo '$(srcdir)/'`src/window/browsewindow.cpp
+
+src/window/vimpc-browsewindow.obj: src/window/browsewindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-browsewindow.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-browsewindow.Tpo -c -o src/window/vimpc-browsewindow.obj `if test -f 'src/window/browsewindow.cpp'; then $(CYGPATH_W) 'src/window/browsewindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/browsewindow.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-browsewindow.Tpo src/window/$(DEPDIR)/vimpc-browsewindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/browsewindow.cpp' object='src/window/vimpc-browsewindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-browsewindow.obj `if test -f 'src/window/browsewindow.cpp'; then $(CYGPATH_W) 'src/window/browsewindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/browsewindow.cpp'; fi`
+
+src/window/vimpc-console.o: src/window/console.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-console.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-console.Tpo -c -o src/window/vimpc-console.o `test -f 'src/window/console.cpp' || echo '$(srcdir)/'`src/window/console.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-console.Tpo src/window/$(DEPDIR)/vimpc-console.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/console.cpp' object='src/window/vimpc-console.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-console.o `test -f 'src/window/console.cpp' || echo '$(srcdir)/'`src/window/console.cpp
+
+src/window/vimpc-console.obj: src/window/console.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-console.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-console.Tpo -c -o src/window/vimpc-console.obj `if test -f 'src/window/console.cpp'; then $(CYGPATH_W) 'src/window/console.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/console.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-console.Tpo src/window/$(DEPDIR)/vimpc-console.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/console.cpp' object='src/window/vimpc-console.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-console.obj `if test -f 'src/window/console.cpp'; then $(CYGPATH_W) 'src/window/console.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/console.cpp'; fi`
+
+src/window/vimpc-help.o: src/window/help.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-help.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-help.Tpo -c -o src/window/vimpc-help.o `test -f 'src/window/help.cpp' || echo '$(srcdir)/'`src/window/help.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-help.Tpo src/window/$(DEPDIR)/vimpc-help.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/help.cpp' object='src/window/vimpc-help.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-help.o `test -f 'src/window/help.cpp' || echo '$(srcdir)/'`src/window/help.cpp
+
+src/window/vimpc-help.obj: src/window/help.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-help.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-help.Tpo -c -o src/window/vimpc-help.obj `if test -f 'src/window/help.cpp'; then $(CYGPATH_W) 'src/window/help.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/help.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-help.Tpo src/window/$(DEPDIR)/vimpc-help.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/help.cpp' object='src/window/vimpc-help.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-help.obj `if test -f 'src/window/help.cpp'; then $(CYGPATH_W) 'src/window/help.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/help.cpp'; fi`
+
+src/window/vimpc-librarywindow.o: src/window/librarywindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-librarywindow.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-librarywindow.Tpo -c -o src/window/vimpc-librarywindow.o `test -f 'src/window/librarywindow.cpp' || echo '$(srcdir)/'`src/window/librarywindow.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-librarywindow.Tpo src/window/$(DEPDIR)/vimpc-librarywindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/librarywindow.cpp' object='src/window/vimpc-librarywindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-librarywindow.o `test -f 'src/window/librarywindow.cpp' || echo '$(srcdir)/'`src/window/librarywindow.cpp
+
+src/window/vimpc-librarywindow.obj: src/window/librarywindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-librarywindow.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-librarywindow.Tpo -c -o src/window/vimpc-librarywindow.obj `if test -f 'src/window/librarywindow.cpp'; then $(CYGPATH_W) 'src/window/librarywindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/librarywindow.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-librarywindow.Tpo src/window/$(DEPDIR)/vimpc-librarywindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/librarywindow.cpp' object='src/window/vimpc-librarywindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-librarywindow.obj `if test -f 'src/window/librarywindow.cpp'; then $(CYGPATH_W) 'src/window/librarywindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/librarywindow.cpp'; fi`
+
+src/window/vimpc-modewindow.o: src/window/modewindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-modewindow.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-modewindow.Tpo -c -o src/window/vimpc-modewindow.o `test -f 'src/window/modewindow.cpp' || echo '$(srcdir)/'`src/window/modewindow.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-modewindow.Tpo src/window/$(DEPDIR)/vimpc-modewindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/modewindow.cpp' object='src/window/vimpc-modewindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-modewindow.o `test -f 'src/window/modewindow.cpp' || echo '$(srcdir)/'`src/window/modewindow.cpp
+
+src/window/vimpc-modewindow.obj: src/window/modewindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-modewindow.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-modewindow.Tpo -c -o src/window/vimpc-modewindow.obj `if test -f 'src/window/modewindow.cpp'; then $(CYGPATH_W) 'src/window/modewindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/modewindow.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-modewindow.Tpo src/window/$(DEPDIR)/vimpc-modewindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/modewindow.cpp' object='src/window/vimpc-modewindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-modewindow.obj `if test -f 'src/window/modewindow.cpp'; then $(CYGPATH_W) 'src/window/modewindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/modewindow.cpp'; fi`
+
+src/window/vimpc-playlistwindow.o: src/window/playlistwindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-playlistwindow.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-playlistwindow.Tpo -c -o src/window/vimpc-playlistwindow.o `test -f 'src/window/playlistwindow.cpp' || echo '$(srcdir)/'`src/window/playlistwindow.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-playlistwindow.Tpo src/window/$(DEPDIR)/vimpc-playlistwindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/playlistwindow.cpp' object='src/window/vimpc-playlistwindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-playlistwindow.o `test -f 'src/window/playlistwindow.cpp' || echo '$(srcdir)/'`src/window/playlistwindow.cpp
+
+src/window/vimpc-playlistwindow.obj: src/window/playlistwindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-playlistwindow.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-playlistwindow.Tpo -c -o src/window/vimpc-playlistwindow.obj `if test -f 'src/window/playlistwindow.cpp'; then $(CYGPATH_W) 'src/window/playlistwindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/playlistwindow.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-playlistwindow.Tpo src/window/$(DEPDIR)/vimpc-playlistwindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/playlistwindow.cpp' object='src/window/vimpc-playlistwindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-playlistwindow.obj `if test -f 'src/window/playlistwindow.cpp'; then $(CYGPATH_W) 'src/window/playlistwindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/playlistwindow.cpp'; fi`
+
+src/window/vimpc-scrollwindow.o: src/window/scrollwindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-scrollwindow.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-scrollwindow.Tpo -c -o src/window/vimpc-scrollwindow.o `test -f 'src/window/scrollwindow.cpp' || echo '$(srcdir)/'`src/window/scrollwindow.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-scrollwindow.Tpo src/window/$(DEPDIR)/vimpc-scrollwindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/scrollwindow.cpp' object='src/window/vimpc-scrollwindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-scrollwindow.o `test -f 'src/window/scrollwindow.cpp' || echo '$(srcdir)/'`src/window/scrollwindow.cpp
+
+src/window/vimpc-scrollwindow.obj: src/window/scrollwindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-scrollwindow.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-scrollwindow.Tpo -c -o src/window/vimpc-scrollwindow.obj `if test -f 'src/window/scrollwindow.cpp'; then $(CYGPATH_W) 'src/window/scrollwindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/scrollwindow.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-scrollwindow.Tpo src/window/$(DEPDIR)/vimpc-scrollwindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/scrollwindow.cpp' object='src/window/vimpc-scrollwindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-scrollwindow.obj `if test -f 'src/window/scrollwindow.cpp'; then $(CYGPATH_W) 'src/window/scrollwindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/scrollwindow.cpp'; fi`
+
+src/window/vimpc-selectwindow.o: src/window/selectwindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-selectwindow.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-selectwindow.Tpo -c -o src/window/vimpc-selectwindow.o `test -f 'src/window/selectwindow.cpp' || echo '$(srcdir)/'`src/window/selectwindow.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-selectwindow.Tpo src/window/$(DEPDIR)/vimpc-selectwindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/selectwindow.cpp' object='src/window/vimpc-selectwindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-selectwindow.o `test -f 'src/window/selectwindow.cpp' || echo '$(srcdir)/'`src/window/selectwindow.cpp
+
+src/window/vimpc-selectwindow.obj: src/window/selectwindow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-selectwindow.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-selectwindow.Tpo -c -o src/window/vimpc-selectwindow.obj `if test -f 'src/window/selectwindow.cpp'; then $(CYGPATH_W) 'src/window/selectwindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/selectwindow.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-selectwindow.Tpo src/window/$(DEPDIR)/vimpc-selectwindow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/selectwindow.cpp' object='src/window/vimpc-selectwindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-selectwindow.obj `if test -f 'src/window/selectwindow.cpp'; then $(CYGPATH_W) 'src/window/selectwindow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/selectwindow.cpp'; fi`
+
+src/window/vimpc-window.o: src/window/window.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-window.o -MD -MP -MF src/window/$(DEPDIR)/vimpc-window.Tpo -c -o src/window/vimpc-window.o `test -f 'src/window/window.cpp' || echo '$(srcdir)/'`src/window/window.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-window.Tpo src/window/$(DEPDIR)/vimpc-window.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/window.cpp' object='src/window/vimpc-window.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-window.o `test -f 'src/window/window.cpp' || echo '$(srcdir)/'`src/window/window.cpp
+
+src/window/vimpc-window.obj: src/window/window.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -MT src/window/vimpc-window.obj -MD -MP -MF src/window/$(DEPDIR)/vimpc-window.Tpo -c -o src/window/vimpc-window.obj `if test -f 'src/window/window.cpp'; then $(CYGPATH_W) 'src/window/window.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/window.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) src/window/$(DEPDIR)/vimpc-window.Tpo src/window/$(DEPDIR)/vimpc-window.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/window/window.cpp' object='src/window/vimpc-window.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vimpc_CXXFLAGS) $(CXXFLAGS) -c -o src/window/vimpc-window.obj `if test -f 'src/window/window.cpp'; then $(CYGPATH_W) 'src/window/window.cpp'; else $(CYGPATH_W) '$(srcdir)/src/window/window.cpp'; fi`
 install-man1: $(man_MANS)
 	@$(NORMAL_INSTALL)
 	test -z "$(man1dir)" || $(MKDIR_P) "$(DESTDIR)$(man1dir)"

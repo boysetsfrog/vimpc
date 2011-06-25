@@ -61,7 +61,6 @@ Vimpc::Vimpc() :
 
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
-
 }
 
 Vimpc::~Vimpc()

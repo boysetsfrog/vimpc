@@ -25,10 +25,9 @@ AC_CHECK_LIB([mpdclient],
              [LIBS="$LIBS -lmpdclient"],
              [AC_MSG_ERROR(mpdclient library is required)])
 
-AC_CHECK_LIB([pcrecpp],
-             [pcre_free],
-             [LIBS="$LIBS -lpcrecpp"],
-             [AC_MSG_ERROR(pcre library is required)])
+PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
+AC_SUBST(pcrecpp_LIBS)
+AC_SUBST(pcrecpp_CFLAGS)
 
 
 AC_CHECK_HEADER(ncursesw/ncurses.h,

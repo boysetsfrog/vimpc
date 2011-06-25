@@ -1,6 +1,9 @@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS}
 
+vimpc_CXXFLAGS = $(pcrecpp_CFLAGS) $(AM_CXXFLAGS)
+vimpc_LDADD    = $(pcrecpp_LIBS)
+
 bin_PROGRAMS     = vimpc
 man_MANS         = doc/vimpc.1
 doc_DATA         = doc/help.txt
