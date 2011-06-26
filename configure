@@ -597,6 +597,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+mpdclient_LIBS
+mpdclient_CFLAGS
 pcrecpp_LIBS
 pcrecpp_CFLAGS
 PKG_CONFIG
@@ -706,7 +708,9 @@ CFLAGS
 CPP
 PKG_CONFIG
 pcrecpp_CFLAGS
-pcrecpp_LIBS'
+pcrecpp_LIBS
+mpdclient_CFLAGS
+mpdclient_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1342,6 +1346,10 @@ Some influential environment variables:
               C compiler flags for pcrecpp, overriding pkg-config
   pcrecpp_LIBS
               linker flags for pcrecpp, overriding pkg-config
+  mpdclient_CFLAGS
+              C compiler flags for mpdclient, overriding pkg-config
+  mpdclient_LIBS
+              linker flags for mpdclient, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -4388,6 +4396,15 @@ else
 $as_echo "no" >&6; }
 fi
 
+ac_fn_c_check_header_mongrel "$LINENO" "ncursesw/ncurses.h" "ac_cv_header_ncursesw_ncurses_h" "$ac_includes_default"
+if test "x$ac_cv_header_ncursesw_ncurses_h" = x""yes; then :
+
+else
+  as_fn_error "ncursesw-dev library is required" "$LINENO" 5
+fi
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for addwstr in -lncursesw" >&5
 $as_echo_n "checking for addwstr in -lncursesw... " >&6; }
 if test "${ac_cv_lib_ncursesw_addwstr+set}" = set; then :
@@ -4428,49 +4445,6 @@ if test "x$ac_cv_lib_ncursesw_addwstr" = x""yes; then :
   LIBS="$LIBS -lncursesw"
 else
   as_fn_error "ncursesw library is required" "$LINENO" 5
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for mpd_connection_new in -lmpdclient" >&5
-$as_echo_n "checking for mpd_connection_new in -lmpdclient... " >&6; }
-if test "${ac_cv_lib_mpdclient_mpd_connection_new+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmpdclient  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char mpd_connection_new ();
-int
-main ()
-{
-return mpd_connection_new ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_mpdclient_mpd_connection_new=yes
-else
-  ac_cv_lib_mpdclient_mpd_connection_new=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mpdclient_mpd_connection_new" >&5
-$as_echo "$ac_cv_lib_mpdclient_mpd_connection_new" >&6; }
-if test "x$ac_cv_lib_mpdclient_mpd_connection_new" = x""yes; then :
-  LIBS="$LIBS -lmpdclient"
-else
-  as_fn_error "mpdclient library is required" "$LINENO" 5
 fi
 
 
@@ -4684,15 +4658,6 @@ fi
 
 
 
-ac_fn_c_check_header_mongrel "$LINENO" "ncursesw/ncurses.h" "ac_cv_header_ncursesw_ncurses_h" "$ac_includes_default"
-if test "x$ac_cv_header_ncursesw_ncurses_h" = x""yes; then :
-
-else
-  as_fn_error "ncursesw-dev library is required" "$LINENO" 5
-fi
-
-
-
 ac_fn_c_check_header_mongrel "$LINENO" "mpd/connection.h" "ac_cv_header_mpd_connection_h" "$ac_includes_default"
 if test "x$ac_cv_header_mpd_connection_h" = x""yes; then :
 
@@ -4702,11 +4667,95 @@ fi
 
 
 
-ac_fn_c_check_header_mongrel "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_h" = x""yes; then :
 
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for mpdclient" >&5
+$as_echo_n "checking for mpdclient... " >&6; }
+
+if test -n "$PKG_CONFIG"; then
+    if test -n "$mpdclient_CFLAGS"; then
+        pkg_cv_mpdclient_CFLAGS="$mpdclient_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libmpdclient\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libmpdclient") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_mpdclient_CFLAGS=`$PKG_CONFIG --cflags "libmpdclient" 2>/dev/null`
 else
-  as_fn_error "pcre library is required" "$LINENO" 5
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$mpdclient_LIBS"; then
+        pkg_cv_mpdclient_LIBS="$mpdclient_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libmpdclient\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libmpdclient") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_mpdclient_LIBS=`$PKG_CONFIG --libs "libmpdclient" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        mpdclient_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libmpdclient"`
+        else
+	        mpdclient_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libmpdclient"`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$mpdclient_PKG_ERRORS" >&5
+
+	as_fn_error "Package requirements (libmpdclient) were not met:
+
+$mpdclient_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables mpdclient_CFLAGS
+and mpdclient_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+" "$LINENO" 5
+elif test $pkg_failed = untried; then
+	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables mpdclient_CFLAGS
+and mpdclient_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details." "$LINENO" 5; }
+else
+	mpdclient_CFLAGS=$pkg_cv_mpdclient_CFLAGS
+	mpdclient_LIBS=$pkg_cv_mpdclient_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	:
 fi
 
 

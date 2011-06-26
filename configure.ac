@@ -15,33 +15,28 @@ else
    AC_MSG_RESULT(no)
 fi
 
+AC_CHECK_HEADER(ncursesw/ncurses.h,
+                [],
+                [AC_MSG_ERROR(ncursesw-dev library is required)])
+
 AC_CHECK_LIB([ncursesw],
              [addwstr],
              [LIBS="$LIBS -lncursesw"],
              [AC_MSG_ERROR(ncursesw library is required)])
 
-AC_CHECK_LIB([mpdclient],
-             [mpd_connection_new],
-             [LIBS="$LIBS -lmpdclient"],
-             [AC_MSG_ERROR(mpdclient library is required)])
-
 PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
+
 AC_SUBST(pcrecpp_LIBS)
 AC_SUBST(pcrecpp_CFLAGS)
-
-
-AC_CHECK_HEADER(ncursesw/ncurses.h,
-                [],
-                [AC_MSG_ERROR(ncursesw-dev library is required)])
 
 AC_CHECK_HEADER(mpd/connection.h,
                 [],
                 [AC_MSG_ERROR(mpdclient-dev library is required)])
 
-AC_CHECK_HEADER(pcre.h,
-                [],
-                [AC_MSG_ERROR(pcre library is required)])
+PKG_CHECK_MODULES(mpdclient, libmpdclient)
 
+AC_SUBST(mpdclient_LIBS)
+AC_SUBST(mpdclient_CFLAGS)
 
 AC_MSG_CHECKING(whether to enable debugging)
 debug_default="no"
