@@ -76,7 +76,8 @@ void PlaylistWindow::Print(uint32_t line) const
       WINDOW          * window      = N_WINDOW();
       int32_t           colour      = DetermineSongColour(line + FirstLine(), nextSong);
       
-      wattron(window, COLOR_PAIR(colour) | A_BOLD);
+      wattron(window, A_BOLD);
+      wattron(window, COLOR_PAIR(colour));
 
       if (printLine == CurrentLine())
       {
@@ -129,7 +130,8 @@ void PlaylistWindow::Print(uint32_t line) const
       std::string const durationString(nextSong->DurationString());
       mvwprintw(window, line, (screen_.MaxColumns() - durationString.size() - 2), "[%s]", durationString.c_str());
 
-      wattroff(window, A_BOLD | A_REVERSE | COLOR_PAIR(colour));
+      wattroff(window, COLOR_PAIR(colour));
+      wattroff(window, A_BOLD | A_REVERSE);
       wredrawln(window, line, 1);
    }
 }

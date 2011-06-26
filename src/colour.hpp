@@ -25,15 +25,17 @@
 
 #include "attributes.hpp"
 
-#define DEFAULT          (COLOR_PAIRS - 1)
-#define BLUEONDEFAULT    (COLOR_PAIRS - 2)
-#define YELLOWONDEFAULT  (COLOR_PAIRS - 3)
-#define REDONDEFAULT     (COLOR_PAIRS - 4)
-#define CYANONDEFAULT    (COLOR_PAIRS - 5)
-#define GREENONDEFAULT   (COLOR_PAIRS - 6)
-#define MAGENTAONDEFAULT (COLOR_PAIRS - 7)
-#define DEFAULTONRED     (COLOR_PAIRS - 8)
-#define DEFAULTONBLUE    (COLOR_PAIRS - 9)
+#define COLOR_MAX        255
+
+#define DEFAULT          (COLOR_MAX - 1)
+#define BLUEONDEFAULT    (COLOR_MAX - 2)
+#define YELLOWONDEFAULT  (COLOR_MAX - 3)
+#define REDONDEFAULT     (COLOR_MAX - 4)
+#define CYANONDEFAULT    (COLOR_MAX - 5)
+#define GREENONDEFAULT   (COLOR_MAX - 6)
+#define MAGENTAONDEFAULT (COLOR_MAX - 7)
+#define DEFAULTONRED     (COLOR_MAX - 8)
+#define DEFAULTONBLUE    (COLOR_MAX - 9)
 
 #define SONGCOLOUR           DEFAULT 
 #define SONGIDCOLOUR         REDONDEFAULT 

@@ -58,6 +58,9 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
 
    // ncurses initialisation
    initscr();
+
+   Ui::Colour::InitialiseColours();
+
    halfdelay(1);
    noecho();
 
@@ -66,8 +69,6 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
 
    //handle a resize signal
    signal(SIGWINCH, ResizeHandler);
-
-   Ui::Colour::InitialiseColours();
 
    // Create all the windows
    mainWindows_[Help]     = new Ui::HelpWindow    (*this);
@@ -216,7 +217,8 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 {
    ClearStatus();
 
-   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR) | A_BOLD);
+   wattron(statusWindow_, A_BOLD);
+   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
    wmove(statusWindow_, 0, 0);
 
    va_list args;
@@ -229,7 +231,8 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
-   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR) | A_BOLD);
+   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+   wattron(statusWindow_, A_BOLD);
    wmove(statusWindow_, 0, x);
 
    va_list args;
@@ -594,12 +597,14 @@ void Screen::UpdateTabWindow() const
 
    for (std::vector<MainWindow>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
    {
-      wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_UNDERLINE);
+      wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+      wattron(tabWindow_, A_UNDERLINE);
       name = GetNameFromWindow(static_cast<MainWindow>(*it));
 
       if (*it == window_)
       {
-         wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE) | A_REVERSE | A_BOLD);
+         wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+         wattron(tabWindow_, A_REVERSE | A_BOLD);
       }
 
       wmove(tabWindow_, 0, length);
