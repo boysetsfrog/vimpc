@@ -22,6 +22,7 @@
 #define __MAIN__CONFIG
 
 #include <fstream>
+#include <pcrecpp.h>
 #include <stdlib.h>
 
 namespace Main
@@ -37,6 +38,8 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
    static char const * const vimpcrcFile = "/.vimpcrc";
    static char const * const home        = "HOME";
    static bool configCommandsExecuted    = false;
+
+   pcrecpp::RE const commentCheck("^\\s*\".*");
 
    if (configCommandsExecuted == false)
    {
@@ -54,7 +57,7 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
          {
             std::getline(inputStream, input);
             
-            if (input != "")
+            if ((input != "") && (commentCheck.FullMatch(input.c_str()) == false))
             {
                handler.ExecuteCommand(input);
             }

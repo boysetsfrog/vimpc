@@ -1,0 +1,16 @@
+" Copy this file to ~/.vimpcrc to use it
+"
+" Note: Comments are very basic and must be on their own line
+echo Parsing config file
+
+" Hide the help tab
+help
+tabhide
+
+" Set the default tab
+set window browse
+
+" Don't stop playing music when we quit
+set nostoponquit
+
+echo Config File Complete
