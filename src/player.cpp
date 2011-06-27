@@ -190,11 +190,14 @@ uint32_t Player::GetCurrentSong() const
 
 bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction)
 {
-   uint32_t skipResult = GetCurrentSong();
+   int32_t skipResult = GetCurrentSong();
 
    for (uint32_t i = 0; i < count; ++i)
    {
-      skipResult = NextSongByInformation(skipResult, skip, songFunction);
+      if (skipResult >= 0)
+      {
+         skipResult = NextSongByInformation(skipResult, skip, songFunction);
+      }
    }
 
    client_.Play(skipResult);
