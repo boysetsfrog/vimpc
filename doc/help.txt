@@ -11,9 +11,9 @@ MOTION:
 
    [count] j, Down                | scroll down in current window
 
-   [count] PageUp                 | scroll up by a page in current window
+   [count] PageUp, ctrl+u         | scroll up by a page in current window
 
-   [count] PageDown               | scroll down by a page in current window
+   [count] PageDown, ctrl+d       | scroll down by a page in current window
 
            Home                   | scroll to top of the screen
            
@@ -61,6 +61,13 @@ LIBRARY:
            h, Left                | collapse current selection into parent
            l, Right               | expand the current selection
            <Enter>                | clear the current playlist, add the currently selected song/album/artist and begin playing
+
+BROWSE:
+   [count] a                      | add the next [count] songs
+           A                      | add all songs to the playlist
+   [count] d                      | delete the next [count] songs, if they are in the playlist
+           D                      | delete all songs from the playlist
+           <Enter>                | append the selected song to the playlist and begin playing it
 
 PLAYLIST:
    [count] <                      | skip to the previous song, if count is specified, skips back [count] songs
