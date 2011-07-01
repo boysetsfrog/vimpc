@@ -304,6 +304,7 @@ int32_t Client::GetCurrentSong() const
       if (currentSong != NULL)
       {
          song = mpd_song_get_pos(currentSong);
+         mpd_song_free(currentSong);
       }
    }
 
