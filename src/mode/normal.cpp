@@ -361,19 +361,19 @@ bool Normal::DeleteSong(uint32_t count)
          {
             int32_t index = currentLine;
 
-            if (index < Main::Playlist().Size())
+            if ((screen_.GetActiveWindow() == Screen::Browse))
             {
-               if ((screen_.GetActiveWindow() == Screen::Browse))
+               if (Main::Playlist().Size() > 0)
                {
                   index = Main::Playlist().Index(Main::Browse().Get(index + i));
-                  screen_.ActiveWindow().Scroll(1);
                }
+               screen_.ActiveWindow().Scroll(1);
+            }
 
-               if (index >= 0)
-               {
-                  client_.Delete(index);
-                  playlist_.Remove(index, 1);
-               }
+            if (index >= 0)
+            {
+               client_.Delete(index);
+               playlist_.Remove(index, 1);
             }
          }
       }
