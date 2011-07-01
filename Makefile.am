@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = subdir-objects
-ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS}
+ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS} -I m4
 
 vimpc_CXXFLAGS = $(pcrecpp_CFLAGS) $(mpdclientCFLAGS) $(AM_CXXFLAGS)
 vimpc_LDADD    = $(pcrecpp_LIBS) $(mpdclient_LIBS)

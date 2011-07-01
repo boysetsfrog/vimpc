@@ -41,7 +41,8 @@ DIST_COMMON = README $(am__configure_deps) $(dist_noinst_SCRIPTS) \
 	$(top_srcdir)/configure $(top_srcdir)/src/config.h.in AUTHORS \
 	COPYING ChangeLog INSTALL NEWS depcomp install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/ncurses.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -229,7 +230,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
+ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS} -I m4
 vimpc_CXXFLAGS = $(pcrecpp_CFLAGS) $(mpdclientCFLAGS) $(AM_CXXFLAGS)
 vimpc_LDADD = $(pcrecpp_LIBS) $(mpdclient_LIBS)
 man_MANS = doc/vimpc.1

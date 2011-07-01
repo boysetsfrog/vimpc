@@ -15,14 +15,13 @@ else
    AC_MSG_RESULT(no)
 fi
 
-AC_CHECK_HEADER(ncursesw/ncurses.h,
-                [],
-                [AC_MSG_ERROR(ncursesw-dev library is required)])
+MP_WITH_CURSES
+HAVE_CURS=$mp_cv_curses
+if test x$HAVE_CURS != xyes; then
+      AC_MSG_ERROR([vimpc requires the curses or ncurses library. Please install before compiling vimpc.])
+fi
 
-AC_CHECK_LIB([ncursesw],
-             [addwstr],
-             [LIBS="$LIBS -lncursesw"],
-             [AC_MSG_ERROR(ncursesw library is required)])
+LIBS="$LIBS $CURSES_LIB"
 
 PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
 

@@ -692,6 +692,8 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_dependency_tracking
+with_ncurses
+with_ncursesw
 enable_debug
 '
       ac_precious_vars='build_alias
@@ -1329,6 +1331,12 @@ Optional Features:
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
  --enable-debug=no/yes turn on debugging default=$debug_default
+
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-ncurses          Force the use of ncurses over curses
+  --without-ncursesw      Don't use ncursesw (wide character support)
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -4396,57 +4404,153 @@ else
 $as_echo "no" >&6; }
 fi
 
-ac_fn_c_check_header_mongrel "$LINENO" "ncursesw/ncurses.h" "ac_cv_header_ncursesw_ncurses_h" "$ac_includes_default"
-if test "x$ac_cv_header_ncursesw_ncurses_h" = x""yes; then :
 
-else
-  as_fn_error "ncursesw-dev library is required" "$LINENO" 5
+# Check whether --with-ncurses was given.
+if test "${with_ncurses+set}" = set; then :
+  withval=$with_ncurses;
 fi
 
+   mp_save_LIBS="$LIBS"
 
+# Check whether --with-ncursesw was given.
+if test "${with_ncursesw+set}" = set; then :
+  withval=$with_ncursesw;
+fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for addwstr in -lncursesw" >&5
-$as_echo_n "checking for addwstr in -lncursesw... " >&6; }
-if test "${ac_cv_lib_ncursesw_addwstr+set}" = set; then :
+   CURSES_LIB=""
+   if test "$with_ncurses" != no -a "$with_ncursesw" != "no"
+   then
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working ncursesw" >&5
+$as_echo_n "checking for working ncursesw... " >&6; }
+if test "${mp_cv_ncursesw+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lncursesw  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  LIBS="$mp_save_LIBS -lncursesw"
+          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char addwstr ();
+#include <ncurses.h>
 int
 main ()
 {
-return addwstr ();
+chtype a; int b=A_STANDOUT, c=KEY_LEFT; initscr();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_ncursesw_addwstr=yes
+  mp_cv_ncursesw=yes
 else
-  ac_cv_lib_ncursesw_addwstr=no
+  mp_cv_ncursesw=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ncursesw_addwstr" >&5
-$as_echo "$ac_cv_lib_ncursesw_addwstr" >&6; }
-if test "x$ac_cv_lib_ncursesw_addwstr" = x""yes; then :
-  LIBS="$LIBS -lncursesw"
-else
-  as_fn_error "ncursesw library is required" "$LINENO" 5
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $mp_cv_ncursesw" >&5
+$as_echo "$mp_cv_ncursesw" >&6; }
+       if test "$mp_cv_ncursesw" = yes
+       then
+         ac_fn_c_check_header_mongrel "$LINENO" "ncursesw/curses.h" "ac_cv_header_ncursesw_curses_h" "$ac_includes_default"
+if test "x$ac_cv_header_ncursesw_curses_h" = x""yes; then :
+
+$as_echo "#define HAVE_NCURSESW_H 1" >>confdefs.h
+
 fi
 
+
+
+$as_echo "#define HAVE_NCURSES_H 1" >>confdefs.h
+
+
+$as_echo "#define HAVE_NCURSESW 1" >>confdefs.h
+
+         CURSES_LIB="-lncursesw"
+         mp_cv_ncurses=yes
+         mp_cv_curses=yes
+       fi
+   fi
+   if test ! "$CURSES_LIB" -a "$with_ncurses" != no -a "$with_ncursesw" != yes
+   then
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working ncurses" >&5
+$as_echo_n "checking for working ncurses... " >&6; }
+if test "${mp_cv_ncurses+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  LIBS="$mp_save_LIBS -lncurses"
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <ncurses.h>
+int
+main ()
+{
+chtype a; int b=A_STANDOUT, c=KEY_LEFT; initscr();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  mp_cv_ncurses=yes
+else
+  mp_cv_ncurses=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $mp_cv_ncurses" >&5
+$as_echo "$mp_cv_ncurses" >&6; }
+     if test "$mp_cv_ncurses" = yes
+     then
+
+$as_echo "#define HAVE_NCURSES_H 1" >>confdefs.h
+
+       CURSES_LIB="-lncurses"
+     fi
+     mp_cv_curses=yes
+   fi
+   if test ! "$CURSES_LIB" -a "$with_ncurses" != yes -a "$with_ncursesw" != yes
+   then
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working curses" >&5
+$as_echo_n "checking for working curses... " >&6; }
+if test "${mp_cv_curses+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  LIBS="$LIBS -lcurses"
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <curses.h>
+int
+main ()
+{
+chtype a; int b=A_STANDOUT, c=KEY_LEFT; initscr();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  mp_cv_curses=yes
+else
+  mp_cv_curses=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $mp_cv_curses" >&5
+$as_echo "$mp_cv_curses" >&6; }
+     if test "$mp_cv_curses" = yes
+     then
+
+$as_echo "#define HAVE_CURSES_H 1" >>confdefs.h
+
+       CURSES_LIB="-lcurses"
+     fi
+   fi
+   LIBS="$mp_save_LIBS"
+
+HAVE_CURS=$mp_cv_curses
+if test x$HAVE_CURS != xyes; then
+      as_fn_error "vimpc requires the curses or ncurses library. Please install before compiling vimpc." "$LINENO" 5
+fi
+
+LIBS="$LIBS $CURSES_LIB"
 
 
 
