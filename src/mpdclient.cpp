@@ -286,6 +286,7 @@ std::string Client::GetCurrentSongURI() const
    if (currentSong != NULL)
    {
       song = mpd_song_get_uri(currentSong);
+      mpd_song_free(currentSong);
    }
 
    return song;
