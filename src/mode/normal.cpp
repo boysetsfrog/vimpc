@@ -295,14 +295,20 @@ bool Normal::RepeatLastAction(uint32_t count)
 
 bool Normal::Expand(UNUSED uint32_t count)
 {
-   Main::Library().Expand(screen_.ActiveWindow().CurrentLine());
+   if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
+   {
+      Main::Library().Expand(screen_.ActiveWindow().CurrentLine());
+   }
 
    return true;
 }
 
 bool Normal::Collapse(UNUSED uint32_t count)
 {
-   Main::Library().Collapse(screen_.ActiveWindow().CurrentLine());
+   if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
+   {
+      Main::Library().Collapse(screen_.ActiveWindow().CurrentLine());
+   }
 
    return true;
 }

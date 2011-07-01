@@ -210,34 +210,40 @@ void LibraryWindow::Print(uint32_t line) const
 
 void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
 {
-   Mpc::LibraryEntry * const parent = library_.Get(CurrentLine())->parent_;
-
-   bool scrolled = false;
-
-   if ((library_.Get(CurrentLine())->expanded_ == true) && (library_.Get(CurrentLine())->type_ != Mpc::SongType))
+   if (CurrentLine() < library_.Size())
    {
-      scrolled = true;
-   }
+      Mpc::LibraryEntry * const parent = library_.Get(CurrentLine())->parent_;
 
-   library_.Collapse(CurrentLine());
+      bool scrolled = false;
 
-   if ((parent == NULL) && (scrolled == false))
-   {
-      Scroll(-1);
-   }
-   else if (scrolled == false)
-   {
-      uint32_t parentLine = 0;
-      for (; (parentLine < library_.Size()) && (library_.Get(parentLine) != parent); ++parentLine);
+      if ((library_.Get(CurrentLine())->expanded_ == true) && (library_.Get(CurrentLine())->type_ != Mpc::SongType))
+      {
+         scrolled = true;
+      }
 
-      ScrollTo(parentLine);
+      library_.Collapse(CurrentLine());
+
+      if ((parent == NULL) && (scrolled == false))
+      {
+         Scroll(-1);
+      }
+      else if (scrolled == false)
+      {
+         uint32_t parentLine = 0;
+         for (; (parentLine < library_.Size()) && (library_.Get(parentLine) != parent); ++parentLine);
+
+         ScrollTo(parentLine);
+      }
    }
 }
 
 void LibraryWindow::Right(UNUSED Ui::Player & player, UNUSED uint32_t count)
 {
-   library_.Expand(CurrentLine());
-   Scroll(1);
+   if (CurrentLine() < library_.Size())
+   {
+      library_.Expand(CurrentLine());
+      Scroll(1);
+   }
 }
 
 void LibraryWindow::Confirm()
