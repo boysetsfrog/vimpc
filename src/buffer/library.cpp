@@ -198,15 +198,18 @@ void Library::Sort(LibraryEntry * entry)
 
 void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
 {
-   if (Collection == Mpc::Song::Single)
+   if (position < Size())
    {
-      AddToPlaylist(client, Get(position));
-   }
-   else
-   {
-      for (uint32_t i = 0; i < Size(); ++i)
+      if (Collection == Mpc::Song::Single)
       {
-         AddToPlaylist(client, Get(i));
+         AddToPlaylist(client, Get(position));
+      }
+      else
+      {
+         for (uint32_t i = 0; i < Size(); ++i)
+         {
+            AddToPlaylist(client, Get(i));
+         }
       }
    }
 }
