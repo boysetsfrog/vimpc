@@ -21,9 +21,8 @@
 #ifndef __UI__COLOUR
 #define __UI__COLOUR
 
-#include <ncursesw/ncurses.h>
-
 #include "attributes.hpp"
+#include "wincurses.h"
 
 #define COLOR_MAX        255
 

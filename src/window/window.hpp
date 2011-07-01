@@ -21,10 +21,11 @@
 #ifndef __UI__WINDOW
 #define __UI__WINDOW
 
-#include <ncursesw/ncurses.h>
 #include <stdint.h>
 #include <string>
 #include <vector>
+
+#include "wincurses.h"
 
 namespace Ui
 {
