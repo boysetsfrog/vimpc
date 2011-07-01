@@ -57,10 +57,10 @@ namespace Mpc
       void Next();
       void Previous();
 
-      bool Random() const;
+      bool Random();
       void SetRandom(bool random);
 
-      bool Single() const;
+      bool Single();
       void SetSingle(bool single);
 
    public: //Queue

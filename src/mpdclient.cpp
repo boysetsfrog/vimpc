@@ -121,11 +121,20 @@ void Client::Previous()
 }
 
 
-bool Client::Random() const
+bool Client::Random()
 {
-   mpd_status * status = mpd_run_status(connection_);
+   if (Connected() == true)
+   {
+      mpd_status * status = mpd_run_status(connection_);
 
-   return mpd_status_get_random(status);
+      CheckError();
+
+      return mpd_status_get_random(status);
+   }
+   else
+   {
+      return false;
+   }
 }
 
 void Client::SetRandom(bool const random)
@@ -138,11 +147,20 @@ void Client::SetRandom(bool const random)
 }
 
 
-bool Client::Single() const
+bool Client::Single()
 {
-   mpd_status * status = mpd_run_status(connection_);
+   if (Connected() == true)
+   {
+      mpd_status * status = mpd_run_status(connection_);
 
-   return mpd_status_get_single(status);
+      CheckError();
+
+      return mpd_status_get_single(status);
+   }
+   else
+   {
+      return false;
+   }
 }
 
 void Client::SetSingle(bool const single)
