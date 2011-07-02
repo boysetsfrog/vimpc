@@ -218,7 +218,16 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    ClearStatus();
 
    wattron(statusWindow_, A_BOLD);
-   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+   
+   if (can_change_color() == true)
+   {
+      wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+   }
+   else
+   {
+      wattron(statusWindow_, A_REVERSE);
+   }
+
    wmove(statusWindow_, 0, 0);
 
    va_list args;
@@ -231,7 +240,15 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
-   wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+   if (can_change_color() == true)
+   {
+      wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+   }
+   else
+   {
+      wattron(statusWindow_, A_REVERSE);
+   }
+
    wattron(statusWindow_, A_BOLD);
    wmove(statusWindow_, 0, x);
 
@@ -577,9 +594,17 @@ void Screen::MoveWindow(MainWindow window, uint32_t position)
 
 void Screen::ClearStatus() const
 {
-   std::string const BlankLine(maxColumns_, ' ');
+   std::string BlankLine(maxColumns_, ' ');
 
-   wattron(statusWindow_,   COLOR_PAIR(STATUSLINECOLOUR));
+   if (can_change_color() == true)
+   {
+      wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+   }
+   else
+   {
+      wattron(statusWindow_, A_REVERSE);
+   }
+
    mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
 }
 
