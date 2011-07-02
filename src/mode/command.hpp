@@ -142,7 +142,7 @@ namespace Ui
          {}
 
       public:
-         bool operator() (std::pair<std::string const &, Ui::Command::CommandFunction> element) 
+         bool operator() (std::pair<std::string, Ui::Command::CommandFunction> element) 
          {
             std::string input(element.first);
             return (key_.compare(input.substr(0, key_.length())) == 0);
