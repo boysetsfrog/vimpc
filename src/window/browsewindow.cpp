@@ -169,7 +169,7 @@ uint32_t BrowseWindow::Current() const
    uint32_t current       = 0;
    int32_t  currentSongId = client_.GetCurrentSong();
 
-   if (currentSongId != -1)
+   if ((currentSongId >= 0) && (currentSongId < Main::Playlist().Size()))
    {
       current = Main::Browse().Index(Main::Playlist().Get(currentSongId));
    }
