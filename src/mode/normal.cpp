@@ -363,10 +363,7 @@ bool Normal::DeleteSong(uint32_t count)
 
             if ((screen_.GetActiveWindow() == Screen::Browse))
             {
-               if (Main::Playlist().Size() > 0)
-               {
-                  index = Main::Playlist().Index(Main::Browse().Get(index + i));
-               }
+               index = Main::Playlist().Index(Main::Browse().Get(index + i));
                screen_.ActiveWindow().Scroll(1);
             }
 

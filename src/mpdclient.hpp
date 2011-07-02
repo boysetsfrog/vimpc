@@ -80,8 +80,8 @@ namespace Mpc
       bool Connected() const;
 
    public:
-      std::string GetCurrentSongURI() const;
-      int32_t  GetCurrentSong() const;
+      std::string GetCurrentSongURI() ;
+      int32_t  GetCurrentSong();
       uint32_t TotalNumberOfSongs();
 
    public:

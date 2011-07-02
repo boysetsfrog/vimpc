@@ -74,7 +74,7 @@ namespace Main
 
          typename Buffer<T>::const_iterator it;
 
-         for (it = Buffer<T>::begin(); ((*it != entry) && (it != Buffer<T>::end())); ++pos, ++it) { }
+         for (it = Buffer<T>::begin(); ((it != Buffer<T>::end()) && (*it != entry)); ++pos, ++it) { }
 
          if (it == Buffer<T>::end())
          {

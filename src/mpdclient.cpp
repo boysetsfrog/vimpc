@@ -126,7 +126,6 @@ bool Client::Random()
    if (Connected() == true)
    {
       mpd_status * status = mpd_run_status(connection_);
-
       CheckError();
 
       return mpd_status_get_random(status);
@@ -152,7 +151,6 @@ bool Client::Single()
    if (Connected() == true)
    {
       mpd_status * status = mpd_run_status(connection_);
-
       CheckError();
 
       return mpd_status_get_single(status);
@@ -200,6 +198,7 @@ void Client::Delete(uint32_t position)
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
       mpd_run_delete(connection_, position);
+      CheckError();
    }
 }
 
@@ -227,7 +226,6 @@ void Client::Update()
    if (Connected() == true)
    {
       mpd_run_update(connection_, "/");
-
       CheckError();
    }
 }
@@ -277,29 +275,36 @@ bool Client::Connected() const
    return (connection_ != NULL);
 }
 
-std::string Client::GetCurrentSongURI() const
+std::string Client::GetCurrentSongURI()
 {
    std::string song;
 
-   mpd_song * currentSong = mpd_run_current_song(connection_);
-
-   if (currentSong != NULL)
+   if (Connected() == true)
    {
-      song = mpd_song_get_uri(currentSong);
-      mpd_song_free(currentSong);
+      mpd_song * currentSong = mpd_run_current_song(connection_);
+
+      CheckError();
+
+      if (currentSong != NULL)
+      {
+         song = mpd_song_get_uri(currentSong);
+         mpd_song_free(currentSong);
+      }
    }
 
    return song;
 }
 
 //! \todo rename to GetCurrentSongPos
-int32_t Client::GetCurrentSong() const
+int32_t Client::GetCurrentSong()
 {
    static int32_t song = -1;
 
-   if (connection_ != NULL)
+   if (Connected() == true)
    {
       mpd_song * currentSong = mpd_run_current_song(connection_);
+
+      CheckError();
 
       if (currentSong != NULL)
       {
@@ -318,6 +323,8 @@ uint32_t Client::TotalNumberOfSongs()
    if (Connected() == true)
    {
       mpd_status * const status = mpd_run_status(connection_);
+
+      CheckError();
 
       if (status != NULL)
       {
@@ -344,6 +351,8 @@ void Client::DisplaySongInformation()
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       mpd_song * currentSong = mpd_run_current_song(connection_);
+
+      CheckError();
 
       if (currentSong != NULL)
       {
