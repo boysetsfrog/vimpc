@@ -268,7 +268,7 @@ void Screen::AlignTo(Location location, uint32_t line)
 
    if (location == Bottom)
    {
-      scrollLine += (1 - ((MaxRows() + 1) / 2));
+      scrollLine += (1 - ((MaxRows()) / 2));
    }
    else if (location == Top)
    {
