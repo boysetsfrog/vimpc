@@ -1,14 +1,19 @@
 AC_INIT([vimpc], [0.02.2], [http://sourceforge.net/apps/trac/], [vimpc], [http://vimpc.sourceforge.net/])
+AC_LANG_PUSH([C++])
 
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 no-define])
 AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CXX
 
+# Need to check this directory on bsd systems
+CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+
 AC_CHECK_HEADERS(sys/ioctl.h termios.h) 
 
 AC_MSG_CHECKING(for svnversion)
-if type -P svnversion; then
+if hash svnversion; then
+   AC_MSG_RESULT(yes)
    PACKAGE_SVN_REVISION=`svnversion`
    AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", "Define to the subversion repository version of this package.")
 else
