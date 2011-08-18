@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   browsewindow.hpp - handling of the mpd library but with a playlist interface 
+   browsewindow.hpp - handling of the mpd library but with a playlist interface
    */
 
 #include "browsewindow.hpp"
@@ -82,36 +82,36 @@ void BrowseWindow::Print(uint32_t line) const
       Mpc::Song const * nextSong    = browse_.Get(printLine);
       WINDOW          * window      = N_WINDOW();
       int32_t           colour      = DetermineSongColour(nextSong);
-      
+
       wattron(window, COLOR_PAIR(colour) | A_BOLD);
 
       if (printLine == CurrentLine())
       {
          wattron(window, A_REVERSE);
       }
-      else if (colour != CURRENTSONGCOLOUR)
+      else if (colour != Colour::CurrentSong)
       {
-         wattron(window, COLOR_PAIR(SONGCOLOUR));
+         wattron(window, COLOR_PAIR(Colour::Song));
       }
 
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 0, "[");
 
-      if ((colour != CURRENTSONGCOLOUR) && (printLine != CurrentLine()))
+      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
-         wattron(window, COLOR_PAIR(SONGIDCOLOUR));
+         wattron(window, COLOR_PAIR(Colour::SongId));
       }
 
       wprintw(window, "%5d", FirstLine() + line + 1);
 
-      if ((colour != CURRENTSONGCOLOUR) && (printLine != CurrentLine()))
+      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
-         wattroff(window, COLOR_PAIR(SONGIDCOLOUR));
+         wattroff(window, COLOR_PAIR(Colour::SongId));
       }
 
       waddstr(window, "] ");
 
-      if (colour != CURRENTSONGCOLOUR)
+      if (colour != Colour::CurrentSong)
       {
          wattroff(window, A_BOLD);
       }
@@ -128,9 +128,9 @@ void BrowseWindow::Print(uint32_t line) const
 
       wprintw(window, "%s - %s", artist.c_str(), title.c_str());
 
-      if ((colour != CURRENTSONGCOLOUR) && (printLine != CurrentLine()))
+      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
-         wattron(window, COLOR_PAIR(SONGCOLOUR));
+         wattron(window, COLOR_PAIR(Colour::Song));
       }
 
       std::string const durationString(nextSong->DurationString());
@@ -173,7 +173,7 @@ uint32_t BrowseWindow::Current() const
    {
       current = Main::Browse().Index(Main::Playlist().Get(currentSongId));
    }
-   
+
    return current;
 }
 
@@ -187,15 +187,15 @@ uint32_t BrowseWindow::Playlist(int Offset UNUSED) const
 
 int32_t BrowseWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
 {
-   int32_t colour = SONGCOLOUR;
+   int32_t colour = Colour::Song;
 
    if ((nextSong->URI() == client_.GetCurrentSongURI()))
    {
-      colour = CURRENTSONGCOLOUR;
+      colour = Colour::CurrentSong;
    }
    else if (client_.SongIsInQueue(*nextSong))
    {
-      colour = FULLADDCOLOUR;
+      colour = Colour::FullAdd;
    }
    else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
@@ -203,8 +203,8 @@ int32_t BrowseWindow::DetermineSongColour(Mpc::Song const * const nextSong) cons
 
       if (expression.FullMatch(nextSong->PlaylistDescription()))
       {
-         colour = SONGMATCHCOLOUR;
-      } 
+         colour = Colour::SongMatch;
+      }
    }
 
    return colour;

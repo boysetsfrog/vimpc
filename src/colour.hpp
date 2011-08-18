@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   colour.hpp - provides colours for ncurses windows 
+   colour.hpp - provides colours for ncurses windows
    */
 
 #ifndef __UI__COLOUR
@@ -24,7 +24,7 @@
 #include "attributes.hpp"
 #include "wincurses.h"
 
-#define COLOR_MAX        255
+#define COLOR_MAX        16
 
 #define DEFAULT          (COLOR_MAX - 1)
 #define BLUEONDEFAULT    (COLOR_MAX - 2)
@@ -36,20 +36,20 @@
 #define DEFAULTONRED     (COLOR_MAX - 8)
 #define DEFAULTONBLUE    (COLOR_MAX - 9)
 
-#define SONGCOLOUR           DEFAULT 
-#define SONGIDCOLOUR         REDONDEFAULT 
-#define CURRENTSONGCOLOUR    BLUEONDEFAULT 
-#define SONGMATCHCOLOUR      YELLOWONDEFAULT 
-#define PARTIALADDCOLOUR     CYANONDEFAULT
-#define FULLADDCOLOUR        GREENONDEFAULT
-
-#define ERRORCOLOUR          DEFAULTONRED 
-#define STATUSLINECOLOUR     DEFAULTONBLUE
-
 namespace Ui
 {
    namespace Colour
    {
+      static int Song         = DEFAULT;
+      static int SongId       = REDONDEFAULT;
+      static int CurrentSong  = REDONDEFAULT;
+      static int SongMatch    = YELLOWONDEFAULT;
+      static int PartialAdd   = CYANONDEFAULT;
+      static int FullAdd      = GREENONDEFAULT;
+
+      static int Error        = DEFAULTONRED;
+      static int StatusLine   = DEFAULTONBLUE;
+
       static void InitialiseColours() FUNCTION_IS_NOT_USED;
 
       void InitialiseColours()
@@ -75,6 +75,7 @@ namespace Ui
             init_pair(DEFAULTONBLUE,    -1, COLOR_BLUE);
          }
       }
+
    }
 }
 

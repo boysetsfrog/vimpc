@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   error.hpp - modewindow used to display an error 
+   error.hpp - modewindow used to display an error
    */
 
 #ifndef __UI__ERROR
@@ -34,7 +34,7 @@ namespace Ui
    class ErrorWindow : public Ui::ModeWindow
    {
    //! \todo why is this a singleton?
-   public: 
+   public:
       static ErrorWindow & Instance()
       {
          static ErrorWindow errorWindow;
@@ -48,9 +48,9 @@ namespace Ui
    public:
       void Print(uint32_t line) const
       {
-         wattron(N_WINDOW(), COLOR_PAIR(ERRORCOLOUR) | A_BOLD);
-         ModeWindow::Print(line); 
-         wattroff(N_WINDOW(), COLOR_PAIR(ERRORCOLOUR) | A_BOLD);
+         wattron(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
+         ModeWindow::Print(line);
+         wattroff(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
       }
 
       void ClearError()             { hasError_ = false; }

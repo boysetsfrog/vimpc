@@ -73,8 +73,8 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    // Create all the windows
    mainWindows_[Help]     = new Ui::HelpWindow    (*this);
    mainWindows_[Console]  = new Ui::ConsoleWindow (*this);
-   mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search); 
-   mainWindows_[Browse]   = new Ui::BrowseWindow  (settings, *this, client, search); 
+   mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search);
+   mainWindows_[Browse]   = new Ui::BrowseWindow  (settings, *this, client, search);
    mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
    statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
@@ -86,7 +86,7 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    }
 
    // Commands must be read through a window that is always visible
-   commandWindow_         = statusWindow_;    
+   commandWindow_         = statusWindow_;
    keypad(commandWindow_, true);
 
    // Window setup
@@ -135,7 +135,7 @@ Screen::~Screen()
    {
       window = it->second;
    }
-   
+
    ENSURE(windowTable.size() == MainWindowCount);
 
    return window;
@@ -167,7 +167,7 @@ Screen::~Screen()
    }
 
    ENSURE(windowTable.size() == MainWindowCount);
-   
+
    return name;
 }
 
@@ -218,10 +218,10 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    ClearStatus();
 
    wattron(statusWindow_, A_BOLD);
-   
+
    if (can_change_color() == true)
    {
-      wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+      wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
    else
    {
@@ -242,7 +242,7 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
    if (can_change_color() == true)
    {
-      wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+      wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
    else
    {
@@ -319,8 +319,8 @@ void Screen::ScrollTo(Location location, uint32_t line)
    uint32_t scroll[LocationCount] = { 0, 0, 0, 0 };
 
    scroll[Top]          = 0;
-   scroll[Bottom]       = ActiveWindow().ContentSize(); 
-   scroll[Current]      = ActiveWindow().Current(); 
+   scroll[Bottom]       = ActiveWindow().ContentSize();
+   scroll[Current]      = ActiveWindow().Current();
    scroll[PlaylistNext] = ActiveWindow().Playlist(1);
    scroll[PlaylistPrev] = ActiveWindow().Playlist(-1);
    scroll[Specific]     = line - 1;
@@ -598,7 +598,7 @@ void Screen::ClearStatus() const
 
    if (can_change_color() == true)
    {
-      wattron(statusWindow_, COLOR_PAIR(STATUSLINECOLOUR));
+      wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
    else
    {
@@ -639,7 +639,7 @@ void Screen::UpdateTabWindow() const
          waddstr(tabWindow_, "[");
          wattron(tabWindow_, A_BOLD);
          wprintw(tabWindow_, "%d", count + 1);
-      
+
          if (*it != window_)
          {
             wattroff(tabWindow_, A_BOLD);
@@ -649,7 +649,7 @@ void Screen::UpdateTabWindow() const
 
          length += 3;
       }
-      
+
       wprintw(tabWindow_, " %s ", name.c_str());
 
       wattroff(tabWindow_, A_REVERSE | A_BOLD);

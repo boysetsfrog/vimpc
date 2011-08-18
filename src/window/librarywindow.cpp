@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   librarywindow.cpp - handling of the mpd music library 
+   librarywindow.cpp - handling of the mpd music library
    */
 
 #include "librarywindow.hpp"
@@ -71,7 +71,7 @@ std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
       case Mpc::ArtistType:
          pattern = entry->artist_;
          break;
-      
+
       case Mpc::AlbumType:
          pattern = entry->album_;
          break;
@@ -123,21 +123,21 @@ void LibraryWindow::Print(uint32_t line) const
             mvwprintw(window, line, 1, "|--");
             expandCol = 4;
          }
-         
-         wattron(window, A_BOLD); 
+
+         wattron(window, A_BOLD);
          mvwprintw(window, line, expandCol, "[ ]");
 
-         if (printLine != CurrentLine()) 
-         { 
-            wattron(window, COLOR_PAIR(REDONDEFAULT)); 
+         if (printLine != CurrentLine())
+         {
+            wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
-         
+
          char expand = (library_.Get(printLine)->expanded_ == true) ? '-' : '+';
          mvwprintw(window, line, expandCol + 1, "%c", expand);
 
-         if (printLine != CurrentLine()) 
-         { 
-            wattroff(window, COLOR_PAIR(REDONDEFAULT)); 
+         if (printLine != CurrentLine())
+         {
+            wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          wattroff(window, A_BOLD);
@@ -162,21 +162,21 @@ void LibraryWindow::Print(uint32_t line) const
          wattron(window, A_BOLD);
          wprintw(window, "[");
 
-         if (printLine != CurrentLine()) 
+         if (printLine != CurrentLine())
          {
-            wattron(window, COLOR_PAIR(REDONDEFAULT)); 
+            wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          wprintw(window, "%2s" , library_.Get(printLine)->song_->Track().c_str());
 
-         if (printLine != CurrentLine()) 
+         if (printLine != CurrentLine())
          {
-            wattroff(window, COLOR_PAIR(REDONDEFAULT)); 
+            wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
-         
+
          wprintw(window, "]");
 
-         if (colour != CURRENTSONGCOLOUR)
+         if (colour != Colour::CurrentSong)
          {
             wattroff(window, A_BOLD);
          }
@@ -250,7 +250,7 @@ void LibraryWindow::Confirm()
 {
    client_.Clear();
    Main::Playlist().Clear();
-   
+
    library_.AddToPlaylist(Mpc::Song::Single, client_, CurrentLine());
    client_.Play(0);
 }
@@ -260,7 +260,7 @@ void LibraryWindow::Confirm()
 // here for every single print, which is plenty slow
 int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry) const
 {
-   int32_t colour = SONGCOLOUR;
+   int32_t colour = Colour::Song;
 
    if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
@@ -270,15 +270,15 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
           ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
           ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->Title()) == true)))
       {
-         colour = SONGMATCHCOLOUR;
-      } 
+         colour = Colour::SongMatch;
+      }
    }
 
    //! \todo this needs to be dramatically improved in speed it really is a PoC at the moment
    //        and is way to slow to be usable in anyway
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
    {
-      colour = FULLADDCOLOUR;
+      colour = Colour::FullAdd;
    }
    else if ((entry->type_ != Mpc::SongType) && (entry->children_.size() > 0))
    {
@@ -290,25 +290,25 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
       {
          int32_t newColour = DetermineSongColour(*it);
 
-         if ((newColour == FULLADDCOLOUR) || (newColour == CURRENTSONGCOLOUR) || (newColour == PARTIALADDCOLOUR))
+         if ((newColour == Colour::FullAdd) || (newColour == Colour::CurrentSong) || (newColour == Colour::PartialAdd))
          {
-            if ((newColour == FULLADDCOLOUR) || (newColour == CURRENTSONGCOLOUR))
+            if ((newColour == Colour::FullAdd) || (newColour == Colour::CurrentSong))
             {
                count++;
             }
-            colour = PARTIALADDCOLOUR;
+            colour = Colour::PartialAdd;
          }
       }
 
       if (count == entry->children_.size())
       {
-         colour = FULLADDCOLOUR;
+         colour = Colour::FullAdd;
       }
    }
-   
+
    if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
    {
-      colour = CURRENTSONGCOLOUR;
+      colour = Colour::CurrentSong;
    }
 
    return colour;
