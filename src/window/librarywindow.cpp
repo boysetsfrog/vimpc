@@ -104,7 +104,7 @@ void LibraryWindow::Print(uint32_t line) const
    {
       uint32_t printLine = (line + FirstLine());
 
-      int colour = DetermineSongColour(library_.Get(printLine));
+      int colour = DEFAULT; //DetermineSongColour(library_.Get(printLine));
 
       if (printLine == CurrentLine())
       {
@@ -176,7 +176,7 @@ void LibraryWindow::Print(uint32_t line) const
 
          wprintw(window, "]");
 
-        if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
+         if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
          {
             wattroff(window, A_BOLD);
          }
