@@ -105,7 +105,7 @@ void PlaylistWindow::Print(uint32_t line) const
 
       waddstr(window, "] ");
 
-      if (colour != Colour::CurrentSong)
+      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
          wattroff(window, A_BOLD);
       }

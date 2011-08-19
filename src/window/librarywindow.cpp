@@ -176,7 +176,7 @@ void LibraryWindow::Print(uint32_t line) const
 
          wprintw(window, "]");
 
-         if (colour != Colour::CurrentSong)
+        if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
          {
             wattroff(window, A_BOLD);
          }
