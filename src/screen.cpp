@@ -480,7 +480,6 @@ uint32_t Screen::WaitForInput() const
       {
          input = escapeChar | (1 << 31);
       }
-
    }
 
    return input;

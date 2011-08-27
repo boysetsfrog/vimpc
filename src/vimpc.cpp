@@ -119,12 +119,11 @@ void Vimpc::Run()
          updateTime  += mtime;
          refreshTime += mtime;
 
+         bool modeChange = RequiresModeChange(input);
+
          if (input != ERR)
          {
             running = Handle(input);
-
-            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-            mode.Refresh();
          }
 
          bool screenWasRefreshed = false;
@@ -142,6 +141,12 @@ void Vimpc::Run()
             refreshTime = 0;
 
             client_.DisplaySongInformation();
+
+            if (modeChange == false)
+            {
+               Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+               mode.Refresh();
+            }
          }
       }
    }
