@@ -21,7 +21,6 @@
 #ifndef __UI__ERROR
 #define __UI__ERROR
 
-#include "attributes.hpp"
 #include "colour.hpp"
 #include "errorcodes.hpp"
 #include "modewindow.hpp"
@@ -62,7 +61,7 @@ namespace Ui
    };
 }
 
-static void Error(uint32_t errorNumber, std::string errorString) FUNCTION_IS_NOT_USED;
+static void Error(uint32_t errorNumber, std::string errorString);
 
 void Error(uint32_t errorNumber, std::string errorString)
 {

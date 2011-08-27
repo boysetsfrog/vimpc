@@ -177,7 +177,7 @@ uint32_t BrowseWindow::Current() const
    return current;
 }
 
-uint32_t BrowseWindow::Playlist(int Offset UNUSED) const
+uint32_t BrowseWindow::Playlist(int Offset) const
 {
    //! \todo not sure how i am going to do this
    // but it sure be used to navigate throw the browse window

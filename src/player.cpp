@@ -15,12 +15,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   player.cpp - common music playing related commands 
+   player.cpp - common music playing related commands
    */
 
 #include "player.hpp"
 
-#include "attributes.hpp"
 #include "buffers.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
@@ -52,7 +51,7 @@ bool Player::ClearScreen()
    return true;
 }
 
-bool Player::Connect(std::string const & host, UNUSED uint32_t port)
+bool Player::Connect(std::string const & host, uint32_t port)
 {
    client_.Connect(host, port);
    return true;
@@ -221,12 +220,12 @@ uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song:
 
    if ((song != NULL) && (skipCount == 0))
    {
-      do 
+      do
       {
          ++skipCount;
 
          if (((skip == Previous) && (startSong >= skipCount)) ||
-            ((skip == Next) && (playlist_.Size() > (startSong + skipCount)))) 
+            ((skip == Next) && (playlist_.Size() > (startSong + skipCount))))
          {
             newSong = playlist_.Get(startSong + (skipCount * direction));
          }

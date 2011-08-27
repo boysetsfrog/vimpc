@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   normal.cpp - normal mode input handling 
+   normal.cpp - normal mode input handling
    */
 
 #include "normal.hpp"
@@ -91,7 +91,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['h']       = &Normal::Left;
    actionTable_['\n']      = &Normal::Confirm;
    actionTable_[KEY_ENTER] = &Normal::Confirm;
-   
+
    // Searching
    actionTable_['N']       = &Normal::SearchResult<Search::Previous>;
    actionTable_['n']       = &Normal::SearchResult<Search::Next>;
@@ -150,14 +150,14 @@ Normal::~Normal()
    window_ = NULL;
 }
 
-void Normal::Initialise(UNUSED int input)
+void Normal::Initialise(int input)
 {
    actionCount_ = 0;
    DisplayModeLine();
    Refresh();
 }
 
-void Normal::Finalise(UNUSED int input)
+void Normal::Finalise(int input)
 {
    Refresh();
 }
@@ -204,7 +204,7 @@ bool Normal::Handle(int input)
          lastAction_      = input;
          lastActionCount_ = actionCount_;
       }
-      
+
       ptrToMember actionFunc = (*action)[input];
       result = (*this.*actionFunc)(count);
       actionCount_ = 0;
@@ -237,28 +237,28 @@ bool Normal::CausesModeToStart(int input) const
 }
 
 
-bool Normal::ClearScreen(UNUSED uint32_t count)
-{ 
+bool Normal::ClearScreen(uint32_t count)
+{
    return Player::ClearScreen();
 }
 
-bool Normal::Pause(UNUSED uint32_t count)
-{ 
+bool Normal::Pause(uint32_t count)
+{
    return Player::Pause();
 }
 
-bool Normal::Random(UNUSED uint32_t count)
-{ 
+bool Normal::Random(uint32_t count)
+{
    return Player::ToggleRandom();
 }
 
-bool Normal::Single(UNUSED uint32_t count)
-{ 
+bool Normal::Single(uint32_t count)
+{
    return Player::ToggleSingle();
 }
 
-bool Normal::Stop(UNUSED uint32_t count)
-{ 
+bool Normal::Stop(uint32_t count)
+{
    return Player::Stop();
 }
 
@@ -275,7 +275,7 @@ bool Normal::Right(uint32_t count)
    return true;
 }
 
-bool Normal::Confirm(UNUSED uint32_t count)
+bool Normal::Confirm(uint32_t count)
 {
    screen_.ActiveWindow().Confirm();
    return true;
@@ -293,7 +293,7 @@ bool Normal::RepeatLastAction(uint32_t count)
    return true;
 }
 
-bool Normal::Expand(UNUSED uint32_t count)
+bool Normal::Expand(uint32_t count)
 {
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
@@ -303,7 +303,7 @@ bool Normal::Expand(UNUSED uint32_t count)
    return true;
 }
 
-bool Normal::Collapse(UNUSED uint32_t count)
+bool Normal::Collapse(uint32_t count)
 {
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
@@ -348,7 +348,7 @@ bool Normal::DeleteSong(uint32_t count)
 
    //! \todo it seems like this needs to know a lot of stuff, surely i could abstract this out?
    if ((screen_.GetActiveWindow() == Screen::Playlist) ||
-       (screen_.GetActiveWindow() == Screen::Browse) || 
+       (screen_.GetActiveWindow() == Screen::Browse) ||
        (COLLECTION == Mpc::Song::All))
    {
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
@@ -455,7 +455,7 @@ bool Normal::Scroll(uint32_t count)
 }
 
 template <Screen::Location LOCATION>
-bool Normal::ScrollTo(UNUSED uint32_t line)
+bool Normal::ScrollTo(uint32_t line)
 {
    screen_.ScrollTo(LOCATION);
    return true;

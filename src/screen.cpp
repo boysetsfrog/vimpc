@@ -676,7 +676,7 @@ bool Screen::WindowsAreInitialised()
 }
 
 
-void ResizeHandler(UNUSED int i)
+void ResizeHandler(int i)
 {
    WindowResized = true;
 }

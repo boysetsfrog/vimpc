@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   linebuffer.hpp - 
+   linebuffer.hpp -
    */
 
 #ifndef __MAIN__LINEBUFFER
@@ -34,8 +34,8 @@ namespace Main
       ~LineBuffer() { }
 
    public:
-      std::string const & Get(UNUSED uint32_t position) const
-      { 
+      std::string const & Get(uint32_t position) const
+      {
          return Buffer<LineBuffer::BufferType>::Get(0);
       }
 

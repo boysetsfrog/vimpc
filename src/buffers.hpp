@@ -30,11 +30,11 @@
 
 namespace Main
 {
-   Mpc::Playlist & Playlist() FUNCTION_IS_NOT_USED;
-   Mpc::Playlist & PlaylistPasteBuffer() FUNCTION_IS_NOT_USED;
-   Mpc::Browse   & Browse()  FUNCTION_IS_NOT_USED;
-   Mpc::Library  & Library() FUNCTION_IS_NOT_USED;
-   Ui::Console   & Console() FUNCTION_IS_NOT_USED;
+   Mpc::Playlist & Playlist();
+   Mpc::Playlist & PlaylistPasteBuffer();
+   Mpc::Browse   & Browse();
+   Mpc::Library  & Library();
+   Ui::Console   & Console();
 }
 
 #endif

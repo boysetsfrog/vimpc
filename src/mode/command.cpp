@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   command.cpp - ex mode input handling 
+   command.cpp - ex mode input handling
    */
 
 #include "command.hpp"
@@ -104,7 +104,7 @@ void Command::GenerateInputString(int input)
       InputMode::GenerateInputString(input);
    }
 }
- 
+
 
 bool Command::ExecuteCommand(std::string const & input)
 {
@@ -120,14 +120,14 @@ bool Command::ExecuteCommand(std::string const & input)
       std::string       resolvedAlias(aliasTable_[command] + " " + arguments);
 
       std::string matchString;
-      std::string commandString; 
+      std::string commandString;
 
       while (multipleCommandAlias.FullMatch(resolvedAlias.c_str(), &matchString, &commandString) == true)
       {
          resolvedAlias = resolvedAlias.substr(matchString.size(), resolvedAlias.size());
 
          if (blankCommand.FullMatch(commandString) == false)
-         {   
+         {
             result = ExecuteCommand(commandString);
          }
       }
@@ -153,13 +153,13 @@ bool Command::InputStringHandler(std::string input)
 }
 
 
-bool Command::ClearScreen(UNUSED std::string const & arguments) 
-{ 
+bool Command::ClearScreen(std::string const & arguments)
+{
    return Player::ClearScreen();
 }
 
-bool Command::Connect(std::string const & arguments) 
-{ 
+bool Command::Connect(std::string const & arguments)
+{
    size_t pos = arguments.find_first_of(" ");
    std::string hostname = arguments.substr(0, pos);
    std::string port     = arguments.substr(pos + 1);
@@ -167,18 +167,18 @@ bool Command::Connect(std::string const & arguments)
    return Player::Connect(hostname, std::atoi(port.c_str()));
 }
 
-bool Command::Pause(UNUSED std::string const & arguments)
-{ 
-   return Player::Pause(); 
+bool Command::Pause(std::string const & arguments)
+{
+   return Player::Pause();
 }
 
 bool Command::Play(std::string const & arguments)
-{ 
-   return Player::Play(atoi(arguments.c_str())); 
+{
+   return Player::Play(atoi(arguments.c_str()));
 }
 
-bool Command::Quit(UNUSED std::string const & arguments)
-{ 
+bool Command::Quit(std::string const & arguments)
+{
    if ((forceCommand_ == true) || (settings_.StopOnQuit() == true))
    {
       Player::Stop();
@@ -188,29 +188,29 @@ bool Command::Quit(UNUSED std::string const & arguments)
 }
 
 bool Command::Random(std::string const & arguments)
-{ 
+{
    bool const value = (arguments.compare("on") == 0);
    return Player::SetRandom(value);
 }
 
-bool Command::Redraw(UNUSED std::string const & arguments)
-{ 
-   return Player::Redraw(); 
+bool Command::Redraw(std::string const & arguments)
+{
+   return Player::Redraw();
 }
 
-bool Command::Stop(UNUSED std::string const & arguments)
-{ 
-   return Player::Stop(); 
+bool Command::Stop(std::string const & arguments)
+{
+   return Player::Stop();
 }
 
-bool Command::Rescan(UNUSED std::string const & arguments)
-{ 
+bool Command::Rescan(std::string const & arguments)
+{
    return Player::Rescan();
 }
 
-bool Command::Update(UNUSED std::string const & arguments)
-{ 
-   return Player::Update(); 
+bool Command::Update(std::string const & arguments)
+{
+   return Player::Update();
 }
 
 
@@ -226,7 +226,7 @@ bool Command::SkipSong(std::string const & arguments)
 
 //Implementation of window change function
 template <Ui::Screen::MainWindow MAINWINDOW>
-bool Command::SetActiveAndVisible(UNUSED std::string const & arguments)
+bool Command::SetActiveAndVisible(std::string const & arguments)
 {
    screen_.SetActiveAndVisible(MAINWINDOW);
 
@@ -234,7 +234,7 @@ bool Command::SetActiveAndVisible(UNUSED std::string const & arguments)
 }
 
 template <Command::Location LOCATION>
-bool Command::ChangeToWindow(UNUSED std::string const & arguments)
+bool Command::ChangeToWindow(std::string const & arguments)
 {
    uint32_t active = 0;
 
@@ -248,7 +248,7 @@ bool Command::ChangeToWindow(UNUSED std::string const & arguments)
    return true;
 }
 
-bool Command::HideWindow(UNUSED std::string const & arguments)
+bool Command::HideWindow(std::string const & arguments)
 {
    screen_.SetVisible(screen_.GetActiveWindow(), false);
    return true;
@@ -322,7 +322,7 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 void Command::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
 {
    std::stringstream commandStream(input);
-   std::getline(commandStream, command,   ' '); 
+   std::getline(commandStream, command,   ' ');
    std::getline(commandStream, arguments, '\n');
 }
 

@@ -58,7 +58,7 @@ void LibraryWindow::Redraw()
 
 
 
-std::string LibraryWindow::SearchPattern(UNUSED int32_t id)
+std::string LibraryWindow::SearchPattern(int32_t id)
 {
    //! \todo add a search that searches in collapsed songs and
    //! expands things as necessary
@@ -208,7 +208,7 @@ void LibraryWindow::Print(uint32_t line) const
    }
 }
 
-void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
+void LibraryWindow::Left(Ui::Player & player, uint32_t count)
 {
    if (CurrentLine() < library_.Size())
    {
@@ -237,7 +237,7 @@ void LibraryWindow::Left(UNUSED Ui::Player & player, UNUSED uint32_t count)
    }
 }
 
-void LibraryWindow::Right(UNUSED Ui::Player & player, UNUSED uint32_t count)
+void LibraryWindow::Right(Ui::Player & player, uint32_t count)
 {
    if (CurrentLine() < library_.Size())
    {

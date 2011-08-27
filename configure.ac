@@ -50,7 +50,9 @@ if test "x$enable_debug" = "xyes"; then
    CPPFLAGS="$CPPFLAGS -g -pg \\
             -D__DEBUG_PRINTS  \\
             -D__DEBUG_ASSERT  \\
-            -Wall -Wextra -W  \\
+            -Waddress -Warray-bounds -Wc++0x-compat -Wchar-subscripts -Wenum-compare -Wcomment -Wformat \\
+            -Wmissing-braces -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wsign-compare -Wstrict-aliasing \\
+            -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized \\
             -Wformat -Wold-style-cast -Woverloaded-virtual -Wctor-dtor-privacy -Wsign-promo \\
             -Wswitch-default -Wswitch-enum -Wfloat-equal -Wshadow -Winit-self -Wformat-security \\
             -Wcast-qual -Wcast-align -Wmissing-declarations -Wcomment"

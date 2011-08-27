@@ -20,7 +20,6 @@
 
 #include "search.hpp"
 
-#include "attributes.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
 #include "buffer/playlist.hpp"
@@ -31,7 +30,7 @@
 
 using namespace Ui;
 
-Search::Search(Ui::Screen & screen, UNUSED Mpc::Client & client, Main::Settings & settings) :
+Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode   (screen),
    direction_  (Forwards),
    lastSearch_ (""),
@@ -62,7 +61,7 @@ bool Search::CausesModeToStart(int input) const
 
 
 std::string Search::LastSearchString() const
-{ 
+{
    return lastSearch_;
 }
 
@@ -100,7 +99,7 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
 
    if (found == false)
    {
-      Error(ErrorNumber::SearchNoResults, "Pattern not found: " + search); 
+      Error(ErrorNumber::SearchNoResults, "Pattern not found: " + search);
    }
 
    return true;
@@ -166,16 +165,16 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
 }
 
 char const * Search::Prompt() const
-{ 
+{
    static char SearchPrompt[PromptSize + 1] = "";
 
    SearchPrompt[0] = prompt_[direction_];
    SearchPrompt[1] = '\0';
 
-   return SearchPrompt; 
+   return SearchPrompt;
 }
 
-bool Search::InputStringHandler(std::string input) 
+bool Search::InputStringHandler(std::string input)
 {
    lastSearch_ = input;
    return SearchResult(Next, 1);

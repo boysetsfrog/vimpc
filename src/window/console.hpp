@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   console.hpp - window to display debug information on a console like screen 
+   console.hpp - window to display debug information on a console like screen
    */
 
 #ifndef __UI__CONSOLE
@@ -46,7 +46,7 @@ namespace Ui
    public:
       void Print(uint32_t line) const;
       void Clear();
-      void PerformAutoScroll(UNUSED Console::BufferType string);
+      void PerformAutoScroll(Console::BufferType string);
 
    private:
       typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferType> CallbackObject;

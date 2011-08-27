@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   buffer.hpp - 
+   buffer.hpp -
    */
 
 #ifndef __MAIN__BUFFER
@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <vector>
 
-#include "attributes.hpp"
 #include "callback.hpp"
 #include "window/window.hpp"
 
@@ -57,13 +56,13 @@ namespace Main
 
    public:
       T const & Get(uint32_t position) const
-      { 
+      {
          return Buffer<T>::at(position);
       }
 
       void Add(T entry)
-      { 
-         Buffer<T>::push_back(entry); 
+      {
+         Buffer<T>::push_back(entry);
 
          Callback(Buffer_Add, entry);
       }
@@ -90,7 +89,7 @@ namespace Main
       }
 
       void Add(T entry, uint32_t position)
-      { 
+      {
          if (position <= Size())
          {
             uint32_t pos = 0;
@@ -118,7 +117,7 @@ namespace Main
       }
 
       void Remove(uint32_t position, uint32_t count)
-      { 
+      {
          uint32_t pos = 0;
          typename Buffer<T>::iterator it;
 
@@ -129,7 +128,7 @@ namespace Main
             Callback(Buffer_Remove, *it);
             it = Buffer<T>::erase(it);
          }
-      } 
+      }
 
       template <class V>
       void Sort(V comparator)
@@ -138,23 +137,23 @@ namespace Main
       }
 
       void Clear()
-      { 
+      {
          for (typename Buffer<T>::iterator it = Buffer<T>::begin(); (it != Buffer<T>::end()); ++it)
          {
             Callback(Buffer_Remove, *it);
          }
 
-         Buffer<T>::clear(); 
+         Buffer<T>::clear();
       }
 
-      size_t Size() const                   
-      { 
-         return Buffer<T>::size(); 
-      } 
+      size_t Size() const
+      {
+         return Buffer<T>::size();
+      }
 
    public:
       void AddCallback(BufferCallbackEvent event, CallbackInterface<T> * callback)
-      { 
+      {
          callback_[event].push_back(callback);
       }
 
@@ -175,7 +174,7 @@ namespace Main
             }
          }
       }
-      
+
    private:
       CallbackMap callback_;
    };

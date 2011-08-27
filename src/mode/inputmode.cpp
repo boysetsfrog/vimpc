@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   inputmode.cpp - handles all input modes requiring a full string 
+   inputmode.cpp - handles all input modes requiring a full string
    */
 
 #include "inputmode.hpp"
@@ -24,7 +24,6 @@
 #include <algorithm>
 
 #include "assert.hpp"
-#include "attributes.hpp"
 #include "screen.hpp"
 #include "window/console.hpp"
 
@@ -49,7 +48,7 @@ InputMode::~InputMode()
 }
 
 
-void InputMode::Initialise(UNUSED int input)
+void InputMode::Initialise(int input)
 {
    // \todo this should really be in the constructor
    // but that breaks the search at the moment as the screen is constructed
@@ -72,7 +71,7 @@ void InputMode::Initialise(UNUSED int input)
    ENSURE(inputString_.empty() == true);
 }
 
-void InputMode::Finalise(UNUSED int input)
+void InputMode::Finalise(int input)
 {
    AddToHistory(inputString_);
    window_->HideCursor();
@@ -233,8 +232,8 @@ std::string InputMode::SearchHistory(Direction direction, std::string const & in
 
 bool InputMode::InputIsValidCharacter(int input)
 {
-   return (input < std::numeric_limits<char>::max()) 
-       && (input != 27) 
+   return (input < std::numeric_limits<char>::max())
+       && (input != 27)
        && (input != '\n');
 }
 
@@ -311,14 +310,14 @@ bool Cursor::WantCursorLeft() const
 
 bool Cursor::WantCursorEnd() const
 {
-   return ((input_ == KEY_UP)   || 
-           (input_ == KEY_DOWN) || 
+   return ((input_ == KEY_UP)   ||
+           (input_ == KEY_DOWN) ||
            (input_ == '\t'));
 }
 
 bool Cursor::WantCursorRight() const
 {
-   return ((input_ == KEY_RIGHT) || 
+   return ((input_ == KEY_RIGHT) ||
            (InputMode::InputIsValidCharacter(input_) == true));
 }
 

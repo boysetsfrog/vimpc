@@ -21,7 +21,6 @@
 #ifndef __UI__COLOUR
 #define __UI__COLOUR
 
-#include "attributes.hpp"
 #include "wincurses.h"
 
 #define COLOR_MAX        16
@@ -50,7 +49,7 @@ namespace Ui
       static int Error        = DEFAULTONRED;
       static int StatusLine   = DEFAULTONBLUE;
 
-      static void InitialiseColours() FUNCTION_IS_NOT_USED;
+      static void InitialiseColours();
 
       void InitialiseColours()
       {

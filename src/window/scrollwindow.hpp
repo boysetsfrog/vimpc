@@ -21,7 +21,6 @@
 #ifndef __UI__SCROLLWINDOW
 #define __UI__SCROLLWINDOW
 
-#include "attributes.hpp"
 #include "window.hpp"
 
 namespace Ui
@@ -37,8 +36,8 @@ namespace Ui
       virtual ~ScrollWindow();
 
    public:
-      typedef enum 
-      { 
+      typedef enum
+      {
          First,
          Middle,
          Last,
@@ -62,7 +61,7 @@ namespace Ui
       bool AutoScroll() const;
 
    public:
-      virtual std::string SearchPattern(UNUSED int32_t id) { return ""; }
+      virtual std::string SearchPattern(int32_t id) { return ""; }
 
    public:
       uint32_t FirstLine()   const;
@@ -72,7 +71,7 @@ namespace Ui
       virtual  uint16_t CurrentLine() const { return FirstLine(); }
 
    protected:
-      void ResetScroll(); 
+      void ResetScroll();
       void SetScrollLine(uint16_t scrollLine);
       uint16_t ScrollLine() const;
 

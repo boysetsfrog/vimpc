@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   mpdclient.cpp - provides interaction with the music player daemon 
+   mpdclient.cpp - provides interaction with the music player daemon
    */
 
 #include "mpdclient.hpp"
@@ -46,7 +46,7 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 {
    return (duration - (SecondsToMinutes(duration) * 60));
 }
- 
+
 
 // Mpc::Client Implementation
 Client::Client(Ui::Screen const & screen) :
@@ -213,7 +213,7 @@ void Client::Clear()
 
 
 void Client::Rescan()
-{ 
+{
    if (Connected() == true)
    {
       mpd_run_rescan(connection_, "/");
@@ -366,7 +366,7 @@ void Client::DisplaySongInformation()
 
          //! \todo turn into a single setstatus and use a blank filler rather than a move
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
-         screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]", 
+         screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
                                SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
                                SecondsToMinutes(duration), RemainingSeconds(duration));
 
@@ -381,7 +381,7 @@ void Client::DisplaySongInformation()
 }
 
 
-Song * Client::CreateSong(UNUSED uint32_t id, mpd_song const * const song) const
+Song * Client::CreateSong(uint32_t id, mpd_song const * const song) const
 {
    Song * const newSong = new Song();
 
@@ -389,14 +389,14 @@ Song * Client::CreateSong(UNUSED uint32_t id, mpd_song const * const song) const
    newSong->SetAlbum   (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
    newSong->SetTitle   (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
    newSong->SetTrack   (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
-   newSong->SetURI     (mpd_song_get_uri(song)); 
+   newSong->SetURI     (mpd_song_get_uri(song));
    newSong->SetDuration(mpd_song_get_duration(song));
 
    return newSong;
 }
 
 
-  
+
 void Client::CheckError()
 {
    if (connection_ != NULL)

@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   console.cpp - window to accept command mode input 
+   console.cpp - window to accept command mode input
    */
 
 #include "console.hpp"
@@ -49,17 +49,17 @@ void ConsoleWindow::Print(uint32_t line) const
    }
 }
 
-void ConsoleWindow::PerformAutoScroll(UNUSED Console::BufferType line)
+void ConsoleWindow::PerformAutoScroll(Console::BufferType line)
 {
    if ((AutoScroll() == true) && (ContentSize() <= ScrollLine()))
    {
       ScrollTo(console_.Size());
-   } 
+   }
 }
 
-void ConsoleWindow::Clear() 
-{ 
-   console_.Clear(); 
+void ConsoleWindow::Clear()
+{
+   console_.Clear();
    werase(N_WINDOW());
-   ResetScroll(); 
+   ResetScroll();
 }
