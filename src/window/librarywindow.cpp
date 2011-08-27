@@ -104,7 +104,7 @@ void LibraryWindow::Print(uint32_t line) const
    {
       uint32_t printLine = (line + FirstLine());
 
-      int colour = DEFAULT; //DetermineSongColour(library_.Get(printLine));
+      int colour = DetermineSongColour(library_.Get(printLine));
 
       if (printLine == CurrentLine())
       {
@@ -287,6 +287,7 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
 
    //! \todo this needs to be dramatically improved in speed it really is a PoC at the moment
    //        and is way to slow to be usable in anyway
+   /*
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
    {
       colour = Colour::FullAdd;
@@ -316,6 +317,7 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
          colour = Colour::FullAdd;
       }
    }
+   */
 
    if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
    {
