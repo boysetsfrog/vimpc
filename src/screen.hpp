@@ -156,6 +156,7 @@ namespace Ui
       uint32_t               maxColumns_;
 
       Main::Settings       & settings_;
+      Mpc::Client          & client_;
    };
 }
 #endif

@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   mpdclient.hpp - provides interaction with the music player daemon 
+   mpdclient.hpp - provides interaction with the music player daemon
    */
 
 #ifndef __MPC__CLIENT
@@ -48,8 +48,6 @@ namespace Mpc
       Client & operator=(Client & client);
 
    public:
-
-   public:
       void Connect(std::string const & hostname = "localhost", uint16_t port = 0);
       void Play(uint32_t playId);
       void Pause();
@@ -69,14 +67,15 @@ namespace Mpc
       void Delete(uint32_t position);
       void Clear();
 
-   public: //Database
       void Rescan();
       void Update();
 
    public:
-      std::string CurrentState();
+      void EnterIdleMode();
+      void CheckForUpdates();
 
    public:
+      std::string CurrentState();
       bool Connected() const;
 
    public:
@@ -86,8 +85,6 @@ namespace Mpc
 
    public:
       bool SongIsInQueue(Mpc::Song const & song) const;
-
-   public:
       void DisplaySongInformation();
 
    public:

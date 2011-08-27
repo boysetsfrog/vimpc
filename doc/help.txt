@@ -40,7 +40,7 @@ MOTION:
    [count] z-                     | moves the currently selected line to the bottom
                                   | if count is specified, movies the [count]th line to the bottom.
 
-WINDOWS:
+WINDOWS/TABS:
    [count] gt                     | change to the next window, or to the [count] window if count is specified
    [count] gT                     | change to the previous window, or change back [count] windows if count is specified
            Alt+<window number>    | change to the given window number
@@ -90,12 +90,17 @@ COMMAND MODE
                                   | it is a unique match ie :con does not work as it could be :console or :connect
                                   | but :conn will call the :connect command
 
-WINDOWS:
+WINDOWS/TABS:
           browse                  | change to the browse window, if window is hidden it is opened
           console                 | change to the console window, if window is hidden it is opened
           help                    | change to the help window (this one), if window is hidden it is opened
           library                 | change to the library window, if window is hidden it is opened
           playlist                | change to the playlist window, if window is hidden it is opened
+
+          tabfirst                | navigate to the first tab
+          tablast                 | navigate to the last tab
+          tabmove <location>      | move the current tab to new location (first location is 0)
+          tabhide                 | hide the current tab from the tab bar, will change active window if necessary
 
 MISC:
           !mpc <command-string>   | executes the command line program mpc with the given <command-string>
@@ -107,7 +112,7 @@ MISC:
 
           clear                   | clears the playlist window
 
-          connect [hostname]      | connects to the given hostname if none is specficied, uses localhost
+          connect [host] [port]   | connects to the given hostname if none is specficied, uses localhost
                                   
           echo <string>           | echos the given string to the console window
                                   
@@ -124,11 +129,6 @@ MISC:
           set                     | sets a configurable setting, see SETTINGS section
                                   
           stop                    | stop playback
-
-          tabfirst                | navigate to the first tab
-          tablast                 | navigate to the last tab
-          tabmove <location>      | move the current tab to new location (first location is 0)
-          tabhide                 | hide the current tab from the tab bar, will change active window if necessary
 
 
 SETTINGS

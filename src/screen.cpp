@@ -30,7 +30,9 @@
 
 #include "buffers.hpp"
 #include "colour.hpp"
+#include "mpdclient.hpp"
 #include "settings.hpp"
+
 #include "window/browsewindow.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"
@@ -52,7 +54,8 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    started_         (false),
    maxRows_         (0),
    maxColumns_      (0),
-   settings_        (settings)
+   settings_        (settings),
+   client_          (client)
 {
    STATIC_ASSERT((sizeof(mainWindows_)/sizeof(Window *)) == MainWindowCount);
 
@@ -454,7 +457,12 @@ uint32_t Screen::WaitForInput() const
    }
 
    halfdelay(1);
+
+   client_.EnterIdleMode();
+
    int32_t input = wgetch(commandWindow_);
+
+   client_.CheckForUpdates();
 
    if (input != ERR)
    {

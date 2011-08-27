@@ -230,6 +230,37 @@ void Client::Update()
    }
 }
 
+void Client::EnterIdleMode()
+{
+   if (Connected() == true)
+   {
+      mpd_send_idle(connection_);
+      CheckError();
+   }
+}
+
+void Client::CheckForUpdates()
+{
+   if (Connected() == true)
+   {
+      mpd_send_noidle(connection_);
+      CheckError();
+
+      mpd_idle IdleStates = mpd_recv_idle(connection_, true);
+
+      if ((IdleStates & MPD_IDLE_DATABASE) == MPD_IDLE_DATABASE)
+      {
+         screen_.Redraw(Ui::Screen::Library);
+         screen_.Redraw(Ui::Screen::Browse);
+      }
+
+      if ((IdleStates & MPD_IDLE_QUEUE) == MPD_IDLE_QUEUE)
+      {
+         screen_.Redraw(Ui::Screen::Playlist);
+      }
+   }
+}
+
 
 std::string Client::CurrentState()
 {
