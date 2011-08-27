@@ -33,6 +33,7 @@ using namespace Main;
 
 char const * const AutoScrollSetting      = "autoscroll";
 char const * const ColourSetting          = "colour";
+char const * const ExpandArtistsSetting   = "expand-artists";
 char const * const HighlightSearchSetting = "hlsearch";
 char const * const SearchWrapSetting      = "searchwrap";
 char const * const StopOnQuitSetting      = "stoponquit";
@@ -53,6 +54,7 @@ Settings::Settings() :
 
    toggleTable_[AutoScrollSetting]      = new Setting<bool>(true);
    toggleTable_[ColourSetting]          = new Setting<bool>(true);
+   toggleTable_[ExpandArtistsSetting]   = new Setting<bool>(false);
    toggleTable_[HighlightSearchSetting] = new Setting<bool>(true);
    toggleTable_[SearchWrapSetting]      = new Setting<bool>(true);
    toggleTable_[StopOnQuitSetting]      = new Setting<bool>(true);
@@ -151,6 +153,11 @@ bool Settings::AutoScroll() const
 bool Settings::ColourEnabled() const
 {
    return Get(ColourSetting);
+}
+
+bool Settings::ExpandArtists() const
+{
+   return Get(ExpandArtistsSetting);
 }
 
 bool Settings::HightlightSearch() const

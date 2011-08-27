@@ -54,9 +54,22 @@ void LibraryWindow::Redraw()
    client_.ForEachLibrarySong(library_, &Mpc::Library::Add);
 
    library_.Sort();
+
+   for (int i = 0; i < library_.Size(); ++i)
+   {
+      if (library_.Get(i)->type_ == Mpc::ArtistType)
+      {
+         if (settings_.ExpandArtists() == true)
+         {
+            library_.Expand(i);
+         }
+         else
+         {
+            library_.Collapse(i);
+         }
+      }
+   }
 }
-
-
 
 std::string LibraryWindow::SearchPattern(int32_t id)
 {
@@ -116,27 +129,26 @@ void LibraryWindow::Print(uint32_t line) const
          wattron(window, A_REVERSE);
       }
 
+      if (library_.Get(printLine)->type_ == Mpc::ArtistType)
+      {
+            wattron(window, A_BOLD);
+      }
+
       mvwprintw(window, line, 0, BlankLine.c_str());
+
+      uint8_t expandCol = 1;
 
       if ((library_.Get(printLine)->type_ == Mpc::AlbumType) || (library_.Get(printLine)->type_ == Mpc::ArtistType))
       {
-         uint8_t expandCol = 0;
-
-         if (library_.Get(printLine)->type_ == Mpc::AlbumType)
-         {
-            mvwprintw(window, line, 1, "|--");
-            expandCol = 4;
-         }
-
-         mvwprintw(window, line, expandCol, "[ ]");
-
          if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         char expand = (library_.Get(printLine)->expanded_ == true) ? '-' : '+';
-         mvwprintw(window, line, expandCol + 1, "%c", expand);
+         if (library_.Get(printLine)->type_ == Mpc::AlbumType)
+         {
+            expandCol += 3;
+         }
 
          if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
@@ -148,7 +160,7 @@ void LibraryWindow::Print(uint32_t line) const
             wattron(window, COLOR_PAIR(colour));
          }
 
-         wmove(window, line, expandCol + 4);
+         wmove(window, line, expandCol);
 
          if (library_.Get(printLine)->type_ == Mpc::ArtistType)
          {
@@ -166,9 +178,8 @@ void LibraryWindow::Print(uint32_t line) const
       }
       else if ((library_.Get(printLine)->type_ == Mpc::SongType) && (library_.Get(printLine)->song_ != NULL))
       {
-         mvwprintw(window, line, 1, "|   |--");
-
-         wprintw(window, "[");
+         expandCol += 6;
+         wmove(window, line, expandCol);
 
          if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
@@ -182,8 +193,7 @@ void LibraryWindow::Print(uint32_t line) const
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         wprintw(window, "]");
-         waddstr(window, " ");
+         waddstr(window, " - ");
 
          if (settings_.ColourEnabled() == true)
          {
@@ -205,9 +215,19 @@ void LibraryWindow::Print(uint32_t line) const
 
          waddstr(window, title.c_str());
 
-         mvwprintw(window, line, 61, " [");
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         {
+            wattron(window, COLOR_PAIR(REDONDEFAULT));
+         }
+
+         mvwprintw(window, line, 61, " |");
+
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         {
+            wattroff(window, COLOR_PAIR(REDONDEFAULT));
+         }
+
          waddstr(window, library_.Get(printLine)->song_->DurationString().c_str());
-         waddstr(window, "]");
       }
 
       if (settings_.ColourEnabled() == true)
@@ -215,7 +235,7 @@ void LibraryWindow::Print(uint32_t line) const
          wattroff(window, COLOR_PAIR(colour));
       }
 
-      wattroff(window, A_REVERSE);
+      wattroff(window, A_BOLD | A_REVERSE);
    }
 }
 

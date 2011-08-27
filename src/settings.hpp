@@ -66,8 +66,11 @@ namespace Main
          //! Determine whether to autmatically scroll to playing song
          bool AutoScroll() const;
 
-         // ! Determine if we should use colours
+         //! Determine if we should use colours
          bool ColourEnabled() const;
+
+         //! Should we expand artists in the library window by default
+         bool ExpandArtists() const;
 
          //! Determine whether to show search results in a different colour
          bool HightlightSearch() const;

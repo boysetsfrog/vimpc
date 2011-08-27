@@ -140,6 +140,9 @@ SETTINGS
             [no]autoscroll[!]     | automatically scroll to the playing song, when a h, l, q, w, Q, W, etc is performed 
 
             [no]colour[!]         | enable or disable colours
+
+            [no]expand-artists[!] | when enabled will expand to the artist level by default in the library window
+                                  | if you change this during operation you will need to call :redraw from the library window
                                   
             [no]hlsearch[!]       | highlight search results
                                   
