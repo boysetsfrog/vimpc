@@ -128,7 +128,7 @@ void InputMode::GenerateInputString(int input)
    }
    else if (RequireDeletion(input) == true)
    {
-      const int cursorMovement = (input == KEY_BACKSPACE) ? 1 : 0;
+      const int cursorMovement = ((input == KEY_BACKSPACE) || (input == 0x7F)) ? 1 : 0;
 
       if ((cursorPosition - cursorMovement) >= 0)
       {
@@ -144,7 +144,7 @@ void InputMode::GenerateInputString(int input)
 
 bool InputMode::RequireDeletion(int input) const
 {
-   return (((input == KEY_BACKSPACE) || (input == KEY_DC)) && (inputString_.empty() == false));
+   return (((input == KEY_BACKSPACE) || (input == 0x7F) || (input == KEY_DC)) && (inputString_.empty() == false));
 }
 
 
@@ -305,7 +305,8 @@ void Cursor::ResetCursorPosition()
 bool Cursor::WantCursorLeft() const
 {
    return ((input_ == KEY_LEFT) ||
-           (input_ == KEY_BACKSPACE));
+           (input_ == KEY_BACKSPACE) ||
+           (input_ == 0x7F));
 }
 
 bool Cursor::WantCursorEnd() const
