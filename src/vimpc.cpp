@@ -133,6 +133,7 @@ void Vimpc::Run()
          {
             updateTime = 0;
             screenWasRefreshed = true;
+
             screen_.Update();
          }
 
@@ -140,6 +141,7 @@ void Vimpc::Run()
          {
             refreshTime = 0;
 
+            client_.CheckForUpdates();
             client_.DisplaySongInformation();
 
             if (modeChange == false)

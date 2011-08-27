@@ -71,7 +71,6 @@ namespace Mpc
       void Update();
 
    public:
-      void EnterIdleMode();
       void CheckForUpdates();
 
    public:
@@ -96,6 +95,7 @@ namespace Mpc
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
    private:
+      unsigned int QueueVersion();
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
 
    private:
@@ -105,6 +105,7 @@ namespace Mpc
    private:
       struct mpd_connection * connection_;
       Ui::Screen      const & screen_;
+      unsigned int            queueVersion_;
    };
 
    //
@@ -113,6 +114,8 @@ namespace Mpc
    {
       if (Connected() == true)
       {
+         queueVersion_ = QueueVersion();
+
          mpd_send_list_queue_meta(connection_);
 
          mpd_song * nextSong = mpd_recv_song(connection_);

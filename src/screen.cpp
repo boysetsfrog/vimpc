@@ -54,8 +54,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    started_         (false),
    maxRows_         (0),
    maxColumns_      (0),
-   settings_        (settings),
-   client_          (client)
+   settings_        (settings)
 {
    STATIC_ASSERT((sizeof(mainWindows_)/sizeof(Window *)) == MainWindowCount);
 
@@ -458,11 +457,7 @@ uint32_t Screen::WaitForInput() const
 
    halfdelay(1);
 
-   client_.EnterIdleMode();
-
    int32_t input = wgetch(commandWindow_);
-
-   client_.CheckForUpdates();
 
    if (input != ERR)
    {

@@ -175,7 +175,11 @@ uint32_t Client::Add(Mpc::Song & song)
 {
    if (Connected() == true)
    {
+      CheckForUpdates();
+
       mpd_run_add(connection_, song.URI().c_str());
+      queueVersion_ = QueueVersion();
+
       CheckError();
    }
 
@@ -186,7 +190,11 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
 {
    if (Connected() == true)
    {
+      CheckForUpdates();
+
       mpd_run_add_id_to(connection_, song.URI().c_str(), position);
+      queueVersion_ = QueueVersion();
+
       CheckError();
    }
 
@@ -197,7 +205,10 @@ void Client::Delete(uint32_t position)
 {
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
+      CheckForUpdates();
+
       mpd_run_delete(connection_, position);
+      queueVersion_ = QueueVersion();
       CheckError();
    }
 }
@@ -207,6 +218,7 @@ void Client::Clear()
    if (Connected() == true)
    {
       mpd_run_clear(connection_);
+      queueVersion_ = QueueVersion();
       CheckError();
    }
 }
@@ -230,34 +242,17 @@ void Client::Update()
    }
 }
 
-void Client::EnterIdleMode()
-{
-   if (Connected() == true)
-   {
-      mpd_send_idle(connection_);
-      CheckError();
-   }
-}
-
 void Client::CheckForUpdates()
 {
    if (Connected() == true)
    {
-      mpd_send_noidle(connection_);
-      CheckError();
-
-      mpd_idle IdleStates = mpd_recv_idle(connection_, true);
-
-      if ((IdleStates & MPD_IDLE_DATABASE) == MPD_IDLE_DATABASE)
+      if (queueVersion_ != QueueVersion())
       {
-         screen_.Redraw(Ui::Screen::Library);
-         screen_.Redraw(Ui::Screen::Browse);
-      }
-
-      if ((IdleStates & MPD_IDLE_QUEUE) == MPD_IDLE_QUEUE)
-      {
+         queueVersion_ = QueueVersion();
          screen_.Redraw(Ui::Screen::Playlist);
       }
+
+      CheckError();
    }
 }
 
@@ -408,6 +403,21 @@ void Client::DisplaySongInformation()
    else
    {
       screen_.SetStatusLine("");
+   }
+}
+
+unsigned int Client::QueueVersion()
+{
+   if (Connected() == true)
+   {
+      mpd_status * status = mpd_run_status(connection_);
+
+      if (status != NULL)
+      {
+         unsigned int Version = mpd_status_get_queue_version(status);
+         mpd_status_free(status);
+         return Version;
+      }
    }
 }
 
