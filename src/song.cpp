@@ -22,6 +22,8 @@
 
 #include <stdio.h>
 
+#include "buffer/library.hpp"
+
 using namespace Mpc;
 
 Song::Song() :
@@ -42,7 +44,7 @@ Song::Song(Song const & song) :
    track_    (song.Track()),
    uri_      (song.URI()),
    duration_ (song.Duration())
-{ 
+{
 }
 
 Song::~Song()
@@ -52,6 +54,26 @@ Song::~Song()
 int32_t Song::Reference() const
 {
    return reference_;
+}
+
+/* static */ void Song::IncrementReference(Song * song)
+{
+   song->reference_ += 1;
+
+   if ((song->entry_ != NULL) && (song->reference_ == 1))
+   {
+      song->entry_->AddedToPlaylist();
+   }
+}
+
+/*static */ void Song::DecrementReference(Song * song)
+{
+   song->reference_ -= 1;
+
+   if ((song->entry_ != NULL) && (song->reference_ == 0))
+   {
+      song->entry_->RemovedFromPlaylist();
+   }
 }
 
 void Song::SetArtist(const char * artist)
@@ -147,6 +169,16 @@ void Song::SetDuration(int32_t duration)
 int32_t Song::Duration() const
 {
    return duration_;
+}
+
+void Song::SetEntry(LibraryEntry * entry)
+{
+   entry_ = entry;
+}
+
+LibraryEntry * Song::Entry() const
+{
+   return entry_;
 }
 
 std::string Song::DurationString() const

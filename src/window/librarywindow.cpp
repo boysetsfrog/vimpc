@@ -266,14 +266,15 @@ void LibraryWindow::Confirm()
    client_.Play(0);
 }
 
-// \todo should store the current state for each album artist entry in the library
-// and update it when there is an add or delete that way i won't need to do a recursive loop
-// here for every single print, which is plenty slow
 int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry) const
 {
    int32_t colour = Colour::Song;
 
-   if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+   {
+      colour = Colour::CurrentSong;
+   }
+   else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
       pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*");
 
@@ -284,44 +285,17 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
          colour = Colour::SongMatch;
       }
    }
-
-   //! \todo this needs to be dramatically improved in speed it really is a PoC at the moment
-   //        and is way to slow to be usable in anyway
-   /*
-   if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (client_.SongIsInQueue(*entry->song_) == true))
+   else if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
    {
       colour = Colour::FullAdd;
    }
-   else if ((entry->type_ != Mpc::SongType) && (entry->children_.size() > 0))
+   else if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == entry->children_.size()))
    {
-      Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin();
-
-      unsigned int count = 0;
-
-      for (; (it != entry->children_.end()); ++it)
-      {
-         int32_t newColour = DetermineSongColour(*it);
-
-         if ((newColour == Colour::FullAdd) || (newColour == Colour::CurrentSong) || (newColour == Colour::PartialAdd))
-         {
-            if ((newColour == Colour::FullAdd) || (newColour == Colour::CurrentSong))
-            {
-               count++;
-            }
-            colour = Colour::PartialAdd;
-         }
-      }
-
-      if (count == entry->children_.size())
-      {
-         colour = Colour::FullAdd;
-      }
+      colour = Colour::FullAdd;
    }
-   */
-
-   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+   else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
    {
-      colour = Colour::CurrentSong;
+      colour = Colour::PartialAdd;
    }
 
    return colour;

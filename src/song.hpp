@@ -26,6 +26,8 @@
 
 namespace Mpc
 {
+   class LibraryEntry;
+
    class Song
    {
    public:
@@ -36,7 +38,7 @@ namespace Mpc
    public:
       typedef std::string const & (Mpc::Song::*SongInformationFunction)() const;
 
-      typedef enum 
+      typedef enum
       {
          Single,
          All
@@ -56,12 +58,12 @@ namespace Mpc
    public:
       int32_t Reference() const;
 
-      static void IncrementReference(Song * song) { song->reference_ += 1; }
-      static void DecrementReference(Song * song) { song->reference_ -= 1; }
+      static void IncrementReference(Song * song);
+      static void DecrementReference(Song * song);
 
       void SetArtist(const char * artist);
       std::string const & Artist() const;
-      
+
       void SetAlbum(const char * album);
       std::string const & Album() const;
 
@@ -78,6 +80,9 @@ namespace Mpc
       int32_t Duration() const;
       std::string DurationString() const;
 
+      void SetEntry(LibraryEntry * entry);
+      LibraryEntry * Entry() const;
+
       std::string PlaylistDescription() const;
       std::string FullDescription()     const;
 
@@ -89,6 +94,8 @@ namespace Mpc
       std::string track_;
       std::string uri_;
       int32_t     duration_;
+
+      LibraryEntry * entry_;
    };
 }
 

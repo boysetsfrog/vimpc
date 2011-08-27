@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   library.hpp - handling of the mpd music library 
+   library.hpp - handling of the mpd music library
    */
 
 #ifndef __UI__LIBRARY
@@ -56,7 +56,9 @@ namespace Mpc
          song_    (NULL),
          expanded_(false),
          children_(),
-         parent_  ()
+         parent_  (),
+         childrenInPlaylist_(0),
+         partial_(0)
       { }
 
    public:
@@ -106,6 +108,56 @@ namespace Mpc
          delete song_;
       }
 
+      void AddedToPlaylist()
+      {
+         ++childrenInPlaylist_;
+
+         if ((parent_ != NULL) && (childrenInPlaylist_ == 1))
+         {
+            parent_->AddPartial();
+         }
+
+         if ((parent_ != NULL) && ((childrenInPlaylist_ == children_.size()) || (type_ == Mpc::SongType)))
+         {
+            parent_->AddedToPlaylist();
+         }
+      }
+
+      void RemovedFromPlaylist()
+      {
+         if ((parent_ != NULL) && ((childrenInPlaylist_ == children_.size()) || (type_ == Mpc::SongType)))
+         {
+            parent_->RemovedFromPlaylist();
+         }
+
+         --childrenInPlaylist_;
+
+         if ((parent_ != NULL) && (childrenInPlaylist_ == 0))
+         {
+            parent_->RemovePartial();
+         }
+      }
+
+      void AddPartial()
+      {
+         ++partial_;
+
+         if (parent_ != NULL)
+         {
+            parent_->AddPartial();
+         }
+      }
+
+      void RemovePartial()
+      {
+         --partial_;
+
+         if (parent_ != NULL)
+         {
+            parent_->RemovePartial();
+         }
+      }
+
    private:
       LibraryEntry(LibraryEntry & entry);
       LibraryEntry & operator=(LibraryEntry & entry);
@@ -125,6 +177,8 @@ namespace Mpc
       bool               expanded_;
       LibraryEntryVector children_;
       LibraryEntry *     parent_;
+      int32_t            childrenInPlaylist_;
+      int32_t            partial_;
    };
 
 
@@ -156,7 +210,7 @@ namespace Mpc
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
 
       typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Library::BufferType> CallbackFunction; 
+      typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;
    };
 
    //Flag a library entry as not expanded, this does not actually collapse it however

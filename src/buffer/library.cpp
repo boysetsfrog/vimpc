@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   library.cpp - handling of the mpd music library 
+   library.cpp - handling of the mpd music library
    */
 
 #include "library.hpp"
@@ -46,7 +46,7 @@ void Library::Add(Mpc::Song * song)
 
    std::string artist = song->Artist();
    std::string album  = song->Album();
-   
+
    if ((LastArtistEntry == NULL) || (Algorithm::iequals(LastArtist, artist) == false))
    {
       Mpc::LibraryEntry * entry = NULL;
@@ -69,7 +69,7 @@ void Library::Add(Mpc::Song * song)
          entry->expanded_ = false;
          entry->artist_   = artist;
          entry->type_     = Mpc::ArtistType;
-         
+
          Add(entry);
       }
 
@@ -121,6 +121,8 @@ void Library::Add(Mpc::Song * song)
       entry->type_     = Mpc::SongType;
       entry->parent_   = LastAlbumEntry;
 
+      newSong->SetEntry(entry);
+
       LastAlbumEntry->children_.push_back(entry);
    }
 }
@@ -132,7 +134,7 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
 
    Mpc::LibraryEntry * artistEntry = NULL;
    Mpc::LibraryEntry * albumEntry  = NULL;
-   
+
    for (uint32_t i = 0; ((i < Size()) && (artistEntry == NULL)); ++i)
    {
       if (Algorithm::iequals((Get(i))->artist_, artist) == true)
@@ -283,7 +285,7 @@ void Library::Collapse(uint32_t line)
    if ((entryToCollapse != NULL) && (entryToCollapse->expanded_ == true))
    {
       uint32_t last = 0;
-      
+
       if ((entryToCollapse->children_.size() != 0) && (entryToCollapse->children_.back()->expanded_ == true))
       {
          last += entryToCollapse->children_.back()->children_.size();
