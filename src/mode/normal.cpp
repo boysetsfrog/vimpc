@@ -153,17 +153,17 @@ Normal::~Normal()
 void Normal::Initialise(int input)
 {
    actionCount_ = 0;
-   DisplayModeLine();
    Refresh();
 }
 
 void Normal::Finalise(int input)
 {
-   Refresh();
+   window_->Print(0);
 }
 
 void Normal::Refresh()
 {
+   DisplayModeLine();
    window_->Print(0);
 }
 

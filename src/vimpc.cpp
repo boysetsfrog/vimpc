@@ -48,9 +48,9 @@ Vimpc::Vimpc() :
 {
    // Bring all the buffers into existance
    (void) Main::Console();
-   
+
    // Important to do the library before the others as it is the real location of the songs
-   (void) Main::Library(); 
+   (void) Main::Library();
    (void) Main::Browse();
    (void) Main::Playlist();
    (void) Main::PlaylistPasteBuffer();
@@ -73,7 +73,7 @@ Vimpc::~Vimpc()
 }
 
 void Vimpc::Run()
-{  
+{
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
 
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
@@ -118,10 +118,13 @@ void Vimpc::Run()
 
          updateTime  += mtime;
          refreshTime += mtime;
-         
+
          if (input != ERR)
          {
             running = Handle(input);
+
+            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+            mode.Refresh();
          }
 
          bool screenWasRefreshed = false;
@@ -138,9 +141,7 @@ void Vimpc::Run()
          {
             refreshTime = 0;
 
-            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
             client_.DisplaySongInformation();
-            mode.Refresh();
          }
       }
    }
@@ -175,7 +176,7 @@ bool Vimpc::ModesAreInitialised()
    {
       result = (it->second != NULL);
    }
-   
+
    return result;
 }
 
@@ -195,7 +196,7 @@ Vimpc::ModeName Vimpc::ModeAfterInput(int input) const
       Ui::Mode const & normalMode = assert_reference(modeTable_.at(Normal));
 
       if (normalMode.CausesModeToStart(input) == true)
-      {   
+      {
          newMode = Normal;
       }
    }
@@ -212,7 +213,7 @@ Vimpc::ModeName Vimpc::ModeAfterInput(int input) const
          }
       }
    }
-  
+
    return newMode;
 }
 
