@@ -130,7 +130,10 @@ namespace Mpc
             parent_->RemovedFromPlaylist();
          }
 
-         --childrenInPlaylist_;
+         if (childrenInPlaylist_ > 0)
+         {
+            --childrenInPlaylist_;
+         }
 
          if ((parent_ != NULL) && (childrenInPlaylist_ == 0))
          {
@@ -150,7 +153,10 @@ namespace Mpc
 
       void RemovePartial()
       {
-         --partial_;
+         if (partial_ > 0)
+         {
+            --partial_;
+         }
 
          if (parent_ != NULL)
          {

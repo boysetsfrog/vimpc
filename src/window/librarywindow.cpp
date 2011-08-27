@@ -131,7 +131,7 @@ void LibraryWindow::Print(uint32_t line) const
 
       if (library_.Get(printLine)->type_ == Mpc::ArtistType)
       {
-            wattron(window, A_BOLD);
+         wattron(window, A_BOLD);
       }
 
       mvwprintw(window, line, 0, BlankLine.c_str());
@@ -140,19 +140,9 @@ void LibraryWindow::Print(uint32_t line) const
 
       if ((library_.Get(printLine)->type_ == Mpc::AlbumType) || (library_.Get(printLine)->type_ == Mpc::ArtistType))
       {
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
-         {
-            wattron(window, COLOR_PAIR(REDONDEFAULT));
-         }
-
          if (library_.Get(printLine)->type_ == Mpc::AlbumType)
          {
             expandCol += 3;
-         }
-
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
-         {
-            wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          if (settings_.ColourEnabled() == true)
@@ -226,19 +216,14 @@ void LibraryWindow::Print(uint32_t line) const
          }
 
          waddstr(window, title.c_str());
-
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
-         {
-            wattron(window, COLOR_PAIR(REDONDEFAULT));
-         }
       }
+
+      wattroff(window, A_BOLD | A_REVERSE);
 
       if (settings_.ColourEnabled() == true)
       {
          wattroff(window, COLOR_PAIR(colour));
       }
-
-      wattroff(window, A_BOLD | A_REVERSE);
    }
 }
 
@@ -308,17 +293,24 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
          colour = Colour::SongMatch;
       }
    }
-   else if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
+
+   if (colour == Colour::Song)
    {
-      colour = Colour::FullAdd;
-   }
-   else if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == entry->children_.size()))
-   {
-      colour = Colour::FullAdd;
-   }
-   else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
-   {
-      colour = Colour::PartialAdd;
+      if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
+      {
+         colour = Colour::FullAdd;
+      }
+      else if (entry->type_ != Mpc::SongType)
+      {
+         if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == entry->children_.size()))
+         {
+            colour = Colour::FullAdd;
+         }
+         else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
+         {
+            colour = Colour::PartialAdd;
+         }
+      }
    }
 
    return colour;
