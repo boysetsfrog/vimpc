@@ -186,11 +186,23 @@ void LibraryWindow::Print(uint32_t line) const
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         wprintw(window, "%2s" , library_.Get(printLine)->song_->Track().c_str());
+         wprintw(window, "%5s | " , library_.Get(printLine)->song_->Track().c_str());
 
          if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
+         }
+
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         {
+            wattron(window, COLOR_PAIR(YELLOWONDEFAULT));
+         }
+
+         waddstr(window, library_.Get(printLine)->song_->DurationString().c_str());
+
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         {
+            wattroff(window, COLOR_PAIR(YELLOWONDEFAULT));
          }
 
          waddstr(window, " - ");
@@ -219,15 +231,6 @@ void LibraryWindow::Print(uint32_t line) const
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
-
-         mvwprintw(window, line, 61, " |");
-
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
-         {
-            wattroff(window, COLOR_PAIR(REDONDEFAULT));
-         }
-
-         waddstr(window, library_.Get(printLine)->song_->DurationString().c_str());
       }
 
       if (settings_.ColourEnabled() == true)
