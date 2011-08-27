@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   help.hpp - help window 
+   help.hpp - help window
    */
 
 #ifndef __UI__HELP
@@ -24,12 +24,14 @@
 #include "buffer/buffer.hpp"
 #include "window/scrollwindow.hpp"
 
+namespace Main { class Settings; }
+
 namespace Ui
 {
    class HelpWindow : public Ui::ScrollWindow
    {
    public:
-      HelpWindow(Ui::Screen const & screen);
+      HelpWindow(Main::Settings const & settings, Ui::Screen const & screen);
       ~HelpWindow();
 
    public:
@@ -50,6 +52,8 @@ namespace Ui
       size_t BufferSize() const { return help_.Size(); }
 
    private:
+      Main::Settings const & settings_;
+
       typedef Main::Buffer<std::string> HelpBuffer;
       HelpBuffer help_;
    };

@@ -76,14 +76,16 @@ void PlaylistWindow::Print(uint32_t line) const
       WINDOW          * window      = N_WINDOW();
       int32_t           colour      = DetermineSongColour(line + FirstLine(), nextSong);
 
-      wattron(window, A_BOLD);
-      wattron(window, COLOR_PAIR(colour));
+      if (settings_.ColourEnabled() == true)
+      {
+         wattron(window, COLOR_PAIR(colour));
+      }
 
       if (printLine == CurrentLine())
       {
          wattron(window, A_REVERSE);
       }
-      else if (colour != Colour::CurrentSong)
+      else if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong))
       {
          wattron(window, COLOR_PAIR(Colour::Song));
       }
@@ -91,26 +93,24 @@ void PlaylistWindow::Print(uint32_t line) const
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 0, "[");
 
-      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
+      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
          wattron(window, COLOR_PAIR(Colour::SongId));
       }
 
       wprintw(window, "%5d", FirstLine() + line + 1);
 
-      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
+      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
          wattroff(window, COLOR_PAIR(Colour::SongId));
       }
 
       waddstr(window, "] ");
 
-      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
+      if (settings_.ColourEnabled() == true)
       {
-         wattroff(window, A_BOLD);
+         wattron(window, COLOR_PAIR(colour));
       }
-
-      wattron(window, COLOR_PAIR(colour));
 
       std::string artist = nextSong->Artist().c_str();
       std::string title  = nextSong->Title().c_str();
@@ -122,7 +122,7 @@ void PlaylistWindow::Print(uint32_t line) const
 
       wprintw(window, "%s - %s", artist.c_str(), title.c_str());
 
-      if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
+      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
          wattron(window, COLOR_PAIR(Colour::Song));
       }
@@ -130,8 +130,12 @@ void PlaylistWindow::Print(uint32_t line) const
       std::string const durationString(nextSong->DurationString());
       mvwprintw(window, line, (screen_.MaxColumns() - durationString.size() - 2), "[%s]", durationString.c_str());
 
-      wattroff(window, COLOR_PAIR(colour));
-      wattroff(window, A_BOLD | A_REVERSE);
+      if (settings_.ColourEnabled() == true)
+      {
+         wattroff(window, COLOR_PAIR(colour));
+      }
+
+      wattroff(window, A_REVERSE);
       wredrawln(window, line, 1);
    }
 }

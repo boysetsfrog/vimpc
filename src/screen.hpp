@@ -40,7 +40,7 @@ namespace Ui
    class Screen
    {
    public:
-      Screen(Main::Settings const & settings, Mpc::Client & client, Search const & search);
+      Screen(Main::Settings & settings, Mpc::Client & client, Search const & search);
       ~Screen();
 
    private:
@@ -50,13 +50,13 @@ namespace Ui
    public:
       // Tabs/Windows that can be used
       typedef enum { Help = 0, Console, Library, Browse, Playlist, MainWindowCount } MainWindow;
-   
+
       // Scroll/Selection locations within a window
       typedef enum { Current, Top, Bottom, Centre, Specific, PlaylistNext, PlaylistPrev, LocationCount } Location;
-      
+
       // Scroll sizes
       typedef enum { Line, Page } Size;
-      
+
       // Scroll directions
       typedef enum { Up, Down } Direction;
 
@@ -71,7 +71,7 @@ namespace Ui
       static std::string GetNameFromWindow(MainWindow window);
 
    public:
-      // Set the correct window to be active, flag screen as started 
+      // Set the correct window to be active, flag screen as started
       void Start();
 
       // Create a new window used to display information specific to the currently active mode
@@ -135,7 +135,7 @@ namespace Ui
       // Move the window to a new position
       void MoveWindow(uint32_t position);
       void MoveWindow(MainWindow window, uint32_t position);
-   
+
    private:
       void ClearStatus() const;
       void UpdateTabWindow() const;
@@ -155,7 +155,7 @@ namespace Ui
       uint32_t               maxRows_;
       uint32_t               maxColumns_;
 
-      Main::Settings const & settings_;
+      Main::Settings       & settings_;
    };
 }
 #endif

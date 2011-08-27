@@ -63,8 +63,11 @@ namespace Main
          Ui::Screen::MainWindow Window() const;
 
       public: //Toggle Settings
-         //! Determints whether to autmatically scroll to playing song
+         //! Determine whether to autmatically scroll to playing song
          bool AutoScroll() const;
+
+         // ! Determine if we should use colours
+         bool ColourEnabled() const;
 
          //! Determine whether to show search results in a different colour
          bool HightlightSearch() const;
@@ -91,7 +94,7 @@ namespace Main
 
       private:
          //! Sets the startup window
-         void SetWindow(std::string const & arguments); 
+         void SetWindow(std::string const & arguments);
 
       private:
          Ui::Screen::MainWindow defaultWindow_;

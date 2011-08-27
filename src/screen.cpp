@@ -44,7 +44,7 @@ bool WindowResized;
 
 extern "C" void ResizeHandler(int);
 
-Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search const & search) :
+Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
    statusWindow_    (NULL),
    tabWindow_       (NULL),
@@ -61,6 +61,11 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
 
    Ui::Colour::InitialiseColours();
 
+   if (has_colors() == false)
+   {
+      settings.Set("nocolour");
+   }
+
    halfdelay(1);
    noecho();
 
@@ -71,7 +76,7 @@ Screen::Screen(Main::Settings const & settings, Mpc::Client & client, Ui::Search
    signal(SIGWINCH, ResizeHandler);
 
    // Create all the windows
-   mainWindows_[Help]     = new Ui::HelpWindow    (*this);
+   mainWindows_[Help]     = new Ui::HelpWindow    (settings, *this);
    mainWindows_[Console]  = new Ui::ConsoleWindow (*this);
    mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search);
    mainWindows_[Browse]   = new Ui::BrowseWindow  (settings, *this, client, search);
@@ -217,9 +222,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 {
    ClearStatus();
 
-   wattron(statusWindow_, A_BOLD);
-
-   if (can_change_color() == true)
+   if (settings_.ColourEnabled() == true)
    {
       wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -228,6 +231,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
       wattron(statusWindow_, A_REVERSE);
    }
 
+   wattron(statusWindow_, A_BOLD);
    wmove(statusWindow_, 0, 0);
 
    va_list args;
@@ -235,12 +239,17 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    vw_printw(statusWindow_, fmt, args);
    va_end(args);
 
+   if (settings_.ColourEnabled() == true)
+   {
+      wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+   }
+
    wrefresh(statusWindow_);
 }
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
-   if (can_change_color() == true)
+   if (settings_.ColourEnabled() == true)
    {
       wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -256,6 +265,11 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
    va_start(args, fmt);
    vw_printw(statusWindow_, fmt, args);
    va_end(args);
+
+   if (settings_.ColourEnabled() == true)
+   {
+      wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+   }
 
    wrefresh(statusWindow_);
 }
@@ -596,7 +610,9 @@ void Screen::ClearStatus() const
 {
    std::string BlankLine(maxColumns_, ' ');
 
-   if (can_change_color() == true)
+   werase(statusWindow_);
+
+   if (settings_.ColourEnabled() == true)
    {
       wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -606,6 +622,11 @@ void Screen::ClearStatus() const
    }
 
    mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
+
+   if (settings_.ColourEnabled() == true)
+   {
+      wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+   }
 }
 
 void Screen::UpdateTabWindow() const
@@ -613,7 +634,12 @@ void Screen::UpdateTabWindow() const
    std::string const BlankLine(maxColumns_, ' ');
 
    werase(tabWindow_);
-   wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+
+   if (settings_.ColourEnabled() == true)
+   {
+      wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+   }
+
    mvwprintw(tabWindow_, 0, 0, BlankLine.c_str());
 
    std::string name   = "";
@@ -622,13 +648,21 @@ void Screen::UpdateTabWindow() const
 
    for (std::vector<MainWindow>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
    {
-      wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+      if (settings_.ColourEnabled() == true)
+      {
+         wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+      }
+
       wattron(tabWindow_, A_UNDERLINE);
       name = GetNameFromWindow(static_cast<MainWindow>(*it));
 
       if (*it == window_)
       {
-         wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+         if (settings_.ColourEnabled() == true)
+         {
+            wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+         }
+
          wattron(tabWindow_, A_REVERSE | A_BOLD);
       }
 
@@ -656,6 +690,11 @@ void Screen::UpdateTabWindow() const
 
       length += name.size() + 2;
       ++count;
+   }
+
+   if (settings_.ColourEnabled() == true)
+   {
+      wattroff(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
    }
 
    wattroff(tabWindow_, A_UNDERLINE);

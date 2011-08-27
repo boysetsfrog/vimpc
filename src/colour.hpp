@@ -26,14 +26,21 @@
 #define COLOR_MAX        16
 
 #define DEFAULT          (COLOR_MAX - 1)
+
 #define BLUEONDEFAULT    (COLOR_MAX - 2)
-#define YELLOWONDEFAULT  (COLOR_MAX - 3)
-#define REDONDEFAULT     (COLOR_MAX - 4)
+#define REDONDEFAULT     (COLOR_MAX - 3)
+#define YELLOWONDEFAULT  (COLOR_MAX - 4)
 #define CYANONDEFAULT    (COLOR_MAX - 5)
 #define GREENONDEFAULT   (COLOR_MAX - 6)
-#define MAGENTAONDEFAULT (COLOR_MAX - 7)
+
+#define DEFAULTONBLUE    (COLOR_MAX - 7)
 #define DEFAULTONRED     (COLOR_MAX - 8)
-#define DEFAULTONBLUE    (COLOR_MAX - 9)
+#define DEFAULTONYELLOW  (COLOR_MAX - 9)
+#define DEFAULTONCYAN    (COLOR_MAX - 10)
+#define DEFAULTONGREEN   (COLOR_MAX - 11)
+
+#define ERRORLINE        (COLOR_MAX - 12)
+#define STATUSLINE       (COLOR_MAX - 13)
 
 namespace Ui
 {
@@ -46,8 +53,8 @@ namespace Ui
       static int PartialAdd   = CYANONDEFAULT;
       static int FullAdd      = GREENONDEFAULT;
 
-      static int Error        = DEFAULTONRED;
-      static int StatusLine   = DEFAULTONBLUE;
+      static int Error        = ERRORLINE;
+      static int StatusLine   = STATUSLINE;
 
       static void InitialiseColours();
 
@@ -63,15 +70,21 @@ namespace Ui
             use_default_colors();
 
             init_pair(DEFAULT,          -1,             -1);
+
             init_pair(BLUEONDEFAULT,    COLOR_BLUE,     -1);
             init_pair(YELLOWONDEFAULT,  COLOR_YELLOW,   -1);
             init_pair(REDONDEFAULT,     COLOR_RED,      -1);
             init_pair(CYANONDEFAULT,    COLOR_CYAN,     -1);
             init_pair(GREENONDEFAULT,   COLOR_GREEN,    -1);
-            init_pair(MAGENTAONDEFAULT, COLOR_MAGENTA,  -1);
 
-            init_pair(DEFAULTONRED,     -1, COLOR_RED);
             init_pair(DEFAULTONBLUE,    -1, COLOR_BLUE);
+            init_pair(DEFAULTONRED,     -1, COLOR_RED);
+            init_pair(DEFAULTONYELLOW,  -1, COLOR_YELLOW);
+            init_pair(DEFAULTONCYAN,    -1, COLOR_CYAN);
+            init_pair(DEFAULTONGREEN,   -1, COLOR_GREEN);
+
+            init_pair(ERRORLINE,        -1, COLOR_RED);
+            init_pair(STATUSLINE,       -1, COLOR_BLUE);
          }
       }
 

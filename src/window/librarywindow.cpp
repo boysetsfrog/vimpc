@@ -108,7 +108,11 @@ void LibraryWindow::Print(uint32_t line) const
 
       if (printLine == CurrentLine())
       {
-         wattron(window, COLOR_PAIR(colour));
+         if (settings_.ColourEnabled() == true)
+         {
+            wattron(window, COLOR_PAIR(colour));
+         }
+
          wattron(window, A_REVERSE);
       }
 
@@ -124,10 +128,9 @@ void LibraryWindow::Print(uint32_t line) const
             expandCol = 4;
          }
 
-         wattron(window, A_BOLD);
          mvwprintw(window, line, expandCol, "[ ]");
 
-         if (printLine != CurrentLine())
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
@@ -135,13 +138,16 @@ void LibraryWindow::Print(uint32_t line) const
          char expand = (library_.Get(printLine)->expanded_ == true) ? '-' : '+';
          mvwprintw(window, line, expandCol + 1, "%c", expand);
 
-         if (printLine != CurrentLine())
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         wattroff(window, A_BOLD);
-         wattron(window, COLOR_PAIR(colour));
+         if (settings_.ColourEnabled() == true)
+         {
+            wattron(window, COLOR_PAIR(colour));
+         }
+
          wmove(window, line, expandCol + 4);
 
          if (library_.Get(printLine)->type_ == Mpc::ArtistType)
@@ -153,36 +159,36 @@ void LibraryWindow::Print(uint32_t line) const
             waddstr(window, library_.Get(printLine)->album_.c_str());
          }
 
-         wattroff(window, COLOR_PAIR(colour));
+         if (settings_.ColourEnabled() == true)
+         {
+            wattroff(window, COLOR_PAIR(colour));
+         }
       }
       else if ((library_.Get(printLine)->type_ == Mpc::SongType) && (library_.Get(printLine)->song_ != NULL))
       {
          mvwprintw(window, line, 1, "|   |--");
 
-         wattron(window, A_BOLD);
          wprintw(window, "[");
 
-         if (printLine != CurrentLine())
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          wprintw(window, "%2s" , library_.Get(printLine)->song_->Track().c_str());
 
-         if (printLine != CurrentLine())
+         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
          {
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          wprintw(window, "]");
-
-         if ((colour != Colour::CurrentSong) && (printLine != CurrentLine()))
-         {
-            wattroff(window, A_BOLD);
-         }
-
          waddstr(window, " ");
-         wattron(window, COLOR_PAIR(colour));
+
+         if (settings_.ColourEnabled() == true)
+         {
+            wattron(window, COLOR_PAIR(colour));
+         }
 
          std::string title = library_.Get(printLine)->song_->Title();
 
@@ -204,7 +210,12 @@ void LibraryWindow::Print(uint32_t line) const
          waddstr(window, "]");
       }
 
-      wattroff(window, A_BOLD | A_REVERSE | COLOR_PAIR(colour));
+      if (settings_.ColourEnabled() == true)
+      {
+         wattroff(window, COLOR_PAIR(colour));
+      }
+
+      wattroff(window, A_REVERSE);
    }
 }
 

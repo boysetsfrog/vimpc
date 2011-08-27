@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   help.cpp - window to display help about commands 
+   help.cpp - window to display help about commands
    */
 
 #include "help.hpp"
@@ -27,6 +27,7 @@
 #include "algorithm.hpp"
 #include "error.hpp"
 #include "screen.hpp"
+#include "settings.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -38,8 +39,9 @@ char const * const HelpFile = "/help.txt";
 
 using namespace Ui;
 
-HelpWindow::HelpWindow(Ui::Screen const & screen) :
+HelpWindow::HelpWindow(Main::Settings const & settings, Ui::Screen const & screen) :
    ScrollWindow     (screen),
+   settings_        (settings),
    help_            ()
 {
    LoadHelpFile();
@@ -65,11 +67,19 @@ void HelpWindow::Print(uint32_t line) const
 
       if ((FirstLine() == 0) && (line == 0))
       {
-         wattron(window, A_BOLD | COLOR_PAIR(BLUEONDEFAULT));
+         if (settings_.ColourEnabled() == true)
+         {
+            wattron(window, COLOR_PAIR(BLUEONDEFAULT));
+         }
+
+         wattron(window, A_BOLD);
       }
       else if (Algorithm::isUpper(currentLine) == true)
       {
-         wattron(window, A_BOLD | COLOR_PAIR(REDONDEFAULT));
+         if (settings_.ColourEnabled() == true)
+         {
+            wattron(window, COLOR_PAIR(REDONDEFAULT));
+         }
       }
 
       if (currentLine.find('|') != std::string::npos)
@@ -77,10 +87,7 @@ void HelpWindow::Print(uint32_t line) const
          std::string firstHalf = currentLine.substr(0, currentLine.find_last_of('|') - 1);
          std::string lastHalf = currentLine.substr(currentLine.find_last_of('|') + 1);
 
-         wattron(window, A_BOLD);
          mvwaddstr(window, line, 0, firstHalf.c_str());
-
-         wattroff(window, A_BOLD);
          waddstr(window, lastHalf.c_str());
       }
       else
@@ -89,7 +96,15 @@ void HelpWindow::Print(uint32_t line) const
       }
    }
 
-   wattroff(window, A_BOLD | COLOR_PAIR(REDONDEFAULT) | COLOR_PAIR(BLUEONDEFAULT));
+   if (settings_.ColourEnabled() == true)
+   {
+      wattroff(window, COLOR_PAIR(REDONDEFAULT) | COLOR_PAIR(BLUEONDEFAULT));
+   }
+
+   if ((FirstLine() == 0) && (line == 0))
+   {
+      wattroff(window, A_BOLD);
+   }
 }
 
 void HelpWindow::Confirm()
@@ -116,7 +131,7 @@ void HelpWindow::LoadHelpFile()
    }
 
    file += HelpFile;
-   
+
    testStream.close();
 
    std::ifstream helpFile(file.c_str());
@@ -137,9 +152,9 @@ void HelpWindow::LoadHelpFile()
 
       helpFile.close();
    }
-   else 
+   else
    {
-      Error(ErrorNumber::HelpFileNonexistant, "Unable to open help file"); 
+      Error(ErrorNumber::HelpFileNonexistant, "Unable to open help file");
    }
 }
 

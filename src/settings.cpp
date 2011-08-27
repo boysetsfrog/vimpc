@@ -32,6 +32,7 @@
 using namespace Main;
 
 char const * const AutoScrollSetting      = "autoscroll";
+char const * const ColourSetting          = "colour";
 char const * const HighlightSearchSetting = "hlsearch";
 char const * const SearchWrapSetting      = "searchwrap";
 char const * const StopOnQuitSetting      = "stoponquit";
@@ -40,7 +41,7 @@ char const * const WindowNumbersSetting   = "windownumbers";
 Settings & Settings::Instance()
 {
    static Settings settings_;
-   return settings_; 
+   return settings_;
 }
 
 Settings::Settings() :
@@ -51,6 +52,7 @@ Settings::Settings() :
    settingsTable_["window"]             = &Settings::SetWindow;
 
    toggleTable_[AutoScrollSetting]      = new Setting<bool>(true);
+   toggleTable_[ColourSetting]          = new Setting<bool>(true);
    toggleTable_[HighlightSearchSetting] = new Setting<bool>(true);
    toggleTable_[SearchWrapSetting]      = new Setting<bool>(true);
    toggleTable_[StopOnQuitSetting]      = new Setting<bool>(true);
@@ -71,7 +73,7 @@ void Settings::Set(std::string const & input)
    std::string       setting, arguments;
    std::stringstream settingStream(input);
 
-   std::getline(settingStream, setting,   ' '); 
+   std::getline(settingStream, setting,   ' ');
    std::getline(settingStream, arguments, '\n');
 
    if (arguments == "")
@@ -144,6 +146,11 @@ Ui::Screen::MainWindow Settings::Window() const
 bool Settings::AutoScroll() const
 {
    return Get(AutoScrollSetting);
+}
+
+bool Settings::ColourEnabled() const
+{
+   return Get(ColourSetting);
 }
 
 bool Settings::HightlightSearch() const

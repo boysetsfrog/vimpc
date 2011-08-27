@@ -138,6 +138,8 @@ SETTINGS
          setting.
 
             [no]autoscroll[!]     | automatically scroll to the playing song, when a h, l, q, w, Q, W, etc is performed 
+
+            [no]colour[!]         | enable or disable colours
                                   
             [no]hlsearch[!]       | highlight search results
                                   
