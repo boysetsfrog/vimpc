@@ -567,7 +567,17 @@ void Normal::DisplayModeLine()
       toggles += "]";
    }
 
-   std::string currentState("[State: " + client_.CurrentState() + "] " + toggles);
+
+   std::string volume = "";
+
+   if (client_.Volume() != -1)
+   {
+      char vol[8];
+      snprintf(vol, 8, "%d", client_.Volume());
+      volume += " [Volume: " + std::string(vol) + "]";
+   }
+
+   std::string currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);
 
    std::string modeLine(modeStream.str());
    std::string blankLine(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');

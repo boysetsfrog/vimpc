@@ -227,6 +227,22 @@ void Client::SetRepeat(bool const repeat)
    }
 }
 
+int32_t Client::Volume()
+{
+   if (Connected() == true)
+   {
+      mpd_status * status = mpd_run_status(connection_);
+      CheckError();
+
+      int32_t const volume = mpd_status_get_volume(status);
+      mpd_status_free(status);
+      return volume;
+   }
+   else
+   {
+      return -1;
+   }
+}
 
 uint32_t Client::Add(Mpc::Song & song)
 {

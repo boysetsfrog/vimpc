@@ -68,6 +68,8 @@ namespace Mpc
       bool Repeat();
       void SetRepeat(bool repeat);
 
+      int32_t Volume();
+
    public: //Queue
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);
