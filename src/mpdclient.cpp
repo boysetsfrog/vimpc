@@ -128,7 +128,9 @@ bool Client::Random()
       mpd_status * status = mpd_run_status(connection_);
       CheckError();
 
-      return mpd_status_get_random(status);
+      bool const random = mpd_status_get_random(status);
+      mpd_status_free(status);
+      return random;
    }
    else
    {
@@ -153,7 +155,9 @@ bool Client::Single()
       mpd_status * status = mpd_run_status(connection_);
       CheckError();
 
-      return mpd_status_get_single(status);
+      bool const single = mpd_status_get_single(status);
+      mpd_status_free(status);
+      return single;
    }
    else
    {
@@ -166,6 +170,59 @@ void Client::SetSingle(bool const single)
    if (Connected() == true)
    {
       mpd_run_single(connection_, single);
+      CheckError();
+   }
+}
+
+
+bool Client::Consume()
+{
+   if (Connected() == true)
+   {
+      mpd_status * status = mpd_run_status(connection_);
+      CheckError();
+
+      bool const consume = mpd_status_get_consume(status);
+      mpd_status_free(status);
+      return consume;
+   }
+   else
+   {
+      return false;
+   }
+}
+
+void Client::SetConsume(bool const consume)
+{
+   if (Connected() == true)
+   {
+      mpd_run_consume(connection_, consume);
+      CheckError();
+   }
+}
+
+bool Client::Repeat()
+{
+   if (Connected() == true)
+   {
+      mpd_status * status = mpd_run_status(connection_);
+      CheckError();
+
+      bool const repeat = mpd_status_get_repeat(status);
+      mpd_status_free(status);
+      return repeat;
+   }
+   else
+   {
+      return false;
+   }
+}
+
+void Client::SetRepeat(bool const repeat)
+{
+   if (Connected() == true)
+   {
+      mpd_run_repeat(connection_, repeat);
       CheckError();
    }
 }

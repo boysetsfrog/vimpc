@@ -122,7 +122,10 @@ MISC:
                                   
           quit[!]                 | quit vimpc, if [!] is appended playback will be stopped regardless of stoponquit setting
                                   
-          random                  | toggles random on/off
+          random [on/off]         | toggles random on/off
+          repeat [on/off]         | toggles repeat on/off
+          single [on/off]         | toggles single on/off
+          consume [on/off]        | toggles consume on/off
                                   
           redraw                  | redraws the current window
                                   

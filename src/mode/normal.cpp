@@ -553,7 +553,22 @@ void Normal::DisplayModeLine()
       }
    }
 
-   std::string currentState(client_.CurrentState() + "...");
+   std::string toggles = "";
+   std::string random  = (client_.Random() == true) ? "random, " : "";
+   std::string repeat  = (client_.Repeat() == true) ? "repeat, " : "";
+   std::string single  = (client_.Single() == true) ? "single, " : "";
+   std::string consume = (client_.Consume() == true) ? "consume, " : "";
+
+   if ((random != "") || (repeat != "") || (single != "") || (consume != ""))
+   {
+      toggles += " [ON: ";
+      toggles += random + repeat + single + consume;
+      toggles = toggles.substr(0, toggles.length() - 2);
+      toggles += "]";
+   }
+
+   std::string currentState("[State: " + client_.CurrentState() + "] " + toggles);
+
    std::string modeLine(modeStream.str());
    std::string blankLine(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');
 

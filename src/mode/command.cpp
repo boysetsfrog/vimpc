@@ -53,6 +53,9 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["play"]      = &Command::Play;
    commandTable_["quit"]      = &Command::Quit;
    commandTable_["random"]    = &Command::Random;
+   commandTable_["repeat"]    = &Command::Repeat;
+   commandTable_["single"]    = &Command::Single;
+   commandTable_["consume"]   = &Command::Consume;
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["set"]       = &Command::Set;
    commandTable_["stop"]      = &Command::Stop;
@@ -191,6 +194,24 @@ bool Command::Random(std::string const & arguments)
 {
    bool const value = (arguments.compare("on") == 0);
    return Player::SetRandom(value);
+}
+
+bool Command::Repeat(std::string const & arguments)
+{
+   bool const value = (arguments.compare("on") == 0);
+   return Player::SetRepeat(value);
+}
+
+bool Command::Single(std::string const & arguments)
+{
+   bool const value = (arguments.compare("on") == 0);
+   return Player::SetSingle(value);
+}
+
+bool Command::Consume(std::string const & arguments)
+{
+   bool const value = (arguments.compare("on") == 0);
+   return Player::SetConsume(value);
 }
 
 bool Command::Redraw(std::string const & arguments)

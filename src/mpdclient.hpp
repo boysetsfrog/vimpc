@@ -55,11 +55,18 @@ namespace Mpc
       void Next();
       void Previous();
 
+   public:
       bool Random();
       void SetRandom(bool random);
 
       bool Single();
       void SetSingle(bool single);
+
+      bool Consume();
+      void SetConsume(bool consume);
+
+      bool Repeat();
+      void SetRepeat(bool repeat);
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);

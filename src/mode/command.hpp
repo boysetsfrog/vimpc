@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   commands.hpp - ex mode input handling 
+   commands.hpp - ex mode input handling
    */
 
 #ifndef __UI__COMMAND
@@ -67,6 +67,9 @@ namespace Ui
       bool Play(std::string const & arguments);
       bool Quit(std::string const & arguments);
       bool Random(std::string const & arguments);
+      bool Repeat(std::string const & arguments);
+      bool Single(std::string const & arguments);
+      bool Consume(std::string const & arguments);
       bool Redraw(std::string const & arguments);
       bool Stop(std::string const & arguments);
 
@@ -75,12 +78,12 @@ namespace Ui
 
    private: //Ui::Player
       template <Player::Skip SKIP>
-      bool SkipSong(std::string const & arguments); 
+      bool SkipSong(std::string const & arguments);
 
 
    private: // Screen related functionality
       template <Ui::Screen::MainWindow MAINWINDOW>
-      bool SetActiveAndVisible(std::string const & arguments); 
+      bool SetActiveAndVisible(std::string const & arguments);
 
       typedef enum { First, Last, LocationCount } Location;
 
@@ -125,7 +128,7 @@ namespace Ui
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
 
-   private: 
+   private:
       bool                 initTabCompletion_;
       bool                 forceCommand_;
       AliasTable           aliasTable_;
@@ -134,15 +137,15 @@ namespace Ui
       Main::Settings     & settings_;
 
       // Tab completion searching class
-      class TabCompletionMatch 
+      class TabCompletionMatch
       {
       public:
-         TabCompletionMatch(std::string const & key) : 
-            key_(key) 
+         TabCompletionMatch(std::string const & key) :
+            key_(key)
          {}
 
       public:
-         bool operator() (std::pair<std::string, Ui::Command::CommandFunction> element) 
+         bool operator() (std::pair<std::string, Ui::Command::CommandFunction> element)
          {
             std::string input(element.first);
             return (key_.compare(input.substr(0, key_.length())) == 0);

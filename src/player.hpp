@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   player.hpp - manages the use of the mpdclient and screen for 
+   player.hpp - manages the use of the mpdclient and screen for
    common functionality between modes.
    */
 
@@ -68,7 +68,7 @@ namespace Ui
 
       //! Echos a string to the console window
       //!
-      //! \param echo The string to be echoed 
+      //! \param echo The string to be echoed
       bool Echo(std::string const & echo);
 
       //! Pauses the current playback
@@ -98,6 +98,18 @@ namespace Ui
       //! Get the current single state
       bool Single();
 
+      //! Disables/Enables repeat functionality
+      bool SetRepeat(bool repeat);
+
+      //! Get the current repeat state
+      bool Repeat();
+
+      //! Disables/Enables consume functionality
+      bool SetConsume(bool consume);
+
+      //! Get the current consume state
+      bool Consume();
+
       //! Redraws the current window
       bool Redraw();
 
@@ -111,8 +123,8 @@ namespace Ui
       //! Update the library
       bool Update();
 
-      typedef enum 
-      { 
+      typedef enum
+      {
          Next,
          Previous
       } Skip;
@@ -124,7 +136,7 @@ namespace Ui
       bool SkipSong(Skip skip, uint32_t count);
 
       bool SkipAlbum(Skip skip, uint32_t count);
-      
+
       //! Skips forwards or backwards a given number of artists
       //!
       //! \param skip  Direction to skip in playlist

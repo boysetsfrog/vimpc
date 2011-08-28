@@ -115,6 +115,29 @@ bool Player::Single()
    return client_.Single();
 }
 
+bool Player::SetRepeat(bool repeat)
+{
+   client_.SetRepeat(repeat);
+   return true;
+}
+
+bool Player::Repeat()
+{
+   return client_.Repeat();
+}
+
+bool Player::SetConsume(bool consume)
+{
+   client_.SetConsume(consume);
+   return true;
+}
+
+bool Player::Consume()
+{
+   return client_.Consume();
+}
+
+
 bool Player::Redraw()
 {
    screen_.Redraw();
