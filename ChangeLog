@@ -1,0 +1,25 @@
+Version 0.03
+---------------
+- Added volume, random, consume, repeat and single states to display
+- Cleaned up library interface, now much easier to read
+- Sped up the library colour determination
+- Added nocolour option to disable colours
+- Added expand-artists option to show artist level in library by default
+- Lots of crashing bug fixes
+
+
+Version 0.02.1
+---------------- 
+- Added browse window similar to playlist but that contains all songs and can be used to add to playlist
+- Improved adding and delete commands and colour highlighting 
+- Fixed so that it does not require config file
+- Lots of bug fixes 
+
+Version 0.01
+---------------- 
+- First release of vimpc 
+- Still requires a lot of improved functionality and work 
+- Supports playing of music from playlist or library 
+- Basic modifications of the playlist via the library window 
+- In program help by typing :help command 
+- Has many bugs 
