@@ -69,6 +69,7 @@ namespace Mpc
       void SetRepeat(bool repeat);
 
       int32_t Volume();
+      void SetVolume(uint32_t volume);
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);

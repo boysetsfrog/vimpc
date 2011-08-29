@@ -244,6 +244,15 @@ int32_t Client::Volume()
    }
 }
 
+void Client::SetVolume(uint32_t volume)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_set_volume(connection_, volume);
+      CheckError();
+   }
+}
+
 uint32_t Client::Add(Mpc::Song & song)
 {
    if (Connected() == true)

@@ -116,6 +116,9 @@ namespace Ui
       //! Stops playback
       bool Stop();
 
+      //! Set the current volume
+      bool Volume(uint32_t volume);
+
    public:
       //! Rescan the library
       bool Rescan();

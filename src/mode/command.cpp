@@ -48,17 +48,18 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["alias"]     = &Command::Alias;
    commandTable_["clear"]     = &Command::ClearScreen;
    commandTable_["connect"]   = &Command::Connect;
+   commandTable_["consume"]   = &Command::Consume;
    commandTable_["echo"]      = &Command::Echo;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
    commandTable_["quit"]      = &Command::Quit;
    commandTable_["random"]    = &Command::Random;
-   commandTable_["repeat"]    = &Command::Repeat;
-   commandTable_["single"]    = &Command::Single;
-   commandTable_["consume"]   = &Command::Consume;
    commandTable_["redraw"]    = &Command::Redraw;
+   commandTable_["repeat"]    = &Command::Repeat;
    commandTable_["set"]       = &Command::Set;
+   commandTable_["single"]    = &Command::Single;
    commandTable_["stop"]      = &Command::Stop;
+   commandTable_["volume"]    = &Command::Volume;
 
    commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
    commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
@@ -189,6 +190,11 @@ bool Command::Quit(std::string const & arguments)
    }
 
    return Player::Quit();
+}
+
+bool Command::Volume(std::string const & arguments)
+{
+   return Player::Volume(atoi(arguments.c_str()));
 }
 
 bool Command::Random(std::string const & arguments)

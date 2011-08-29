@@ -72,6 +72,7 @@ namespace Ui
       bool Consume(std::string const & arguments);
       bool Redraw(std::string const & arguments);
       bool Stop(std::string const & arguments);
+      bool Volume(std::string const & arguments);
 
       bool Rescan(std::string const & arguments);
       bool Update(std::string const & arguments);

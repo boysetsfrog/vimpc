@@ -133,6 +133,8 @@ MISC:
                                   
           stop                    | stop playback
 
+          volume [0-100]          | set the volume
+
 
 SETTINGS
 --------------------------------------------------

@@ -150,6 +150,12 @@ bool Player::Stop()
    return true;
 }
 
+bool Player::Volume(uint32_t volume)
+{
+   client_.SetVolume(volume);
+   return true;
+}
+
 
 bool Player::Rescan()
 {
