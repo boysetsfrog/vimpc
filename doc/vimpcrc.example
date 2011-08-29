@@ -4,8 +4,7 @@
 echo Parsing config file
 
 " Hide the help tab
-help
-tabhide
+tabhide help
 
 " Set the default tab
 set window browse
