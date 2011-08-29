@@ -166,25 +166,39 @@ bool Player::Update()
 
 bool Player::SkipSong(Skip skip, uint32_t count)
 {
-   int64_t directionCount = count;
-
-   if (skip == Previous)
+   if (client_.Random() == false)
    {
-      directionCount *= -1;
+      int64_t directionCount = count;
+
+      if (skip == Previous)
+      {
+         directionCount *= -1;
+      }
+
+      int32_t song = GetCurrentSong() + directionCount;
+
+      if ((GetCurrentSong() + directionCount) < 0)
+      {
+         song = 0;
+      }
+      else if ((GetCurrentSong() + directionCount) >= client_.TotalNumberOfSongs())
+      {
+         song = client_.TotalNumberOfSongs() - 1;
+      }
+
+      client_.Play(song);
    }
-
-   int32_t song = GetCurrentSong() + directionCount;
-
-   if ((GetCurrentSong() + directionCount) < 0)
+   else if (client_.Random() == true)
    {
-      song = 0;
+      if (skip == Previous)
+      {
+         client_.Previous();
+      }
+      else
+      {
+         client_.Next();
+      }
    }
-   else if ((GetCurrentSong() + directionCount) >= client_.TotalNumberOfSongs())
-   {
-      song = client_.TotalNumberOfSongs() - 1;
-   }
-
-   client_.Play(song);
 
    HandleAutoScroll();
 
