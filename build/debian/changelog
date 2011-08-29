@@ -1,0 +1,29 @@
+vimpc (0.03-psych0tik.2) unstable; urgency=low
+  
+  * Add Nathan as Maintainer, myself as Uploader.
+
+ -- Rich Healey <richo@psych0tik.net>  Mon, 29 Aug 2011 11:57:51 +1000
+
+vimpc (0.03-psych0tik.1) unstable; urgency=low
+  
+  * Fix broken deb builds
+
+ -- Rich Healey <richo@psych0tik.net>  Mon, 29 Aug 2011 11:38:51 +1000
+
+vimpc (0.03) unstable; urgency=low
+
+  * Added volume, random, consume, repeat and single states to display
+  * Cleaned up library interface, now much easier to read
+  * Sped up the library colour determination
+  * Added nocolour option to disable colours
+  * Added expand-artists option to show artist level in library by default
+  * Lots of crashing bug fixes
+
+ -- Rich Healey <richo@psych0tik.net>  Sun, 28 Aug 2011 18:18:51 +1000
+
+vimpc (0.02.1-221) unstable; urgency=low
+
+  * Release upstream version
+
+ -- Rich Healey <richo@psych0tik.net>  Sat, 27 Aug 2011 22:48:51 +1000
+

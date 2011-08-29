@@ -1,0 +1,42 @@
+# Maintainer: Nathan Sweetman <nathan.sweetman@gmail.com>
+pkgname=vimpc
+pkgver=0.03
+pkgrel=1
+epoch=
+pkgdesc="ncurses based MPD client with vi-like key bindings"
+arch=('i686' 'x86_64')
+url="https://sourceforge.net/projects/vimpc/"
+license=('GPL3')
+groups=()
+depends=('libmpdclient' 'ncurses' 'pcre')
+makedepends=()
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=(http://sourceforge.net/projects/vimpc/files/Release%20$pkgver/$pkgname-$pkgver.tar.gz)
+noextract=()
+md5sums=('54fb4e7d1f1327f59edbabcb38596328')
+
+build() {
+  cd "$srcdir/$pkgname"
+  ./configure --prefix=/usr
+  make
+}
+
+check() {
+  cd "$srcdir/$pkgname"
+  make -k check
+}
+
+package() {
+  cd "$srcdir/$pkgname"
+  make DESTDIR="$pkgdir/" install
+}
+
+# vim:set ts=2 sw=2 et:

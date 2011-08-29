@@ -1,0 +1,14 @@
+Source: vimpc
+Section: sound
+Priority: optional
+Maintainer: Nathan Sweetman <nathan.sweetman@gmail.com>
+Uploaders: Rich Healey <richo@psych0tik.net>
+Build-Depends: libmpdclient-dev, automake1.10, libpcre++-dev
+Standards-version: 3.8.4
+Homepage: http://vimpc.sourceforge.net/
+
+Package: vimpc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpcre++0, libmpdclient2
+Description: A vi like mpd client
+
