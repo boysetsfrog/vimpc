@@ -49,7 +49,7 @@ namespace Ui
 
    public:
       // Tabs/Windows that can be used
-      typedef enum { Help = 0, Console, Library, Browse, Playlist, MainWindowCount } MainWindow;
+      typedef enum { Help = 0, Console, Library, Browse, Playlist, MainWindowCount, Unknown } MainWindow;
 
       // Scroll/Selection locations within a window
       typedef enum { Current, Top, Bottom, Centre, Specific, PlaylistNext, PlaylistPrev, LocationCount } Location;

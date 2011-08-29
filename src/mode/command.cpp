@@ -59,6 +59,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["set"]       = &Command::Set;
    commandTable_["stop"]      = &Command::Stop;
+
    commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
    commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
    commandTable_["tabhide"]   = &Command::HideWindow;
@@ -271,7 +272,20 @@ bool Command::ChangeToWindow(std::string const & arguments)
 
 bool Command::HideWindow(std::string const & arguments)
 {
-   screen_.SetVisible(screen_.GetActiveWindow(), false);
+   if (arguments == "")
+   {
+      screen_.SetVisible(screen_.GetActiveWindow(), false);
+   }
+   else
+   {
+      Ui::Screen::MainWindow window = screen_.GetWindowFromName(arguments);
+
+      if (window != Ui::Screen::Unknown)
+      {
+         screen_.SetVisible(window, false);
+      }
+   }
+
    return true;
 }
 

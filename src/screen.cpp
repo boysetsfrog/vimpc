@@ -124,7 +124,7 @@ Screen::~Screen()
    typedef std::map<std::string, MainWindow> WindowTable;
    static WindowTable windowTable;
 
-   MainWindow window = Playlist;
+   MainWindow window = Unknown;
 
    if (windowTable.size() != MainWindowCount)
    {

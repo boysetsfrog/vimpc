@@ -100,7 +100,7 @@ WINDOWS/TABS:
           tabfirst                | navigate to the first tab
           tablast                 | navigate to the last tab
           tabmove <location>      | move the current tab to new location (first location is 0)
-          tabhide                 | hide the current tab from the tab bar, will change active window if necessary
+          tabhide [tabname]       | hide the current tab (or the one specified) from the tab bar, will change active window if necessary
 
 MISC:
           !mpc <command-string>   | executes the command line program mpc with the given <command-string>

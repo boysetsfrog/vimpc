@@ -228,15 +228,18 @@ bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInf
 {
    int32_t skipResult = GetCurrentSong();
 
-   for (uint32_t i = 0; i < count; ++i)
+   if (skipResult >= 0)
    {
-      if (skipResult >= 0)
+      for (uint32_t i = 0; i < count; ++i)
       {
-         skipResult = NextSongByInformation(skipResult, skip, songFunction);
+         if (skipResult >= 0)
+         {
+            skipResult = NextSongByInformation(skipResult, skip, songFunction);
+         }
       }
-   }
 
-   client_.Play(skipResult);
+      client_.Play(skipResult);
+   }
 
    HandleAutoScroll();
 
