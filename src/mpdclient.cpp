@@ -266,6 +266,8 @@ void Client::LoadPlaylist(std::string const & name)
 {
    if (Connected() == true)
    {
+      Clear();
+
       (void) mpd_run_load(connection_, name.c_str());
       CheckError();
 
