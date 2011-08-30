@@ -156,6 +156,18 @@ bool Player::Volume(uint32_t volume)
    return true;
 }
 
+bool Player::LoadPlaylist(std::string const & name)
+{
+   client_.LoadPlaylist(name);
+   return true;
+}
+
+bool Player::SavePlaylist(std::string const & name)
+{
+   client_.SavePlaylist(name);
+   return true;
+}
+
 
 bool Player::Rescan()
 {

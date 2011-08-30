@@ -253,6 +253,26 @@ void Client::SetVolume(uint32_t volume)
    }
 }
 
+void Client::SavePlaylist(std::string const & name)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_save(connection_, name.c_str());
+      CheckError();
+   }
+}
+
+void Client::LoadPlaylist(std::string const & name)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_load(connection_, name.c_str());
+      CheckError();
+
+      screen_.Redraw(Ui::Screen::Playlist);
+   }
+}
+
 uint32_t Client::Add(Mpc::Song & song)
 {
    if (Connected() == true)

@@ -71,6 +71,10 @@ namespace Mpc
       int32_t Volume();
       void SetVolume(uint32_t volume);
 
+   public:
+      void SavePlaylist(std::string const & name);
+      void LoadPlaylist(std::string const & name);
+
    public: //Queue
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);

@@ -77,6 +77,11 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
    commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
    commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
+
+   commandTable_["load"]  = &Command::LoadPlaylist;
+   commandTable_["save"]  = &Command::SavePlaylist;
+   commandTable_["edit"]  = &Command::LoadPlaylist;
+   commandTable_["write"] = &Command::SavePlaylist;
 }
 
 Command::~Command()
@@ -195,6 +200,16 @@ bool Command::Quit(std::string const & arguments)
 bool Command::Volume(std::string const & arguments)
 {
    return Player::Volume(atoi(arguments.c_str()));
+}
+
+bool Command::LoadPlaylist(std::string const & arguments)
+{
+   return Player::LoadPlaylist(arguments);
+}
+
+bool Command::SavePlaylist(std::string const & arguments)
+{
+   return Player::SavePlaylist(arguments);
 }
 
 bool Command::Random(std::string const & arguments)

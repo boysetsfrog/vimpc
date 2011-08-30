@@ -90,6 +90,26 @@ COMMAND MODE
                                   | it is a unique match ie :con does not work as it could be :console or :connect
                                   | but :conn will call the :connect command
 
+PLAYBACK:
+          next [count]            | skips forward to the next song, or if given the next [count] songs
+          previous [count]        | skips backward to the previous song, or if given the previous [count] songs
+          play <song id>          | play the song with the given id in the current playlist
+          stop                    | stop playback
+
+          volume [0-100]          | set the volume
+
+          random [on/off]         | toggles random on/off
+          repeat [on/off]         | toggles repeat on/off
+          single [on/off]         | toggles single on/off
+          consume [on/off]        | toggles consume on/off
+
+PLAYLISTS:
+          load <name>             | load the playlist called <name>
+          edit <name>             | same as load
+          save <name>             | save the current playlist as <name>
+          write <name>            | same as save
+                                  
+
 WINDOWS/TABS:
           browse                  | change to the browse window, if window is hidden it is opened
           console                 | change to the console window, if window is hidden it is opened
@@ -116,25 +136,13 @@ MISC:
                                   
           echo <string>           | echos the given string to the console window
                                   
-          next [count]            | skips forward to the next song, or if given the next [count] songs
-          previous [count]        | skips backward to the previous song, or if given the previous [count] songs
-          play <song id>          | play the song with the given id in the current playlist
                                   
           quit[!]                 | quit vimpc, if [!] is appended playback will be stopped regardless of stoponquit setting
-                                  
-          random [on/off]         | toggles random on/off
-          repeat [on/off]         | toggles repeat on/off
-          single [on/off]         | toggles single on/off
-          consume [on/off]        | toggles consume on/off
                                   
           redraw                  | redraws the current window
                                   
           set                     | sets a configurable setting, see SETTINGS section
                                   
-          stop                    | stop playback
-
-          volume [0-100]          | set the volume
-
 
 SETTINGS
 --------------------------------------------------

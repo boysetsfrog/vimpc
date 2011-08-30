@@ -119,6 +119,12 @@ namespace Ui
       //! Set the current volume
       bool Volume(uint32_t volume);
 
+      //! Load the playlist
+      bool LoadPlaylist(std::string const & name);
+
+      //!
+      bool SavePlaylist(std::string const & name);
+
    public:
       //! Rescan the library
       bool Rescan();
