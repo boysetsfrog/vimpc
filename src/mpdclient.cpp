@@ -267,9 +267,9 @@ uint32_t Client::Add(Mpc::Song & song)
       CheckForUpdates();
 
       mpd_run_add(connection_, song.URI().c_str());
-      queueVersion_ = QueueVersion();
-
       CheckError();
+
+      queueVersion_ = QueueVersion();
    }
 
    return TotalNumberOfSongs() - 1;
@@ -282,9 +282,9 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
       CheckForUpdates();
 
       mpd_run_add_id_to(connection_, song.URI().c_str(), position);
-      queueVersion_ = QueueVersion();
-
       CheckError();
+
+      queueVersion_ = QueueVersion();
    }
 
    return TotalNumberOfSongs() - 1;
@@ -309,8 +309,9 @@ void Client::Delete(uint32_t position)
       CheckForUpdates();
 
       mpd_run_delete(connection_, position);
-      queueVersion_ = QueueVersion();
       CheckError();
+
+      queueVersion_ = QueueVersion();
    }
 }
 
@@ -319,8 +320,9 @@ void Client::Clear()
    if (Connected() == true)
    {
       mpd_run_clear(connection_);
-      queueVersion_ = QueueVersion();
       CheckError();
+
+      queueVersion_ = QueueVersion();
    }
 }
 
