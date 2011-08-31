@@ -120,6 +120,7 @@ namespace Mpc
       struct mpd_connection * connection_;
 
       struct mpd_song *       currentSong_;
+      struct mpd_status *     currentStatus_;
       int32_t                 currentSongId_;
       std::string             currentSongURI_;
 

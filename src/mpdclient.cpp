@@ -52,6 +52,7 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 Client::Client(Ui::Screen const & screen) :
    connection_           (NULL),
    currentSong_          (NULL),
+   currentStatus_        (NULL),
    currentSongId_        (-1),
    currentSongURI_       (""),
    screen_               (screen)
@@ -127,13 +128,9 @@ void Client::Previous()
 
 bool Client::Random()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      mpd_status * status = mpd_run_status(connection_);
-      CheckError();
-
-      bool const random = mpd_status_get_random(status);
-      mpd_status_free(status);
+      bool const random = mpd_status_get_random(currentStatus_);
       return random;
    }
    else
@@ -154,13 +151,9 @@ void Client::SetRandom(bool const random)
 
 bool Client::Single()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      mpd_status * status = mpd_run_status(connection_);
-      CheckError();
-
-      bool const single = mpd_status_get_single(status);
-      mpd_status_free(status);
+      bool const single = mpd_status_get_single(currentStatus_);
       return single;
    }
    else
@@ -181,13 +174,9 @@ void Client::SetSingle(bool const single)
 
 bool Client::Consume()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      mpd_status * status = mpd_run_status(connection_);
-      CheckError();
-
-      bool const consume = mpd_status_get_consume(status);
-      mpd_status_free(status);
+      bool const consume = mpd_status_get_consume(currentStatus_);
       return consume;
    }
    else
@@ -207,13 +196,9 @@ void Client::SetConsume(bool const consume)
 
 bool Client::Repeat()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      mpd_status * status = mpd_run_status(connection_);
-      CheckError();
-
-      bool const repeat = mpd_status_get_repeat(status);
-      mpd_status_free(status);
+      bool const repeat = mpd_status_get_repeat(currentStatus_);
       return repeat;
    }
    else
@@ -233,13 +218,9 @@ void Client::SetRepeat(bool const repeat)
 
 int32_t Client::Volume()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      mpd_status * status = mpd_run_status(connection_);
-      CheckError();
-
-      int32_t const volume = mpd_status_get_volume(status);
-      mpd_status_free(status);
+      int32_t const volume = mpd_status_get_volume(currentStatus_);
       return volume;
    }
    else
@@ -363,9 +344,19 @@ void Client::CheckForUpdates()
       if (currentSong_ != NULL)
       {
          mpd_song_free(currentSong_);
+         currentSong_ = NULL;
+      }
+
+      if (currentStatus_ != NULL)
+      {
+         mpd_status_free(currentStatus_);
+         currentStatus_ = NULL;
       }
 
       currentSong_ = mpd_run_current_song(connection_);
+      CheckError();
+
+      currentStatus_ = mpd_run_status(connection_);
       CheckError();
 
       if (currentSong_ != NULL)
@@ -393,11 +384,9 @@ std::string Client::CurrentState()
 
    if (Connected() == true)
    {
-      mpd_status * const status = mpd_run_status(connection_);
-
-      if (status != NULL)
+      if (currentStatus_ != NULL)
       {
-         mpd_state state = mpd_status_get_state(status);
+         mpd_state state = mpd_status_get_state(currentStatus_);
 
          switch (state)
          {
@@ -417,8 +406,6 @@ std::string Client::CurrentState()
             default:
                break;
          }
-
-         mpd_status_free(status);
       }
    }
 
@@ -446,20 +433,10 @@ uint32_t Client::TotalNumberOfSongs()
 {
    uint32_t songTotal = 0;
 
-   if (Connected() == true)
+   if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      mpd_status * const status = mpd_run_status(connection_);
-
-      CheckError();
-
-      if (status != NULL)
-      {
-         songTotal = mpd_status_get_queue_length(status);
-         mpd_status_free(status);
-      }
+      songTotal = mpd_status_get_queue_length(currentStatus_);
    }
-
-   CheckError();
 
    return songTotal;
 }
@@ -475,9 +452,9 @@ void Client::DisplaySongInformation()
    // \todo should cache this information
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
-      if (currentSong_ != NULL)
+      if ((currentSong_ != NULL) && (currentStatus_ != NULL))
       {
-         mpd_status * const status   = mpd_run_status(connection_);
+         mpd_status * const status   = currentStatus_;
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
          char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
@@ -490,8 +467,6 @@ void Client::DisplaySongInformation()
          screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
                                SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
                                SecondsToMinutes(duration), RemainingSeconds(duration));
-
-         mpd_status_free(status);
       }
    }
    else
@@ -502,16 +477,10 @@ void Client::DisplaySongInformation()
 
 unsigned int Client::QueueVersion()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      mpd_status * status = mpd_run_status(connection_);
-
-      if (status != NULL)
-      {
-         unsigned int Version = mpd_status_get_queue_version(status);
-         mpd_status_free(status);
-         return Version;
-      }
+      unsigned int Version = mpd_status_get_queue_version(currentStatus_);
+      return Version;
    }
 }
 
