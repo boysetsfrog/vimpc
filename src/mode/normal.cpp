@@ -210,10 +210,6 @@ bool Normal::Handle(int input)
       actionCount_ = 0;
 
       action = &actionTable_;
-
-      DisplayModeLine();
-
-      screen_.Update();
    }
    else if (input == 'g')
    {
@@ -322,6 +318,7 @@ bool Normal::AddSong(uint32_t count)
    if (COLLECTION == Mpc::Song::All)
    {
       client_.AddAllSongs();
+      screen_.ScrollTo(screen_.ActiveWindow().CurrentLine());
    }
    else
    {

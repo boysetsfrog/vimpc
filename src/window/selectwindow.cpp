@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   selectwindow.cpp - window that is scrollable and has selectable elements 
+   selectwindow.cpp - window that is scrollable and has selectable elements
    */
 
 #include "selectwindow.hpp"
@@ -51,7 +51,7 @@ void SelectWindow::Scroll(int32_t scrollCount)
    currentSelection_  = LimitCurrentSelection(currentSelection_);
 
    if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
-   {   
+   {
       ScrollWindow::Scroll(scrollCount);
    }
 }
@@ -71,7 +71,7 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
       ScrollWindow::Scroll(-1);
    }
    else if ((currentSelection_ >= scrollLine_) || (currentSelection_ < (scrollLine_ - screen_.MaxRows())))
-   {   
+   {
       ScrollWindow::ScrollTo(scrollLine);
    }
    else if (scrollLine_ > BufferSize())
@@ -81,10 +81,10 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
 }
 
 uint16_t SelectWindow::CurrentLine() const
-{ 
+{
    currentSelection_ = LimitCurrentSelection(currentSelection_);
 
-   return currentSelection_; 
+   return currentSelection_;
 }
 
 int64_t SelectWindow::LimitCurrentSelection(int64_t currentSelection) const

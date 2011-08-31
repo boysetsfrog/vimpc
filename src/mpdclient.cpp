@@ -294,12 +294,9 @@ uint32_t Client::AddAllSongs()
 {
    if (Connected() == true)
    {
-      CheckForUpdates();
-
       mpd_run_add(connection_, "/");
-      queueVersion_ = QueueVersion();
-
       CheckError();
+      CheckForUpdates();
    }
 
    return TotalNumberOfSongs() - 1;

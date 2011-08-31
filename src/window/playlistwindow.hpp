@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   playlistwindow.hpp - handling of the mpd playlist interface 
+   playlistwindow.hpp - handling of the mpd playlist interface
    */
 
 #ifndef __UI__PLAYLISTWINDOW

@@ -123,8 +123,13 @@ void Vimpc::Run()
 
          if (input != ERR)
          {
+            updateTime = 0;
             modeChange = RequiresModeChange(input);
             running    = Handle(input);
+            screen_.Update();
+
+            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+            mode.Refresh();
          }
 
          bool screenWasRefreshed = false;

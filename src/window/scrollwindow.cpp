@@ -86,6 +86,10 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
          scrollLine_ = BufferSize();
       }
    }
+   else
+   {
+      scrollLine_ = screen_.MaxRows();
+   }
 }
 
 bool ScrollWindow::Select(Position position, uint32_t count)
@@ -94,9 +98,9 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    {
       int32_t scroll = FirstLine() -1 + count;
 
-      if (scroll > static_cast<int32_t>(LastLine())) 
-      { 
-         scroll = LastLine(); 
+      if (scroll > static_cast<int32_t>(LastLine()))
+      {
+         scroll = LastLine();
       }
 
       ScrollTo(scroll);
@@ -105,9 +109,9 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    {
       int32_t scroll = LastLine() - count;
 
-      if (scroll < static_cast<int32_t>(FirstLine() + 1)) 
-      { 
-         scroll = FirstLine() + 1; 
+      if (scroll < static_cast<int32_t>(FirstLine() + 1))
+      {
+         scroll = FirstLine() + 1;
       }
 
       ScrollTo(scroll);
