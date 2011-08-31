@@ -78,6 +78,7 @@ namespace Mpc
    public: //Queue
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);
+      uint32_t AddAllSongs();
       void Delete(uint32_t position);
       void Clear();
 

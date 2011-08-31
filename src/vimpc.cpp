@@ -137,7 +137,7 @@ void Vimpc::Run()
             screen_.Update();
          }
 
-         if ((screenWasRefreshed == true) || (refreshTime >= 250))
+         if ((screenWasRefreshed == true) || (refreshTime >= 100))
          {
             refreshTime = 0;
 

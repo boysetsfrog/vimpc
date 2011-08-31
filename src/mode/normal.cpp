@@ -319,21 +319,28 @@ bool Normal::Collapse(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {
-   for (uint32_t i = 0; i < count; ++i)
+   if (COLLECTION == Mpc::Song::All)
    {
-      if ((screen_.GetActiveWindow() == Screen::Library) || (COLLECTION == Mpc::Song::All))
-      {
-         Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine() + i);
-      }
-      else if (screen_.GetActiveWindow() == Screen::Browse)
-      {
-         Main::Browse().AddToPlaylist(client_, screen_.ActiveWindow().CurrentLine() + i);
-      }
+      client_.AddAllSongs();
    }
-
-   if (screen_.GetActiveWindow() != Screen::Playlist)
+   else
    {
-      screen_.ActiveWindow().Scroll(count);
+      for (uint32_t i = 0; i < count; ++i)
+      {
+         if (screen_.GetActiveWindow() == Screen::Library)
+         {
+            Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine() + i);
+         }
+         else if (screen_.GetActiveWindow() == Screen::Browse)
+         {
+            Main::Browse().AddToPlaylist(client_, screen_.ActiveWindow().CurrentLine() + i);
+         }
+      }
+
+      if (screen_.GetActiveWindow() != Screen::Playlist)
+      {
+         screen_.ActiveWindow().Scroll(count);
+      }
    }
 
    return true;
