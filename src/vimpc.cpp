@@ -119,11 +119,12 @@ void Vimpc::Run()
          updateTime  += mtime;
          refreshTime += mtime;
 
-         bool modeChange = RequiresModeChange(input);
+         bool modeChange = false;
 
          if (input != ERR)
          {
-            running = Handle(input);
+            modeChange = RequiresModeChange(input);
+            running    = Handle(input);
          }
 
          bool screenWasRefreshed = false;
@@ -133,7 +134,6 @@ void Vimpc::Run()
          {
             updateTime = 0;
             screenWasRefreshed = true;
-
             screen_.Update();
          }
 

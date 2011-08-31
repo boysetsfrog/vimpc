@@ -52,6 +52,8 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 Client::Client(Ui::Screen const & screen) :
    connection_           (NULL),
    currentSong_          (NULL),
+   currentSongId_        (-1),
+   currentSongURI_       (""),
    screen_               (screen)
 {
 }
@@ -358,16 +360,29 @@ void Client::CheckForUpdates()
          screen_.Redraw(Ui::Screen::Playlist);
       }
 
-      CheckError();
-
       if (currentSong_ != NULL)
       {
          mpd_song_free(currentSong_);
       }
 
       currentSong_ = mpd_run_current_song(connection_);
-
       CheckError();
+
+      if (currentSong_ != NULL)
+      {
+         currentSongId_  = mpd_song_get_pos(currentSong_);
+         currentSongURI_ = mpd_song_get_uri(currentSong_);
+      }
+      else
+      {
+         currentSongId_ = -1;
+         currentSongURI_ = "";
+      }
+   }
+   else
+   {
+      currentSongId_ = -1;
+      currentSongURI_ = "";
    }
 }
 
@@ -418,36 +433,13 @@ bool Client::Connected() const
 
 std::string Client::GetCurrentSongURI()
 {
-   std::string song;
-
-   if (Connected() == true)
-   {
-      if (currentSong_ != NULL)
-      {
-         song = mpd_song_get_uri(currentSong_);
-      }
-
-      CheckError();
-   }
-
-   return song;
+   return currentSongURI_;
 }
 
 //! \todo rename to GetCurrentSongPos
 int32_t Client::GetCurrentSong()
 {
-   static int32_t song = -1;
-
-   if (Connected() == true)
-   {
-      if (currentSong_ != NULL)
-      {
-         song = mpd_song_get_pos(currentSong_);
-         CheckError();
-      }
-   }
-
-   return song;
+   return currentSongId_;
 }
 
 uint32_t Client::TotalNumberOfSongs()
@@ -481,7 +473,6 @@ bool Client::SongIsInQueue(Mpc::Song const & song) const
 void Client::DisplaySongInformation()
 {
    // \todo should cache this information
-
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       if (currentSong_ != NULL)

@@ -118,7 +118,11 @@ namespace Mpc
 
    private:
       struct mpd_connection * connection_;
+
       struct mpd_song *       currentSong_;
+      int32_t                 currentSongId_;
+      std::string             currentSongURI_;
+
       Ui::Screen      const & screen_;
       unsigned int            queueVersion_;
    };
