@@ -491,9 +491,11 @@ void Client::DisplaySongInformation()
 
 unsigned int Client::QueueVersion()
 {
-   if ((Connected() == true) && (currentStatus_ != NULL))
+   if (Connected() == true)
    {
-      unsigned int Version = mpd_status_get_queue_version(currentStatus_);
+      mpd_status * status = mpd_run_status(connection_);
+      unsigned int Version = mpd_status_get_queue_version(status);
+      mpd_status_free(status);
       return Version;
    }
 }
