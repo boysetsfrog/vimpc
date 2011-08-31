@@ -26,6 +26,7 @@
 
 #include <mpd/tag.h>
 #include <mpd/status.h>
+#include <sys/time.h>
 
 using namespace Mpc;
 
@@ -130,6 +131,8 @@ bool Client::Random()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
+      CheckForUpdates();
+
       bool const random = mpd_status_get_random(currentStatus_);
       return random;
    }
@@ -153,6 +156,8 @@ bool Client::Single()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
+      CheckForUpdates();
+
       bool const single = mpd_status_get_single(currentStatus_);
       return single;
    }
@@ -176,6 +181,8 @@ bool Client::Consume()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
+      CheckForUpdates();
+
       bool const consume = mpd_status_get_consume(currentStatus_);
       return consume;
    }
@@ -198,6 +205,8 @@ bool Client::Repeat()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
+      CheckForUpdates();
+
       bool const repeat = mpd_status_get_repeat(currentStatus_);
       return repeat;
    }
@@ -220,6 +229,8 @@ int32_t Client::Volume()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
+      CheckForUpdates();
+
       int32_t const volume = mpd_status_get_volume(currentStatus_);
       return volume;
    }
@@ -347,6 +358,12 @@ void Client::Update()
 
 void Client::CheckForUpdates()
 {
+   static bool   updated = false;
+   static struct timeval start;
+   static struct timeval end;
+
+   gettimeofday(&end, NULL);
+
    if (Connected() == true)
    {
       if (queueVersion_ != QueueVersion())
@@ -355,33 +372,44 @@ void Client::CheckForUpdates()
          screen_.Redraw(Ui::Screen::Playlist);
       }
 
-      if (currentSong_ != NULL)
-      {
-         mpd_song_free(currentSong_);
-         currentSong_ = NULL;
-      }
+      long const seconds  = end.tv_sec  - start.tv_sec;
+      long const useconds = end.tv_usec - start.tv_usec;
+      long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-      if (currentStatus_ != NULL)
+      if ((updated == false) || (mtime > 250))
       {
-         mpd_status_free(currentStatus_);
-         currentStatus_ = NULL;
-      }
+         updated = true;
 
-      currentSong_ = mpd_run_current_song(connection_);
-      CheckError();
+         gettimeofday(&start, NULL);
 
-      currentStatus_ = mpd_run_status(connection_);
-      CheckError();
+         if (currentSong_ != NULL)
+         {
+            mpd_song_free(currentSong_);
+            currentSong_ = NULL;
+         }
 
-      if (currentSong_ != NULL)
-      {
-         currentSongId_  = mpd_song_get_pos(currentSong_);
-         currentSongURI_ = mpd_song_get_uri(currentSong_);
-      }
-      else
-      {
-         currentSongId_ = -1;
-         currentSongURI_ = "";
+         if (currentStatus_ != NULL)
+         {
+            mpd_status_free(currentStatus_);
+            currentStatus_ = NULL;
+         }
+
+         currentSong_ = mpd_run_current_song(connection_);
+         CheckError();
+
+         currentStatus_ = mpd_run_status(connection_);
+         CheckError();
+
+         if (currentSong_ != NULL)
+         {
+            currentSongId_  = mpd_song_get_pos(currentSong_);
+            currentSongURI_ = mpd_song_get_uri(currentSong_);
+         }
+         else
+         {
+            currentSongId_  = -1;
+            currentSongURI_ = "";
+         }
       }
    }
    else
@@ -398,6 +426,8 @@ std::string Client::CurrentState()
 
    if (Connected() == true)
    {
+      CheckForUpdates();
+
       if (currentStatus_ != NULL)
       {
          mpd_state state = mpd_status_get_state(currentStatus_);
@@ -449,6 +479,8 @@ uint32_t Client::TotalNumberOfSongs()
 
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
+      CheckForUpdates();
+
       songTotal = mpd_status_get_queue_length(currentStatus_);
    }
 
@@ -466,6 +498,8 @@ void Client::DisplaySongInformation()
    // \todo should cache this information
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
+      CheckForUpdates();
+
       if ((currentSong_ != NULL) && (currentStatus_ != NULL))
       {
          mpd_status * const status   = currentStatus_;

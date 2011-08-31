@@ -104,7 +104,6 @@ void Vimpc::Run()
       while (running == true)
       {
          static long updateTime    = 0;
-         static long refreshTime   = 0;
 
          struct timeval start, end;
 
@@ -117,43 +116,28 @@ void Vimpc::Run()
          long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
          updateTime  += mtime;
-         refreshTime += mtime;
-
-         bool modeChange = false;
 
          if (input != ERR)
          {
             updateTime = 0;
-            modeChange = RequiresModeChange(input);
             running    = Handle(input);
+
             screen_.Update();
+            client_.DisplaySongInformation();
 
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
             mode.Refresh();
          }
 
-         bool screenWasRefreshed = false;
-         bool screenWasResized   = screen_.Resize();
-
-         if ((screenWasResized == true) || ((updateTime >= 1500) && (input == ERR)))
+         if ((screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
          {
             updateTime = 0;
-            screenWasRefreshed = true;
             screen_.Update();
-         }
 
-         if ((screenWasRefreshed == true) || (refreshTime >= 100))
-         {
-            refreshTime = 0;
-
-            client_.CheckForUpdates();
             client_.DisplaySongInformation();
 
-            if (modeChange == false)
-            {
-               Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-               mode.Refresh();
-            }
+            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+            mode.Refresh();
          }
       }
    }
