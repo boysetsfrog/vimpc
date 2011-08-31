@@ -148,7 +148,6 @@ void PlaylistWindow::Print(uint32_t line) const
       }
 
       wattroff(window, A_REVERSE);
-      wredrawln(window, line, 1);
    }
 }
 

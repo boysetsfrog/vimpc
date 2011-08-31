@@ -51,6 +51,7 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 // Mpc::Client Implementation
 Client::Client(Ui::Screen const & screen) :
    connection_           (NULL),
+   currentSong_          (NULL),
    screen_               (screen)
 {
 }
@@ -70,7 +71,8 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    // Must redraw the library first
    screen_.Redraw(Ui::Screen::Library);
    screen_.Redraw(Ui::Screen::Browse);
-   screen_.Redraw(Ui::Screen::Playlist);
+
+   CheckForUpdates();
    CheckError();
 }
 
@@ -357,6 +359,15 @@ void Client::CheckForUpdates()
       }
 
       CheckError();
+
+      if (currentSong_ != NULL)
+      {
+         mpd_song_free(currentSong_);
+      }
+
+      currentSong_ = mpd_run_current_song(connection_);
+
+      CheckError();
    }
 }
 
@@ -411,15 +422,12 @@ std::string Client::GetCurrentSongURI()
 
    if (Connected() == true)
    {
-      mpd_song * currentSong = mpd_run_current_song(connection_);
+      if (currentSong_ != NULL)
+      {
+         song = mpd_song_get_uri(currentSong_);
+      }
 
       CheckError();
-
-      if (currentSong != NULL)
-      {
-         song = mpd_song_get_uri(currentSong);
-         mpd_song_free(currentSong);
-      }
    }
 
    return song;
@@ -432,14 +440,10 @@ int32_t Client::GetCurrentSong()
 
    if (Connected() == true)
    {
-      mpd_song * currentSong = mpd_run_current_song(connection_);
-
-      CheckError();
-
-      if (currentSong != NULL)
+      if (currentSong_ != NULL)
       {
-         song = mpd_song_get_pos(currentSong);
-         mpd_song_free(currentSong);
+         song = mpd_song_get_pos(currentSong_);
+         CheckError();
       }
    }
 
@@ -480,17 +484,13 @@ void Client::DisplaySongInformation()
 
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
-      mpd_song * currentSong = mpd_run_current_song(connection_);
-
-      CheckError();
-
-      if (currentSong != NULL)
+      if (currentSong_ != NULL)
       {
          mpd_status * const status   = mpd_run_status(connection_);
-         uint32_t     const duration = mpd_song_get_duration(currentSong);
+         uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
-         char const * const cArtist  = mpd_song_get_tag(currentSong, MPD_TAG_ARTIST, 0);
-         char const * const cTitle   = mpd_song_get_tag(currentSong, MPD_TAG_TITLE, 0);
+         char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
+         char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
          std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
@@ -501,7 +501,6 @@ void Client::DisplaySongInformation()
                                SecondsToMinutes(duration), RemainingSeconds(duration));
 
          mpd_status_free(status);
-         mpd_song_free(currentSong);
       }
    }
    else
