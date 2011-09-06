@@ -24,6 +24,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <pcrecpp.h>
 
 #include "inputmode.hpp"
 #include "player.hpp"
@@ -66,6 +67,7 @@ namespace Ui
 
    public:
       std::string LastSearchString() const;
+      pcrecpp::RE_Options LastSearchOpt() const;
       bool SearchResult(Skip skip, uint32_t count);
       bool SearchWindow(Direction direction, std::string search, uint32_t count);
 
@@ -73,6 +75,7 @@ namespace Ui
       bool SearchForResult(Direction direction, std::string search, uint32_t count, int32_t startLine);
       Direction SwapDirection(Direction direction) const;
       Direction GetDirectionForInput(int input) const;
+      pcrecpp::RE_Options GetOptions(std::string & search);
       bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);
 
    private: //Ui::InputMode
@@ -82,6 +85,7 @@ namespace Ui
    private: 
       Direction        direction_;
       std::string      lastSearch_;
+      pcrecpp::RE_Options      lastSearchOpt_;
       char             prompt_[DirectionCount];
       Main::Settings & settings_;
       Ui::Screen     & screen_;
