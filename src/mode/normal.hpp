@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   normal.hpp - normal mode input handling 
+   normal.hpp - normal mode input handling
    */
 
 #ifndef __UI__NORMAL
@@ -85,21 +85,21 @@ namespace Ui
 
    private: //Selecting
       template <ScrollWindow::Position POSITION>
-      bool Select(uint32_t count); 
+      bool Select(uint32_t count);
 
    private: //Searching
       template <Search::Skip SKIP>
-      bool SearchResult(uint32_t count); 
+      bool SearchResult(uint32_t count);
 
    private: //Skipping
       template <Player::Skip SKIP>
-      bool SkipSong(uint32_t count); 
+      bool SkipSong(uint32_t count);
 
       template <Player::Skip SKIP>
-      bool SkipAlbum(uint32_t count); 
+      bool SkipAlbum(uint32_t count);
 
       template <Player::Skip SKIP>
-      bool SkipArtist(uint32_t count); 
+      bool SkipArtist(uint32_t count);
 
    private: //Scrolling
       template <Screen::Size SIZE, Screen::Direction DIRECTION>
@@ -112,6 +112,9 @@ namespace Ui
       bool ScrollTo(uint32_t line);
 
    private:
+      template <Screen::Direction DIRECTION>
+      bool Align(uint32_t line);
+
       template <Screen::Location LOCATION>
       bool AlignTo(uint32_t line);
 

@@ -277,6 +277,32 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 }
 
 
+void Screen::Align(Direction direction, uint32_t line)
+{
+   int selection  = ActiveWindow().CurrentLine();
+   int min        = ActiveWindow().FirstLine();
+   int max        = MaxRows();
+   int scrollLine = ActiveWindow().CurrentLine();
+
+   if (direction == Up)
+   {
+      if (selection == (min + max - 1))
+         selection--;
+
+      ActiveWindow().ScrollWindow::Scroll(-1);
+   }
+   else if (direction == Down)
+   {
+      if (selection == min)
+         selection++;
+
+      ActiveWindow().ScrollWindow::Scroll(1);
+   }
+
+   // Uses the select window scroll to set the current line properly
+   ScrollTo(selection);
+}
+
 void Screen::AlignTo(Location location, uint32_t line)
 {
    int scrollLine = (line != 0) ? (line - 1) : ActiveWindow().CurrentLine();

@@ -83,6 +83,9 @@ namespace Ui
       void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;
 
    public:
+      // Align the current window up or down( ^E, ^Y )
+      void Align(Direction direction, uint32_t line = 0);
+
       // Align the currently selected line to a given location on the screen (z<CR>, z-, z.)
       void AlignTo(Location location, uint32_t line = 0);
 

@@ -54,6 +54,8 @@ int main(int argc, char** argv)
    {
       static struct option long_options[] =
       {
+        // TODO -h hostname
+        // TODO -p port
          {"bugreport",  no_argument, 0, 'b'},
          {"url",        no_argument, 0, 'u'},
          {"version",    no_argument, 0, 'v'},

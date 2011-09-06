@@ -62,7 +62,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    // Console
    // \todo add an "insert" mode to console that just stays in command entry mode
-   //actionTable_['i']       = &Normal::Insert;
+   // This should really be implemented as Q as per vim (:he Ex-mode)
+   //actionTable_['Q']       = &Normal::Insert;
 
    //! \todo make it so these can be used to navigate the library
    // Skipping
@@ -103,6 +104,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_NPAGE] = &Normal::Scroll<Screen::Page, Screen::Down>;
    actionTable_['U'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Up>; //CTRL + U
    actionTable_['D'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Down>; //CTRL + D
+   actionTable_['Y'+1 - 'A'] = &Normal::Align<Screen::Up>; //CTRL + Y
+   actionTable_['E'+1 - 'A'] = &Normal::Align<Screen::Down>; //CTRL + E
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
    actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
    actionTable_['e']       = &Normal::ScrollTo<Screen::PlaylistNext>;
@@ -481,7 +484,14 @@ bool Normal::ScrollTo(uint32_t line)
 }
 
 
-// Implementation of align function
+template <Screen::Direction DIRECTION>
+bool Normal::Align(uint32_t line)
+{
+   screen_.Align(DIRECTION, line);
+
+   return true;
+}
+
 template <Screen::Location LOCATION>
 bool Normal::AlignTo(uint32_t line)
 {

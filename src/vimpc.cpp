@@ -80,6 +80,7 @@ void Vimpc::Run()
 
    if (configExecutionResult == true)
    {
+      // TODO scan environment for MPD_HOST
       // If we didn't connect to a host from the config file, just connect to the localhost
       if (client_.Connected() == false)
       {
