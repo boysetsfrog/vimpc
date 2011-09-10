@@ -561,12 +561,6 @@ void Client::CheckError()
          snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
          Error(ErrorNumber::ClientError, error);
 
-         if (connection_ != NULL)
-         {
-            screen_.Redraw(Ui::Screen::Library);
-            screen_.Redraw(Ui::Screen::Playlist);
-         }
-
          DeleteConnection();
       }
    }
