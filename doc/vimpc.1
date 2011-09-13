@@ -13,6 +13,19 @@ For detailed help information please type :help in vimpc.
 .SH OPTIONS
 .IP --version
 Print the version of vimpc
+.IP --host hostname
+Connect to an MPD instance on
+.BR hostname
+.IP --port port
+Use
+.BR port
+to connect to mpd
+.SH ENVIRONMENT VARIABLES
+All environment variables are overridden by options specified on the command line
+.IP MPD_HOST
+Specifies the host to connect to.
+.IP MPD_PORT
+Specifies the port to connect to.
 .SH FILES
 .I ~/.vimpcrc
 .RS
