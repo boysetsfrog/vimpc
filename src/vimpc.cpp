@@ -230,3 +230,9 @@ void Vimpc::ChangeMode(int input)
       newMode.Initialise(input);
    }
 }
+
+void Vimpc::SetSkipConfigConnects(bool val)
+{
+   settings_.SetSkipConfigConnects(val);
+}
+

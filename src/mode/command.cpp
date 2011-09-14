@@ -144,6 +144,11 @@ bool Command::ExecuteCommand(std::string const & input)
    }
    else
    {
+      if (command == "connect" && settings_.SkipConfigConnects())
+      {
+         return true;
+      }
+
       result = ExecuteCommand(command, arguments);
    }
 

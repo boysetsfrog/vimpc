@@ -69,15 +69,38 @@ Client::~Client()
 void Client::Connect(std::string const & hostname, uint16_t port)
 {
    DeleteConnection();
+   char *   tmp_env;
+   char *   connect_hostname;
+   uint16_t connect_port;
 
-   connection_ = mpd_connection_new(hostname.c_str(), port, 0);
+   tmp_env = getenv("MPD_HOST");
+   if (tmp_env != NULL)
+   {
+      connect_hostname = tmp_env;
+   }
+   else
+   {
+      connect_hostname = (char *)hostname.c_str();
+   }
+
+   tmp_env = getenv("MPD_PORT");
+   if (tmp_env != NULL)
+   {
+      connect_port     = atoi(tmp_env);
+   }
+   else
+   {
+      connect_port     = port;
+   }
+
+   connection_ = mpd_connection_new(connect_hostname, connect_port, 0);
+   CheckError();
 
    // Must redraw the library first
    screen_.Redraw(Ui::Screen::Library);
    screen_.Redraw(Ui::Screen::Browse);
 
    CheckForUpdates();
-   CheckError();
 }
 
 void Client::Play(uint32_t const playId)

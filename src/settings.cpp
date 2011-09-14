@@ -39,6 +39,8 @@ char const * const SearchWrapSetting      = "searchwrap";
 char const * const StopOnQuitSetting      = "stoponquit";
 char const * const WindowNumbersSetting   = "windownumbers";
 
+bool skipConfigConnects_ (false);
+
 Settings & Settings::Instance()
 {
    static Settings settings_;
@@ -187,4 +189,14 @@ void Settings::SetWindow(std::string const & arguments)
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
    defaultWindow_ = Ui::Screen::GetWindowFromName(window);
+}
+
+void Settings::SetSkipConfigConnects(bool val)
+{
+   skipConfigConnects_ = val;
+}
+
+bool Settings::SkipConfigConnects() const
+{
+   return skipConfigConnects_;
 }

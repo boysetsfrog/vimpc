@@ -46,9 +46,10 @@ ASSERT_FUNCTION()
 
 int main(int argc, char** argv)
 {
-   bool runVimpc     = true;
-   int  option       = 0;
-   int  option_index = 0;
+   bool runVimpc           = true;
+   bool skipConfigConnects = false;
+   int  option             = 0;
+   int  option_index       = 0;
 
    while (option != -1)
    {
@@ -56,31 +57,46 @@ int main(int argc, char** argv)
       {
         // TODO -h hostname
         // TODO -p port
+         {"host",  required_argument, 0, 'h'},
+         {"port",  required_argument, 0, 'p'},
          {"bugreport",  no_argument, 0, 'b'},
          {"url",        no_argument, 0, 'u'},
          {"version",    no_argument, 0, 'v'},
          {0, 0, 0, 0}
       };
 
-      option = getopt_long (argc, argv, "vub", long_options, &option_index);
+      option = getopt_long (argc, argv, "h:p:vub", long_options, &option_index);
 
       if (option != -1)
       {
          std::string output; 
 
-         runVimpc  = false;
-
          if (option == 'b') 
          {
+            runVimpc  = false;
             output = Main::Project::BugReport();
          }
          else if (option == 'u')
          {
+            runVimpc  = false;
             output = Main::Project::URL();
          }
          else if (option == 'v')
          {
+            runVimpc  = false;
             output = Main::Project::Version();
+         }
+         else if (option == 'h')
+         {
+            skipConfigConnects = true;
+            setenv("MPD_HOST", optarg, 1);
+         }
+         else if (option == 'p')
+         {
+            // TODO Check that it's a valid int
+            // test atoi ?
+            skipConfigConnects = true;
+            setenv("MPD_PORT", optarg, 1);
          }
 
          std::cout << output << std::endl;
@@ -92,6 +108,7 @@ int main(int argc, char** argv)
       setlocale(LC_ALL, "");
 
       Main::Vimpc vimpc;
+      vimpc.SetSkipConfigConnects(skipConfigConnects);
       vimpc.Run();
    }
 
