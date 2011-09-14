@@ -68,6 +68,8 @@ Client::~Client()
 
 void Client::Connect(std::string const & hostname, uint16_t port)
 {
+   static char * localhost = "localhost";
+
    char *   tmp_env;
    char *   connect_hostname;
    uint16_t connect_port;
@@ -84,6 +86,10 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       if (tmp_env != NULL)
       {
          connect_hostname = tmp_env;
+      }
+      else
+      {
+         connect_hostname = localhost;
       }
 
       tmp_env = getenv("MPD_PORT");
