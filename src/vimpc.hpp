@@ -41,6 +41,9 @@ namespace Main
       //! Start vimpc
       void Run();
 
+      //! Hook vimpc's command parser
+      void SetSkipConfigConnects(bool val);
+
    private:
       //! Read input from the screen
       int  Input() const;

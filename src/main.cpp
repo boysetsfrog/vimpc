@@ -46,9 +46,10 @@ ASSERT_FUNCTION()
 
 int main(int argc, char** argv)
 {
-   bool runVimpc     = true;
-   int  option       = 0;
-   int  option_index = 0;
+   bool runVimpc           = true;
+   bool skipConfigConnects = false;
+   int  option             = 0;
+   int  option_index       = 0;
 
    while (option != -1)
    {
@@ -87,12 +88,14 @@ int main(int argc, char** argv)
          }
          else if (option == 'h')
          {
+            skipConfigConnects = true;
             setenv("MPD_HOST", optarg, 1);
          }
          else if (option == 'p')
          {
             // TODO Check that it's a valid int
             // test atoi ?
+            skipConfigConnects = true;
             setenv("MPD_PORT", optarg, 1);
          }
 
@@ -105,6 +108,7 @@ int main(int argc, char** argv)
       setlocale(LC_ALL, "");
 
       Main::Vimpc vimpc;
+      vimpc.SetSkipConfigConnects(skipConfigConnects);
       vimpc.Run();
    }
 
