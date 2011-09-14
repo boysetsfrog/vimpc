@@ -397,18 +397,26 @@ void Client::CheckForUpdates()
          currentSong_ = mpd_run_current_song(connection_);
          CheckError();
 
-         currentStatus_ = mpd_run_status(connection_);
-         CheckError();
-
-         if (currentSong_ != NULL)
+         if (Connected() == true)
          {
-            currentSongId_  = mpd_song_get_pos(currentSong_);
-            currentSongURI_ = mpd_song_get_uri(currentSong_);
+            currentStatus_ = mpd_run_status(connection_);
+            CheckError();
+
+            if (currentSong_ != NULL)
+            {
+                currentSongId_  = mpd_song_get_pos(currentSong_);
+                currentSongURI_ = mpd_song_get_uri(currentSong_);
+            }
+            else
+            {
+                currentSongId_  = -1;
+                currentSongURI_ = "";
+            }
          }
          else
          {
-            currentSongId_  = -1;
-            currentSongURI_ = "";
+             currentSongId_ = -1;
+             currentSongURI_ = "";
          }
       }
    }
@@ -528,10 +536,16 @@ unsigned int Client::QueueVersion()
    if (Connected() == true)
    {
       mpd_status * status = mpd_run_status(connection_);
-      unsigned int Version = mpd_status_get_queue_version(status);
-      mpd_status_free(status);
-      return Version;
+
+      if (status != NULL)
+      {
+         unsigned int Version = mpd_status_get_queue_version(status);
+         mpd_status_free(status);
+         return Version;
+      }
    }
+
+   return 0;
 }
 
 
