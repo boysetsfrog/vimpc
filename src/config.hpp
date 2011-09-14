@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   config.hpp - parses .vimpcrc file and executes commands 
+   config.hpp - parses .vimpcrc file and executes commands
    */
 
 #ifndef __MAIN__CONFIG
@@ -47,7 +47,7 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
 
       std::string configFile(getenv(home));
       configFile.append(vimpcrcFile);
-      
+
       std::string   input;
       std::ifstream inputStream(configFile.c_str());
 
@@ -56,7 +56,7 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
          while (!inputStream.eof())
          {
             std::getline(inputStream, input);
-            
+
             if ((input != "") && (commentCheck.FullMatch(input.c_str()) == false))
             {
                handler.ExecuteCommand(input);
