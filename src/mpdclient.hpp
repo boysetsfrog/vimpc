@@ -48,7 +48,7 @@ namespace Mpc
       Client & operator=(Client & client);
 
    public:
-      void Connect(std::string const & hostname = "localhost", uint16_t port = 0);
+      void Connect(std::string const & hostname = "", uint16_t port = 0);
       void Play(uint32_t playId);
       void Pause();
       void Stop();

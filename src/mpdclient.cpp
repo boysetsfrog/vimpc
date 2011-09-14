@@ -68,29 +68,30 @@ Client::~Client()
 
 void Client::Connect(std::string const & hostname, uint16_t port)
 {
-   DeleteConnection();
    char *   tmp_env;
    char *   connect_hostname;
    uint16_t connect_port;
 
-   tmp_env = getenv("MPD_HOST");
-   if (tmp_env != NULL)
-   {
-      connect_hostname = tmp_env;
-   }
-   else
-   {
-      connect_hostname = (char *)hostname.c_str();
-   }
+   DeleteConnection();
 
-   tmp_env = getenv("MPD_PORT");
-   if (tmp_env != NULL)
+   connect_hostname = (char *)hostname.c_str();
+   connect_port = port;
+
+   if (hostname == "")
    {
-      connect_port     = atoi(tmp_env);
-   }
-   else
-   {
-      connect_port     = port;
+      tmp_env = getenv("MPD_HOST");
+
+      if (tmp_env != NULL)
+      {
+         connect_hostname = tmp_env;
+      }
+
+      tmp_env = getenv("MPD_PORT");
+
+      if (tmp_env != NULL)
+      {
+         connect_port = atoi(tmp_env);
+      }
    }
 
    connection_ = mpd_connection_new(connect_hostname, connect_port, 0);

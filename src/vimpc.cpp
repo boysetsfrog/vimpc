@@ -78,6 +78,8 @@ void Vimpc::Run()
 
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
 
+   SetSkipConfigConnects(false);
+
    if (configExecutionResult == true)
    {
       // TODO scan environment for MPD_HOST
