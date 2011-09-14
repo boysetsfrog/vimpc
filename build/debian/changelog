@@ -1,3 +1,11 @@
+vimpc (0.03-psych0tik.3) unstable; urgency=low
+
+  * Bunch of upstream fixes for segfaults
+  * Handle command line arguments (-h -p)
+  * Handle MPD_HOST and MPD_PORT
+
+ -- Rich Healey <richo@psych0tik.net>  Wed, 14 Sep 2011 22:18:54 +1000
+
 vimpc (0.03-psych0tik.2) unstable; urgency=low
   
   * Add Nathan as Maintainer, myself as Uploader.
