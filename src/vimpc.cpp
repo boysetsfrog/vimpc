@@ -138,9 +138,9 @@ void Vimpc::Run()
             client_.DisplaySongInformation();
 
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-            mode.Refresh();
 
             screen_.Update();
+            mode.Refresh();
          }
       }
    }
