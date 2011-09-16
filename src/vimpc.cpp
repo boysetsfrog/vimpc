@@ -82,6 +82,13 @@ void Vimpc::Run()
 
    if (configExecutionResult == true)
    {
+      {
+         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+         mode.Initialise(0);
+      }
+
+      screen_.Start();
+
       // TODO scan environment for MPD_HOST
       // If we didn't connect to a host from the config file, just connect to the localhost
       if (client_.Connected() == false)
@@ -94,12 +101,11 @@ void Vimpc::Run()
       {
          Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server>");
       }
-
-      screen_.Start();
-
+      else
       {
+         screen_.Update();
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-         mode.Initialise(0);
+         mode.Refresh();
       }
 
       bool running = true;
