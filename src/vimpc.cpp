@@ -43,7 +43,7 @@ Vimpc::Vimpc() :
    settings_    (Main::Settings::Instance()),
    search_      (*(new Ui::Search (screen_, client_, settings_))),
    screen_      (settings_, client_, search_),
-   client_      (screen_),
+   client_      (this, screen_),
    modeTable_   ()
 {
    // Bring all the buffers into existance
@@ -74,23 +74,23 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run()
 {
-   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
-
+   // Set up the display
    {
-       Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-       mode.Initialise(0);
+      Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+      mode.Initialise(0);
    }
 
    screen_.Start();
 
+   // Parse the config file
+   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
 
    SetSkipConfigConnects(false);
 
    if (configExecutionResult == true)
    {
-      // TODO scan environment for MPD_HOST
-      // If we didn't connect to a host from the config file, just connect to the localhost
+      // If we didn't connect to a host from the config file, just connect to the default
       if (client_.Connected() == false)
       {
          client_.Connect();
@@ -110,9 +110,10 @@ void Vimpc::Run()
 
       bool running = true;
 
+      // The main loop
       while (running == true)
       {
-         static long updateTime    = 0;
+         static long updateTime = 0;
 
          struct timeval start, end;
 
@@ -124,21 +125,14 @@ void Vimpc::Run()
          long const useconds = end.tv_usec - start.tv_usec;
          long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-         updateTime  += mtime;
+         updateTime += mtime;
 
          if (input != ERR)
          {
-            updateTime = 0;
-            running    = Handle(input);
-
-            screen_.Update();
-            client_.DisplaySongInformation();
-
-            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-            mode.Refresh();
+            running = Handle(input);
          }
 
-         if ((screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
+         if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
          {
             updateTime = 0;
             screen_.Update();
@@ -151,6 +145,17 @@ void Vimpc::Run()
       }
    }
 }
+
+void Vimpc::SetSkipConfigConnects(bool val)
+{
+   settings_.SetSkipConfigConnects(val);
+}
+
+Ui::Mode & Vimpc::CurrentMode()
+{
+   return assert_reference(modeTable_[currentMode_]);
+}
+
 
 
 int Vimpc::Input() const
@@ -239,8 +244,4 @@ void Vimpc::ChangeMode(int input)
    }
 }
 
-void Vimpc::SetSkipConfigConnects(bool val)
-{
-   settings_.SetSkipConfigConnects(val);
-}
 

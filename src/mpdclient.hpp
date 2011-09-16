@@ -27,6 +27,11 @@
 #include "buffers.hpp"
 #include "buffer/library.hpp"
 
+namespace Main
+{
+   class Vimpc;
+}
+
 namespace Ui
 {
    class Screen;
@@ -40,7 +45,7 @@ namespace Mpc
    class Client
    {
    public:
-      Client(Ui::Screen const & screen);
+      Client(Main::Vimpc * vimpc, Ui::Screen const & screen);
       ~Client();
 
    private:
@@ -118,12 +123,14 @@ namespace Mpc
       void DeleteConnection();
 
    private:
+      Main::Vimpc *           vimpc_;
       struct mpd_connection * connection_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
       int32_t                 currentSongId_;
       std::string             currentSongURI_;
+      std::string             currentState_;
 
       Ui::Screen      const & screen_;
       unsigned int            queueVersion_;

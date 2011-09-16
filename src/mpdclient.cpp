@@ -22,6 +22,9 @@
 
 #include "assert.hpp"
 #include "screen.hpp"
+#include "vimpc.hpp"
+
+#include "mode/mode.hpp"
 #include "window/error.hpp"
 
 #include <mpd/tag.h>
@@ -50,12 +53,14 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 
 
 // Mpc::Client Implementation
-Client::Client(Ui::Screen const & screen) :
+Client::Client(Main::Vimpc * vimpc, Ui::Screen const & screen) :
+   vimpc_                (vimpc),
    connection_           (NULL),
    currentSong_          (NULL),
    currentStatus_        (NULL),
    currentSongId_        (-1),
    currentSongURI_       (""),
+   currentState_         ("Disconnected"),
    screen_               (screen)
 {
 }
@@ -68,46 +73,46 @@ Client::~Client()
 
 void Client::Connect(std::string const & hostname, uint16_t port)
 {
-   static char * localhost = "localhost";
-
-   char *   tmp_env;
-   char *   connect_hostname;
-   uint16_t connect_port;
+   std::string connect_hostname = hostname;
+   uint16_t    connect_port     = port;
 
    DeleteConnection();
 
-   connect_hostname = (char *)hostname.c_str();
-   connect_port = port;
-
-   if (hostname == "")
+   if (connect_hostname.empty() == true)
    {
-      tmp_env = getenv("MPD_HOST");
+      char * const host_env = getenv("MPD_HOST");
+      char * const port_env = getenv("MPD_PORT");
 
-      if (tmp_env != NULL)
+      if (host_env != NULL)
       {
-         connect_hostname = tmp_env;
+         connect_hostname = host_env;
       }
       else
       {
-         connect_hostname = localhost;
+         connect_hostname = "localhost";
       }
 
-      tmp_env = getenv("MPD_PORT");
-
-      if (tmp_env != NULL)
+      if (port_env != NULL)
       {
-         connect_port = atoi(tmp_env);
+         connect_port = atoi(port_env);
       }
    }
 
-   connection_ = mpd_connection_new(connect_hostname, connect_port, 0);
+   currentState_ = "Connecting";
+   vimpc_->CurrentMode().Refresh();
+
+   connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
    CheckError();
 
-   // Must redraw the library first
-   screen_.Redraw(Ui::Screen::Library);
-   screen_.Redraw(Ui::Screen::Browse);
+   if (Connected() == true)
+   {
+      // Must redraw the library first
+      screen_.Redraw(Ui::Screen::Library);
+      screen_.Redraw(Ui::Screen::Browse);
 
-   CheckForUpdates();
+      // This will redraw the playlist window
+      CheckForUpdates();
+   }
 }
 
 void Client::Play(uint32_t const playId)
@@ -460,8 +465,6 @@ void Client::CheckForUpdates()
 
 std::string Client::CurrentState()
 {
-   std::string currentState("Disconnected");
-
    if (Connected() == true)
    {
       CheckForUpdates();
@@ -473,16 +476,16 @@ std::string Client::CurrentState()
          switch (state)
          {
             case MPD_STATE_UNKNOWN:
-               currentState = "Unknown";
+               currentState_ = "Unknown";
                break;
             case MPD_STATE_STOP:
-               currentState = "Stopped";
+               currentState_ = "Stopped";
                break;
             case MPD_STATE_PLAY:
-               currentState = "Playing";
+               currentState_ = "Playing";
                break;
             case MPD_STATE_PAUSE:
-               currentState = "Paused";
+               currentState_ = "Paused";
                break;
 
             default:
@@ -491,7 +494,7 @@ std::string Client::CurrentState()
       }
    }
 
-   return currentState;
+   return currentState_;
 }
 
 
@@ -606,6 +609,8 @@ void Client::CheckError()
          Error(ErrorNumber::ClientError, error);
 
          DeleteConnection();
+
+         currentState_ = "Disconnected";
       }
    }
 }

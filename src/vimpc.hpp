@@ -44,6 +44,9 @@ namespace Main
       //! Hook vimpc's command parser
       void SetSkipConfigConnects(bool val);
 
+      //! Return the currently active mode
+      Ui::Mode & CurrentMode();
+
    private:
       //! Read input from the screen
       int  Input() const;
