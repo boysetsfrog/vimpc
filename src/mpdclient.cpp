@@ -632,11 +632,13 @@ void Client::CheckError()
          snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
          Error(ErrorNumber::ClientError, error);
 
-         //! \TODO figure out why every error currently requires me to kill the connection
-         // this is really really wrong
-         DeleteConnection();
+         bool ClearError = mpd_connection_clear_error(connection_);
 
-         currentState_ = "Disconnected";
+         if (ClearError == false)
+         {
+            DeleteConnection();
+            currentState_ = "Disconnected";
+         }
       }
    }
 }
