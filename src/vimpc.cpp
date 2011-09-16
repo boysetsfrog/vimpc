@@ -99,7 +99,7 @@ void Vimpc::Run()
       // If we still have no connection, report an error
       if (client_.Connected() == false)
       {
-         Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server>");
+         Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server> [port]");
       }
       else
       {

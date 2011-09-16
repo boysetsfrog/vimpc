@@ -45,7 +45,7 @@ namespace Mpc
    class Client
    {
    public:
-      Client(Main::Vimpc * vimpc, Ui::Screen const & screen);
+      Client(Main::Vimpc * vimpc, Ui::Screen & screen);
       ~Client();
 
    private:
@@ -132,7 +132,7 @@ namespace Mpc
       std::string             currentSongURI_;
       std::string             currentState_;
 
-      Ui::Screen      const & screen_;
+      Ui::Screen &            screen_;
       unsigned int            queueVersion_;
       bool                    forceUpdate_;
    };

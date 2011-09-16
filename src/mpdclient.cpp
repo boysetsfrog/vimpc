@@ -53,7 +53,7 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 
 
 // Mpc::Client Implementation
-Client::Client(Main::Vimpc * vimpc, Ui::Screen const & screen) :
+Client::Client(Main::Vimpc * vimpc, Ui::Screen & screen) :
    vimpc_                (vimpc),
    connection_           (NULL),
    currentSong_          (NULL),
@@ -100,7 +100,11 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       }
    }
 
+   // Connecting may take a long time as this is a single threaded application
+   // and the mpd connect is a blocking call, so be sure to update the screen
+   // first to let the user know that something is happening
    currentState_ = "Connecting";
+   screen_.Update();
    vimpc_->CurrentMode().Refresh();
 
    connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
