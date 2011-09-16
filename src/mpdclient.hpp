@@ -134,6 +134,7 @@ namespace Mpc
 
       Ui::Screen      const & screen_;
       unsigned int            queueVersion_;
+      bool                    forceUpdate_;
    };
 
    //

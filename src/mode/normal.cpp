@@ -60,6 +60,9 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['s']           = &Normal::Stop;
    actionTable_[KEY_BACKSPACE] = &Normal::Stop;
 
+   actionTable_['+']       = &Normal::ChangeVolume<1>;
+   actionTable_['-']       = &Normal::ChangeVolume<-1>;
+
    // Console
    // \todo add an "insert" mode to console that just stays in command entry mode
    // This should really be implemented as Q as per vim (:he Ex-mode)
@@ -259,6 +262,24 @@ bool Normal::Single(uint32_t count)
 bool Normal::Stop(uint32_t count)
 {
    return Player::Stop();
+}
+
+
+template <int Delta>
+bool Normal::ChangeVolume(uint32_t count)
+{
+   int CurrentVolume = client_.Volume() + (count * Delta);
+
+   if (CurrentVolume < 0)
+   {
+      CurrentVolume = 0;
+   }
+   else if (CurrentVolume > 100)
+   {
+      CurrentVolume = 100;
+   }
+
+   return Player::Volume(CurrentVolume);
 }
 
 

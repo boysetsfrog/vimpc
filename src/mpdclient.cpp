@@ -61,7 +61,9 @@ Client::Client(Main::Vimpc * vimpc, Ui::Screen const & screen) :
    currentSongId_        (-1),
    currentSongURI_       (""),
    currentState_         ("Disconnected"),
-   screen_               (screen)
+   screen_               (screen),
+   queueVersion_         (0),
+   forceUpdate_          (true)
 {
 }
 
@@ -129,6 +131,7 @@ void Client::Pause()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_toggle_pause(connection_);
       CheckError();
    }
@@ -138,6 +141,7 @@ void Client::Stop()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_stop(connection_);
       CheckError();
    }
@@ -147,6 +151,7 @@ void Client::Next()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_next(connection_);
       CheckError();
    }
@@ -156,6 +161,7 @@ void Client::Previous()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_previous(connection_);
       CheckError();
    }
@@ -181,6 +187,7 @@ void Client::SetRandom(bool const random)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_random(connection_, random);
       CheckError();
    }
@@ -206,6 +213,7 @@ void Client::SetSingle(bool const single)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_single(connection_, single);
       CheckError();
    }
@@ -231,6 +239,7 @@ void Client::SetConsume(bool const consume)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_consume(connection_, consume);
       CheckError();
    }
@@ -255,6 +264,7 @@ void Client::SetRepeat(bool const repeat)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_repeat(connection_, repeat);
       CheckError();
    }
@@ -279,6 +289,7 @@ void Client::SetVolume(uint32_t volume)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       (void) mpd_run_set_volume(connection_, volume);
       CheckError();
    }
@@ -411,11 +422,10 @@ void Client::CheckForUpdates()
       long const useconds = end.tv_usec - start.tv_usec;
       long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-      if ((updated == false) || (mtime > 250))
+      if ((updated == false) || (mtime > 250) || (forceUpdate_ == true))
       {
-         updated = true;
-
-         gettimeofday(&start, NULL);
+         forceUpdate_ = false;
+         updated      = true;
 
          if (currentSong_ != NULL)
          {
@@ -453,6 +463,8 @@ void Client::CheckForUpdates()
              currentSongId_ = -1;
              currentSongURI_ = "";
          }
+
+         gettimeofday(&start, NULL);
       }
    }
    else

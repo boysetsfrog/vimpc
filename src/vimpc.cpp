@@ -135,12 +135,12 @@ void Vimpc::Run()
          if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
          {
             updateTime = 0;
-            screen_.Update();
-
             client_.DisplaySongInformation();
 
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
             mode.Refresh();
+
+            screen_.Update();
          }
       }
    }

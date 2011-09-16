@@ -52,6 +52,9 @@ SEARCHING:
    [count] N                      | go to the previous result
 
 PLAYING (ALSO SEE PLAYLIST):                          
+   [count] +                      | increase volume by 1 or [count]
+   [count] -                      | decrease volume by 1 or [count]
+
            p                      | toggle the pause on/off
            s                      | stop playback
 
