@@ -76,19 +76,19 @@ void Vimpc::Run()
 {
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
 
+   {
+       Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+       mode.Initialise(0);
+   }
+
+   screen_.Start();
+
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
 
    SetSkipConfigConnects(false);
 
    if (configExecutionResult == true)
    {
-      {
-         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-         mode.Initialise(0);
-      }
-
-      screen_.Start();
-
       // TODO scan environment for MPD_HOST
       // If we didn't connect to a host from the config file, just connect to the localhost
       if (client_.Connected() == false)
