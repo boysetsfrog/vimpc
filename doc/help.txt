@@ -51,6 +51,9 @@ SEARCHING:
    [count] n                      | go to the next result
    [count] N                      | go to the previous result
 
+SEARCH FLAGS:
+          \c                      | when used in search pattern, disables case sensitivity
+
 PLAYING (ALSO SEE PLAYLIST):                          
    [count] +                      | increase volume by 1 or [count]
    [count] -                      | decrease volume by 1 or [count]
@@ -161,6 +164,8 @@ SETTINGS
                                   | if you change this during operation you will need to call :redraw from the library window
                                   
             [no]hlsearch[!]       | highlight search results
+
+            [no]ignorecase[!]     | case insensitive searching
                                   
             [no]searchwrap[!]     | wrap search results when using n/N
                                   
