@@ -120,6 +120,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       // Must redraw the library first
       screen_.Redraw(Ui::Screen::Library);
       screen_.Redraw(Ui::Screen::Browse);
+      screen_.Redraw(Ui::Screen::Lists);
 
       // This will redraw the playlist window
       CheckForUpdates();

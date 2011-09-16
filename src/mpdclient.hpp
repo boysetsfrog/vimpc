@@ -114,6 +114,9 @@ namespace Mpc
       template <typename Object>
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
+      template <typename Object>
+      void ForEachPlaylist(Object & object, void (Object::*callBack)(std::string));
+
    private:
       unsigned int QueueVersion();
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
@@ -196,6 +199,26 @@ namespace Mpc
       }
    }
 
+   //
+   template <typename Object>
+   void Client::ForEachPlaylist(Object & object, void (Object::*callBack)(std::string))
+   {
+#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      if (Connected() == true)
+      {
+         mpd_send_list_playlists(connection_);
+
+         mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
+
+         for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+         {
+            std::string const playlist = mpd_playlist_get_path(nextPlaylist);
+            (object.*callBack)(playlist);
+            mpd_playlist_free(nextPlaylist);
+         }
+      }
+   }
+#endif
 }
 
 #endif

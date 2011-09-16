@@ -77,6 +77,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
    commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
    commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
+   commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;
 
    commandTable_["load"]  = &Command::LoadPlaylist;
    commandTable_["save"]  = &Command::SavePlaylist;

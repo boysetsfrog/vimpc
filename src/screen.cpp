@@ -38,6 +38,7 @@
 #include "window/error.hpp"
 #include "window/help.hpp"
 #include "window/librarywindow.hpp"
+#include "window/listwindow.hpp"
 #include "window/playlistwindow.hpp"
 
 using namespace Ui;
@@ -82,6 +83,13 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Console]  = new Ui::ConsoleWindow (*this);
    mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search);
    mainWindows_[Browse]   = new Ui::BrowseWindow  (settings, *this, client, search);
+
+#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+   mainWindows_[Lists]    = new Ui::ListWindow    (settings, *this, client, search);
+#else
+   mainWindows_[Lists]    = NULL;
+#endif
+
    mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
    statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
@@ -89,7 +97,10 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // Mark them all as visible
    for (uint32_t i = 0; i < MainWindowCount; ++i)
    {
-      visibleWindows_.push_back(static_cast<MainWindow>(i));
+      if (mainWindows_[i] != NULL)
+      {
+         visibleWindows_.push_back(static_cast<MainWindow>(i));
+      }
    }
 
    // Commands must be read through a window that is always visible
@@ -99,8 +110,6 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // Window setup
    mainWindows_[Console]->SetAutoScroll(true);
    SetStatusLine("%s", "");
-
-   ENSURE(WindowsAreInitialised() == true);
 
    SetVisible(Console, false);
 }
@@ -129,11 +138,12 @@ Screen::~Screen()
    if (windowTable.size() != MainWindowCount)
    {
       // Names for each of the windows
-      windowTable["help"]     = Help;
-      windowTable["console"]  = Console;
-      windowTable["library"]  = Library;
-      windowTable["browse"]   = Browse;
-      windowTable["playlist"] = Playlist;
+      windowTable["help"]      = Help;
+      windowTable["console"]   = Console;
+      windowTable["lists"]     = Lists;
+      windowTable["library"]   = Library;
+      windowTable["browse"]    = Browse;
+      windowTable["playlist"]  = Playlist;
    }
 
    WindowTable::const_iterator it = windowTable.find(name);
@@ -161,6 +171,7 @@ Screen::~Screen()
       // Values for each of the windows
       windowTable[Help]     = "help";
       windowTable[Console]  = "console";
+      windowTable[Lists]    = "lists";
       windowTable[Library]  = "library";
       windowTable[Browse]   = "browse";
       windowTable[Playlist] = "playlist";
@@ -406,7 +417,10 @@ void Screen::Redraw() const
 
 void Screen::Redraw(MainWindow window) const
 {
-   mainWindows_[window]->Redraw();
+   if (mainWindows_[window] != NULL)
+   {
+      mainWindows_[window]->Redraw();
+   }
 }
 
 bool Screen::Resize(bool forceResize)
@@ -451,8 +465,11 @@ bool Screen::Resize(bool forceResize)
 
       for (int i = 0; (i < MainWindowCount); ++i)
       {
-         wclear(mainWindows_[i]->N_WINDOW());
-         mainWindows_[i]->Resize(maxRows_, maxColumns_);
+         if (mainWindows_[i] != NULL)
+         {
+            wclear(mainWindows_[i]->N_WINDOW());
+            mainWindows_[i]->Resize(maxRows_, maxColumns_);
+         }
       }
    }
 
@@ -567,45 +584,51 @@ void Screen::SetActiveWindow(Skip skip)
 
 void Screen::SetVisible(MainWindow window, bool visible)
 {
-   //! \todo Handle the case when there is no visible tabs left and clear the mainwindow
-   bool found = false;
-
-   if ((window == window_) && (visible == false))
+   if (mainWindows_[window] != NULL)
    {
-      SetActiveWindow(Ui::Screen::Next);
-   }
+      //! \todo Handle the case when there is no visible tabs left and clear the mainwindow
+      bool found = false;
 
-   if (window < MainWindowCount)
-   {
-      for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      if ((window == window_) && (visible == false))
       {
-         if ((*it) == window)
-         {
-            found = true;
-
-            if (visible == false)
-            {
-               visibleWindows_.erase(it);
-            }
-         }
+         SetActiveWindow(Ui::Screen::Next);
       }
 
-      if ((found == false) && (visible == true))
+      if (window < MainWindowCount)
       {
-         visibleWindows_.push_back(window);
+         for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+         {
+            if ((*it) == window)
+            {
+               found = true;
+
+               if (visible == false)
+               {
+                  visibleWindows_.erase(it);
+               }
+            }
+         }
+
+         if ((found == false) && (visible == true))
+         {
+            visibleWindows_.push_back(window);
+         }
       }
    }
 }
 
 void Screen::SetActiveAndVisible(MainWindow window)
 {
-   SetVisible(window, true);
-
-   for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+   if (mainWindows_[window] != NULL)
    {
-      if (visibleWindows_.at(i) == window)
+      SetVisible(window, true);
+
+      for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
       {
-         SetActiveWindow(i);
+         if (visibleWindows_.at(i) == window)
+         {
+            SetActiveWindow(i);
+         }
       }
    }
 }
@@ -617,31 +640,34 @@ void Screen::MoveWindow(uint32_t position)
 
 void Screen::MoveWindow(MainWindow window, uint32_t position)
 {
-   bool found = false;
-
-   uint32_t pos = 0;
-
-   if (position >= visibleWindows_.size())
+   if (mainWindows_[window] != NULL)
    {
-      position = visibleWindows_.size() - 1;
-   }
+      bool found = false;
 
-   for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
-   {
-      if ((*it) == window)
+      uint32_t pos = 0;
+
+      if (position >= visibleWindows_.size())
       {
-         found = true;
-         visibleWindows_.erase(it);
+         position = visibleWindows_.size() - 1;
       }
-   }
 
-   std::vector<MainWindow>::iterator it;
+      for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      {
+         if ((*it) == window)
+         {
+            found = true;
+            visibleWindows_.erase(it);
+         }
+      }
 
-   for (it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
+      std::vector<MainWindow>::iterator it;
 
-   if (pos == position)
-   {
-      visibleWindows_.insert(it, window);
+      for (it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
+
+      if (pos == position)
+      {
+         visibleWindows_.insert(it, window);
+      }
    }
 }
 
@@ -739,19 +765,6 @@ void Screen::UpdateTabWindow() const
 
    wattroff(tabWindow_, A_UNDERLINE);
    wrefresh(tabWindow_);
-}
-
-
-bool Screen::WindowsAreInitialised()
-{
-   bool result = true;
-
-   for (int i = 0; ((i < MainWindowCount) && (result == true)); ++i)
-   {
-      result = (mainWindows_[i] != NULL);
-   }
-
-   return result;
 }
 
 

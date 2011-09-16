@@ -52,6 +52,7 @@ Vimpc::Vimpc() :
    // Important to do the library before the others as it is the real location of the songs
    (void) Main::Library();
    (void) Main::Browse();
+   (void) Main::Lists();
    (void) Main::Playlist();
    (void) Main::PlaylistPasteBuffer();
 
