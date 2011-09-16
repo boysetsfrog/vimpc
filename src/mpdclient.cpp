@@ -311,6 +311,8 @@ void Client::SavePlaylist(std::string const & name)
    {
       (void) mpd_run_save(connection_, name.c_str());
       CheckError();
+
+      screen_.Redraw(Ui::Screen::Lists);
    }
 }
 
@@ -630,6 +632,8 @@ void Client::CheckError()
          snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
          Error(ErrorNumber::ClientError, error);
 
+         //! \TODO figure out why every error currently requires me to kill the connection
+         // this is really really wrong
          DeleteConnection();
 
          currentState_ = "Disconnected";
