@@ -506,6 +506,18 @@ uint32_t Screen::WaitForInput() const
    return input;
 }
 
+void Screen::ClearInput() const
+{
+   halfdelay(1);
+
+   int32_t input = ERR;
+
+   do
+   {
+      input = wgetch(commandWindow_);
+   } while (input != ERR);
+}
+
 
 Ui::ScrollWindow & Screen::ActiveWindow() const
 {

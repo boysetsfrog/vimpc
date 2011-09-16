@@ -107,7 +107,12 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    screen_.Update();
    vimpc_->CurrentMode().Refresh();
 
+   //! \TODO I may need to end up using threads in here, or lower the default timeout at least
    connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
+
+   // Throw away any keys that were pressed in anger, while we were waiting to connect
+   screen_.ClearInput();
+
    CheckError();
 
    if (Connected() == true)
