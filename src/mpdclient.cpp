@@ -335,6 +335,8 @@ void Client::RemovePlaylist(std::string const & name)
    {
       (void) mpd_run_rm(connection_, name.c_str());
       CheckError();
+
+      screen_.Redraw(Ui::Screen::Lists);
    }
 }
 
