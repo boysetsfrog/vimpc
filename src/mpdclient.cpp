@@ -329,6 +329,15 @@ void Client::LoadPlaylist(std::string const & name)
    }
 }
 
+void Client::RemovePlaylist(std::string const & name)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_rm(connection_, name.c_str());
+      CheckError();
+   }
+}
+
 uint32_t Client::Add(Mpc::Song & song)
 {
    if (Connected() == true)

@@ -79,6 +79,7 @@ namespace Mpc
    public:
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
+      void RemovePlaylist(std::string const & name);
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);

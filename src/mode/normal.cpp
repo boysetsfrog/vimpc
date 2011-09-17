@@ -370,6 +370,9 @@ bool Normal::AddSong(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::DeleteSong(uint32_t count)
 {
+   //! \todo should probably move this into a function on each window
+   //! rather than having it in here and having to check what the window is
+
    //! \todo Make delete and add take a movement operation?
    //!       ie to do stuff like dG, this may require making some kind of movement
    //!          table or something rather than the way it currently works
@@ -413,6 +416,12 @@ bool Normal::DeleteSong(uint32_t count)
       {
          screen_.ScrollTo(currentLine);
       }
+   }
+   else if (screen_.GetActiveWindow() == Screen::Lists)
+   {
+      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
+
+      client_.RemovePlaylist(Main::Lists().Get(currentLine));
    }
 
    return true;

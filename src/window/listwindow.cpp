@@ -98,6 +98,7 @@ void ListWindow::Confirm()
    if (lists_.Size() > CurrentLine())
    {
       client_.LoadPlaylist(lists_.Get(CurrentLine()));
+      client_.Play(0);
    }
 }
 
