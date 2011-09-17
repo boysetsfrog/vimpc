@@ -109,6 +109,8 @@ PLAYBACK:
           single [on/off]         | toggles single on/off
           consume [on/off]        | toggles consume on/off
 
+          shuffle                 | shuffle the playlist
+
 PLAYLISTS:
           load <name>             | load the playlist called <name>
           edit <name>             | same as load

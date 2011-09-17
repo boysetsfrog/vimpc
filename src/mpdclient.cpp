@@ -328,6 +328,18 @@ void Client::SetVolume(uint32_t volume)
    }
 }
 
+
+void Client::Shuffle()
+{
+   if (Connected() == true)
+   {
+      forceUpdate_ = true;
+      (void) mpd_run_shuffle(connection_);
+      CheckError();
+   }
+}
+
+
 void Client::SavePlaylist(std::string const & name)
 {
    if (Connected() == true)

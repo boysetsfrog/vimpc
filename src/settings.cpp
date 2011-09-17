@@ -31,13 +31,21 @@
 
 using namespace Main;
 
+// \TODO some settings i would like to add are commented out here
+//       once they are implemented this can be removed
+
 char const * const AutoScrollSetting       = "autoscroll";
+//char const * const BrowseNumbersSetting    = "browsenumbers"; //disable song numbers in browse
 char const * const ColourSetting           = "colour";
 char const * const ExpandArtistsSetting    = "expand-artists";
+//char const * const GraphicalVolumeSetting  = "graphicalvolume"; //Display volume graphically (colours) something like [||||||||  ][80%]
+//char const * const HideTabBarSetting       = "hidetabbar"; //Hide the tab bar
 char const * const HighlightSearchSetting  = "hlsearch";
 char const * const IgnoreCaseSearchSetting = "ignorecase";
+//char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
 char const * const SearchWrapSetting       = "searchwrap";
 char const * const StopOnQuitSetting       = "stoponquit";
+//char const * const TimeRemainingSetting    = "timeremaining"; // Show time remaining instead of played
 char const * const WindowNumbersSetting    = "windownumbers";
 
 bool skipConfigConnects_ (false);

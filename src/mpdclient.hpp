@@ -81,6 +81,9 @@ namespace Mpc
       void SetVolume(uint32_t volume);
 
    public:
+      void Shuffle();
+
+   public:
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
       void RemovePlaylist(std::string const & name);

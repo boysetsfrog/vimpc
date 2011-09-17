@@ -110,6 +110,9 @@ namespace Ui
       //! Get the current consume state
       bool Consume();
 
+      //! Shuffle the playlist
+      bool Shuffle();
+
       //! Redraws the current window
       bool Redraw();
 

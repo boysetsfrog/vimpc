@@ -70,6 +70,7 @@ namespace Ui
       bool Repeat(std::string const & arguments);
       bool Single(std::string const & arguments);
       bool Consume(std::string const & arguments);
+      bool Shuffle(std::string const & arguments);
       bool Redraw(std::string const & arguments);
       bool Stop(std::string const & arguments);
       bool Volume(std::string const & arguments);

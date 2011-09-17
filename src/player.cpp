@@ -137,6 +137,12 @@ bool Player::Consume()
    return client_.Consume();
 }
 
+bool Player::Shuffle()
+{
+   client_.Shuffle();
+   return true;
+}
+
 
 bool Player::Redraw()
 {
