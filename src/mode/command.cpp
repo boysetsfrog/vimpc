@@ -41,6 +41,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    aliasTable_         (),
    commandTable_       (),
    screen_             (screen),
+   client_             (client),
    settings_           (settings)
 {
    // \todo find a away to add aliases to tab completion
@@ -398,13 +399,16 @@ bool Command::Mpc(std::string const & arguments)
 {
    static uint32_t const bufferSize = 512;
    char   buffer[bufferSize];
+   char   port[8];
 
    // \todo add a check to see if mpc exists
    // \todo redirect std:error results into the console window too
+   snprintf(port, 8, "%u", client_.Port());
 
-   std::string const command("mpc " + arguments);
+   //
+   std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) + " mpc " + arguments);
 
-   Main::Console().Add("> " + command);
+   Main::Console().Add("> mpc " + arguments);
 
    FILE * const mpcOutput = popen(command.c_str(), "r");
 

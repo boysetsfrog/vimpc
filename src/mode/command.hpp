@@ -137,6 +137,7 @@ namespace Ui
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       Ui::Screen         & screen_;
+      Mpc::Client        & client_;
       Main::Settings     & settings_;
 
       // Tab completion searching class

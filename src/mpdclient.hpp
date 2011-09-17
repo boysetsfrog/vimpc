@@ -54,6 +54,10 @@ namespace Mpc
 
    public:
       void Connect(std::string const & hostname = "", uint16_t port = 0);
+      std::string Hostname();
+      uint16_t Port();
+
+   public:
       void Play(uint32_t playId);
       void Pause();
       void Stop();
@@ -129,6 +133,9 @@ namespace Mpc
    private:
       Main::Vimpc *           vimpc_;
       struct mpd_connection * connection_;
+
+      std::string             hostname_;
+      uint16_t                port_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;

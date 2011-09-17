@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   main.cpp - handle command line options and run program 
+   main.cpp - handle command line options and run program
    */
 
 #include <getopt.h>
@@ -51,12 +51,13 @@ int main(int argc, char** argv)
    int  option             = 0;
    int  option_index       = 0;
 
+   std::string hostname("");
+   uint16_t    port(0);
+
    while (option != -1)
    {
       static struct option long_options[] =
       {
-        // TODO -h hostname
-        // TODO -p port
          {"host",  required_argument, 0, 'h'},
          {"port",  required_argument, 0, 'p'},
          {"bugreport",  no_argument, 0, 'b'},
@@ -69,9 +70,9 @@ int main(int argc, char** argv)
 
       if (option != -1)
       {
-         std::string output; 
+         std::string output;
 
-         if (option == 'b') 
+         if (option == 'b')
          {
             runVimpc  = false;
             output = Main::Project::BugReport();
@@ -89,14 +90,12 @@ int main(int argc, char** argv)
          else if (option == 'h')
          {
             skipConfigConnects = true;
-            setenv("MPD_HOST", optarg, 1);
+            hostname = optarg;
          }
          else if (option == 'p')
          {
-            // TODO Check that it's a valid int
-            // test atoi ?
             skipConfigConnects = true;
-            setenv("MPD_PORT", optarg, 1);
+            port = atoi(optarg);
          }
 
          std::cout << output << std::endl;
@@ -108,8 +107,7 @@ int main(int argc, char** argv)
       setlocale(LC_ALL, "");
 
       Main::Vimpc vimpc;
-      vimpc.SetSkipConfigConnects(skipConfigConnects);
-      vimpc.Run();
+      vimpc.Run(hostname, port);
    }
 
    return 0;

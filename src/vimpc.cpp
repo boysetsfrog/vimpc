@@ -73,7 +73,7 @@ Vimpc::~Vimpc()
    }
 }
 
-void Vimpc::Run()
+void Vimpc::Run(std::string hostname, uint16_t port)
 {
    // Set up the display
    {
@@ -82,6 +82,8 @@ void Vimpc::Run()
    }
 
    screen_.Start();
+
+   SetSkipConfigConnects(hostname != "");
 
    // Parse the config file
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
@@ -94,7 +96,7 @@ void Vimpc::Run()
       // If we didn't connect to a host from the config file, just connect to the default
       if (client_.Connected() == false)
       {
-         client_.Connect();
+         client_.Connect(hostname, port);
       }
 
       // If we still have no connection, report an error
@@ -145,11 +147,6 @@ void Vimpc::Run()
          }
       }
    }
-}
-
-void Vimpc::SetSkipConfigConnects(bool val)
-{
-   settings_.SetSkipConfigConnects(val);
 }
 
 Ui::Mode & Vimpc::CurrentMode()
@@ -243,6 +240,11 @@ void Vimpc::ChangeMode(int input)
       oldMode.Finalise(input);
       newMode.Initialise(input);
    }
+}
+
+void Vimpc::SetSkipConfigConnects(bool val)
+{
+   settings_.SetSkipConfigConnects(val);
 }
 
 

@@ -56,6 +56,8 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 Client::Client(Main::Vimpc * vimpc, Ui::Screen & screen) :
    vimpc_                (vimpc),
    connection_           (NULL),
+   hostname_             (""),
+   port_                 (0),
    currentSong_          (NULL),
    currentStatus_        (NULL),
    currentSongId_        (-1),
@@ -83,7 +85,6 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    if (connect_hostname.empty() == true)
    {
       char * const host_env = getenv("MPD_HOST");
-      char * const port_env = getenv("MPD_PORT");
 
       if (host_env != NULL)
       {
@@ -93,10 +94,19 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       {
          connect_hostname = "localhost";
       }
+   }
+
+   if (port == 0)
+   {
+      char * const port_env = getenv("MPD_PORT");
 
       if (port_env != NULL)
       {
          connect_port = atoi(port_env);
+      }
+      else
+      {
+         connect_port = 0;
       }
    }
 
@@ -106,6 +116,9 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    currentState_ = "Connecting";
    screen_.Update();
    vimpc_->CurrentMode().Refresh();
+
+   hostname_ = connect_hostname;
+   port_     = connect_port;
 
    //! \TODO I may need to end up using threads in here, or lower the default timeout at least
    connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
@@ -125,6 +138,16 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       // This will redraw the playlist window
       CheckForUpdates();
    }
+}
+
+std::string Client::Hostname()
+{
+   return hostname_;
+}
+
+uint16_t Client::Port()
+{
+   return port_;
 }
 
 void Client::Play(uint32_t const playId)

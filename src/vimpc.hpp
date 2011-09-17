@@ -39,10 +39,7 @@ namespace Main
 
    public:
       //! Start vimpc
-      void Run();
-
-      //! Hook vimpc's command parser
-      void SetSkipConfigConnects(bool val);
+      void Run(std::string hostname = "", uint16_t port = 0);
 
       //! Return the currently active mode
       Ui::Mode & CurrentMode();
@@ -78,6 +75,9 @@ namespace Main
 
       //! Change the currently active mode based on \p input
       void ChangeMode(int input);
+
+      //! Hook vimpc's command parser
+      void SetSkipConfigConnects(bool val);
 
    private:
       typedef std::map<ModeName, Ui::Mode *> ModeTable;
