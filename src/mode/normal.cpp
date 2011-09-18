@@ -346,6 +346,11 @@ bool Normal::AddSong(uint32_t count)
    }
    else
    {
+      if (count > 1)
+      {
+         client_.StartCommandList();
+      }
+
       for (uint32_t i = 0; i < count; ++i)
       {
          if (screen_.GetActiveWindow() == Screen::Library)
@@ -356,6 +361,11 @@ bool Normal::AddSong(uint32_t count)
          {
             Main::Browse().AddToPlaylist(client_, screen_.ActiveWindow().CurrentLine() + i);
          }
+      }
+
+      if (count > 1)
+      {
+         client_.SendCommandList();
       }
 
       if (screen_.GetActiveWindow() != Screen::Playlist)
@@ -392,6 +402,8 @@ bool Normal::DeleteSong(uint32_t count)
 
          if ((screen_.GetActiveWindow() == Screen::Browse))
          {
+            client_.StartCommandList();
+
             for (uint32_t i = 0; i < count; ++i)
             {
                int32_t index = currentLine;
@@ -405,6 +417,8 @@ bool Normal::DeleteSong(uint32_t count)
                   playlist_.Remove(index, 1);
                }
             }
+
+            client_.SendCommandList();
          }
          else if (index >= 0)
          {

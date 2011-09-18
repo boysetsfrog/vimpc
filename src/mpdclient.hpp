@@ -58,6 +58,10 @@ namespace Mpc
       uint16_t Port();
 
    public:
+      void StartCommandList();
+      void SendCommandList();
+
+   public:
       void Play(uint32_t playId);
       void Pause();
       void Stop();
@@ -152,6 +156,7 @@ namespace Mpc
       Ui::Screen &            screen_;
       unsigned int            queueVersion_;
       bool                    forceUpdate_;
+      bool                    listMode_;
    };
 
    //

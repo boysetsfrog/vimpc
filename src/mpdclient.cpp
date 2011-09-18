@@ -65,7 +65,8 @@ Client::Client(Main::Vimpc * vimpc, Ui::Screen & screen) :
    currentState_         ("Disconnected"),
    screen_               (screen),
    queueVersion_         (0),
-   forceUpdate_          (true)
+   forceUpdate_          (true),
+   listMode_             (false)
 {
 }
 
@@ -148,6 +149,31 @@ std::string Client::Hostname()
 uint16_t Client::Port()
 {
    return port_;
+}
+
+void Client::StartCommandList()
+{
+   if (Connected() == true)
+   {
+      listMode_ = true;
+      mpd_command_list_begin(connection_, true);
+   }
+}
+
+void Client::SendCommandList()
+{
+   if (Connected() == true)
+   {
+      mpd_command_list_end(connection_);
+      mpd_response_finish(connection_);
+
+      listMode_    = false;
+      forceUpdate_ = true;
+
+      CheckError();
+
+      CheckForUpdates();
+   }
 }
 
 void Client::Play(uint32_t const playId)
@@ -401,10 +427,14 @@ uint32_t Client::Add(Mpc::Song & song)
    {
       CheckForUpdates();
 
-      mpd_run_add(connection_, song.URI().c_str());
-      CheckError();
+      mpd_send_add(connection_, song.URI().c_str());
 
-      queueVersion_ = QueueVersion();
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+         queueVersion_ = QueueVersion();
+      }
    }
 
    return TotalNumberOfSongs() - 1;
@@ -416,10 +446,14 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
    {
       CheckForUpdates();
 
-      mpd_run_add_id_to(connection_, song.URI().c_str(), position);
-      CheckError();
+      mpd_send_add_id_to(connection_, song.URI().c_str(), position);
 
-      queueVersion_ = QueueVersion();
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+         queueVersion_ = QueueVersion();
+      }
    }
 
    return TotalNumberOfSongs() - 1;
@@ -443,10 +477,14 @@ void Client::Delete(uint32_t position)
    {
       CheckForUpdates();
 
-      mpd_run_delete(connection_, position);
-      CheckError();
+      mpd_send_delete(connection_, position);
 
-      queueVersion_ = QueueVersion();
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+         queueVersion_ = QueueVersion();
+      }
    }
 }
 
@@ -501,7 +539,7 @@ void Client::CheckForUpdates()
 
    gettimeofday(&end, NULL);
 
-   if (Connected() == true)
+   if ((Connected() == true) && (listMode_ == false))
    {
       if (queueVersion_ != QueueVersion())
       {
@@ -724,6 +762,8 @@ void Client::CheckError()
 
 void Client::DeleteConnection()
 {
+   listMode_ = false;
+
    if (connection_ != NULL)
    {
       mpd_connection_free(connection_);
