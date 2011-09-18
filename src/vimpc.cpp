@@ -43,7 +43,7 @@ Vimpc::Vimpc() :
    settings_    (Main::Settings::Instance()),
    search_      (*(new Ui::Search (screen_, client_, settings_))),
    screen_      (settings_, client_, search_),
-   client_      (this, screen_),
+   client_      (this, settings_, screen_),
    modeTable_   ()
 {
    // Bring all the buffers into existance

@@ -22,6 +22,7 @@
 
 #include "assert.hpp"
 #include "screen.hpp"
+#include "settings.hpp"
 #include "vimpc.hpp"
 
 #include "mode/mode.hpp"
@@ -53,8 +54,9 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 
 
 // Mpc::Client Implementation
-Client::Client(Main::Vimpc * vimpc, Ui::Screen & screen) :
+Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen) :
    vimpc_                (vimpc),
+   settings_             (settings),
    connection_           (NULL),
    hostname_             (""),
    port_                 (0),
@@ -695,6 +697,7 @@ void Client::DisplaySongInformation()
          mpd_status * const status   = currentStatus_;
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
+         uint32_t     const remain   = duration - elapsed;
          char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
          char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
@@ -702,9 +705,19 @@ void Client::DisplaySongInformation()
 
          //! \todo turn into a single setstatus and use a blank filler rather than a move
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
-         screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
-                               SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
-                               SecondsToMinutes(duration), RemainingSeconds(duration));
+
+         if (settings_.TimeRemaining() == false)
+         {
+            screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
+                                  SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
+                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+         }
+         else
+         {
+            screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
+                                  SecondsToMinutes(remain),  RemainingSeconds(remain),
+                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+         }
       }
    }
    else

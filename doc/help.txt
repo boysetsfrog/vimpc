@@ -172,6 +172,8 @@ SETTINGS
             [no]searchwrap[!]     | wrap search results when using n/N
                                   
             [no]stoponquit[!]     | automatically stop playback when vimpc is quit
+
+            [no]timeremaining[!]  | display the time that is left in the song rather than elapsed
                                   
             [no]windownumbers[!]  | display the number next to the window in the tab bar
                                   

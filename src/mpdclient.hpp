@@ -29,6 +29,7 @@
 
 namespace Main
 {
+   class Settings;
    class Vimpc;
 }
 
@@ -45,7 +46,7 @@ namespace Mpc
    class Client
    {
    public:
-      Client(Main::Vimpc * vimpc, Ui::Screen & screen);
+      Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
 
    private:
@@ -146,6 +147,7 @@ namespace Mpc
 
    private:
       Main::Vimpc *           vimpc_;
+      Main::Settings &        settings_;
       struct mpd_connection * connection_;
 
       std::string             hostname_;

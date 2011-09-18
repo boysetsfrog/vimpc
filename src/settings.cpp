@@ -45,7 +45,7 @@ char const * const IgnoreCaseSearchSetting = "ignorecase";
 //char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
 char const * const SearchWrapSetting       = "searchwrap";
 char const * const StopOnQuitSetting       = "stoponquit";
-//char const * const TimeRemainingSetting    = "timeremaining"; // Show time remaining instead of played
+char const * const TimeRemainingSetting    = "timeremaining";
 char const * const WindowNumbersSetting    = "windownumbers";
 
 bool skipConfigConnects_ (false);
@@ -70,6 +70,7 @@ Settings::Settings() :
    toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
    toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
    toggleTable_[StopOnQuitSetting]       = new Setting<bool>(true);
+   toggleTable_[TimeRemainingSetting]    = new Setting<bool>(false);
    toggleTable_[WindowNumbersSetting]    = new Setting<bool>(false);
 }
 
@@ -190,6 +191,11 @@ bool Settings::SearchWrap() const
 bool Settings::StopOnQuit() const
 {
    return Get(StopOnQuitSetting);
+}
+
+bool Settings::TimeRemaining() const
+{
+   return Get(TimeRemainingSetting);
 }
 
 bool Settings::WindowNumbers() const
