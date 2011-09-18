@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    InputMode   (screen),
    direction_  (Forwards),
    lastSearch_ (""),
-   lastSearchOpt_ (pcrecpp::RE_Options()),
    prompt_     (),
    settings_   (settings),
    screen_     (screen)
@@ -63,11 +62,12 @@ bool Search::CausesModeToStart(int input) const
 
 std::string Search::LastSearchString() const
 {
-   return lastSearch_;
+   return StripFlags(lastSearch_);
 }
-pcrecpp::RE_Options Search::LastSearchOpt() const
+
+pcrecpp::RE_Options Search::LastSearchOptions() const
 {
-   return lastSearchOpt_;
+   return GetOptions(lastSearch_);
 }
 
 bool Search::SearchResult(Skip skip, uint32_t count)
@@ -150,24 +150,10 @@ Search::Direction Search::GetDirectionForInput(int input) const
    return direction;
 }
 
-pcrecpp::RE_Options Search::GetOptions(std::string & search)
-{
-   size_t found;
-   pcrecpp::RE_Options opt;
-
-   while ((found = search.find("\\c")) != string::npos)
-   {
-      search.erase(found, 2);
-      opt.set_caseless(true);
-   }
-
-   return opt;
-}
-
 bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t & count)
 {
    // see :help pattern-overview for full descriptions of what should be supported
-   pcrecpp::RE   expression(".*" + search + ".*", lastSearchOpt_);
+   pcrecpp::RE   expression(".*" + StripFlags(search) + ".*", GetOptions(search));
    bool          found     (false);
 
    //std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->PlaylistDescription());
@@ -184,6 +170,36 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
    return found;
 }
 
+pcrecpp::RE_Options Search::GetOptions(const std::string & search) const
+{
+   pcrecpp::RE_Options opt;
+
+   if (settings_.IgnoreCaseSearch())
+   {
+      opt.set_caseless(true);
+   }
+   else if (search.find("\\c") != string::npos)
+   {
+      opt.set_caseless(true);
+   }
+
+   return opt;
+}
+
+std::string Search::StripFlags(std::string search) const
+{
+   std::string Result(search);
+
+   size_t found;
+
+   while ((found = Result.find("\\c")) != string::npos)
+   {
+      Result.erase(found, 2);
+   }
+
+   return Result;
+}
+
 char const * Search::Prompt() const
 {
    static char SearchPrompt[PromptSize + 1] = "";
@@ -197,6 +213,5 @@ char const * Search::Prompt() const
 bool Search::InputStringHandler(std::string input)
 {
    lastSearch_ = input;
-   lastSearchOpt_ = GetOptions(lastSearch_);
    return SearchResult(Next, 1);
 }

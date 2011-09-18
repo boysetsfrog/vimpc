@@ -75,6 +75,9 @@ namespace Main
          //! Determine whether to show search results in a different colour
          bool HightlightSearch() const;
 
+         //! Turn off case sensitivity on searching
+         bool IgnoreCaseSearch() const;
+
          //! Determine whether to wrap searching
          bool SearchWrap() const;
 

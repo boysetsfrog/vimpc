@@ -64,6 +64,9 @@ namespace Ui
       bool Single(uint32_t count);
       bool Stop(uint32_t count);
 
+      template <int Delta>
+      bool ChangeVolume(uint32_t count);
+
    private:
       bool Left(uint32_t count);
       bool Right(uint32_t count);

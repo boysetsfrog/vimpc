@@ -51,7 +51,13 @@ SEARCHING:
    [count] n                      | go to the next result
    [count] N                      | go to the previous result
 
+SEARCH FLAGS:
+          \c                      | when used in search pattern, disables case sensitivity
+
 PLAYING (ALSO SEE PLAYLIST):                          
+   [count] +                      | increase volume by 1 or [count]
+   [count] -                      | decrease volume by 1 or [count]
+
            p                      | toggle the pause on/off
            s                      | stop playback
 
@@ -102,6 +108,8 @@ PLAYBACK:
           repeat [on/off]         | toggles repeat on/off
           single [on/off]         | toggles single on/off
           consume [on/off]        | toggles consume on/off
+
+          shuffle                 | shuffle the playlist
 
 PLAYLISTS:
           load <name>             | load the playlist called <name>
@@ -158,6 +166,8 @@ SETTINGS
                                   | if you change this during operation you will need to call :redraw from the library window
                                   
             [no]hlsearch[!]       | highlight search results
+
+            [no]ignorecase[!]     | case insensitive searching
                                   
             [no]searchwrap[!]     | wrap search results when using n/N
                                   

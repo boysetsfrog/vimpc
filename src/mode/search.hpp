@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -48,17 +48,17 @@ namespace Ui
       ~Search();
 
    public:
-      typedef enum 
-      { 
+      typedef enum
+      {
          Next,
          Previous
       } Skip;
 
-      typedef enum 
-      { 
-         Forwards, 
-         Backwards, 
-         DirectionCount 
+      typedef enum
+      {
+         Forwards,
+         Backwards,
+         DirectionCount
       } Direction;
 
    public: //Ui::InputMode
@@ -67,7 +67,8 @@ namespace Ui
 
    public:
       std::string LastSearchString() const;
-      pcrecpp::RE_Options LastSearchOpt() const;
+      pcrecpp::RE_Options LastSearchOptions() const;
+
       bool SearchResult(Skip skip, uint32_t count);
       bool SearchWindow(Direction direction, std::string search, uint32_t count);
 
@@ -75,20 +76,21 @@ namespace Ui
       bool SearchForResult(Direction direction, std::string search, uint32_t count, int32_t startLine);
       Direction SwapDirection(Direction direction) const;
       Direction GetDirectionForInput(int input) const;
-      pcrecpp::RE_Options GetOptions(std::string & search);
       bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);
+
+      pcrecpp::RE_Options GetOptions(const std::string & search) const;
+      std::string StripFlags(std::string) const;
 
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
       char const * Prompt() const;
 
-   private: 
-      Direction        direction_;
-      std::string      lastSearch_;
-      pcrecpp::RE_Options      lastSearchOpt_;
-      char             prompt_[DirectionCount];
-      Main::Settings & settings_;
-      Ui::Screen     & screen_;
+   private:
+      Direction           direction_;
+      std::string         lastSearch_;
+      char                prompt_[DirectionCount];
+      Main::Settings &    settings_;
+      Ui::Screen     &    screen_;
 
   };
 }

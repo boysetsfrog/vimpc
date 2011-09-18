@@ -60,6 +60,9 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['s']           = &Normal::Stop;
    actionTable_[KEY_BACKSPACE] = &Normal::Stop;
 
+   actionTable_['+']       = &Normal::ChangeVolume<1>;
+   actionTable_['-']       = &Normal::ChangeVolume<-1>;
+
    // Console
    // \todo add an "insert" mode to console that just stays in command entry mode
    // This should really be implemented as Q as per vim (:he Ex-mode)
@@ -262,6 +265,24 @@ bool Normal::Stop(uint32_t count)
 }
 
 
+template <int Delta>
+bool Normal::ChangeVolume(uint32_t count)
+{
+   int CurrentVolume = client_.Volume() + (count * Delta);
+
+   if (CurrentVolume < 0)
+   {
+      CurrentVolume = 0;
+   }
+   else if (CurrentVolume > 100)
+   {
+      CurrentVolume = 100;
+   }
+
+   return Player::Volume(CurrentVolume);
+}
+
+
 bool Normal::Left(uint32_t count)
 {
    screen_.ActiveWindow().Left(*this, count);
@@ -349,6 +370,9 @@ bool Normal::AddSong(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::DeleteSong(uint32_t count)
 {
+   //! \todo should probably move this into a function on each window
+   //! rather than having it in here and having to check what the window is
+
    //! \todo Make delete and add take a movement operation?
    //!       ie to do stuff like dG, this may require making some kind of movement
    //!          table or something rather than the way it currently works
@@ -364,21 +388,28 @@ bool Normal::DeleteSong(uint32_t count)
 
       if (COLLECTION == Mpc::Song::Single)
       {
-         for (uint32_t i = 0; i < count; ++i)
-         {
-            int32_t index = currentLine;
+         int32_t index = currentLine;
 
-            if ((screen_.GetActiveWindow() == Screen::Browse))
+         if ((screen_.GetActiveWindow() == Screen::Browse))
+         {
+            for (uint32_t i = 0; i < count; ++i)
             {
+               int32_t index = currentLine;
+
                index = Main::Playlist().Index(Main::Browse().Get(index + i));
                screen_.ActiveWindow().Scroll(1);
-            }
 
-            if (index >= 0)
-            {
-               client_.Delete(index);
-               playlist_.Remove(index, 1);
+               if (index >= 0)
+               {
+                  client_.Delete(index);
+                  playlist_.Remove(index, 1);
+               }
             }
+         }
+         else if (index >= 0)
+         {
+            client_.Delete(index, count + index);
+            playlist_.Remove(index, count);
          }
       }
       else if (COLLECTION == Mpc::Song::All)
@@ -392,6 +423,12 @@ bool Normal::DeleteSong(uint32_t count)
       {
          screen_.ScrollTo(currentLine);
       }
+   }
+   else if (screen_.GetActiveWindow() == Screen::Lists)
+   {
+      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
+
+      client_.RemovePlaylist(Main::Lists().Get(currentLine));
    }
 
    return true;

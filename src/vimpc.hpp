@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -39,10 +39,10 @@ namespace Main
 
    public:
       //! Start vimpc
-      void Run();
+      void Run(std::string hostname = "", uint16_t port = 0);
 
-      //! Hook vimpc's command parser
-      void SetSkipConfigConnects(bool val);
+      //! Return the currently active mode
+      Ui::Mode & CurrentMode();
 
    private:
       //! Read input from the screen
@@ -75,6 +75,9 @@ namespace Main
 
       //! Change the currently active mode based on \p input
       void ChangeMode(int input);
+
+      //! Hook vimpc's command parser
+      void SetSkipConfigConnects(bool val);
 
    private:
       typedef std::map<ModeName, Ui::Mode *> ModeTable;

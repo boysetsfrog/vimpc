@@ -41,6 +41,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    aliasTable_         (),
    commandTable_       (),
    screen_             (screen),
+   client_             (client),
    settings_           (settings)
 {
    // \todo find a away to add aliases to tab completion
@@ -50,6 +51,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["consume"]   = &Command::Consume;
    commandTable_["echo"]      = &Command::Echo;
+   commandTable_["move"]      = &Command::Move;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
    commandTable_["quit"]      = &Command::Quit;
@@ -58,6 +60,8 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["repeat"]    = &Command::Repeat;
    commandTable_["set"]       = &Command::Set;
    commandTable_["single"]    = &Command::Single;
+   commandTable_["shuffle"]   = &Command::Shuffle;
+   commandTable_["swap"]      = &Command::Swap;
    commandTable_["stop"]      = &Command::Stop;
    commandTable_["volume"]    = &Command::Volume;
 
@@ -77,6 +81,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
    commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
    commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
+   commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;
 
    commandTable_["load"]  = &Command::LoadPlaylist;
    commandTable_["save"]  = &Command::SavePlaylist;
@@ -241,6 +246,35 @@ bool Command::Consume(std::string const & arguments)
    return Player::SetConsume(value);
 }
 
+bool Command::Shuffle(std::string const & arguments)
+{
+   return Player::Shuffle();
+}
+
+bool Command::Move(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string position1 = arguments.substr(0, arguments.find(" "));
+      std::string position2 = arguments.substr(arguments.find(" ") + 1);
+      client_.Move(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
+   }
+   // \todo print error
+   return true;
+}
+
+bool Command::Swap(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string position1 = arguments.substr(0, arguments.find(" "));
+      std::string position2 = arguments.substr(arguments.find(" ") + 1);
+      client_.Swap(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
+   }
+   // \todo print error
+   return true;
+}
+
 bool Command::Redraw(std::string const & arguments)
 {
    return Player::Redraw();
@@ -397,13 +431,16 @@ bool Command::Mpc(std::string const & arguments)
 {
    static uint32_t const bufferSize = 512;
    char   buffer[bufferSize];
+   char   port[8];
 
    // \todo add a check to see if mpc exists
    // \todo redirect std:error results into the console window too
+   snprintf(port, 8, "%u", client_.Port());
 
-   std::string const command("mpc " + arguments);
+   //
+   std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) + " mpc " + arguments);
 
-   Main::Console().Add("> " + command);
+   Main::Console().Add("> mpc " + arguments);
 
    FILE * const mpcOutput = popen(command.c_str(), "r");
 

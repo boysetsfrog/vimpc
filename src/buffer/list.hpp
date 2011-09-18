@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,28 +15,32 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   buffers.hpp - global access to important buffers (playlist, library, console)
+   list.hpp - handling of multiple mpd playlists
    */
 
-#ifndef __MAIN__BUFFERS
-#define __MAIN__BUFFERS
+#ifndef __MPC__LISTS
+#define __MPC__LISTS
 
-#include <iostream>
+// Includes
+#include "buffer.hpp"
+#include "callback.hpp"
 
-#include "window/console.hpp"
-#include "buffer/browse.hpp"
-#include "buffer/library.hpp"
-#include "buffer/list.hpp"
-#include "buffer/playlist.hpp"
-
-namespace Main
+// Lists
+namespace Mpc
 {
-   Mpc::Playlist & Playlist();
-   Mpc::Playlist & PlaylistPasteBuffer();
-   Mpc::Browse   & Browse();
-   Mpc::Library  & Library();
-   Mpc::Lists    & Lists();
-   Ui::Console   & Console();
-}
+   class Lists : public Main::Buffer<std::string>
+   {
+   private:
+      typedef Main::CallbackObject<Mpc::Lists, Lists::BufferType> CallbackObject;
+      typedef Main::CallbackFunction<Lists::BufferType> CallbackFunction;
 
+   public:
+      Lists()
+      {
+      }
+      ~Lists()
+      {
+      }
+   };
+}
 #endif

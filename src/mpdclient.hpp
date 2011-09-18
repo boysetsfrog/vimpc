@@ -27,6 +27,11 @@
 #include "buffers.hpp"
 #include "buffer/library.hpp"
 
+namespace Main
+{
+   class Vimpc;
+}
+
 namespace Ui
 {
    class Screen;
@@ -40,7 +45,7 @@ namespace Mpc
    class Client
    {
    public:
-      Client(Ui::Screen const & screen);
+      Client(Main::Vimpc * vimpc, Ui::Screen & screen);
       ~Client();
 
    private:
@@ -49,6 +54,10 @@ namespace Mpc
 
    public:
       void Connect(std::string const & hostname = "", uint16_t port = 0);
+      std::string Hostname();
+      uint16_t Port();
+
+   public:
       void Play(uint32_t playId);
       void Pause();
       void Stop();
@@ -72,14 +81,21 @@ namespace Mpc
       void SetVolume(uint32_t volume);
 
    public:
+      void Shuffle();
+      void Move(uint32_t position1, uint32_t position2);
+      void Swap(uint32_t position1, uint32_t position2);
+
+   public:
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
+      void RemovePlaylist(std::string const & name);
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);
       uint32_t AddAllSongs();
       void Delete(uint32_t position);
+      void Delete(uint32_t position1, uint32_t position2);
       void Clear();
 
       void Rescan();
@@ -109,6 +125,9 @@ namespace Mpc
       template <typename Object>
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
+      template <typename Object>
+      void ForEachPlaylist(Object & object, void (Object::*callBack)(std::string));
+
    private:
       unsigned int QueueVersion();
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
@@ -118,15 +137,21 @@ namespace Mpc
       void DeleteConnection();
 
    private:
+      Main::Vimpc *           vimpc_;
       struct mpd_connection * connection_;
+
+      std::string             hostname_;
+      uint16_t                port_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
       int32_t                 currentSongId_;
       std::string             currentSongURI_;
+      std::string             currentState_;
 
-      Ui::Screen      const & screen_;
+      Ui::Screen &            screen_;
       unsigned int            queueVersion_;
+      bool                    forceUpdate_;
    };
 
    //
@@ -188,6 +213,26 @@ namespace Mpc
       }
    }
 
+   //
+   template <typename Object>
+   void Client::ForEachPlaylist(Object & object, void (Object::*callBack)(std::string))
+   {
+#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      if (Connected() == true)
+      {
+         mpd_send_list_playlists(connection_);
+
+         mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
+
+         for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+         {
+            std::string const playlist = mpd_playlist_get_path(nextPlaylist);
+            (object.*callBack)(playlist);
+            mpd_playlist_free(nextPlaylist);
+         }
+      }
+   }
+#endif
 }
 
 #endif

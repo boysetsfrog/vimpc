@@ -49,7 +49,7 @@ namespace Ui
 
    public:
       // Tabs/Windows that can be used
-      typedef enum { Help = 0, Console, Library, Browse, Playlist, MainWindowCount, Unknown } MainWindow;
+      typedef enum { Help = 0, Console, Library, Lists, Browse, Playlist, MainWindowCount, Unknown } MainWindow;
 
       // Scroll/Selection locations within a window
       typedef enum { Current, Top, Bottom, Centre, Specific, PlaylistNext, PlaylistPrev, LocationCount } Location;
@@ -116,6 +116,7 @@ namespace Ui
       uint32_t MaxRows()      const;
       uint32_t MaxColumns()   const;
       uint32_t WaitForInput() const;
+      void     ClearInput()   const;
 
    public:
       // Access the active window
@@ -142,7 +143,6 @@ namespace Ui
    private:
       void ClearStatus() const;
       void UpdateTabWindow() const;
-      bool WindowsAreInitialised();
 
    private:
       MainWindow             window_;

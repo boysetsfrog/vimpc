@@ -284,7 +284,7 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
    }
    else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
-      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOpt());
+      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
       if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
           ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||

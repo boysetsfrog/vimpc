@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ Vimpc::Vimpc() :
    settings_    (Main::Settings::Instance()),
    search_      (*(new Ui::Search (screen_, client_, settings_))),
    screen_      (settings_, client_, search_),
-   client_      (screen_),
+   client_      (this, screen_),
    modeTable_   ()
 {
    // Bring all the buffers into existance
@@ -52,6 +52,7 @@ Vimpc::Vimpc() :
    // Important to do the library before the others as it is the real location of the songs
    (void) Main::Library();
    (void) Main::Browse();
+   (void) Main::Lists();
    (void) Main::Playlist();
    (void) Main::PlaylistPasteBuffer();
 
@@ -72,40 +73,50 @@ Vimpc::~Vimpc()
    }
 }
 
-void Vimpc::Run()
+void Vimpc::Run(std::string hostname, uint16_t port)
 {
-   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
+   // Set up the display
+   {
+      Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+      mode.Initialise(0);
+   }
 
+   screen_.Start();
+
+   SetSkipConfigConnects(hostname != "");
+
+   // Parse the config file
+   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
 
    SetSkipConfigConnects(false);
 
    if (configExecutionResult == true)
    {
-      // If we didn't connect to a host from the config file, just connect to the localhost
+      // If we didn't connect to a host from the config file, just connect to the default
       if (client_.Connected() == false)
       {
-         client_.Connect();
+         client_.Connect(hostname, port);
       }
 
       // If we still have no connection, report an error
       if (client_.Connected() == false)
       {
-         Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server>");
+         Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server> [port]");
       }
-
-      screen_.Start();
-
+      else
       {
+         screen_.Update();
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-         mode.Initialise(0);
+         mode.Refresh();
       }
 
       bool running = true;
 
+      // The main loop
       while (running == true)
       {
-         static long updateTime    = 0;
+         static long updateTime = 0;
 
          struct timeval start, end;
 
@@ -117,33 +128,32 @@ void Vimpc::Run()
          long const useconds = end.tv_usec - start.tv_usec;
          long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-         updateTime  += mtime;
+         updateTime += mtime;
 
          if (input != ERR)
          {
-            updateTime = 0;
-            running    = Handle(input);
-
-            screen_.Update();
-            client_.DisplaySongInformation();
-
-            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-            mode.Refresh();
+            running = Handle(input);
          }
 
-         if ((screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
+         if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
          {
             updateTime = 0;
-            screen_.Update();
-
             client_.DisplaySongInformation();
 
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+
+            screen_.Update();
             mode.Refresh();
          }
       }
    }
 }
+
+Ui::Mode & Vimpc::CurrentMode()
+{
+   return assert_reference(modeTable_[currentMode_]);
+}
+
 
 
 int Vimpc::Input() const
@@ -236,4 +246,5 @@ void Vimpc::SetSkipConfigConnects(bool val)
 {
    settings_.SetSkipConfigConnects(val);
 }
+
 

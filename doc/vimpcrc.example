@@ -12,4 +12,7 @@ set window browse
 " Don't stop playing music when we quit
 set nostoponquit
 
+" If you connect in the config file you should try and do it as late as possible
+" connect somehost someport
+
 echo Config File Complete

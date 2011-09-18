@@ -22,6 +22,9 @@
 
 #include "assert.hpp"
 #include "screen.hpp"
+#include "vimpc.hpp"
+
+#include "mode/mode.hpp"
 #include "window/error.hpp"
 
 #include <mpd/tag.h>
@@ -50,13 +53,19 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 
 
 // Mpc::Client Implementation
-Client::Client(Ui::Screen const & screen) :
+Client::Client(Main::Vimpc * vimpc, Ui::Screen & screen) :
+   vimpc_                (vimpc),
    connection_           (NULL),
+   hostname_             (""),
+   port_                 (0),
    currentSong_          (NULL),
    currentStatus_        (NULL),
    currentSongId_        (-1),
    currentSongURI_       (""),
-   screen_               (screen)
+   currentState_         ("Disconnected"),
+   screen_               (screen),
+   queueVersion_         (0),
+   forceUpdate_          (true)
 {
 }
 
@@ -68,46 +77,77 @@ Client::~Client()
 
 void Client::Connect(std::string const & hostname, uint16_t port)
 {
-   static char * localhost = "localhost";
-
-   char *   tmp_env;
-   char *   connect_hostname;
-   uint16_t connect_port;
+   std::string connect_hostname = hostname;
+   uint16_t    connect_port     = port;
 
    DeleteConnection();
 
-   connect_hostname = (char *)hostname.c_str();
-   connect_port = port;
-
-   if (hostname == "")
+   if (connect_hostname.empty() == true)
    {
-      tmp_env = getenv("MPD_HOST");
+      char * const host_env = getenv("MPD_HOST");
 
-      if (tmp_env != NULL)
+      if (host_env != NULL)
       {
-         connect_hostname = tmp_env;
+         connect_hostname = host_env;
       }
       else
       {
-         connect_hostname = localhost;
-      }
-
-      tmp_env = getenv("MPD_PORT");
-
-      if (tmp_env != NULL)
-      {
-         connect_port = atoi(tmp_env);
+         connect_hostname = "localhost";
       }
    }
 
-   connection_ = mpd_connection_new(connect_hostname, connect_port, 0);
+   if (port == 0)
+   {
+      char * const port_env = getenv("MPD_PORT");
+
+      if (port_env != NULL)
+      {
+         connect_port = atoi(port_env);
+      }
+      else
+      {
+         connect_port = 0;
+      }
+   }
+
+   // Connecting may take a long time as this is a single threaded application
+   // and the mpd connect is a blocking call, so be sure to update the screen
+   // first to let the user know that something is happening
+   currentState_ = "Connecting";
+   screen_.Update();
+   vimpc_->CurrentMode().Refresh();
+
+   hostname_ = connect_hostname;
+   port_     = connect_port;
+
+   //! \TODO I may need to end up using threads in here, or lower the default timeout at least
+   connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
+
+   // Throw away any keys that were pressed in anger, while we were waiting to connect
+   screen_.ClearInput();
+
    CheckError();
 
-   // Must redraw the library first
-   screen_.Redraw(Ui::Screen::Library);
-   screen_.Redraw(Ui::Screen::Browse);
+   if (Connected() == true)
+   {
+      // Must redraw the library first
+      screen_.Redraw(Ui::Screen::Library);
+      screen_.Redraw(Ui::Screen::Browse);
+      screen_.Redraw(Ui::Screen::Lists);
 
-   CheckForUpdates();
+      // This will redraw the playlist window
+      CheckForUpdates();
+   }
+}
+
+std::string Client::Hostname()
+{
+   return hostname_;
+}
+
+uint16_t Client::Port()
+{
+   return port_;
 }
 
 void Client::Play(uint32_t const playId)
@@ -124,6 +164,7 @@ void Client::Pause()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_toggle_pause(connection_);
       CheckError();
    }
@@ -133,6 +174,7 @@ void Client::Stop()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_stop(connection_);
       CheckError();
    }
@@ -142,6 +184,7 @@ void Client::Next()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_next(connection_);
       CheckError();
    }
@@ -151,6 +194,7 @@ void Client::Previous()
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_previous(connection_);
       CheckError();
    }
@@ -176,6 +220,7 @@ void Client::SetRandom(bool const random)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_random(connection_, random);
       CheckError();
    }
@@ -201,6 +246,7 @@ void Client::SetSingle(bool const single)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_single(connection_, single);
       CheckError();
    }
@@ -226,6 +272,7 @@ void Client::SetConsume(bool const consume)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_consume(connection_, consume);
       CheckError();
    }
@@ -250,6 +297,7 @@ void Client::SetRepeat(bool const repeat)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       mpd_run_repeat(connection_, repeat);
       CheckError();
    }
@@ -274,10 +322,43 @@ void Client::SetVolume(uint32_t volume)
 {
    if (Connected() == true)
    {
+      forceUpdate_ = true;
       (void) mpd_run_set_volume(connection_, volume);
       CheckError();
    }
 }
+
+
+void Client::Shuffle()
+{
+   if (Connected() == true)
+   {
+      forceUpdate_ = true;
+      (void) mpd_run_shuffle(connection_);
+      CheckError();
+   }
+}
+
+void Client::Move(uint32_t position1, uint32_t position2)
+{
+   if (Connected() == true)
+   {
+      forceUpdate_ = true;
+      (void) mpd_run_move(connection_, position1, position2);
+      CheckError();
+   }
+}
+
+void Client::Swap(uint32_t position1, uint32_t position2)
+{
+   if (Connected() == true)
+   {
+      forceUpdate_ = true;
+      (void) mpd_run_swap(connection_, position1, position2);
+      CheckError();
+   }
+}
+
 
 void Client::SavePlaylist(std::string const & name)
 {
@@ -285,6 +366,8 @@ void Client::SavePlaylist(std::string const & name)
    {
       (void) mpd_run_save(connection_, name.c_str());
       CheckError();
+
+      screen_.Redraw(Ui::Screen::Lists);
    }
 }
 
@@ -298,6 +381,17 @@ void Client::LoadPlaylist(std::string const & name)
       CheckError();
 
       screen_.Redraw(Ui::Screen::Playlist);
+   }
+}
+
+void Client::RemovePlaylist(std::string const & name)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_rm(connection_, name.c_str());
+      CheckError();
+
+      screen_.Redraw(Ui::Screen::Lists);
    }
 }
 
@@ -356,6 +450,19 @@ void Client::Delete(uint32_t position)
    }
 }
 
+void Client::Delete(uint32_t position1, uint32_t position2)
+{
+   if ((Connected() == true) && (TotalNumberOfSongs() > 0))
+   {
+      CheckForUpdates();
+
+      mpd_run_delete_range(connection_, position1, position2);
+      CheckError();
+
+      queueVersion_ = QueueVersion();
+   }
+}
+
 void Client::Clear()
 {
    if (Connected() == true)
@@ -406,11 +513,10 @@ void Client::CheckForUpdates()
       long const useconds = end.tv_usec - start.tv_usec;
       long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-      if ((updated == false) || (mtime > 250))
+      if ((updated == false) || (mtime > 250) || (forceUpdate_ == true))
       {
-         updated = true;
-
-         gettimeofday(&start, NULL);
+         forceUpdate_ = false;
+         updated      = true;
 
          if (currentSong_ != NULL)
          {
@@ -448,6 +554,8 @@ void Client::CheckForUpdates()
              currentSongId_ = -1;
              currentSongURI_ = "";
          }
+
+         gettimeofday(&start, NULL);
       }
    }
    else
@@ -460,8 +568,6 @@ void Client::CheckForUpdates()
 
 std::string Client::CurrentState()
 {
-   std::string currentState("Disconnected");
-
    if (Connected() == true)
    {
       CheckForUpdates();
@@ -473,16 +579,16 @@ std::string Client::CurrentState()
          switch (state)
          {
             case MPD_STATE_UNKNOWN:
-               currentState = "Unknown";
+               currentState_ = "Unknown";
                break;
             case MPD_STATE_STOP:
-               currentState = "Stopped";
+               currentState_ = "Stopped";
                break;
             case MPD_STATE_PLAY:
-               currentState = "Playing";
+               currentState_ = "Playing";
                break;
             case MPD_STATE_PAUSE:
-               currentState = "Paused";
+               currentState_ = "Paused";
                break;
 
             default:
@@ -491,7 +597,7 @@ std::string Client::CurrentState()
       }
    }
 
-   return currentState;
+   return currentState_;
 }
 
 
@@ -605,7 +711,13 @@ void Client::CheckError()
          snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
          Error(ErrorNumber::ClientError, error);
 
-         DeleteConnection();
+         bool ClearError = mpd_connection_clear_error(connection_);
+
+         if (ClearError == false)
+         {
+            DeleteConnection();
+            currentState_ = "Disconnected";
+         }
       }
    }
 }
