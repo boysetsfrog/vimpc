@@ -169,10 +169,10 @@ void Client::SendCommandList()
       mpd_command_list_end(connection_);
       mpd_response_finish(connection_);
 
+      CheckError();
+
       listMode_    = false;
       forceUpdate_ = true;
-
-      CheckError();
 
       CheckForUpdates();
    }
@@ -185,6 +185,9 @@ void Client::Play(uint32_t const playId)
       uint32_t id = playId;
       mpd_run_play_pos(connection_, id);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -215,6 +218,8 @@ void Client::Next()
       forceUpdate_ = true;
       mpd_run_next(connection_);
       CheckError();
+
+      CheckForUpdates();
    }
 }
 
@@ -225,6 +230,8 @@ void Client::Previous()
       forceUpdate_ = true;
       mpd_run_previous(connection_);
       CheckError();
+
+      CheckForUpdates();
    }
 }
 

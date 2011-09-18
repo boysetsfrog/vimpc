@@ -72,6 +72,9 @@ namespace Main
          //! Should we expand artists in the library window by default
          bool ExpandArtists() const;
 
+         //! Hide the tab bar from the display
+         bool HideTabBar() const;
+
          //! Determine whether to show search results in a different colour
          bool HightlightSearch() const;
 
