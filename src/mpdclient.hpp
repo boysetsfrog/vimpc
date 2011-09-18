@@ -271,8 +271,8 @@ namespace Mpc
             mpd_playlist_free(nextPlaylist);
          }
       }
-   }
 #endif
+   }
 }
 
 #endif
