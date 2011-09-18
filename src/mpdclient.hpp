@@ -82,6 +82,8 @@ namespace Mpc
 
    public:
       void Shuffle();
+      void Move(uint32_t position1, uint32_t position2);
+      void Swap(uint32_t position1, uint32_t position2);
 
    public:
       void SavePlaylist(std::string const & name);
@@ -93,6 +95,7 @@ namespace Mpc
       uint32_t Add(Mpc::Song & song, uint32_t position);
       uint32_t AddAllSongs();
       void Delete(uint32_t position);
+      void Delete(uint32_t position1, uint32_t position2);
       void Clear();
 
       void Rescan();

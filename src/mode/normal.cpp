@@ -388,21 +388,18 @@ bool Normal::DeleteSong(uint32_t count)
 
       if (COLLECTION == Mpc::Song::Single)
       {
-         for (uint32_t i = 0; i < count; ++i)
+         int32_t index = currentLine;
+
+         if ((screen_.GetActiveWindow() == Screen::Browse))
          {
-            int32_t index = currentLine;
+            index = Main::Playlist().Index(Main::Browse().Get(index));
+            screen_.ActiveWindow().Scroll(index + count);
+         }
 
-            if ((screen_.GetActiveWindow() == Screen::Browse))
-            {
-               index = Main::Playlist().Index(Main::Browse().Get(index + i));
-               screen_.ActiveWindow().Scroll(1);
-            }
-
-            if (index >= 0)
-            {
-               client_.Delete(index);
-               playlist_.Remove(index, 1);
-            }
+         if (index >= 0)
+         {
+            client_.Delete(index, count + index);
+            playlist_.Remove(index, count);
          }
       }
       else if (COLLECTION == Mpc::Song::All)

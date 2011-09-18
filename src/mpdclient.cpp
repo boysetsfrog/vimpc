@@ -339,6 +339,26 @@ void Client::Shuffle()
    }
 }
 
+void Client::Move(uint32_t position1, uint32_t position2)
+{
+   if (Connected() == true)
+   {
+      forceUpdate_ = true;
+      (void) mpd_run_move(connection_, position1, position2);
+      CheckError();
+   }
+}
+
+void Client::Swap(uint32_t position1, uint32_t position2)
+{
+   if (Connected() == true)
+   {
+      forceUpdate_ = true;
+      (void) mpd_run_swap(connection_, position1, position2);
+      CheckError();
+   }
+}
+
 
 void Client::SavePlaylist(std::string const & name)
 {
@@ -424,6 +444,19 @@ void Client::Delete(uint32_t position)
       CheckForUpdates();
 
       mpd_run_delete(connection_, position);
+      CheckError();
+
+      queueVersion_ = QueueVersion();
+   }
+}
+
+void Client::Delete(uint32_t position1, uint32_t position2)
+{
+   if ((Connected() == true) && (TotalNumberOfSongs() > 0))
+   {
+      CheckForUpdates();
+
+      mpd_run_delete_range(connection_, position1, position2);
       CheckError();
 
       queueVersion_ = QueueVersion();

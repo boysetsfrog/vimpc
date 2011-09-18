@@ -51,6 +51,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["consume"]   = &Command::Consume;
    commandTable_["echo"]      = &Command::Echo;
+   commandTable_["move"]      = &Command::Move;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
    commandTable_["quit"]      = &Command::Quit;
@@ -60,6 +61,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["set"]       = &Command::Set;
    commandTable_["single"]    = &Command::Single;
    commandTable_["shuffle"]   = &Command::Shuffle;
+   commandTable_["swap"]      = &Command::Swap;
    commandTable_["stop"]      = &Command::Stop;
    commandTable_["volume"]    = &Command::Volume;
 
@@ -247,6 +249,30 @@ bool Command::Consume(std::string const & arguments)
 bool Command::Shuffle(std::string const & arguments)
 {
    return Player::Shuffle();
+}
+
+bool Command::Move(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string position1 = arguments.substr(0, arguments.find(" "));
+      std::string position2 = arguments.substr(arguments.find(" ") + 1);
+      client_.Move(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
+   }
+   // \todo print error
+   return true;
+}
+
+bool Command::Swap(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string position1 = arguments.substr(0, arguments.find(" "));
+      std::string position2 = arguments.substr(arguments.find(" ") + 1);
+      client_.Swap(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
+   }
+   // \todo print error
+   return true;
 }
 
 bool Command::Redraw(std::string const & arguments)
