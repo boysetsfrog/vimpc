@@ -452,6 +452,8 @@ bool Normal::PasteBuffer(uint32_t count)
 {
    uint32_t position = 0;
 
+   client_.StartCommandList();
+
    for (uint32_t i = 0; i < count; ++i)
    {
       for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
@@ -462,6 +464,8 @@ bool Normal::PasteBuffer(uint32_t count)
          position++;
       }
    }
+
+   client_.SendCommandList();
 
    return true;
 }
