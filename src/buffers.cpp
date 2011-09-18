@@ -32,6 +32,12 @@ Mpc::Playlist & Main::PlaylistPasteBuffer()
    return *buffer;
 }
 
+Mpc::Playlist & Main::PlaylistTmp()
+{
+   static Mpc::Playlist * buffer = new Mpc::Playlist();
+   return *buffer;
+}
+
 Mpc::Browse & Main::Browse()
 {
    static Mpc::Browse * buffer = new Mpc::Browse();

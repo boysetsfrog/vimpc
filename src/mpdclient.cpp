@@ -471,6 +471,14 @@ uint32_t Client::AddAllSongs()
    return TotalNumberOfSongs() - 1;
 }
 
+void Client::Add(Mpc::Song * song)
+{
+   if ((Connected() == true) && (song != NULL))
+   {
+      (void) Add(*song);
+   }
+}
+
 void Client::Delete(uint32_t position)
 {
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))

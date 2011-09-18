@@ -55,6 +55,7 @@ Vimpc::Vimpc() :
    (void) Main::Lists();
    (void) Main::Playlist();
    (void) Main::PlaylistPasteBuffer();
+   (void) Main::PlaylistTmp();
 
    modeTable_[Command] = new Ui::Command(screen_, client_, settings_);
    modeTable_[Normal]  = new Ui::Normal (screen_, client_, settings_, search_);
