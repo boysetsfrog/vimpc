@@ -72,6 +72,9 @@ namespace Main
          //! Should we expand artists in the library window by default
          bool ExpandArtists() const;
 
+         //! Hide the tab bar from the display
+         bool HideTabBar() const;
+
          //! Determine whether to show search results in a different colour
          bool HightlightSearch() const;
 
@@ -81,8 +84,11 @@ namespace Main
          //! Determine whether to wrap searching
          bool SearchWrap() const;
 
-         //! Determines whether we should stop palying when we quit
+         //! Determines whether we should stop playing when we quit
          bool StopOnQuit() const;
+
+         //! Show time left rather than time elapsed
+         bool TimeRemaining() const;
 
          //! Show window numbers next to each window in the tab list
          bool WindowNumbers() const;

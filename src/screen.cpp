@@ -256,6 +256,10 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    {
       wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
+   else
+   {
+      wattroff(statusWindow_, A_REVERSE);
+   }
 
    wrefresh(statusWindow_);
 }
@@ -282,6 +286,10 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
    if (settings_.ColourEnabled() == true)
    {
       wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+   }
+   else
+   {
+      wattroff(statusWindow_, A_REVERSE);
    }
 
    wrefresh(statusWindow_);
@@ -692,6 +700,10 @@ void Screen::ClearStatus() const
    if (settings_.ColourEnabled() == true)
    {
       wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+   }
+   else
+   {
+      wattroff(statusWindow_, A_REVERSE);
    }
 }
 

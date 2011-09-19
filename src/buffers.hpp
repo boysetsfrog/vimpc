@@ -33,6 +33,7 @@ namespace Main
 {
    Mpc::Playlist & Playlist();
    Mpc::Playlist & PlaylistPasteBuffer();
+   Mpc::Playlist & PlaylistTmp();
    Mpc::Browse   & Browse();
    Mpc::Library  & Library();
    Mpc::Lists    & Lists();

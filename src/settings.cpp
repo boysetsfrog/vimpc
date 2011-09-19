@@ -39,13 +39,13 @@ char const * const AutoScrollSetting       = "autoscroll";
 char const * const ColourSetting           = "colour";
 char const * const ExpandArtistsSetting    = "expand-artists";
 //char const * const GraphicalVolumeSetting  = "graphicalvolume"; //Display volume graphically (colours) something like [||||||||  ][80%]
-//char const * const HideTabBarSetting       = "hidetabbar"; //Hide the tab bar
+char const * const HideTabBarSetting       = "hidetabbar"; // \todo this is going to be quite hard, we do dodgy hacks with MaxRows everywhere!
 char const * const HighlightSearchSetting  = "hlsearch";
 char const * const IgnoreCaseSearchSetting = "ignorecase";
 //char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
 char const * const SearchWrapSetting       = "searchwrap";
 char const * const StopOnQuitSetting       = "stoponquit";
-//char const * const TimeRemainingSetting    = "timeremaining"; // Show time remaining instead of played
+char const * const TimeRemainingSetting    = "timeremaining";
 char const * const WindowNumbersSetting    = "windownumbers";
 
 bool skipConfigConnects_ (false);
@@ -66,10 +66,12 @@ Settings::Settings() :
    toggleTable_[AutoScrollSetting]       = new Setting<bool>(true);
    toggleTable_[ColourSetting]           = new Setting<bool>(true);
    toggleTable_[ExpandArtistsSetting]    = new Setting<bool>(false);
+   toggleTable_[HideTabBarSetting]       = new Setting<bool>(false);
    toggleTable_[HighlightSearchSetting]  = new Setting<bool>(true);
    toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
    toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
    toggleTable_[StopOnQuitSetting]       = new Setting<bool>(true);
+   toggleTable_[TimeRemainingSetting]    = new Setting<bool>(false);
    toggleTable_[WindowNumbersSetting]    = new Setting<bool>(false);
 }
 
@@ -172,6 +174,11 @@ bool Settings::ExpandArtists() const
    return Get(ExpandArtistsSetting);
 }
 
+bool Settings::HideTabBar() const
+{
+   return Get(HideTabBarSetting);
+}
+
 bool Settings::HightlightSearch() const
 {
    return Get(HighlightSearchSetting);
@@ -190,6 +197,11 @@ bool Settings::SearchWrap() const
 bool Settings::StopOnQuit() const
 {
    return Get(StopOnQuitSetting);
+}
+
+bool Settings::TimeRemaining() const
+{
+   return Get(TimeRemainingSetting);
 }
 
 bool Settings::WindowNumbers() const

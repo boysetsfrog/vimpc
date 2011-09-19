@@ -55,7 +55,7 @@ namespace Ui
       void Refresh();
 
    public:
-      uint32_t ContentSize() const { return BufferSize() - 1; }
+      int32_t ContentSize() const { return BufferSize() - 1; }
 
    public:
       WINDOW * N_WINDOW() const { return window_; }

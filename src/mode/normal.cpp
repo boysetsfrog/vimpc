@@ -339,6 +339,8 @@ bool Normal::Collapse(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {
+   uint32_t scroll = count;
+
    if (COLLECTION == Mpc::Song::All)
    {
       client_.AddAllSongs();
@@ -346,9 +348,36 @@ bool Normal::AddSong(uint32_t count)
    }
    else
    {
+      if (screen_.GetActiveWindow() == Screen::Lists)
+      {
+         scroll = count;
+
+         Main::PlaylistTmp().Clear();
+
+         for (uint32_t i = 0; i < count; ++i)
+         {
+            if (i < Main::Lists().Size())
+            {
+               client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i), Main::PlaylistTmp(),
+                                          static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+            }
+         }
+
+         count = Main::PlaylistTmp().Size();
+      }
+
+      if (count > 1)
+      {
+         client_.StartCommandList();
+      }
+
       for (uint32_t i = 0; i < count; ++i)
       {
-         if (screen_.GetActiveWindow() == Screen::Library)
+         if (screen_.GetActiveWindow() == Screen::Lists)
+         {
+            client_.Add(Main::PlaylistTmp().Get(i));
+         }
+         else if (screen_.GetActiveWindow() == Screen::Library)
          {
             Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine() + i);
          }
@@ -358,9 +387,14 @@ bool Normal::AddSong(uint32_t count)
          }
       }
 
+      if (count > 1)
+      {
+         client_.SendCommandList();
+      }
+
       if (screen_.GetActiveWindow() != Screen::Playlist)
       {
-         screen_.ActiveWindow().Scroll(count);
+         screen_.ActiveWindow().Scroll(scroll);
       }
    }
 
@@ -392,19 +426,26 @@ bool Normal::DeleteSong(uint32_t count)
 
          if ((screen_.GetActiveWindow() == Screen::Browse))
          {
+            client_.StartCommandList();
+
             for (uint32_t i = 0; i < count; ++i)
             {
                int32_t index = currentLine;
 
-               index = Main::Playlist().Index(Main::Browse().Get(index + i));
-               screen_.ActiveWindow().Scroll(1);
-
-               if (index >= 0)
+               if (index + i < Main::Browse().Size())
                {
-                  client_.Delete(index);
-                  playlist_.Remove(index, 1);
+                  index = Main::Playlist().Index(Main::Browse().Get(index + i));
+                  screen_.ActiveWindow().Scroll(1);
+
+                  if (index >= 0)
+                  {
+                     client_.Delete(index);
+                     playlist_.Remove(index, 1);
+                  }
                }
             }
+
+            client_.SendCommandList();
          }
          else if (index >= 0)
          {
@@ -438,6 +479,8 @@ bool Normal::PasteBuffer(uint32_t count)
 {
    uint32_t position = 0;
 
+   client_.StartCommandList();
+
    for (uint32_t i = 0; i < count; ++i)
    {
       for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
@@ -448,6 +491,8 @@ bool Normal::PasteBuffer(uint32_t count)
          position++;
       }
    }
+
+   client_.SendCommandList();
 
    return true;
 }
@@ -580,15 +625,14 @@ void Normal::DisplayModeLine()
 
    float currentScroll = 0.0;
 
-   if (playlist_.Size() > 0)
+   if (screen_.ActiveWindow().ContentSize() > 0)
    {
-      //! \todo should make work for ac
       currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().ContentSize()) - 1));
       currentScroll += .005;
       modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
    }
 
-   if (playlist_.Size() > screen_.MaxRows() - 1)
+   if (screen_.ActiveWindow().ContentSize() > screen_.MaxRows() - 1)
    {
       if (currentScroll <= .010)
       {

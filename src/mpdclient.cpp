@@ -22,6 +22,7 @@
 
 #include "assert.hpp"
 #include "screen.hpp"
+#include "settings.hpp"
 #include "vimpc.hpp"
 
 #include "mode/mode.hpp"
@@ -53,8 +54,9 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 
 
 // Mpc::Client Implementation
-Client::Client(Main::Vimpc * vimpc, Ui::Screen & screen) :
+Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen) :
    vimpc_                (vimpc),
+   settings_             (settings),
    connection_           (NULL),
    hostname_             (""),
    port_                 (0),
@@ -65,7 +67,8 @@ Client::Client(Main::Vimpc * vimpc, Ui::Screen & screen) :
    currentState_         ("Disconnected"),
    screen_               (screen),
    queueVersion_         (0),
-   forceUpdate_          (true)
+   forceUpdate_          (true),
+   listMode_             (false)
 {
 }
 
@@ -150,6 +153,31 @@ uint16_t Client::Port()
    return port_;
 }
 
+void Client::StartCommandList()
+{
+   if (Connected() == true)
+   {
+      listMode_ = true;
+      mpd_command_list_begin(connection_, true);
+   }
+}
+
+void Client::SendCommandList()
+{
+   if (Connected() == true)
+   {
+      mpd_command_list_end(connection_);
+      mpd_response_finish(connection_);
+
+      CheckError();
+
+      listMode_    = false;
+      forceUpdate_ = true;
+
+      CheckForUpdates();
+   }
+}
+
 void Client::Play(uint32_t const playId)
 {
    if (Connected() == true)
@@ -157,6 +185,9 @@ void Client::Play(uint32_t const playId)
       uint32_t id = playId;
       mpd_run_play_pos(connection_, id);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -187,6 +218,8 @@ void Client::Next()
       forceUpdate_ = true;
       mpd_run_next(connection_);
       CheckError();
+
+      CheckForUpdates();
    }
 }
 
@@ -197,6 +230,8 @@ void Client::Previous()
       forceUpdate_ = true;
       mpd_run_previous(connection_);
       CheckError();
+
+      CheckForUpdates();
    }
 }
 
@@ -401,10 +436,14 @@ uint32_t Client::Add(Mpc::Song & song)
    {
       CheckForUpdates();
 
-      mpd_run_add(connection_, song.URI().c_str());
-      CheckError();
+      mpd_send_add(connection_, song.URI().c_str());
 
-      queueVersion_ = QueueVersion();
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+         queueVersion_ = QueueVersion();
+      }
    }
 
    return TotalNumberOfSongs() - 1;
@@ -416,10 +455,14 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
    {
       CheckForUpdates();
 
-      mpd_run_add_id_to(connection_, song.URI().c_str(), position);
-      CheckError();
+      mpd_send_add_id_to(connection_, song.URI().c_str(), position);
 
-      queueVersion_ = QueueVersion();
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+         queueVersion_ = QueueVersion();
+      }
    }
 
    return TotalNumberOfSongs() - 1;
@@ -437,16 +480,28 @@ uint32_t Client::AddAllSongs()
    return TotalNumberOfSongs() - 1;
 }
 
+void Client::Add(Mpc::Song * song)
+{
+   if ((Connected() == true) && (song != NULL))
+   {
+      (void) Add(*song);
+   }
+}
+
 void Client::Delete(uint32_t position)
 {
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
       CheckForUpdates();
 
-      mpd_run_delete(connection_, position);
-      CheckError();
+      mpd_send_delete(connection_, position);
 
-      queueVersion_ = QueueVersion();
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+         queueVersion_ = QueueVersion();
+      }
    }
 }
 
@@ -501,7 +556,7 @@ void Client::CheckForUpdates()
 
    gettimeofday(&end, NULL);
 
-   if (Connected() == true)
+   if ((Connected() == true) && (listMode_ == false))
    {
       if (queueVersion_ != QueueVersion())
       {
@@ -649,6 +704,7 @@ void Client::DisplaySongInformation()
          mpd_status * const status   = currentStatus_;
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
+         uint32_t     const remain   = duration - elapsed;
          char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
          char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
@@ -656,9 +712,19 @@ void Client::DisplaySongInformation()
 
          //! \todo turn into a single setstatus and use a blank filler rather than a move
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
-         screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
-                               SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
-                               SecondsToMinutes(duration), RemainingSeconds(duration));
+
+         if (settings_.TimeRemaining() == false)
+         {
+            screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
+                                  SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
+                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+         }
+         else
+         {
+            screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
+                                  SecondsToMinutes(remain),  RemainingSeconds(remain),
+                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+         }
       }
    }
    else
@@ -724,6 +790,8 @@ void Client::CheckError()
 
 void Client::DeleteConnection()
 {
+   listMode_ = false;
+
    if (connection_ != NULL)
    {
       mpd_connection_free(connection_);

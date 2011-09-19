@@ -29,6 +29,7 @@
 
 namespace Main
 {
+   class Settings;
    class Vimpc;
 }
 
@@ -45,7 +46,7 @@ namespace Mpc
    class Client
    {
    public:
-      Client(Main::Vimpc * vimpc, Ui::Screen & screen);
+      Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
 
    private:
@@ -56,6 +57,10 @@ namespace Mpc
       void Connect(std::string const & hostname = "", uint16_t port = 0);
       std::string Hostname();
       uint16_t Port();
+
+   public:
+      void StartCommandList();
+      void SendCommandList();
 
    public:
       void Play(uint32_t playId);
@@ -94,6 +99,7 @@ namespace Mpc
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);
       uint32_t AddAllSongs();
+      void Add(Mpc::Song * song);
       void Delete(uint32_t position);
       void Delete(uint32_t position1, uint32_t position2);
       void Clear();
@@ -126,6 +132,9 @@ namespace Mpc
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
+      void ForEachPlaylistSong(std::string Playlist, Object & object, void (Object::*callBack)(Mpc::Song *));
+
+      template <typename Object>
       void ForEachPlaylist(Object & object, void (Object::*callBack)(std::string));
 
    private:
@@ -138,6 +147,7 @@ namespace Mpc
 
    private:
       Main::Vimpc *           vimpc_;
+      Main::Settings &        settings_;
       struct mpd_connection * connection_;
 
       std::string             hostname_;
@@ -152,6 +162,7 @@ namespace Mpc
       Ui::Screen &            screen_;
       unsigned int            queueVersion_;
       bool                    forceUpdate_;
+      bool                    listMode_;
    };
 
    //
@@ -211,6 +222,35 @@ namespace Mpc
             mpd_entity_free(nextEntity);
          }
       }
+   }
+
+   //
+   template <typename Object>
+   void Client::ForEachPlaylistSong(std::string playlist, Object & object, void (Object::*callBack)(Mpc::Song * ))
+   {
+#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      if (Connected() == true)
+      {
+         mpd_send_list_playlist_meta(connection_, playlist.c_str());
+
+         mpd_song * nextSong = mpd_recv_song(connection_);
+
+         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         {
+            uint32_t const     position = mpd_song_get_pos(nextSong);
+            Song const * const newSong  = CreateSong(position, nextSong);
+            Song * const       oldSong  = Main::Library().Song(newSong);
+
+            if (oldSong != NULL)
+            {
+               (object.*callBack)(oldSong);
+            }
+
+            mpd_song_free(nextSong);
+            delete newSong;
+         }
+      }
+#endif
    }
 
    //
