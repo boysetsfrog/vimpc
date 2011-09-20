@@ -27,6 +27,14 @@
 #include "buffers.hpp"
 #include "buffer/library.hpp"
 
+// The library check in 2.1.0 doesn't seem to work
+// since we don't support versions older than that anyway, just return false
+// instead of using the check macro
+#if ((LIBMPDCLIENT_MAJOR_VERSION == 2) && (LIBMPDCLIENT_MINOR_VERSION == 1))
+#undef LIBMPDCLIENT_CHECK_VERSION
+#define LIBMPDCLIENT_CHECK_VERSION(major, minor, patch) 0
+#endif
+
 namespace Main
 {
    class Settings;

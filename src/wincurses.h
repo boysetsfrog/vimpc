@@ -18,6 +18,8 @@
    wincurses.h - includes a curses header file
    */
 
+#include "config.h"
+
 #ifdef HAVE_NCURSESW_H
    #include <ncursesw/ncurses.h>
 #elif HAVE_NCURSES_H
