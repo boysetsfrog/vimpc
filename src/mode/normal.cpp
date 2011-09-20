@@ -560,7 +560,7 @@ bool Normal::SkipArtist(uint32_t count)
 template <int8_t OFFSET>
 bool Normal::ScrollToCurrent(uint32_t line)
 {
-   screen_.ScrollTo(Screen::Current, line * OFFSET);
+   screen_.ScrollTo(Screen::Current, (wasSpecificCount_ == true) ? line * OFFSET : 0);
 }
 
 template <Screen::Size SIZE, Screen::Direction DIRECTION>
