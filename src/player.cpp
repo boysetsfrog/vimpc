@@ -81,9 +81,21 @@ bool Player::Quit()
    return false;
 }
 
+bool Player::ToggleConsume()
+{
+   SetConsume(!Consume());
+   return true;
+}
+
 bool Player::ToggleRandom()
 {
    SetRandom(!Random());
+   return true;
+}
+
+bool Player::ToggleRepeat()
+{
+   SetRepeat(!Repeat());
    return true;
 }
 

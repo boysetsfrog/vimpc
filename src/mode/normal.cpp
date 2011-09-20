@@ -49,16 +49,23 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    playlist_        (Main::Playlist()),
    settings_        (settings)
 {
+   // \todo this key bindings are pretty bad
+   //       i will probably need to make them more specific
+   //       to the tab/window or more modal or something
+
    // \todo display current count somewhere ?
    actionTable_['.']       = &Normal::RepeatLastAction;
    actionTable_['c']       = &Normal::ClearScreen;
 
    // Player
    actionTable_['p']           = &Normal::Pause;
-   actionTable_['r']           = &Normal::Random;
-   actionTable_['S']           = &Normal::Single;
    actionTable_['s']           = &Normal::Stop;
    actionTable_[KEY_BACKSPACE] = &Normal::Stop;
+
+   actionTable_['C']       = &Normal::Consume;
+   actionTable_['R']       = &Normal::Random;
+   actionTable_['E']       = &Normal::Repeat;
+   actionTable_['S']       = &Normal::Single;
 
    actionTable_['+']       = &Normal::ChangeVolume<1>;
    actionTable_['-']       = &Normal::ChangeVolume<-1>;
@@ -68,14 +75,13 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // This should really be implemented as Q as per vim (:he Ex-mode)
    //actionTable_['Q']       = &Normal::Insert;
 
-   //! \todo make it so these can be used to navigate the library
    // Skipping
    actionTable_['>']       = &Normal::SkipSong<Player::Next>;
    actionTable_['<']       = &Normal::SkipSong<Player::Previous>;
-   actionTable_['w']       = &Normal::SkipArtist<Player::Next>;
-   actionTable_['q']       = &Normal::SkipArtist<Player::Previous>;
-   actionTable_['W']       = &Normal::SkipAlbum<Player::Next>;
-   actionTable_['Q']       = &Normal::SkipAlbum<Player::Previous>;
+   actionTable_[']']       = &Normal::SkipArtist<Player::Next>;
+   actionTable_['[']       = &Normal::SkipArtist<Player::Previous>;
+   actionTable_['}']       = &Normal::SkipAlbum<Player::Next>;
+   actionTable_['{']       = &Normal::SkipAlbum<Player::Previous>;
 
    // Selection
    actionTable_['H']       = &Normal::Select<ScrollWindow::First>;
@@ -88,6 +94,11 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
    actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;
    actionTable_['A']       = &Normal::AddSong<Mpc::Song::All>;
+
+   actionTable_[KEY_DC]    = &Normal::DeleteSong<Mpc::Song::Single>;
+
+   // ! \todo this is a bit dodgy, is there a better key for this?
+   //         we need a paste above and paste below
    actionTable_['P']       = &Normal::PasteBuffer;
 
    // Navigation
@@ -110,9 +121,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['Y'+1 - 'A'] = &Normal::Align<Screen::Up>; //CTRL + Y
    actionTable_['E'+1 - 'A'] = &Normal::Align<Screen::Down>; //CTRL + E
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
-   actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
-   actionTable_['e']       = &Normal::ScrollTo<Screen::PlaylistNext>;
-   actionTable_['E']       = &Normal::ScrollTo<Screen::PlaylistPrev>;
+   actionTable_['f']       = &Normal::ScrollToCurrent<1>;
+   actionTable_['F']       = &Normal::ScrollToCurrent<-1>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
 
@@ -249,19 +259,30 @@ bool Normal::Pause(uint32_t count)
    return Player::Pause();
 }
 
+bool Normal::Stop(uint32_t count)
+{
+   return Player::Stop();
+}
+
+
+bool Normal::Consume(uint32_t count)
+{
+   return Player::ToggleConsume();
+}
+
 bool Normal::Random(uint32_t count)
 {
    return Player::ToggleRandom();
 }
 
+bool Normal::Repeat(uint32_t count)
+{
+   return Player::ToggleRepeat();
+}
+
 bool Normal::Single(uint32_t count)
 {
    return Player::ToggleSingle();
-}
-
-bool Normal::Stop(uint32_t count)
-{
-   return Player::Stop();
 }
 
 
@@ -536,6 +557,12 @@ bool Normal::SkipArtist(uint32_t count)
 
 
 // Implementation of scrolling functions
+template <int8_t OFFSET>
+bool Normal::ScrollToCurrent(uint32_t line)
+{
+   screen_.ScrollTo(Screen::Current, line * OFFSET);
+}
+
 template <Screen::Size SIZE, Screen::Direction DIRECTION>
 bool Normal::Scroll(uint32_t count)
 {

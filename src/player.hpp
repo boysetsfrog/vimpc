@@ -80,6 +80,12 @@ namespace Ui
       //! Quits the program
       bool Quit();
 
+      //! Toggles consume on or off
+      bool ToggleConsume();
+
+      //! Toggles repeat on or off
+      bool ToggleRepeat();
+
       //! Toggles random on or off
       bool ToggleRandom();
 
