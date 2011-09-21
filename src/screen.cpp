@@ -62,11 +62,16 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // ncurses initialisation
    initscr();
 
-   Ui::Colour::InitialiseColours();
-
    if (has_colors() == false)
    {
       settings.Set("nocolour");
+   }
+   else
+   {
+      if (Ui::Colour::InitialiseColours() == false)
+      {
+         settings.Set("nocolour");
+      }
    }
 
    halfdelay(1);

@@ -56,38 +56,44 @@ namespace Ui
       static int Error        = ERRORLINE;
       static int StatusLine   = STATUSLINE;
 
-      static void InitialiseColours();
+      static bool InitialiseColours();
 
-      void InitialiseColours()
+      bool InitialiseColours()
       {
          static bool coloursInitialised = false;
+         static bool success            = false;
 
          if (coloursInitialised == false)
          {
             coloursInitialised = true;
 
             start_color();
-            use_default_colors();
 
-            init_pair(DEFAULT,          -1,             -1);
+            if (use_default_colors() != ERR)
+            {
+                success = true;
 
-            init_pair(BLUEONDEFAULT,    COLOR_BLUE,     -1);
-            init_pair(YELLOWONDEFAULT,  COLOR_YELLOW,   -1);
-            init_pair(REDONDEFAULT,     COLOR_RED,      -1);
-            init_pair(CYANONDEFAULT,    COLOR_CYAN,     -1);
-            init_pair(GREENONDEFAULT,   COLOR_GREEN,    -1);
+                init_pair(DEFAULT,          -1,             -1);
 
-            init_pair(DEFAULTONBLUE,    -1, COLOR_BLUE);
-            init_pair(DEFAULTONRED,     -1, COLOR_RED);
-            init_pair(DEFAULTONYELLOW,  -1, COLOR_YELLOW);
-            init_pair(DEFAULTONCYAN,    -1, COLOR_CYAN);
-            init_pair(DEFAULTONGREEN,   -1, COLOR_GREEN);
+                init_pair(BLUEONDEFAULT,    COLOR_BLUE,     -1);
+                init_pair(YELLOWONDEFAULT,  COLOR_YELLOW,   -1);
+                init_pair(REDONDEFAULT,     COLOR_RED,      -1);
+                init_pair(CYANONDEFAULT,    COLOR_CYAN,     -1);
+                init_pair(GREENONDEFAULT,   COLOR_GREEN,    -1);
 
-            init_pair(ERRORLINE,        -1, COLOR_RED);
-            init_pair(STATUSLINE,       -1, COLOR_BLUE);
+                init_pair(DEFAULTONBLUE,    -1, COLOR_BLUE);
+                init_pair(DEFAULTONRED,     -1, COLOR_RED);
+                init_pair(DEFAULTONYELLOW,  -1, COLOR_YELLOW);
+                init_pair(DEFAULTONCYAN,    -1, COLOR_CYAN);
+                init_pair(DEFAULTONGREEN,   -1, COLOR_GREEN);
+
+                init_pair(ERRORLINE,        -1, COLOR_RED);
+                init_pair(STATUSLINE,       -1, COLOR_BLUE);
+            }
          }
-      }
 
+         return success;
+      }
    }
 }
 
