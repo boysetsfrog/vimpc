@@ -183,7 +183,7 @@ namespace Mpc
       bool               expanded_;
       LibraryEntryVector children_;
       LibraryEntry *     parent_;
-      int32_t            childrenInPlaylist_;
+      uint32_t           childrenInPlaylist_;
       int32_t            partial_;
    };
 
