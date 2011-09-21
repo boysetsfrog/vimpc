@@ -67,9 +67,7 @@ namespace Ui
          {
             coloursInitialised = true;
 
-            start_color();
-
-            if (use_default_colors() != ERR)
+            if ((start_color() != ERR) && (use_default_colors() != ERR))
             {
                 success = true;
 
