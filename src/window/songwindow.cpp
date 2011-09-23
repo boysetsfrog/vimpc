@@ -158,7 +158,7 @@ uint32_t SongWindow::Current() const
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
    {
-      current = Main::Browse().Index(Main::Playlist().Get(currentSongId));
+      current = Buffer().Index(Main::Playlist().Get(currentSongId));
    }
 
    return current;

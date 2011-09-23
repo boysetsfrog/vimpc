@@ -64,19 +64,6 @@ void BrowseWindow::Redraw()
    ScrollTo(currentLine);
 }
 
-uint32_t BrowseWindow::Current() const
-{
-   uint32_t current       = 0;
-   int32_t  currentSongId = client_.GetCurrentSong();
-
-   if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
-   {
-      current = Main::Browse().Index(Main::Playlist().Get(currentSongId));
-   }
-
-   return current;
-}
-
 uint32_t BrowseWindow::Playlist(int Offset) const
 {
    //! \todo not sure how i am going to do this
