@@ -597,9 +597,13 @@ void Screen::SetVisible(int32_t window, bool visible)
       //! \todo Handle the case when there is no visible tabs left and clear the mainwindow
       bool found = false;
 
-      if ((window == window_) && (visible == false))
+      if ((window == window_) && (visible == false) && (visibleWindows_.back() == window))
       {
          SetActiveWindow(Ui::Screen::Previous);
+      }
+      else if ((window == window_) && (visible == false))
+      {
+         SetActiveWindow(Ui::Screen::Next);
       }
 
       for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
