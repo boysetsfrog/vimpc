@@ -366,6 +366,8 @@ bool Normal::AddSong(uint32_t count)
 {
    uint32_t scroll = count;
 
+   //! \TODO for the search results windows, i'd prefer that this
+   //!       only adds all the songs in the results
    if (COLLECTION == Mpc::Song::All)
    {
       client_.AddAllSongs();

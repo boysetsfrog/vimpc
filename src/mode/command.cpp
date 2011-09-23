@@ -45,6 +45,10 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    client_             (client),
    settings_           (settings)
 {
+   //! \TODO need to add specific finds somehow
+   //        ie findsong, findalbum,  or something
+   //        also need to provide automatically adding versions
+
    // \todo find a away to add aliases to tab completion
    commandTable_["!mpc"]      = &Command::Mpc;
    commandTable_["alias"]     = &Command::Alias;
@@ -89,6 +93,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
    commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;
 
+   //! \TODO add a command to export search results to a playlist
    commandTable_["load"]  = &Command::LoadPlaylist;
    commandTable_["save"]  = &Command::SavePlaylist;
    commandTable_["edit"]  = &Command::LoadPlaylist;
@@ -230,10 +235,12 @@ bool Command::SavePlaylist(std::string const & arguments)
 
 bool Command::Find(std::string const & arguments)
 {
+   //! \TODO if there is no results print an error rather than make an empty window
    client_.SearchAny(arguments);
    SongWindow * window = screen_.CreateWindow("F:" + arguments);
    client_.ForEachSearchResult(window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
+   //! \TODO fix this so it switches to the newly created window
    screen_.SetActiveWindow(screen_.GetWindowFromName(window->Name()));
 
    return true;
