@@ -66,6 +66,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/scrollwindow.cpp \
                    src/window/selectwindow.hpp \
                    src/window/selectwindow.cpp \
+                   src/window/songwindow.hpp \
+                   src/window/songwindow.cpp \
                    src/window/window.cpp \
                    src/window/window.hpp
 

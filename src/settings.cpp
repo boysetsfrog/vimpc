@@ -57,7 +57,7 @@ Settings & Settings::Instance()
 }
 
 Settings::Settings() :
-   defaultWindow_(Ui::Screen::Playlist),
+   defaultWindow_("playlist"),
    settingsTable_(),
    toggleTable_  ()
 {
@@ -153,7 +153,7 @@ void Settings::SetSingleSetting(std::string setting)
 }
 
 
-Ui::Screen::MainWindow Settings::Window() const
+std::string Settings::Window() const
 {
    return defaultWindow_;
 }
@@ -215,7 +215,7 @@ void Settings::SetWindow(std::string const & arguments)
    std::string window(arguments);
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
-   defaultWindow_ = Ui::Screen::GetWindowFromName(window);
+   defaultWindow_ = window;
 }
 
 void Settings::SetSkipConfigConnects(bool val)

@@ -28,6 +28,7 @@
 
 #include <signal.h>
 
+#include "algorithm.hpp"
 #include "buffers.hpp"
 #include "colour.hpp"
 #include "mpdclient.hpp"
@@ -40,6 +41,7 @@
 #include "window/librarywindow.hpp"
 #include "window/listwindow.hpp"
 #include "window/playlistwindow.hpp"
+#include "window/songwindow.hpp"
 
 using namespace Ui;
 
@@ -55,10 +57,10 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    started_         (false),
    maxRows_         (0),
    maxColumns_      (0),
-   settings_        (settings)
+   settings_        (settings),
+   client_          (client),
+   search_          (search)
 {
-   STATIC_ASSERT((sizeof(mainWindows_)/sizeof(Window *)) == MainWindowCount);
-
    // ncurses initialisation
    initscr();
 
@@ -104,7 +106,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    {
       if (mainWindows_[i] != NULL)
       {
-         visibleWindows_.push_back(static_cast<MainWindow>(i));
+         visibleWindows_.push_back(static_cast<int32_t>(i));
       }
    }
 
@@ -124,72 +126,43 @@ Screen::~Screen()
    delwin(tabWindow_);
    delwin(statusWindow_);
 
-   for (int i = 0; i < MainWindowCount; ++i)
+   for (WindowMap::iterator it = mainWindows_.begin(); it != mainWindows_.end(); ++it)
    {
-      delete mainWindows_[i];
+      delete it->second;
    }
 
    endwin();
 }
 
 
-/* static */ Screen::MainWindow Screen::GetWindowFromName(std::string const & name)
+int32_t Screen::GetWindowFromName(std::string const & name) const
 {
-   typedef std::map<std::string, MainWindow> WindowTable;
-   static WindowTable windowTable;
+   WindowMap::const_iterator it = mainWindows_.begin();
 
-   MainWindow window = Unknown;
+   int32_t window = Unknown;
 
-   if (windowTable.size() != MainWindowCount)
+   for (; it != mainWindows_.end(); ++it)
    {
-      // Names for each of the windows
-      windowTable["help"]      = Help;
-      windowTable["console"]   = Console;
-      windowTable["lists"]     = Lists;
-      windowTable["library"]   = Library;
-      windowTable["browse"]    = Browse;
-      windowTable["playlist"]  = Playlist;
+      if ((it->second != NULL) && (Algorithm::iequals(name, it->second->Name()) == true))
+      {
+         window = it->first;
+      }
    }
-
-   WindowTable::const_iterator it = windowTable.find(name);
-
-   if (it != windowTable.end())
-   {
-      window = it->second;
-   }
-
-   ENSURE(windowTable.size() == MainWindowCount);
 
    return window;
 }
 
 
-/* static */ std::string Screen::GetNameFromWindow(Screen::MainWindow window)
+std::string Screen::GetNameFromWindow(int32_t window) const
 {
-   typedef std::map<MainWindow, std::string> WindowTable;
-   static WindowTable windowTable;
+   WindowMap::const_iterator it = mainWindows_.find(window);
 
-   std::string name = "unknown";
+   std::string name = "Unknown";
 
-   if (windowTable.size() != MainWindowCount)
+   if (it != mainWindows_.end())
    {
-      // Values for each of the windows
-      windowTable[Help]     = "help";
-      windowTable[Console]  = "console";
-      windowTable[Lists]    = "lists";
-      windowTable[Library]  = "library";
-      windowTable[Browse]   = "browse";
-      windowTable[Playlist] = "playlist";
+      name = it->second->Name();
    }
-
-   WindowTable::const_iterator it = windowTable.find(window);
-
-   if (it != windowTable.end())
-   {
-      name = it->second;
-   }
-
-   ENSURE(windowTable.size() == MainWindowCount);
 
    return name;
 }
@@ -202,12 +175,31 @@ void Screen::Start()
    if (started_ == false)
    {
       started_ = true;
-      SetActiveAndVisible(settings_.Window());
+      SetActiveAndVisible(GetWindowFromName(settings_.Window()));
       wrefresh(statusWindow_);
    }
 
    ENSURE(started_ == true);
 }
+
+
+Ui::SongWindow * Screen::CreateWindow(std::string const & name)
+{
+   int32_t id = static_cast<int32_t>(Dynamic);
+
+   while (mainWindows_.find(id) != mainWindows_.end())
+   {
+      ++id;
+   }
+
+   Ui::SongWindow * window = new SongWindow(settings_, *this, client_, search_, name);
+   mainWindows_[id]        = window;
+
+   visibleWindows_.push_back(id);
+
+   return window;
+}
+
 
 ModeWindow * Screen::CreateModeWindow()
 {
@@ -428,11 +420,13 @@ void Screen::Redraw() const
    Redraw(window_);
 }
 
-void Screen::Redraw(MainWindow window) const
+void Screen::Redraw(int32_t window) const
 {
-   if (mainWindows_[window] != NULL)
+   WindowMap::const_iterator it = mainWindows_.find(window);
+
+   if ((it != mainWindows_.end()) && (it->second != NULL))
    {
-      mainWindows_[window]->Redraw();
+      (it->second)->Redraw();
    }
 }
 
@@ -551,10 +545,11 @@ void Screen::ClearInput() const
 
 Ui::ScrollWindow & Screen::ActiveWindow() const
 {
-   return assert_reference(mainWindows_[window_]);
+   WindowMap::const_iterator it = mainWindows_.find(window_);
+   return assert_reference(it->second);
 }
 
-Screen::MainWindow Screen::GetActiveWindow() const
+int32_t Screen::GetActiveWindow() const
 {
    return window_;
 }
@@ -592,10 +587,10 @@ void Screen::SetActiveWindow(Skip skip)
       window += visibleWindows_.size();
    }
 
-   SetActiveWindow(static_cast<MainWindow>(window));
+   SetActiveWindow(static_cast<int32_t>(window));
 }
 
-void Screen::SetVisible(MainWindow window, bool visible)
+void Screen::SetVisible(int32_t window, bool visible)
 {
    if (mainWindows_[window] != NULL)
    {
@@ -604,33 +599,37 @@ void Screen::SetVisible(MainWindow window, bool visible)
 
       if ((window == window_) && (visible == false))
       {
-         SetActiveWindow(Ui::Screen::Next);
+         SetActiveWindow(Ui::Screen::Previous);
       }
 
-      if (window < MainWindowCount)
+      for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
       {
-         for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+         if ((*it) == window)
          {
-            if ((*it) == window)
-            {
-               found = true;
+            found = true;
 
-               if (visible == false)
+            if (visible == false)
+            {
+               visibleWindows_.erase(it);
+
+               if (window >= Dynamic)
                {
-                  visibleWindows_.erase(it);
+                  WindowMap::iterator it = mainWindows_.find(window);
+                  delete it->second;
+                  mainWindows_.erase(it);
                }
             }
          }
+      }
 
-         if ((found == false) && (visible == true))
-         {
-            visibleWindows_.push_back(window);
-         }
+      if ((found == false) && (visible == true))
+      {
+         visibleWindows_.push_back(window);
       }
    }
 }
 
-void Screen::SetActiveAndVisible(MainWindow window)
+void Screen::SetActiveAndVisible(int32_t window)
 {
    if (mainWindows_[window] != NULL)
    {
@@ -651,7 +650,7 @@ void Screen::MoveWindow(uint32_t position)
    MoveWindow(window_, position);
 }
 
-void Screen::MoveWindow(MainWindow window, uint32_t position)
+void Screen::MoveWindow(int32_t window, uint32_t position)
 {
    if (mainWindows_[window] != NULL)
    {
@@ -664,7 +663,7 @@ void Screen::MoveWindow(MainWindow window, uint32_t position)
          position = visibleWindows_.size() - 1;
       }
 
-      for (std::vector<MainWindow>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
       {
          if ((*it) == window)
          {
@@ -673,7 +672,7 @@ void Screen::MoveWindow(MainWindow window, uint32_t position)
          }
       }
 
-      std::vector<MainWindow>::iterator it;
+      std::vector<int32_t>::iterator it;
 
       for (it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
 
@@ -729,7 +728,7 @@ void Screen::UpdateTabWindow() const
    uint32_t    length = 0;
    uint32_t    count  = 0;
 
-   for (std::vector<MainWindow>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
+   for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
    {
       if (settings_.ColourEnabled() == true)
       {
@@ -737,7 +736,7 @@ void Screen::UpdateTabWindow() const
       }
 
       wattron(tabWindow_, A_UNDERLINE);
-      name = GetNameFromWindow(static_cast<MainWindow>(*it));
+      name = GetNameFromWindow(static_cast<int32_t>(*it));
 
       if (*it == window_)
       {

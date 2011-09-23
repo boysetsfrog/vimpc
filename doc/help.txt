@@ -161,7 +161,9 @@ MISC:
           echo <string>           | echos the given string to the console window
                                   
                                   
-          quit[!]                 | quit vimpc, if [!] is appended playback will be stopped regardless of stoponquit setting
+          quit[!]                 | if only one tab is open, quits vimpc, otherwise closes the active tab
+          quitall[!]              | quit vimpc
+                                  | when quitting if [!] is appended playback will be stopped regardless of stoponquit setting
                                   
           redraw                  | redraws the current window
                                   

@@ -128,6 +128,9 @@ namespace Mpc
       uint32_t TotalNumberOfSongs();
 
    public:
+      void SearchAny(std::string const & search, bool exact = false);
+
+   public:
       bool SongIsInQueue(Mpc::Song const & song) const;
       void DisplaySongInformation();
 
@@ -144,6 +147,9 @@ namespace Mpc
 
       template <typename Object>
       void ForEachPlaylist(Object & object, void (Object::*callBack)(std::string));
+
+      template <typename Object>
+      void ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song *));
 
    private:
       unsigned int QueueVersion();
@@ -280,6 +286,35 @@ namespace Mpc
          }
       }
 #endif
+   }
+
+   // Requires search to be prepared before calling
+   template <typename Object>
+   void Client::ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song * ))
+   {
+      if (Connected())
+      {
+         // Start the search
+         mpd_search_commit(connection_);
+
+         // Recv the songs and do some callbacks
+         mpd_song * nextSong = mpd_recv_song(connection_);
+
+         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         {
+            uint32_t const     position = mpd_song_get_pos(nextSong);
+            Song const * const newSong  = CreateSong(position, nextSong);
+            Song * const       oldSong  = Main::Library().Song(newSong);
+
+            if (oldSong != NULL)
+            {
+               (object.*callBack)(oldSong);
+            }
+
+            mpd_song_free(nextSong);
+            delete newSong;
+         }
+      }
    }
 }
 

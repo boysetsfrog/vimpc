@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   selectwindow.hpp - window that is scrollable and has selectable elements 
+   selectwindow.hpp - window that is scrollable and has selectable elements
    */
 
 #ifndef __UI__SELECTWINDOW
@@ -29,7 +29,7 @@ namespace Ui
    class SelectWindow : public Ui::ScrollWindow
    {
    public:
-      SelectWindow(Ui::Screen const & screen);
+      SelectWindow(Ui::Screen const & screen, std::string name = "");
       ~SelectWindow();
 
    public:

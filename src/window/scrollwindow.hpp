@@ -32,7 +32,7 @@ namespace Ui
       friend class Ui::Screen;
 
    public:
-      ScrollWindow(Ui::Screen const & screen);
+      ScrollWindow(Ui::Screen const & screen, std::string name = "");
       virtual ~ScrollWindow();
 
    public:
@@ -53,15 +53,15 @@ namespace Ui
       virtual uint32_t Current() const { return 0; };
       virtual uint32_t Playlist(int Offset) const { return Current() + Offset; };
 
-   public:
-      bool Select(Position position, uint32_t count);
+      virtual std::string SearchPattern(int32_t id) { return ""; }
 
    public:
+      std::string Name();
+      void SetName(std::string const &);
+
+      bool Select(Position position, uint32_t count);
       void SetAutoScroll(bool autoScroll);
       bool AutoScroll() const;
-
-   public:
-      virtual std::string SearchPattern(int32_t id) { return ""; }
 
    public:
       uint32_t FirstLine()   const;
@@ -80,8 +80,9 @@ namespace Ui
 
    protected:
       Ui::Screen const & screen_;
-      uint16_t   scrollLine_;
-      bool       autoScroll_;
+      std::string name_;
+      uint16_t    scrollLine_;
+      bool        autoScroll_;
    };
 }
 

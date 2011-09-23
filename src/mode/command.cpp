@@ -29,6 +29,7 @@
 #include "vimpc.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"
+#include "window/songwindow.hpp"
 
 using namespace Ui;
 
@@ -51,10 +52,14 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["consume"]   = &Command::Consume;
    commandTable_["echo"]      = &Command::Echo;
+   commandTable_["find"]      = &Command::Find;
    commandTable_["move"]      = &Command::Move;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
-   commandTable_["quit"]      = &Command::Quit;
+   commandTable_["q"]         = &Command::HideWindow;
+   commandTable_["qall"]      = &Command::Quit;
+   commandTable_["quit"]      = &Command::HideWindow;
+   commandTable_["quitall"]   = &Command::Quit;
    commandTable_["random"]    = &Command::Random;
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["repeat"]    = &Command::Repeat;
@@ -67,6 +72,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
 
    commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
    commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
+   commandTable_["tabclose"]  = &Command::HideWindow;
    commandTable_["tabhide"]   = &Command::HideWindow;
    commandTable_["tabmove"]   = &Command::MoveWindow;
 
@@ -222,6 +228,17 @@ bool Command::SavePlaylist(std::string const & arguments)
    return Player::SavePlaylist(arguments);
 }
 
+bool Command::Find(std::string const & arguments)
+{
+   client_.SearchAny(arguments);
+   SongWindow * window = screen_.CreateWindow("F:" + arguments);
+   client_.ForEachSearchResult(window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+   screen_.SetActiveWindow(screen_.GetWindowFromName(window->Name()));
+
+   return true;
+}
+
 bool Command::Random(std::string const & arguments)
 {
    bool const value = (arguments.compare("on") == 0);
@@ -310,7 +327,7 @@ bool Command::SkipSong(std::string const & arguments)
 template <Ui::Screen::MainWindow MAINWINDOW>
 bool Command::SetActiveAndVisible(std::string const & arguments)
 {
-   screen_.SetActiveAndVisible(MAINWINDOW);
+   screen_.SetActiveAndVisible((int32_t) MAINWINDOW);
 
    return true;
 }
@@ -338,12 +355,17 @@ bool Command::HideWindow(std::string const & arguments)
    }
    else
    {
-      Ui::Screen::MainWindow window = screen_.GetWindowFromName(arguments);
+      int32_t window = screen_.GetWindowFromName(arguments);
 
       if (window != Ui::Screen::Unknown)
       {
          screen_.SetVisible(window, false);
       }
+   }
+
+   if (screen_.VisibleWindows() == 0)
+   {
+      return Quit("");
    }
 
    return true;

@@ -60,7 +60,7 @@ namespace Main
 
       public: //Specific Settings
          //! Gets the default startup window
-         Ui::Screen::MainWindow Window() const;
+         std::string Window() const;
 
       public: //Toggle Settings
          //! Determine whether to autmatically scroll to playing song
@@ -114,7 +114,7 @@ namespace Main
          void SetWindow(std::string const & arguments);
 
       private:
-         Ui::Screen::MainWindow defaultWindow_;
+         std::string defaultWindow_;
 
          typedef void (Main::Settings::*ptrToMember)(std::string const &);
          typedef std::map<std::string, ptrToMember> SettingsFunctionTable;

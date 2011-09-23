@@ -24,8 +24,8 @@
 
 using namespace Ui;
 
-SelectWindow::SelectWindow(Ui::Screen const & screen) :
-   ScrollWindow     (screen),
+SelectWindow::SelectWindow(Ui::Screen const & screen, std::string name) :
+   ScrollWindow     (screen, name),
    currentSelection_(0)
 {
 }

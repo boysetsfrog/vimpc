@@ -131,6 +131,10 @@ namespace Ui
       template <Screen::Skip SKIP, uint32_t OFFSET>
       bool SetActiveWindow(uint32_t count);
 
+   private: //Editting
+      template <int8_t OFFSET>
+      bool Move(uint32_t count);
+
    private:
       void DisplayModeLine();
 

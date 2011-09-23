@@ -15,10 +15,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   playlist.cpp - handling of the mpd playlist interface
+   songwindow.hpp - handling of the mpd library but with a playlist interface
    */
 
-#include "playlistwindow.hpp"
+#include "songwindow.hpp"
 
 #include <pcrecpp.h>
 
@@ -28,65 +28,42 @@
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
+#include "buffer/library.hpp"
 #include "mode/search.hpp"
 #include "window/console.hpp"
 
 using namespace Ui;
 
-PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen, "playlist"),
+SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
+   SelectWindow     (screen, name),
    settings_        (settings),
    client_          (client),
    search_          (search),
-   playlist_        (Main::Playlist()),
-   pasteBuffer_     (Main::PlaylistPasteBuffer())
-{
-   typedef Main::CallbackObject<Ui::PlaylistWindow, Mpc::Playlist::BufferType> WindowCallbackObject;
-   typedef Main::CallbackObject<Mpc::Playlist,      Mpc::Playlist::BufferType> PlaylistCallbackObject;
-
-   playlist_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this,        &Ui::PlaylistWindow::AdjustScroll));
-   playlist_.AddCallback(Main::Buffer_Remove, new PlaylistCallbackObject(pasteBuffer_, &Mpc::Playlist::Add));
-}
-
-PlaylistWindow::~PlaylistWindow()
+   browse_          ()
 {
 }
 
-
-void PlaylistWindow::Redraw()
+SongWindow::~SongWindow()
 {
-   uint16_t currentLine = CurrentLine();
-   uint16_t scrollLine  = ScrollLine();
+}
 
-   Mpc::Song * song = NULL;
-
-   if (currentLine < playlist_.Size())
+void SongWindow::Add(Mpc::Song * song)
+{
+   if (song != NULL)
    {
-      song = playlist_.Get(currentLine);
-   }
-
-   Clear();
-
-   client_.ForEachQueuedSong(playlist_, static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-
-   // If we are redrawing and can keep the same scroll point do so
-   // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
-   if ((song != NULL) && (currentLine < playlist_.Size()) && (song->URI() == playlist_.Get(currentLine)->URI()))
-   {
-      SetScrollLine(scrollLine);
-      ScrollTo(currentLine);
+      Buffer().Add(song);
    }
 }
 
-void PlaylistWindow::Print(uint32_t line) const
+void SongWindow::Print(uint32_t line) const
 {
    uint32_t printLine = line + FirstLine();
 
    if (printLine < BufferSize())
    {
-      Mpc::Song const * nextSong    = playlist_.Get(printLine);
+      Mpc::Song const * nextSong    = Buffer().Get(printLine);
       WINDOW          * window      = N_WINDOW();
-      int32_t           colour      = DetermineSongColour(line + FirstLine(), nextSong);
+      int32_t           colour      = DetermineSongColour(nextSong);
 
       if (settings_.ColourEnabled() == true)
       {
@@ -151,47 +128,67 @@ void PlaylistWindow::Print(uint32_t line) const
    }
 }
 
-void PlaylistWindow::Left(Ui::Player & player, uint32_t count)
+void SongWindow::Left(Ui::Player & player, uint32_t count)
 {
    //player.SkipSong(Ui::Player::Previous, count);
 }
 
-void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
+void SongWindow::Right(Ui::Player & player, uint32_t count)
 {
    //player.SkipSong(Ui::Player::Next, count);
 }
 
-void PlaylistWindow::Confirm()
+void SongWindow::Confirm()
 {
-   if (playlist_.Size() > CurrentLine())
+   if (Buffer().Size() > CurrentLine())
    {
-      Mpc::Song const * const song = playlist_.Get(CurrentLine());
+      Buffer().AddToPlaylist(client_, CurrentLine());
 
-      if (song != NULL)
+      if (Buffer().Get(CurrentLine()) != NULL)
       {
-         client_.Play(static_cast<uint32_t>(CurrentLine()));
+         client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - 1));
       }
    }
 }
 
-uint32_t PlaylistWindow::Current() const
+uint32_t SongWindow::Current() const
 {
-   return client_.GetCurrentSong();
+   uint32_t current       = 0;
+   int32_t  currentSongId = client_.GetCurrentSong();
+
+   if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
+   {
+      current = Main::Browse().Index(Main::Playlist().Get(currentSongId));
+   }
+
+   return current;
 }
 
-int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const
+uint32_t SongWindow::Playlist(int Offset) const
+{
+   //! \todo not sure how i am going to do this
+   // but it sure be used to navigate throw the browse window
+   // skipping forward and backwards to songs that are in the playlist only
+   return 0;
+}
+
+int32_t SongWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
 {
    int32_t colour = Colour::Song;
 
-   if (line == Current())
+   if ((nextSong->URI() == client_.GetCurrentSongURI()))
    {
       colour = Colour::CurrentSong;
    }
+   else if (client_.SongIsInQueue(*nextSong))
+   {
+      colour = Colour::FullAdd;
+   }
    else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
    {
-      pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-      if (expression.FullMatch(nextSong->PlaylistDescription()) == true)
+      if (expression.FullMatch(nextSong->PlaylistDescription()))
       {
          colour = Colour::SongMatch;
       }
@@ -200,15 +197,8 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
    return colour;
 }
 
-
-void PlaylistWindow::AdjustScroll(Mpc::Song *)
-{
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
-}
-
-
-void PlaylistWindow::Clear()
+void SongWindow::Clear()
 {
    ScrollTo(0);
-   playlist_.Clear();
+   Buffer().Clear();
 }

@@ -378,6 +378,8 @@ void Client::Move(uint32_t position1, uint32_t position2)
 {
    if (Connected() == true)
    {
+      CheckForUpdates();
+
       forceUpdate_ = true;
       (void) mpd_run_move(connection_, position1, position2);
       CheckError();
@@ -561,6 +563,8 @@ void Client::CheckForUpdates()
       if (queueVersion_ != QueueVersion())
       {
          queueVersion_ = QueueVersion();
+
+         //! \todo really need to just do the changes
          screen_.Redraw(Ui::Screen::Playlist);
       }
 
@@ -684,6 +688,16 @@ uint32_t Client::TotalNumberOfSongs()
    }
 
    return songTotal;
+}
+
+void Client::SearchAny(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+
+      mpd_search_add_any_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, search.c_str());
+   }
 }
 
 bool Client::SongIsInQueue(Mpc::Song const & song) const

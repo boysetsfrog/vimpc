@@ -34,7 +34,7 @@
 using namespace Ui;
 
 LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen),
+   SelectWindow     (screen, "library"),
    settings_        (settings),
    client_          (client),
    search_          (search),

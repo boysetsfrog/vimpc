@@ -79,6 +79,8 @@ namespace Ui
       bool LoadPlaylist(std::string const & arguments);
       bool SavePlaylist(std::string const & arguments);
 
+      bool Find(std::string const & arguments);
+
       bool Rescan(std::string const & arguments);
       bool Update(std::string const & arguments);
 

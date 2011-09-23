@@ -126,6 +126,10 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
 
+   // Editting
+   actionTable_['A'+1 - 'A'] = &Normal::Move<1>; //CTRL + A
+   actionTable_['X'+1 - 'A'] = &Normal::Move<-1>; //CTRL + X
+
    //
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];
@@ -639,6 +643,22 @@ bool Normal::SetActiveWindow(uint32_t count)
    else
    {
       screen_.SetActiveWindow(SKIP);
+   }
+
+   return true;
+}
+
+
+// Implementation of editting functions
+template <int8_t OFFSET>
+bool Normal::Move(uint32_t count)
+{
+   if (screen_.GetActiveWindow() == Screen::Playlist)
+   {
+      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
+      client_.Move(currentLine, currentLine + (count * OFFSET));
+      screen_.ActiveWindow().ScrollTo(currentLine + (count * OFFSET));
+      screen_.Update();
    }
 
    return true;

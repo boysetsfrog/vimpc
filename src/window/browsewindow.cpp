@@ -35,7 +35,7 @@
 using namespace Ui;
 
 BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen),
+   SongWindow       (settings, screen, client, search, "browse"),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -64,111 +64,6 @@ void BrowseWindow::Redraw()
    ScrollTo(currentLine);
 }
 
-
-void BrowseWindow::Add(Mpc::Song * song)
-{
-   if (song != NULL)
-   {
-      browse_.Add(song);
-   }
-}
-
-void BrowseWindow::Print(uint32_t line) const
-{
-   uint32_t printLine = line + FirstLine();
-
-   if (printLine < BufferSize())
-   {
-      Mpc::Song const * nextSong    = browse_.Get(printLine);
-      WINDOW          * window      = N_WINDOW();
-      int32_t           colour      = DetermineSongColour(nextSong);
-
-      if (settings_.ColourEnabled() == true)
-      {
-         wattron(window, COLOR_PAIR(colour));
-      }
-
-      if (printLine == CurrentLine())
-      {
-         wattron(window, A_REVERSE);
-      }
-      else if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong))
-      {
-         wattron(window, COLOR_PAIR(Colour::Song));
-      }
-
-      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-      mvwaddstr(window, line, 0, "[");
-
-      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
-      {
-         wattron(window, COLOR_PAIR(Colour::SongId));
-      }
-
-      wprintw(window, "%5d", FirstLine() + line + 1);
-
-      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
-      {
-         wattroff(window, COLOR_PAIR(Colour::SongId));
-      }
-
-      waddstr(window, "] ");
-
-      if (settings_.ColourEnabled() == true)
-      {
-         wattron(window, COLOR_PAIR(colour));
-      }
-
-      std::string artist = nextSong->Artist().c_str();
-      std::string title  = nextSong->Title().c_str();
-
-      if (title == "Unknown")
-      {
-         title = nextSong->URI().c_str();
-      }
-
-      wprintw(window, "%s - %s", artist.c_str(), title.c_str());
-
-      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
-      {
-         wattron(window, COLOR_PAIR(Colour::Song));
-      }
-
-      std::string const durationString(nextSong->DurationString());
-      mvwprintw(window, line, (screen_.MaxColumns() - durationString.size() - 2), "[%s]", durationString.c_str());
-
-      if (settings_.ColourEnabled() == true)
-      {
-         wattroff(window, COLOR_PAIR(colour));
-      }
-
-      wattroff(window, A_REVERSE);
-   }
-}
-
-void BrowseWindow::Left(Ui::Player & player, uint32_t count)
-{
-   player.SkipSong(Ui::Player::Previous, count);
-}
-
-void BrowseWindow::Right(Ui::Player & player, uint32_t count)
-{
-   player.SkipSong(Ui::Player::Next, count);
-}
-
-void BrowseWindow::Confirm()
-{
-   if (browse_.Size() > CurrentLine())
-   {
-      browse_.AddToPlaylist(client_, CurrentLine());
-
-      if (browse_.Get(CurrentLine()) != NULL)
-      {
-         client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - 1));
-      }
-   }
-}
-
 uint32_t BrowseWindow::Current() const
 {
    uint32_t current       = 0;
@@ -188,31 +83,6 @@ uint32_t BrowseWindow::Playlist(int Offset) const
    // but it sure be used to navigate throw the browse window
    // skipping forward and backwards to songs that are in the playlist only
    return 0;
-}
-
-int32_t BrowseWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
-{
-   int32_t colour = Colour::Song;
-
-   if ((nextSong->URI() == client_.GetCurrentSongURI()))
-   {
-      colour = Colour::CurrentSong;
-   }
-   else if (client_.SongIsInQueue(*nextSong))
-   {
-      colour = Colour::FullAdd;
-   }
-   else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
-   {
-      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
-
-      if (expression.FullMatch(nextSong->PlaylistDescription()))
-      {
-         colour = Colour::SongMatch;
-      }
-   }
-
-   return colour;
 }
 
 void BrowseWindow::Clear()
