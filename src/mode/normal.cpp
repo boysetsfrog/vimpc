@@ -567,6 +567,7 @@ template <int8_t OFFSET>
 bool Normal::ScrollToCurrent(uint32_t line)
 {
    screen_.ScrollTo(Screen::Current, (wasSpecificCount_ == true) ? line * OFFSET : 0);
+   return true;
 }
 
 template <Screen::Size SIZE, Screen::Direction DIRECTION>
