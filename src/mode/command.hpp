@@ -100,6 +100,7 @@ namespace Ui
 
       bool HideWindow(std::string const & arguments);
       bool MoveWindow(std::string const & arguments);
+      bool RenameWindow(std::string const & arguments);
 
    private:
       // Executes \p command using \p arguments

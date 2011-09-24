@@ -67,6 +67,12 @@ void ListWindow::Print(uint32_t line) const
    if (printLine < BufferSize())
    {
       WINDOW * window = N_WINDOW();
+      int32_t  colour = DetermineColour(printLine);
+
+      if (settings_.ColourEnabled() == true)
+      {
+         wattron(window, COLOR_PAIR(colour));
+      }
 
       if (printLine == CurrentLine())
       {
@@ -80,6 +86,11 @@ void ListWindow::Print(uint32_t line) const
 
       wattroff(window, A_BOLD);
       wattroff(window, A_REVERSE);
+
+      if (settings_.ColourEnabled() == true)
+      {
+         wattroff(window, COLOR_PAIR(colour));
+      }
    }
 }
 
@@ -109,7 +120,19 @@ uint32_t ListWindow::Current() const
 
 int32_t ListWindow::DetermineColour(uint32_t line) const
 {
-   return -1;
+   int32_t colour = Colour::Song;
+
+   if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+   {
+      pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+      if (expression.FullMatch(lists_.Get(line)) == true)
+      {
+         colour = Colour::SongMatch;
+      }
+   }
+
+   return colour;
 }
 
 

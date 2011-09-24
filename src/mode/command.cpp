@@ -79,6 +79,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["tabclose"]  = &Command::HideWindow;
    commandTable_["tabhide"]   = &Command::HideWindow;
    commandTable_["tabmove"]   = &Command::MoveWindow;
+   commandTable_["tabrename"] = &Command::RenameWindow;
 
    commandTable_["rescan"]    = &Command::Rescan;
    commandTable_["update"]    = &Command::Update;
@@ -248,26 +249,46 @@ bool Command::Find(std::string const & arguments)
 
 bool Command::Random(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetRandom(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetRandom(value);
+   }
+
+   return Player::ToggleRandom();
 }
 
 bool Command::Repeat(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetRepeat(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetRepeat(value);
+   }
+
+   return Player::ToggleRepeat();
 }
 
 bool Command::Single(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetSingle(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetSingle(value);
+   }
+
+   return Player::ToggleSingle();
 }
 
 bool Command::Consume(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetConsume(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetConsume(value);
+   }
+
+   return Player::ToggleConsume();
 }
 
 bool Command::Shuffle(std::string const & arguments)
@@ -381,6 +402,12 @@ bool Command::HideWindow(std::string const & arguments)
 bool Command::MoveWindow(std::string const & arguments)
 {
    screen_.MoveWindow(atoi(arguments.c_str()));
+   return true;
+}
+
+bool Command::RenameWindow(std::string const & arguments)
+{
+   screen_.ActiveWindow().SetName(arguments);
    return true;
 }
 

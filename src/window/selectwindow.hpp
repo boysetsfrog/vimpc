@@ -29,7 +29,7 @@ namespace Ui
    class SelectWindow : public Ui::ScrollWindow
    {
    public:
-      SelectWindow(Ui::Screen const & screen, std::string name = "");
+      SelectWindow(Ui::Screen const & screen, std::string name = "Unknown");
       ~SelectWindow();
 
    public:
