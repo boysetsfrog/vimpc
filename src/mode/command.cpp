@@ -322,9 +322,15 @@ bool Command::Move(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
-      std::string position1 = arguments.substr(0, arguments.find(" "));
-      std::string position2 = arguments.substr(arguments.find(" ") + 1);
-      client_.Move(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
+      uint32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
+      uint32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
+
+      client_.Move(position1 - 1, position2 - 1);
+
+      Mpc::Song * song = Main::Playlist().Get(position1 - 1);
+      Main::Playlist().Remove(position1 - 1, 1);
+      Main::Playlist().Add(song, position2 - 1);
+      screen_.Update();
    }
    // \todo print error
    return true;

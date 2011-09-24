@@ -137,6 +137,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       screen_.Redraw(Ui::Screen::Library);
       screen_.Redraw(Ui::Screen::Browse);
       screen_.Redraw(Ui::Screen::Lists);
+      screen_.Redraw(Ui::Screen::Playlist);
 
       // This will redraw the playlist window
       CheckForUpdates();
@@ -380,9 +381,9 @@ void Client::Move(uint32_t position1, uint32_t position2)
    {
       CheckForUpdates();
 
-      forceUpdate_ = true;
       (void) mpd_run_move(connection_, position1, position2);
       CheckError();
+      queueVersion_ = QueueVersion();
    }
 }
 
