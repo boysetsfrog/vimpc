@@ -61,6 +61,12 @@ namespace Ui
    public:
       std::string SearchPattern(int32_t id) { return Buffer().Get(id)->PlaylistDescription(); }
 
+   public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines();
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteAllLines();
+
    private:
       void    Clear();
       size_t  BufferSize() const { return Buffer().Size(); }

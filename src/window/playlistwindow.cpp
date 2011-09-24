@@ -207,6 +207,28 @@ void PlaylistWindow::AdjustScroll(Mpc::Song *)
 }
 
 
+void PlaylistWindow::AddAllLines()
+{
+   client_.AddAllSongs();
+   ScrollTo(CurrentLine());
+}
+
+void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   Main::PlaylistPasteBuffer().Clear();
+   client_.Delete(line, count + line);
+   playlist_.Remove(line, count);
+   ScrollTo(line);
+}
+
+void PlaylistWindow::DeleteAllLines()
+{
+   Main::PlaylistPasteBuffer().Clear();
+   client_.Clear();
+   playlist_.Clear();
+}
+
+
 void PlaylistWindow::Clear()
 {
    ScrollTo(0);

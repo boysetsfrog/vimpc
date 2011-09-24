@@ -80,6 +80,10 @@ namespace Ui
       bool SavePlaylist(std::string const & arguments);
 
       bool Find(std::string const & arguments);
+      bool FindAny(std::string const & arguments);
+      bool FindAlbum(std::string const & arguments);
+      bool FindArtist(std::string const & arguments);
+      bool FindSong(std::string const & arguments);
 
       bool Rescan(std::string const & arguments);
       bool Update(std::string const & arguments);

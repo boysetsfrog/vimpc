@@ -695,8 +695,34 @@ void Client::SearchAny(std::string const & search, bool exact)
    if (Connected() == true)
    {
       mpd_search_db_songs(connection_, exact);
-
       mpd_search_add_any_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, search.c_str());
+   }
+}
+
+void Client::SearchArtist(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, search.c_str());
+   }
+}
+
+void Client::SearchAlbum(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, search.c_str());
+   }
+}
+
+void Client::SearchSong(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, search.c_str());
    }
 }
 

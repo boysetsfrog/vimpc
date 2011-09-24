@@ -172,6 +172,75 @@ uint32_t SongWindow::Playlist(int Offset) const
    return 0;
 }
 
+void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   if (count > 1)
+   {
+      client_.StartCommandList();
+   }
+
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      Buffer().AddToPlaylist(client_, line + i);
+   }
+
+   if (count > 1)
+   {
+      client_.SendCommandList();
+   }
+
+   if (scroll == true)
+   {
+      Scroll(count);
+   }
+}
+
+void SongWindow::AddAllLines()
+{
+   AddLine(0, BufferSize(), false);
+}
+
+void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   Main::PlaylistPasteBuffer().Clear();
+
+   if (count > 1)
+   {
+      client_.StartCommandList();
+   }
+
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      int32_t index = line;
+
+      if (index + i < BufferSize())
+      {
+         index = Main::Playlist().Index(Buffer().Get(index + i));
+
+         if (index >= 0)
+         {
+            client_.Delete(index);
+            Main::Playlist().Remove(index, 1);
+         }
+      }
+   }
+
+   if (count > 1)
+   {
+      client_.SendCommandList();
+   }
+
+   if (scroll == true)
+   {
+      Scroll(count);
+   }
+}
+
+void SongWindow::DeleteAllLines()
+{
+   DeleteLine(0, BufferSize(), false);
+}
+
 int32_t SongWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
 {
    int32_t colour = Colour::Song;

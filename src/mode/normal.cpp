@@ -364,65 +364,13 @@ bool Normal::Collapse(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {
-   uint32_t scroll = count;
-
-   //! \TODO for the search results windows, i'd prefer that this
-   //!       only adds all the songs in the results
    if (COLLECTION == Mpc::Song::All)
    {
-      client_.AddAllSongs();
-      screen_.ScrollTo(screen_.ActiveWindow().CurrentLine());
+      screen_.ActiveWindow().AddAllLines();
    }
-   else
+   else if (COLLECTION == Mpc::Song::Single)
    {
-      if (screen_.GetActiveWindow() == Screen::Lists)
-      {
-         scroll = count;
-
-         Main::PlaylistTmp().Clear();
-
-         for (uint32_t i = 0; i < count; ++i)
-         {
-            if (i < Main::Lists().Size())
-            {
-               client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i), Main::PlaylistTmp(),
-                                          static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-            }
-         }
-
-         count = Main::PlaylistTmp().Size();
-      }
-
-      if (count > 1)
-      {
-         client_.StartCommandList();
-      }
-
-      for (uint32_t i = 0; i < count; ++i)
-      {
-         if (screen_.GetActiveWindow() == Screen::Lists)
-         {
-            client_.Add(Main::PlaylistTmp().Get(i));
-         }
-         else if (screen_.GetActiveWindow() == Screen::Library)
-         {
-            Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine() + i);
-         }
-         else if (screen_.GetActiveWindow() == Screen::Browse)
-         {
-            Main::Browse().AddToPlaylist(client_, screen_.ActiveWindow().CurrentLine() + i);
-         }
-      }
-
-      if (count > 1)
-      {
-         client_.SendCommandList();
-      }
-
-      if (screen_.GetActiveWindow() != Screen::Playlist)
-      {
-         screen_.ActiveWindow().Scroll(scroll);
-      }
+      screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
    }
 
    return true;
@@ -431,72 +379,16 @@ bool Normal::AddSong(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::DeleteSong(uint32_t count)
 {
-   //! \todo should probably move this into a function on each window
-   //! rather than having it in here and having to check what the window is
-
    //! \todo Make delete and add take a movement operation?
    //!       ie to do stuff like dG, this may require making some kind of movement
    //!          table or something rather than the way it currently works
-
-   //! \todo it seems like this needs to know a lot of stuff, surely i could abstract this out?
-   if ((screen_.GetActiveWindow() == Screen::Playlist) ||
-       (screen_.GetActiveWindow() == Screen::Browse) ||
-       (COLLECTION == Mpc::Song::All))
+   if (COLLECTION == Mpc::Song::All)
    {
-      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
-
-      Main::PlaylistPasteBuffer().Clear();
-
-      if (COLLECTION == Mpc::Song::Single)
-      {
-         int32_t index = currentLine;
-
-         if ((screen_.GetActiveWindow() == Screen::Browse))
-         {
-            client_.StartCommandList();
-
-            for (uint32_t i = 0; i < count; ++i)
-            {
-               int32_t index = currentLine;
-
-               if (index + i < Main::Browse().Size())
-               {
-                  index = Main::Playlist().Index(Main::Browse().Get(index + i));
-                  screen_.ActiveWindow().Scroll(1);
-
-                  if (index >= 0)
-                  {
-                     client_.Delete(index);
-                     playlist_.Remove(index, 1);
-                  }
-               }
-            }
-
-            client_.SendCommandList();
-         }
-         else if (index >= 0)
-         {
-            client_.Delete(index, count + index);
-            playlist_.Remove(index, count);
-         }
-      }
-      else if (COLLECTION == Mpc::Song::All)
-      {
-         Main::PlaylistPasteBuffer().Clear();
-         client_.Clear();
-         playlist_.Clear();
-      }
-
-      if ((screen_.GetActiveWindow() != Screen::Browse))
-      {
-         screen_.ScrollTo(currentLine);
-      }
+      screen_.ActiveWindow().DeleteAllLines();
    }
-   else if (screen_.GetActiveWindow() == Screen::Lists)
+   else if (COLLECTION == Mpc::Song::Single)
    {
-      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
-
-      client_.RemovePlaylist(Main::Lists().Get(currentLine));
+      screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
    }
 
    return true;

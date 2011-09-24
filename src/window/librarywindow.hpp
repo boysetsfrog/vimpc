@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   librarywindow.hpp - handling of the mpd music library 
+   librarywindow.hpp - handling of the mpd music library
    */
 
 #ifndef __UI__LIBRARYWINDOW
@@ -53,6 +53,12 @@ namespace Ui
 
    public:
       std::string SearchPattern(int32_t id);
+
+   public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines();
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteAllLines();
 
    private:
       void    Clear();

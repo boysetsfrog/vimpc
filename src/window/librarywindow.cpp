@@ -274,6 +274,48 @@ void LibraryWindow::Confirm()
    client_.Play(0);
 }
 
+
+void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   if (count > 1)
+   {
+      client_.StartCommandList();
+   }
+
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      library_.AddToPlaylist(Mpc::Song::Single, client_, screen_.ActiveWindow().CurrentLine() + i);
+   }
+
+   if (count > 1)
+   {
+      client_.SendCommandList();
+   }
+
+   if (scroll == true)
+   {
+      Scroll(count);
+   }
+}
+
+void LibraryWindow::AddAllLines()
+{
+   client_.AddAllSongs();
+   ScrollTo(CurrentLine());
+}
+
+void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+}
+
+void LibraryWindow::DeleteAllLines()
+{
+   Main::PlaylistPasteBuffer().Clear();
+   client_.Clear();
+   Main::Playlist().Clear();
+}
+
+
 int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry) const
 {
    int32_t colour = Colour::Song;

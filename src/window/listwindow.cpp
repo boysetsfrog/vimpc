@@ -142,6 +142,61 @@ void ListWindow::AdjustScroll(std::string list)
 }
 
 
+void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   Main::PlaylistTmp().Clear();
+
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      if (i < Main::Lists().Size())
+      {
+         client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i), Main::PlaylistTmp(),
+                                    static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+      }
+   }
+
+   uint32_t total = Main::PlaylistTmp().Size();
+
+   if (total > 1)
+   {
+      client_.StartCommandList();
+   }
+
+   for (uint32_t i = 0; i < total; ++i)
+   {
+      client_.Add(Main::PlaylistTmp().Get(i));
+   }
+
+   if (total > 1)
+   {
+      client_.SendCommandList();
+   }
+
+   if (scroll == true)
+   {
+      Scroll(count);
+   }
+}
+
+void ListWindow::AddAllLines()
+{
+   AddLine(0, BufferSize(), false);
+}
+
+void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   for (int i = 0; i < count; ++i)
+   {
+      client_.RemovePlaylist(Main::Lists().Get(line + i));
+   }
+}
+
+void ListWindow::DeleteAllLines()
+{
+   DeleteLine(0, BufferSize(), false);
+}
+
+
 void ListWindow::Clear()
 {
    ScrollTo(0);

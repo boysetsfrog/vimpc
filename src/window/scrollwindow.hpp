@@ -56,6 +56,12 @@ namespace Ui
       virtual std::string SearchPattern(int32_t id) { return ""; }
 
    public:
+      virtual void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
+      virtual void AddAllLines() {}
+      virtual void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
+      virtual void DeleteAllLines() {}
+
+   public:
       std::string Name();
       void SetName(std::string const &);
 
