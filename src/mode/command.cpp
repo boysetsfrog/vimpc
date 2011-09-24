@@ -435,7 +435,23 @@ bool Command::MoveWindow(std::string const & arguments)
 
 bool Command::RenameWindow(std::string const & arguments)
 {
-   screen_.ActiveWindow().SetName(arguments);
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string oldname = arguments.substr(0, arguments.find(" "));
+      std::string newname = arguments.substr(arguments.find(" ") + 1);
+
+      int32_t id = screen_.GetWindowFromName(oldname);
+
+      if (id != Ui::Screen::Unknown)
+      {
+         screen_.Window(id).SetName(newname);
+      }
+   }
+   else
+   {
+      screen_.ActiveWindow().SetName(arguments);
+   }
+
    return true;
 }
 

@@ -149,6 +149,7 @@ namespace Ui
       // Access the active window
       int32_t GetActiveWindow() const;
       Ui::ScrollWindow & ActiveWindow() const;
+      Ui::ScrollWindow & Window(uint32_t window) const;
 
       // Changes the currently active window by setting it explicitly
       void SetActiveWindow(uint32_t window);

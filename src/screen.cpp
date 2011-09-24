@@ -545,16 +545,23 @@ void Screen::ClearInput() const
 }
 
 
+int32_t Screen::GetActiveWindow() const
+{
+   return window_;
+}
+
 Ui::ScrollWindow & Screen::ActiveWindow() const
 {
    WindowMap::const_iterator it = mainWindows_.find(window_);
    return assert_reference(it->second);
 }
 
-int32_t Screen::GetActiveWindow() const
+Ui::ScrollWindow & Screen::Window(uint32_t window) const
 {
-   return window_;
+   WindowMap::const_iterator it = mainWindows_.find(window);
+   return assert_reference(it->second);
 }
+
 
 void Screen::SetActiveWindow(uint32_t window)
 {
