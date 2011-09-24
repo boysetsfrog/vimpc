@@ -337,7 +337,7 @@ uint32_t Player::First(Mpc::Song const * const song, uint32_t position, Mpc::Son
    {
       ++skipCount;
 
-      if (position > skipCount)
+      if (position >= skipCount)
       {
          firstSong = playlist_.Get(position - skipCount);
       }
