@@ -197,6 +197,8 @@ Ui::SongWindow * Screen::CreateWindow(std::string const & name)
 
    visibleWindows_.push_back(id);
 
+   window_ = id;
+
    return window;
 }
 

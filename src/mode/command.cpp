@@ -240,37 +240,33 @@ bool Command::SavePlaylist(std::string const & arguments)
 bool Command::Find(std::string const & arguments)
 {
    //! \TODO if there is no results print an error rather than make an empty window
-   SongWindow * window = screen_.CreateWindow("F:" + arguments);
+   SongWindow * window = screen_.CreateWindow(arguments);
    client_.ForEachSearchResult(window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-
-   //! \TODO fix this so it switches to the newly created window
-   screen_.SetActiveWindow(screen_.GetWindowFromName(window->Name()));
-
    return true;
 }
 
 bool Command::FindAny(std::string const & arguments)
 {
    client_.SearchAny(arguments);
-   return Find(arguments);
+   return Find("F:" + arguments);
 }
 
 bool Command::FindAlbum(std::string const & arguments)
 {
    client_.SearchAlbum(arguments);
-   return Find(arguments);
+   return Find("FAL:" + arguments);
 }
 
 bool Command::FindArtist(std::string const & arguments)
 {
    client_.SearchArtist(arguments);
-   return Find(arguments);
+   return Find("FAR:" + arguments);
 }
 
 bool Command::FindSong(std::string const & arguments)
 {
    client_.SearchSong(arguments);
-   return Find(arguments);
+   return Find("FS:" + arguments);
 }
 
 bool Command::Random(std::string const & arguments)
