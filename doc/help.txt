@@ -77,9 +77,9 @@ PLAYING (ALSO SEE PLAYLIST):
            S                      | toggles single
 
 
-ALL WINDOWS:
-           A                      | add all songs to the playlist
-           D                      | delete all songs from the playlist
+ALL WINDOWS (except OUTPUTS):
+           A                      | add all songs in the current window to the playlist
+           D                      | delete all songs in the current window from the playlist
 
 PLAYLIST:
    [count] d                      | delete the next [count] songs from the playlist
@@ -94,6 +94,7 @@ BROWSE:
 LISTS:
    [count] a                      | add the songs from the next [count] playlists to the queue
    [count] d                      | delete the next [count] playlists
+           e                      | open a list of the songs in the playlist in a new window
            <Enter>                | play the currently selected playlist
    
 
@@ -102,6 +103,11 @@ LIBRARY:
            h, Left                | collapse current selection into parent
            l, Right               | expand the current selection
            <Enter>                | clear the current playlist, add the currently selected song/album/artist and begin playing
+
+OUTPUTS:
+           d                      | disable the selected output
+           D                      | disable all outputs
+           <Enter>                | enable the selected output
 
 
 COMMAND/EX MODE
@@ -127,7 +133,15 @@ PLAYBACK:
 
           shuffle                 | shuffle the playlist
 
+FIND:
+          find <search>           | search for search pattern and display results in new window
+          findartist <search>     | search for search pattern in artist tags only
+          findalbum <search>      | search for search pattern in album tags only
+          findsong <search>       | search for search pattern in song tabs only
+
 PLAYLISTS:
+          toplaylist <name>       | save contents of window to playlist <name>
+                                  | this applies to playlist, browse and find result windows
           load <name>             | load the playlist called <name>
           edit <name>             | same as load
           save <name>             | save the current playlist as <name>
@@ -139,6 +153,7 @@ WINDOWS/TABS:
           console                 | change to the console window, if window is hidden it is opened
           help                    | change to the help window (this one), if window is hidden it is opened
           library                 | change to the library window, if window is hidden it is opened
+          outputs                 | change to the outputs window, if window is hidden it is opened
           playlist                | change to the playlist window, if window is hidden it is opened
 
           tabfirst                | navigate to the first tab
