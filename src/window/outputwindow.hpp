@@ -58,7 +58,7 @@ namespace Ui
       void Confirm();
       void Redraw();
 
-      uint32_t Current() const { return 0; }
+      uint32_t Current() const { return CurrentLine(); }
 
    public:
       void AdjustScroll(Mpc::Output * output);

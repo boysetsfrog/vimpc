@@ -39,6 +39,8 @@ namespace Ui
       void Print(uint32_t line) const;
       void Confirm();
 
+      uint32_t Current() const { return ScrollLine(); }
+
       //! \todo work out why this doesn't work properly
       std::string SearchPattern(int32_t id) { return help_.Get(id); }
 

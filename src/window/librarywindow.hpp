@@ -51,6 +51,8 @@ namespace Ui
       void Confirm();
       void Redraw();
 
+      uint32_t Current() const;
+
    public:
       std::string SearchPattern(int32_t id);
 

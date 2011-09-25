@@ -71,6 +71,11 @@ void LibraryWindow::Redraw()
    }
 }
 
+uint32_t LibraryWindow::Current() const
+{
+   return CurrentLine();
+}
+
 std::string LibraryWindow::SearchPattern(int32_t id)
 {
    //! \todo add a search that searches in collapsed songs and

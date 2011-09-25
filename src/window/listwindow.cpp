@@ -119,7 +119,7 @@ void ListWindow::Confirm()
 
 uint32_t ListWindow::Current() const
 {
-   return client_.GetCurrentSong();
+   return CurrentLine();
 }
 
 int32_t ListWindow::DetermineColour(uint32_t line) const

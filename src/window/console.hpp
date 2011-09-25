@@ -48,6 +48,8 @@ namespace Ui
       void Clear();
       void PerformAutoScroll(Console::BufferType string);
 
+      uint32_t Current() const { return ScrollLine(); }
+
    private:
       typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferType> CallbackObject;
 
