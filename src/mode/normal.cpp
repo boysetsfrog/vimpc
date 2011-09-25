@@ -24,6 +24,7 @@
 #include "vimpc.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
+#include "window/songwindow.hpp"
 
 #include <iomanip>
 #include <limits>
@@ -135,6 +136,9 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_RIGHT] = actionTable_['l'];
    actionTable_[KEY_DOWN]  = actionTable_['j'];
    actionTable_[KEY_UP]    = actionTable_['k'];
+
+   // Lists
+   actionTable_['e']       = &Normal::PlaylistEdit;
 
    // Library
    actionTable_['o']       = &Normal::Expand;
@@ -358,9 +362,22 @@ bool Normal::Collapse(uint32_t count)
    return true;
 }
 
-// Implementation of library actions
-//
-// \todo this should be implemented using the window somehow
+
+bool Normal::PlaylistEdit(uint32_t count)
+{
+   if (screen_.GetActiveWindow() == Screen::Lists)
+   {
+      std::string const playlist(Main::Lists().Get(screen_.ActiveWindow().CurrentLine()));
+
+      //! \TODO if there is no results print an error rather than make an empty window
+      SongWindow * window = screen_.CreateWindow("P:" + playlist);
+      client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+   }
+
+   return true;
+}
+
+
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {

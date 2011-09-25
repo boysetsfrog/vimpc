@@ -81,6 +81,9 @@ namespace Ui
       bool Collapse(uint32_t count);
 
    private:
+      bool PlaylistEdit(uint32_t count);
+
+   private:
       template <Mpc::Song::SongCollection COLLECTION>
       bool AddSong(uint32_t count);
 
