@@ -78,6 +78,7 @@ namespace Ui
       bool Volume(std::string const & arguments);
       bool LoadPlaylist(std::string const & arguments);
       bool SavePlaylist(std::string const & arguments);
+      bool ToPlaylist(std::string const & arguments);
 
       bool Find(std::string const & arguments);
       bool FindAny(std::string const & arguments);

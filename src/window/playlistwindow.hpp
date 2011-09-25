@@ -66,6 +66,9 @@ namespace Ui
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
 
+   public:
+      void Save(std::string const & name);
+
    private:
       void    Clear();
       size_t  BufferSize() const { return playlist_.Size(); }

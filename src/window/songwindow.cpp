@@ -241,6 +241,20 @@ void SongWindow::DeleteAllLines()
    DeleteLine(0, BufferSize(), false);
 }
 
+
+void SongWindow::Save(std::string const & name)
+{
+   client_.StartCommandList();
+   client_.CreatePlaylist(name);
+
+   for (unsigned int i = 0; i < BufferSize(); ++i)
+   {
+      client_.AddToPlaylist(name, Buffer().Get(i));
+   }
+
+   client_.SendCommandList();
+}
+
 int32_t SongWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
 {
    int32_t colour = Colour::Song;

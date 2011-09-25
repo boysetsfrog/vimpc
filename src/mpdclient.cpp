@@ -398,6 +398,28 @@ void Client::Swap(uint32_t position1, uint32_t position2)
 }
 
 
+void Client::CreatePlaylist(std::string const & name)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_send_save(connection_, name.c_str());
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+      }
+
+      (void) mpd_send_playlist_clear(connection_, name.c_str());
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+      }
+   }
+}
+
 void Client::SavePlaylist(std::string const & name)
 {
    if (Connected() == true)
@@ -430,6 +452,20 @@ void Client::RemovePlaylist(std::string const & name)
       CheckError();
 
       screen_.Redraw(Ui::Screen::Lists);
+   }
+}
+
+void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_send_playlist_add(connection_, name.c_str(), song->URI().c_str());
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+      }
    }
 }
 

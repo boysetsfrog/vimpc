@@ -98,10 +98,11 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;
 
    //! \TODO add a command to export search results to a playlist
-   commandTable_["load"]  = &Command::LoadPlaylist;
-   commandTable_["save"]  = &Command::SavePlaylist;
-   commandTable_["edit"]  = &Command::LoadPlaylist;
-   commandTable_["write"] = &Command::SavePlaylist;
+   commandTable_["load"]       = &Command::LoadPlaylist;
+   commandTable_["save"]       = &Command::SavePlaylist;
+   commandTable_["edit"]       = &Command::LoadPlaylist;
+   commandTable_["write"]      = &Command::SavePlaylist;
+   commandTable_["toplaylist"] = &Command::ToPlaylist;
 }
 
 Command::~Command()
@@ -235,6 +236,13 @@ bool Command::LoadPlaylist(std::string const & arguments)
 bool Command::SavePlaylist(std::string const & arguments)
 {
    return Player::SavePlaylist(arguments);
+}
+
+bool Command::ToPlaylist(std::string const & arguments)
+{
+   screen_.ActiveWindow().Save(arguments);
+   screen_.Redraw(Ui::Screen::Lists);
+   return true;
 }
 
 bool Command::Find(std::string const & arguments)

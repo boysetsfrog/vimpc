@@ -99,9 +99,11 @@ namespace Mpc
       void Swap(uint32_t position1, uint32_t position2);
 
    public:
+      void CreatePlaylist(std::string const & name);
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
       void RemovePlaylist(std::string const & name);
+      void AddToPlaylist(std::string const & name, Mpc::Song * song);
 
    public: //Queue
       uint32_t Add(Mpc::Song & song);

@@ -62,6 +62,9 @@ namespace Ui
       virtual void DeleteAllLines() {}
 
    public:
+      virtual void Save(std::string const & name) {}
+
+   public:
       std::string Name();
       void SetName(std::string const &);
 

@@ -228,6 +228,11 @@ void PlaylistWindow::DeleteAllLines()
    playlist_.Clear();
 }
 
+void PlaylistWindow::Save(std::string const & name)
+{
+   client_.SavePlaylist(name);
+}
+
 
 void PlaylistWindow::Clear()
 {
