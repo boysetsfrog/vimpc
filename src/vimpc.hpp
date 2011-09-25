@@ -51,6 +51,9 @@ namespace Main
       //! Handle the input using the currently active mode
       bool Handle(int input);
 
+      //! Handle a mouse event
+      bool HandleMouse();
+
       //! Checks that each mode is valid
       //! \todo Possibly template this kind of check?
       bool ModesAreInitialised();

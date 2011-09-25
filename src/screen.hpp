@@ -29,6 +29,8 @@
 
 #include <string>
 
+//#define HAVE_MOUSE_SUPPORT
+
 // Forward declarations
 namespace Main { class Settings; }
 namespace Mpc  { class Client; }
@@ -145,6 +147,8 @@ namespace Ui
       uint32_t MaxColumns()   const;
       uint32_t WaitForInput() const;
       void     ClearInput()   const;
+
+      void HandleMouseEvent();
 
    public:
       // Access the active window

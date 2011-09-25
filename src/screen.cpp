@@ -80,6 +80,10 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    halfdelay(1);
    noecho();
 
+#ifdef HAVE_MOUSE_SUPPORT
+   mousemask(ALL_MOUSE_EVENTS, NULL);
+#endif
+
    getmaxyx(stdscr, maxRows_, maxColumns_);
    maxRows_   -= 3; //Status and Mode window use last 2 rows, tabline uses top
 
@@ -544,6 +548,47 @@ void Screen::ClearInput() const
    {
       input = wgetch(commandWindow_);
    } while (input != ERR);
+}
+
+void Screen::HandleMouseEvent()
+{
+#ifdef HAVE_MOUSE_SUPPORT
+   MEVENT event;
+
+   if (getmouse(&event) == OK)
+   {
+      if (event.y == 0)
+      {
+         if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
+         {
+            int32_t x = 0;
+            for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
+            {
+               std::string name = GetNameFromWindow(static_cast<int32_t>(*it));
+               x += name.length() + 2;
+
+               if (event.x < x)
+               {
+                  SetActiveAndVisible(GetWindowFromName(name));
+                  break;
+               }
+            }
+         }
+      }
+      else if ((event.y > 0) && (event.y <= static_cast<int32_t>(MaxRows())))
+      {
+         if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
+         {
+            ActiveWindow().ScrollTo(ActiveWindow().FirstLine() + event.y - 1);
+         }
+
+         if ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED)
+         {
+            ActiveWindow().Confirm();
+         }
+      }
+   }
+#endif
 }
 
 
