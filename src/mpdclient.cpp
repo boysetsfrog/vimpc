@@ -384,6 +384,7 @@ void Client::Move(uint32_t position1, uint32_t position2)
       (void) mpd_run_move(connection_, position1, position2);
       CheckError();
       queueVersion_ = QueueVersion();
+      forceUpdate_ = true;
    }
 }
 
@@ -482,6 +483,7 @@ uint32_t Client::Add(Mpc::Song & song)
          mpd_response_finish(connection_);
          CheckError();
          queueVersion_ = QueueVersion();
+         forceUpdate_ = true;
       }
    }
 
@@ -501,6 +503,7 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
          mpd_response_finish(connection_);
          CheckError();
          queueVersion_ = QueueVersion();
+         forceUpdate_ = true;
       }
    }
 
@@ -540,6 +543,7 @@ void Client::Delete(uint32_t position)
          mpd_response_finish(connection_);
          CheckError();
          queueVersion_ = QueueVersion();
+         forceUpdate_ = true;
       }
    }
 }
@@ -554,6 +558,7 @@ void Client::Delete(uint32_t position1, uint32_t position2)
       CheckError();
 
       queueVersion_ = QueueVersion();
+      forceUpdate_ = true;
    }
 }
 
@@ -565,6 +570,7 @@ void Client::Clear()
       CheckError();
 
       queueVersion_ = QueueVersion();
+      forceUpdate_ = true;
    }
 }
 

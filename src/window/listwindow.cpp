@@ -56,6 +56,10 @@ void ListWindow::Redraw()
    Clear();
    client_.ForEachPlaylist(lists_, static_cast<void (Mpc::Lists::*)(std::string)>(&Mpc::Lists::Add));
 
+   Ui::ListComparator sorter;
+
+   lists_.Main::Buffer<std::string>::Sort(sorter);
+
    SetScrollLine(0);
    ScrollTo(0);
 }
