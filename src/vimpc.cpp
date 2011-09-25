@@ -53,6 +53,7 @@ Vimpc::Vimpc() :
    (void) Main::Library();
    (void) Main::Browse();
    (void) Main::Lists();
+   (void) Main::Outputs();
    (void) Main::Playlist();
    (void) Main::PlaylistPasteBuffer();
    (void) Main::PlaylistTmp();

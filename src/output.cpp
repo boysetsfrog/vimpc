@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,31 +15,53 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   buffers.hpp - global access to important buffers (playlist, library, console)
+   output.cpp - represents information of an available output
    */
 
-#ifndef __MAIN__BUFFERS
-#define __MAIN__BUFFERS
+#include "output.hpp"
 
-#include <iostream>
+#include <stdio.h>
 
-#include "window/console.hpp"
-#include "buffer/browse.hpp"
-#include "buffer/library.hpp"
-#include "buffer/list.hpp"
-#include "buffer/outputs.hpp"
-#include "buffer/playlist.hpp"
+using namespace Mpc;
 
-namespace Main
+Output::Output(uint32_t id) :
+   id_       (id),
+   name_     (""),
+   enabled_  (false)
+{ }
+
+Output::~Output()
+{ }
+
+
+uint32_t Output::Id() const
 {
-   Mpc::Playlist & Playlist();
-   Mpc::Playlist & PlaylistPasteBuffer();
-   Mpc::Playlist & PlaylistTmp();
-   Mpc::Browse   & Browse();
-   Mpc::Library  & Library();
-   Mpc::Lists    & Lists();
-   Mpc::Outputs  & Outputs();
-   Ui::Console   & Console();
+   return id_;
 }
 
-#endif
+void Output::SetName(const char * name)
+{
+   if (name != NULL)
+   {
+      name_ = name;
+   }
+   else
+   {
+      name_ = "Unknown";
+   }
+}
+
+std::string const & Output::Name() const
+{
+   return name_;
+}
+
+void Output::SetEnabled(bool enable)
+{
+   enabled_ = enable;
+}
+
+bool Output::Enabled() const
+{
+   return enabled_;
+}

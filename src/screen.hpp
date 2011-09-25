@@ -55,6 +55,7 @@ namespace Ui
       {
          Help = 0,
          Console,
+         Outputs,
          Library,
          Lists,
          Browse,

@@ -137,6 +137,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       screen_.Redraw(Ui::Screen::Library);
       screen_.Redraw(Ui::Screen::Browse);
       screen_.Redraw(Ui::Screen::Lists);
+      screen_.Redraw(Ui::Screen::Outputs);
       screen_.Redraw(Ui::Screen::Playlist);
 
       // This will redraw the playlist window
@@ -467,6 +468,28 @@ void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
          mpd_response_finish(connection_);
          CheckError();
       }
+   }
+}
+
+void Client::EnableOutput(Mpc::Output * output)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_enable_output(connection_, output->Id());
+      CheckError();
+
+      screen_.Redraw(Ui::Screen::Outputs);
+   }
+}
+
+void Client::DisableOutput(Mpc::Output * output)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_disable_output(connection_, output->Id());
+      CheckError();
+
+      screen_.Redraw(Ui::Screen::Outputs);
    }
 }
 

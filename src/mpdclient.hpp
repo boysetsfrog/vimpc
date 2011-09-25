@@ -23,6 +23,7 @@
 
 #include <mpd/client.h>
 
+#include "output.hpp"
 #include "screen.hpp"
 #include "buffers.hpp"
 #include "buffer/library.hpp"
@@ -49,6 +50,7 @@ namespace Ui
 // \todo cache all the values that we can
 namespace Mpc
 {
+   class Output;
    class Song;
 
    class Client
@@ -105,6 +107,10 @@ namespace Mpc
       void RemovePlaylist(std::string const & name);
       void AddToPlaylist(std::string const & name, Mpc::Song * song);
 
+   public:
+      void EnableOutput(Mpc::Output * output);
+      void DisableOutput(Mpc::Output * output);
+
    public: //Queue
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);
@@ -155,6 +161,9 @@ namespace Mpc
 
       template <typename Object>
       void ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song *));
+
+      template <typename Object>
+      void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
 
    private:
       unsigned int QueueVersion();
@@ -318,6 +327,29 @@ namespace Mpc
 
             mpd_song_free(nextSong);
             delete newSong;
+         }
+      }
+   }
+
+   template <typename Object>
+   void Client::ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *))
+   {
+      if (Connected() == true)
+      {
+         mpd_send_outputs(connection_);
+
+         mpd_output * next = mpd_recv_output(connection_);
+
+         for (; next != NULL; next = mpd_recv_output(connection_))
+         {
+            Mpc::Output * output = new Mpc::Output(mpd_output_get_id(next));
+
+            output->SetEnabled(mpd_output_get_enabled(next));
+            output->SetName(mpd_output_get_name(next));
+
+            (object.*callBack)(output);
+
+            mpd_output_free(next);
          }
       }
    }

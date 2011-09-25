@@ -191,7 +191,10 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
    for (unsigned int i = 0; i < count; ++i)
    {
-      client_.RemovePlaylist(Main::Lists().Get(line + i));
+      if (line + i < BufferSize())
+      {
+         client_.RemovePlaylist(Main::Lists().Get(line + i));
+      }
    }
 }
 

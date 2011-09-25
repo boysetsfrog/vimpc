@@ -40,6 +40,7 @@
 #include "window/help.hpp"
 #include "window/librarywindow.hpp"
 #include "window/listwindow.hpp"
+#include "window/outputwindow.hpp"
 #include "window/playlistwindow.hpp"
 #include "window/songwindow.hpp"
 
@@ -88,6 +89,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // Create all the windows
    mainWindows_[Help]     = new Ui::HelpWindow    (settings, *this);
    mainWindows_[Console]  = new Ui::ConsoleWindow (*this);
+   mainWindows_[Outputs]  = new Ui::OutputWindow  (settings, *this, client, search);
    mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search);
    mainWindows_[Browse]   = new Ui::BrowseWindow  (settings, *this, client, search);
 

@@ -20,6 +20,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/main.cpp \
                    src/mpdclient.cpp \
                    src/mpdclient.hpp \
+                   src/output.cpp \
+                   src/output.hpp \
                    src/player.cpp \
                    src/player.hpp \
                    src/project.hpp \
@@ -37,6 +39,7 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/buffer/library.cpp \
                    src/buffer/library.hpp \
                    src/buffer/list.hpp \
+                   src/buffer/outputs.hpp \
                    src/buffer/playlist.hpp \
                    src/mode/command.cpp \
                    src/mode/command.hpp \
@@ -60,6 +63,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/listwindow.hpp \
                    src/window/modewindow.cpp \
                    src/window/modewindow.hpp \
+                   src/window/outputwindow.cpp \
+                   src/window/outputwindow.hpp \
                    src/window/playlistwindow.cpp \
                    src/window/playlistwindow.hpp \
                    src/window/scrollwindow.hpp \
