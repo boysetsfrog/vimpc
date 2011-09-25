@@ -24,6 +24,7 @@
 #include "vimpc.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
+#include "window/error.hpp"
 #include "window/songwindow.hpp"
 
 #include <iomanip>
@@ -372,6 +373,16 @@ bool Normal::PlaylistEdit(uint32_t count)
       //! \TODO if there is no results print an error rather than make an empty window
       SongWindow * window = screen_.CreateWindow("P:" + playlist);
       client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+      if (window->ContentSize() > 0)
+      {
+         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      }
+      else
+      {
+         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         Error(ErrorNumber::PlaylistEmpty, "Playlist: empty");
+      }
    }
 
    return true;
@@ -606,7 +617,7 @@ void Normal::DisplayModeLine()
       modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
    }
 
-   if (screen_.ActiveWindow().ContentSize() > screen_.MaxRows() - 1)
+   if (screen_.ActiveWindow().ContentSize() > static_cast<int32_t>(screen_.MaxRows()) - 1)
    {
       if (currentScroll <= .010)
       {

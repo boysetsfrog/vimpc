@@ -250,6 +250,17 @@ bool Command::Find(std::string const & arguments)
    //! \TODO if there is no results print an error rather than make an empty window
    SongWindow * window = screen_.CreateWindow(arguments);
    client_.ForEachSearchResult(window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+   if (window->ContentSize() > 0)
+   {
+      screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+   }
+   else
+   {
+      screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+      Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+   }
+
    return true;
 }
 
@@ -330,10 +341,10 @@ bool Command::Move(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
-      uint32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
-      uint32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
+      int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
+      int32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
 
-      if (position1 >= static_cast<int32_t>(screen_.ActiveWindow().ContentSize()))
+      if (position1 >= screen_.ActiveWindow().ContentSize())
       {
          position1 = Main::Playlist().Size();
       }
@@ -342,7 +353,7 @@ bool Command::Move(std::string const & arguments)
          position1 = 1;
       }
 
-      if (position2 >= static_cast<int32_t>(screen_.ActiveWindow().ContentSize()))
+      if (position2 >= screen_.ActiveWindow().ContentSize())
       {
          position2 = Main::Playlist().Size();
       }

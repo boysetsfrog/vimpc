@@ -201,10 +201,6 @@ Ui::SongWindow * Screen::CreateWindow(std::string const & name)
    Ui::SongWindow * window = new SongWindow(settings_, *this, client_, search_, name);
    mainWindows_[id]        = window;
 
-   visibleWindows_.push_back(id);
-
-   window_ = id;
-
    return window;
 }
 
