@@ -333,6 +333,24 @@ bool Command::Move(std::string const & arguments)
       uint32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
       uint32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
 
+      if (position1 >= static_cast<int32_t>(screen_.ActiveWindow().ContentSize()))
+      {
+         position1 = Main::Playlist().Size();
+      }
+      else if (position1 <= 1)
+      {
+         position1 = 1;
+      }
+
+      if (position2 >= static_cast<int32_t>(screen_.ActiveWindow().ContentSize()))
+      {
+         position2 = Main::Playlist().Size();
+      }
+      else if (position2 <= 1)
+      {
+         position2 = 1;
+      }
+
       client_.Move(position1 - 1, position2 - 1);
 
       Mpc::Song * song = Main::Playlist().Get(position1 - 1);
@@ -391,7 +409,7 @@ bool Command::SkipSong(std::string const & arguments)
 template <Ui::Screen::MainWindow MAINWINDOW>
 bool Command::SetActiveAndVisible(std::string const & arguments)
 {
-   screen_.SetActiveAndVisible((int32_t) MAINWINDOW);
+   screen_.SetActiveAndVisible(static_cast<int32_t>(MAINWINDOW));
 
    return true;
 }

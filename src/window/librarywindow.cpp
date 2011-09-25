@@ -55,7 +55,7 @@ void LibraryWindow::Redraw()
 
    library_.Sort();
 
-   for (int i = 0; i < library_.Size(); ++i)
+   for (unsigned int i = 0; i < library_.Size(); ++i)
    {
       if (library_.Get(i)->type_ == Mpc::ArtistType)
       {
@@ -344,7 +344,7 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
       }
       else if (entry->type_ != Mpc::SongType)
       {
-         if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == entry->children_.size()))
+         if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == static_cast<int32_t>(entry->children_.size())))
          {
             colour = Colour::FullAdd;
          }

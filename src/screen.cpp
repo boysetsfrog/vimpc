@@ -627,9 +627,9 @@ void Screen::SetVisible(int32_t window, bool visible)
 
                if (window >= Dynamic)
                {
-                  WindowMap::iterator it = mainWindows_.find(window);
-                  delete it->second;
-                  mainWindows_.erase(it);
+                  WindowMap::iterator jt = mainWindows_.find(window);
+                  delete jt->second;
+                  mainWindows_.erase(jt);
                }
             }
          }

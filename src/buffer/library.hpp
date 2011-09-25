@@ -117,7 +117,7 @@ namespace Mpc
             parent_->AddPartial();
          }
 
-         if ((parent_ != NULL) && ((childrenInPlaylist_ == children_.size()) || (type_ == Mpc::SongType)))
+         if ((parent_ != NULL) && ((childrenInPlaylist_ == static_cast<int32_t>(children_.size())) || (type_ == Mpc::SongType)))
          {
             parent_->AddedToPlaylist();
          }
@@ -125,7 +125,7 @@ namespace Mpc
 
       void RemovedFromPlaylist()
       {
-         if ((parent_ != NULL) && ((childrenInPlaylist_ == children_.size()) || (type_ == Mpc::SongType)))
+         if ((parent_ != NULL) && ((childrenInPlaylist_ == static_cast<int32_t>(children_.size())) || (type_ == Mpc::SongType)))
          {
             parent_->RemovedFromPlaylist();
          }

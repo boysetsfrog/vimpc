@@ -551,12 +551,23 @@ bool Normal::Move(uint32_t count)
    if (screen_.GetActiveWindow() == Screen::Playlist)
    {
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
-      client_.Move(currentLine, currentLine + (count * OFFSET));
+      int32_t position = currentLine + (count * OFFSET);
+
+      if (position >= static_cast<int32_t>(screen_.ActiveWindow().ContentSize()))
+      {
+         position = screen_.ActiveWindow().ContentSize();
+      }
+      else if (position <= 0)
+      {
+         position = 0;
+      }
+
+      client_.Move(currentLine, position);
 
       Mpc::Song * song = Main::Playlist().Get(currentLine);
       Main::Playlist().Remove(currentLine, 1);
-      Main::Playlist().Add(song, currentLine + (count * OFFSET));
-      screen_.ActiveWindow().ScrollTo(currentLine + (count * OFFSET));
+      Main::Playlist().Add(song, position);
+      screen_.ActiveWindow().ScrollTo(position);
       screen_.Update();
    }
 
