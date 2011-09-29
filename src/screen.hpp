@@ -32,9 +32,26 @@
 //#define HAVE_MOUSE_SUPPORT
 
 // Forward declarations
-namespace Main { class Settings; }
-namespace Mpc  { class Client; }
-namespace Ui   { class Search; class ConsoleWindow; class LibraryWindow; class PlaylistWindow; class SongWindow; }
+namespace Main
+{
+   class Settings;
+}
+
+namespace Mpc
+{
+   class Client;
+   class Song;
+}
+
+namespace Ui
+{
+   class ConsoleWindow;
+   class InfoWindow;
+   class LibraryWindow;
+   class PlaylistWindow;
+   class Search;
+   class SongWindow;
+}
 
 // Screen management class
 namespace Ui
@@ -101,8 +118,9 @@ namespace Ui
       // Set the correct window to be active, flag screen as started
       void Start();
 
-      // Create a new tab window, usually used for search results
-      Ui::SongWindow * CreateWindow(std::string const & name);
+      // Create a new song window, usually used for search results
+      Ui::SongWindow * CreateSongWindow(std::string const & name);
+      Ui::InfoWindow * CreateInfoWindow(std::string const & name, Mpc::Song * song = NULL);
 
       // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();

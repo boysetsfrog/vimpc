@@ -81,7 +81,7 @@ namespace Ui
       bool Collapse(uint32_t count);
 
    private:
-      bool PlaylistEdit(uint32_t count);
+      bool Edit(uint32_t count);
 
    private:
       template <Mpc::Song::SongCollection COLLECTION>
@@ -123,7 +123,7 @@ namespace Ui
       template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
       bool ScrollTo(uint32_t line);
 
-   private:
+   private: //Alignment
       template <Screen::Direction DIRECTION>
       bool Align(uint32_t line);
 

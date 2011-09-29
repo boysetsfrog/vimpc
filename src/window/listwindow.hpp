@@ -44,7 +44,7 @@ namespace Ui
    class ListWindow : public Ui::SelectWindow
    {
    public:
-      ListWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~ListWindow();
 
    private:
@@ -71,6 +71,7 @@ namespace Ui
       void AddAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+      void Edit();
 
    private:
       void    Clear();

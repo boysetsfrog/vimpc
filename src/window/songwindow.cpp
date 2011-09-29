@@ -30,11 +30,11 @@
 #include "screen.hpp"
 #include "buffer/library.hpp"
 #include "mode/search.hpp"
-#include "window/console.hpp"
+#include "window/infowindow.hpp"
 
 using namespace Ui;
 
-SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
+SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
    SelectWindow     (screen, name),
    settings_        (settings),
    client_          (client),
@@ -54,6 +54,16 @@ void SongWindow::Add(Mpc::Song * song)
       Buffer().Add(song);
    }
 }
+
+void SongWindow::AddToPlaylist(uint32_t position)
+{
+   if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
+   {
+      Main::Playlist().Add(Buffer().Get(position));
+      client_.Add(*(Buffer().Get(position)));
+   }
+}
+
 
 void SongWindow::Print(uint32_t line) const
 {
@@ -142,7 +152,7 @@ void SongWindow::Confirm()
 {
    if (Buffer().Size() > CurrentLine())
    {
-      Buffer().AddToPlaylist(client_, CurrentLine());
+      AddToPlaylist(CurrentLine());
 
       if (Buffer().Get(CurrentLine()) != NULL)
       {
@@ -181,7 +191,7 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
    for (uint32_t i = 0; i < count; ++i)
    {
-      Buffer().AddToPlaylist(client_, line + i);
+      AddToPlaylist(line + i);
    }
 
    if (count > 1)
@@ -239,6 +249,26 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 void SongWindow::DeleteAllLines()
 {
    DeleteLine(0, BufferSize(), false);
+}
+
+void SongWindow::Edit()
+{
+   Mpc::Song * song(Buffer().Get(CurrentLine()));
+
+   if (song != NULL)
+   {
+      char Id[12];
+
+      sprintf(Id, "%d", CurrentLine());
+
+      //! \TODO only create if doesn't exist, otherwise change current one
+      InfoWindow * window = screen_.CreateInfoWindow("songinfo", song);
+
+      if (window->ContentSize() > -1)
+      {
+         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      }
+   }
 }
 
 

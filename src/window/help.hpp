@@ -31,7 +31,7 @@ namespace Ui
    class HelpWindow : public Ui::ScrollWindow
    {
    public:
-      HelpWindow(Main::Settings const & settings, Ui::Screen const & screen);
+      HelpWindow(Main::Settings const & settings, Ui::Screen & screen);
       ~HelpWindow();
 
    public:

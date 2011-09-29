@@ -40,7 +40,7 @@ namespace Ui
    class BrowseWindow : public Ui::SongWindow
    {
    public:
-      BrowseWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~BrowseWindow();
 
    private:
@@ -54,7 +54,7 @@ namespace Ui
    private:
       void    Clear();
       size_t  BufferSize() const   { return browse_.Size(); }
-      Mpc::Browse & Buffer() const { return browse_; }
+      Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
 
    private:
       Main::Settings const & settings_;

@@ -44,7 +44,7 @@ namespace Ui
    class OutputWindow : public Ui::SelectWindow
    {
    public:
-      OutputWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~OutputWindow();
 
    private:

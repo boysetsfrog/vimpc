@@ -26,7 +26,7 @@
 
 using namespace Ui;
 
-ScrollWindow::ScrollWindow(Ui::Screen const & screen, std::string name) :
+ScrollWindow::ScrollWindow(Ui::Screen & screen, std::string name) :
    Window     (screen.MaxRows(), screen.MaxColumns(), 1, 0),
    screen_    (screen),
    name_      (name),

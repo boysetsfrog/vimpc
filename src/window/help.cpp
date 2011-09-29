@@ -39,7 +39,7 @@ char const * const HelpFile = "/help.txt";
 
 using namespace Ui;
 
-HelpWindow::HelpWindow(Main::Settings const & settings, Ui::Screen const & screen) :
+HelpWindow::HelpWindow(Main::Settings const & settings, Ui::Screen & screen) :
    ScrollWindow     (screen, "help"),
    settings_        (settings),
    help_            ()

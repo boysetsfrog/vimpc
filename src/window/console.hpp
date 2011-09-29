@@ -40,7 +40,7 @@ namespace Ui
    class ConsoleWindow : public Ui::ScrollWindow
    {
    public:
-      ConsoleWindow(Ui::Screen const & screen);
+      ConsoleWindow(Ui::Screen & screen);
       ~ConsoleWindow();
 
    public:

@@ -29,11 +29,12 @@
 #include "settings.hpp"
 #include "screen.hpp"
 #include "mode/search.hpp"
-#include "window/console.hpp"
+#include "window/error.hpp"
+#include "window/songwindow.hpp"
 
 using namespace Ui;
 
-ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
+ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (screen, "lists"),
    settings_        (settings),
    client_          (client),
@@ -201,6 +202,25 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 void ListWindow::DeleteAllLines()
 {
    DeleteLine(0, BufferSize(), false);
+}
+
+
+void ListWindow::Edit()
+{
+   std::string const playlist(lists_.Get(CurrentLine()));
+
+   SongWindow * window = screen_.CreateSongWindow("P:" + playlist);
+   client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+   if (window->ContentSize() > -1)
+   {
+      screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+   }
+   else
+   {
+      screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+      Error(ErrorNumber::PlaylistEmpty, "Playlist: empty");
+   }
 }
 
 

@@ -37,7 +37,7 @@ namespace Ui
    class LibraryWindow : public Ui::SelectWindow
    {
    public:
-      LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~LibraryWindow();
 
    private:

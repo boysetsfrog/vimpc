@@ -249,8 +249,8 @@ bool Command::ToPlaylist(std::string const & arguments)
 bool Command::Find(std::string const & arguments)
 {
    //! \TODO if there is no results print an error rather than make an empty window
-   SongWindow * window = screen_.CreateWindow(arguments);
-   client_.ForEachSearchResult(window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+   SongWindow * window = screen_.CreateSongWindow(arguments);
+   client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
    if (window->ContentSize() > 0)
    {

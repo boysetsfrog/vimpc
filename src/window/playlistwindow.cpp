@@ -33,8 +33,8 @@
 
 using namespace Ui;
 
-PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen, "playlist"),
+PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+   SongWindow       (settings, screen, client, search, "playlist"),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -206,6 +206,9 @@ void PlaylistWindow::AdjustScroll(Mpc::Song *)
    currentSelection_ = LimitCurrentSelection(currentSelection_);
 }
 
+void PlaylistWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+}
 
 void PlaylistWindow::AddAllLines()
 {

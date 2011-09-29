@@ -138,8 +138,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_DOWN]  = actionTable_['j'];
    actionTable_[KEY_UP]    = actionTable_['k'];
 
-   // Lists
-   actionTable_['e']       = &Normal::PlaylistEdit;
+   //
+   actionTable_['e']       = &Normal::Edit;
 
    // Library
    actionTable_['o']       = &Normal::Expand;
@@ -364,27 +364,9 @@ bool Normal::Collapse(uint32_t count)
 }
 
 
-bool Normal::PlaylistEdit(uint32_t count)
+bool Normal::Edit(uint32_t count)
 {
-   if (screen_.GetActiveWindow() == Screen::Lists)
-   {
-      std::string const playlist(Main::Lists().Get(screen_.ActiveWindow().CurrentLine()));
-
-      //! \TODO if there is no results print an error rather than make an empty window
-      SongWindow * window = screen_.CreateWindow("P:" + playlist);
-      client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Mpc::Browse::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-
-      if (window->ContentSize() > 0)
-      {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
-      }
-      else
-      {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         Error(ErrorNumber::PlaylistEmpty, "Playlist: empty");
-      }
-   }
-
+   screen_.ActiveWindow().Edit();
    return true;
 }
 

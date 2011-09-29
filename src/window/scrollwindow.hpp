@@ -32,7 +32,7 @@ namespace Ui
       friend class Ui::Screen;
 
    public:
-      ScrollWindow(Ui::Screen const & screen, std::string name = "Unknown");
+      ScrollWindow(Ui::Screen & screen, std::string name = "Unknown");
       virtual ~ScrollWindow();
 
    public:
@@ -60,6 +60,7 @@ namespace Ui
       virtual void AddAllLines() {}
       virtual void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
       virtual void DeleteAllLines() {}
+      virtual void Edit() {}
 
    public:
       virtual void Save(std::string const & name) {}
@@ -88,10 +89,10 @@ namespace Ui
       virtual size_t BufferSize() const = 0;
 
    protected:
-      Ui::Screen const & screen_;
-      std::string name_;
-      uint16_t    scrollLine_;
-      bool        autoScroll_;
+      Ui::Screen & screen_;
+      std::string  name_;
+      uint16_t     scrollLine_;
+      bool         autoScroll_;
    };
 }
 

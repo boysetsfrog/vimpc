@@ -76,6 +76,8 @@ namespace Ui
       bool Redraw(std::string const & arguments);
       bool Stop(std::string const & arguments);
       bool Volume(std::string const & arguments);
+
+   private:
       bool LoadPlaylist(std::string const & arguments);
       bool SavePlaylist(std::string const & arguments);
       bool ToPlaylist(std::string const & arguments);

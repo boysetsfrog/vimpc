@@ -34,7 +34,7 @@
 
 using namespace Ui;
 
-BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
+BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
    SongWindow       (settings, screen, client, search, "browse"),
    settings_        (settings),
    client_          (client),

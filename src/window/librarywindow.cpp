@@ -33,7 +33,7 @@
 
 using namespace Ui;
 
-LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
+LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (screen, "library"),
    settings_        (settings),
    client_          (client),

@@ -25,7 +25,7 @@
 
 using namespace Ui;
 
-ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :
+ConsoleWindow::ConsoleWindow(Ui::Screen & screen) :
    ScrollWindow(screen, "console"),
    console_    (Main::Console())
 {

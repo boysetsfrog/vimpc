@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   browse.hpp - handling of the mpd playlist interface 
+   browse.hpp - handling of the mpd playlist interface
    */
 
 #ifndef __MPC__BROWSE
@@ -27,7 +27,7 @@
 
 #include "buffer/buffer.hpp"
 
-// Browse 
+// Browse
 namespace Mpc
 {
    class Client;
@@ -36,14 +36,13 @@ namespace Mpc
    {
    private:
       typedef Main::CallbackObject<Mpc::Browse, Browse::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Browse::BufferType> CallbackFunction; 
+      typedef Main::CallbackFunction<Browse::BufferType> CallbackFunction;
 
    public:
       Browse(bool IncrementReferences = false);
       ~Browse();
 
    public:
-   void AddToPlaylist(Mpc::Client & client, uint32_t position);
    void Sort();
 
    private:

@@ -33,7 +33,7 @@
 
 using namespace Ui;
 
-OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
+OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (screen, "outputs"),
    settings_        (settings),
    client_          (client),

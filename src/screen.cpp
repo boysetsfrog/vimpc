@@ -33,11 +33,13 @@
 #include "colour.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
+#include "song.hpp"
 
 #include "window/browsewindow.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"
 #include "window/help.hpp"
+#include "window/infowindow.hpp"
 #include "window/librarywindow.hpp"
 #include "window/listwindow.hpp"
 #include "window/outputwindow.hpp"
@@ -107,14 +109,12 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
 
-   // Mark them all as visible
-   for (uint32_t i = 0; i < MainWindowCount; ++i)
-   {
-      if (mainWindows_[i] != NULL)
-      {
-         visibleWindows_.push_back(static_cast<int32_t>(i));
-      }
-   }
+   // Mark the default windows as visible
+   visibleWindows_.push_back(static_cast<int32_t>(Help));
+   visibleWindows_.push_back(static_cast<int32_t>(Lists));
+   visibleWindows_.push_back(static_cast<int32_t>(Library));
+   visibleWindows_.push_back(static_cast<int32_t>(Browse));
+   visibleWindows_.push_back(static_cast<int32_t>(Playlist));
 
    // Commands must be read through a window that is always visible
    commandWindow_         = statusWindow_;
@@ -189,7 +189,7 @@ void Screen::Start()
 }
 
 
-Ui::SongWindow * Screen::CreateWindow(std::string const & name)
+Ui::SongWindow * Screen::CreateSongWindow(std::string const & name)
 {
    int32_t id = static_cast<int32_t>(Dynamic);
 
@@ -199,6 +199,22 @@ Ui::SongWindow * Screen::CreateWindow(std::string const & name)
    }
 
    Ui::SongWindow * window = new SongWindow(settings_, *this, client_, search_, name);
+   mainWindows_[id]        = window;
+
+   return window;
+}
+
+
+Ui::InfoWindow * Screen::CreateInfoWindow(std::string const & name, Mpc::Song * song)
+{
+   int32_t id = static_cast<int32_t>(Dynamic);
+
+   while (mainWindows_.find(id) != mainWindows_.end())
+   {
+      ++id;
+   }
+
+   Ui::InfoWindow * window = new InfoWindow(song, *this, name);
    mainWindows_[id]        = window;
 
    return window;

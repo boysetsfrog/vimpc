@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   browse.cpp - handling of the mpd playlist interface 
+   browse.cpp - handling of the mpd playlist interface
    */
 
 // Includes
@@ -23,29 +23,20 @@
 #include "mpdclient.hpp"
 #include "buffer/browse.hpp"
 
-// Browse 
+// Browse
 using namespace Mpc;
 
-Browse::Browse(bool IncrementReferences)  
+Browse::Browse(bool IncrementReferences)
 {
    if (IncrementReferences == true)
    {
       AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
       AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
    }
-} 
+}
 
 Browse::~Browse()
 {
-}
-
-void Browse::AddToPlaylist(Mpc::Client & client, uint32_t position)
-{
-   if ((position < Size()) && (Get(position) != NULL))
-   {
-      Main::Playlist().Add(Get(position));
-      client.Add(*(Get(position)));
-   }
 }
 
 void Browse::Sort()

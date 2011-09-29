@@ -40,7 +40,7 @@ namespace Ui
    class SongWindow : public Ui::SelectWindow
    {
    public:
-      SongWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search, std::string name);
+      SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name);
       ~SongWindow();
 
    private:
@@ -57,6 +57,7 @@ namespace Ui
       uint32_t Playlist(int Offset) const;
 
       void Add(Mpc::Song * song);
+      void AddToPlaylist(uint32_t position);
 
    public:
       std::string SearchPattern(int32_t id) { return Buffer().Get(id)->PlaylistDescription(); }
@@ -66,6 +67,7 @@ namespace Ui
       void AddAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+      void Edit();
 
    public:
       void Save(std::string const & name);
@@ -76,7 +78,7 @@ namespace Ui
       int32_t DetermineSongColour(Mpc::Song const * const nextSong) const;
 
    public:
-      virtual Mpc::Browse & Buffer() const { return browse_; }
+      virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
 
    private:
       Main::Settings const & settings_;

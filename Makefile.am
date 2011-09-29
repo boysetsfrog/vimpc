@@ -57,6 +57,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/error.hpp \
                    src/window/help.cpp \
                    src/window/help.hpp \
+                   src/window/infowindow.cpp \
+                   src/window/infowindow.hpp \
                    src/window/librarywindow.cpp \
                    src/window/librarywindow.hpp \
                    src/window/listwindow.cpp \
