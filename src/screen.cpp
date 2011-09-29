@@ -167,7 +167,10 @@ std::string Screen::GetNameFromWindow(int32_t window) const
 
    if (it != mainWindows_.end())
    {
-      name = it->second->Name();
+      if (it->second != NULL)
+      {
+         name = it->second->Name();
+      }
    }
 
    return name;
