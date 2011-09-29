@@ -111,7 +111,12 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Mark the default windows as visible
    visibleWindows_.push_back(static_cast<int32_t>(Help));
-   visibleWindows_.push_back(static_cast<int32_t>(Lists));
+
+   if (mainWindows_[Lists] != NULL)
+   {
+      visibleWindows_.push_back(static_cast<int32_t>(Lists));
+   }
+
    visibleWindows_.push_back(static_cast<int32_t>(Library));
    visibleWindows_.push_back(static_cast<int32_t>(Browse));
    visibleWindows_.push_back(static_cast<int32_t>(Playlist));
