@@ -253,20 +253,23 @@ void SongWindow::DeleteAllLines()
 
 void SongWindow::Edit()
 {
-   Mpc::Song * song(Buffer().Get(CurrentLine()));
-
-   if (song != NULL)
+   if (CurrentLine() < BufferSize())
    {
-      char Id[12];
+      Mpc::Song * song(Buffer().Get(CurrentLine()));
 
-      sprintf(Id, "%d", CurrentLine());
-
-      //! \TODO only create if doesn't exist, otherwise change current one
-      InfoWindow * window = screen_.CreateInfoWindow("songinfo", song);
-
-      if (window->ContentSize() > -1)
+      if (song != NULL)
       {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         char Id[12];
+
+         sprintf(Id, "%d", CurrentLine());
+
+         //! \TODO only create if doesn't exist, otherwise change current one
+         InfoWindow * window = screen_.CreateInfoWindow("songinfo", song);
+
+         if (window->ContentSize() > -1)
+         {
+            screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         }
       }
    }
 }

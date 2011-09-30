@@ -60,7 +60,14 @@ namespace Ui
       void AddToPlaylist(uint32_t position);
 
    public:
-      std::string SearchPattern(int32_t id) { return Buffer().Get(id)->PlaylistDescription(); }
+      std::string SearchPattern(int32_t id)
+      {
+         if (id > 0)
+         {
+            return Buffer().Get(id)->PlaylistDescription();
+         }
+         return "";
+      }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
