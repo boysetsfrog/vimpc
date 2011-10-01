@@ -63,8 +63,21 @@ namespace Main
       void Add(T entry)
       {
          Buffer<T>::push_back(entry);
-
          Callback(Buffer_Add, entry);
+      }
+
+      void Replace(uint32_t index, T entry)
+      {
+         if (index < Size())
+         {
+            Callback(Buffer_Remove, Buffer<T>::at(index));
+            Buffer<T>::at(index) = entry;
+            Callback(Buffer_Add, entry);
+         }
+         else
+         {
+            Add(entry);
+         }
       }
 
       int32_t Index(T entry) const
@@ -100,6 +113,15 @@ namespace Main
             Buffer<T>::insert(it, entry);
 
             Callback(Buffer_Add, entry);
+         }
+      }
+
+      void Crop(uint32_t newSize)
+      {
+         while (newSize < Size())
+         {
+            Callback(Buffer_Add, Buffer<T>::back());
+            Buffer<T>::pop_back();
          }
       }
 

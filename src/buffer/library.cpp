@@ -123,11 +123,13 @@ void Library::Add(Mpc::Song * song)
 
       newSong->SetEntry(entry);
 
+      uriMap_[newSong->URI()] = newSong;
+
       LastAlbumEntry->children_.push_back(entry);
    }
 }
 
-Mpc::Song * Library::Song(Mpc::Song const * const song)
+Mpc::Song * Library::Song(Mpc::Song const * const song) const
 {
    std::string artist = song->Artist();
    std::string album  = song->Album();
@@ -167,6 +169,19 @@ Mpc::Song * Library::Song(Mpc::Song const * const song)
 
    return NULL;
 }
+
+Mpc::Song * Library::Song(std::string uri) const
+{
+   std::map<std::string, Mpc::Song *>::const_iterator it = uriMap_.find(uri);
+
+   if (it != uriMap_.end())
+   {
+      return it->second;
+   }
+
+   return NULL;
+}
+
 
 void Library::Sort()
 {

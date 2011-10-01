@@ -199,7 +199,8 @@ namespace Mpc
       ~Library();
 
    public:
-      Mpc::Song * Song(Mpc::Song const * const song);
+      Mpc::Song * Song(Mpc::Song const * const song) const;
+      Mpc::Song * Song(std::string uri) const;
 
       void Sort();
       void Sort(LibraryEntry * entry);
@@ -217,6 +218,9 @@ namespace Mpc
 
       typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
       typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;
+
+   private:
+      std::map<std::string, Mpc::Song *> uriMap_;
    };
 
    //Flag a library entry as not expanded, this does not actually collapse it however

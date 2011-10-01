@@ -151,6 +151,9 @@ namespace Mpc
       void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
+      void ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *));
+
+      template <typename Object>
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
@@ -167,6 +170,7 @@ namespace Mpc
 
    private:
       unsigned int QueueVersion();
+      void UpdateStatus(bool ExpectUpdate = false);
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
 
    private:
@@ -188,7 +192,7 @@ namespace Mpc
       std::string             currentState_;
 
       Ui::Screen &            screen_;
-      unsigned int            queueVersion_;
+      int                     queueVersion_;
       bool                    forceUpdate_;
       bool                    listMode_;
    };
@@ -199,25 +203,45 @@ namespace Mpc
    {
       if (Connected() == true)
       {
-         queueVersion_ = QueueVersion();
-
          mpd_send_list_queue_meta(connection_);
 
          mpd_song * nextSong = mpd_recv_song(connection_);
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            uint32_t const     position = mpd_song_get_pos(nextSong);
-            Song const * const newSong  = CreateSong(position, nextSong);
-            Song * const       oldSong  = Main::Library().Song(newSong);
+            Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
 
-            if (oldSong != NULL)
+            if (song != NULL)
             {
-               (object.*callBack)(oldSong);
+               (object.*callBack)(song);
             }
 
             mpd_song_free(nextSong);
-            delete newSong;
+         }
+      }
+   }
+
+   //
+   template <typename Object>
+   void Client::ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *))
+   {
+      if (Connected() == true)
+      {
+         mpd_send_queue_changes_meta(connection_, oldVersion);
+
+         mpd_song * nextSong = mpd_recv_song(connection_);
+
+         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         {
+            uint32_t const position = mpd_song_get_pos(nextSong);
+            Song * const   song     = Main::Library().Song(mpd_song_get_uri(nextSong));
+
+            if (song != NULL)
+            {
+               (object.*callBack)(position, song);
+            }
+
+            mpd_song_free(nextSong);
          }
       }
    }
@@ -265,17 +289,14 @@ namespace Mpc
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            uint32_t const     position = mpd_song_get_pos(nextSong);
-            Song const * const newSong  = CreateSong(position, nextSong);
-            Song * const       oldSong  = Main::Library().Song(newSong);
+            Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
 
-            if (oldSong != NULL)
+            if (song != NULL)
             {
-               (object.*callBack)(oldSong);
+               (object.*callBack)(song);
             }
 
             mpd_song_free(nextSong);
-            delete newSong;
          }
       }
 #endif
@@ -316,17 +337,14 @@ namespace Mpc
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            uint32_t const     position = mpd_song_get_pos(nextSong);
-            Song const * const newSong  = CreateSong(position, nextSong);
-            Song * const       oldSong  = Main::Library().Song(newSong);
+            Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
 
-            if (oldSong != NULL)
+            if (song != NULL)
             {
-               (object.*callBack)(oldSong);
+               (object.*callBack)(song);
             }
 
             mpd_song_free(nextSong);
-            delete newSong;
          }
       }
    }

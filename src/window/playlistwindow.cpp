@@ -176,14 +176,21 @@ void PlaylistWindow::Confirm()
 
 uint32_t PlaylistWindow::Current() const
 {
-   return client_.GetCurrentSong();
+   int32_t current = client_.GetCurrentSong();
+
+   if (current < 0)
+   {
+      return CurrentLine();
+   }
+
+   return current;
 }
 
 int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const
 {
    int32_t colour = Colour::Song;
 
-   if (line == Current())
+   if (line == client_.GetCurrentSong())
    {
       colour = Colour::CurrentSong;
    }
@@ -219,16 +226,16 @@ void PlaylistWindow::AddAllLines()
 void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
    Main::PlaylistPasteBuffer().Clear();
-   client_.Delete(line, count + line);
    playlist_.Remove(line, count);
+   client_.Delete(line, count + line);
    ScrollTo(line);
 }
 
 void PlaylistWindow::DeleteAllLines()
 {
    Main::PlaylistPasteBuffer().Clear();
-   client_.Clear();
    playlist_.Clear();
+   client_.Clear();
 }
 
 void PlaylistWindow::Save(std::string const & name)
