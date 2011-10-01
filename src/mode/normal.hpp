@@ -90,6 +90,9 @@ namespace Ui
       template <Mpc::Song::SongCollection COLLECTION>
       bool DeleteSong(uint32_t count);
 
+      template <Mpc::Song::SongCollection COLLECTION>
+      bool CropSong(uint32_t count);
+
       bool PasteBuffer(uint32_t count);
 
    private: //Selecting

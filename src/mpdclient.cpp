@@ -140,7 +140,6 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       screen_.Redraw(Ui::Screen::Outputs);
       screen_.Redraw(Ui::Screen::Playlist);
 
-      // This will redraw the playlist window
       UpdateStatus();
       CheckForUpdates();
    }
@@ -459,7 +458,6 @@ void Client::LoadPlaylist(std::string const & name)
 
       (void) mpd_run_load(connection_, name.c_str());
       CheckError();
-
       UpdateStatus();
    }
 }

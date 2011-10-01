@@ -70,7 +70,7 @@ Settings::Settings() :
    toggleTable_[HighlightSearchSetting]  = new Setting<bool>(true);
    toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
    toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
-   toggleTable_[StopOnQuitSetting]       = new Setting<bool>(true);
+   toggleTable_[StopOnQuitSetting]       = new Setting<bool>(false);
    toggleTable_[TimeRemainingSetting]    = new Setting<bool>(false);
    toggleTable_[WindowNumbersSetting]    = new Setting<bool>(false);
 }

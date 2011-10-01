@@ -58,6 +58,8 @@ namespace Ui
    public:
       virtual void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
       virtual void AddAllLines() {}
+      virtual void CropLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
+      virtual void CropAllLines() {}
       virtual void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
       virtual void DeleteAllLines() {}
       virtual void Edit() {}

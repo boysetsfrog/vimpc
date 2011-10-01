@@ -210,6 +210,16 @@ void SongWindow::AddAllLines()
    AddLine(0, BufferSize(), false);
 }
 
+void SongWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
+{
+   DeleteLine(line, count, scroll);
+}
+
+void SongWindow::CropAllLines()
+{
+   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), true);
+}
+
 void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
    Main::PlaylistPasteBuffer().Clear();

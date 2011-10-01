@@ -96,6 +96,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
    actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;
    actionTable_['A']       = &Normal::AddSong<Mpc::Song::All>;
+   actionTable_['x']       = &Normal::CropSong<Mpc::Song::Single>;
+   actionTable_['X']       = &Normal::CropSong<Mpc::Song::All>;
 
    actionTable_[KEY_DC]    = &Normal::DeleteSong<Mpc::Song::Single>;
 
@@ -399,6 +401,21 @@ bool Normal::DeleteSong(uint32_t count)
    else if (COLLECTION == Mpc::Song::Single)
    {
       screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
+   }
+
+   return true;
+}
+
+template <Mpc::Song::SongCollection COLLECTION>
+bool Normal::CropSong(uint32_t count)
+{
+   if (COLLECTION == Mpc::Song::All)
+   {
+      screen_.ActiveWindow().CropAllLines();
+   }
+   else if (COLLECTION == Mpc::Song::Single)
+   {
+      screen_.ActiveWindow().CropLine(screen_.ActiveWindow().CurrentLine(), count);
    }
 
    return true;
