@@ -120,7 +120,7 @@ namespace Main
       {
          while (newSize < Size())
          {
-            Callback(Buffer_Add, Buffer<T>::back());
+            Callback(Buffer_Remove, Buffer<T>::back());
             Buffer<T>::pop_back();
          }
       }
