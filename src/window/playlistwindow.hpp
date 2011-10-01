@@ -47,7 +47,6 @@ namespace Ui
       PlaylistWindow & operator=(PlaylistWindow & playlist);
 
    public:
-      void Print(uint32_t line) const;
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();

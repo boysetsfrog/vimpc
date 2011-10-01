@@ -77,6 +77,10 @@ namespace Ui
       //! Plays the song with the given \p id
       bool Play(uint32_t position);
 
+      //! Seek within the current song
+      bool Seek(int32_t Offset);
+      bool SeekTo(uint32_t Time);
+
       //! Quits the program
       bool Quit();
 

@@ -78,6 +78,11 @@ namespace Ui
       bool Volume(std::string const & arguments);
 
    private:
+      template <int Delta>
+      bool Seek(std::string const & arguments);
+      bool SeekTo(std::string const & arguments);
+
+   private:
       bool LoadPlaylist(std::string const & arguments);
       bool SavePlaylist(std::string const & arguments);
       bool ToPlaylist(std::string const & arguments);

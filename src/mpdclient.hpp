@@ -78,6 +78,8 @@ namespace Mpc
       void Stop();
       void Next();
       void Previous();
+      void Seek(int32_t Offset);
+      void SeekTo(uint32_t Time);
 
    public:
       bool Random();

@@ -239,6 +239,31 @@ void Client::Previous()
    }
 }
 
+void Client::Seek(int32_t Offset)
+{
+   if (Connected() == true)
+   {
+      uint32_t const elapsed  = mpd_status_get_elapsed_time(currentStatus_);
+      mpd_run_seek_pos(connection_, currentSongId_, elapsed + Offset);
+      CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
+   }
+}
+
+void Client::SeekTo(uint32_t Time)
+{
+   if (Connected() == true)
+   {
+      mpd_run_seek_pos(connection_, currentSongId_, Time);
+      CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
+   }
+}
+
 
 bool Client::Random()
 {

@@ -71,6 +71,9 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["repeat"]    = &Command::Repeat;
    commandTable_["set"]       = &Command::Set;
+   commandTable_["seek"]      = &Command::SeekTo;
+   commandTable_["seek+"]     = &Command::Seek<1>;
+   commandTable_["seek-"]     = &Command::Seek<-1>;
    commandTable_["single"]    = &Command::Single;
    commandTable_["shuffle"]   = &Command::Shuffle;
    commandTable_["swap"]      = &Command::Swap;
@@ -212,6 +215,17 @@ bool Command::Pause(std::string const & arguments)
 bool Command::Play(std::string const & arguments)
 {
    return Player::Play(atoi(arguments.c_str()));
+}
+
+template <int Delta>
+bool Command::Seek(std::string const & arguments)
+{
+   return Player::Seek(Delta * atoi(arguments.c_str()));
+}
+
+bool Command::SeekTo(std::string const & arguments)
+{
+   return Player::SeekTo(atoi(arguments.c_str()));
 }
 
 bool Command::Quit(std::string const & arguments)

@@ -48,16 +48,36 @@ void InfoWindow::Print(uint32_t line) const
    {
       WINDOW * window = N_WINDOW();
 
+      uint32_t printLine = ((screen_.MaxRows()- 5) /2);
+
       for (unsigned int i = 0; i < 6; ++i)
       {
          mvwhline(window, i, 0, ' ', screen_.MaxColumns());
       }
 
-      mvwaddstr(window, 0, 0, song_->Artist().c_str());
-      mvwaddstr(window, 1, 0, song_->Album().c_str());
-      mvwaddstr(window, 2, 0, song_->Title().c_str());
-      mvwaddstr(window, 3, 0, song_->Track().c_str());
+      wattron(window, A_BOLD);
+      mvwaddstr(window, 0, 0, "URI: ");
+      wattroff(window, A_BOLD);
+      mvwprintw(window, 0, 5, "%s", song_->URI().c_str());
+
+      wattron(window, A_BOLD);
+      mvwaddstr(window, printLine, 0, "Artist: ");
+      wattroff(window, A_BOLD);
+      mvwaddstr(window, printLine++, 8, song_->Artist().c_str());
+
+      wattron(window, A_BOLD);
+      mvwaddstr(window, printLine, 0, "Album: ");
+      wattroff(window, A_BOLD);
+      mvwaddstr(window, printLine++, 7, song_->Album().c_str());
+
+      wattron(window, A_BOLD);
+      mvwaddstr(window, printLine, 0, "Track: ");
+      wattroff(window, A_BOLD);
+      mvwprintw(window, printLine++, 7, "%s - %s", song_->Track().c_str(), song_->Title().c_str());
+
+
       //mvwaddstr(window, 4, 0, song_->Duration().c_str());
-      mvwaddstr(window, 5, 0, song_->URI().c_str());
+      //
+      // \TODO duration, in playlist? (positions), rating, counter, TAGS -> genre, etc
    }
 }

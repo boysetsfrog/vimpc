@@ -84,7 +84,7 @@ namespace Ui
    private:
       void    Clear();
       size_t  BufferSize() const { return Buffer().Size(); }
-      int32_t DetermineSongColour(Mpc::Song const * const nextSong) const;
+      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
 
    public:
       virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }

@@ -73,7 +73,7 @@ void SongWindow::Print(uint32_t line) const
    {
       Mpc::Song const * nextSong    = Buffer().Get(printLine);
       WINDOW          * window      = N_WINDOW();
-      int32_t           colour      = DetermineSongColour(nextSong);
+      int32_t           colour      = DetermineSongColour(printLine, nextSong);
 
       if (settings_.ColourEnabled() == true)
       {
@@ -298,7 +298,7 @@ void SongWindow::Save(std::string const & name)
    client_.SendCommandList();
 }
 
-int32_t SongWindow::DetermineSongColour(Mpc::Song const * const nextSong) const
+int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const
 {
    int32_t colour = Colour::Song;
 

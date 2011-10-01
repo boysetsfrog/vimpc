@@ -76,6 +76,19 @@ bool Player::Play(uint32_t position)
    return true;
 }
 
+bool Player::Seek(int32_t Offset)
+{
+   client_.Seek(Offset);
+   return true;
+}
+
+bool Player::SeekTo(uint32_t Time)
+{
+   client_.SeekTo(Time);
+   return true;
+}
+
+
 bool Player::Quit()
 {
    return false;
