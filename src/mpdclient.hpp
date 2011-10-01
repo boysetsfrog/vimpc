@@ -53,6 +53,9 @@ namespace Mpc
    class Output;
    class Song;
 
+   uint32_t SecondsToMinutes(uint32_t duration);
+   uint32_t RemainingSeconds(uint32_t duration);
+
    class Client
    {
    public:

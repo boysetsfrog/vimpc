@@ -120,8 +120,9 @@ namespace Main
       {
          while (newSize < Size())
          {
-            Callback(Buffer_Remove, Buffer<T>::back());
+            T entry = Buffer<T>::back();
             Buffer<T>::pop_back();
+            Callback(Buffer_Remove, entry);
          }
       }
 
@@ -147,8 +148,9 @@ namespace Main
 
          for (uint32_t c = 0; ((c < count) && (it != Buffer<T>::end())); ++c)
          {
-            Callback(Buffer_Remove, *it);
+            T entry = *it;
             it = Buffer<T>::erase(it);
+            Callback(Buffer_Remove, entry);
          }
       }
 
@@ -160,12 +162,9 @@ namespace Main
 
       void Clear()
       {
-         for (typename Buffer<T>::iterator it = Buffer<T>::begin(); (it != Buffer<T>::end()); ++it)
-         {
-            Callback(Buffer_Remove, *it);
-         }
-
-         Buffer<T>::clear();
+         // We need to remove one by one to ensure
+         // that the callback is called at the right time
+         Remove(0, Size());
       }
 
       size_t Size() const

@@ -659,7 +659,15 @@ void Normal::DisplayModeLine()
    std::string currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);
 
    std::string modeLine(modeStream.str());
-   std::string blankLine(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');
+
+   int32_t const WhiteSpaceLength = screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1);
+
+   std::string blankLine("");
+
+   if (WhiteSpaceLength > 0)
+   {
+      blankLine = std::string(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');
+   }
 
    window_->SetLine("%s%s%s", currentState.c_str(),  blankLine.c_str(), modeLine.c_str());
 }

@@ -138,6 +138,7 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
 void PlaylistWindow::AdjustScroll(Mpc::Song *)
 {
    currentSelection_ = LimitCurrentSelection(currentSelection_);
+   ScrollTo(CurrentLine());
 }
 
 void PlaylistWindow::AddLine(uint32_t line, uint32_t count, bool scroll)

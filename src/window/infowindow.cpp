@@ -22,6 +22,7 @@
 
 #include <iostream>
 
+#include "mpdclient.hpp"
 #include "screen.hpp"
 
 using namespace Ui;
@@ -48,33 +49,42 @@ void InfoWindow::Print(uint32_t line) const
    {
       WINDOW * window = N_WINDOW();
 
-      uint32_t printLine = ((screen_.MaxRows()- 5) /2);
-
-      for (unsigned int i = 0; i < 6; ++i)
+      for (unsigned int i = 0; i < screen_.MaxRows(); ++i)
       {
          mvwhline(window, i, 0, ' ', screen_.MaxColumns());
       }
 
       wattron(window, A_BOLD);
-      mvwaddstr(window, 0, 0, "URI: ");
+      mvwaddstr(window, 0, 0, " URI: ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 0, 5, "%s", song_->URI().c_str());
+      mvwprintw(window, 0, 6, "%s", song_->URI().c_str());
+
 
       wattron(window, A_BOLD);
-      mvwaddstr(window, printLine, 0, "Artist: ");
+      mvwaddstr(window, 3, 0, " Artist   : ");
       wattroff(window, A_BOLD);
-      mvwaddstr(window, printLine++, 8, song_->Artist().c_str());
+      mvwaddstr(window, 3, 12, song_->Artist().c_str());
 
       wattron(window, A_BOLD);
-      mvwaddstr(window, printLine, 0, "Album: ");
+      mvwaddstr(window, 4, 0, " Album    : ");
       wattroff(window, A_BOLD);
-      mvwaddstr(window, printLine++, 7, song_->Album().c_str());
+      mvwaddstr(window, 4, 12, song_->Album().c_str());
 
       wattron(window, A_BOLD);
-      mvwaddstr(window, printLine, 0, "Track: ");
+      mvwaddstr(window, 5, 0, " Track    : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, printLine++, 7, "%s - %s", song_->Track().c_str(), song_->Title().c_str());
+      mvwprintw(window, 5, 12, "%s - %s", song_->Track().c_str(), song_->Title().c_str());
 
+      wattron(window, A_BOLD);
+      mvwaddstr(window, 6, 0, " Duration : ");
+      wattroff(window, A_BOLD);
+      mvwprintw(window, 6, 12, "%d:%d", Mpc::SecondsToMinutes(song_->Duration()), Mpc::RemainingSeconds(song_->Duration()));
+
+
+      wattron(window, A_BOLD);
+      mvwaddstr(window, 8, 0, " In Playlist : ");
+      wattroff(window, A_BOLD);
+      mvwprintw(window, 8, 15, "%s", (song_->Reference() > 0) ? "Yes" : "No");
 
       //mvwaddstr(window, 4, 0, song_->Duration().c_str());
       //

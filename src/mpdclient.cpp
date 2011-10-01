@@ -35,13 +35,7 @@
 using namespace Mpc;
 
 
-// Local helper functions
-namespace Mpc
-{
-   uint32_t SecondsToMinutes(uint32_t duration);
-   uint32_t RemainingSeconds(uint32_t duration);
-}
-
+// Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
 {
    return static_cast<uint32_t>(duration / 60);
