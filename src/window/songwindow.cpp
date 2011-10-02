@@ -217,7 +217,7 @@ void SongWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
 
 void SongWindow::CropAllLines()
 {
-   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), true);
+   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
 }
 
 void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
@@ -269,10 +269,6 @@ void SongWindow::Edit()
 
       if (song != NULL)
       {
-         char Id[12];
-
-         sprintf(Id, "%d", CurrentLine());
-
          if (screen_.GetWindowFromName("songinfo") != Ui::Screen::Unknown)
          {
             screen_.SetVisible(screen_.GetWindowFromName("songinfo"), false);

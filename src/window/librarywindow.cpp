@@ -309,6 +309,16 @@ void LibraryWindow::AddAllLines()
    ScrollTo(CurrentLine());
 }
 
+void LibraryWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
+{
+   DeleteLine(line, count, scroll);
+}
+
+void LibraryWindow::CropAllLines()
+{
+   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+}
+
 void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
    if (count > 1)
