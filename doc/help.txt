@@ -84,6 +84,7 @@ ALL WINDOWS (except OUTPUTS):
 PLAYLIST:
    [count] d                      | delete the next [count] songs from the playlist
            P                      | paste the previously deleted songs above the current selection
+           e                      | display information about the selected song
            <Enter>                | play the currently selected song
 
 BROWSE:

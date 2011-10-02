@@ -273,7 +273,11 @@ void SongWindow::Edit()
 
          sprintf(Id, "%d", CurrentLine());
 
-         //! \TODO only create if doesn't exist, otherwise change current one
+         if (screen_.GetWindowFromName("songinfo") != Ui::Screen::Unknown)
+         {
+            screen_.SetVisible(screen_.GetWindowFromName("songinfo"), false);
+         }
+
          InfoWindow * window = screen_.CreateInfoWindow("songinfo", song);
 
          if (window->ContentSize() > -1)
