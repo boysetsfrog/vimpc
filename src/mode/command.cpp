@@ -356,7 +356,7 @@ bool Command::Find(std::string const & arguments)
       SongWindow * window = screen_.CreateSongWindow(arguments);
       client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
-      if (window->ContentSize() > 0)
+      if (window->ContentSize() >= 0)
       {
          screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
       }
