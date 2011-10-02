@@ -79,6 +79,9 @@ namespace Ui
       bool Volume(std::string const & arguments);
 
    private:
+      bool Delete(std::string const & arguments);
+      bool DeleteAll(std::string const & arguments);
+
       template <int Delta>
       bool Seek(std::string const & arguments);
       bool SeekTo(std::string const & arguments);

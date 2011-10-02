@@ -56,6 +56,8 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["clear"]     = &Command::ClearScreen;
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["consume"]   = &Command::Consume;
+   commandTable_["delete"]    = &Command::Delete;
+   commandTable_["deleteall"] = &Command::DeleteAll;
    commandTable_["echo"]      = &Command::Echo;
    commandTable_["find"]      = &Command::FindAny;
    commandTable_["findalbum"] = &Command::FindAlbum;
@@ -218,6 +220,35 @@ bool Command::Play(std::string const & arguments)
    return Player::Play(atoi(arguments.c_str()));
 }
 
+
+bool Command::Delete(std::string const & arguments)
+{
+   size_t pos = arguments.find_first_of(" ");
+
+   if (pos != std::string::npos)
+   {
+      uint32_t pos1 = atoi(arguments.substr(0, pos).c_str()) - 1;
+      uint32_t pos2 = atoi(arguments.substr(pos + 1).c_str()) - 1;
+
+      client_.Delete(pos1, pos2 + 1);
+      Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
+   }
+   else
+   {
+      client_.Delete(atoi(arguments.c_str()) - 1);
+      Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
+   }
+
+   return true;
+}
+
+bool Command::DeleteAll(std::string const & arguments)
+{
+   client_.Clear();
+   Main::Playlist().Clear();
+   return true;
+}
+
 template <int Delta>
 bool Command::Seek(std::string const & arguments)
 {
@@ -319,6 +350,7 @@ bool Command::Find(std::string const & arguments)
          for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
          {
             client_.Add(Main::PlaylistTmp().Get(i));
+            Main::Playlist().Add(Main::PlaylistTmp().Get(i));
          }
 
          client_.SendCommandList();

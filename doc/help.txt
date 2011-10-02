@@ -80,6 +80,7 @@ PLAYING (ALSO SEE PLAYLIST):
 ALL WINDOWS (except OUTPUTS):
            A                      | add all songs in the current window to the playlist
            D                      | delete all songs in the current window from the playlist
+           X                      | delete all songs from the selected line to the end
 
 PLAYLIST:
    [count] d                      | delete the next [count] songs from the playlist
@@ -148,6 +149,8 @@ FIND:
           than creating a new window.
 
 PLAYLIST:
+          delete <pos1> [pos2]    | delete the song in position <pos1>, or from <pos1> to [pos2]
+          deleteall               | delete all songs in the playlist
           move <pos1> <pos2>      | move song from position <pos1> to <pos2>
           swap <pos1> <pos2>      | swap songs in positions <pos1> and <pos2>         
 
@@ -181,7 +184,7 @@ MISC:
                                   | each command may be seperated by ;
                                   | i.e alias hello echo "hello"; echo "world";
 
-          clear                   | clears the playlist window
+          clear                   | clears the console window
 
           connect [host] [port]   | connects to the given hostname if none is specficied, uses localhost
                                   
