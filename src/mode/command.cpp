@@ -305,13 +305,23 @@ bool Command::Find(std::string const & arguments)
 {
    if (forceCommand_ == true)
    {
-      uint32_t const Size = Main::Playlist().Size();
+      Main::PlaylistTmp().Clear();
+      client_.ForEachSearchResult(Main::PlaylistTmp(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 
-      client_.ForEachSearchResult(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-
-      if (Size == Main::Playlist().Size())
+      if (Main::PlaylistTmp().Size() == 0)
       {
          Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+      }
+      else
+      {
+         client_.StartCommandList();
+
+         for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
+         {
+            client_.Add(Main::PlaylistTmp().Get(i));
+         }
+
+         client_.SendCommandList();
       }
    }
    else

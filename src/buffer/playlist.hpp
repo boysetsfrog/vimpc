@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   playlist.hpp - handling of the mpd playlist interface 
+   playlist.hpp - handling of the mpd playlist interface
    */
 
 #ifndef __MPC__PLAYLIST
@@ -26,24 +26,24 @@
 #include "callback.hpp"
 #include "song.hpp"
 
-// Playlist 
+// Playlist
 namespace Mpc
 {
    class Playlist : public Main::Buffer<Mpc::Song *>
    {
    private:
       typedef Main::CallbackObject<Mpc::Playlist, Playlist::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Playlist::BufferType> CallbackFunction; 
+      typedef Main::CallbackFunction<Playlist::BufferType> CallbackFunction;
 
    public:
-      Playlist(bool IncrementReferences = false)  
+      Playlist(bool IncrementReferences = false)
       {
          if (IncrementReferences == true)
          {
             AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
             AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
          }
-      } 
+      }
       ~Playlist() {}
    };
 }

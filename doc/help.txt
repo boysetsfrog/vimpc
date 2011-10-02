@@ -138,7 +138,6 @@ PLAYBACK:
           shuffle                 | shuffle the playlist
 
 FIND:
-
           find[!] <search>        | search in database for search pattern and display results in new window
           findartist[!] <search>  | search in database for search pattern in artist tags only
           findalbum[!] <search>   | search in database for search pattern in album tags only
@@ -146,6 +145,10 @@ FIND:
 
           Note: Appending a ! to any search term will automatically add the songs to the playlist rather
           than creating a new window.
+
+PLAYLIST:
+          move <pos1> <pos2>      | move song from position <pos1> to <pos2>
+          swap <pos1> <pos2>      | swap songs in positions <pos1> and <pos2>         
 
 PLAYLISTS:
           toplaylist <name>       | save contents of window to playlist <name>
@@ -155,7 +158,6 @@ PLAYLISTS:
           save <name>             | save the current playlist as <name>
           write <name>            | same as save
                                   
-
 WINDOWS/TABS:
           browse                  | change to the browse window, if window is hidden it is opened
           console                 | change to the console window, if window is hidden it is opened
