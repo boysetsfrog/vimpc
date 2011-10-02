@@ -575,8 +575,20 @@ void Screen::HandleMouseEvent()
 #ifdef HAVE_MOUSE_SUPPORT
    MEVENT event;
 
+   //! \TODO this seems to scroll quite slowly and not properly at all
    if (getmouse(&event) == OK)
    {
+#if (NCURSES_MOUSE_VERSION > 1)
+      if (event.bstate & BUTTON4_PRESSED)
+      {
+         ActiveWindow().Scroll(-3);
+      }
+      else if (event.bstate & BUTTON5_PRESSED)
+      {
+         ActiveWindow().Scroll(3);
+      }
+      else
+#endif
       if (event.y == 0)
       {
          if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))

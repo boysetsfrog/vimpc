@@ -833,7 +833,6 @@ bool Client::SongIsInQueue(Mpc::Song const & song) const
 
 void Client::DisplaySongInformation()
 {
-   // \todo should cache this information
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       CheckForUpdates();
@@ -849,7 +848,6 @@ void Client::DisplaySongInformation()
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
          std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
-         //! \todo turn into a single setstatus and use a blank filler rather than a move
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
 
          if (settings_.TimeRemaining() == false)

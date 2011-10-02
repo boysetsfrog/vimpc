@@ -66,6 +66,7 @@ namespace Ui
       bool Pause(std::string const & arguments);
       bool Play(std::string const & arguments);
       bool Quit(std::string const & arguments);
+      bool QuitAll(std::string const & arguments);
       bool Random(std::string const & arguments);
       bool Repeat(std::string const & arguments);
       bool Single(std::string const & arguments);

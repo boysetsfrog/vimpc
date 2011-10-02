@@ -84,6 +84,13 @@ namespace Main
          //! Determine whether to wrap searching
          bool SearchWrap() const;
 
+         //! Quit will quit the entire application not just close a tab
+         bool SingleQuit() const;
+
+         //! If used with ignore case, case sensitivy search is re-enabled when an upper case
+         //! character is used in the search string
+         bool SmartCase() const;
+
          //! Determines whether we should stop playing when we quit
          bool StopOnQuit() const;
 

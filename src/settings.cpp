@@ -44,6 +44,8 @@ char const * const HighlightSearchSetting  = "hlsearch";
 char const * const IgnoreCaseSearchSetting = "ignorecase";
 //char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
 char const * const SearchWrapSetting       = "searchwrap";
+char const * const SingleQuitSetting       = "singlequit";
+char const * const SmartCaseSetting        = "smartcase";
 char const * const StopOnQuitSetting       = "stoponquit";
 char const * const TimeRemainingSetting    = "timeremaining";
 char const * const WindowNumbersSetting    = "windownumbers";
@@ -70,6 +72,8 @@ Settings::Settings() :
    toggleTable_[HighlightSearchSetting]  = new Setting<bool>(true);
    toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
    toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
+   toggleTable_[SingleQuitSetting]       = new Setting<bool>(false);
+   toggleTable_[SmartCaseSetting]        = new Setting<bool>(false);
    toggleTable_[StopOnQuitSetting]       = new Setting<bool>(false);
    toggleTable_[TimeRemainingSetting]    = new Setting<bool>(false);
    toggleTable_[WindowNumbersSetting]    = new Setting<bool>(false);
@@ -192,6 +196,16 @@ bool Settings::IgnoreCaseSearch() const
 bool Settings::SearchWrap() const
 {
    return Get(SearchWrapSetting);
+}
+
+bool Settings::SingleQuit() const
+{
+   return Get(SingleQuitSetting);
+}
+
+bool Settings::SmartCase() const
+{
+   return Get(SmartCaseSetting);
 }
 
 bool Settings::StopOnQuit() const

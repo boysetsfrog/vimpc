@@ -63,10 +63,10 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["move"]      = &Command::Move;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
-   commandTable_["q"]         = &Command::HideWindow;
-   commandTable_["qall"]      = &Command::Quit;
-   commandTable_["quit"]      = &Command::HideWindow;
-   commandTable_["quitall"]   = &Command::Quit;
+   commandTable_["q"]         = &Command::Quit;
+   commandTable_["qall"]      = &Command::QuitAll;
+   commandTable_["quit"]      = &Command::Quit;
+   commandTable_["quitall"]   = &Command::QuitAll;
    commandTable_["random"]    = &Command::Random;
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["repeat"]    = &Command::Repeat;
@@ -220,15 +220,55 @@ bool Command::Play(std::string const & arguments)
 template <int Delta>
 bool Command::Seek(std::string const & arguments)
 {
-   return Player::Seek(Delta * atoi(arguments.c_str()));
+   uint32_t time = 0;
+   size_t pos    = arguments.find_first_of(":");
+
+   if (pos != std::string::npos)
+   {
+      std::string minutes = arguments.substr(0, pos);
+      std::string seconds = arguments.substr(pos + 1);
+      time = (atoi(minutes.c_str()) * 60) + atoi(seconds.c_str());
+   }
+   else
+   {
+      time = atoi(arguments.c_str());
+   }
+
+   return Player::Seek(Delta * time);
 }
 
 bool Command::SeekTo(std::string const & arguments)
 {
-   return Player::SeekTo(atoi(arguments.c_str()));
+   uint32_t time = 0;
+   size_t pos    = arguments.find_first_of(":");
+
+   if (pos != std::string::npos)
+   {
+      std::string minutes = arguments.substr(0, pos);
+      std::string seconds = arguments.substr(pos + 1);
+      time = (atoi(minutes.c_str()) * 60) + atoi(seconds.c_str());
+   }
+   else
+   {
+      time = atoi(arguments.c_str());
+   }
+
+   return Player::SeekTo(time);
 }
 
 bool Command::Quit(std::string const & arguments)
+{
+   if (settings_.SingleQuit() == true)
+   {
+      return QuitAll(arguments);
+   }
+   else
+   {
+      return HideWindow(arguments);
+   }
+}
+
+bool Command::QuitAll(std::string const & arguments)
 {
    if ((forceCommand_ == true) || (settings_.StopOnQuit() == true))
    {

@@ -20,6 +20,7 @@
 
 #include "search.hpp"
 
+#include "algorithm.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
 #include "buffer/playlist.hpp"
@@ -174,7 +175,14 @@ pcrecpp::RE_Options Search::GetOptions(const std::string & search) const
 {
    pcrecpp::RE_Options opt;
 
-   if (settings_.IgnoreCaseSearch())
+   if ((settings_.IgnoreCaseSearch() == true) && (settings_.SmartCase() == true))
+   {
+      if (Algorithm::isLower(search) == true)
+      {
+         opt.set_caseless(true);
+      }
+   }
+   else if (settings_.IgnoreCaseSearch() == true)
    {
       opt.set_caseless(true);
    }

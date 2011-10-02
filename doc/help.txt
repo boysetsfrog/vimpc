@@ -11,9 +11,9 @@ MOTION:
 
    [count] j, Down                | scroll down in current window
 
-   [count] PageUp, ctrl+u         | scroll up by a page in current window
+   [count] PageUp, Ctrl+u         | scroll up by a page in current window
 
-   [count] PageDown, ctrl+d       | scroll down by a page in current window
+   [count] PageDown, Ctrl+d       | scroll down by a page in current window
 
            Home                   | scroll to top of the screen
            
@@ -126,6 +126,10 @@ PLAYBACK:
 
           volume [0-100]          | set the volume
 
+          seek <time>             | seek to <time> within the current song in seconds or minutes:seconds format
+          seek+ <time>            | seek forward <time> within the current song in seconds or minutes:seconds format
+          seek- <time>            | seek backward <time> within the current song in seconds or minutes:seconds format
+
           random [on/off]         | toggles random on/off
           repeat [on/off]         | toggles repeat on/off
           single [on/off]         | toggles single on/off
@@ -204,6 +208,10 @@ SETTINGS
             [no]ignorecase[!]     | case insensitive searching
                                   
             [no]searchwrap[!]     | wrap search results when using n/N
+
+            [no]singlequit[!]     | :q and :quit commands will quit the application rather than closing a tab
+
+            [no]smartcase[!]      | if ignorecase is on and a capital is used in search string, re-enable case sensitivity
                                   
             [no]stoponquit[!]     | automatically stop playback when vimpc is quit
 
