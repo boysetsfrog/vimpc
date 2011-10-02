@@ -138,10 +138,14 @@ PLAYBACK:
           shuffle                 | shuffle the playlist
 
 FIND:
-          find <search>           | search for search pattern and display results in new window
-          findartist <search>     | search for search pattern in artist tags only
-          findalbum <search>      | search for search pattern in album tags only
-          findsong <search>       | search for search pattern in song tabs only
+
+          find[!] <search>        | search in database for search pattern and display results in new window
+          findartist[!] <search>  | search in database for search pattern in artist tags only
+          findalbum[!] <search>   | search in database for search pattern in album tags only
+          findsong[!] <search>    | search in database for search pattern in song tabs only
+
+          Note: Appending a ! to any search term will automatically add the songs to the playlist rather
+          than creating a new window.
 
 PLAYLISTS:
           toplaylist <name>       | save contents of window to playlist <name>

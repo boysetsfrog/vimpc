@@ -25,6 +25,7 @@
 #include <sstream>
 
 #include "assert.hpp"
+#include "buffers.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
 #include "window/console.hpp"
@@ -302,18 +303,31 @@ bool Command::ToPlaylist(std::string const & arguments)
 
 bool Command::Find(std::string const & arguments)
 {
-   //! \TODO if there is no results print an error rather than make an empty window
-   SongWindow * window = screen_.CreateSongWindow(arguments);
-   client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-
-   if (window->ContentSize() > 0)
+   if (forceCommand_ == true)
    {
-      screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      uint32_t const Size = Main::Playlist().Size();
+
+      client_.ForEachSearchResult(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+
+      if (Size == Main::Playlist().Size())
+      {
+         Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+      }
    }
    else
    {
-      screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-      Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+      SongWindow * window = screen_.CreateSongWindow(arguments);
+      client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+      if (window->ContentSize() > 0)
+      {
+         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      }
+      else
+      {
+         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+      }
    }
 
    return true;

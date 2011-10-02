@@ -163,7 +163,7 @@ void SongWindow::Confirm()
 
 uint32_t SongWindow::Current() const
 {
-   uint32_t current       = 0;
+   uint32_t current       = CurrentLine();
    int32_t  currentSongId = client_.GetCurrentSong();
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
