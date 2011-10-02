@@ -91,7 +91,6 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['L']       = &Normal::Select<ScrollWindow::Last>;
 
    // Playlist
-   // ! \todo these should only work if the current window is the correct one
    actionTable_['d']       = &Normal::DeleteSong<Mpc::Song::Single>;
    actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
    actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;

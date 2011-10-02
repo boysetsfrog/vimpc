@@ -199,13 +199,13 @@ namespace Mpc
       ~Library();
 
    public:
-      Mpc::Song * Song(Mpc::Song const * const song) const;
       Mpc::Song * Song(std::string uri) const;
 
       void Sort();
       void Sort(LibraryEntry * entry);
       void Add(Mpc::Song * song);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
       void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
 
@@ -215,6 +215,7 @@ namespace Mpc
 
    private:
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
+      void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
 
       typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
       typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;

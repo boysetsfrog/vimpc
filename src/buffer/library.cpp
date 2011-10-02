@@ -129,47 +129,6 @@ void Library::Add(Mpc::Song * song)
    }
 }
 
-Mpc::Song * Library::Song(Mpc::Song const * const song) const
-{
-   std::string artist = song->Artist();
-   std::string album  = song->Album();
-
-   Mpc::LibraryEntry * artistEntry = NULL;
-   Mpc::LibraryEntry * albumEntry  = NULL;
-
-   for (uint32_t i = 0; ((i < Size()) && (artistEntry == NULL)); ++i)
-   {
-      if (Algorithm::iequals((Get(i))->artist_, artist) == true)
-      {
-         artistEntry = Get(i);
-      }
-   }
-
-   if (artistEntry != NULL)
-   {
-      for (Mpc::LibraryEntryVector::iterator it = artistEntry->children_.begin(); ((it != artistEntry->children_.end()) && (albumEntry == NULL)); ++it)
-      {
-         if (Algorithm::iequals((*it)->album_, album) == true)
-         {
-            albumEntry = (*it);
-         }
-      }
-
-      if (albumEntry != NULL)
-      {
-         for (Mpc::LibraryEntryVector::iterator it = albumEntry->children_.begin(); (it != albumEntry->children_.end()); ++it)
-         {
-            if (*(*it)->song_ == *song)
-            {
-               return (*it)->song_;
-            }
-         }
-      }
-   }
-
-   return NULL;
-}
-
 Mpc::Song * Library::Song(std::string uri) const
 {
    std::map<std::string, Mpc::Song *>::const_iterator it = uriMap_.find(uri);
@@ -231,6 +190,24 @@ void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & 
    }
 }
 
+void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
+{
+   if (position < Size())
+   {
+      if (Collection == Mpc::Song::Single)
+      {
+         RemoveFromPlaylist(client, Get(position));
+      }
+      else
+      {
+         for (uint32_t i = 0; i < Size(); ++i)
+         {
+            RemoveFromPlaylist(client, Get(i));
+         }
+      }
+   }
+}
+
 void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
@@ -247,6 +224,26 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
    }
 }
 
+void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry)
+{
+   if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
+   {
+      int32_t PlaylistIndex = Main::Playlist().Index(entry->song_);
+
+      if (PlaylistIndex >= 0)
+      {
+         client.Delete(PlaylistIndex);
+         Main::Playlist().Remove(PlaylistIndex, 1);
+      }
+   }
+   else if (entry->expanded_ == false)
+   {
+      for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
+      {
+         RemoveFromPlaylist(client, (*it));
+      }
+   }
+}
 
 void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
 {
@@ -286,8 +283,6 @@ void Library::Expand(uint32_t line)
 
 void Library::Collapse(uint32_t line)
 {
-   //! \todo needs cleaning up in terms of name and making much more efficient
-   //! really it's just plain ugly
    Mpc::LibraryEntry * const entry     = Get(line);
    Mpc::LibraryEntry * const parent    = entry->parent_;
    Mpc::LibraryEntry * entryToCollapse = entry;

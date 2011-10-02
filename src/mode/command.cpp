@@ -46,10 +46,6 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    client_             (client),
    settings_           (settings)
 {
-   //! \TODO need to add specific finds somehow
-   //        ie findsong, findalbum,  or something
-   //        also need to provide automatically adding versions
-
    // \todo find a away to add aliases to tab completion
    commandTable_["!mpc"]      = &Command::Mpc;
    commandTable_["alias"]     = &Command::Alias;
@@ -104,7 +100,6 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["outputs"]   = &Command::SetActiveAndVisible<Ui::Screen::Outputs>;
    commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;
 
-   //! \TODO add a command to export search results to a playlist
    commandTable_["load"]       = &Command::LoadPlaylist;
    commandTable_["save"]       = &Command::SavePlaylist;
    commandTable_["edit"]       = &Command::LoadPlaylist;

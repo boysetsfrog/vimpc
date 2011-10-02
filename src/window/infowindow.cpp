@@ -88,6 +88,6 @@ void InfoWindow::Print(uint32_t line) const
 
       //mvwaddstr(window, 4, 0, song_->Duration().c_str());
       //
-      // \TODO duration, in playlist? (positions), rating, counter, TAGS -> genre, etc
+      // \TODO playlist positions, rating, counter, other TAGS (genre, date)
    }
 }

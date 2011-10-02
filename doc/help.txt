@@ -101,7 +101,8 @@ LISTS:
    
 
 LIBRARY:
-           a                      | add the currently selected song, album or artist to the current playlist
+   [count] a                      | add the next [count] songs, albums or artists to the current playlist
+   [count] d                      | delete the next [count] artist/album/songs
            h, Left                | collapse current selection into parent
            l, Right               | expand the current selection
            <Enter>                | clear the current playlist, add the currently selected song/album/artist and begin playing

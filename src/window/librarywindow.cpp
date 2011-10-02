@@ -311,6 +311,25 @@ void LibraryWindow::AddAllLines()
 
 void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
+   if (count > 1)
+   {
+      client_.StartCommandList();
+   }
+
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      library_.RemoveFromPlaylist(Mpc::Song::Single, client_, screen_.ActiveWindow().CurrentLine() + i);
+   }
+
+   if (count > 1)
+   {
+      client_.SendCommandList();
+   }
+
+   if (scroll == true)
+   {
+      Scroll(count);
+   }
 }
 
 void LibraryWindow::DeleteAllLines()

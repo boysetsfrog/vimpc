@@ -117,7 +117,7 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
 {
    int32_t colour = Colour::Song;
 
-   if (line == client_.GetCurrentSong())
+   if ((client_.GetCurrentSong() > -1) && (line == static_cast<uint32_t>(client_.GetCurrentSong())))
    {
       colour = Colour::CurrentSong;
    }

@@ -12,6 +12,9 @@ set window browse
 " Don't stop playing music when we quit
 set nostoponquit
 
+" A silly example of an alias
+alias smiths deleteall; findartist! The Smiths; play 0
+
 " If you connect in the config file you should try and do it as late as possible
 " connect somehost someport
 
