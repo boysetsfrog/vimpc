@@ -212,7 +212,14 @@ bool Command::Pause(std::string const & arguments)
 
 bool Command::Play(std::string const & arguments)
 {
-   return Player::Play(atoi(arguments.c_str()));
+   int32_t SongId = atoi(arguments.c_str()) - 1;
+
+   if (SongId >= 0)
+   {
+      return Player::Play(SongId);
+   }
+
+   return true;
 }
 
 
