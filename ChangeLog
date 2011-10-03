@@ -1,3 +1,13 @@
+Version 0.04
+--------------
+- Added find, findsong, findalbum, findartist commands
+- Added outputs and lists windows
+- Added songinfo window
+- Added seeking support
+- New settings timeremaining, ignorecase, smartcase, singlequit
+- Using proper queue update based on changes
+- Lots of network efficiency improvements
+
 Version 0.03
 ---------------
 - Added volume, random, consume, repeat and single states to display
