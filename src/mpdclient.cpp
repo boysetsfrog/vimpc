@@ -625,6 +625,8 @@ void Client::Delete(uint32_t position1, uint32_t position2)
    {
       CheckForUpdates();
 
+//! \todo this is actually an mpd thing obviously and requires mpd >= 0.16
+// i should really check this properly
 #if ((LIBMPDCLIENT_MAJOR_VERSION == 2) && (LIBMPDCLIENT_MINOR_VERSION == 1))
       StartCommandList();
 
