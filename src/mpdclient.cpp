@@ -704,40 +704,43 @@ void Client::CheckForUpdates()
 
    gettimeofday(&end, NULL);
 
-   if ((Connected() == true) && (listMode_ == false))
+   if ((Connected() == true))
    {
-      long const seconds  = end.tv_sec  - start.tv_sec;
-      long const useconds = end.tv_usec - start.tv_usec;
-      long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
-
-      if ((updated == false) || (mtime > 250) || (forceUpdate_ == true))
+      if (listMode_ == false)
       {
-         forceUpdate_ = false;
-         updated      = true;
+         long const seconds  = end.tv_sec  - start.tv_sec;
+         long const useconds = end.tv_usec - start.tv_usec;
+         long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-         if (currentSong_ != NULL)
+         if ((updated == false) || (mtime > 250) || (forceUpdate_ == true))
          {
-            mpd_song_free(currentSong_);
-            currentSong_ = NULL;
+            forceUpdate_ = false;
+            updated      = true;
+
+            if (currentSong_ != NULL)
+            {
+               mpd_song_free(currentSong_);
+               currentSong_ = NULL;
+            }
+
+            currentSong_ = mpd_run_current_song(connection_);
+            CheckError();
+
+            if (currentSong_ != NULL)
+            {
+               currentSongId_  = mpd_song_get_pos(currentSong_);
+               currentSongURI_ = mpd_song_get_uri(currentSong_);
+            }
+            else
+            {
+               currentSongId_  = -1;
+               currentSongURI_ = "";
+            }
+
+            UpdateStatus();
+
+            gettimeofday(&start, NULL);
          }
-
-         currentSong_ = mpd_run_current_song(connection_);
-         CheckError();
-
-         if (currentSong_ != NULL)
-         {
-            currentSongId_  = mpd_song_get_pos(currentSong_);
-            currentSongURI_ = mpd_song_get_uri(currentSong_);
-         }
-         else
-         {
-            currentSongId_  = -1;
-            currentSongURI_ = "";
-         }
-
-         UpdateStatus();
-
-         gettimeofday(&start, NULL);
       }
    }
    else
