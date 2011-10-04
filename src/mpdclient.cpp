@@ -658,9 +658,9 @@ void Client::Delete(uint32_t position1, uint32_t position2)
          {
             currentSongId_ -= position2 - position1;
          }
-         else if ((position1 <= songId) && (position2 > songId))
+         else if ((position1 <= songId) && (position2 >= songId))
          {
-            currentSongId_ = position1;
+            currentSongId_ -= (currentSongId_ - position1);
          }
       }
    }
