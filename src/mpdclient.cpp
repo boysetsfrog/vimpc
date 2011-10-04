@@ -641,28 +641,29 @@ void Client::Delete(uint32_t position1, uint32_t position2)
          }
 
          SendCommandList();
+         CheckError();
       }
       else
       {
          mpd_run_delete_range(connection_, position1, position2);
+         CheckError();
+
+         if (currentSongId_ > -1)
+         {
+            uint32_t const songId = static_cast<uint32_t>(currentSongId_);
+
+            if ((position1 < songId) && (position2 < songId))
+            {
+               currentSongId_ -= position2 - position1;
+            }
+            else if ((position1 <= songId) && (position2 >= songId))
+            {
+               currentSongId_ -= (currentSongId_ - position1);
+            }
+         }
       }
 
-      CheckError();
       UpdateStatus(true);
-
-      if (currentSongId_ > -1)
-      {
-         uint32_t const songId = static_cast<uint32_t>(currentSongId_);
-
-         if ((position1 < songId) && (position2 < songId))
-         {
-            currentSongId_ -= position2 - position1;
-         }
-         else if ((position1 <= songId) && (position2 >= songId))
-         {
-            currentSongId_ -= (currentSongId_ - position1);
-         }
-      }
    }
 }
 
