@@ -636,6 +636,7 @@ void Client::Delete(uint32_t position1, uint32_t position2)
       SendCommandList();
 #else
       mpd_run_delete_range(connection_, position1, position2);
+#endif
       CheckError();
       UpdateStatus(true);
 
@@ -652,7 +653,6 @@ void Client::Delete(uint32_t position1, uint32_t position2)
             currentSongId_ = position1;
          }
       }
-#endif
    }
 }
 
