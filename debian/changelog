@@ -1,3 +1,9 @@
+vimpc (0.04~psych0tik.1) unstable; urgency=low
+
+  * Build current state of dev tree
+
+ -- Rich Healey <richo@psych0tik.net>  Tue, 04 Oct 2011 15:22:34 +1100
+
 vimpc (0.03-psych0tik.2) unstable; urgency=low
   
   * Add Nathan as Maintainer, myself as Uploader.
