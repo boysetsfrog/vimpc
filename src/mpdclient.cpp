@@ -54,6 +54,9 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    connection_           (NULL),
    hostname_             (""),
    port_                 (0),
+   versionMajor_         (-1),
+   versionMinor_         (-1),
+   versionPatch_         (-1),
    currentSong_          (NULL),
    currentStatus_        (NULL),
    currentSongId_        (-1),
@@ -127,6 +130,8 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    if (Connected() == true)
    {
+      GetVersion();
+
       // Must redraw the library first
       screen_.Redraw(Ui::Screen::Library);
       screen_.Redraw(Ui::Screen::Browse);
@@ -625,20 +630,23 @@ void Client::Delete(uint32_t position1, uint32_t position2)
    {
       CheckForUpdates();
 
-//! \todo this is actually an mpd thing obviously and requires mpd >= 0.16
-// i should really check this properly
-#if ((LIBMPDCLIENT_MAJOR_VERSION == 2) && (LIBMPDCLIENT_MINOR_VERSION == 1))
-      StartCommandList();
-
-      for (uint32_t i = 0; i < (position2 - position1); ++i)
+      // Only use range if MPD is >= 0.16
+      if (versionMinor_ < 16)
       {
-          Delete(position1);
+         StartCommandList();
+
+         for (uint32_t i = 0; i < (position2 - position1); ++i)
+         {
+            Delete(position1);
+         }
+
+         SendCommandList();
+      }
+      else
+      {
+         mpd_run_delete_range(connection_, position1, position2);
       }
 
-      SendCommandList();
-#else
-      mpd_run_delete_range(connection_, position1, position2);
-#endif
       CheckError();
       UpdateStatus(true);
 
@@ -934,6 +942,21 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song) const
 }
 
 
+void Client::GetVersion()
+{
+   if (Connected() == true)
+   {
+      unsigned const * version = mpd_connection_get_server_version(connection_);
+      CheckError();
+
+      if (version != NULL)
+      {
+         versionMajor_ = version[0];
+         versionMinor_ = version[1];
+         versionPatch_ = version[2];
+      }
+   }
+}
 
 void Client::CheckError()
 {
@@ -960,6 +983,9 @@ void Client::DeleteConnection()
 {
    listMode_ = false;
 
+   versionMajor_ = -1;
+   versionMinor_ = -1;
+   versionPatch_ = -1;
    queueVersion_ = -1;
 
    if (connection_ != NULL)

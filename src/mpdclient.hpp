@@ -179,6 +179,7 @@ namespace Mpc
       Song * CreateSong(uint32_t id, mpd_song const * const) const;
 
    private:
+      void GetVersion();
       void CheckError();
       void DeleteConnection();
 
@@ -189,6 +190,9 @@ namespace Mpc
 
       std::string             hostname_;
       uint16_t                port_;
+      uint32_t                versionMajor_;
+      uint32_t                versionMinor_;
+      uint32_t                versionPatch_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
