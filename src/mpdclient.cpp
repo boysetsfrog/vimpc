@@ -625,6 +625,16 @@ void Client::Delete(uint32_t position1, uint32_t position2)
    {
       CheckForUpdates();
 
+#if ((LIBMPDCLIENT_MAJOR_VERSION == 2) && (LIBMPDCLIENT_MINOR_VERSION == 1))
+      StartCommandList();
+
+      for (uint32_t i = 0; i < (position2 - position1); ++i)
+      {
+          Delete(position1);
+      }
+
+      SendCommandList();
+#else
       mpd_run_delete_range(connection_, position1, position2);
       CheckError();
       UpdateStatus(true);
@@ -642,6 +652,7 @@ void Client::Delete(uint32_t position1, uint32_t position2)
             currentSongId_ = position1;
          }
       }
+#endif
    }
 }
 
