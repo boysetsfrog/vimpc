@@ -31,6 +31,10 @@
 #include <limits>
 #include <sstream>
 
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #define ESCAPE_KEY 27
 
 using namespace Ui;
@@ -128,6 +132,9 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['F']       = &Normal::ScrollToCurrent<-1>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
+
+   actionTable_['Z'+1 - 'A'] = &Normal::SendSignal<SIGTSTP>;
+   actionTable_['C'+1 - 'A'] = &Normal::SendSignal<SIGINT>;
 
    // Editting
    actionTable_['A'+1 - 'A'] = &Normal::Move<1>; //CTRL + A
@@ -597,6 +604,14 @@ bool Normal::Move(uint32_t count)
       screen_.Update();
    }
 
+   return true;
+}
+
+
+template <int SIGNAL>
+bool Normal::SendSignal(uint32_t count)
+{
+   kill(getpid(), SIGNAL);
    return true;
 }
 

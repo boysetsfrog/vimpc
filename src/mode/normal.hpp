@@ -142,6 +142,10 @@ namespace Ui
       bool Move(uint32_t count);
 
    private:
+      template <int SIGNAL>
+      bool SendSignal(uint32_t count);
+
+   private:
       void DisplayModeLine();
 
    private:
