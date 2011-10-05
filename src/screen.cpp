@@ -79,7 +79,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
       }
    }
 
-   halfdelay(1);
+   raw();
    noecho();
 
 #ifdef HAVE_MOUSE_SUPPORT
@@ -128,6 +128,8 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // Window setup
    mainWindows_[Console]->SetAutoScroll(true);
    SetStatusLine("%s", "");
+
+   wtimeout(commandWindow_, 100);
 
    SetVisible(Console, false);
 }
@@ -533,8 +535,6 @@ uint32_t Screen::WaitForInput() const
       errorWindow.Print(0);
    }
 
-   halfdelay(1);
-
    int32_t input = wgetch(commandWindow_);
 
    if (input != ERR)
@@ -545,7 +545,7 @@ uint32_t Screen::WaitForInput() const
 
    if (input == 27)
    {
-      cbreak();
+      wtimeout(commandWindow_, 0);
 
       int escapeChar = wgetch(commandWindow_);
 
@@ -553,6 +553,8 @@ uint32_t Screen::WaitForInput() const
       {
          input = escapeChar | (1 << 31);
       }
+
+      wtimeout(commandWindow_, 100);
    }
 
    return input;
@@ -560,8 +562,6 @@ uint32_t Screen::WaitForInput() const
 
 void Screen::ClearInput() const
 {
-   halfdelay(1);
-
    int32_t input = ERR;
 
    do
