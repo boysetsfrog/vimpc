@@ -571,7 +571,7 @@ bool Command::HideWindow(std::string const & arguments)
 
    if (screen_.VisibleWindows() == 0)
    {
-      return Quit("");
+      return Player::Quit();
    }
 
    return true;
