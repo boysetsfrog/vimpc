@@ -66,6 +66,7 @@ namespace Ui
       bool Pause(std::string const & arguments);
       bool Play(std::string const & arguments);
       bool Quit(std::string const & arguments);
+      bool QuitAll(std::string const & arguments);
       bool Random(std::string const & arguments);
       bool Repeat(std::string const & arguments);
       bool Single(std::string const & arguments);
@@ -76,8 +77,25 @@ namespace Ui
       bool Redraw(std::string const & arguments);
       bool Stop(std::string const & arguments);
       bool Volume(std::string const & arguments);
+
+   private:
+      bool Delete(std::string const & arguments);
+      bool DeleteAll(std::string const & arguments);
+
+      template <int Delta>
+      bool Seek(std::string const & arguments);
+      bool SeekTo(std::string const & arguments);
+
+   private:
       bool LoadPlaylist(std::string const & arguments);
       bool SavePlaylist(std::string const & arguments);
+      bool ToPlaylist(std::string const & arguments);
+
+      bool Find(std::string const & arguments);
+      bool FindAny(std::string const & arguments);
+      bool FindAlbum(std::string const & arguments);
+      bool FindArtist(std::string const & arguments);
+      bool FindSong(std::string const & arguments);
 
       bool Rescan(std::string const & arguments);
       bool Update(std::string const & arguments);
@@ -98,6 +116,7 @@ namespace Ui
 
       bool HideWindow(std::string const & arguments);
       bool MoveWindow(std::string const & arguments);
+      bool RenameWindow(std::string const & arguments);
 
    private:
       // Executes \p command using \p arguments

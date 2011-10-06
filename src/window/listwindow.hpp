@@ -35,10 +35,16 @@ namespace Ui   { class Search; }
 // List window class
 namespace Ui
 {
+   class ListComparator
+   {
+      public:
+      bool operator() (std::string i, std::string j) { return (i<j); };
+   };
+
    class ListWindow : public Ui::SelectWindow
    {
    public:
-      ListWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~ListWindow();
 
    private:
@@ -59,6 +65,13 @@ namespace Ui
 
    public:
       std::string SearchPattern(int32_t id) { return lists_.Get(id); }
+
+   public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines();
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteAllLines();
+      void Edit();
 
    private:
       void    Clear();

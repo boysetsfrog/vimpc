@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   browsewindow.hpp - handling of the mpd library but with a more playlist styled interface 
+   browsewindow.hpp - handling of the mpd library but with a more playlist styled interface
    */
 
 #ifndef __UI__BROWSEWINDOW
@@ -27,7 +27,7 @@
 #include "song.hpp"
 #include "buffer/browse.hpp"
 #include "buffer/library.hpp"
-#include "window/selectwindow.hpp"
+#include "window/songwindow.hpp"
 
 // Forward Declarations
 namespace Main { class Settings; }
@@ -37,10 +37,10 @@ namespace Ui   { class Search; }
 // Browse window class
 namespace Ui
 {
-   class BrowseWindow : public Ui::SelectWindow
+   class BrowseWindow : public Ui::SongWindow
    {
    public:
-      BrowseWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~BrowseWindow();
 
    private:
@@ -48,30 +48,19 @@ namespace Ui
       BrowseWindow & operator=(BrowseWindow & browse);
 
    public:
-      void Print(uint32_t line) const;
-      void Left(Ui::Player & player, uint32_t count);
-      void Right(Ui::Player & player, uint32_t count);
-      void Confirm();
       void Redraw();
-
-      uint32_t Current() const;
       uint32_t Playlist(int Offset) const;
-
-      void Add(Mpc::Song * song);
-
-   public:
-      std::string SearchPattern(int32_t id) { return browse_.Get(id)->PlaylistDescription(); }
 
    private:
       void    Clear();
-      size_t  BufferSize() const { return browse_.Size(); }
-      int32_t DetermineSongColour(Mpc::Song const * const nextSong) const;
+      size_t  BufferSize() const   { return browse_.Size(); }
+      Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      Mpc::Browse          & browse_;
+      Mpc::Browse &          browse_;
    };
 }
 

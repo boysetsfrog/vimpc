@@ -56,6 +56,12 @@ Mpc::Lists & Main::Lists()
    return *buffer;
 }
 
+Mpc::Outputs & Main::Outputs()
+{
+   static Mpc::Outputs * buffer = new Mpc::Outputs();
+   return *buffer;
+}
+
 Ui::Console & Main::Console()
 {
    static Ui::Console * buffer = new Ui::Console();

@@ -46,17 +46,6 @@ Vimpc::Vimpc() :
    client_      (this, settings_, screen_),
    modeTable_   ()
 {
-   // Bring all the buffers into existance
-   (void) Main::Console();
-
-   // Important to do the library before the others as it is the real location of the songs
-   (void) Main::Library();
-   (void) Main::Browse();
-   (void) Main::Lists();
-   (void) Main::Playlist();
-   (void) Main::PlaylistPasteBuffer();
-   (void) Main::PlaylistTmp();
-
    modeTable_[Command] = new Ui::Command(screen_, client_, settings_);
    modeTable_[Normal]  = new Ui::Normal (screen_, client_, settings_, search_);
    modeTable_[Search]  = &search_;
@@ -166,15 +155,33 @@ bool Vimpc::Handle(int input)
 {
    Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
 
-   // Input must be handled before mode is changed
-   bool const result = mode.Handle(input);
-
-   if (RequiresModeChange(input) == true)
+#ifdef HAVE_MOUSE_SUPPORT
+   if (input == KEY_MOUSE)
    {
-      ChangeMode(input);
+      bool const result = HandleMouse();
+      return result;
    }
+   else
+   {
+#endif
+      // Input must be handled before mode is changed
+      bool const result = mode.Handle(input);
 
-   return result;
+      if (RequiresModeChange(input) == true)
+      {
+         ChangeMode(input);
+      }
+
+      return result;
+#ifdef HAVE_MOUSE_SUPPORT
+   }
+#endif
+}
+
+bool Vimpc::HandleMouse()
+{
+   screen_.HandleMouseEvent();
+   return true;
 }
 
 bool Vimpc::ModesAreInitialised()

@@ -44,6 +44,8 @@ char const * const HighlightSearchSetting  = "hlsearch";
 char const * const IgnoreCaseSearchSetting = "ignorecase";
 //char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
 char const * const SearchWrapSetting       = "searchwrap";
+char const * const SingleQuitSetting       = "singlequit";
+char const * const SmartCaseSetting        = "smartcase";
 char const * const StopOnQuitSetting       = "stoponquit";
 char const * const TimeRemainingSetting    = "timeremaining";
 char const * const WindowNumbersSetting    = "windownumbers";
@@ -57,7 +59,7 @@ Settings & Settings::Instance()
 }
 
 Settings::Settings() :
-   defaultWindow_(Ui::Screen::Playlist),
+   defaultWindow_("playlist"),
    settingsTable_(),
    toggleTable_  ()
 {
@@ -70,7 +72,9 @@ Settings::Settings() :
    toggleTable_[HighlightSearchSetting]  = new Setting<bool>(true);
    toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
    toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
-   toggleTable_[StopOnQuitSetting]       = new Setting<bool>(true);
+   toggleTable_[SingleQuitSetting]       = new Setting<bool>(false);
+   toggleTable_[SmartCaseSetting]        = new Setting<bool>(false);
+   toggleTable_[StopOnQuitSetting]       = new Setting<bool>(false);
    toggleTable_[TimeRemainingSetting]    = new Setting<bool>(false);
    toggleTable_[WindowNumbersSetting]    = new Setting<bool>(false);
 }
@@ -153,7 +157,7 @@ void Settings::SetSingleSetting(std::string setting)
 }
 
 
-Ui::Screen::MainWindow Settings::Window() const
+std::string Settings::Window() const
 {
    return defaultWindow_;
 }
@@ -194,6 +198,16 @@ bool Settings::SearchWrap() const
    return Get(SearchWrapSetting);
 }
 
+bool Settings::SingleQuit() const
+{
+   return Get(SingleQuitSetting);
+}
+
+bool Settings::SmartCase() const
+{
+   return Get(SmartCaseSetting);
+}
+
 bool Settings::StopOnQuit() const
 {
    return Get(StopOnQuitSetting);
@@ -215,7 +229,7 @@ void Settings::SetWindow(std::string const & arguments)
    std::string window(arguments);
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
-   defaultWindow_ = Ui::Screen::GetWindowFromName(window);
+   defaultWindow_ = window;
 }
 
 void Settings::SetSkipConfigConnects(bool val)

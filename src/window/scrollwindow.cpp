@@ -26,9 +26,10 @@
 
 using namespace Ui;
 
-ScrollWindow::ScrollWindow(Ui::Screen const & screen) :
+ScrollWindow::ScrollWindow(Ui::Screen & screen, std::string name) :
    Window     (screen.MaxRows(), screen.MaxColumns(), 1, 0),
    screen_    (screen),
+   name_      (name),
    scrollLine_(screen.MaxRows()),
    autoScroll_(false)
 {
@@ -90,6 +91,16 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
    {
       scrollLine_ = screen_.MaxRows();
    }
+}
+
+std::string ScrollWindow::Name()
+{
+   return name_;
+}
+
+void ScrollWindow::SetName(std::string const & name)
+{
+   name_ = name;
 }
 
 bool ScrollWindow::Select(Position position, uint32_t count)

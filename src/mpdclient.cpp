@@ -35,13 +35,7 @@
 using namespace Mpc;
 
 
-// Local helper functions
-namespace Mpc
-{
-   uint32_t SecondsToMinutes(uint32_t duration);
-   uint32_t RemainingSeconds(uint32_t duration);
-}
-
+// Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
 {
    return static_cast<uint32_t>(duration / 60);
@@ -60,13 +54,16 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    connection_           (NULL),
    hostname_             (""),
    port_                 (0),
+   versionMajor_         (-1),
+   versionMinor_         (-1),
+   versionPatch_         (-1),
    currentSong_          (NULL),
    currentStatus_        (NULL),
    currentSongId_        (-1),
    currentSongURI_       (""),
    currentState_         ("Disconnected"),
    screen_               (screen),
-   queueVersion_         (0),
+   queueVersion_         (-1),
    forceUpdate_          (true),
    listMode_             (false)
 {
@@ -133,12 +130,16 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    if (Connected() == true)
    {
+      GetVersion();
+
       // Must redraw the library first
       screen_.Redraw(Ui::Screen::Library);
       screen_.Redraw(Ui::Screen::Browse);
       screen_.Redraw(Ui::Screen::Lists);
+      screen_.Redraw(Ui::Screen::Outputs);
+      screen_.Redraw(Ui::Screen::Playlist);
 
-      // This will redraw the playlist window
+      UpdateStatus();
       CheckForUpdates();
    }
 }
@@ -170,11 +171,9 @@ void Client::SendCommandList()
       mpd_response_finish(connection_);
 
       CheckError();
+      UpdateStatus(true);
 
       listMode_    = false;
-      forceUpdate_ = true;
-
-      CheckForUpdates();
    }
 }
 
@@ -195,9 +194,11 @@ void Client::Pause()
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_toggle_pause(connection_);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -205,9 +206,11 @@ void Client::Stop()
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_stop(connection_);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -215,10 +218,10 @@ void Client::Next()
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_next(connection_);
       CheckError();
 
+      forceUpdate_ = true;
       CheckForUpdates();
    }
 }
@@ -227,10 +230,35 @@ void Client::Previous()
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_previous(connection_);
       CheckError();
 
+      forceUpdate_ = true;
+      CheckForUpdates();
+   }
+}
+
+void Client::Seek(int32_t Offset)
+{
+   if (Connected() == true)
+   {
+      uint32_t const elapsed  = mpd_status_get_elapsed_time(currentStatus_);
+      mpd_run_seek_pos(connection_, currentSongId_, elapsed + Offset);
+      CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
+   }
+}
+
+void Client::SeekTo(uint32_t Time)
+{
+   if (Connected() == true)
+   {
+      mpd_run_seek_pos(connection_, currentSongId_, Time);
+      CheckError();
+
+      forceUpdate_ = true;
       CheckForUpdates();
    }
 }
@@ -255,9 +283,11 @@ void Client::SetRandom(bool const random)
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_random(connection_, random);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -281,9 +311,11 @@ void Client::SetSingle(bool const single)
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_single(connection_, single);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -307,9 +339,11 @@ void Client::SetConsume(bool const consume)
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_consume(connection_, consume);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -332,9 +366,11 @@ void Client::SetRepeat(bool const repeat)
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       mpd_run_repeat(connection_, repeat);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -357,9 +393,11 @@ void Client::SetVolume(uint32_t volume)
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       (void) mpd_run_set_volume(connection_, volume);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -368,9 +406,10 @@ void Client::Shuffle()
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       (void) mpd_run_shuffle(connection_);
       CheckError();
+
+      UpdateStatus();
    }
 }
 
@@ -378,9 +417,14 @@ void Client::Move(uint32_t position1, uint32_t position2)
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
+      CheckForUpdates();
+
       (void) mpd_run_move(connection_, position1, position2);
       CheckError();
+      UpdateStatus(true);
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
@@ -388,12 +432,36 @@ void Client::Swap(uint32_t position1, uint32_t position2)
 {
    if (Connected() == true)
    {
-      forceUpdate_ = true;
       (void) mpd_run_swap(connection_, position1, position2);
       CheckError();
+
+      forceUpdate_ = true;
+      CheckForUpdates();
    }
 }
 
+
+void Client::CreatePlaylist(std::string const & name)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_send_save(connection_, name.c_str());
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+      }
+
+      (void) mpd_send_playlist_clear(connection_, name.c_str());
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+      }
+   }
+}
 
 void Client::SavePlaylist(std::string const & name)
 {
@@ -414,8 +482,7 @@ void Client::LoadPlaylist(std::string const & name)
 
       (void) mpd_run_load(connection_, name.c_str());
       CheckError();
-
-      screen_.Redraw(Ui::Screen::Playlist);
+      UpdateStatus();
    }
 }
 
@@ -427,6 +494,45 @@ void Client::RemovePlaylist(std::string const & name)
       CheckError();
 
       screen_.Redraw(Ui::Screen::Lists);
+   }
+}
+
+void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_send_playlist_add(connection_, name.c_str(), song->URI().c_str());
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+
+         forceUpdate_ = true;
+         CheckForUpdates();
+      }
+   }
+}
+
+void Client::EnableOutput(Mpc::Output * output)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_enable_output(connection_, output->Id());
+      CheckError();
+
+      screen_.Redraw(Ui::Screen::Outputs);
+   }
+}
+
+void Client::DisableOutput(Mpc::Output * output)
+{
+   if (Connected() == true)
+   {
+      (void) mpd_run_disable_output(connection_, output->Id());
+      CheckError();
+
+      screen_.Redraw(Ui::Screen::Outputs);
    }
 }
 
@@ -442,7 +548,10 @@ uint32_t Client::Add(Mpc::Song & song)
       {
          mpd_response_finish(connection_);
          CheckError();
-         queueVersion_ = QueueVersion();
+         UpdateStatus(true);
+
+         forceUpdate_ = true;
+         CheckForUpdates();
       }
    }
 
@@ -457,11 +566,16 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
 
       mpd_send_add_id_to(connection_, song.URI().c_str(), position);
 
+      if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
+      {
+         ++currentSongId_;
+      }
+
       if (listMode_ == false)
       {
          mpd_response_finish(connection_);
          CheckError();
-         queueVersion_ = QueueVersion();
+         UpdateStatus(true);
       }
    }
 
@@ -496,11 +610,16 @@ void Client::Delete(uint32_t position)
 
       mpd_send_delete(connection_, position);
 
+      if ((currentSongId_ > -1) && (position < static_cast<uint32_t>(currentSongId_)))
+      {
+         --currentSongId_;
+      }
+
       if (listMode_ == false)
       {
          mpd_response_finish(connection_);
          CheckError();
-         queueVersion_ = QueueVersion();
+         UpdateStatus(true);
       }
    }
 }
@@ -511,10 +630,40 @@ void Client::Delete(uint32_t position1, uint32_t position2)
    {
       CheckForUpdates();
 
-      mpd_run_delete_range(connection_, position1, position2);
-      CheckError();
+      // Only use range if MPD is >= 0.16
+      if (versionMinor_ < 16)
+      {
+         StartCommandList();
 
-      queueVersion_ = QueueVersion();
+         for (uint32_t i = 0; i < (position2 - position1); ++i)
+         {
+            Delete(position1);
+         }
+
+         SendCommandList();
+         CheckError();
+      }
+      else
+      {
+         mpd_run_delete_range(connection_, position1, position2);
+         CheckError();
+
+         if (currentSongId_ > -1)
+         {
+            uint32_t const songId = static_cast<uint32_t>(currentSongId_);
+
+            if ((position1 < songId) && (position2 < songId))
+            {
+               currentSongId_ -= position2 - position1;
+            }
+            else if ((position1 <= songId) && (position2 >= songId))
+            {
+               currentSongId_ -= (currentSongId_ - position1);
+            }
+         }
+      }
+
+      UpdateStatus(true);
    }
 }
 
@@ -524,8 +673,7 @@ void Client::Clear()
    {
       mpd_run_clear(connection_);
       CheckError();
-
-      queueVersion_ = QueueVersion();
+      UpdateStatus(true);
    }
 }
 
@@ -556,61 +704,43 @@ void Client::CheckForUpdates()
 
    gettimeofday(&end, NULL);
 
-   if ((Connected() == true) && (listMode_ == false))
+   if ((Connected() == true))
    {
-      if (queueVersion_ != QueueVersion())
+      if (listMode_ == false)
       {
-         queueVersion_ = QueueVersion();
-         screen_.Redraw(Ui::Screen::Playlist);
-      }
+         long const seconds  = end.tv_sec  - start.tv_sec;
+         long const useconds = end.tv_usec - start.tv_usec;
+         long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-      long const seconds  = end.tv_sec  - start.tv_sec;
-      long const useconds = end.tv_usec - start.tv_usec;
-      long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
-
-      if ((updated == false) || (mtime > 250) || (forceUpdate_ == true))
-      {
-         forceUpdate_ = false;
-         updated      = true;
-
-         if (currentSong_ != NULL)
+         if ((updated == false) || (mtime > 250) || (forceUpdate_ == true))
          {
-            mpd_song_free(currentSong_);
-            currentSong_ = NULL;
-         }
+            forceUpdate_ = false;
+            updated      = true;
 
-         if (currentStatus_ != NULL)
-         {
-            mpd_status_free(currentStatus_);
-            currentStatus_ = NULL;
-         }
+            if (currentSong_ != NULL)
+            {
+               mpd_song_free(currentSong_);
+               currentSong_ = NULL;
+            }
 
-         currentSong_ = mpd_run_current_song(connection_);
-         CheckError();
-
-         if (Connected() == true)
-         {
-            currentStatus_ = mpd_run_status(connection_);
+            currentSong_ = mpd_run_current_song(connection_);
             CheckError();
 
             if (currentSong_ != NULL)
             {
-                currentSongId_  = mpd_song_get_pos(currentSong_);
-                currentSongURI_ = mpd_song_get_uri(currentSong_);
+               currentSongId_  = mpd_song_get_pos(currentSong_);
+               currentSongURI_ = mpd_song_get_uri(currentSong_);
             }
             else
             {
-                currentSongId_  = -1;
-                currentSongURI_ = "";
+               currentSongId_  = -1;
+               currentSongURI_ = "";
             }
-         }
-         else
-         {
-             currentSongId_ = -1;
-             currentSongURI_ = "";
-         }
 
-         gettimeofday(&start, NULL);
+            UpdateStatus();
+
+            gettimeofday(&start, NULL);
+         }
       }
    }
    else
@@ -678,12 +808,46 @@ uint32_t Client::TotalNumberOfSongs()
 
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      CheckForUpdates();
-
       songTotal = mpd_status_get_queue_length(currentStatus_);
    }
 
    return songTotal;
+}
+
+void Client::SearchAny(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_any_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, search.c_str());
+   }
+}
+
+void Client::SearchArtist(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, search.c_str());
+   }
+}
+
+void Client::SearchAlbum(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, search.c_str());
+   }
+}
+
+void Client::SearchSong(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, search.c_str());
+   }
 }
 
 bool Client::SongIsInQueue(Mpc::Song const & song) const
@@ -694,7 +858,6 @@ bool Client::SongIsInQueue(Mpc::Song const & song) const
 
 void Client::DisplaySongInformation()
 {
-   // \todo should cache this information
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       CheckForUpdates();
@@ -710,7 +873,6 @@ void Client::DisplaySongInformation()
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
          std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
-         //! \todo turn into a single setstatus and use a blank filler rather than a move
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
 
          if (settings_.TimeRemaining() == false)
@@ -735,19 +897,37 @@ void Client::DisplaySongInformation()
 
 unsigned int Client::QueueVersion()
 {
+   return queueVersion_;
+}
+
+void Client::UpdateStatus(bool ExpectUpdate)
+{
    if (Connected() == true)
    {
-      mpd_status * status = mpd_run_status(connection_);
-
-      if (status != NULL)
+      if (currentStatus_ != NULL)
       {
-         unsigned int Version = mpd_status_get_queue_version(status);
-         mpd_status_free(status);
-         return Version;
+         mpd_status_free(currentStatus_);
+         currentStatus_ = NULL;
+      }
+
+      currentStatus_ = mpd_run_status(connection_);
+      CheckError();
+
+      if (currentStatus_ != NULL)
+      {
+         unsigned int version  = mpd_status_get_queue_version(currentStatus_);
+         unsigned int qVersion = static_cast<uint32_t>(queueVersion_);
+
+         if ((queueVersion_ > -1) &&
+             ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
+         {
+            ForEachQueuedSongChanges(qVersion, Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
+            Main::Playlist().Crop(TotalNumberOfSongs());
+         }
+
+         queueVersion_ = version;
       }
    }
-
-   return 0;
 }
 
 
@@ -766,6 +946,21 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song) const
 }
 
 
+void Client::GetVersion()
+{
+   if (Connected() == true)
+   {
+      unsigned const * version = mpd_connection_get_server_version(connection_);
+      CheckError();
+
+      if (version != NULL)
+      {
+         versionMajor_ = version[0];
+         versionMinor_ = version[1];
+         versionPatch_ = version[2];
+      }
+   }
+}
 
 void Client::CheckError()
 {
@@ -791,6 +986,11 @@ void Client::CheckError()
 void Client::DeleteConnection()
 {
    listMode_ = false;
+
+   versionMajor_ = -1;
+   versionMinor_ = -1;
+   versionPatch_ = -1;
+   queueVersion_ = -1;
 
    if (connection_ != NULL)
    {

@@ -24,8 +24,8 @@
 
 using namespace Ui;
 
-SelectWindow::SelectWindow(Ui::Screen const & screen) :
-   ScrollWindow     (screen),
+SelectWindow::SelectWindow(Ui::Screen & screen, std::string name) :
+   ScrollWindow     (screen, name),
    currentSelection_(0)
 {
 }
@@ -93,7 +93,7 @@ int64_t SelectWindow::LimitCurrentSelection(int64_t currentSelection) const
    {
       currentSelection = 0;
    }
-   else if ((currentSelection_ >= BufferSize()) && (BufferSize() > 0))
+   else if ((currentSelection_ >= static_cast<int32_t>(BufferSize())) && (BufferSize() > 0))
    {
       currentSelection = BufferSize() - 1;
    }

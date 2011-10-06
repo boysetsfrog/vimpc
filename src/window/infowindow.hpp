@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,34 +15,44 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   selectwindow.hpp - window that is scrollable and has selectable elements
+   infowindow.hpp - class representing a window that can scroll
    */
 
-#ifndef __UI__SELECTWINDOW
-#define __UI__SELECTWINDOW
+#ifndef __UI__INFOWINDOW
+#define __UI__INFOWINDOW
 
 #include "song.hpp"
 #include "scrollwindow.hpp"
 
 namespace Ui
 {
-   class SelectWindow : public Ui::ScrollWindow
+   class Screen;
+
+   class InfoWindow : public ScrollWindow
    {
    public:
-      SelectWindow(Ui::Screen & screen, std::string name = "Unknown");
-      ~SelectWindow();
+      InfoWindow(Mpc::Song * song, Ui::Screen & screen, std::string name = "Unknown");
+      InfoWindow(Ui::Screen & screen, std::string name = "Unknown");
+      virtual ~InfoWindow();
 
    public:
-      void Resize(int rows, int columns);
-      void Scroll(int32_t scrollCount);
-      void ScrollTo(uint16_t scrollLine);
-
-      uint16_t CurrentLine() const;
+      void Print(uint32_t line) const;
+      uint32_t Current() const { return CurrentLine(); };
+      std::string SearchPattern(int32_t id) { return ""; }
 
    protected:
-      int64_t LimitCurrentSelection(int64_t currentSelection) const;
+      size_t BufferSize() const
+      {
+         if (song_ != NULL)
+         {
+            return 1;
+         }
 
-      mutable int64_t currentSelection_;
+         return 0;
+      }
+
+   private:
+      Mpc::Song * song_;
    };
 }
 

@@ -1,181 +1,205 @@
 Vimpc Help
 ==================================================
 
+Note: Count is always an optional parameter.
+
 NORMAL MODE
 --------------------------------------------------
-   [count] .                      | repeat the last normal mode action, if count is specified
-                                  | changes the count that was used for the last action to [count]
+  [count] .               | repeat the last normal mode action [count] times
 
 MOTION:
-   [count] k, Up                  | scroll up in current window
-
-   [count] j, Down                | scroll down in current window
-
-   [count] PageUp, ctrl+u         | scroll up by a page in current window
-
-   [count] PageDown, ctrl+d       | scroll down by a page in current window
-
-           Home                   | scroll to top of the screen
-           
-           End                    | scroll to the bottom of the screen
-   
-           f                      | scroll to the currently playing song
-   
-   [count] gg                     | goes to top of the screen, or the line [count] if specified
-   [count] G                      | goes to bottom of the screen, or the line [count] if specified
-
-   [count] H                      | selects the song at the top of the currently active section of window,
-                                  | if count is specified, selects [count] down from the top.
-   [count] M                      | selects the song in the middle of the currently active section of window.
-
-   [count] L                      | selects the song at the bottom of the currently active section of window,
-                                  | if count is specified, selects [count] up from the bottom.
-
-   [count] z<Enter>               | moves the currently selected line to the top
-                                  | if count is specified, moves the [count]th line to the top.
-
-   [count] z.                     | centres the currently selected line
-                                  | if count is specified, centres the [count]th line.
-
-   [count] z-                     | moves the currently selected line to the bottom
-                                  | if count is specified, movies the [count]th line to the bottom.
+  [count] k, Up           | scroll up [count]
+  [count] j, Down         | scroll down [count]
+  [count] Pg Up, Ctrl+u   | scroll up by [count] pages
+  [count] Pg Dn, Ctrl+d   | scroll down by [count] pages
+          Ctrl+y          | scroll down a line, maintain selection
+          Ctrl+e          | scroll up a line, maintain selection
+          Home            | scroll to the top
+          End             | scroll to the bottom 
+  [count] f               | scroll to the currently playing song + [count]
+  [count] F               | scroll to the currently playing song - [count]
+  [count] gg              | scroll to the top, or to the line [count]
+  [count] G               | scroll to the bottom, or the line [count]
+  [count] H               | select the top visible line + [count]
+  [count] M               | select the middle visible line
+  [count] L               | select the bottom visible line - [count] 
+  [count] z<Enter>        | selected line (or [count]) to display at the top
+  [count] z.              | selected line (or [count]) to display in centres
+  [count] z-              | selected line (or [count]) to display at the bottom
 
 WINDOWS/TABS:
-   [count] gt                     | change to the next window, or to the [count] window if count is specified
-   [count] gT                     | change to the previous window, or change back [count] windows if count is specified
-           Alt+<window number>    | change to the given window number
-                                 
-SEARCHING:                        
-           /<exp>                 | searches forward for <exp> (a regular expression)
-           ?<exp>                 | searches backward for <exp> (a regular expression)
-   [count] n                      | go to the next result
-   [count] N                      | go to the previous result
+  [count] gt              | next window/tab, or to window/tab number [count]
+  [count] gT              | previous window/tab, or back [count] windows/tabs
+          Alt+<number>    | change to the given window/tab number
+                                
+SEARCHING:                       
+          /<exp>          | searches forward for <exp> (regular expression)
+          ?<exp>          | searches backward for <exp> (regular expression)
+  [count] n               | scroll to next result
+  [count] N               | scroll to previous result
 
 SEARCH FLAGS:
-          \c                      | when used in search pattern, disables case sensitivity
+          \c              | if in search expression, disables case sensitivity
 
 PLAYING (ALSO SEE PLAYLIST):                          
-   [count] +                      | increase volume by 1 or [count]
-   [count] -                      | decrease volume by 1 or [count]
+  [count] <               | skip to the previous song
+  [count] >               | skip to the next song
+  [count] [               | skip to the previous artist
+  [count] ]               | skip to the next artist
+  [count] {               | skip to the previous album
+  [count] }               | skip to the next album
+                 
+  [count] +               | increase volume
+  [count] -               | decrease volume
+                 
+          p               | toggle pause on/off
+          s, backspace    | stop playback
+                 
+          C               | toggle consume
+          R               | toggle random
+          E               | toggle repeat
+          S               | toggle single
 
-           p                      | toggle the pause on/off
-           s                      | stop playback
-
-LIBRARY:
-           a                      | add the currently selected song, album or artist to the current playlist
-           A                      | add all the library songs to the current playlist
-           h, Left                | collapse current selection into parent
-           l, Right               | expand the current selection
-           <Enter>                | clear the current playlist, add the currently selected song/album/artist and begin playing
-
-BROWSE:
-   [count] a                      | add the next [count] songs
-           A                      | add all songs to the playlist
-   [count] d                      | delete the next [count] songs, if they are in the playlist
-           D                      | delete all songs from the playlist
-           <Enter>                | append the selected song to the playlist and begin playing it
+ALL WINDOWS:
+          A               | add all songs in window to the playlist
+          D               | delete all songs in window from the playlist
+          X               | delete all songs from the selected line to the end
 
 PLAYLIST:
-   [count] <                      | skip to the previous song, if count is specified, skips back [count] songs
-   [count] >                      | skip to the next song, if count is specified, skips forward [count] songs
-   [count] q                      | skip to the previous artist, if count is specified, skips back [count] artists
-   [count] w                      | skip to the next artist, if count is specified, skips forward [count] artists
-   [count] Q                      | skip to the previous album, if count is specified, skips back [count] albums
-   [count] W                      | skip to the next album, if count is specified, skips forward [count] albums
-   [count] d                      | delete the next [count] songs from the playlist
-           P                      | paste the previously deleted songs above the current selection
-           D                      | delete all the songs in the current playlist (clear)
-           <Enter>                | play the currently selected song
- 
+  [count] d, del          | delete songs
+  [count] h, Left         | seek back [count] seconds
+  [count] l, Right        | seek forward [count] seconds
+          P               | re-insert songs that were just deleted 
+          e               | information about selected song
+          Ctrl+a          | move song down
+          Ctrl+x          | move song up
+          <Enter>         | play the selected song
 
-COMMAND MODE
+BROWSE:
+  [count] a               | add songs to playlist
+  [count] d, del          | delete songs
+          <Enter>         | append the song to the playlist and play it
+
+LISTS:
+  [count] a               | add list contents to playlist
+  [count] d, del          | delete lists
+          e               | view lists contents
+          <Enter>         | play the currently selected list
+   
+LIBRARY:
+  [count] a               | add song, album, artist to playlist
+  [count] d, del          | delete song, album, artist
+          h, Left         | collapse selection
+          l, Right        | expand selection
+          <Enter>         | clear playlist, add song/album/artist and play it
+
+OUTPUTS:
+          d               | disable the selected output
+          D               | disable all outputs
+          <Enter>         | enable the selected output
+
+
+COMMAND/EX MODE
 --------------------------------------------------
 
-          :<command>              | executes the command <command>
-                                  | to execute a command the full-name does not need to be given provided that
-                                  | it is a unique match ie :con does not work as it could be :console or :connect
-                                  | but :conn will call the :connect command
+  :<command>              | executes the command <command>
+                          | the full command does not need to be given 
+                          | provided it is a unique match 
+                          | ie :con does not work 
+                          | as it could be :console or :connect
+                          | but :conn will call the :connect command
 
 PLAYBACK:
-          next [count]            | skips forward to the next song, or if given the next [count] songs
-          previous [count]        | skips backward to the previous song, or if given the previous [count] songs
-          play <song id>          | play the song with the given id in the current playlist
-          stop                    | stop playback
+  next [count]            | skip forward [count] songs
+  previous [count]        | skip backward [count] songs
+  play <position>         | play the song at <position> in playlist
+  stop                    | stop playback
 
-          volume [0-100]          | set the volume
+  volume [0-100]          | set the volume
 
-          random [on/off]         | toggles random on/off
-          repeat [on/off]         | toggles repeat on/off
-          single [on/off]         | toggles single on/off
-          consume [on/off]        | toggles consume on/off
+  seek <time>             | seek to <time>
+  seek+ <time>            | seek forward <time>
+  seek- <time>            | seek backward <time>
 
-          shuffle                 | shuffle the playlist
+  random [on/off]         | toggles random, or sets on/off
+  repeat [on/off]         | toggles repeat, or sets on/off
+  single [on/off]         | toggles single, or sets on/off
+  consume [on/off]        | toggles consume, or sets on/off
+
+  shuffle                 | shuffle the playlist
+
+FIND:
+  find[!] <search>        | search in database and display results in new window
+  findartist[!] <search>  | search in database in artist tag only
+  findalbum[!] <search>   | search in database in album tag only
+  findsong[!] <search>    | search in database in title tag only
+
+  Note: Appending a ! to any search term will automatically add the songs to the
+  playlist rather than creating a new window.
+
+PLAYLIST:
+  delete <pos1> [pos2]    | delete the song at <pos1>, or from <pos1> to [pos2]
+  deleteall               | delete all songs in the playlist
+  move <pos1> <pos2>      | move song from <pos1> to <pos2>
+  swap <pos1> <pos2>      | swap songs in <pos1> and <pos2>         
 
 PLAYLISTS:
-          load <name>             | load the playlist called <name>
-          edit <name>             | same as load
-          save <name>             | save the current playlist as <name>
-          write <name>            | same as save
+  toplaylist <name>       | save contents of window/tab to playlist <name>
+  load <name>             | load the playlist <name>
+  edit <name>             | same as load
+  save <name>             | save the current playlist <name>
+  write <name>            | same as save
                                   
-
 WINDOWS/TABS:
-          browse                  | change to the browse window, if window is hidden it is opened
-          console                 | change to the console window, if window is hidden it is opened
-          help                    | change to the help window (this one), if window is hidden it is opened
-          library                 | change to the library window, if window is hidden it is opened
-          playlist                | change to the playlist window, if window is hidden it is opened
+  browse                  | open browse window
+  console                 | open console window
+  help                    | open help window (this one)
+  library                 | open library window
+  outputs                 | open outputs window
+  playlist                | open playlist window
 
-          tabfirst                | navigate to the first tab
-          tablast                 | navigate to the last tab
-          tabmove <location>      | move the current tab to new location (first location is 0)
-          tabhide [tabname]       | hide the current tab (or the one specified) from the tab bar, will change active window if necessary
+  tabfirst                | navigate to the first window/tab
+  tablast                 | navigate to the last window/tab
+  tabmove <location>      | move the current tab to <location> (first is 0)
+  tabhide [tabname]       | hide the current tab (or [tabname]) from the tab bar
+  tabrename <tabname>     | rename the current tab to <tabname>
+  tabrename <n1> <n2>     | rename tab <n1> to <n2>
 
 MISC:
-          !mpc <command-string>   | executes the command line program mpc with the given <command-string>
-                                  | the result is output in the console window
-
-          alias <name> <commands> | creates an alias called <name> which executes the given commands,
-                                  | each command may be seperated by ;
-                                  | i.e alias hello echo "hello"; echo "world";
-
-          clear                   | clears the playlist window
-
-          connect [host] [port]   | connects to the given hostname if none is specficied, uses localhost
-                                  
-          echo <string>           | echos the given string to the console window
-                                  
-                                  
-          quit[!]                 | quit vimpc, if [!] is appended playback will be stopped regardless of stoponquit setting
-                                  
-          redraw                  | redraws the current window
-                                  
-          set                     | sets a configurable setting, see SETTINGS section
+  !mpc <arguments>        | execute mpc with the given <arguments>
+                          | the result is output in the console window
+  alias <name> <commands> | create an alias <name> which executes the commands
+                          | each command may be seperated by ;
+                          | i.e alias hello echo "hello"; echo "world";
+  clear                   | clears the console window
+  connect [host] [port]   | connects to [host] [port]
+  echo <string>           | echos the given string to the console window
+  quit[!]                 | if only one tab then quit, otherwise close the tab
+  quitall[!]              | quit vimpc
+                          | Note: if ! is appended to quit, playback is stopped
+  redraw                  | redraws the window
+  set                     | sets a configurable setting, see SETTINGS section
                                   
 
 SETTINGS
 --------------------------------------------------
 
-         All settings can be prefixed with no, which will disable the setting, or postfixed with ! which will toggle the
-         setting.
+All settings can be prefixed with no, which will disable the setting, 
+or postfixed with !  which will toggle the setting.
 
-            [no]autoscroll[!]     | automatically scroll to the playing song, when a h, l, q, w, Q, W, etc is performed 
+  [no]autoscroll[!]       | automatically scroll when skipping songs 
+  [no]colour[!]           | enable or disable colours
+  [no]expand-artists[!]   | when enabled, expand to artist by default in library
+                          | if changed whilst running, must :redraw the library
+  [no]hlsearch[!]         | highlight search results
+  [no]ignorecase[!]       | case insensitive searching
+  [no]searchwrap[!]       | wrap search results when using n/N
+  [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
+  [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
+  [no]stoponquit[!]       | automatically stop playback when vimpc is quit
+  [no]timeremaining[!]    | display the time remaining rather than elapsed
+  [no]windownumbers[!]    | display the number next to the window in the tab bar
 
-            [no]colour[!]         | enable or disable colours
-
-            [no]expand-artists[!] | when enabled will expand to the artist level by default in the library window
-                                  | if you change this during operation you will need to call :redraw from the library window
-                                  
-            [no]hlsearch[!]       | highlight search results
-
-            [no]ignorecase[!]     | case insensitive searching
-                                  
-            [no]searchwrap[!]     | wrap search results when using n/N
-                                  
-            [no]stoponquit[!]     | automatically stop playback when vimpc is quit
-
-            [no]timeremaining[!]  | display the time that is left in the song rather than elapsed
-                                  
-            [no]windownumbers[!]  | display the number next to the window in the tab bar
-                                  
-            window <window>       | sets the window that will start with focus, only useful if called from ~/.vimpcrc file
+  window <window>         | sets the window that will start with focus
+                          | only useful if called from ~/.vimpcrc file
 

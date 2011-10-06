@@ -25,10 +25,12 @@
 #include <sstream>
 
 #include "assert.hpp"
+#include "buffers.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"
+#include "window/songwindow.hpp"
 
 using namespace Ui;
 
@@ -50,15 +52,27 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["clear"]     = &Command::ClearScreen;
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["consume"]   = &Command::Consume;
+   commandTable_["delete"]    = &Command::Delete;
+   commandTable_["deleteall"] = &Command::DeleteAll;
    commandTable_["echo"]      = &Command::Echo;
+   commandTable_["find"]      = &Command::FindAny;
+   commandTable_["findalbum"] = &Command::FindAlbum;
+   commandTable_["findartist"]= &Command::FindArtist;
+   commandTable_["findsong"]  = &Command::FindSong;
    commandTable_["move"]      = &Command::Move;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
+   commandTable_["q"]         = &Command::Quit;
+   commandTable_["qall"]      = &Command::QuitAll;
    commandTable_["quit"]      = &Command::Quit;
+   commandTable_["quitall"]   = &Command::QuitAll;
    commandTable_["random"]    = &Command::Random;
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["repeat"]    = &Command::Repeat;
    commandTable_["set"]       = &Command::Set;
+   commandTable_["seek"]      = &Command::SeekTo;
+   commandTable_["seek+"]     = &Command::Seek<1>;
+   commandTable_["seek-"]     = &Command::Seek<-1>;
    commandTable_["single"]    = &Command::Single;
    commandTable_["shuffle"]   = &Command::Shuffle;
    commandTable_["swap"]      = &Command::Swap;
@@ -67,8 +81,10 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
 
    commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
    commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
+   commandTable_["tabclose"]  = &Command::HideWindow;
    commandTable_["tabhide"]   = &Command::HideWindow;
    commandTable_["tabmove"]   = &Command::MoveWindow;
+   commandTable_["tabrename"] = &Command::RenameWindow;
 
    commandTable_["rescan"]    = &Command::Rescan;
    commandTable_["update"]    = &Command::Update;
@@ -81,12 +97,14 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
    commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
    commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
+   commandTable_["outputs"]   = &Command::SetActiveAndVisible<Ui::Screen::Outputs>;
    commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;
 
-   commandTable_["load"]  = &Command::LoadPlaylist;
-   commandTable_["save"]  = &Command::SavePlaylist;
-   commandTable_["edit"]  = &Command::LoadPlaylist;
-   commandTable_["write"] = &Command::SavePlaylist;
+   commandTable_["load"]       = &Command::LoadPlaylist;
+   commandTable_["save"]       = &Command::SavePlaylist;
+   commandTable_["edit"]       = &Command::LoadPlaylist;
+   commandTable_["write"]      = &Command::SavePlaylist;
+   commandTable_["toplaylist"] = &Command::ToPlaylist;
 }
 
 Command::~Command()
@@ -194,10 +212,97 @@ bool Command::Pause(std::string const & arguments)
 
 bool Command::Play(std::string const & arguments)
 {
-   return Player::Play(atoi(arguments.c_str()));
+   int32_t SongId = atoi(arguments.c_str()) - 1;
+
+   if (SongId >= 0)
+   {
+      return Player::Play(SongId);
+   }
+
+   return true;
+}
+
+
+bool Command::Delete(std::string const & arguments)
+{
+   size_t pos = arguments.find_first_of(" ");
+
+   if (pos != std::string::npos)
+   {
+      uint32_t pos1 = atoi(arguments.substr(0, pos).c_str()) - 1;
+      uint32_t pos2 = atoi(arguments.substr(pos + 1).c_str()) - 1;
+
+      client_.Delete(pos1, pos2 + 1);
+      Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
+   }
+   else
+   {
+      client_.Delete(atoi(arguments.c_str()) - 1);
+      Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
+   }
+
+   return true;
+}
+
+bool Command::DeleteAll(std::string const & arguments)
+{
+   client_.Clear();
+   Main::Playlist().Clear();
+   return true;
+}
+
+template <int Delta>
+bool Command::Seek(std::string const & arguments)
+{
+   uint32_t time = 0;
+   size_t pos    = arguments.find_first_of(":");
+
+   if (pos != std::string::npos)
+   {
+      std::string minutes = arguments.substr(0, pos);
+      std::string seconds = arguments.substr(pos + 1);
+      time = (atoi(minutes.c_str()) * 60) + atoi(seconds.c_str());
+   }
+   else
+   {
+      time = atoi(arguments.c_str());
+   }
+
+   return Player::Seek(Delta * time);
+}
+
+bool Command::SeekTo(std::string const & arguments)
+{
+   uint32_t time = 0;
+   size_t pos    = arguments.find_first_of(":");
+
+   if (pos != std::string::npos)
+   {
+      std::string minutes = arguments.substr(0, pos);
+      std::string seconds = arguments.substr(pos + 1);
+      time = (atoi(minutes.c_str()) * 60) + atoi(seconds.c_str());
+   }
+   else
+   {
+      time = atoi(arguments.c_str());
+   }
+
+   return Player::SeekTo(time);
 }
 
 bool Command::Quit(std::string const & arguments)
+{
+   if (settings_.SingleQuit() == true)
+   {
+      return QuitAll(arguments);
+   }
+   else
+   {
+      return HideWindow(arguments);
+   }
+}
+
+bool Command::QuitAll(std::string const & arguments)
 {
    if ((forceCommand_ == true) || (settings_.StopOnQuit() == true))
    {
@@ -222,28 +327,122 @@ bool Command::SavePlaylist(std::string const & arguments)
    return Player::SavePlaylist(arguments);
 }
 
+bool Command::ToPlaylist(std::string const & arguments)
+{
+   screen_.ActiveWindow().Save(arguments);
+   screen_.Redraw(Ui::Screen::Lists);
+   return true;
+}
+
+bool Command::Find(std::string const & arguments)
+{
+   if (forceCommand_ == true)
+   {
+      Main::PlaylistTmp().Clear();
+      client_.ForEachSearchResult(Main::PlaylistTmp(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+
+      if (Main::PlaylistTmp().Size() == 0)
+      {
+         Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+      }
+      else
+      {
+         client_.StartCommandList();
+
+         for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
+         {
+            client_.Add(Main::PlaylistTmp().Get(i));
+            Main::Playlist().Add(Main::PlaylistTmp().Get(i));
+         }
+
+         client_.SendCommandList();
+      }
+   }
+   else
+   {
+      SongWindow * window = screen_.CreateSongWindow(arguments);
+      client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+      if (window->ContentSize() >= 0)
+      {
+         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      }
+      else
+      {
+         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+      }
+   }
+
+   return true;
+}
+
+bool Command::FindAny(std::string const & arguments)
+{
+   client_.SearchAny(arguments);
+   return Find("F:" + arguments);
+}
+
+bool Command::FindAlbum(std::string const & arguments)
+{
+   client_.SearchAlbum(arguments);
+   return Find("FAL:" + arguments);
+}
+
+bool Command::FindArtist(std::string const & arguments)
+{
+   client_.SearchArtist(arguments);
+   return Find("FAR:" + arguments);
+}
+
+bool Command::FindSong(std::string const & arguments)
+{
+   client_.SearchSong(arguments);
+   return Find("FS:" + arguments);
+}
+
 bool Command::Random(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetRandom(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetRandom(value);
+   }
+
+   return Player::ToggleRandom();
 }
 
 bool Command::Repeat(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetRepeat(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetRepeat(value);
+   }
+
+   return Player::ToggleRepeat();
 }
 
 bool Command::Single(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetSingle(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetSingle(value);
+   }
+
+   return Player::ToggleSingle();
 }
 
 bool Command::Consume(std::string const & arguments)
 {
-   bool const value = (arguments.compare("on") == 0);
-   return Player::SetConsume(value);
+   if (arguments.empty() == false)
+   {
+      bool const value = (arguments.compare("on") == 0);
+      return Player::SetConsume(value);
+   }
+
+   return Player::ToggleConsume();
 }
 
 bool Command::Shuffle(std::string const & arguments)
@@ -255,9 +454,33 @@ bool Command::Move(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
-      std::string position1 = arguments.substr(0, arguments.find(" "));
-      std::string position2 = arguments.substr(arguments.find(" ") + 1);
-      client_.Move(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
+      int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
+      int32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
+
+      if (position1 >= screen_.ActiveWindow().ContentSize())
+      {
+         position1 = Main::Playlist().Size();
+      }
+      else if (position1 <= 1)
+      {
+         position1 = 1;
+      }
+
+      if (position2 >= screen_.ActiveWindow().ContentSize())
+      {
+         position2 = Main::Playlist().Size();
+      }
+      else if (position2 <= 1)
+      {
+         position2 = 1;
+      }
+
+      client_.Move(position1 - 1, position2 - 1);
+
+      Mpc::Song * song = Main::Playlist().Get(position1 - 1);
+      Main::Playlist().Remove(position1 - 1, 1);
+      Main::Playlist().Add(song, position2 - 1);
+      screen_.Update();
    }
    // \todo print error
    return true;
@@ -310,7 +533,7 @@ bool Command::SkipSong(std::string const & arguments)
 template <Ui::Screen::MainWindow MAINWINDOW>
 bool Command::SetActiveAndVisible(std::string const & arguments)
 {
-   screen_.SetActiveAndVisible(MAINWINDOW);
+   screen_.SetActiveAndVisible(static_cast<int32_t>(MAINWINDOW));
 
    return true;
 }
@@ -338,12 +561,17 @@ bool Command::HideWindow(std::string const & arguments)
    }
    else
    {
-      Ui::Screen::MainWindow window = screen_.GetWindowFromName(arguments);
+      int32_t window = screen_.GetWindowFromName(arguments);
 
       if (window != Ui::Screen::Unknown)
       {
          screen_.SetVisible(window, false);
       }
+   }
+
+   if (screen_.VisibleWindows() == 0)
+   {
+      return Quit("");
    }
 
    return true;
@@ -352,6 +580,28 @@ bool Command::HideWindow(std::string const & arguments)
 bool Command::MoveWindow(std::string const & arguments)
 {
    screen_.MoveWindow(atoi(arguments.c_str()));
+   return true;
+}
+
+bool Command::RenameWindow(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string oldname = arguments.substr(0, arguments.find(" "));
+      std::string newname = arguments.substr(arguments.find(" ") + 1);
+
+      int32_t id = screen_.GetWindowFromName(oldname);
+
+      if (id != Ui::Screen::Unknown)
+      {
+         screen_.Window(id).SetName(newname);
+      }
+   }
+   else
+   {
+      screen_.ActiveWindow().SetName(arguments);
+   }
+
    return true;
 }
 

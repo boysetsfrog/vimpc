@@ -25,8 +25,8 @@
 
 using namespace Ui;
 
-ConsoleWindow::ConsoleWindow(Ui::Screen const & screen) :
-   ScrollWindow(screen),
+ConsoleWindow::ConsoleWindow(Ui::Screen & screen) :
+   ScrollWindow(screen, "console"),
    console_    (Main::Console())
 {
    console_.AddCallback(Main::Buffer_Add, new CallbackObject(*this, &Ui::ConsoleWindow::PerformAutoScroll));

@@ -26,7 +26,7 @@
 
 #include "song.hpp"
 #include "buffer/playlist.hpp"
-#include "window/selectwindow.hpp"
+#include "window/songwindow.hpp"
 
 // Forward Declarations
 namespace Main { class Settings; }
@@ -36,10 +36,10 @@ namespace Ui   { class Search; }
 // Playlist window class
 namespace Ui
 {
-   class PlaylistWindow : public Ui::SelectWindow
+   class PlaylistWindow : public Ui::SongWindow
    {
    public:
-      PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search);
+      PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~PlaylistWindow();
 
    private:
@@ -47,7 +47,6 @@ namespace Ui
       PlaylistWindow & operator=(PlaylistWindow & playlist);
 
    public:
-      void Print(uint32_t line) const;
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
@@ -61,10 +60,22 @@ namespace Ui
    public:
       std::string SearchPattern(int32_t id) { return playlist_.Get(id)->PlaylistDescription(); }
 
+   public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines();
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteAllLines();
+
+   public:
+      void Save(std::string const & name);
+
    private:
       void    Clear();
       size_t  BufferSize() const { return playlist_.Size(); }
       int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
+
+   public:
+      Main::Buffer<Mpc::Song *> & Buffer() const { return playlist_; }
 
    private:
       Main::Settings const & settings_;

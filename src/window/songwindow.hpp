@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,46 +15,59 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   librarywindow.hpp - handling of the mpd music library
+   songwindow.hpp - handling of the mpd library but with a more playlist styled interface
    */
 
-#ifndef __UI__LIBRARYWINDOW
-#define __UI__LIBRARYWINDOW
+#ifndef __UI__SONGWINDOW
+#define __UI__SONGWINDOW
+
+// Includes
+#include <iostream>
 
 #include "song.hpp"
+#include "buffer/browse.hpp"
 #include "buffer/library.hpp"
 #include "window/selectwindow.hpp"
 
-#include <map>
-
+// Forward Declarations
 namespace Main { class Settings; }
 namespace Mpc  { class Client; }
+namespace Ui   { class Search; }
 
+// Song window class
 namespace Ui
 {
-   class Search;
-
-   class LibraryWindow : public Ui::SelectWindow
+   class SongWindow : public Ui::SelectWindow
    {
    public:
-      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
-      ~LibraryWindow();
+      SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name);
+      ~SongWindow();
 
    private:
-      LibraryWindow(LibraryWindow & library);
-      LibraryWindow & operator=(LibraryWindow & library);
+      SongWindow(SongWindow & song);
+      SongWindow & operator=(SongWindow & song);
 
    public:
       void Print(uint32_t line) const;
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
-      void Redraw();
 
       uint32_t Current() const;
+      uint32_t Playlist(int Offset) const;
+
+      void Add(Mpc::Song * song);
+      void AddToPlaylist(uint32_t position);
 
    public:
-      std::string SearchPattern(int32_t id);
+      std::string SearchPattern(int32_t id)
+      {
+         if (id > 0)
+         {
+            return Buffer().Get(id)->PlaylistDescription();
+         }
+         return "";
+      }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
@@ -63,17 +76,25 @@ namespace Ui
       void CropAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+      void Edit();
+
+   public:
+      void Save(std::string const & name);
 
    private:
       void    Clear();
-      size_t  BufferSize() const { return library_.Size(); }
-      int32_t DetermineSongColour(Mpc::LibraryEntry const * const entry) const;
+      size_t  BufferSize() const { return Buffer().Size(); }
+      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
+
+   public:
+      virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      Mpc::Library         & library_;
+      mutable Mpc::Browse    browse_;
    };
 }
+
 #endif

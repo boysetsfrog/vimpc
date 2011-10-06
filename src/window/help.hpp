@@ -31,13 +31,15 @@ namespace Ui
    class HelpWindow : public Ui::ScrollWindow
    {
    public:
-      HelpWindow(Main::Settings const & settings, Ui::Screen const & screen);
+      HelpWindow(Main::Settings const & settings, Ui::Screen & screen);
       ~HelpWindow();
 
    public:
       void Redraw();
       void Print(uint32_t line) const;
       void Confirm();
+
+      uint32_t Current() const { return ScrollLine(); }
 
       //! \todo work out why this doesn't work properly
       std::string SearchPattern(int32_t id) { return help_.Get(id); }

@@ -27,6 +27,7 @@
 #include "buffer/browse.hpp"
 #include "buffer/library.hpp"
 #include "buffer/list.hpp"
+#include "buffer/outputs.hpp"
 #include "buffer/playlist.hpp"
 
 namespace Main
@@ -37,6 +38,7 @@ namespace Main
    Mpc::Browse   & Browse();
    Mpc::Library  & Library();
    Mpc::Lists    & Lists();
+   Mpc::Outputs  & Outputs();
    Ui::Console   & Console();
 }
 

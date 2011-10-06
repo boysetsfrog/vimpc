@@ -23,7 +23,7 @@
 
 namespace ErrorNumber
 {
-   enum 
+   enum
    {
       CommandAmbiguous = 1,
       CommandNonexistant,
@@ -32,7 +32,9 @@ namespace ErrorNumber
       ExternalProgramError,
       HelpFileNonexistant,
       SettingNonexistant,
-      SearchNoResults
+      SearchNoResults,
+      FindNoResults,
+      PlaylistEmpty
    };
 }
 

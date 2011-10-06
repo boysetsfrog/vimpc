@@ -29,12 +29,13 @@
 #include "settings.hpp"
 #include "screen.hpp"
 #include "mode/search.hpp"
-#include "window/console.hpp"
+#include "window/error.hpp"
+#include "window/songwindow.hpp"
 
 using namespace Ui;
 
-ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen),
+ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+   SelectWindow     (screen, "lists"),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -56,6 +57,10 @@ void ListWindow::Redraw()
    Clear();
    client_.ForEachPlaylist(lists_, static_cast<void (Mpc::Lists::*)(std::string)>(&Mpc::Lists::Add));
 
+   Ui::ListComparator sorter;
+
+   lists_.Main::Buffer<std::string>::Sort(sorter);
+
    SetScrollLine(0);
    ScrollTo(0);
 }
@@ -67,6 +72,12 @@ void ListWindow::Print(uint32_t line) const
    if (printLine < BufferSize())
    {
       WINDOW * window = N_WINDOW();
+      int32_t  colour = DetermineColour(printLine);
+
+      if (settings_.ColourEnabled() == true)
+      {
+         wattron(window, COLOR_PAIR(colour));
+      }
 
       if (printLine == CurrentLine())
       {
@@ -80,6 +91,11 @@ void ListWindow::Print(uint32_t line) const
 
       wattroff(window, A_BOLD);
       wattroff(window, A_REVERSE);
+
+      if (settings_.ColourEnabled() == true)
+      {
+         wattroff(window, COLOR_PAIR(colour));
+      }
    }
 }
 
@@ -104,18 +120,107 @@ void ListWindow::Confirm()
 
 uint32_t ListWindow::Current() const
 {
-   return client_.GetCurrentSong();
+   return CurrentLine();
 }
 
 int32_t ListWindow::DetermineColour(uint32_t line) const
 {
-   return -1;
+   int32_t colour = Colour::Song;
+
+   if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+   {
+      pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+      if (expression.FullMatch(lists_.Get(line)) == true)
+      {
+         colour = Colour::SongMatch;
+      }
+   }
+
+   return colour;
 }
 
 
 void ListWindow::AdjustScroll(std::string list)
 {
    currentSelection_ = LimitCurrentSelection(currentSelection_);
+}
+
+
+void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   Main::PlaylistTmp().Clear();
+
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      if (i < Main::Lists().Size())
+      {
+         client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i), Main::PlaylistTmp(),
+                                    static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+      }
+   }
+
+   uint32_t total = Main::PlaylistTmp().Size();
+
+   if (total > 1)
+   {
+      client_.StartCommandList();
+   }
+
+   for (uint32_t i = 0; i < total; ++i)
+   {
+      client_.Add(Main::PlaylistTmp().Get(i));
+   }
+
+   if (total > 1)
+   {
+      client_.SendCommandList();
+   }
+
+   if (scroll == true)
+   {
+      Scroll(count);
+   }
+}
+
+void ListWindow::AddAllLines()
+{
+   AddLine(0, BufferSize(), false);
+}
+
+void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   for (unsigned int i = 0; i < count; ++i)
+   {
+      if (line + i < BufferSize())
+      {
+         client_.RemovePlaylist(Main::Lists().Get(line + i));
+      }
+   }
+}
+
+void ListWindow::DeleteAllLines()
+{
+   DeleteLine(0, BufferSize(), false);
+}
+
+
+void ListWindow::Edit()
+{
+   std::string const playlist(lists_.Get(CurrentLine()));
+
+   SongWindow * window = screen_.CreateSongWindow("P:" + playlist);
+   client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+   if (window->ContentSize() > -1)
+   {
+      screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+   }
+   else
+   {
+      screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+      Error(ErrorNumber::PlaylistEmpty, "Playlist: empty");
+   }
 }
 
 

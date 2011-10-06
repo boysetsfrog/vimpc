@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,32 +15,53 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   browse.cpp - handling of the mpd playlist interface
+   output.cpp - represents information of an available output
    */
 
-// Includes
-#include "buffers.hpp"
-#include "mpdclient.hpp"
-#include "buffer/browse.hpp"
+#include "output.hpp"
 
-// Browse
+#include <stdio.h>
+
 using namespace Mpc;
 
-Browse::Browse(bool IncrementReferences)
+Output::Output(uint32_t id) :
+   id_       (id),
+   name_     (""),
+   enabled_  (false)
+{ }
+
+Output::~Output()
+{ }
+
+
+uint32_t Output::Id() const
 {
-   if (IncrementReferences == true)
+   return id_;
+}
+
+void Output::SetName(const char * name)
+{
+   if (name != NULL)
    {
-      AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
-      AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
+      name_ = name;
+   }
+   else
+   {
+      name_ = "Unknown";
    }
 }
 
-Browse::~Browse()
+std::string const & Output::Name() const
 {
+   return name_;
 }
 
-void Browse::Sort()
+void Output::SetEnabled(bool enable)
 {
-   Mpc::Browse::BrowseComparator comparator;
-   Main::Buffer<Browse::BufferType>::Sort(comparator);
+   enabled_ = enable;
+}
+
+bool Output::Enabled() const
+{
+   return enabled_;
 }

@@ -23,6 +23,7 @@
 
 #include "colour.hpp"
 #include "errorcodes.hpp"
+#include "settings.hpp"
 #include "modewindow.hpp"
 
 #include <stdint.h>
@@ -47,9 +48,17 @@ namespace Ui
    public:
       void Print(uint32_t line) const
       {
-         wattron(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
+         if (Main::Settings::Instance().ColourEnabled() == true)
+         {
+            wattron(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
+         }
+
          ModeWindow::Print(line);
-         wattroff(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
+
+         if (Main::Settings::Instance().ColourEnabled() == true)
+         {
+            wattroff(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
+         }
       }
 
       void ClearError()             { hasError_ = false; }

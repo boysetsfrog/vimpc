@@ -76,14 +76,39 @@ bool Player::Play(uint32_t position)
    return true;
 }
 
+bool Player::Seek(int32_t Offset)
+{
+   client_.Seek(Offset);
+   return true;
+}
+
+bool Player::SeekTo(uint32_t Time)
+{
+   client_.SeekTo(Time);
+   return true;
+}
+
+
 bool Player::Quit()
 {
    return false;
 }
 
+bool Player::ToggleConsume()
+{
+   SetConsume(!Consume());
+   return true;
+}
+
 bool Player::ToggleRandom()
 {
    SetRandom(!Random());
+   return true;
+}
+
+bool Player::ToggleRepeat()
+{
+   SetRepeat(!Repeat());
    return true;
 }
 
@@ -325,7 +350,7 @@ uint32_t Player::First(Mpc::Song const * const song, uint32_t position, Mpc::Son
    {
       ++skipCount;
 
-      if (position > skipCount)
+      if (position >= skipCount)
       {
          firstSong = playlist_.Get(position - skipCount);
       }

@@ -29,10 +29,29 @@
 
 #include <string>
 
+//#define HAVE_MOUSE_SUPPORT
+
 // Forward declarations
-namespace Main { class Settings; }
-namespace Mpc  { class Client; }
-namespace Ui   { class Search; class ConsoleWindow; class LibraryWindow; class PlaylistWindow; }
+namespace Main
+{
+   class Settings;
+}
+
+namespace Mpc
+{
+   class Client;
+   class Song;
+}
+
+namespace Ui
+{
+   class ConsoleWindow;
+   class InfoWindow;
+   class LibraryWindow;
+   class PlaylistWindow;
+   class Search;
+   class SongWindow;
+}
 
 // Screen management class
 namespace Ui
@@ -48,11 +67,36 @@ namespace Ui
       Screen & operator=(Screen & screen);
 
    public:
+      typedef std::map<int32_t, ScrollWindow *> WindowMap;
+
       // Tabs/Windows that can be used
-      typedef enum { Help = 0, Console, Library, Lists, Browse, Playlist, MainWindowCount, Unknown } MainWindow;
+      typedef enum
+      {
+         Help = 0,
+         Console,
+         Outputs,
+         Library,
+         Lists,
+         Browse,
+         Playlist,
+         MainWindowCount,
+
+         Unknown,
+         Dynamic //Anything above dynamic is a dynamic window
+      } MainWindow;
 
       // Scroll/Selection locations within a window
-      typedef enum { Current, Top, Bottom, Centre, Specific, PlaylistNext, PlaylistPrev, LocationCount } Location;
+      typedef enum
+      {
+         Current,
+         Top,
+         Bottom,
+         Centre,
+         Specific,
+         PlaylistNext,
+         PlaylistPrev,
+         LocationCount
+      } Location;
 
       // Scroll sizes
       typedef enum { Line, Page } Size;
@@ -65,14 +109,18 @@ namespace Ui
 
    public:
       // Get the window value given a window name
-      static MainWindow  GetWindowFromName(std::string const & windowName);
+      int32_t GetWindowFromName(std::string const & windowName) const;
 
       // Get the window name given the value
-      static std::string GetNameFromWindow(MainWindow window);
+      std::string GetNameFromWindow(int32_t window) const;
 
    public:
       // Set the correct window to be active, flag screen as started
       void Start();
+
+      // Create a new song window, usually used for search results
+      Ui::SongWindow * CreateSongWindow(std::string const & name);
+      Ui::InfoWindow * CreateInfoWindow(std::string const & name, Mpc::Song * song = NULL);
 
       // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();
@@ -107,7 +155,7 @@ namespace Ui
 
       // Reinitialise the given main window, ie rebuild playlist, library, etc
       void Redraw() const;
-      void Redraw(MainWindow window) const;
+      void Redraw(int32_t window) const;
 
       // Handle a screen resize
       bool Resize(bool forceResize = false);
@@ -118,10 +166,13 @@ namespace Ui
       uint32_t WaitForInput() const;
       void     ClearInput()   const;
 
+      void HandleMouseEvent();
+
    public:
       // Access the active window
-      MainWindow GetActiveWindow() const;
-      Ui::ScrollWindow   & ActiveWindow() const;
+      int32_t GetActiveWindow() const;
+      Ui::ScrollWindow & ActiveWindow() const;
+      Ui::ScrollWindow & Window(uint32_t window) const;
 
       // Changes the currently active window by setting it explicitly
       void SetActiveWindow(uint32_t window);
@@ -130,35 +181,37 @@ namespace Ui
       void SetActiveWindow(Skip skip);
 
       // Show or hide the given window
-      void SetVisible(MainWindow window, bool visible);
+      void SetVisible(int32_t window, bool visible);
       uint32_t VisibleWindows() { return visibleWindows_.size(); }
 
       // Show a given window and make it active
-      void SetActiveAndVisible(MainWindow window);
+      void SetActiveAndVisible(int32_t window);
 
       // Move the window to a new position
       void MoveWindow(uint32_t position);
-      void MoveWindow(MainWindow window, uint32_t position);
+      void MoveWindow(int32_t window, uint32_t position);
 
    private:
       void ClearStatus() const;
       void UpdateTabWindow() const;
 
    private:
-      MainWindow             window_;
-      ScrollWindow         * mainWindows_[MainWindowCount];
-      WINDOW               * statusWindow_;
-      WINDOW               * tabWindow_;
-      WINDOW               * commandWindow_;
+      int32_t    window_;
+      WindowMap  mainWindows_;
+      WINDOW *   statusWindow_;
+      WINDOW *   tabWindow_;
+      WINDOW *   commandWindow_;
 
-      std::vector<MainWindow>   visibleWindows_;
+      std::vector<int32_t>      visibleWindows_;
       std::vector<ModeWindow *> modeWindows_;
 
-      bool                   started_;
-      uint32_t               maxRows_;
-      uint32_t               maxColumns_;
+      bool      started_;
+      uint32_t  maxRows_;
+      uint32_t  maxColumns_;
 
-      Main::Settings       & settings_;
+      Main::Settings &   settings_;
+      Mpc::Client &      client_;
+      Ui::Search const & search_;
    };
 }
 #endif

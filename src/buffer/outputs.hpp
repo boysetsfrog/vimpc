@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,43 +15,33 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   browse.hpp - handling of the mpd playlist interface
+   outputs.hpp - handling of outputs
    */
 
-#ifndef __MPC__BROWSE
-#define __MPC__BROWSE
+#ifndef __MPC__OUTPUTS
+#define __MPC__OUTPUTS
 
 // Includes
+#include "buffer.hpp"
 #include "callback.hpp"
-#include "song.hpp"
+#include "output.hpp"
 
-#include "buffer/buffer.hpp"
-
-// Browse
+// Outputs
 namespace Mpc
 {
-   class Client;
-
-   class Browse : public Main::Buffer<Mpc::Song *>
+   class Outputs : public Main::Buffer<Mpc::Output *>
    {
    private:
-      typedef Main::CallbackObject<Mpc::Browse, Browse::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Browse::BufferType> CallbackFunction;
+      typedef Main::CallbackObject<Mpc::Outputs, Outputs::BufferType> CallbackObject;
+      typedef Main::CallbackFunction<Outputs::BufferType> CallbackFunction;
 
    public:
-      Browse(bool IncrementReferences = false);
-      ~Browse();
-
-   public:
-   void Sort();
-
-   private:
-      class BrowseComparator
+      Outputs()
       {
-         public:
-         bool operator() (Mpc::Song * i, Mpc::Song * j) { return (*i<*j); };
-      };
+      }
+      ~Outputs()
+      {
+      }
    };
 }
-
 #endif

@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,42 +15,45 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   browse.hpp - handling of the mpd playlist interface
+   output.hpp - represents information of an available output
    */
 
-#ifndef __MPC__BROWSE
-#define __MPC__BROWSE
+#ifndef __MPC_OUTPUT
+#define __MPC_OUTPUT
 
-// Includes
-#include "callback.hpp"
-#include "song.hpp"
+#include <stdint.h>
+#include <string>
 
-#include "buffer/buffer.hpp"
-
-// Browse
 namespace Mpc
 {
-   class Client;
-
-   class Browse : public Main::Buffer<Mpc::Song *>
+   class Output
    {
-   private:
-      typedef Main::CallbackObject<Mpc::Browse, Browse::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Browse::BufferType> CallbackFunction;
-
    public:
-      Browse(bool IncrementReferences = false);
-      ~Browse();
-
-   public:
-   void Sort();
+      Output(uint32_t id);
+      ~Output();
 
    private:
-      class BrowseComparator
+      Output(Output const & output);
+
+   public:
+      bool operator<(Output const & rhs) const
       {
-         public:
-         bool operator() (Mpc::Song * i, Mpc::Song * j) { return (*i<*j); };
-      };
+         return (name_ < rhs.name_);
+      }
+
+   public:
+      uint32_t Id() const;
+
+      void SetName(const char * name);
+      std::string const & Name() const;
+
+      void SetEnabled(bool enable);
+      bool Enabled() const;
+
+   private:
+      uint32_t    id_;
+      std::string name_;
+      bool        enabled_;
    };
 }
 

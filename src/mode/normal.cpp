@@ -24,10 +24,16 @@
 #include "vimpc.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
+#include "window/error.hpp"
+#include "window/songwindow.hpp"
 
 #include <iomanip>
 #include <limits>
 #include <sstream>
+
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define ESCAPE_KEY 27
 
@@ -49,16 +55,23 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    playlist_        (Main::Playlist()),
    settings_        (settings)
 {
+   // \todo this key bindings are pretty bad
+   //       i will probably need to make them more specific
+   //       to the tab/window or more modal or something
+
    // \todo display current count somewhere ?
    actionTable_['.']       = &Normal::RepeatLastAction;
    actionTable_['c']       = &Normal::ClearScreen;
 
    // Player
    actionTable_['p']           = &Normal::Pause;
-   actionTable_['r']           = &Normal::Random;
-   actionTable_['S']           = &Normal::Single;
    actionTable_['s']           = &Normal::Stop;
    actionTable_[KEY_BACKSPACE] = &Normal::Stop;
+
+   actionTable_['C']       = &Normal::Consume;
+   actionTable_['R']       = &Normal::Random;
+   actionTable_['E']       = &Normal::Repeat;
+   actionTable_['S']       = &Normal::Single;
 
    actionTable_['+']       = &Normal::ChangeVolume<1>;
    actionTable_['-']       = &Normal::ChangeVolume<-1>;
@@ -68,14 +81,13 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // This should really be implemented as Q as per vim (:he Ex-mode)
    //actionTable_['Q']       = &Normal::Insert;
 
-   //! \todo make it so these can be used to navigate the library
    // Skipping
    actionTable_['>']       = &Normal::SkipSong<Player::Next>;
    actionTable_['<']       = &Normal::SkipSong<Player::Previous>;
-   actionTable_['w']       = &Normal::SkipArtist<Player::Next>;
-   actionTable_['q']       = &Normal::SkipArtist<Player::Previous>;
-   actionTable_['W']       = &Normal::SkipAlbum<Player::Next>;
-   actionTable_['Q']       = &Normal::SkipAlbum<Player::Previous>;
+   actionTable_[']']       = &Normal::SkipArtist<Player::Next>;
+   actionTable_['[']       = &Normal::SkipArtist<Player::Previous>;
+   actionTable_['}']       = &Normal::SkipAlbum<Player::Next>;
+   actionTable_['{']       = &Normal::SkipAlbum<Player::Previous>;
 
    // Selection
    actionTable_['H']       = &Normal::Select<ScrollWindow::First>;
@@ -83,11 +95,17 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['L']       = &Normal::Select<ScrollWindow::Last>;
 
    // Playlist
-   // ! \todo these should only work if the current window is the correct one
    actionTable_['d']       = &Normal::DeleteSong<Mpc::Song::Single>;
    actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
    actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;
    actionTable_['A']       = &Normal::AddSong<Mpc::Song::All>;
+   actionTable_['x']       = &Normal::CropSong<Mpc::Song::Single>;
+   actionTable_['X']       = &Normal::CropSong<Mpc::Song::All>;
+
+   actionTable_[KEY_DC]    = &Normal::DeleteSong<Mpc::Song::Single>;
+
+   // ! \todo this is a bit dodgy, is there a better key for this?
+   //         we need a paste above and paste below
    actionTable_['P']       = &Normal::PasteBuffer;
 
    // Navigation
@@ -110,17 +128,26 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['Y'+1 - 'A'] = &Normal::Align<Screen::Up>; //CTRL + Y
    actionTable_['E'+1 - 'A'] = &Normal::Align<Screen::Down>; //CTRL + E
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
-   actionTable_['f']       = &Normal::ScrollTo<Screen::Current>;
-   actionTable_['e']       = &Normal::ScrollTo<Screen::PlaylistNext>;
-   actionTable_['E']       = &Normal::ScrollTo<Screen::PlaylistPrev>;
+   actionTable_['f']       = &Normal::ScrollToCurrent<1>;
+   actionTable_['F']       = &Normal::ScrollToCurrent<-1>;
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
+
+   actionTable_['Z'+1 - 'A'] = &Normal::SendSignal<SIGTSTP>;
+   actionTable_['C'+1 - 'A'] = &Normal::SendSignal<SIGINT>;
+
+   // Editting
+   actionTable_['A'+1 - 'A'] = &Normal::Move<1>; //CTRL + A
+   actionTable_['X'+1 - 'A'] = &Normal::Move<-1>; //CTRL + X
 
    //
    actionTable_[KEY_LEFT]  = actionTable_['h'];
    actionTable_[KEY_RIGHT] = actionTable_['l'];
    actionTable_[KEY_DOWN]  = actionTable_['j'];
    actionTable_[KEY_UP]    = actionTable_['k'];
+
+   //
+   actionTable_['e']       = &Normal::Edit;
 
    // Library
    actionTable_['o']       = &Normal::Expand;
@@ -249,19 +276,30 @@ bool Normal::Pause(uint32_t count)
    return Player::Pause();
 }
 
+bool Normal::Stop(uint32_t count)
+{
+   return Player::Stop();
+}
+
+
+bool Normal::Consume(uint32_t count)
+{
+   return Player::ToggleConsume();
+}
+
 bool Normal::Random(uint32_t count)
 {
    return Player::ToggleRandom();
 }
 
+bool Normal::Repeat(uint32_t count)
+{
+   return Player::ToggleRepeat();
+}
+
 bool Normal::Single(uint32_t count)
 {
    return Player::ToggleSingle();
-}
-
-bool Normal::Stop(uint32_t count)
-{
-   return Player::Stop();
 }
 
 
@@ -333,69 +371,24 @@ bool Normal::Collapse(uint32_t count)
    return true;
 }
 
-// Implementation of library actions
-//
-// \todo this should be implemented using the window somehow
+
+bool Normal::Edit(uint32_t count)
+{
+   screen_.ActiveWindow().Edit();
+   return true;
+}
+
+
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::AddSong(uint32_t count)
 {
-   uint32_t scroll = count;
-
    if (COLLECTION == Mpc::Song::All)
    {
-      client_.AddAllSongs();
-      screen_.ScrollTo(screen_.ActiveWindow().CurrentLine());
+      screen_.ActiveWindow().AddAllLines();
    }
-   else
+   else if (COLLECTION == Mpc::Song::Single)
    {
-      if (screen_.GetActiveWindow() == Screen::Lists)
-      {
-         scroll = count;
-
-         Main::PlaylistTmp().Clear();
-
-         for (uint32_t i = 0; i < count; ++i)
-         {
-            if (i < Main::Lists().Size())
-            {
-               client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i), Main::PlaylistTmp(),
-                                          static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-            }
-         }
-
-         count = Main::PlaylistTmp().Size();
-      }
-
-      if (count > 1)
-      {
-         client_.StartCommandList();
-      }
-
-      for (uint32_t i = 0; i < count; ++i)
-      {
-         if (screen_.GetActiveWindow() == Screen::Lists)
-         {
-            client_.Add(Main::PlaylistTmp().Get(i));
-         }
-         else if (screen_.GetActiveWindow() == Screen::Library)
-         {
-            Main::Library().AddToPlaylist(COLLECTION, client_, screen_.ActiveWindow().CurrentLine() + i);
-         }
-         else if (screen_.GetActiveWindow() == Screen::Browse)
-         {
-            Main::Browse().AddToPlaylist(client_, screen_.ActiveWindow().CurrentLine() + i);
-         }
-      }
-
-      if (count > 1)
-      {
-         client_.SendCommandList();
-      }
-
-      if (screen_.GetActiveWindow() != Screen::Playlist)
-      {
-         screen_.ActiveWindow().Scroll(scroll);
-      }
+      screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
    }
 
    return true;
@@ -404,72 +397,31 @@ bool Normal::AddSong(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 bool Normal::DeleteSong(uint32_t count)
 {
-   //! \todo should probably move this into a function on each window
-   //! rather than having it in here and having to check what the window is
-
    //! \todo Make delete and add take a movement operation?
    //!       ie to do stuff like dG, this may require making some kind of movement
    //!          table or something rather than the way it currently works
-
-   //! \todo it seems like this needs to know a lot of stuff, surely i could abstract this out?
-   if ((screen_.GetActiveWindow() == Screen::Playlist) ||
-       (screen_.GetActiveWindow() == Screen::Browse) ||
-       (COLLECTION == Mpc::Song::All))
+   if (COLLECTION == Mpc::Song::All)
    {
-      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
-
-      Main::PlaylistPasteBuffer().Clear();
-
-      if (COLLECTION == Mpc::Song::Single)
-      {
-         int32_t index = currentLine;
-
-         if ((screen_.GetActiveWindow() == Screen::Browse))
-         {
-            client_.StartCommandList();
-
-            for (uint32_t i = 0; i < count; ++i)
-            {
-               int32_t index = currentLine;
-
-               if (index + i < Main::Browse().Size())
-               {
-                  index = Main::Playlist().Index(Main::Browse().Get(index + i));
-                  screen_.ActiveWindow().Scroll(1);
-
-                  if (index >= 0)
-                  {
-                     client_.Delete(index);
-                     playlist_.Remove(index, 1);
-                  }
-               }
-            }
-
-            client_.SendCommandList();
-         }
-         else if (index >= 0)
-         {
-            client_.Delete(index, count + index);
-            playlist_.Remove(index, count);
-         }
-      }
-      else if (COLLECTION == Mpc::Song::All)
-      {
-         Main::PlaylistPasteBuffer().Clear();
-         client_.Clear();
-         playlist_.Clear();
-      }
-
-      if ((screen_.GetActiveWindow() != Screen::Browse))
-      {
-         screen_.ScrollTo(currentLine);
-      }
+      screen_.ActiveWindow().DeleteAllLines();
    }
-   else if (screen_.GetActiveWindow() == Screen::Lists)
+   else if (COLLECTION == Mpc::Song::Single)
    {
-      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
+      screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
+   }
 
-      client_.RemovePlaylist(Main::Lists().Get(currentLine));
+   return true;
+}
+
+template <Mpc::Song::SongCollection COLLECTION>
+bool Normal::CropSong(uint32_t count)
+{
+   if (COLLECTION == Mpc::Song::All)
+   {
+      screen_.ActiveWindow().CropAllLines();
+   }
+   else if (COLLECTION == Mpc::Song::Single)
+   {
+      screen_.ActiveWindow().CropLine(screen_.ActiveWindow().CurrentLine(), count);
    }
 
    return true;
@@ -536,6 +488,13 @@ bool Normal::SkipArtist(uint32_t count)
 
 
 // Implementation of scrolling functions
+template <int8_t OFFSET>
+bool Normal::ScrollToCurrent(uint32_t line)
+{
+   screen_.ScrollTo(Screen::Current, (wasSpecificCount_ == true) ? line * OFFSET : 0);
+   return true;
+}
+
 template <Screen::Size SIZE, Screen::Direction DIRECTION>
 bool Normal::Scroll(uint32_t count)
 {
@@ -618,6 +577,45 @@ bool Normal::SetActiveWindow(uint32_t count)
 }
 
 
+// Implementation of editting functions
+template <int8_t OFFSET>
+bool Normal::Move(uint32_t count)
+{
+   if (screen_.GetActiveWindow() == Screen::Playlist)
+   {
+      uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
+      int32_t position = currentLine + (count * OFFSET);
+
+      if (position >= static_cast<int32_t>(screen_.ActiveWindow().ContentSize()))
+      {
+         position = screen_.ActiveWindow().ContentSize();
+      }
+      else if (position <= 0)
+      {
+         position = 0;
+      }
+
+      client_.Move(currentLine, position);
+
+      Mpc::Song * song = Main::Playlist().Get(currentLine);
+      Main::Playlist().Remove(currentLine, 1);
+      Main::Playlist().Add(song, position);
+      screen_.ActiveWindow().ScrollTo(position);
+      screen_.Update();
+   }
+
+   return true;
+}
+
+
+template <int SIGNAL>
+bool Normal::SendSignal(uint32_t count)
+{
+   kill(getpid(), SIGNAL);
+   return true;
+}
+
+
 void Normal::DisplayModeLine()
 {
    // \todo need to display random, repeat, single, consume state somewhere
@@ -632,7 +630,7 @@ void Normal::DisplayModeLine()
       modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
    }
 
-   if (screen_.ActiveWindow().ContentSize() > screen_.MaxRows() - 1)
+   if (screen_.ActiveWindow().ContentSize() > static_cast<int32_t>(screen_.MaxRows()) - 1)
    {
       if (currentScroll <= .010)
       {
@@ -675,7 +673,15 @@ void Normal::DisplayModeLine()
    std::string currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);
 
    std::string modeLine(modeStream.str());
-   std::string blankLine(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');
+
+   int32_t const WhiteSpaceLength = screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1);
+
+   std::string blankLine("");
+
+   if (WhiteSpaceLength > 0)
+   {
+      blankLine = std::string(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');
+   }
 
    window_->SetLine("%s%s%s", currentState.c_str(),  blankLine.c_str(), modeLine.c_str());
 }

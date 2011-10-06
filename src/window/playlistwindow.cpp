@@ -33,8 +33,8 @@
 
 using namespace Ui;
 
-PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen const & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen),
+PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+   SongWindow       (settings, screen, client, search, "playlist"),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -78,87 +78,14 @@ void PlaylistWindow::Redraw()
    }
 }
 
-void PlaylistWindow::Print(uint32_t line) const
-{
-   uint32_t printLine = line + FirstLine();
-
-   if (printLine < BufferSize())
-   {
-      Mpc::Song const * nextSong    = playlist_.Get(printLine);
-      WINDOW          * window      = N_WINDOW();
-      int32_t           colour      = DetermineSongColour(line + FirstLine(), nextSong);
-
-      if (settings_.ColourEnabled() == true)
-      {
-         wattron(window, COLOR_PAIR(colour));
-      }
-
-      if (printLine == CurrentLine())
-      {
-         wattron(window, A_REVERSE);
-      }
-      else if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong))
-      {
-         wattron(window, COLOR_PAIR(Colour::Song));
-      }
-
-      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-      mvwaddstr(window, line, 0, "[");
-
-      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
-      {
-         wattron(window, COLOR_PAIR(Colour::SongId));
-      }
-
-      wprintw(window, "%5d", FirstLine() + line + 1);
-
-      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
-      {
-         wattroff(window, COLOR_PAIR(Colour::SongId));
-      }
-
-      waddstr(window, "] ");
-
-      if (settings_.ColourEnabled() == true)
-      {
-         wattron(window, COLOR_PAIR(colour));
-      }
-
-      std::string artist = nextSong->Artist().c_str();
-      std::string title  = nextSong->Title().c_str();
-
-      if (title == "Unknown")
-      {
-         title = nextSong->URI().c_str();
-      }
-
-      wprintw(window, "%s - %s", artist.c_str(), title.c_str());
-
-      if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
-      {
-         wattron(window, COLOR_PAIR(Colour::Song));
-      }
-
-      std::string const durationString(nextSong->DurationString());
-      mvwprintw(window, line, (screen_.MaxColumns() - durationString.size() - 2), "[%s]", durationString.c_str());
-
-      if (settings_.ColourEnabled() == true)
-      {
-         wattroff(window, COLOR_PAIR(colour));
-      }
-
-      wattroff(window, A_REVERSE);
-   }
-}
-
 void PlaylistWindow::Left(Ui::Player & player, uint32_t count)
 {
-   //player.SkipSong(Ui::Player::Previous, count);
+   client_.Seek(-1 * count);
 }
 
 void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
 {
-   //player.SkipSong(Ui::Player::Next, count);
+   client_.Seek(count);
 }
 
 void PlaylistWindow::Confirm()
@@ -176,14 +103,21 @@ void PlaylistWindow::Confirm()
 
 uint32_t PlaylistWindow::Current() const
 {
-   return client_.GetCurrentSong();
+   int32_t current = client_.GetCurrentSong();
+
+   if (current < 0)
+   {
+      return CurrentLine();
+   }
+
+   return current;
 }
 
 int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const
 {
    int32_t colour = Colour::Song;
 
-   if (line == Current())
+   if ((client_.GetCurrentSong() > -1) && (line == static_cast<uint32_t>(client_.GetCurrentSong())))
    {
       colour = Colour::CurrentSong;
    }
@@ -204,6 +138,37 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
 void PlaylistWindow::AdjustScroll(Mpc::Song *)
 {
    currentSelection_ = LimitCurrentSelection(currentSelection_);
+   ScrollTo(CurrentLine());
+}
+
+void PlaylistWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+}
+
+void PlaylistWindow::AddAllLines()
+{
+   client_.AddAllSongs();
+   ScrollTo(CurrentLine());
+}
+
+void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   Main::PlaylistPasteBuffer().Clear();
+   playlist_.Remove(line, count);
+   client_.Delete(line, count + line);
+   ScrollTo(line);
+}
+
+void PlaylistWindow::DeleteAllLines()
+{
+   Main::PlaylistPasteBuffer().Clear();
+   playlist_.Clear();
+   client_.Clear();
+}
+
+void PlaylistWindow::Save(std::string const & name)
+{
+   client_.SavePlaylist(name);
 }
 
 

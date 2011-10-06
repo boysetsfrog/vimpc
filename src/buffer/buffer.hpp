@@ -63,8 +63,21 @@ namespace Main
       void Add(T entry)
       {
          Buffer<T>::push_back(entry);
-
          Callback(Buffer_Add, entry);
+      }
+
+      void Replace(uint32_t index, T entry)
+      {
+         if (index < Size())
+         {
+            Callback(Buffer_Remove, Buffer<T>::at(index));
+            Buffer<T>::at(index) = entry;
+            Callback(Buffer_Add, entry);
+         }
+         else
+         {
+            Add(entry);
+         }
       }
 
       int32_t Index(T entry) const
@@ -103,6 +116,16 @@ namespace Main
          }
       }
 
+      void Crop(uint32_t newSize)
+      {
+         while (newSize < Size())
+         {
+            T entry = Buffer<T>::back();
+            Buffer<T>::pop_back();
+            Callback(Buffer_Remove, entry);
+         }
+      }
+
       void ForEach(uint32_t position, uint32_t count, CallbackInterface<T> * callback) const
       {
          uint32_t pos = 0;
@@ -125,8 +148,9 @@ namespace Main
 
          for (uint32_t c = 0; ((c < count) && (it != Buffer<T>::end())); ++c)
          {
-            Callback(Buffer_Remove, *it);
+            T entry = *it;
             it = Buffer<T>::erase(it);
+            Callback(Buffer_Remove, entry);
          }
       }
 
@@ -138,12 +162,9 @@ namespace Main
 
       void Clear()
       {
-         for (typename Buffer<T>::iterator it = Buffer<T>::begin(); (it != Buffer<T>::end()); ++it)
-         {
-            Callback(Buffer_Remove, *it);
-         }
-
-         Buffer<T>::clear();
+         // We need to remove one by one to ensure
+         // that the callback is called at the right time
+         Remove(0, Size());
       }
 
       size_t Size() const

@@ -32,7 +32,7 @@ namespace Ui
       friend class Ui::Screen;
 
    public:
-      ScrollWindow(Ui::Screen const & screen);
+      ScrollWindow(Ui::Screen & screen, std::string name = "Unknown");
       virtual ~ScrollWindow();
 
    public:
@@ -50,23 +50,35 @@ namespace Ui
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
 
-      virtual uint32_t Current() const { return 0; };
+      virtual uint32_t Current() const { return CurrentLine(); };
       virtual uint32_t Playlist(int Offset) const { return Current() + Offset; };
 
-   public:
-      bool Select(Position position, uint32_t count);
+      virtual std::string SearchPattern(int32_t id) { return ""; }
 
    public:
+      virtual void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
+      virtual void AddAllLines() {}
+      virtual void CropLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
+      virtual void CropAllLines() {}
+      virtual void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
+      virtual void DeleteAllLines() {}
+      virtual void Edit() {}
+
+   public:
+      virtual void Save(std::string const & name) {}
+
+   public:
+      std::string Name();
+      void SetName(std::string const &);
+
+      bool Select(Position position, uint32_t count);
       void SetAutoScroll(bool autoScroll);
       bool AutoScroll() const;
 
    public:
-      virtual std::string SearchPattern(int32_t id) { return ""; }
-
-   public:
       uint32_t FirstLine()   const;
       uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() : ScrollLine(); }
-      uint32_t ContentSize() const { return BufferSize() - 1; }
+      int32_t  ContentSize() const { return BufferSize() - 1; }
 
       virtual  uint16_t CurrentLine() const { return FirstLine(); }
 
@@ -79,9 +91,10 @@ namespace Ui
       virtual size_t BufferSize() const = 0;
 
    protected:
-      Ui::Screen const & screen_;
-      uint16_t   scrollLine_;
-      bool       autoScroll_;
+      Ui::Screen & screen_;
+      std::string  name_;
+      uint16_t     scrollLine_;
+      bool         autoScroll_;
    };
 }
 

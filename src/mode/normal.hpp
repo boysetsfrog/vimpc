@@ -60,9 +60,12 @@ namespace Ui
    private: // Ui::Player wrapper functions
       bool ClearScreen(uint32_t count);
       bool Pause(uint32_t count);
-      bool Random(uint32_t count);
-      bool Single(uint32_t count);
       bool Stop(uint32_t count);
+
+      bool Consume(uint32_t count);
+      bool Random(uint32_t count);
+      bool Repeat(uint32_t count);
+      bool Single(uint32_t count);
 
       template <int Delta>
       bool ChangeVolume(uint32_t count);
@@ -78,11 +81,17 @@ namespace Ui
       bool Collapse(uint32_t count);
 
    private:
+      bool Edit(uint32_t count);
+
+   private:
       template <Mpc::Song::SongCollection COLLECTION>
       bool AddSong(uint32_t count);
 
       template <Mpc::Song::SongCollection COLLECTION>
       bool DeleteSong(uint32_t count);
+
+      template <Mpc::Song::SongCollection COLLECTION>
+      bool CropSong(uint32_t count);
 
       bool PasteBuffer(uint32_t count);
 
@@ -105,6 +114,9 @@ namespace Ui
       bool SkipArtist(uint32_t count);
 
    private: //Scrolling
+      template <int8_t OFFSET>
+      bool ScrollToCurrent(uint32_t line);
+
       template <Screen::Size SIZE, Screen::Direction DIRECTION>
       bool Scroll(uint32_t count);
 
@@ -114,7 +126,7 @@ namespace Ui
       template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
       bool ScrollTo(uint32_t line);
 
-   private:
+   private: //Alignment
       template <Screen::Direction DIRECTION>
       bool Align(uint32_t line);
 
@@ -124,6 +136,14 @@ namespace Ui
    private: //Windows
       template <Screen::Skip SKIP, uint32_t OFFSET>
       bool SetActiveWindow(uint32_t count);
+
+   private: //Editting
+      template <int8_t OFFSET>
+      bool Move(uint32_t count);
+
+   private:
+      template <int SIGNAL>
+      bool SendSignal(uint32_t count);
 
    private:
       void DisplayModeLine();

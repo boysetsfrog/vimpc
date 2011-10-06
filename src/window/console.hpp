@@ -40,13 +40,15 @@ namespace Ui
    class ConsoleWindow : public Ui::ScrollWindow
    {
    public:
-      ConsoleWindow(Ui::Screen const & screen);
+      ConsoleWindow(Ui::Screen & screen);
       ~ConsoleWindow();
 
    public:
       void Print(uint32_t line) const;
       void Clear();
       void PerformAutoScroll(Console::BufferType string);
+
+      uint32_t Current() const { return ScrollLine(); }
 
    private:
       typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferType> CallbackObject;

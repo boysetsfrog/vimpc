@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2011 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,34 +15,41 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   librarywindow.hpp - handling of the mpd music library
+   outputwindow.hpp - selection of the output to use
    */
 
-#ifndef __UI__LIBRARYWINDOW
-#define __UI__LIBRARYWINDOW
+#ifndef __UI__OUTPUTWINDOW
+#define __UI__OUTPUTWINDOW
 
-#include "song.hpp"
-#include "buffer/library.hpp"
+// Includes
+#include <iostream>
+
+#include "buffer/outputs.hpp"
 #include "window/selectwindow.hpp"
 
-#include <map>
-
+// Forward Declarations
 namespace Main { class Settings; }
-namespace Mpc  { class Client; }
+namespace Mpc  { class Client; class Output; }
+namespace Ui   { class Search; }
 
+// Output window class
 namespace Ui
 {
-   class Search;
+   class OutputComparator
+   {
+      public:
+      bool operator() (Mpc::Output* i, Mpc::Output* j) { return (*i<*j); };
+   };
 
-   class LibraryWindow : public Ui::SelectWindow
+   class OutputWindow : public Ui::SelectWindow
    {
    public:
-      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
-      ~LibraryWindow();
+      OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      ~OutputWindow();
 
    private:
-      LibraryWindow(LibraryWindow & library);
-      LibraryWindow & operator=(LibraryWindow & library);
+      OutputWindow(OutputWindow & window);
+      OutputWindow & operator=(OutputWindow & window);
 
    public:
       void Print(uint32_t line) const;
@@ -51,29 +58,29 @@ namespace Ui
       void Confirm();
       void Redraw();
 
-      uint32_t Current() const;
+      uint32_t Current() const { return CurrentLine(); }
 
    public:
-      std::string SearchPattern(int32_t id);
+      void AdjustScroll(Mpc::Output * output);
 
    public:
-      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
-      void AddAllLines();
-      void CropLine(uint32_t line, uint32_t count = 1, bool scroll = true);
-      void CropAllLines();
+      std::string SearchPattern(int32_t id) { return outputs_.Get(id)->Name(); }
+
+   public:
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
 
    private:
       void    Clear();
-      size_t  BufferSize() const { return library_.Size(); }
-      int32_t DetermineSongColour(Mpc::LibraryEntry const * const entry) const;
+      size_t  BufferSize() const { return outputs_.Size(); }
+      int32_t DetermineColour(uint32_t line) const;
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      Mpc::Library         & library_;
+      Mpc::Outputs         & outputs_;
    };
 }
+
 #endif
