@@ -130,7 +130,11 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    if (Connected() == true)
    {
+      screen_.Update();
+      vimpc_->CurrentMode().Refresh();
+
       GetVersion();
+      UpdateStatus();
 
       // Must redraw the library first
       screen_.Redraw(Ui::Screen::Library);

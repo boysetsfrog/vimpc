@@ -500,6 +500,8 @@ bool Screen::Resize(bool forceResize)
          (*it)->Move(maxRows_ + 2, 0);
       }
 
+      mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), maxRows_ + 2, 0);
+
       for (int i = 0; (i < MainWindowCount); ++i)
       {
          if (mainWindows_[i] != NULL)
