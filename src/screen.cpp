@@ -323,26 +323,45 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 }
 
 
-void Screen::Align(Direction direction, uint32_t line)
+void Screen::Align(Direction direction, uint32_t count)
 {
-   int selection  = ActiveWindow().CurrentLine();
-   int min        = ActiveWindow().FirstLine();
-   int max        = MaxRows();
-   int scrollLine = ActiveWindow().CurrentLine();
+   int32_t  selection  = ActiveWindow().CurrentLine();
+   uint32_t min        = ActiveWindow().FirstLine();
+   uint32_t max        = MaxRows();
+   uint32_t scrollLine = ActiveWindow().CurrentLine();
 
    if (direction == Up)
    {
-      if (selection == (min + max - 1))
-         selection--;
+      if (count > min)
+      {
+         count = min;
+      }
 
-      ActiveWindow().ScrollWindow::Scroll(-1);
+      if (selection >= (min + max - count - 1))
+      {
+         selection = min + max - count - 1;
+      }
+
+      if (selection < 0)
+      {
+         selection = max;
+      }
+
+      ActiveWindow().ScrollWindow::Scroll(-1 * count);
    }
    else if (direction == Down)
    {
-      if (selection == min)
-         selection++;
+      if (selection <= static_cast<int32_t>(min + count))
+      {
+         selection = min + count;
+      }
 
-      ActiveWindow().ScrollWindow::Scroll(1);
+      if (selection > static_cast<int32_t>(ActiveWindow().ContentSize() - (max - 1)))
+      {
+         selection = ActiveWindow().ContentSize() - (max - 1);
+      }
+
+      ActiveWindow().ScrollWindow::Scroll(count);
    }
 
    // Uses the select window scroll to set the current line properly

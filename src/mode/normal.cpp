@@ -526,9 +526,9 @@ bool Normal::ScrollTo(uint32_t line)
 
 
 template <Screen::Direction DIRECTION>
-bool Normal::Align(uint32_t line)
+bool Normal::Align(uint32_t count)
 {
-   screen_.Align(DIRECTION, line);
+   screen_.Align(DIRECTION, count);
 
    return true;
 }

@@ -128,7 +128,7 @@ namespace Ui
 
    private: //Alignment
       template <Screen::Direction DIRECTION>
-      bool Align(uint32_t line);
+      bool Align(uint32_t count);
 
       template <Screen::Location LOCATION>
       bool AlignTo(uint32_t line);

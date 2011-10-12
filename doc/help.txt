@@ -12,8 +12,8 @@ MOTION:
   [count] j, Down         | scroll down [count]
   [count] Pg Up, Ctrl+u   | scroll up by [count] pages
   [count] Pg Dn, Ctrl+d   | scroll down by [count] pages
-          Ctrl+y          | scroll down a line, maintain selection
-          Ctrl+e          | scroll up a line, maintain selection
+  [count] Ctrl+y          | scroll down a line, maintain selection
+  [count] Ctrl+e          | scroll up a line, maintain selection
           Home            | scroll to the top
           End             | scroll to the bottom 
   [count] f               | scroll to the currently playing song + [count]
