@@ -185,7 +185,7 @@ uint32_t SongWindow::Playlist(int count) const
 
    if (count > 0)
    {
-      for (int32_t i = CurrentLine() + 1; i < ContentSize(); ++i)
+      for (int32_t i = CurrentLine() + 1; i <= ContentSize(); ++i)
       {
          if (Buffer().Get(i)->Reference() > 0)
          {
@@ -201,7 +201,7 @@ uint32_t SongWindow::Playlist(int count) const
    }
    else
    {
-      for (int32_t i = CurrentLine() - 1; i > 0; --i)
+      for (int32_t i = CurrentLine() - 1; i >= 0; --i)
       {
          if (Buffer().Get(i)->Reference() > 0)
          {
