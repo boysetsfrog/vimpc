@@ -64,14 +64,6 @@ void BrowseWindow::Redraw()
    ScrollTo(currentLine);
 }
 
-uint32_t BrowseWindow::Playlist(int Offset) const
-{
-   //! \todo not sure how i am going to do this
-   // but it sure be used to navigate throw the browse window
-   // skipping forward and backwards to songs that are in the playlist only
-   return 0;
-}
-
 void BrowseWindow::Clear()
 {
    ScrollTo(0);

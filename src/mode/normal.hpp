@@ -126,6 +126,9 @@ namespace Ui
       template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
       bool ScrollTo(uint32_t line);
 
+      template <Search::Skip SKIP>
+      bool ScrollToPlaylistSong(uint32_t count);
+
    private: //Alignment
       template <Screen::Direction DIRECTION>
       bool Align(uint32_t count);

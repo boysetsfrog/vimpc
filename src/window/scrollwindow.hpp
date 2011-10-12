@@ -51,7 +51,7 @@ namespace Ui
       virtual void ScrollTo(uint16_t scrollLine);
 
       virtual uint32_t Current() const { return CurrentLine(); };
-      virtual uint32_t Playlist(int Offset) const { return Current() + Offset; };
+      virtual uint32_t Playlist(int count) const { return Current(); };
 
       virtual std::string SearchPattern(int32_t id) { return ""; }
 

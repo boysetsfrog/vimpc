@@ -174,12 +174,49 @@ uint32_t SongWindow::Current() const
    return current;
 }
 
-uint32_t SongWindow::Playlist(int Offset) const
+uint32_t SongWindow::Playlist(int count) const
 {
    //! \todo not sure how i am going to do this
    // but it sure be used to navigate throw the browse window
    // skipping forward and backwards to songs that are in the playlist only
-   return 0;
+   //
+
+   int32_t line = CurrentLine();
+
+   if (count > 0)
+   {
+      for (int32_t i = CurrentLine() + 1; i < ContentSize(); ++i)
+      {
+         if (Buffer().Get(i)->Reference() > 0)
+         {
+            --count;
+            line = i;
+         }
+
+         if (count == 0)
+         {
+            break;
+         }
+      }
+   }
+   else
+   {
+      for (int32_t i = CurrentLine() - 1; i > 0; --i)
+      {
+         if (Buffer().Get(i)->Reference() > 0)
+         {
+            ++count;
+            line = i;
+         }
+
+         if (count == 0)
+         {
+            break;
+         }
+      }
+   }
+
+   return line;
 }
 
 void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)

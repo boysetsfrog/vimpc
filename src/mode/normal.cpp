@@ -155,6 +155,10 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    // Jumping
    jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
+   jumpTable_['f']         = &Normal::ScrollToCurrent<1>;
+   jumpTable_['F']         = &Normal::ScrollToCurrent<-1>;
+   jumpTable_['p']         = &Normal::ScrollToPlaylistSong<Search::Next>;
+   jumpTable_['P']         = &Normal::ScrollToPlaylistSong<Search::Previous>;
    jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next, 0>;
    jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous, 0>;
 
@@ -525,11 +529,25 @@ bool Normal::ScrollTo(uint32_t line)
 }
 
 
+template <Search::Skip SKIP>
+bool Normal::ScrollToPlaylistSong(uint32_t count)
+{
+   if (SKIP == Search::Previous)
+   {
+      screen_.ScrollTo(screen_.ActiveWindow().Playlist(-1 * count));
+   }
+   else
+   {
+      screen_.ScrollTo(screen_.ActiveWindow().Playlist(count));
+   }
+   return true;
+}
+
+
 template <Screen::Direction DIRECTION>
 bool Normal::Align(uint32_t count)
 {
    screen_.Align(DIRECTION, count);
-
    return true;
 }
 
@@ -542,7 +560,6 @@ bool Normal::AlignTo(uint32_t line)
    }
 
    screen_.AlignTo(LOCATION, line);
-
    return true;
 }
 

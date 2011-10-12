@@ -49,7 +49,6 @@ namespace Ui
 
    public:
       void Redraw();
-      uint32_t Playlist(int Offset) const;
 
    private:
       void    Clear();

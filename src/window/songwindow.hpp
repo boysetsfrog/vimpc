@@ -54,7 +54,7 @@ namespace Ui
       void Confirm();
 
       uint32_t Current() const;
-      uint32_t Playlist(int Offset) const;
+      uint32_t Playlist(int count) const;
 
       void Add(Mpc::Song * song);
       void AddToPlaylist(uint32_t position);
