@@ -36,6 +36,9 @@ namespace Ui
 
    class LibraryWindow : public Ui::SelectWindow
    {
+   private:
+      typedef void (Mpc::Library::*LibraryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+
    public:
       LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
       ~LibraryWindow();
@@ -63,6 +66,9 @@ namespace Ui
       void CropAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+
+   private:
+      void DoForLine(LibraryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true);
 
    private:
       void    Clear();

@@ -164,6 +164,17 @@ namespace Mpc
          }
       }
 
+   public:
+      LibraryEntry * Parent()
+      {
+         return parent_;
+      }
+
+      uint32_t InPlaylistCount()
+      {
+         return childrenInPlaylist_;
+      }
+
    private:
       LibraryEntry(LibraryEntry & entry);
       LibraryEntry & operator=(LibraryEntry & entry);

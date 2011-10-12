@@ -215,7 +215,7 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
       Main::Playlist().Add(entry->song_);
       client.Add(*(entry->song_));
    }
-   else if (entry->expanded_ == false)
+   else
    {
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
@@ -236,7 +236,7 @@ void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const *
          Main::Playlist().Remove(PlaylistIndex, 1);
       }
    }
-   else if (entry->expanded_ == false)
+   else
    {
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {

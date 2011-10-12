@@ -282,25 +282,7 @@ void LibraryWindow::Confirm()
 
 void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
-   if (count > 1)
-   {
-      client_.StartCommandList();
-   }
-
-   for (uint32_t i = 0; i < count; ++i)
-   {
-      library_.AddToPlaylist(Mpc::Song::Single, client_, screen_.ActiveWindow().CurrentLine() + i);
-   }
-
-   if (count > 1)
-   {
-      client_.SendCommandList();
-   }
-
-   if (scroll == true)
-   {
-      Scroll(count);
-   }
+   DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll);
 }
 
 void LibraryWindow::AddAllLines()
@@ -321,14 +303,45 @@ void LibraryWindow::CropAllLines()
 
 void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
+   DoForLine(&Mpc::Library::RemoveFromPlaylist, line, count, scroll);
+}
+
+void LibraryWindow::DeleteAllLines()
+{
+   Main::PlaylistPasteBuffer().Clear();
+   client_.Clear();
+   Main::Playlist().Clear();
+}
+
+
+void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll)
+{
    if (count > 1)
    {
       client_.StartCommandList();
    }
 
-   for (uint32_t i = 0; i < count; ++i)
+   Mpc::LibraryEntry * previous = NULL;
+
+   uint32_t total = 0;
+   uint32_t i     = line;
+
+   for (i = line; ((total <= count) && (i < BufferSize())); ++i)
    {
-      library_.RemoveFromPlaylist(Mpc::Song::Single, client_, screen_.ActiveWindow().CurrentLine() + i);
+      Mpc::LibraryEntry * current = library_.Get(i);
+
+      if ((previous == NULL) ||
+          ((current->Parent() != previous) &&
+           ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
+      {
+         ++total;
+
+         if (total <= count)
+         {
+            (library_.*function)(Mpc::Song::Single, client_, i);
+            previous = current;
+         }
+      }
    }
 
    if (count > 1)
@@ -338,15 +351,8 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
    if (scroll == true)
    {
-      Scroll(count);
+      Scroll(i - line - 1);
    }
-}
-
-void LibraryWindow::DeleteAllLines()
-{
-   Main::PlaylistPasteBuffer().Clear();
-   client_.Clear();
-   Main::Playlist().Clear();
 }
 
 
