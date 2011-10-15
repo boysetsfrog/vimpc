@@ -586,6 +586,22 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
    return TotalNumberOfSongs() - 1;
 }
 
+
+uint32_t Client::Add(std::string const & URI)
+{
+   if (Connected() == true)
+   {
+      CheckForUpdates();
+
+      mpd_run_add(connection_, URI.c_str());
+
+      CheckError();
+      UpdateStatus();
+   }
+
+   return TotalNumberOfSongs() - 1;
+}
+
 uint32_t Client::AddAllSongs()
 {
    if (Connected() == true)
@@ -935,16 +951,16 @@ void Client::UpdateStatus(bool ExpectUpdate)
 }
 
 
-Song * Client::CreateSong(uint32_t id, mpd_song const * const song) const
+Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInLibrary) const
 {
    Song * const newSong = new Song();
 
-   newSong->SetArtist  (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
-   newSong->SetAlbum   (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
-   newSong->SetTitle   (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
-   newSong->SetTrack   (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
-   newSong->SetURI     (mpd_song_get_uri(song));
-   newSong->SetDuration(mpd_song_get_duration(song));
+   newSong->SetArtist   (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
+   newSong->SetAlbum    (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
+   newSong->SetTitle    (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
+   newSong->SetTrack    (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
+   newSong->SetURI      (mpd_song_get_uri(song));
+   newSong->SetDuration (mpd_song_get_duration(song));
 
    return newSong;
 }

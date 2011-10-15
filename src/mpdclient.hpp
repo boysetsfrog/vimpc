@@ -119,8 +119,16 @@ namespace Mpc
    public: //Queue
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);
+
+      //! This add is only used by a command when a full uri is specified
+      //! it should not be used to add songs from the library, you should use the
+      //! versions above for that purpose
+      uint32_t Add(std::string const & URI);
+
       uint32_t AddAllSongs();
+
       void Add(Mpc::Song * song);
+
       void Delete(uint32_t position);
       void Delete(uint32_t position1, uint32_t position2);
       void Clear();
@@ -176,7 +184,7 @@ namespace Mpc
    private:
       unsigned int QueueVersion();
       void UpdateStatus(bool ExpectUpdate = false);
-      Song * CreateSong(uint32_t id, mpd_song const * const) const;
+      Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
 
    private:
       void GetVersion();
@@ -218,7 +226,12 @@ namespace Mpc
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
+            Song * song = Main::Library().Song(mpd_song_get_uri(nextSong));
+
+            if (song == NULL)
+            {
+               song = CreateSong(-1, nextSong);
+            }
 
             if (song != NULL)
             {
@@ -243,7 +256,12 @@ namespace Mpc
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
             uint32_t const position = mpd_song_get_pos(nextSong);
-            Song * const   song     = Main::Library().Song(mpd_song_get_uri(nextSong));
+            Song *         song     = Main::Library().Song(mpd_song_get_uri(nextSong));
+
+            if (song == NULL)
+            {
+               song = CreateSong(-1, nextSong, false);
+            }
 
             if (song != NULL)
             {

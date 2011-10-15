@@ -684,7 +684,7 @@ void Normal::DisplayModeLine()
    {
       char vol[8];
       snprintf(vol, 8, "%d", client_.Volume());
-      volume += " [Volume: " + std::string(vol) + "]";
+      volume += " [Volume: " + std::string(vol) + "%]";
    }
 
    std::string currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);

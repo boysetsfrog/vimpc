@@ -48,6 +48,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
 {
    // \todo find a away to add aliases to tab completion
    commandTable_["!mpc"]      = &Command::Mpc;
+   commandTable_["add"]       = &Command::Add;
    commandTable_["alias"]     = &Command::Alias;
    commandTable_["clear"]     = &Command::ClearScreen;
    commandTable_["connect"]   = &Command::Connect;
@@ -222,6 +223,11 @@ bool Command::Play(std::string const & arguments)
    return true;
 }
 
+bool Command::Add(std::string const & arguments)
+{
+   client_.Add(arguments);
+   return true;
+}
 
 bool Command::Delete(std::string const & arguments)
 {

@@ -79,6 +79,7 @@ namespace Ui
       bool Volume(std::string const & arguments);
 
    private:
+      bool Add(std::string const & arguments);
       bool Delete(std::string const & arguments);
       bool DeleteAll(std::string const & arguments);
 

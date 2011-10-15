@@ -33,7 +33,8 @@ Song::Song() :
    title_    (""),
    track_    (""),
    uri_      (""),
-   duration_ (0)
+   duration_ (0),
+   entry_    (NULL)
 { }
 
 Song::Song(Song const & song) :

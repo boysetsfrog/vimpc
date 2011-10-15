@@ -138,6 +138,7 @@ FIND:
   playlist rather than creating a new window.
 
 PLAYLIST:
+  add <uri>               | add a song/strem using the given <uri>
   delete <pos1> [pos2]    | delete the song at <pos1>, or from <pos1> to [pos2]
   deleteall               | delete all songs in the playlist
   move <pos1> <pos2>      | move song from <pos1> to <pos2>
