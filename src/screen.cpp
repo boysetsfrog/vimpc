@@ -48,7 +48,7 @@
 
 using namespace Ui;
 
-bool WindowResized;
+bool WindowResized = false;
 
 extern "C" void ResizeHandler(int);
 
