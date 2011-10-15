@@ -206,8 +206,9 @@ namespace Ui
       std::vector<ModeWindow *> modeWindows_;
 
       bool      started_;
-      uint32_t  maxRows_;
-      uint32_t  maxColumns_;
+      int32_t   maxRows_;
+      int32_t   mainRows_;
+      int32_t   maxColumns_;
 
       Main::Settings &   settings_;
       Mpc::Client &      client_;

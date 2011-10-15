@@ -86,8 +86,15 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mousemask(ALL_MOUSE_EVENTS, NULL);
 #endif
 
-   getmaxyx(stdscr, maxRows_, maxColumns_);
-   maxRows_   -= 3; //Status and Mode window use last 2 rows, tabline uses top
+   maxRows_    = LINES;
+   maxColumns_ = COLS;
+
+   mainRows_   = maxRows_ - 3;
+
+   if (mainRows_ < 0)
+   {
+      mainRows_ = 0;
+   }
 
    //handle a resize signal
    signal(SIGWINCH, ResizeHandler);
@@ -106,7 +113,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 #endif
 
    mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
-   statusWindow_          = newwin(1, maxColumns_, maxRows_ + 1, 0);
+   statusWindow_          = newwin(1, maxColumns_, mainRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
 
    // Mark the default windows as visible
@@ -122,15 +129,15 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    visibleWindows_.push_back(static_cast<int32_t>(Playlist));
 
    // Commands must be read through a window that is always visible
-   commandWindow_         = statusWindow_;
+   commandWindow_         = stdscr;
    keypad(commandWindow_, true);
 
    // Window setup
    mainWindows_[Console]->SetAutoScroll(true);
-   SetStatusLine("%s", "");
 
    wtimeout(commandWindow_, 100);
 
+   SetStatusLine("%s", "");
    SetVisible(Console, false);
 }
 
@@ -233,7 +240,7 @@ Ui::InfoWindow * Screen::CreateInfoWindow(std::string const & name, Mpc::Song * 
 
 ModeWindow * Screen::CreateModeWindow()
 {
-   ModeWindow * window = new ModeWindow();
+   ModeWindow * window = new ModeWindow(maxColumns_, maxRows_);
    modeWindows_.push_back(window);
    return window;
 }
@@ -454,9 +461,12 @@ void Screen::Update()
 
       UpdateTabWindow();
 
-      for (uint32_t i = 0; (i < maxRows_); ++i)
+      if (mainRows_ >= 0)
       {
-         ActiveWindow().Print(i);
+         for (uint32_t i = 0; (i < static_cast<uint32_t>(mainRows_)); ++i)
+         {
+            ActiveWindow().Print(i);
+         }
       }
 
       ActiveWindow().Refresh();
@@ -492,7 +502,7 @@ bool Screen::Resize(bool forceResize)
 #ifdef TIOCGWINSZ
       struct winsize windowSize;
 
-      if ((ioctl(0, TIOCGWINSZ, &windowSize) >= 0) && (windowSize.ws_row > 0 && windowSize.ws_col > 0))
+      if ((ioctl(0, TIOCGWINSZ, &windowSize) >= 0) && (windowSize.ws_row >= 0 && windowSize.ws_col >= 0))
       {
          maxRows_    = windowSize.ws_row;
          maxColumns_ = windowSize.ws_col;
@@ -500,34 +510,45 @@ bool Screen::Resize(bool forceResize)
 #else
       endwin();
       refresh();
-      getmaxyx(stdscr, maxRows_, maxColumns_);
+      maxRows_    = LINES;
+      maxColumns_ = COLS;
 #endif
 
-      resizeterm(maxRows_, maxColumns_);
-      wresize(stdscr, maxRows_, maxColumns_);
-      refresh();
-
-      maxRows_ -= 3;
-
-      wresize(statusWindow_, 1, maxColumns_);
-      wresize(tabWindow_,    1, maxColumns_);
-      mvwin(statusWindow_, maxRows_ + 1, 0);
-
-      for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
+      if (maxRows_ >= 0)
       {
-         (*it)->Resize(1, maxColumns_);
-         (*it)->Move(maxRows_ + 2, 0);
-      }
+         resizeterm(maxRows_, maxColumns_);
+         wresize(stdscr, maxRows_, maxColumns_);
 
-      mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), maxRows_ + 2, 0);
+         mainRows_ = maxRows_ - 3;
 
-      for (int i = 0; (i < MainWindowCount); ++i)
-      {
-         if (mainWindows_[i] != NULL)
+         if (mainRows_ < 0)
          {
-            wclear(mainWindows_[i]->N_WINDOW());
-            mainWindows_[i]->Resize(maxRows_, maxColumns_);
+            mainRows_ = 0;
          }
+
+         wresize(statusWindow_, 1, maxColumns_);
+         wresize(tabWindow_,    1, maxColumns_);
+         mvwin(statusWindow_, mainRows_ + 1, 0);
+
+         for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
+         {
+            (*it)->Resize(1, maxColumns_);
+            (*it)->Move(mainRows_ + 2, 0);
+         }
+
+         mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), mainRows_ + 2, 0);
+
+         for (int i = 0; (i < MainWindowCount); ++i)
+         {
+            if (mainWindows_[i] != NULL)
+            {
+               wclear(mainWindows_[i]->N_WINDOW());
+               mainWindows_[i]->Resize(mainRows_, maxColumns_);
+            }
+         }
+
+         Update();
+         refresh();
       }
    }
 
@@ -537,7 +558,12 @@ bool Screen::Resize(bool forceResize)
 
 uint32_t Screen::MaxRows() const
 {
-   return maxRows_;
+   if (mainRows_ >= 0)
+   {
+      return static_cast<uint32_t>(mainRows_);
+   }
+
+   return 0;
 }
 
 uint32_t Screen::MaxColumns() const

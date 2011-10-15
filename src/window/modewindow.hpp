@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   modewindow.hpp - provides a window for each input mode 
+   modewindow.hpp - provides a window for each input mode
    */
 
 #ifndef __UI__MODEWINDOW
@@ -33,7 +33,7 @@ namespace Ui
    class ModeWindow : public Ui::Window
    {
    public:
-      ModeWindow();
+      ModeWindow(int columns, int lines);
       virtual ~ModeWindow();
 
    public:

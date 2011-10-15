@@ -65,13 +65,13 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run(std::string hostname, uint16_t port)
 {
+   screen_.Start();
+
    // Set up the display
    {
       Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
       mode.Initialise(0);
    }
-
-   screen_.Start();
 
    SetSkipConfigConnects(hostname != "");
 
@@ -96,6 +96,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       }
       else
       {
+         client_.DisplaySongInformation();
          screen_.Update();
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
          mode.Refresh();
