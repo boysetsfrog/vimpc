@@ -137,7 +137,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    wtimeout(commandWindow_, 100);
 
-   SetStatusLine("%s", "");
+   ClearStatus();
    SetVisible(Console, false);
 }
 

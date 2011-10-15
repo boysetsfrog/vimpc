@@ -96,11 +96,12 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       }
       else
       {
-         client_.DisplaySongInformation();
-         screen_.Update();
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
          mode.Refresh();
       }
+
+      client_.DisplaySongInformation();
+      screen_.Update();
 
       bool running = true;
 

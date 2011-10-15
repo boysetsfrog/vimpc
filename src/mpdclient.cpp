@@ -115,6 +115,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    // first to let the user know that something is happening
    currentState_ = "Connecting";
    screen_.Update();
+   DisplaySongInformation();
    vimpc_->CurrentMode().Refresh();
 
    hostname_ = connect_hostname;
@@ -131,6 +132,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    if (Connected() == true)
    {
       screen_.Update();
+      DisplaySongInformation();
       vimpc_->CurrentMode().Refresh();
 
       GetVersion();
@@ -911,7 +913,7 @@ void Client::DisplaySongInformation()
    }
    else
    {
-      screen_.SetStatusLine("");
+      screen_.SetStatusLine("%s","");
    }
 }
 
