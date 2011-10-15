@@ -119,7 +119,20 @@ void SongWindow::Print(uint32_t line) const
          title = nextSong->URI().c_str();
       }
 
-      wprintw(window, "%s - %s", artist.c_str(), title.c_str());
+      if (nextSong->Entry() == NULL)
+      {
+         artist = "";
+         title = nextSong->URI().c_str();
+      }
+
+      if ((artist != "") && (artist != "Unknown"))
+      {
+         wprintw(window, "%s - %s", artist.c_str(), title.c_str());
+      }
+      else
+      {
+         wprintw(window, "%s", title.c_str());
+      }
 
       if ((settings_.ColourEnabled() == true) && (colour != Colour::CurrentSong) && (printLine != CurrentLine()))
       {
