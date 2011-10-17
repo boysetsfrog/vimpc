@@ -90,6 +90,9 @@ namespace Ui
       //! \param echo The string to be echoed
       void Echo(std::string const & echo);
 
+      //! Similar to echo but in the errror window
+      void EchoError(std::string const & echo);
+
    private:
       void Add(std::string const & arguments);
       void Delete(std::string const & arguments);

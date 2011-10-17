@@ -163,7 +163,6 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous, 0>;
 
    // Align the text to a location on the screen
-   // \todo this should only work for selectwindows
    alignTable_['.']        = &Normal::AlignTo<Screen::Centre>;
    alignTable_['\n']       = &Normal::AlignTo<Screen::Top>;
    alignTable_['-']        = &Normal::AlignTo<Screen::Bottom>;
@@ -603,7 +602,6 @@ void Normal::SendSignal(uint32_t count)
 
 void Normal::DisplayModeLine()
 {
-   // \todo need to display random, repeat, single, consume state somewhere
    std::ostringstream modeStream;
 
    float currentScroll = 0.0;

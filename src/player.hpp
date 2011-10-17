@@ -45,7 +45,6 @@ namespace Ui
    class Screen;
 }
 
-//! \todo why is this in the ui namespace?
 namespace Ui
 {
    // Class for functionality that is shared between all

@@ -59,6 +59,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["disable"]   = &Command::Output<false>;
    commandTable_["echo"]      = &Command::Echo;
    commandTable_["enable"]    = &Command::Output<true>;
+   commandTable_["error"]     = &Command::EchoError;
    commandTable_["find"]      = &Command::FindAny;
    commandTable_["findalbum"] = &Command::FindAlbum;
    commandTable_["findartist"]= &Command::FindArtist;
@@ -212,6 +213,10 @@ void Command::Play(std::string const & arguments)
    {
       Player::Play(SongId);
    }
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Invalid song id");
+   }
 }
 
 void Command::Add(std::string const & arguments)
@@ -309,9 +314,13 @@ void Command::Volume(std::string const & arguments)
 {
    uint32_t Vol = atoi(arguments.c_str());
 
-   if (Vol <= 100)
+   if ((Vol <= 100) && (Vol >= 0))
    {
       Player::Volume(Vol);
+   }
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Invalid volume specified");
    }
 }
 
@@ -328,6 +337,11 @@ void Command::Connect(std::string const & arguments)
 void Command::Echo(std::string const & echo)
 {
    Main::Console().Add(echo);
+}
+
+void Command::EchoError(std::string const & arguments)
+{
+   Error(ErrorNumber::Unknown, arguments);
 }
 
 
@@ -372,18 +386,39 @@ void Command::Output(std::string const & arguments)
 
 void Command::LoadPlaylist(std::string const & arguments)
 {
-   client_.LoadPlaylist(arguments);
+   if (arguments != "")
+   {
+      client_.LoadPlaylist(arguments);
+   }
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Expected parameter");
+   }
 }
 
 void Command::SavePlaylist(std::string const & arguments)
 {
-   client_.SavePlaylist(arguments);
+   if (arguments != "")
+   {
+      client_.SavePlaylist(arguments);
+   }
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Expected parameter");
+   }
 }
 
 void Command::ToPlaylist(std::string const & arguments)
 {
-   screen_.ActiveWindow().Save(arguments);
-   screen_.Redraw(Ui::Screen::Lists);
+   if (arguments != "")
+   {
+      screen_.ActiveWindow().Save(arguments);
+      screen_.Redraw(Ui::Screen::Lists);
+   }
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Expected parameter");
+   }
 }
 
 void Command::Find(std::string const & arguments)
@@ -540,7 +575,10 @@ void Command::Move(std::string const & arguments)
       Main::Playlist().Add(song, position2 - 1);
       screen_.Update();
    }
-   // \todo print error
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Expected two arguments");
+   }
 }
 
 void Command::Swap(std::string const & arguments)
@@ -551,7 +589,10 @@ void Command::Swap(std::string const & arguments)
       std::string position2 = arguments.substr(arguments.find(" ") + 1);
       client_.Swap(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
    }
-   // \todo print error
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Expected two arguments");
+   }
 }
 
 void Command::Redraw(std::string const & arguments)
@@ -619,6 +660,10 @@ void Command::HideWindow(std::string const & arguments)
       {
          screen_.SetVisible(window, false);
       }
+      else
+      {
+         Error(ErrorNumber::DoesNotExist, "No such tab/window");
+      }
    }
 
    if (screen_.VisibleWindows() == 0)
@@ -644,6 +689,10 @@ void Command::RenameWindow(std::string const & arguments)
       if (id != Ui::Screen::Unknown)
       {
          screen_.Window(id).SetName(newname);
+      }
+      else
+      {
+         Error(ErrorNumber::DoesNotExist, "No such tab/window");
       }
    }
    else
@@ -702,7 +751,6 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
       Error(ErrorNumber::CommandNonexistant, "Command not found: " + command);
    }
 
-   // \todo will probably have a setting that always forces commands
    forceCommand_ = false;
 
    return true;
@@ -726,12 +774,14 @@ void Command::Mpc(std::string const & arguments)
    char   buffer[bufferSize];
    char   port[8];
 
-   // \todo add a check to see if mpc exists
-   // \todo redirect std:error results into the console window too
+   // \todo redirect stderr results into the console window too
    snprintf(port, 8, "%u", client_.Port());
 
-   //
-   std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) + " mpc " + arguments);
+   // Ensure that we use the same mpd_host and port for mpc that
+   // we are using but still allow the person running the command
+   // to do -h and -p flags
+   std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) +
+                             " mpc " + arguments);
 
    Main::Console().Add("> mpc " + arguments);
 

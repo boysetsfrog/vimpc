@@ -26,17 +26,19 @@ namespace ErrorNumber
    enum
    {
       CommandAmbiguous = 1,
-      CommandNonexistant,
       ClientError,
       ClientNoConnection,
+      CommandNonexistant,
+      DoesNotExist,
       ExternalProgramError,
-      HelpFileNonexistant,
-      SettingNonexistant,
-      SearchNoResults,
       FindNoResults,
-      PlaylistEmpty,
+      HelpFileNonexistant,
+      InvalidParameter,
       NoOutput,
-      InvalidParameter
+      PlaylistEmpty,
+      SearchNoResults,
+      SettingNonexistant,
+      Unknown
    };
 }
 
