@@ -44,15 +44,18 @@ namespace Main
       //! Return the currently active mode
       Ui::Mode & CurrentMode();
 
+   public:
+      static void SetRunning(bool isRunning);
+
    private:
       //! Read input from the screen
       int  Input() const;
 
       //! Handle the input using the currently active mode
-      bool Handle(int input);
+      void Handle(int input);
 
       //! Handle a mouse event
-      bool HandleMouse();
+      void HandleMouse();
 
       //! Checks that each mode is valid
       //! \todo Possibly template this kind of check?
@@ -84,6 +87,9 @@ namespace Main
 
    private:
       typedef std::map<ModeName, Ui::Mode *> ModeTable;
+
+   private:
+      static bool Running;
 
    private:
       ModeName       currentMode_;

@@ -145,7 +145,6 @@ void Command::GenerateInputString(int input)
 
 bool Command::ExecuteCommand(std::string const & input)
 {
-   bool        result = true;
    std::string command, arguments;
 
    SplitCommand(input, command, arguments);
@@ -165,7 +164,7 @@ bool Command::ExecuteCommand(std::string const & input)
 
          if (blankCommand.FullMatch(commandString) == false)
          {
-            result = ExecuteCommand(commandString);
+            ExecuteCommand(commandString);
          }
       }
    }
@@ -176,10 +175,10 @@ bool Command::ExecuteCommand(std::string const & input)
          return true;
       }
 
-      result = ExecuteCommand(command, arguments);
+      ExecuteCommand(command, arguments);
    }
 
-   return result;
+   return true;
 }
 
 
@@ -195,44 +194,32 @@ bool Command::InputStringHandler(std::string input)
 }
 
 
-bool Command::ClearScreen(std::string const & arguments)
+void Command::ClearScreen(std::string const & arguments)
 {
-   return Player::ClearScreen();
+   Player::ClearScreen();
 }
 
-bool Command::Connect(std::string const & arguments)
+void Command::Pause(std::string const & arguments)
 {
-   size_t pos = arguments.find_first_of(" ");
-   std::string hostname = arguments.substr(0, pos);
-   std::string port     = arguments.substr(pos + 1);
-
-   return Player::Connect(hostname, std::atoi(port.c_str()));
+   Player::Pause();
 }
 
-bool Command::Pause(std::string const & arguments)
-{
-   return Player::Pause();
-}
-
-bool Command::Play(std::string const & arguments)
+void Command::Play(std::string const & arguments)
 {
    int32_t SongId = atoi(arguments.c_str()) - 1;
 
    if (SongId >= 0)
    {
-      return Player::Play(SongId);
+      Player::Play(SongId);
    }
-
-   return true;
 }
 
-bool Command::Add(std::string const & arguments)
+void Command::Add(std::string const & arguments)
 {
    client_.Add(arguments);
-   return true;
 }
 
-bool Command::Delete(std::string const & arguments)
+void Command::Delete(std::string const & arguments)
 {
    size_t pos = arguments.find_first_of(" ");
 
@@ -249,19 +236,16 @@ bool Command::Delete(std::string const & arguments)
       client_.Delete(atoi(arguments.c_str()) - 1);
       Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
    }
-
-   return true;
 }
 
-bool Command::DeleteAll(std::string const & arguments)
+void Command::DeleteAll(std::string const & arguments)
 {
    client_.Clear();
    Main::Playlist().Clear();
-   return true;
 }
 
 template <int Delta>
-bool Command::Seek(std::string const & arguments)
+void Command::Seek(std::string const & arguments)
 {
    uint32_t time = 0;
    size_t pos    = arguments.find_first_of(":");
@@ -277,10 +261,10 @@ bool Command::Seek(std::string const & arguments)
       time = atoi(arguments.c_str());
    }
 
-   return Player::Seek(Delta * time);
+   Player::Seek(Delta * time);
 }
 
-bool Command::SeekTo(std::string const & arguments)
+void Command::SeekTo(std::string const & arguments)
 {
    uint32_t time = 0;
    size_t pos    = arguments.find_first_of(":");
@@ -296,39 +280,59 @@ bool Command::SeekTo(std::string const & arguments)
       time = atoi(arguments.c_str());
    }
 
-   return Player::SeekTo(time);
+   Player::SeekTo(time);
 }
 
-bool Command::Quit(std::string const & arguments)
+void Command::Quit(std::string const & arguments)
 {
    if (settings_.SingleQuit() == true)
    {
-      return QuitAll(arguments);
+      QuitAll(arguments);
    }
    else
    {
-      return HideWindow(arguments);
+      HideWindow(arguments);
    }
 }
 
-bool Command::QuitAll(std::string const & arguments)
+void Command::QuitAll(std::string const & arguments)
 {
    if ((forceCommand_ == true) || (settings_.StopOnQuit() == true))
    {
       Player::Stop();
    }
 
-   return Player::Quit();
+   Player::Quit();
 }
 
-bool Command::Volume(std::string const & arguments)
+void Command::Volume(std::string const & arguments)
 {
-   return Player::Volume(atoi(arguments.c_str()));
+   uint32_t Vol = atoi(arguments.c_str());
+
+   if (Vol <= 100)
+   {
+      Player::Volume(Vol);
+   }
+}
+
+
+void Command::Connect(std::string const & arguments)
+{
+   size_t pos = arguments.find_first_of(" ");
+   std::string hostname = arguments.substr(0, pos);
+   std::string port     = arguments.substr(pos + 1);
+
+   client_.Connect(hostname, std::atoi(port.c_str()));
+}
+
+void Command::Echo(std::string const & echo)
+{
+   Main::Console().Add(echo);
 }
 
 
 template <bool ON>
-bool Command::Output(std::string const & arguments)
+void Command::Output(std::string const & arguments)
 {
    int32_t output = -1;
 
@@ -363,29 +367,26 @@ bool Command::Output(std::string const & arguments)
    {
       Error(ErrorNumber::NoOutput, "No such output");
    }
-
-   return true;
 }
 
 
-bool Command::LoadPlaylist(std::string const & arguments)
+void Command::LoadPlaylist(std::string const & arguments)
 {
-   return Player::LoadPlaylist(arguments);
+   client_.LoadPlaylist(arguments);
 }
 
-bool Command::SavePlaylist(std::string const & arguments)
+void Command::SavePlaylist(std::string const & arguments)
 {
-   return Player::SavePlaylist(arguments);
+   client_.SavePlaylist(arguments);
 }
 
-bool Command::ToPlaylist(std::string const & arguments)
+void Command::ToPlaylist(std::string const & arguments)
 {
    screen_.ActiveWindow().Save(arguments);
    screen_.Redraw(Ui::Screen::Lists);
-   return true;
 }
 
-bool Command::Find(std::string const & arguments)
+void Command::Find(std::string const & arguments)
 {
    if (forceCommand_ == true)
    {
@@ -424,84 +425,90 @@ bool Command::Find(std::string const & arguments)
          Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
       }
    }
-
-   return true;
 }
 
-bool Command::FindAny(std::string const & arguments)
+void Command::FindAny(std::string const & arguments)
 {
    client_.SearchAny(arguments);
-   return Find("F:" + arguments);
+   Find("F:" + arguments);
 }
 
-bool Command::FindAlbum(std::string const & arguments)
+void Command::FindAlbum(std::string const & arguments)
 {
    client_.SearchAlbum(arguments);
-   return Find("FAL:" + arguments);
+   Find("FAL:" + arguments);
 }
 
-bool Command::FindArtist(std::string const & arguments)
+void Command::FindArtist(std::string const & arguments)
 {
    client_.SearchArtist(arguments);
-   return Find("FAR:" + arguments);
+   Find("FAR:" + arguments);
 }
 
-bool Command::FindSong(std::string const & arguments)
+void Command::FindSong(std::string const & arguments)
 {
    client_.SearchSong(arguments);
-   return Find("FS:" + arguments);
+   Find("FS:" + arguments);
 }
 
-bool Command::Random(std::string const & arguments)
+void Command::Random(std::string const & arguments)
 {
    if (arguments.empty() == false)
    {
       bool const value = (arguments.compare("on") == 0);
-      return Player::SetRandom(value);
+      Player::SetRandom(value);
    }
-
-   return Player::ToggleRandom();
+   else
+   {
+      Player::ToggleRandom();
+   }
 }
 
-bool Command::Repeat(std::string const & arguments)
+void Command::Repeat(std::string const & arguments)
 {
    if (arguments.empty() == false)
    {
       bool const value = (arguments.compare("on") == 0);
-      return Player::SetRepeat(value);
+      Player::SetRepeat(value);
    }
-
-   return Player::ToggleRepeat();
+   else
+   {
+      Player::ToggleRepeat();
+   }
 }
 
-bool Command::Single(std::string const & arguments)
+void Command::Single(std::string const & arguments)
 {
    if (arguments.empty() == false)
    {
       bool const value = (arguments.compare("on") == 0);
-      return Player::SetSingle(value);
+      Player::SetSingle(value);
    }
-
-   return Player::ToggleSingle();
+   else
+   {
+      Player::ToggleSingle();
+   }
 }
 
-bool Command::Consume(std::string const & arguments)
+void Command::Consume(std::string const & arguments)
 {
    if (arguments.empty() == false)
    {
       bool const value = (arguments.compare("on") == 0);
-      return Player::SetConsume(value);
+      Player::SetConsume(value);
    }
-
-   return Player::ToggleConsume();
+   else
+   {
+      Player::ToggleConsume();
+   }
 }
 
-bool Command::Shuffle(std::string const & arguments)
+void Command::Shuffle(std::string const & arguments)
 {
-   return Player::Shuffle();
+   Player::Shuffle();
 }
 
-bool Command::Move(std::string const & arguments)
+void Command::Move(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
@@ -534,10 +541,9 @@ bool Command::Move(std::string const & arguments)
       screen_.Update();
    }
    // \todo print error
-   return true;
 }
 
-bool Command::Swap(std::string const & arguments)
+void Command::Swap(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
@@ -546,51 +552,48 @@ bool Command::Swap(std::string const & arguments)
       client_.Swap(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
    }
    // \todo print error
-   return true;
 }
 
-bool Command::Redraw(std::string const & arguments)
+void Command::Redraw(std::string const & arguments)
 {
-   return Player::Redraw();
+   Player::Redraw();
 }
 
-bool Command::Stop(std::string const & arguments)
+void Command::Stop(std::string const & arguments)
 {
-   return Player::Stop();
+   Player::Stop();
 }
 
-bool Command::Rescan(std::string const & arguments)
+void Command::Rescan(std::string const & arguments)
 {
-   return Player::Rescan();
+   Player::Rescan();
 }
 
-bool Command::Update(std::string const & arguments)
+void Command::Update(std::string const & arguments)
 {
-   return Player::Update();
+   Player::Update();
 }
 
 
 //Implementation of skipping functions
 template <Ui::Player::Skip SKIP>
-bool Command::SkipSong(std::string const & arguments)
+void Command::SkipSong(std::string const & arguments)
 {
    uint32_t count = atoi(arguments.c_str());
    count = (count == 0) ? 1 : count;
-   return Player::SkipSong(SKIP, count);
+   Player::SkipSong(SKIP, count);
 }
 
 
 //Implementation of window change function
 template <Ui::Screen::MainWindow MAINWINDOW>
-bool Command::SetActiveAndVisible(std::string const & arguments)
+void Command::SetActiveAndVisible(std::string const & arguments)
 {
    screen_.SetActiveAndVisible(static_cast<int32_t>(MAINWINDOW));
-
-   return true;
 }
 
 template <Command::Location LOCATION>
-bool Command::ChangeToWindow(std::string const & arguments)
+void Command::ChangeToWindow(std::string const & arguments)
 {
    uint32_t active = 0;
 
@@ -600,11 +603,9 @@ bool Command::ChangeToWindow(std::string const & arguments)
    }
 
    screen_.SetActiveWindow(active);
-
-   return true;
 }
 
-bool Command::HideWindow(std::string const & arguments)
+void Command::HideWindow(std::string const & arguments)
 {
    if (arguments == "")
    {
@@ -622,19 +623,16 @@ bool Command::HideWindow(std::string const & arguments)
 
    if (screen_.VisibleWindows() == 0)
    {
-      return Player::Quit();
+      Player::Quit();
    }
-
-   return true;
 }
 
-bool Command::MoveWindow(std::string const & arguments)
+void Command::MoveWindow(std::string const & arguments)
 {
    screen_.MoveWindow(atoi(arguments.c_str()));
-   return true;
 }
 
-bool Command::RenameWindow(std::string const & arguments)
+void Command::RenameWindow(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
@@ -652,8 +650,6 @@ bool Command::RenameWindow(std::string const & arguments)
    {
       screen_.ActiveWindow().SetName(arguments);
    }
-
-   return true;
 }
 
 
@@ -661,7 +657,6 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 {
    pcrecpp::RE const forceCheck("^.*!$");
 
-   bool result     = true;
    forceCommand_   = false;
 
    if (forceCheck.FullMatch(command))
@@ -678,7 +673,6 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 
    if (matchingCommand == false)
    {
-
       for (CommandTable::const_iterator it = commandTable_.begin(); it != commandTable_.end(); ++it)
       {
          if (command.compare(it->first.substr(0, command.length())) == 0)
@@ -689,7 +683,6 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
       }
 
       matchingCommand = (validCommandCount == 1);
-
    }
 
    // If we have found a command execute it, with \p arguments
@@ -698,7 +691,7 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
       CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
       CommandFunction const commandFunction = it->second;
 
-      result = (*this.*commandFunction)(arguments);
+      (*this.*commandFunction)(arguments);
    }
    else if (validCommandCount > 1)
    {
@@ -712,7 +705,7 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    // \todo will probably have a setting that always forces commands
    forceCommand_ = false;
 
-   return result;
+   return true;
 }
 
 void Command::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
@@ -722,13 +715,12 @@ void Command::SplitCommand(std::string const & input, std::string & command, std
    std::getline(commandStream, arguments, '\n');
 }
 
-bool Command::Set(std::string const & arguments)
+void Command::Set(std::string const & arguments)
 {
    settings_.Set(arguments);
-   return true;
 }
 
-bool Command::Mpc(std::string const & arguments)
+void Command::Mpc(std::string const & arguments)
 {
    static uint32_t const bufferSize = 512;
    char   buffer[bufferSize];
@@ -758,19 +750,15 @@ bool Command::Mpc(std::string const & arguments)
    {
       Error(ErrorNumber::ExternalProgramError, "Executing program mpc failed");
    }
-
-   return true;
 }
 
-bool Command::Alias(std::string const & input)
+void Command::Alias(std::string const & input)
 {
    std::string command, arguments;
 
    SplitCommand(input, command, arguments);
 
    aliasTable_[command] = arguments;
-
-   return true;
 }
 
 void Command::ResetTabCompletion(int input)

@@ -36,6 +36,7 @@ namespace ErrorNumber
       FindNoResults,
       PlaylistEmpty,
       NoOutput,
+      InvalidParameter
    };
 }
 

@@ -36,6 +36,8 @@
 
 using namespace Main;
 
+bool Vimpc::Running = true;
+
 // \todo the coupling and requirements on the way everything needs to be constructed is awful
 // this really needs to be fixed and the coupling removed
 Vimpc::Vimpc() :
@@ -103,10 +105,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       client_.DisplaySongInformation();
       screen_.Update();
 
-      bool running = true;
-
       // The main loop
-      while (running == true)
+      while (Running == true)
       {
          static long updateTime = 0;
 
@@ -124,7 +124,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          if (input != ERR)
          {
-            running = Handle(input);
+            Handle(input);
          }
 
          if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
@@ -147,43 +147,44 @@ Ui::Mode & Vimpc::CurrentMode()
 }
 
 
+/* static */ void Vimpc::SetRunning(bool isRunning)
+{
+   Running = isRunning;
+}
+
 
 int Vimpc::Input() const
 {
    return screen_.WaitForInput();
 }
 
-bool Vimpc::Handle(int input)
+void Vimpc::Handle(int input)
 {
    Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
 
 #ifdef HAVE_MOUSE_SUPPORT
    if (input == KEY_MOUSE)
    {
-      bool const result = HandleMouse();
-      return result;
+      HandleMouse();
    }
    else
    {
 #endif
       // Input must be handled before mode is changed
-      bool const result = mode.Handle(input);
+      mode.Handle(input);
 
       if (RequiresModeChange(input) == true)
       {
          ChangeMode(input);
       }
-
-      return result;
 #ifdef HAVE_MOUSE_SUPPORT
    }
 #endif
 }
 
-bool Vimpc::HandleMouse()
+void Vimpc::HandleMouse()
 {
    screen_.HandleMouseEvent();
-   return true;
 }
 
 bool Vimpc::ModesAreInitialised()

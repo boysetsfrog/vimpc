@@ -58,101 +58,101 @@ namespace Ui
       bool CausesModeToStart(int input) const;
 
    private: // Ui::Player wrapper functions
-      bool ClearScreen(uint32_t count);
-      bool Pause(uint32_t count);
-      bool Stop(uint32_t count);
+      void ClearScreen(uint32_t count);
+      void Pause(uint32_t count);
+      void Stop(uint32_t count);
 
-      bool Consume(uint32_t count);
-      bool Random(uint32_t count);
-      bool Repeat(uint32_t count);
-      bool Single(uint32_t count);
+      void Consume(uint32_t count);
+      void Random(uint32_t count);
+      void Repeat(uint32_t count);
+      void Single(uint32_t count);
 
       template <int Delta>
-      bool ChangeVolume(uint32_t count);
+      void ChangeVolume(uint32_t count);
 
    private:
-      bool Left(uint32_t count);
-      bool Right(uint32_t count);
-      bool Confirm(uint32_t count);
-      bool RepeatLastAction(uint32_t count);
+      void Left(uint32_t count);
+      void Right(uint32_t count);
+      void Confirm(uint32_t count);
+      void RepeatLastAction(uint32_t count);
 
    private:
-      bool Expand(uint32_t count);
-      bool Collapse(uint32_t count);
+      void Expand(uint32_t count);
+      void Collapse(uint32_t count);
 
    private:
-      bool Edit(uint32_t count);
+      void Edit(uint32_t count);
 
    private:
       template <Mpc::Song::SongCollection COLLECTION>
-      bool AddSong(uint32_t count);
+      void AddSong(uint32_t count);
 
       template <Mpc::Song::SongCollection COLLECTION>
-      bool DeleteSong(uint32_t count);
+      void DeleteSong(uint32_t count);
 
       template <Mpc::Song::SongCollection COLLECTION>
-      bool CropSong(uint32_t count);
+      void CropSong(uint32_t count);
 
-      bool PasteBuffer(uint32_t count);
+      void PasteBuffer(uint32_t count);
 
    private: //Selecting
       template <ScrollWindow::Position POSITION>
-      bool Select(uint32_t count);
+      void Select(uint32_t count);
 
    private: //Searching
       template <Search::Skip SKIP>
-      bool SearchResult(uint32_t count);
+      void SearchResult(uint32_t count);
 
    private: //Skipping
       template <Player::Skip SKIP>
-      bool SkipSong(uint32_t count);
+      void SkipSong(uint32_t count);
 
       template <Player::Skip SKIP>
-      bool SkipAlbum(uint32_t count);
+      void SkipAlbum(uint32_t count);
 
       template <Player::Skip SKIP>
-      bool SkipArtist(uint32_t count);
+      void SkipArtist(uint32_t count);
 
    private: //Scrolling
       template <int8_t OFFSET>
-      bool ScrollToCurrent(uint32_t line);
+      void ScrollToCurrent(uint32_t line);
 
       template <Screen::Size SIZE, Screen::Direction DIRECTION>
-      bool Scroll(uint32_t count);
+      void Scroll(uint32_t count);
 
       template <Screen::Location LOCATION>
-      bool ScrollTo(uint32_t line);
+      void ScrollTo(uint32_t line);
 
       template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
-      bool ScrollTo(uint32_t line);
+      void ScrollTo(uint32_t line);
 
       template <Search::Skip SKIP>
-      bool ScrollToPlaylistSong(uint32_t count);
+      void ScrollToPlaylistSong(uint32_t count);
 
    private: //Alignment
       template <Screen::Direction DIRECTION>
-      bool Align(uint32_t count);
+      void Align(uint32_t count);
 
       template <Screen::Location LOCATION>
-      bool AlignTo(uint32_t line);
+      void AlignTo(uint32_t line);
 
    private: //Windows
       template <Screen::Skip SKIP, uint32_t OFFSET>
-      bool SetActiveWindow(uint32_t count);
+      void SetActiveWindow(uint32_t count);
 
    private: //Editting
       template <int8_t OFFSET>
-      bool Move(uint32_t count);
+      void Move(uint32_t count);
 
    private:
       template <int SIGNAL>
-      bool SendSignal(uint32_t count);
+      void SendSignal(uint32_t count);
 
    private:
       void DisplayModeLine();
 
    private:
-      typedef bool (Ui::Normal::*ptrToMember)(uint32_t);
+      typedef void (Ui::Normal::*ptrToMember)(uint32_t);
       typedef std::map<int, ptrToMember> ActionTable;
 
    private:

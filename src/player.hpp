@@ -58,92 +58,69 @@ namespace Ui
 
    protected: //Commands which may be called by the mode
       //! Clears the current window
-      bool ClearScreen();
-
-      //! Connects the mpd client to the given host
-      //!
-      //! \param host The hostname to connect to
-      //! \param port The port to connect with
-      bool Connect(std::string const & host, uint32_t port = 0);
-
-      //! Echos a string to the console window
-      //!
-      //! \param echo The string to be echoed
-      bool Echo(std::string const & echo);
+      void ClearScreen();
 
       //! Pauses the current playback
-      bool Pause();
+      void Pause();
 
       //! Plays the song with the given \p id
-      bool Play(uint32_t position);
+      void Play(uint32_t position);
 
       //! Seek within the current song
-      bool Seek(int32_t Offset);
-      bool SeekTo(uint32_t Time);
+      void Seek(int32_t Offset);
+      void SeekTo(uint32_t Time);
 
       //! Quits the program
-      bool Quit();
+      void Quit();
 
       //! Toggles consume on or off
-      bool ToggleConsume();
+      void ToggleConsume();
 
       //! Toggles repeat on or off
-      bool ToggleRepeat();
+      void ToggleRepeat();
 
       //! Toggles random on or off
-      bool ToggleRandom();
+      void ToggleRandom();
 
       //! Toggles single on or off
-      bool ToggleSingle();
+      void ToggleSingle();
 
       //! Disables/Enables random functionality
-      bool SetRandom(bool random);
-
-      //! Get the current random state
-      bool Random();
+      void SetRandom(bool random);
 
       //! Disables/Enables single functionality
-      bool SetSingle(bool single);
-
-      //! Get the current single state
-      bool Single();
+      void SetSingle(bool single);
 
       //! Disables/Enables repeat functionality
-      bool SetRepeat(bool repeat);
-
-      //! Get the current repeat state
-      bool Repeat();
+      void SetRepeat(bool repeat);
 
       //! Disables/Enables consume functionality
-      bool SetConsume(bool consume);
-
-      //! Get the current consume state
-      bool Consume();
+      void SetConsume(bool consume);
 
       //! Shuffle the playlist
-      bool Shuffle();
+      void Shuffle();
 
       //! Redraws the current window
-      bool Redraw();
+      void Redraw();
 
       //! Stops playback
-      bool Stop();
+      void Stop();
 
       //! Set the current volume
-      bool Volume(uint32_t volume);
+      void Volume(uint32_t volume);
 
       //! Load the playlist
-      bool LoadPlaylist(std::string const & name);
+      void LoadPlaylist(std::string const & name);
 
       //!
-      bool SavePlaylist(std::string const & name);
+      void SavePlaylist(std::string const & name);
 
    public:
       //! Rescan the library
-      bool Rescan();
+      void Rescan();
 
       //! Update the library
-      bool Update();
+      void Update();
 
       typedef enum
       {
@@ -155,15 +132,15 @@ namespace Ui
       //!
       //! \param skip  Direction to skip in playlist
       //! \param count Number of songs to skip
-      bool SkipSong(Skip skip, uint32_t count);
+      void SkipSong(Skip skip, uint32_t count);
 
-      bool SkipAlbum(Skip skip, uint32_t count);
+      void SkipAlbum(Skip skip, uint32_t count);
 
       //! Skips forwards or backwards a given number of artists
       //!
       //! \param skip  Direction to skip in playlist
       //! \param count Number of artists to skip
-      bool SkipArtist(Skip skip, uint32_t count);
+      void SkipArtist(Skip skip, uint32_t count);
 
    protected:
       //! Returns the currently playling song
@@ -172,7 +149,7 @@ namespace Ui
       uint32_t GetCurrentSong() const;
 
    private:
-      bool     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);
+      void     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);
       uint32_t NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction);
       uint32_t First(Mpc::Song const * const song, uint32_t position, Mpc::Song::SongInformationFunction songFunction);
 
