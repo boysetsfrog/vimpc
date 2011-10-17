@@ -34,7 +34,8 @@ namespace ErrorNumber
       SettingNonexistant,
       SearchNoResults,
       FindNoResults,
-      PlaylistEmpty
+      PlaylistEmpty,
+      NoOutput,
    };
 }
 

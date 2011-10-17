@@ -40,3 +40,16 @@ bool Algorithm::iequals(std::string const & s1, std::string const & s2)
 
    return (lower1 == lower2);
 }
+
+bool Algorithm::isNumeric(std::string const & s1)
+{
+   for (unsigned int i = 0; i < s1.size(); ++i)
+   {
+      if ((s1[i] > '9') || (s1[i] < '0'))
+      {
+         return false;
+      }
+   }
+
+   return true;
+}

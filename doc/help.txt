@@ -137,6 +137,10 @@ FIND:
   Note: Appending a ! to any search term will automatically add the songs to the
   playlist rather than creating a new window.
 
+OUTPUTS:
+  disable <id/name>       | enable output with id <id> or name <name>
+  enable <id/name>        | disable output with id <id> or name <name>
+
 PLAYLIST:
   add <uri>               | add a song/strem using the given <uri>
   delete <pos1> [pos2]    | delete the song at <pos1>, or from <pos1> to [pos2]

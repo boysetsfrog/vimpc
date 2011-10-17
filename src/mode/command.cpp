@@ -24,6 +24,7 @@
 #include <pcrecpp.h>
 #include <sstream>
 
+#include "algorithm.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
 #include "settings.hpp"
@@ -55,7 +56,9 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["consume"]   = &Command::Consume;
    commandTable_["delete"]    = &Command::Delete;
    commandTable_["deleteall"] = &Command::DeleteAll;
+   commandTable_["disable"]   = &Command::Output<false>;
    commandTable_["echo"]      = &Command::Echo;
+   commandTable_["enable"]    = &Command::Output<true>;
    commandTable_["find"]      = &Command::FindAny;
    commandTable_["findalbum"] = &Command::FindAlbum;
    commandTable_["findartist"]= &Command::FindArtist;
@@ -322,6 +325,48 @@ bool Command::Volume(std::string const & arguments)
 {
    return Player::Volume(atoi(arguments.c_str()));
 }
+
+
+template <bool ON>
+bool Command::Output(std::string const & arguments)
+{
+   int32_t output = -1;
+
+   if (Algorithm::isNumeric(arguments.c_str()) == true)
+   {
+      output = atoi(arguments.c_str());
+   }
+   else
+   {
+      for(unsigned int i = 0; i < Main::Outputs().Size(); ++i)
+      {
+         if (Algorithm::iequals(Main::Outputs().Get(i)->Name(), arguments) == true)
+         {
+            output = i;
+            break;
+         }
+      }
+   }
+
+   if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
+   {
+      if (ON == true)
+      {
+         client_.EnableOutput(Main::Outputs().Get(output));
+      }
+      else
+      {
+         client_.DisableOutput(Main::Outputs().Get(output));
+      }
+   }
+   else
+   {
+      Error(ErrorNumber::NoOutput, "No such output");
+   }
+
+   return true;
+}
+
 
 bool Command::LoadPlaylist(std::string const & arguments)
 {

@@ -88,6 +88,10 @@ namespace Ui
       bool SeekTo(std::string const & arguments);
 
    private:
+      template <bool ON>
+      bool Output(std::string const & arguments);
+
+   private:
       bool LoadPlaylist(std::string const & arguments);
       bool SavePlaylist(std::string const & arguments);
       bool ToPlaylist(std::string const & arguments);
