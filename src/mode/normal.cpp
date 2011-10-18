@@ -248,6 +248,7 @@ bool Normal::Handle(int input)
       actionCount_ = 0;
 
       action = &actionTable_;
+      randomAction_ = false;
    }
    else if (input == 'g')
    {
@@ -384,13 +385,25 @@ void Normal::AddSong(uint32_t count)
 {
    if (COLLECTION == Mpc::Song::All)
    {
-      screen_.ActiveWindow().AddAllLines();
+      if (randomAction_)
+      {
+         screen_.ActiveWindow().AddRandomLines(count);
+      }
+      else
+      {
+         //\todo This still doesn't support the usecase of [n]a on a
+         //collection
+         screen_.ActiveWindow().AddAllLines();
+      }
    }
    else if (COLLECTION == Mpc::Song::Single)
    {
       if (randomAction_)
       {
-         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), 3);
+         // Use one of two approaches
+         // 1)
+         //  \ Retrieve all song not in the playlist that ARE in the current scope
+         //
       }
       else
       {
