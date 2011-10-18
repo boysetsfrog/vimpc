@@ -46,6 +46,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    lastAction_      (0),
    lastActionCount_ (0),
    wasSpecificCount_(false),
+   randomAction_    (false),
    actionTable_     (),
    jumpTable_       (),
    alignTable_      (),
@@ -226,8 +227,9 @@ bool Normal::Handle(int input)
    }
    else if (input == ESCAPE_KEY)
    {
-      action       = &actionTable_;
-      actionCount_ = 0;
+      action        = &actionTable_;
+      actionCount_  = 0;
+      randomAction_ = false;
    }
    else if (action->find(input) != action->end())
    {
@@ -254,6 +256,11 @@ bool Normal::Handle(int input)
    else if (input == 'z')
    {
       action = &alignTable_;
+   }
+   else if (input == 'r')
+   {
+      randomAction_ = true;
+      action = &actionTable_;
    }
    else
    {
@@ -381,7 +388,14 @@ void Normal::AddSong(uint32_t count)
    }
    else if (COLLECTION == Mpc::Song::Single)
    {
-      screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+      if (randomAction_)
+      {
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), 3);
+      }
+      else
+      {
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+      }
    }
 }
 

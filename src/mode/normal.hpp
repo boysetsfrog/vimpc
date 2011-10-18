@@ -161,6 +161,7 @@ namespace Ui
       int32_t          lastAction_;
       uint32_t         lastActionCount_;
       bool             wasSpecificCount_;
+      bool             randomAction_;
 
       ActionTable      actionTable_;
       ActionTable      jumpTable_;
