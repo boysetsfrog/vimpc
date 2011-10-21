@@ -166,6 +166,8 @@ namespace Ui
       ActionTable      jumpTable_;
       ActionTable      alignTable_;
       ActionTable      escapeTable_;
+      ActionTable      addTable_;
+      ActionTable      deleteTable_;
 
       Ui::Search     & search_;
       Ui::Screen     & screen_;

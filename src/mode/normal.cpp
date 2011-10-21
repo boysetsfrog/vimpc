@@ -49,6 +49,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_     (),
    jumpTable_       (),
    alignTable_      (),
+   addTable_        (),
+   deleteTable_     (),
    search_          (search),
    screen_          (screen),
    client_          (client),
@@ -95,9 +97,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_['L']       = &Normal::Select<ScrollWindow::Last>;
 
    // Playlist
-   actionTable_['d']       = &Normal::DeleteSong<Mpc::Song::Single>;
    actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
-   actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;
    actionTable_['A']       = &Normal::AddSong<Mpc::Song::All>;
    actionTable_['x']       = &Normal::CropSong<Mpc::Song::Single>;
    actionTable_['X']       = &Normal::CropSong<Mpc::Song::All>;
@@ -177,6 +177,16 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    escapeTable_['8']       = &Normal::SetActiveWindow<Screen::Absolute, 7>;
    escapeTable_['9']       = &Normal::SetActiveWindow<Screen::Absolute, 8>;
 
+   addTable_['a']          = &Normal::AddSong<Mpc::Song::Single>;
+   //addTable_['z']          = &Normal::AddRandomSong<Mpc::Song::Single>;
+   //addTable_['g']          = &Normal::AddSongsTo<Screen::Top>;
+   //addTable_['G']          = &Normal::AddSongsTo<Screen::Bottom>;
+
+   deleteTable_['d']       = &Normal::DeleteSong<Mpc::Song::Single>;
+   //deleteTable_['z']       = &Normal::DeleteRandomSong<Mpc::Song::Single>;
+   //deleteTable_['g']       = &Normal::DeleteSongsTo<Screen::Top>;
+   //deleteTable_['G']       = &Normal::DeleteSongsTo<Screen::Bottom>;
+
    window_ = screen.CreateModeWindow();
 }
 
@@ -250,6 +260,14 @@ bool Normal::Handle(int input)
    else if (input == 'g')
    {
       action = &jumpTable_;
+   }
+   else if (input == 'd')
+   {
+      action = &deleteTable_;
+   }
+   else if (input == 'a')
+   {
+      action = &addTable_;
    }
    else if (input == 'z')
    {
