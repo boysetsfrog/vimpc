@@ -89,7 +89,17 @@ void SongWindow::Print(uint32_t line) const
    if (song != NULL)
    {
       wmove(window, line, 0);
-      PrintId(printLine);
+
+
+      if (settings_.SongNumbers() == true)
+      {
+         PrintId(printLine);
+      }
+      else
+      {
+         PrintBlankId();
+      }
+
       PrintSong(printLine, colour, song);
 
       wmove(window, line, (screen_.MaxColumns() - song->DurationString().size() - 2));
@@ -139,6 +149,11 @@ uint32_t SongWindow::Current() const
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
    {
       current = Buffer().Index(Main::Playlist().Get(currentSongId));
+   }
+
+   if (current == -1)
+   {
+      current = CurrentLine();
    }
 
    return current;
@@ -307,6 +322,12 @@ void SongWindow::Save(std::string const & name)
    client_.SendCommandList();
 }
 
+
+void SongWindow::PrintBlankId() const
+{
+   WINDOW * window  = N_WINDOW();
+   waddstr(window, " ");
+}
 
 void SongWindow::PrintId(uint32_t Id) const
 {

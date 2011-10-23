@@ -175,6 +175,19 @@ void PlaylistWindow::Save(std::string const & name)
 }
 
 
+void PlaylistWindow::PrintId(uint32_t Id) const
+{
+   if (settings_.PlaylistNumbers() == true)
+   {
+      SongWindow::PrintId(Id);
+   }
+   else
+   {
+      SongWindow::PrintBlankId();
+   }
+}
+
+
 void PlaylistWindow::Clear()
 {
    ScrollTo(0);

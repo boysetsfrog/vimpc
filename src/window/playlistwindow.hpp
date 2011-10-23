@@ -69,6 +69,9 @@ namespace Ui
    public:
       void Save(std::string const & name);
 
+   protected:
+      void PrintId(uint32_t Id) const;
+
    private:
       void    Clear();
       size_t  BufferSize() const { return playlist_.Size(); }

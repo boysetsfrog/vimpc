@@ -91,6 +91,7 @@ LIBRARY:
   [count] d, del          | delete song, album, artist
           h, Left         | collapse selection
           l, Right        | expand selection
+          e               | view artist/album contents in new window
           <Enter>         | clear playlist, add song/album/artist and play it
 
 OUTPUTS:
@@ -193,17 +194,21 @@ All settings can be prefixed with no, which will disable the setting,
 or postfixed with !  which will toggle the setting.
 
   [no]autoscroll[!]       | automatically scroll when skipping songs 
+  [no]browsenumbers[!]    | display id numbers next to songs in the browse window
   [no]colour[!]           | enable or disable colours
   [no]expand-artists[!]   | when enabled, expand to artist by default in library
                           | if changed whilst running, must :redraw the library
   [no]hlsearch[!]         | highlight search results
   [no]ignorecase[!]       | case insensitive searching
+  [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
   [no]searchwrap[!]       | wrap search results when using n/N
   [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
   [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
+  [no]songnumbers[!]      | display id numbers next to songs in any window
   [no]stoponquit[!]       | automatically stop playback when vimpc is quit
   [no]timeremaining[!]    | display the time remaining rather than elapsed
   [no]windownumbers[!]    | display the number next to the window in the tab bar
+
 
   window <window>         | sets the window that will start with focus
                           | only useful if called from ~/.vimpcrc file

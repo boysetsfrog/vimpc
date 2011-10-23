@@ -85,9 +85,12 @@ namespace Ui
       virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
 
    protected:
-      void PrintId(uint32_t Id) const;
-      void PrintSong(int32_t Id, int32_t colour, Mpc::Song * Song) const;
-      void PrintDuration(int32_t Id, int32_t colour, std::string duration) const;
+      void PrintBlankId() const;
+      virtual void PrintId(uint32_t Id) const;
+
+      virtual void PrintSong(int32_t Id, int32_t colour, Mpc::Song * Song) const;
+      virtual void PrintDuration(int32_t Id, int32_t colour, std::string duration) const;
+
 
    private:
       size_t  BufferSize() const { return Buffer().Size(); }

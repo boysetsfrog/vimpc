@@ -66,6 +66,7 @@ namespace Ui
       void CropAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+      void Edit();
 
    private:
       void DoForLine(LibraryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true);

@@ -50,6 +50,9 @@ namespace Ui
    public:
       void Redraw();
 
+   protected:
+      void PrintId(uint32_t Id) const;
+
    private:
       void    Clear();
       size_t  BufferSize() const   { return browse_.Size(); }

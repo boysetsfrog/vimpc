@@ -21,11 +21,13 @@
 #include "librarywindow.hpp"
 
 #include "buffers.hpp"
+#include "buffers.hpp"
 #include "colour.hpp"
+#include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
-#include "buffers.hpp"
+#include "songwindow.hpp"
 #include "mode/search.hpp"
 
 #include <algorithm>
@@ -315,6 +317,28 @@ void LibraryWindow::DeleteAllLines()
    Main::PlaylistPasteBuffer().Clear();
    client_.Clear();
    Main::Playlist().Clear();
+}
+
+void LibraryWindow::Edit()
+{
+   std::string title = library_.Get(CurrentLine())->album_;
+   title = (title != "") ? title : library_.Get(CurrentLine())->artist_;
+
+   SongWindow * window = screen_.CreateSongWindow("L:" + title);
+
+   Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
+
+   // Do not need to sort as this ensures it will be sorted in the same order as the library
+   Main::Library().ForEachChild(CurrentLine(), &callback);
+
+   if (window->ContentSize() > -1)
+   {
+      screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+   }
+   else
+   {
+      screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+   }
 }
 
 

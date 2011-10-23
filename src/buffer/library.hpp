@@ -218,6 +218,7 @@ namespace Mpc
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
+      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
       void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
 
    public:
