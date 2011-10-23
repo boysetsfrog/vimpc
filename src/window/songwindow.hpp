@@ -49,7 +49,6 @@ namespace Ui
 
    public:
       void Print(uint32_t line) const;
-      void Print(uint32_t line, uint32_t column, Mpc::Song * Song) const;
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
@@ -82,13 +81,18 @@ namespace Ui
    public:
       void Save(std::string const & name);
 
-   private:
-      void    Clear();
-      size_t  BufferSize() const { return Buffer().Size(); }
-      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const song) const;
-
    public:
       virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
+
+   protected:
+      void PrintId(uint32_t Id) const;
+      void PrintSong(int32_t Id, int32_t colour, Mpc::Song * Song) const;
+      void PrintDuration(int32_t Id, int32_t colour, std::string duration) const;
+
+   private:
+      size_t  BufferSize() const { return Buffer().Size(); }
+      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const song) const;
+      void    Clear();
 
    private:
       Main::Settings const & settings_;
