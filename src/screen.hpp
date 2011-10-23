@@ -121,6 +121,7 @@ namespace Ui
       // Create a new song window, usually used for search results
       Ui::SongWindow * CreateSongWindow(std::string const & name);
       Ui::InfoWindow * CreateInfoWindow(std::string const & name, Mpc::Song * song = NULL);
+      Ui::InfoWindow * CreateSongInfoWindow(Mpc::Song * song = NULL);
 
       // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();

@@ -237,6 +237,24 @@ Ui::InfoWindow * Screen::CreateInfoWindow(std::string const & name, Mpc::Song * 
    return window;
 }
 
+Ui::InfoWindow * Screen::CreateSongInfoWindow(Mpc::Song * song)
+{
+   if (song != NULL)
+   {
+      if (GetWindowFromName("songinfo") != Ui::Screen::Unknown)
+      {
+         SetVisible(GetWindowFromName("songinfo"), false);
+      }
+
+      InfoWindow * window = CreateInfoWindow("songinfo", song);
+
+      if (window->ContentSize() > -1)
+      {
+         SetActiveAndVisible(GetWindowFromName(window->Name()));
+      }
+   }
+}
+
 
 ModeWindow * Screen::CreateModeWindow()
 {

@@ -290,21 +290,7 @@ void SongWindow::Edit()
    if (CurrentLine() < BufferSize())
    {
       Mpc::Song * song(Buffer().Get(CurrentLine()));
-
-      if (song != NULL)
-      {
-         if (screen_.GetWindowFromName("songinfo") != Ui::Screen::Unknown)
-         {
-            screen_.SetVisible(screen_.GetWindowFromName("songinfo"), false);
-         }
-
-         InfoWindow * window = screen_.CreateInfoWindow("songinfo", song);
-
-         if (window->ContentSize() > -1)
-         {
-            screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
-         }
-      }
+      screen_.CreateSongInfoWindow(song);
    }
 }
 
