@@ -40,6 +40,7 @@ SEARCHING:
 
 SEARCH FLAGS:
           \c              | if in search expression, disables case sensitivity
+          \C              | if in search expression, enables case sensitivity
 
 PLAYING (ALSO SEE PLAYLIST):                          
   [count] <               | skip to the previous song
