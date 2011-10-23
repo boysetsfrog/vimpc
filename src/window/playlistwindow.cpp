@@ -113,21 +113,24 @@ uint32_t PlaylistWindow::Current() const
    return current;
 }
 
-int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const
+int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const song) const
 {
    int32_t colour = Colour::Song;
 
-   if ((client_.GetCurrentSong() > -1) && (line == static_cast<uint32_t>(client_.GetCurrentSong())))
+   if (song != NULL)
    {
-      colour = Colour::CurrentSong;
-   }
-   else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
-   {
-      pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
-
-      if (expression.FullMatch(nextSong->PlaylistDescription()) == true)
+      if ((client_.GetCurrentSong() > -1) && (line == static_cast<uint32_t>(client_.GetCurrentSong())))
       {
-         colour = Colour::SongMatch;
+         colour = Colour::CurrentSong;
+      }
+      else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+      {
+         pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+         if (expression.FullMatch(song->PlaylistDescription()) == true)
+         {
+            colour = Colour::SongMatch;
+         }
       }
    }
 

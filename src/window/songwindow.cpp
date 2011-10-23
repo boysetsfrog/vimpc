@@ -73,7 +73,7 @@ void SongWindow::Print(uint32_t line) const
    int32_t  colour    = DetermineSongColour(printLine, song);
 
    // Reverse the colours to indicate the selected song
-   if (printLine == CurrentLine())
+   if ((printLine == CurrentLine()) && (song != NULL))
    {
       if (settings_.ColourEnabled() == true)
       {
@@ -96,7 +96,7 @@ void SongWindow::Print(uint32_t line) const
       PrintDuration(printLine, colour, song->DurationString());
    }
 
-   if (printLine == CurrentLine())
+   if ((printLine == CurrentLine()) && (song != NULL))
    {
       if (settings_.ColourEnabled() == true)
       {
