@@ -231,13 +231,13 @@ Ui::InfoWindow * Screen::CreateInfoWindow(std::string const & name, Mpc::Song * 
       ++id;
    }
 
-   Ui::InfoWindow * window = new InfoWindow(song, *this, name);
+   Ui::InfoWindow * window = new InfoWindow(song, settings_, *this, client_, search_, name);
    mainWindows_[id]        = window;
 
    return window;
 }
 
-Ui::InfoWindow * Screen::CreateSongInfoWindow(Mpc::Song * song)
+void Screen::CreateSongInfoWindow(Mpc::Song * song)
 {
    if (song != NULL)
    {

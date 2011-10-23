@@ -100,6 +100,11 @@ OUTPUTS:
           D               | disable all outputs
           <Enter>         | enable the selected output
 
+SONGINFO:
+          a               | add song to the playlist
+          d               | delete song from playlist
+          <Enter>         | append the song to the playlist and play it
+
 
 COMMAND/EX MODE
 --------------------------------------------------
