@@ -164,7 +164,6 @@ namespace Ui
       uint32_t MaxRows()      const;
       uint32_t MaxColumns()   const;
       uint32_t WaitForInput() const;
-      void     ClearInput()   const;
 
       void HandleMouseEvent();
 

@@ -119,11 +119,8 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    hostname_ = connect_hostname;
    port_     = connect_port;
 
-   //! \TODO I may need to end up using threads in here, or lower the default timeout at least
+   //! \TODO make the connection async
    connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
-
-   // Throw away any keys that were pressed in anger, while we were waiting to connect
-   screen_.ClearInput();
 
    CheckError();
 

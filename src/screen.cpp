@@ -129,7 +129,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    visibleWindows_.push_back(static_cast<int32_t>(Playlist));
 
    // Commands must be read through a window that is always visible
-   commandWindow_         = stdscr;
+   commandWindow_         = statusWindow_;
    keypad(commandWindow_, true);
 
    // Window setup
@@ -607,15 +607,6 @@ uint32_t Screen::WaitForInput() const
    return input;
 }
 
-void Screen::ClearInput() const
-{
-   int32_t input = ERR;
-
-   do
-   {
-      input = wgetch(commandWindow_);
-   } while (input != ERR);
-}
 
 void Screen::HandleMouseEvent()
 {

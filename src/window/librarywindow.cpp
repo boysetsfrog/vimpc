@@ -287,7 +287,11 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
 void LibraryWindow::AddAllLines()
 {
-   client_.AddAllSongs();
+   if (client_.Connected() == true)
+   {
+      client_.AddAllSongs();
+   }
+
    ScrollTo(CurrentLine());
 }
 
@@ -316,42 +320,45 @@ void LibraryWindow::DeleteAllLines()
 
 void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll)
 {
-   if (count > 1)
+   if (client_.Connected() == true)
    {
-      client_.StartCommandList();
-   }
-
-   Mpc::LibraryEntry * previous = NULL;
-
-   uint32_t total = 0;
-   uint32_t i     = line;
-
-   for (i = line; ((total <= count) && (i < BufferSize())); ++i)
-   {
-      Mpc::LibraryEntry * current = library_.Get(i);
-
-      if ((previous == NULL) ||
-          ((current->Parent() != previous) &&
-           ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
+      if (count > 1)
       {
-         ++total;
+         client_.StartCommandList();
+      }
 
-         if (total <= count)
+      Mpc::LibraryEntry * previous = NULL;
+
+      uint32_t total = 0;
+      uint32_t i     = line;
+
+      for (i = line; ((total <= count) && (i < BufferSize())); ++i)
+      {
+         Mpc::LibraryEntry * current = library_.Get(i);
+
+         if ((previous == NULL) ||
+            ((current->Parent() != previous) &&
+            ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
          {
-            (library_.*function)(Mpc::Song::Single, client_, i);
-            previous = current;
+            ++total;
+
+            if (total <= count)
+            {
+               (library_.*function)(Mpc::Song::Single, client_, i);
+               previous = current;
+            }
          }
       }
-   }
 
-   if (count > 1)
-   {
-      client_.SendCommandList();
-   }
+      if (count > 1)
+      {
+         client_.SendCommandList();
+      }
 
-   if (scroll == true)
-   {
-      Scroll(i - line - 1);
+      if (scroll == true)
+      {
+         Scroll(i - line - 1);
+      }
    }
 }
 

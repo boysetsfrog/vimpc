@@ -91,6 +91,9 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          client_.Connect(hostname, port);
       }
 
+      client_.DisplaySongInformation();
+      screen_.Update();
+
       // If we still have no connection, report an error
       if (client_.Connected() == false)
       {
@@ -101,9 +104,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
          mode.Refresh();
       }
-
-      client_.DisplaySongInformation();
-      screen_.Update();
 
       // The main loop
       while (Running == true)
@@ -121,6 +121,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
          updateTime += mtime;
+
+         client_.CheckForUpdates();
 
          if (input != ERR)
          {
