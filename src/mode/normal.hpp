@@ -82,6 +82,7 @@ namespace Ui
 
    private:
       void Edit(uint32_t count);
+      void Visual(uint32_t count);
 
    private:
       template <Mpc::Song::SongCollection COLLECTION>

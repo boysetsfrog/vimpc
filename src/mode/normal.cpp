@@ -148,6 +148,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    //
    actionTable_['e']       = &Normal::Edit;
+   actionTable_['v']       = &Normal::Visual;
 
    // Library
    actionTable_['o']       = &Normal::Expand;
@@ -369,6 +370,11 @@ void Normal::Collapse(uint32_t count)
 void Normal::Edit(uint32_t count)
 {
    screen_.ActiveWindow().Edit();
+}
+
+void Normal::Visual(uint32_t count)
+{
+   screen_.ActiveWindow().Visual();
 }
 
 

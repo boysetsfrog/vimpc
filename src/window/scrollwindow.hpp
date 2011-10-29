@@ -63,6 +63,7 @@ namespace Ui
       virtual void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
       virtual void DeleteAllLines() {}
       virtual void Edit() {}
+      virtual void Visual() {}
 
    public:
       virtual void Save(std::string const & name) {}

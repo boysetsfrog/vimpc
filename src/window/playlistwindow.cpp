@@ -140,7 +140,7 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
 
 void PlaylistWindow::AdjustScroll(Mpc::Song *)
 {
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
+   LimitCurrentSelection();
    ScrollTo(CurrentLine());
 }
 
@@ -157,9 +157,28 @@ void PlaylistWindow::AddAllLines()
 void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
    Main::PlaylistPasteBuffer().Clear();
+
+   int64_t pos1 = CurrentSelection().first;
+   int64_t pos2 = CurrentSelection().second;
+
+   if (pos2 < pos1)
+   {
+      pos2 = pos1;
+      pos1 = CurrentSelection().second;
+   }
+
+   if (pos1 != pos2)
+   {
+      count  = pos2 - pos1 + 1;
+      line   = pos1;
+      scroll = false;
+   }
+
    playlist_.Remove(line, count);
    client_.Delete(line, count + line);
    ScrollTo(line);
+
+   SelectWindow::DeleteLine(line, count, scroll);
 }
 
 void PlaylistWindow::DeleteAllLines()

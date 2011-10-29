@@ -73,7 +73,7 @@ void SongWindow::Print(uint32_t line) const
    int32_t  colour    = DetermineSongColour(printLine, song);
 
    // Reverse the colours to indicate the selected song
-   if ((printLine == CurrentLine()) && (song != NULL))
+   if ((IsSelected(printLine) == true) && (song != NULL))
    {
       if (settings_.ColourEnabled() == true)
       {
@@ -90,7 +90,6 @@ void SongWindow::Print(uint32_t line) const
    {
       wmove(window, line, 0);
 
-
       if (settings_.SongNumbers() == true)
       {
          PrintId(printLine);
@@ -106,7 +105,7 @@ void SongWindow::Print(uint32_t line) const
       PrintDuration(printLine, colour, song->DurationString());
    }
 
-   if ((printLine == CurrentLine()) && (song != NULL))
+   if ((IsSelected(printLine) == true) && (song != NULL))
    {
       if (settings_.ColourEnabled() == true)
       {
@@ -132,19 +131,37 @@ void SongWindow::Confirm()
 {
    if (Buffer().Size() > CurrentLine())
    {
-      AddToPlaylist(CurrentLine());
+      int64_t pos1 = CurrentSelection().first;
+      int64_t pos2 = CurrentSelection().second;
+
+      if (pos2 < pos1)
+      {
+         pos2 = pos1;
+         pos1 = CurrentSelection().second;
+      }
+
+      if (pos1 == pos2)
+      {
+         AddToPlaylist(CurrentLine());
+      }
+      else
+      {
+         AddLine(pos1, pos2 - pos1 + 1, false);
+      }
 
       if (Buffer().Get(CurrentLine()) != NULL)
       {
-         client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - 1));
+         client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - (pos2 - pos1 + 1)));
       }
    }
+
+   SelectWindow::Confirm();
 }
 
 uint32_t SongWindow::Current() const
 {
-   uint32_t current       = CurrentLine();
-   int32_t  currentSongId = client_.GetCurrentSong();
+   int32_t current       = CurrentLine();
+   int32_t currentSongId = client_.GetCurrentSong();
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
    {
@@ -204,6 +221,22 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
    if (client_.Connected() == true)
    {
+      int64_t pos1 = CurrentSelection().first;
+      int64_t pos2 = CurrentSelection().second;
+
+      if (pos2 < pos1)
+      {
+         pos2 = pos1;
+         pos1 = CurrentSelection().second;
+      }
+
+      if (pos1 != pos2)
+      {
+         count  = pos2 - pos1 + 1;
+         line   = pos1;
+         scroll = false;
+      }
+
       if (count > 1)
       {
          client_.StartCommandList();
@@ -224,6 +257,8 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
          Scroll(count);
       }
    }
+
+   SelectWindow::AddLine(line, count, scroll);
 }
 
 void SongWindow::AddAllLines()
@@ -247,6 +282,22 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
    if (client_.Connected() == true)
    {
+      int64_t pos1 = CurrentSelection().first;
+      int64_t pos2 = CurrentSelection().second;
+
+      if (pos2 < pos1)
+      {
+         pos2 = pos1;
+         pos1 = CurrentSelection().second;
+      }
+
+      if (pos1 != pos2)
+      {
+         count  = pos2 - pos1 + 1;
+         line   = pos1;
+         scroll = false;
+      }
+
       if (count > 1)
       {
          client_.StartCommandList();
@@ -278,6 +329,8 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
          Scroll(count);
       }
    }
+
+   SelectWindow::DeleteLine(line, count, scroll);
 }
 
 void SongWindow::DeleteAllLines()
@@ -321,14 +374,14 @@ void SongWindow::PrintId(uint32_t Id) const
 
    waddstr(window, "[");
 
-   if ((settings_.ColourEnabled() == true) && (Id != CurrentLine()))
+   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
    {
       wattron(window, COLOR_PAIR(Colour::SongId));
    }
 
    wprintw(window, "%5d", Id + 1);
 
-   if ((settings_.ColourEnabled() == true) && (Id != CurrentLine()))
+   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
    {
       wattroff(window, COLOR_PAIR(Colour::SongId));
    }
@@ -373,7 +426,7 @@ void SongWindow::PrintDuration(int32_t Id, int32_t colour, std::string duration)
 {
    WINDOW * window = N_WINDOW();
 
-   if ((settings_.ColourEnabled() == true) && (Id == CurrentLine()))
+   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == true))
    {
       wattron(window, COLOR_PAIR(colour));
       waddstr(window, "[");
@@ -386,7 +439,7 @@ void SongWindow::PrintDuration(int32_t Id, int32_t colour, std::string duration)
 
    wprintw(window, "%s", duration.c_str());
 
-   if ((settings_.ColourEnabled() == true) && (Id == CurrentLine()))
+   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == true))
    {
       waddstr(window, "]");
       wattroff(window, COLOR_PAIR(colour));

@@ -157,7 +157,7 @@ int32_t OutputWindow::DetermineColour(uint32_t line) const
 
 void OutputWindow::AdjustScroll(Mpc::Output * output)
 {
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
+   LimitCurrentSelection();
 }
 
 

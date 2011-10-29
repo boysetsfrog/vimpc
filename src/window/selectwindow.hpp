@@ -26,8 +26,12 @@
 
 namespace Ui
 {
+   typedef std::pair<int64_t, int64_t> Selection;
+
    class SelectWindow : public Ui::ScrollWindow
    {
+   public:
+
    public:
       SelectWindow(Ui::Screen & screen, std::string name = "Unknown");
       ~SelectWindow();
@@ -38,11 +42,24 @@ namespace Ui
       void ScrollTo(uint16_t scrollLine);
 
       uint16_t CurrentLine() const;
+      void Confirm();
+
+   public: // Ui::ScrollWindow
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void Visual();
+
+   public:
+      bool IsSelected(uint32_t line) const;
+      Selection CurrentSelection() const;
 
    protected:
-      int64_t LimitCurrentSelection(int64_t currentSelection) const;
+      void LimitCurrentSelection() const;
 
-      mutable int64_t currentSelection_;
+   private:
+      bool              visualMode_;
+      mutable int64_t   currentLine_;
+      mutable Selection currentSelection_;
    };
 }
 

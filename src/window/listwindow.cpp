@@ -140,7 +140,7 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 
 void ListWindow::AdjustScroll(std::string list)
 {
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
+   LimitCurrentSelection();
 }
 
 
