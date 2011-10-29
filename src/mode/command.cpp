@@ -146,27 +146,38 @@ void Command::GenerateInputString(int input)
 
 bool Command::ExecuteCommand(std::string const & input)
 {
+   pcrecpp::RE const blankCommand("^\\s*$");
+   pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
+
+   std::string matchString, commandString;
    std::string command, arguments;
 
    SplitCommand(input, command, arguments);
 
+   std::string fullCommand(command + " " + arguments);
+
    if (aliasTable_.find(command) != aliasTable_.end())
    {
-      pcrecpp::RE const blankCommand("^\\s*$");
-      pcrecpp::RE const multipleCommandAlias("^(\\s*([^;]+)\\s*;?).*$");
-      std::string       resolvedAlias(aliasTable_[command] + " " + arguments);
+      fullCommand = aliasTable_[command] + " " + arguments;
+   }
 
-      std::string matchString;
-      std::string commandString;
-
-      while (multipleCommandAlias.FullMatch(resolvedAlias.c_str(), &matchString, &commandString) == true)
+   if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
+       (command != "alias"))
+   {
+      while (multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true)
       {
-         resolvedAlias = resolvedAlias.substr(matchString.size(), resolvedAlias.size());
+         fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
 
          if (blankCommand.FullMatch(commandString) == false)
          {
             ExecuteCommand(commandString);
          }
+      }
+
+      // The last command does not need a ';'
+      if (blankCommand.FullMatch(fullCommand) == false)
+      {
+         ExecuteCommand(fullCommand);
       }
    }
    else
