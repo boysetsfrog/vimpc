@@ -162,8 +162,9 @@ bool Command::ExecuteCommand(std::string const & input)
    }
 
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
-       (command != "alias"))
+       (command != "alias")) // In the case of alias we don't actually want to run the commands
    {
+      // There are multiple commands seperated gy ';' we have to handle each one
       while (multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true)
       {
          fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
@@ -182,15 +183,21 @@ bool Command::ExecuteCommand(std::string const & input)
    }
    else if (aliasTable_.find(command) != aliasTable_.end())
    {
+      // We are a single command alias, but this could actually be
+      // another alias, so ensure to look this up in the table to
+      // by calling this fucking again
       ExecuteCommand(fullCommand);
    }
    else
    {
+      // Ignore the connect command when starting up if -h/-p used
+      // on the command line
       if (command == "connect" && settings_.SkipConfigConnects())
       {
          return true;
       }
 
+      // Just a normal command
       ExecuteCommand(command, arguments);
    }
 
