@@ -180,6 +180,10 @@ bool Command::ExecuteCommand(std::string const & input)
          ExecuteCommand(fullCommand);
       }
    }
+   else if (aliasTable_.find(command) != aliasTable_.end())
+   {
+      ExecuteCommand(fullCommand);
+   }
    else
    {
       if (command == "connect" && settings_.SkipConfigConnects())
