@@ -188,6 +188,7 @@ MISC:
   clear                   | clears the console window
   connect [host] [port]   | connects to [host] [port]
   echo <string>           | echos the given string to the console window
+  password <password>     | authenticate to mpd using <password>
   quit[!]                 | if only one tab then quit, otherwise close the tab
   quitall[!]              | quit vimpc
                           | Note: if ! is appended to quit, playback is stopped

@@ -65,6 +65,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["findartist"]= &Command::FindArtist;
    commandTable_["findsong"]  = &Command::FindSong;
    commandTable_["move"]      = &Command::Move;
+   commandTable_["password"]  = &Command::Password;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
    commandTable_["q"]         = &Command::Quit;
@@ -354,6 +355,11 @@ void Command::Connect(std::string const & arguments)
    std::string port     = arguments.substr(pos + 1);
 
    client_.Connect(hostname, std::atoi(port.c_str()));
+}
+
+void Command::Password(std::string const & password)
+{
+   client_.Password(password.c_str());
 }
 
 void Command::Echo(std::string const & echo)

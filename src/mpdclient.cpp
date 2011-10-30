@@ -145,6 +145,14 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    }
 }
 
+void Client::Password(std::string const & password)
+{
+   if (Connected() == true)
+   {
+      mpd_run_password(connection_, password.c_str());
+   }
+}
+
 std::string Client::Hostname()
 {
    return hostname_;
@@ -154,6 +162,12 @@ uint16_t Client::Port()
 {
    return port_;
 }
+
+bool Client::Connected() const
+{
+   return (connection_ != NULL);
+}
+
 
 void Client::StartCommandList()
 {
@@ -537,6 +551,15 @@ void Client::DisableOutput(Mpc::Output * output)
    }
 }
 
+
+void Client::Add(Mpc::Song * song)
+{
+   if ((Connected() == true) && (song != NULL))
+   {
+      (void) Add(*song);
+   }
+}
+
 uint32_t Client::Add(Mpc::Song & song)
 {
    if (Connected() == true)
@@ -583,6 +606,17 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
    return TotalNumberOfSongs() - 1;
 }
 
+uint32_t Client::AddAllSongs()
+{
+   if (Connected() == true)
+   {
+      mpd_run_add(connection_, "/");
+      CheckError();
+      CheckForUpdates();
+   }
+
+   return TotalNumberOfSongs() - 1;
+}
 
 uint32_t Client::Add(std::string const & URI)
 {
@@ -599,25 +633,6 @@ uint32_t Client::Add(std::string const & URI)
    return TotalNumberOfSongs() - 1;
 }
 
-uint32_t Client::AddAllSongs()
-{
-   if (Connected() == true)
-   {
-      mpd_run_add(connection_, "/");
-      CheckError();
-      CheckForUpdates();
-   }
-
-   return TotalNumberOfSongs() - 1;
-}
-
-void Client::Add(Mpc::Song * song)
-{
-   if ((Connected() == true) && (song != NULL))
-   {
-      (void) Add(*song);
-   }
-}
 
 void Client::Delete(uint32_t position)
 {
@@ -695,6 +710,146 @@ void Client::Clear()
 }
 
 
+void Client::SearchAny(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_any_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, search.c_str());
+   }
+}
+
+void Client::SearchArtist(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, search.c_str());
+   }
+}
+
+void Client::SearchAlbum(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, search.c_str());
+   }
+}
+
+void Client::SearchSong(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, search.c_str());
+   }
+}
+
+
+std::string Client::CurrentState()
+{
+   if (Connected() == true)
+   {
+      CheckForUpdates();
+
+      if (currentStatus_ != NULL)
+      {
+         mpd_state state = mpd_status_get_state(currentStatus_);
+
+         switch (state)
+         {
+            case MPD_STATE_UNKNOWN:
+               currentState_ = "Unknown";
+               break;
+            case MPD_STATE_STOP:
+               currentState_ = "Stopped";
+               break;
+            case MPD_STATE_PLAY:
+               currentState_ = "Playing";
+               break;
+            case MPD_STATE_PAUSE:
+               currentState_ = "Paused";
+               break;
+
+            default:
+               break;
+         }
+      }
+   }
+
+   return currentState_;
+}
+
+
+std::string Client::GetCurrentSongURI()
+{
+   return currentSongURI_;
+}
+
+//! \todo rename to GetCurrentSongPos
+int32_t Client::GetCurrentSong()
+{
+   return currentSongId_;
+}
+
+uint32_t Client::TotalNumberOfSongs()
+{
+   uint32_t songTotal = 0;
+
+   if ((Connected() == true) && (currentStatus_ != NULL))
+   {
+      songTotal = mpd_status_get_queue_length(currentStatus_);
+   }
+
+   return songTotal;
+}
+
+bool Client::SongIsInQueue(Mpc::Song const & song) const
+{
+   return (song.Reference() != 0);
+}
+
+void Client::DisplaySongInformation()
+{
+   if ((Connected() == true) && (CurrentState() != "Stopped"))
+   {
+      CheckForUpdates();
+
+      if ((currentSong_ != NULL) && (currentStatus_ != NULL))
+      {
+         mpd_status * const status   = currentStatus_;
+         uint32_t     const duration = mpd_song_get_duration(currentSong_);
+         uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
+         uint32_t     const remain   = duration - elapsed;
+         char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
+         char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
+         std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
+         std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
+
+         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
+
+         if (settings_.TimeRemaining() == false)
+         {
+            screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
+                                  SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
+                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+         }
+         else
+         {
+            screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
+                                  SecondsToMinutes(remain),  RemainingSeconds(remain),
+                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+         }
+      }
+   }
+   else
+   {
+      screen_.SetStatusLine("%s","");
+   }
+}
+
+
 void Client::Rescan()
 {
    if (Connected() == true)
@@ -767,150 +922,6 @@ void Client::CheckForUpdates()
    }
 }
 
-
-std::string Client::CurrentState()
-{
-   if (Connected() == true)
-   {
-      CheckForUpdates();
-
-      if (currentStatus_ != NULL)
-      {
-         mpd_state state = mpd_status_get_state(currentStatus_);
-
-         switch (state)
-         {
-            case MPD_STATE_UNKNOWN:
-               currentState_ = "Unknown";
-               break;
-            case MPD_STATE_STOP:
-               currentState_ = "Stopped";
-               break;
-            case MPD_STATE_PLAY:
-               currentState_ = "Playing";
-               break;
-            case MPD_STATE_PAUSE:
-               currentState_ = "Paused";
-               break;
-
-            default:
-               break;
-         }
-      }
-   }
-
-   return currentState_;
-}
-
-
-bool Client::Connected() const
-{
-   return (connection_ != NULL);
-}
-
-std::string Client::GetCurrentSongURI()
-{
-   return currentSongURI_;
-}
-
-//! \todo rename to GetCurrentSongPos
-int32_t Client::GetCurrentSong()
-{
-   return currentSongId_;
-}
-
-uint32_t Client::TotalNumberOfSongs()
-{
-   uint32_t songTotal = 0;
-
-   if ((Connected() == true) && (currentStatus_ != NULL))
-   {
-      songTotal = mpd_status_get_queue_length(currentStatus_);
-   }
-
-   return songTotal;
-}
-
-void Client::SearchAny(std::string const & search, bool exact)
-{
-   if (Connected() == true)
-   {
-      mpd_search_db_songs(connection_, exact);
-      mpd_search_add_any_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, search.c_str());
-   }
-}
-
-void Client::SearchArtist(std::string const & search, bool exact)
-{
-   if (Connected() == true)
-   {
-      mpd_search_db_songs(connection_, exact);
-      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, search.c_str());
-   }
-}
-
-void Client::SearchAlbum(std::string const & search, bool exact)
-{
-   if (Connected() == true)
-   {
-      mpd_search_db_songs(connection_, exact);
-      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, search.c_str());
-   }
-}
-
-void Client::SearchSong(std::string const & search, bool exact)
-{
-   if (Connected() == true)
-   {
-      mpd_search_db_songs(connection_, exact);
-      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, search.c_str());
-   }
-}
-
-bool Client::SongIsInQueue(Mpc::Song const & song) const
-{
-   return (song.Reference() != 0);
-}
-
-
-void Client::DisplaySongInformation()
-{
-   if ((Connected() == true) && (CurrentState() != "Stopped"))
-   {
-      CheckForUpdates();
-
-      if ((currentSong_ != NULL) && (currentStatus_ != NULL))
-      {
-         mpd_status * const status   = currentStatus_;
-         uint32_t     const duration = mpd_song_get_duration(currentSong_);
-         uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
-         uint32_t     const remain   = duration - elapsed;
-         char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
-         char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
-         std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
-         std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
-
-         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
-
-         if (settings_.TimeRemaining() == false)
-         {
-            screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
-                                  SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
-                                  SecondsToMinutes(duration), RemainingSeconds(duration));
-         }
-         else
-         {
-            screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
-                                  SecondsToMinutes(remain),  RemainingSeconds(remain),
-                                  SecondsToMinutes(duration), RemainingSeconds(duration));
-         }
-      }
-   }
-   else
-   {
-      screen_.SetStatusLine("%s","");
-   }
-}
 
 unsigned int Client::QueueVersion()
 {
