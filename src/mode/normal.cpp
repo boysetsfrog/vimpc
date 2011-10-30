@@ -229,6 +229,8 @@ bool Normal::Handle(int input)
    {
       action       = &actionTable_;
       actionCount_ = 0;
+
+      screen_.ActiveWindow().Escape();
    }
    else if (action->find(input) != action->end())
    {

@@ -108,6 +108,12 @@ void SelectWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
    currentSelection_.first = currentLine_;
 }
 
+void SelectWindow::Escape()
+{
+   visualMode_ = false;
+   currentSelection_.first = currentLine_;
+}
+
 void SelectWindow::Visual()
 {
    visualMode_ = !visualMode_;
