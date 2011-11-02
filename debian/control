@@ -3,7 +3,7 @@ Section: sound
 Priority: optional
 Maintainer: Nathan Sweetman <nathan.sweetman@gmail.com>
 Uploaders: Rich Healey <richo@psych0tik.net>
-Build-Depends: libmpdclient-dev, automake1.10, libpcre++-dev
+Build-Depends: libmpdclient-dev, automake1.10, libpcre++-dev, cdbs
 Standards-version: 3.8.4
 Homepage: http://vimpc.sourceforge.net/
 
