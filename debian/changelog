@@ -1,3 +1,9 @@
+vimpc (0.05~psych0tik.1) unstable; urgency=low
+
+  * Pre-0.05 build
+
+ -- Rich Healey <richo@psych0tik.net>  Thu, 03 Nov 2011 09:22:36 +1100
+
 vimpc (0.04) unstable; urgency=low
 
   * Release 0.04
@@ -11,13 +17,13 @@ vimpc (0.04~psych0tik.1) unstable; urgency=low
  -- Rich Healey <richo@psych0tik.net>  Tue, 04 Oct 2011 15:22:34 +1100
 
 vimpc (0.03-psych0tik.2) unstable; urgency=low
-  
+
   * Add Nathan as Maintainer, myself as Uploader.
 
  -- Rich Healey <richo@psych0tik.net>  Mon, 29 Aug 2011 11:57:51 +1000
 
 vimpc (0.03-psych0tik.1) unstable; urgency=low
-  
+
   * Fix broken deb builds
 
  -- Rich Healey <richo@psych0tik.net>  Mon, 29 Aug 2011 11:38:51 +1000
