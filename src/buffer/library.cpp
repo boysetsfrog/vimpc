@@ -215,7 +215,7 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
       Main::Playlist().Add(entry->song_);
       client.Add(*(entry->song_));
    }
-   else if (entry->expanded_ == false)
+   else
    {
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
@@ -236,11 +236,29 @@ void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const *
          Main::Playlist().Remove(PlaylistIndex, 1);
       }
    }
-   else if (entry->expanded_ == false)
+   else
    {
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
          RemoveFromPlaylist(client, (*it));
+      }
+   }
+}
+
+void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const
+{
+   for (Mpc::LibraryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
+   {
+      if ((*it)->type_ == AlbumType)
+      {
+         for (Mpc::LibraryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
+         {
+            (*callback)((*jt)->song_);
+         }
+      }
+      else if ((*it)->type_ == SongType)
+      {
+         (*callback)((*it)->song_);
       }
    }
 }

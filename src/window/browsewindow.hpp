@@ -49,7 +49,9 @@ namespace Ui
 
    public:
       void Redraw();
-      uint32_t Playlist(int Offset) const;
+
+   protected:
+      void PrintId(uint32_t Id) const;
 
    private:
       void    Clear();

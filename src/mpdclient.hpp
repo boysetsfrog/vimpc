@@ -67,15 +67,21 @@ namespace Mpc
       Client & operator=(Client & client);
 
    public:
+      // Mpd Connections
       void Connect(std::string const & hostname = "", uint16_t port = 0);
+      void Password(std::string const & password);
+
       std::string Hostname();
       uint16_t Port();
+      bool Connected() const;
 
    public:
+      // Command lists
       void StartCommandList();
       void SendCommandList();
 
    public:
+      // Playback functions
       void Play(uint32_t playId);
       void Pause();
       void Stop();
@@ -85,6 +91,7 @@ namespace Mpc
       void SeekTo(uint32_t Time);
 
    public:
+      // Toggle settings
       bool Random();
       void SetRandom(bool random);
 
@@ -101,11 +108,13 @@ namespace Mpc
       void SetVolume(uint32_t volume);
 
    public:
+      // Playlist editing
       void Shuffle();
       void Move(uint32_t position1, uint32_t position2);
       void Swap(uint32_t position1, uint32_t position2);
 
    public:
+      // Playlist management
       void CreatePlaylist(std::string const & name);
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
@@ -113,42 +122,49 @@ namespace Mpc
       void AddToPlaylist(std::string const & name, Mpc::Song * song);
 
    public:
+      // Outputs
       void EnableOutput(Mpc::Output * output);
       void DisableOutput(Mpc::Output * output);
 
-   public: //Queue
+   public:
+      // Queue manipulation
+      void Add(Mpc::Song * song);
       uint32_t Add(Mpc::Song & song);
       uint32_t Add(Mpc::Song & song, uint32_t position);
       uint32_t AddAllSongs();
-      void Add(Mpc::Song * song);
+
+      //! This add is only used by a command when a full uri is specified
+      //! it should not be used to add songs from the library, you should use the
+      //! versions above for that purpose
+      uint32_t Add(std::string const & URI);
+
       void Delete(uint32_t position);
       void Delete(uint32_t position1, uint32_t position2);
       void Clear();
 
-      void Rescan();
-      void Update();
-
    public:
-      void CheckForUpdates();
-
-   public:
-      std::string CurrentState();
-      bool Connected() const;
-
-   public:
-      std::string GetCurrentSongURI() ;
-      int32_t  GetCurrentSong();
-      uint32_t TotalNumberOfSongs();
-
-   public:
+      // Searching the database
       void SearchAny(std::string const & search, bool exact = false);
       void SearchArtist(std::string const & search, bool exact = false);
       void SearchAlbum(std::string const & search, bool exact = false);
       void SearchSong(std::string const & search, bool exact = false);
 
    public:
+      // Mpd Status
+      std::string CurrentState();
+      std::string GetCurrentSongURI() ;
+
+      int32_t  GetCurrentSong();
+      uint32_t TotalNumberOfSongs();
+
       bool SongIsInQueue(Mpc::Song const & song) const;
       void DisplaySongInformation();
+
+   public:
+      // Database state
+      void Rescan();
+      void Update();
+      void CheckForUpdates();
 
    public:
       //! \todo port these over to using the callback object
@@ -176,9 +192,10 @@ namespace Mpc
    private:
       unsigned int QueueVersion();
       void UpdateStatus(bool ExpectUpdate = false);
-      Song * CreateSong(uint32_t id, mpd_song const * const) const;
+      Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
 
    private:
+      void GetVersion();
       void CheckError();
       void DeleteConnection();
 
@@ -189,6 +206,9 @@ namespace Mpc
 
       std::string             hostname_;
       uint16_t                port_;
+      uint32_t                versionMajor_;
+      uint32_t                versionMinor_;
+      uint32_t                versionPatch_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
@@ -202,6 +222,7 @@ namespace Mpc
       bool                    listMode_;
    };
 
+
    //
    template <typename Object>
    void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *))
@@ -214,7 +235,12 @@ namespace Mpc
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
-            Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
+            Song * song = Main::Library().Song(mpd_song_get_uri(nextSong));
+
+            if (song == NULL)
+            {
+               song = CreateSong(-1, nextSong);
+            }
 
             if (song != NULL)
             {
@@ -239,7 +265,12 @@ namespace Mpc
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
             uint32_t const position = mpd_song_get_pos(nextSong);
-            Song * const   song     = Main::Library().Song(mpd_song_get_uri(nextSong));
+            Song *         song     = Main::Library().Song(mpd_song_get_uri(nextSong));
+
+            if (song == NULL)
+            {
+               song = CreateSong(-1, nextSong, false);
+            }
 
             if (song != NULL)
             {
@@ -257,7 +288,7 @@ namespace Mpc
    {
       if (Connected() == true)
       {
-         mpd_send_list_all_meta(connection_, "/");
+         mpd_send_list_all_meta(connection_, NULL);
 
          mpd_entity * nextEntity = mpd_recv_entity(connection_);
 

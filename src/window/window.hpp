@@ -63,7 +63,7 @@ namespace Ui
       virtual size_t BufferSize() const = 0;
 
    private:
-      WINDOW * const window_;
+      WINDOW * window_;
    };
 }
 

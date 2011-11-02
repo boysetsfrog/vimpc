@@ -12,8 +12,8 @@ MOTION:
   [count] j, Down         | scroll down [count]
   [count] Pg Up, Ctrl+u   | scroll up by [count] pages
   [count] Pg Dn, Ctrl+d   | scroll down by [count] pages
-          Ctrl+y          | scroll down a line, maintain selection
-          Ctrl+e          | scroll up a line, maintain selection
+  [count] Ctrl+y          | scroll down a line, maintain selection
+  [count] Ctrl+e          | scroll up a line, maintain selection
           Home            | scroll to the top
           End             | scroll to the bottom 
   [count] f               | scroll to the currently playing song + [count]
@@ -40,6 +40,7 @@ SEARCHING:
 
 SEARCH FLAGS:
           \c              | if in search expression, disables case sensitivity
+          \C              | if in search expression, enables case sensitivity
 
 PLAYING (ALSO SEE PLAYLIST):                          
   [count] <               | skip to the previous song
@@ -66,6 +67,7 @@ ALL WINDOWS:
           X               | delete all songs from the selected line to the end
 
 PLAYLIST:
+          v               | enter visual selection mode
   [count] d, del          | delete songs
   [count] h, Left         | seek back [count] seconds
   [count] l, Right        | seek forward [count] seconds
@@ -76,6 +78,7 @@ PLAYLIST:
           <Enter>         | play the selected song
 
 BROWSE:
+          v               | enter visual selection mode
   [count] a               | add songs to playlist
   [count] d, del          | delete songs
           <Enter>         | append the song to the playlist and play it
@@ -91,12 +94,18 @@ LIBRARY:
   [count] d, del          | delete song, album, artist
           h, Left         | collapse selection
           l, Right        | expand selection
+          e               | view artist/album contents in new window
           <Enter>         | clear playlist, add song/album/artist and play it
 
 OUTPUTS:
           d               | disable the selected output
           D               | disable all outputs
           <Enter>         | enable the selected output
+
+SONGINFO:
+          a               | add song to the playlist
+          d               | delete song from playlist
+          <Enter>         | append the song to the playlist and play it
 
 
 COMMAND/EX MODE
@@ -137,7 +146,12 @@ FIND:
   Note: Appending a ! to any search term will automatically add the songs to the
   playlist rather than creating a new window.
 
+OUTPUTS:
+  disable <id/name>       | enable output with id <id> or name <name>
+  enable <id/name>        | disable output with id <id> or name <name>
+
 PLAYLIST:
+  add <uri>               | add a song/strem using the given <uri>
   delete <pos1> [pos2]    | delete the song at <pos1>, or from <pos1> to [pos2]
   deleteall               | delete all songs in the playlist
   move <pos1> <pos2>      | move song from <pos1> to <pos2>
@@ -174,6 +188,7 @@ MISC:
   clear                   | clears the console window
   connect [host] [port]   | connects to [host] [port]
   echo <string>           | echos the given string to the console window
+  password <password>     | authenticate to mpd using <password>
   quit[!]                 | if only one tab then quit, otherwise close the tab
   quitall[!]              | quit vimpc
                           | Note: if ! is appended to quit, playback is stopped
@@ -188,17 +203,21 @@ All settings can be prefixed with no, which will disable the setting,
 or postfixed with !  which will toggle the setting.
 
   [no]autoscroll[!]       | automatically scroll when skipping songs 
+  [no]browsenumbers[!]    | display id numbers next to songs in the browse window
   [no]colour[!]           | enable or disable colours
   [no]expand-artists[!]   | when enabled, expand to artist by default in library
                           | if changed whilst running, must :redraw the library
   [no]hlsearch[!]         | highlight search results
   [no]ignorecase[!]       | case insensitive searching
+  [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
   [no]searchwrap[!]       | wrap search results when using n/N
   [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
   [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
+  [no]songnumbers[!]      | display id numbers next to songs in any window
   [no]stoponquit[!]       | automatically stop playback when vimpc is quit
   [no]timeremaining[!]    | display the time remaining rather than elapsed
   [no]windownumbers[!]    | display the number next to the window in the tab bar
+
 
   window <window>         | sets the window that will start with focus
                           | only useful if called from ~/.vimpcrc file

@@ -26,8 +26,11 @@ using namespace Ui;
 
 SelectWindow::SelectWindow(Ui::Screen & screen, std::string name) :
    ScrollWindow     (screen, name),
-   currentSelection_(0)
+   visualMode_      (false),
+   currentLine_     (0)
 {
+   currentSelection_.first  = 0;
+   currentSelection_.second = 0;
 }
 
 SelectWindow::~SelectWindow()
@@ -37,9 +40,9 @@ SelectWindow::~SelectWindow()
 
 void SelectWindow::Resize(int rows, int columns)
 {
-   if (currentSelection_ >= rows)
+   if (currentLine_ >= rows)
    {
-      currentSelection_ = rows - 1;
+      currentLine_ = rows - 1;
    }
 
    ScrollWindow::Resize(rows, columns);
@@ -47,10 +50,10 @@ void SelectWindow::Resize(int rows, int columns)
 
 void SelectWindow::Scroll(int32_t scrollCount)
 {
-   currentSelection_ += scrollCount;
-   currentSelection_  = LimitCurrentSelection(currentSelection_);
+   currentLine_ += scrollCount;
+   LimitCurrentSelection();
 
-   if ((currentSelection_ >= scrollLine_) || (currentSelection_ < scrollLine_ - screen_.MaxRows()))
+   if ((currentLine_ >= scrollLine_) || (currentLine_ < scrollLine_ - screen_.MaxRows()))
    {
       ScrollWindow::Scroll(scrollCount);
    }
@@ -58,19 +61,19 @@ void SelectWindow::Scroll(int32_t scrollCount)
 
 void SelectWindow::ScrollTo(uint16_t scrollLine)
 {
-   int64_t oldSelection = currentSelection_;
-   currentSelection_    = (static_cast<int64_t>(scrollLine));
-   currentSelection_    = LimitCurrentSelection(currentSelection_);
+   int64_t oldSelection = currentLine_;
+   currentLine_    = (static_cast<int64_t>(scrollLine));
+   LimitCurrentSelection();
 
-   if ((currentSelection_ == LastLine()) && (currentSelection_ - oldSelection == 1))
+   if ((currentLine_ == LastLine()) && (currentLine_ - oldSelection == 1))
    {
       ScrollWindow::Scroll(1);
    }
-   else if ((currentSelection_ == scrollLine_ - screen_.MaxRows()) && (currentSelection_ - oldSelection == -1))
+   else if ((currentLine_ == scrollLine_ - screen_.MaxRows()) && (currentLine_ - oldSelection == -1))
    {
       ScrollWindow::Scroll(-1);
    }
-   else if ((currentSelection_ >= scrollLine_) || (currentSelection_ < (scrollLine_ - screen_.MaxRows())))
+   else if ((currentLine_ >= scrollLine_) || (currentLine_ < (scrollLine_ - screen_.MaxRows())))
    {
       ScrollWindow::ScrollTo(scrollLine);
    }
@@ -82,21 +85,70 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
 
 uint16_t SelectWindow::CurrentLine() const
 {
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
+   LimitCurrentSelection();
+   return currentLine_;
+}
 
+void SelectWindow::Confirm()
+{
+   visualMode_ = false;
+   currentSelection_.first = currentLine_;
+}
+
+
+void SelectWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   visualMode_ = false;
+   currentSelection_.first = currentLine_;
+}
+
+void SelectWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   visualMode_ = false;
+   currentSelection_.first = currentLine_;
+}
+
+void SelectWindow::Escape()
+{
+   visualMode_ = false;
+   currentSelection_.first = currentLine_;
+}
+
+void SelectWindow::Visual()
+{
+   visualMode_ = !visualMode_;
+   currentSelection_.first = currentLine_;
+}
+
+
+bool SelectWindow::IsSelected(uint32_t line) const
+{
+   return (((currentSelection_.first == line) || (currentSelection_.second == line)) ||
+           ((currentSelection_.first > line) && (currentSelection_.second < line)) ||
+           ((currentSelection_.first < line) && (currentSelection_.second > line)));
+}
+
+Ui::Selection SelectWindow::CurrentSelection() const
+{
    return currentSelection_;
 }
 
-int64_t SelectWindow::LimitCurrentSelection(int64_t currentSelection) const
+
+void SelectWindow::LimitCurrentSelection() const
 {
-   if (currentSelection < 0)
+   if (currentLine_ < 0)
    {
-      currentSelection = 0;
+      currentLine_ = 0;
    }
-   else if ((currentSelection_ >= static_cast<int32_t>(BufferSize())) && (BufferSize() > 0))
+   else if ((currentLine_ >= static_cast<int32_t>(BufferSize())) && (BufferSize() > 0))
    {
-      currentSelection = BufferSize() - 1;
+      currentLine_ = BufferSize() - 1;
    }
 
-   return currentSelection;
+   if (visualMode_ == false)
+   {
+      currentSelection_.first = currentLine_;
+   }
+
+   currentSelection_.second = currentLine_;
 }

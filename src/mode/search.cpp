@@ -186,9 +186,14 @@ pcrecpp::RE_Options Search::GetOptions(const std::string & search) const
    {
       opt.set_caseless(true);
    }
-   else if (search.find("\\c") != string::npos)
+
+   if (search.find("\\c") != string::npos)
    {
       opt.set_caseless(true);
+   }
+   else if (search.find("\\C") != string::npos)
+   {
+      opt.set_caseless(false);
    }
 
    return opt;
@@ -200,7 +205,14 @@ std::string Search::StripFlags(std::string search) const
 
    size_t found;
 
+   //! \todo this is a hack we should really just loop
+   //! over the input once and remove all flags
    while ((found = Result.find("\\c")) != string::npos)
+   {
+      Result.erase(found, 2);
+   }
+
+   while ((found = Result.find("\\C")) != string::npos)
    {
       Result.erase(found, 2);
    }

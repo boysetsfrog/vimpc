@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   algorithm.hpp - 
+   algorithm.hpp -
    */
 
 #ifndef __MAIN__ALGORITHM
@@ -31,6 +31,8 @@ namespace Algorithm
    bool isLower(std::string const & s1);
    bool isUpper(std::string const & s1);
    bool iequals(std::string const & s1, std::string const & s2);
+
+   bool isNumeric(std::string const & s1);
 }
 
 

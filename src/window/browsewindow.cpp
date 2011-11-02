@@ -64,13 +64,19 @@ void BrowseWindow::Redraw()
    ScrollTo(currentLine);
 }
 
-uint32_t BrowseWindow::Playlist(int Offset) const
+
+void BrowseWindow::PrintId(uint32_t Id) const
 {
-   //! \todo not sure how i am going to do this
-   // but it sure be used to navigate throw the browse window
-   // skipping forward and backwards to songs that are in the playlist only
-   return 0;
+   if (settings_.BrowseNumbers() == true)
+   {
+      SongWindow::PrintId(Id);
+   }
+   else
+   {
+      SongWindow::PrintBlankId();
+   }
 }
+
 
 void BrowseWindow::Clear()
 {

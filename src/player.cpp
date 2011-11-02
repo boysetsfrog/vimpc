@@ -23,6 +23,8 @@
 #include "buffers.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
+#include "vimpc.hpp"
+
 #include "buffer/playlist.hpp"
 #include "window/console.hpp"
 
@@ -45,175 +47,111 @@ Player::~Player()
 
 }
 
-bool Player::ClearScreen()
+void Player::ClearScreen()
 {
    screen_.Clear();
-   return true;
-}
-
-bool Player::Connect(std::string const & host, uint32_t port)
-{
-   client_.Connect(host, port);
-   return true;
-}
-
-bool Player::Echo(std::string const & echo)
-{
-   Main::Console().Add(echo);
-   return true;
 }
 
 
-bool Player::Pause()
+void Player::Pause()
 {
    client_.Pause();
-   return true;
 }
 
-bool Player::Play(uint32_t position)
+void Player::Play(uint32_t position)
 {
    client_.Play(position);
-   return true;
 }
 
-bool Player::Seek(int32_t Offset)
+void Player::Seek(int32_t Offset)
 {
    client_.Seek(Offset);
-   return true;
 }
 
-bool Player::SeekTo(uint32_t Time)
+void Player::SeekTo(uint32_t Time)
 {
    client_.SeekTo(Time);
-   return true;
 }
 
 
-bool Player::Quit()
+void Player::Quit()
 {
-   return false;
+   Main::Vimpc::SetRunning(false);
 }
 
-bool Player::ToggleConsume()
+void Player::ToggleConsume()
 {
-   SetConsume(!Consume());
-   return true;
+   SetConsume(!client_.Consume());
 }
 
-bool Player::ToggleRandom()
+void Player::ToggleRandom()
 {
-   SetRandom(!Random());
-   return true;
+   SetRandom(!client_.Random());
 }
 
-bool Player::ToggleRepeat()
+void Player::ToggleRepeat()
 {
-   SetRepeat(!Repeat());
-   return true;
+   SetRepeat(!client_.Repeat());
 }
 
-bool Player::ToggleSingle()
+void Player::ToggleSingle()
 {
-   SetSingle(!Single());
-   return true;
+   SetSingle(!client_.Single());
 }
 
-bool Player::SetRandom(bool random)
+void Player::SetRandom(bool random)
 {
    client_.SetRandom(random);
-   return true;
 }
 
-bool Player::Random()
-{
-   return client_.Random();
-}
-
-bool Player::SetSingle(bool single)
+void Player::SetSingle(bool single)
 {
    client_.SetSingle(single);
-   return true;
 }
 
-bool Player::Single()
-{
-   return client_.Single();
-}
-
-bool Player::SetRepeat(bool repeat)
+void Player::SetRepeat(bool repeat)
 {
    client_.SetRepeat(repeat);
-   return true;
 }
 
-bool Player::Repeat()
-{
-   return client_.Repeat();
-}
-
-bool Player::SetConsume(bool consume)
+void Player::SetConsume(bool consume)
 {
    client_.SetConsume(consume);
-   return true;
 }
 
-bool Player::Consume()
-{
-   return client_.Consume();
-}
-
-bool Player::Shuffle()
+void Player::Shuffle()
 {
    client_.Shuffle();
-   return true;
 }
 
-
-bool Player::Redraw()
+void Player::Redraw()
 {
    screen_.Redraw();
-   return true;
 }
 
-bool Player::Stop()
+void Player::Stop()
 {
    client_.Stop();
-   return true;
 }
 
-bool Player::Volume(uint32_t volume)
+void Player::Volume(uint32_t volume)
 {
    client_.SetVolume(volume);
-   return true;
-}
-
-bool Player::LoadPlaylist(std::string const & name)
-{
-   client_.LoadPlaylist(name);
-   return true;
-}
-
-bool Player::SavePlaylist(std::string const & name)
-{
-   client_.SavePlaylist(name);
-   return true;
 }
 
 
-bool Player::Rescan()
+void Player::Rescan()
 {
    client_.Rescan();
-   return true;
 }
 
-bool Player::Update()
+void Player::Update()
 {
    client_.Update();
-   return true;
 }
 
 
-bool Player::SkipSong(Skip skip, uint32_t count)
+void Player::SkipSong(Skip skip, uint32_t count)
 {
    if (client_.Random() == false)
    {
@@ -250,20 +188,16 @@ bool Player::SkipSong(Skip skip, uint32_t count)
    }
 
    HandleAutoScroll();
-
-   return true;
 }
 
-bool Player::SkipAlbum(Skip skip, uint32_t count)
+void Player::SkipAlbum(Skip skip, uint32_t count)
 {
    SkipSongByInformation(skip, count, &Mpc::Song::Album);
-   return true;
 }
 
-bool Player::SkipArtist(Skip skip, uint32_t count)
+void Player::SkipArtist(Skip skip, uint32_t count)
 {
    SkipSongByInformation(skip, count, &Mpc::Song::Artist);
-   return true;
 }
 
 
@@ -273,7 +207,7 @@ uint32_t Player::GetCurrentSong() const
 }
 
 
-bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction)
+void Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction)
 {
    int32_t skipResult = GetCurrentSong();
 
@@ -291,8 +225,6 @@ bool Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInf
    }
 
    HandleAutoScroll();
-
-   return true;
 }
 
 uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction)
@@ -374,9 +306,5 @@ void Player::HandleAutoScroll()
       screen_.ScrollTo(Screen::Current);
    }
 }
-
-
-
-
 
 

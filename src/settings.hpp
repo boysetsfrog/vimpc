@@ -66,6 +66,9 @@ namespace Main
          //! Determine whether to autmatically scroll to playing song
          bool AutoScroll() const;
 
+         //! Show numbers in the browse window
+         bool BrowseNumbers() const;
+
          //! Determine if we should use colours
          bool ColourEnabled() const;
 
@@ -84,12 +87,18 @@ namespace Main
          //! Determine whether to wrap searching
          bool SearchWrap() const;
 
+         //! Show id next to each song in the playlist
+         bool PlaylistNumbers() const;
+
          //! Quit will quit the entire application not just close a tab
          bool SingleQuit() const;
 
          //! If used with ignore case, case sensitivy search is re-enabled when an upper case
          //! character is used in the search string
          bool SmartCase() const;
+
+         //! Show id numbers next to songs in any window
+         bool SongNumbers() const;
 
          //! Determines whether we should stop playing when we quit
          bool StopOnQuit() const;

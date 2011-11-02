@@ -27,16 +27,10 @@
 
 using namespace Ui;
 
-InfoWindow::InfoWindow(Mpc::Song * song, Ui::Screen & screen, std::string name) :
-   ScrollWindow (screen, name),
-   song_        (song)
+InfoWindow::InfoWindow(Mpc::Song * song, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
+   SongWindow (settings, screen, client, search, name)
 {
-}
-
-InfoWindow::InfoWindow(Ui::Screen & screen, std::string name) :
-   ScrollWindow (screen, name),
-   song_        (NULL)
-{
+   Add(song);
 }
 
 InfoWindow::~InfoWindow()
@@ -45,9 +39,10 @@ InfoWindow::~InfoWindow()
 
 void InfoWindow::Print(uint32_t line) const
 {
-   if ((line == 0) && (song_ != NULL))
+   if (line == 0)
    {
       WINDOW * window = N_WINDOW();
+      Mpc::Song * song = Buffer().Get(line);
 
       for (unsigned int i = 0; i < screen_.MaxRows(); ++i)
       {
@@ -57,37 +52,47 @@ void InfoWindow::Print(uint32_t line) const
       wattron(window, A_BOLD);
       mvwaddstr(window, 0, 0, " URI: ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 0, 6, "%s", song_->URI().c_str());
-
+      mvwprintw(window, 0, 6, "%s", song->URI().c_str());
 
       wattron(window, A_BOLD);
       mvwaddstr(window, 3, 0, " Artist   : ");
       wattroff(window, A_BOLD);
-      mvwaddstr(window, 3, 12, song_->Artist().c_str());
+      mvwaddstr(window, 3, 12, song->Artist().c_str());
 
       wattron(window, A_BOLD);
       mvwaddstr(window, 4, 0, " Album    : ");
       wattroff(window, A_BOLD);
-      mvwaddstr(window, 4, 12, song_->Album().c_str());
+      mvwaddstr(window, 4, 12, song->Album().c_str());
 
       wattron(window, A_BOLD);
       mvwaddstr(window, 5, 0, " Track    : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 5, 12, "%s - %s", song_->Track().c_str(), song_->Title().c_str());
+      mvwprintw(window, 5, 12, "%s - %s", song->Track().c_str(), song->Title().c_str());
 
       wattron(window, A_BOLD);
       mvwaddstr(window, 6, 0, " Duration : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 6, 12, "%d:%d", Mpc::SecondsToMinutes(song_->Duration()), Mpc::RemainingSeconds(song_->Duration()));
+      mvwprintw(window, 6, 12, "%d:%d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
 
 
       wattron(window, A_BOLD);
       mvwaddstr(window, 8, 0, " In Playlist : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 8, 15, "%s", (song_->Reference() > 0) ? "Yes" : "No");
+      mvwprintw(window, 8, 15, "%s", (song->Reference() > 0) ? "Yes" : "No");
 
-      //mvwaddstr(window, 4, 0, song_->Duration().c_str());
+      //mvwaddstr(window, 4, 0, song->Duration().c_str());
       //
       // \TODO playlist positions, rating, counter, other TAGS (genre, date)
    }
+}
+
+
+void InfoWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   SongWindow::AddLine(0, 1, false);
+}
+
+void InfoWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   SongWindow::DeleteLine(0, 1, false);
 }

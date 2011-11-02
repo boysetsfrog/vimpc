@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   modewindow.cpp - provides a window for each input mode 
+   modewindow.cpp - provides a window for each input mode
    */
 
 #include "modewindow.hpp"
@@ -24,8 +24,8 @@
 
 using namespace Ui;
 
-ModeWindow::ModeWindow() :
-   Window         (0, COLS, LINES - 1, 0),
+ModeWindow::ModeWindow(int columns, int lines) :
+   Window         (0, columns, lines - 1, 0),
    cursorVisible_ (false),
    cursorPosition_(0),
    buffer_        ()

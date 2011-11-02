@@ -21,11 +21,13 @@
 #include "librarywindow.hpp"
 
 #include "buffers.hpp"
+#include "buffers.hpp"
 #include "colour.hpp"
+#include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
-#include "buffers.hpp"
+#include "songwindow.hpp"
 #include "mode/search.hpp"
 
 #include <algorithm>
@@ -282,30 +284,16 @@ void LibraryWindow::Confirm()
 
 void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
-   if (count > 1)
-   {
-      client_.StartCommandList();
-   }
-
-   for (uint32_t i = 0; i < count; ++i)
-   {
-      library_.AddToPlaylist(Mpc::Song::Single, client_, screen_.ActiveWindow().CurrentLine() + i);
-   }
-
-   if (count > 1)
-   {
-      client_.SendCommandList();
-   }
-
-   if (scroll == true)
-   {
-      Scroll(count);
-   }
+   DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll);
 }
 
 void LibraryWindow::AddAllLines()
 {
-   client_.AddAllSongs();
+   if (client_.Connected() == true)
+   {
+      client_.AddAllSongs();
+   }
+
    ScrollTo(CurrentLine());
 }
 
@@ -321,25 +309,7 @@ void LibraryWindow::CropAllLines()
 
 void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
-   if (count > 1)
-   {
-      client_.StartCommandList();
-   }
-
-   for (uint32_t i = 0; i < count; ++i)
-   {
-      library_.RemoveFromPlaylist(Mpc::Song::Single, client_, screen_.ActiveWindow().CurrentLine() + i);
-   }
-
-   if (count > 1)
-   {
-      client_.SendCommandList();
-   }
-
-   if (scroll == true)
-   {
-      Scroll(count);
-   }
+   DoForLine(&Mpc::Library::RemoveFromPlaylist, line, count, scroll);
 }
 
 void LibraryWindow::DeleteAllLines()
@@ -347,6 +317,82 @@ void LibraryWindow::DeleteAllLines()
    Main::PlaylistPasteBuffer().Clear();
    client_.Clear();
    Main::Playlist().Clear();
+}
+
+void LibraryWindow::Edit()
+{
+   Mpc::LibraryEntry * entry = library_.Get(CurrentLine());
+
+   if (entry->type_ != Mpc::SongType)
+   {
+      std::string title = library_.Get(CurrentLine())->album_;
+      title = (title != "") ? title : library_.Get(CurrentLine())->artist_;
+
+      SongWindow * window = screen_.CreateSongWindow("L:" + title);
+
+      Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
+
+      // Do not need to sort as this ensures it will be sorted in the same order as the library
+      Main::Library().ForEachChild(CurrentLine(), &callback);
+
+      if (window->ContentSize() > -1)
+      {
+         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      }
+      else
+      {
+         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+      }
+   }
+   else
+   {
+      screen_.CreateSongInfoWindow(entry->song_);
+   }
+}
+
+
+void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll)
+{
+   if (client_.Connected() == true)
+   {
+      if (count > 1)
+      {
+         client_.StartCommandList();
+      }
+
+      Mpc::LibraryEntry * previous = NULL;
+
+      uint32_t total = 0;
+      uint32_t i     = line;
+
+      for (i = line; ((total <= count) && (i < BufferSize())); ++i)
+      {
+         Mpc::LibraryEntry * current = library_.Get(i);
+
+         if ((previous == NULL) ||
+            ((current->Parent() != previous) &&
+            ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
+         {
+            ++total;
+
+            if (total <= count)
+            {
+               (library_.*function)(Mpc::Song::Single, client_, i);
+               previous = current;
+            }
+         }
+      }
+
+      if (count > 1)
+      {
+         client_.SendCommandList();
+      }
+
+      if (scroll == true)
+      {
+         Scroll(i - line - 1);
+      }
+   }
 }
 
 

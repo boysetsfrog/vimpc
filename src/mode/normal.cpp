@@ -31,6 +31,10 @@
 #include <limits>
 #include <sstream>
 
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #define ESCAPE_KEY 27
 
 using namespace Ui;
@@ -129,6 +133,9 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
 
+   actionTable_['Z'+1 - 'A'] = &Normal::SendSignal<SIGTSTP>;
+   actionTable_['C'+1 - 'A'] = &Normal::SendSignal<SIGINT>;
+
    // Editting
    actionTable_['A'+1 - 'A'] = &Normal::Move<1>; //CTRL + A
    actionTable_['X'+1 - 'A'] = &Normal::Move<-1>; //CTRL + X
@@ -141,6 +148,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    //
    actionTable_['e']       = &Normal::Edit;
+   actionTable_['v']       = &Normal::Visual;
 
    // Library
    actionTable_['o']       = &Normal::Expand;
@@ -148,11 +156,14 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
 
    // Jumping
    jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
+   jumpTable_['f']         = &Normal::ScrollToCurrent<1>;
+   jumpTable_['F']         = &Normal::ScrollToCurrent<-1>;
+   jumpTable_['p']         = &Normal::ScrollToPlaylistSong<Search::Next>;
+   jumpTable_['P']         = &Normal::ScrollToPlaylistSong<Search::Previous>;
    jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next, 0>;
    jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous, 0>;
 
    // Align the text to a location on the screen
-   // \todo this should only work for selectwindows
    alignTable_['.']        = &Normal::AlignTo<Screen::Centre>;
    alignTable_['\n']       = &Normal::AlignTo<Screen::Top>;
    alignTable_['-']        = &Normal::AlignTo<Screen::Bottom>;
@@ -218,6 +229,8 @@ bool Normal::Handle(int input)
    {
       action       = &actionTable_;
       actionCount_ = 0;
+
+      screen_.ActiveWindow().Escape();
    }
    else if (action->find(input) != action->end())
    {
@@ -232,7 +245,7 @@ bool Normal::Handle(int input)
       }
 
       ptrToMember actionFunc = (*action)[input];
-      result = (*this.*actionFunc)(count);
+      (*this.*actionFunc)(count);
       actionCount_ = 0;
 
       action = &actionTable_;
@@ -259,45 +272,45 @@ bool Normal::CausesModeToStart(int input) const
 }
 
 
-bool Normal::ClearScreen(uint32_t count)
+void Normal::ClearScreen(uint32_t count)
 {
-   return Player::ClearScreen();
+   Player::ClearScreen();
 }
 
-bool Normal::Pause(uint32_t count)
+void Normal::Pause(uint32_t count)
 {
-   return Player::Pause();
+   Player::Pause();
 }
 
-bool Normal::Stop(uint32_t count)
+void Normal::Stop(uint32_t count)
 {
-   return Player::Stop();
+   Player::Stop();
 }
 
 
-bool Normal::Consume(uint32_t count)
+void Normal::Consume(uint32_t count)
 {
-   return Player::ToggleConsume();
+   Player::ToggleConsume();
 }
 
-bool Normal::Random(uint32_t count)
+void Normal::Random(uint32_t count)
 {
-   return Player::ToggleRandom();
+   Player::ToggleRandom();
 }
 
-bool Normal::Repeat(uint32_t count)
+void Normal::Repeat(uint32_t count)
 {
-   return Player::ToggleRepeat();
+   Player::ToggleRepeat();
 }
 
-bool Normal::Single(uint32_t count)
+void Normal::Single(uint32_t count)
 {
-   return Player::ToggleSingle();
+   Player::ToggleSingle();
 }
 
 
 template <int Delta>
-bool Normal::ChangeVolume(uint32_t count)
+void Normal::ChangeVolume(uint32_t count)
 {
    int CurrentVolume = client_.Volume() + (count * Delta);
 
@@ -310,29 +323,26 @@ bool Normal::ChangeVolume(uint32_t count)
       CurrentVolume = 100;
    }
 
-   return Player::Volume(CurrentVolume);
+   Player::Volume(CurrentVolume);
 }
 
 
-bool Normal::Left(uint32_t count)
+void Normal::Left(uint32_t count)
 {
    screen_.ActiveWindow().Left(*this, count);
-   return true;
 }
 
-bool Normal::Right(uint32_t count)
+void Normal::Right(uint32_t count)
 {
    screen_.ActiveWindow().Right(*this, count);
-   return true;
 }
 
-bool Normal::Confirm(uint32_t count)
+void Normal::Confirm(uint32_t count)
 {
    screen_.ActiveWindow().Confirm();
-   return true;
 }
 
-bool Normal::RepeatLastAction(uint32_t count)
+void Normal::RepeatLastAction(uint32_t count)
 {
    actionCount_ = (actionCount_ > 0) ? count : lastActionCount_;
 
@@ -340,40 +350,38 @@ bool Normal::RepeatLastAction(uint32_t count)
    {
       Handle(lastAction_);
    }
-
-   return true;
 }
 
-bool Normal::Expand(uint32_t count)
+void Normal::Expand(uint32_t count)
 {
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Expand(screen_.ActiveWindow().CurrentLine());
    }
-
-   return true;
 }
 
-bool Normal::Collapse(uint32_t count)
+void Normal::Collapse(uint32_t count)
 {
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Collapse(screen_.ActiveWindow().CurrentLine());
    }
-
-   return true;
 }
 
 
-bool Normal::Edit(uint32_t count)
+void Normal::Edit(uint32_t count)
 {
    screen_.ActiveWindow().Edit();
-   return true;
+}
+
+void Normal::Visual(uint32_t count)
+{
+   screen_.ActiveWindow().Visual();
 }
 
 
 template <Mpc::Song::SongCollection COLLECTION>
-bool Normal::AddSong(uint32_t count)
+void Normal::AddSong(uint32_t count)
 {
    if (COLLECTION == Mpc::Song::All)
    {
@@ -383,12 +391,10 @@ bool Normal::AddSong(uint32_t count)
    {
       screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
    }
-
-   return true;
 }
 
 template <Mpc::Song::SongCollection COLLECTION>
-bool Normal::DeleteSong(uint32_t count)
+void Normal::DeleteSong(uint32_t count)
 {
    //! \todo Make delete and add take a movement operation?
    //!       ie to do stuff like dG, this may require making some kind of movement
@@ -401,12 +407,10 @@ bool Normal::DeleteSong(uint32_t count)
    {
       screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
    }
-
-   return true;
 }
 
 template <Mpc::Song::SongCollection COLLECTION>
-bool Normal::CropSong(uint32_t count)
+void Normal::CropSong(uint32_t count)
 {
    if (COLLECTION == Mpc::Song::All)
    {
@@ -416,11 +420,9 @@ bool Normal::CropSong(uint32_t count)
    {
       screen_.ActiveWindow().CropLine(screen_.ActiveWindow().CurrentLine(), count);
    }
-
-   return true;
 }
 
-bool Normal::PasteBuffer(uint32_t count)
+void Normal::PasteBuffer(uint32_t count)
 {
    uint32_t position = 0;
 
@@ -438,72 +440,66 @@ bool Normal::PasteBuffer(uint32_t count)
    }
 
    client_.SendCommandList();
-
-   return true;
 }
 
 
 //Implementation of selecting functions
 template <ScrollWindow::Position POSITION>
-bool Normal::Select(uint32_t count)
+void Normal::Select(uint32_t count)
 {
    screen_.Select(POSITION, count);
-   return true;
 }
 
 
 //Implementation of searching functions
 template <Ui::Search::Skip SKIP>
-bool Normal::SearchResult(uint32_t count)
+void Normal::SearchResult(uint32_t count)
 {
-   return search_.SearchResult(SKIP, count);
+   search_.SearchResult(SKIP, count);
 }
 
 
 //Implementation of skipping functions
 template <Ui::Player::Skip SKIP>
-bool Normal::SkipSong(uint32_t count)
+void Normal::SkipSong(uint32_t count)
 {
-   return Player::SkipSong(SKIP, count);
+   Player::SkipSong(SKIP, count);
 }
 
 template <Ui::Player::Skip SKIP>
-bool Normal::SkipAlbum(uint32_t count)
+void Normal::SkipAlbum(uint32_t count)
 {
-   return Player::SkipAlbum(SKIP, count);
+   Player::SkipAlbum(SKIP, count);
 }
 
 template <Ui::Player::Skip SKIP>
-bool Normal::SkipArtist(uint32_t count)
+void Normal::SkipArtist(uint32_t count)
 {
-   return Player::SkipArtist(SKIP, count);
+   Player::SkipArtist(SKIP, count);
 }
 
 
 // Implementation of scrolling functions
 template <int8_t OFFSET>
-bool Normal::ScrollToCurrent(uint32_t line)
+void Normal::ScrollToCurrent(uint32_t line)
 {
    screen_.ScrollTo(Screen::Current, (wasSpecificCount_ == true) ? line * OFFSET : 0);
-   return true;
 }
 
 template <Screen::Size SIZE, Screen::Direction DIRECTION>
-bool Normal::Scroll(uint32_t count)
+void Normal::Scroll(uint32_t count)
 {
    screen_.Scroll(SIZE, DIRECTION, count);
-   return true;
 }
 
 template <Screen::Location LOCATION>
-bool Normal::ScrollTo(uint32_t line)
+void Normal::ScrollTo(uint32_t line)
 {
    screen_.ScrollTo(LOCATION);
-   return true;
 }
 
 template <Screen::Location SPECIFIC, Screen::Location ENDLOCATION>
-bool Normal::ScrollTo(uint32_t line)
+void Normal::ScrollTo(uint32_t line)
 {
    if ((SPECIFIC == Screen::Specific) && (wasSpecificCount_ == false))
    {
@@ -513,21 +509,31 @@ bool Normal::ScrollTo(uint32_t line)
    {
       screen_.ScrollTo(SPECIFIC, line);
    }
+}
 
-   return true;
+
+template <Search::Skip SKIP>
+void Normal::ScrollToPlaylistSong(uint32_t count)
+{
+   if (SKIP == Search::Previous)
+   {
+      screen_.ScrollTo(screen_.ActiveWindow().Playlist(-1 * count));
+   }
+   else
+   {
+      screen_.ScrollTo(screen_.ActiveWindow().Playlist(count));
+   }
 }
 
 
 template <Screen::Direction DIRECTION>
-bool Normal::Align(uint32_t line)
+void Normal::Align(uint32_t count)
 {
-   screen_.Align(DIRECTION, line);
-
-   return true;
+   screen_.Align(DIRECTION, count);
 }
 
 template <Screen::Location LOCATION>
-bool Normal::AlignTo(uint32_t line)
+void Normal::AlignTo(uint32_t line)
 {
    if (wasSpecificCount_ == false)
    {
@@ -535,14 +541,12 @@ bool Normal::AlignTo(uint32_t line)
    }
 
    screen_.AlignTo(LOCATION, line);
-
-   return true;
 }
 
 
 // Implementation of window functions
 template <Screen::Skip SKIP, uint32_t OFFSET>
-bool Normal::SetActiveWindow(uint32_t count)
+void Normal::SetActiveWindow(uint32_t count)
 {
    if (SKIP == Screen::Absolute)
    {
@@ -565,14 +569,12 @@ bool Normal::SetActiveWindow(uint32_t count)
    {
       screen_.SetActiveWindow(SKIP);
    }
-
-   return true;
 }
 
 
 // Implementation of editting functions
 template <int8_t OFFSET>
-bool Normal::Move(uint32_t count)
+void Normal::Move(uint32_t count)
 {
    if (screen_.GetActiveWindow() == Screen::Playlist)
    {
@@ -596,14 +598,18 @@ bool Normal::Move(uint32_t count)
       screen_.ActiveWindow().ScrollTo(position);
       screen_.Update();
    }
+}
 
-   return true;
+
+template <int SIGNAL>
+void Normal::SendSignal(uint32_t count)
+{
+   kill(getpid(), SIGNAL);
 }
 
 
 void Normal::DisplayModeLine()
 {
-   // \todo need to display random, repeat, single, consume state somewhere
    std::ostringstream modeStream;
 
    float currentScroll = 0.0;
@@ -652,7 +658,7 @@ void Normal::DisplayModeLine()
    {
       char vol[8];
       snprintf(vol, 8, "%d", client_.Volume());
-      volume += " [Volume: " + std::string(vol) + "]";
+      volume += " [Volume: " + std::string(vol) + "%]";
    }
 
    std::string currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);

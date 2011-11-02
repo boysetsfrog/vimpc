@@ -122,6 +122,8 @@ namespace Ui
       Ui::SongWindow * CreateSongWindow(std::string const & name);
       Ui::InfoWindow * CreateInfoWindow(std::string const & name, Mpc::Song * song = NULL);
 
+      void CreateSongInfoWindow(Mpc::Song * song = NULL);
+
       // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();
       void DeleteModeWindow(ModeWindow * window);
@@ -132,7 +134,7 @@ namespace Ui
 
    public:
       // Align the current window up or down( ^E, ^Y )
-      void Align(Direction direction, uint32_t line = 0);
+      void Align(Direction direction, uint32_t count = 0);
 
       // Align the currently selected line to a given location on the screen (z<CR>, z-, z.)
       void AlignTo(Location location, uint32_t line = 0);
@@ -164,7 +166,6 @@ namespace Ui
       uint32_t MaxRows()      const;
       uint32_t MaxColumns()   const;
       uint32_t WaitForInput() const;
-      void     ClearInput()   const;
 
       void HandleMouseEvent();
 
@@ -206,8 +207,9 @@ namespace Ui
       std::vector<ModeWindow *> modeWindows_;
 
       bool      started_;
-      uint32_t  maxRows_;
-      uint32_t  maxColumns_;
+      int32_t   maxRows_;
+      int32_t   mainRows_;
+      int32_t   maxColumns_;
 
       Main::Settings &   settings_;
       Mpc::Client &      client_;

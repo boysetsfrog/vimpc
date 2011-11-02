@@ -61,62 +61,84 @@ namespace Ui
       char const * Prompt() const;
 
    private: //Ui::Player wrapper functions
-      bool ClearScreen(std::string const & arguments);
-      bool Connect(std::string const & arguments);
-      bool Pause(std::string const & arguments);
-      bool Play(std::string const & arguments);
-      bool Quit(std::string const & arguments);
-      bool QuitAll(std::string const & arguments);
-      bool Random(std::string const & arguments);
-      bool Repeat(std::string const & arguments);
-      bool Single(std::string const & arguments);
-      bool Consume(std::string const & arguments);
-      bool Move(std::string const & arguments);
-      bool Shuffle(std::string const & arguments);
-      bool Swap(std::string const & arguments);
-      bool Redraw(std::string const & arguments);
-      bool Stop(std::string const & arguments);
-      bool Volume(std::string const & arguments);
+      void ClearScreen(std::string const & arguments);
+      void Pause(std::string const & arguments);
+      void Play(std::string const & arguments);
+      void Quit(std::string const & arguments);
+      void QuitAll(std::string const & arguments);
+      void Random(std::string const & arguments);
+      void Repeat(std::string const & arguments);
+      void Single(std::string const & arguments);
+      void Consume(std::string const & arguments);
+      void Move(std::string const & arguments);
+      void Shuffle(std::string const & arguments);
+      void Swap(std::string const & arguments);
+      void Redraw(std::string const & arguments);
+      void Stop(std::string const & arguments);
+      void Volume(std::string const & arguments);
+
+   // Command only functions
+   private:
+      //! Connects the mpd client to the given host
+      //!
+      //! \param host The hostname to connect to
+      //! \param port The port to connect with
+      void Connect(std::string const & arguments);
+
+      //! Specify a password to mpd
+      void Password(std::string const & password);
+
+      //! Echos a string to the console window
+      //!
+      //! \param echo The string to be echoed
+      void Echo(std::string const & echo);
+
+      //! Similar to echo but in the errror window
+      void EchoError(std::string const & echo);
 
    private:
-      bool Delete(std::string const & arguments);
-      bool DeleteAll(std::string const & arguments);
+      void Add(std::string const & arguments);
+      void Delete(std::string const & arguments);
+      void DeleteAll(std::string const & arguments);
 
       template <int Delta>
-      bool Seek(std::string const & arguments);
-      bool SeekTo(std::string const & arguments);
+      void Seek(std::string const & arguments);
+      void SeekTo(std::string const & arguments);
 
    private:
-      bool LoadPlaylist(std::string const & arguments);
-      bool SavePlaylist(std::string const & arguments);
-      bool ToPlaylist(std::string const & arguments);
+      template <bool ON>
+      void Output(std::string const & arguments);
 
-      bool Find(std::string const & arguments);
-      bool FindAny(std::string const & arguments);
-      bool FindAlbum(std::string const & arguments);
-      bool FindArtist(std::string const & arguments);
-      bool FindSong(std::string const & arguments);
+   private:
+      void LoadPlaylist(std::string const & arguments);
+      void SavePlaylist(std::string const & arguments);
+      void ToPlaylist(std::string const & arguments);
 
-      bool Rescan(std::string const & arguments);
-      bool Update(std::string const & arguments);
+      void Find(std::string const & arguments);
+      void FindAny(std::string const & arguments);
+      void FindAlbum(std::string const & arguments);
+      void FindArtist(std::string const & arguments);
+      void FindSong(std::string const & arguments);
+
+      void Rescan(std::string const & arguments);
+      void Update(std::string const & arguments);
 
    private: //Ui::Player
       template <Player::Skip SKIP>
-      bool SkipSong(std::string const & arguments);
-
+      void SkipSong(std::string const & arguments);
 
    private: // Screen related functionality
       template <Ui::Screen::MainWindow MAINWINDOW>
-      bool SetActiveAndVisible(std::string const & arguments);
+      void SetActiveAndVisible(std::string const & arguments);
 
       typedef enum { First, Last, LocationCount } Location;
 
       template <Location LOCATION>
-      bool ChangeToWindow(std::string const & arguments);
+      void ChangeToWindow(std::string const & arguments);
 
-      bool HideWindow(std::string const & arguments);
-      bool MoveWindow(std::string const & arguments);
-      bool RenameWindow(std::string const & arguments);
+      void HideWindow(std::string const & arguments);
+      void MoveWindow(std::string const & arguments);
+      void RenameWindow(std::string const & arguments);
 
    private:
       // Executes \p command using \p arguments
@@ -133,13 +155,13 @@ namespace Ui
       void SplitCommand(std::string const & input, std::string & command, std::string & arguments);
 
       // Handle the settings
-      bool Set(std::string const & arguments);
+      void Set(std::string const & arguments);
 
       // Call the cli mpc client
-      bool Mpc(std::string const & arguments);
+      void Mpc(std::string const & arguments);
 
       // Alias a command to a given string
-      bool Alias(std::string const & arguments);
+      void Alias(std::string const & arguments);
 
       // Clears the current tab completion
       void ResetTabCompletion(int input);
@@ -149,7 +171,7 @@ namespace Ui
       std::string TabComplete(std::string const & command);
 
    private:
-      typedef bool (Ui::Command::*CommandFunction)(std::string const &);
+      typedef void (Ui::Command::*CommandFunction)(std::string const &);
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
 

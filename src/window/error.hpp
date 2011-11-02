@@ -42,7 +42,7 @@ namespace Ui
       }
 
    private:
-      ErrorWindow() : ModeWindow(), hasError_(false) { }
+      ErrorWindow() : ModeWindow(COLS, LINES), hasError_(false) { }
       ~ErrorWindow() { }
 
    public:

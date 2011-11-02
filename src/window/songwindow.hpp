@@ -54,7 +54,7 @@ namespace Ui
       void Confirm();
 
       uint32_t Current() const;
-      uint32_t Playlist(int Offset) const;
+      uint32_t Playlist(int count) const;
 
       void Add(Mpc::Song * song);
       void AddToPlaylist(uint32_t position);
@@ -81,13 +81,21 @@ namespace Ui
    public:
       void Save(std::string const & name);
 
-   private:
-      void    Clear();
-      size_t  BufferSize() const { return Buffer().Size(); }
-      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
-
    public:
       virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
+
+   protected:
+      void PrintBlankId() const;
+      virtual void PrintId(uint32_t Id) const;
+
+      virtual void PrintSong(int32_t Id, int32_t colour, Mpc::Song * Song) const;
+      virtual void PrintDuration(int32_t Id, int32_t colour, std::string duration) const;
+
+
+   private:
+      size_t  BufferSize() const { return Buffer().Size(); }
+      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const song) const;
+      void    Clear();
 
    private:
       Main::Settings const & settings_;

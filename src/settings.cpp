@@ -35,16 +35,17 @@ using namespace Main;
 //       once they are implemented this can be removed
 
 char const * const AutoScrollSetting       = "autoscroll";
-//char const * const BrowseNumbersSetting    = "browsenumbers"; //disable song numbers in browse
+char const * const BrowseNumbersSetting    = "browsenumbers"; //disable song numbers in browse
 char const * const ColourSetting           = "colour";
 char const * const ExpandArtistsSetting    = "expand-artists";
 //char const * const GraphicalVolumeSetting  = "graphicalvolume"; //Display volume graphically (colours) something like [||||||||  ][80%]
 char const * const HideTabBarSetting       = "hidetabbar"; // \todo this is going to be quite hard, we do dodgy hacks with MaxRows everywhere!
 char const * const HighlightSearchSetting  = "hlsearch";
 char const * const IgnoreCaseSearchSetting = "ignorecase";
-//char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
+char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
 char const * const SearchWrapSetting       = "searchwrap";
 char const * const SingleQuitSetting       = "singlequit";
+char const * const SongNumbersSetting      = "songnumbers";
 char const * const SmartCaseSetting        = "smartcase";
 char const * const StopOnQuitSetting       = "stoponquit";
 char const * const TimeRemainingSetting    = "timeremaining";
@@ -66,13 +67,16 @@ Settings::Settings() :
    settingsTable_["window"]              = &Settings::SetWindow;
 
    toggleTable_[AutoScrollSetting]       = new Setting<bool>(true);
+   toggleTable_[BrowseNumbersSetting]    = new Setting<bool>(true);
    toggleTable_[ColourSetting]           = new Setting<bool>(true);
    toggleTable_[ExpandArtistsSetting]    = new Setting<bool>(false);
    toggleTable_[HideTabBarSetting]       = new Setting<bool>(false);
    toggleTable_[HighlightSearchSetting]  = new Setting<bool>(true);
    toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
+   toggleTable_[PlaylistNumbersSetting]  = new Setting<bool>(true);
    toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
    toggleTable_[SingleQuitSetting]       = new Setting<bool>(false);
+   toggleTable_[SongNumbersSetting]      = new Setting<bool>(true);
    toggleTable_[SmartCaseSetting]        = new Setting<bool>(false);
    toggleTable_[StopOnQuitSetting]       = new Setting<bool>(false);
    toggleTable_[TimeRemainingSetting]    = new Setting<bool>(false);
@@ -168,6 +172,11 @@ bool Settings::AutoScroll() const
    return Get(AutoScrollSetting);
 }
 
+bool Settings::BrowseNumbers() const
+{
+   return Get(BrowseNumbersSetting);
+}
+
 bool Settings::ColourEnabled() const
 {
    return Get(ColourSetting);
@@ -193,6 +202,11 @@ bool Settings::IgnoreCaseSearch() const
    return Get(IgnoreCaseSearchSetting);
 }
 
+bool Settings::PlaylistNumbers() const
+{
+   return Get(PlaylistNumbersSetting);
+}
+
 bool Settings::SearchWrap() const
 {
    return Get(SearchWrapSetting);
@@ -206,6 +220,11 @@ bool Settings::SingleQuit() const
 bool Settings::SmartCase() const
 {
    return Get(SmartCaseSetting);
+}
+
+bool Settings::SongNumbers() const
+{
+   return Get(SongNumbersSetting);
 }
 
 bool Settings::StopOnQuit() const

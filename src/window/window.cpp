@@ -26,8 +26,14 @@
 using namespace Ui;
 
 Window::Window(int h, int w, int x, int y) :
-   window_    (newwin(h, w, x, y))
+   window_    (NULL)
 {
+   h = (h < 0) ? 0 : h;
+   w = (w < 0) ? 0 : w;
+   x = (x < 0) ? 0 : x;
+   y = (y < 0) ? 0 : y;
+
+   window_ = newwin(h, w, x, y);
 }
 
 Window::~Window()
