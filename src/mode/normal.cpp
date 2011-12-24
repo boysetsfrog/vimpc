@@ -676,3 +676,4 @@ void Normal::DisplayModeLine()
 
    window_->SetLine("%s%s%s", currentState.c_str(),  blankLine.c_str(), modeLine.c_str());
 }
+/* vim: set sw=3 ts=3: */

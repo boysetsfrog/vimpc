@@ -260,3 +260,4 @@ bool Settings::SkipConfigConnects() const
 {
    return skipConfigConnects_;
 }
+/* vim: set sw=3 ts=3: */

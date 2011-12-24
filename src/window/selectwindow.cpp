@@ -152,3 +152,4 @@ void SelectWindow::LimitCurrentSelection() const
 
    currentSelection_.second = currentLine_;
 }
+/* vim: set sw=3 ts=3: */

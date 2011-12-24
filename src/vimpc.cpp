@@ -261,3 +261,4 @@ void Vimpc::SetSkipConfigConnects(bool val)
 }
 
 
+/* vim: set sw=3 ts=3: */

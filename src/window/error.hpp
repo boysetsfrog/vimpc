@@ -84,3 +84,4 @@ void Error(uint32_t errorNumber, std::string errorString)
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

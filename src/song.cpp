@@ -206,3 +206,4 @@ std::string Song::FullDescription() const
    std::string fullDescription(artist_ + " - " + title_ + " " + album_ + " " + DurationString());
    return fullDescription;
 }
+/* vim: set sw=3 ts=3: */

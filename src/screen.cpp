@@ -936,3 +936,4 @@ void ResizeHandler(int i)
 {
    WindowResized = true;
 }
+/* vim: set sw=3 ts=3: */

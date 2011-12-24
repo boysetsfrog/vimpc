@@ -65,3 +65,4 @@ bool Output::Enabled() const
 {
    return enabled_;
 }
+/* vim: set sw=3 ts=3: */

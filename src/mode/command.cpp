@@ -878,3 +878,4 @@ std::string Command::TabComplete(std::string const & command)
    return result;
 }
 
+/* vim: set sw=3 ts=3: */

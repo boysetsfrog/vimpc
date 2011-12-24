@@ -172,3 +172,4 @@ void ScrollWindow::SetScrollLine(uint16_t scrollLine)
 {
    scrollLine_ = scrollLine;
 }
+/* vim: set sw=3 ts=3: */

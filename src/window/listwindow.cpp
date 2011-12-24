@@ -226,3 +226,4 @@ void ListWindow::Clear()
    ScrollTo(0);
    lists_.Clear();
 }
+/* vim: set sw=3 ts=3: */
