@@ -125,6 +125,8 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_[KEY_NPAGE] = &Normal::Scroll<Screen::Page, Screen::Down>;
    actionTable_['U'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Up>; //CTRL + U
    actionTable_['D'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Down>; //CTRL + D
+   actionTable_['B'+1 - 'A'] = &Normal::Scroll<Screen::FullPage, Screen::Up>; //CTRL + B
+   actionTable_['F'+1 - 'A'] = &Normal::Scroll<Screen::FullPage, Screen::Down>; //CTRL + F
    actionTable_['Y'+1 - 'A'] = &Normal::Align<Screen::Up>; //CTRL + Y
    actionTable_['E'+1 - 'A'] = &Normal::Align<Screen::Down>; //CTRL + E
    actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
