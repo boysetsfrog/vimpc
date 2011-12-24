@@ -178,12 +178,12 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    escapeTable_['9']       = &Normal::SetActiveWindow<Screen::Absolute, 8>;
 
    addTable_['a']          = &Normal::AddSong<Mpc::Song::Single>;
-   //addTable_['z']          = &Normal::AddRandomSong<Mpc::Song::Single>;
+   addTable_['z']          = &Normal::AddRandomSong<Mpc::Song::Single>;
    //addTable_['g']          = &Normal::AddSongsTo<Screen::Top>;
    //addTable_['G']          = &Normal::AddSongsTo<Screen::Bottom>;
 
    deleteTable_['d']       = &Normal::DeleteSong<Mpc::Song::Single>;
-   //deleteTable_['z']       = &Normal::DeleteRandomSong<Mpc::Song::Single>;
+   deleteTable_['z']       = &Normal::DeleteRandomSong<Mpc::Song::Single>;
    //deleteTable_['g']       = &Normal::DeleteSongsTo<Screen::Top>;
    //deleteTable_['G']       = &Normal::DeleteSongsTo<Screen::Bottom>;
 
@@ -400,6 +400,27 @@ void Normal::AddSong(uint32_t count)
    else if (COLLECTION == Mpc::Song::Single)
    {
       screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+   }
+}
+
+template <Mpc::Song::SongCollection COLLECTION>
+void Normal::AddRandomSong(uint32_t count)
+{
+   if (COLLECTION == Mpc::Song::All)
+   {
+      if (count == 1)
+      {
+         // FIXME an actual count of 1 is indistinguishable from no count at all,
+         // and probably should be handled by different mechanisms
+         screen_.ActiveWindow().AddAllLines();
+      }
+      else
+      {
+         screen_.ActiveWindow()
+   }
+   else if (COLLECTION == Mpc::Song::Single)
+   {
+      screen_.ActiveWindow().AddRandomLines(screen_.ActiveWindow(), count);
    }
 }
 
