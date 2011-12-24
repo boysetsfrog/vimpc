@@ -79,6 +79,8 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 {
    std::string connect_hostname = hostname;
    uint16_t    connect_port     = port;
+   std::string connect_password = "";
+   size_t      pos;
 
    DeleteConnection();
 
@@ -89,6 +91,13 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       if (host_env != NULL)
       {
          connect_hostname = host_env;
+
+         pos = connect_hostname.find_last_of("@");
+         if ( pos )
+         {
+            connect_password = connect_hostname.substr(0, pos);
+            connect_hostname = connect_hostname.substr(pos + 1);
+         }
       }
       else
       {
@@ -142,6 +151,11 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
       UpdateStatus();
       CheckForUpdates();
+
+      if (connect_password != "")
+      {
+         Password(connect_password);
+      }
    }
 }
 
