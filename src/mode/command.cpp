@@ -198,6 +198,15 @@ bool Command::ExecuteCommand(std::string const & input)
          return true;
       }
 
+      // Connect to mpd first before trying to change the mpd/connection state
+      if ((command == "password" || command == "consume" || command == "random"
+                  || command == "shuffle" || command == "volume")
+          && !client_.Connected() && ! settings_.SkipConfigConnects() )
+      {
+         ExecuteCommand("connect", "");
+      }
+
+
       // Just a normal command
       ExecuteCommand(command, arguments);
    }
