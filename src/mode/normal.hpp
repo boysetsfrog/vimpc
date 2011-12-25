@@ -56,6 +56,7 @@ namespace Ui
       void Refresh();
       bool Handle(int input);
       bool CausesModeToStart(int input) const;
+      bool CausesModeToEnd(int input) const;
 
    private: // Ui::Player wrapper functions
       void ClearScreen(uint32_t count);
