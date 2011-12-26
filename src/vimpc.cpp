@@ -215,10 +215,27 @@ Vimpc::ModeName Vimpc::ModeAfterInput(int input) const
    if (currentMode_ != Normal)
    {
       Ui::Mode const & normalMode = assert_reference(modeTable_.at(Normal));
+      Ui::Mode const & commandMode = assert_reference(modeTable_.at(Command));
+      Ui::Mode const & searchMode = assert_reference(modeTable_.at(Search));
 
       if (normalMode.CausesModeToStart(input) == true)
       {
          newMode = Normal;
+      }
+      //\TODO This reaks
+      else if (currentMode_ == Command)
+      {
+         if (commandMode.CausesModeToEnd(input))
+         {
+            newMode = Normal;
+         }
+      }
+      else if (currentMode_ == Search)
+      {
+         if (searchMode.CausesModeToEnd(input))
+         {
+            newMode = Normal;
+         }
       }
    }
    // Must be in normal mode to be able to enter any other mode
