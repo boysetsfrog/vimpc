@@ -241,3 +241,4 @@ namespace Mpc
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

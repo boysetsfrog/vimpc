@@ -487,3 +487,4 @@ void SongWindow::Clear()
    Buffer().Clear();
 }
 
+/* vim: set sw=3 ts=3: */

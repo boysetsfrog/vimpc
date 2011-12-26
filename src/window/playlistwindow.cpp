@@ -212,3 +212,4 @@ void PlaylistWindow::Clear()
    ScrollTo(0);
    playlist_.Clear();
 }
+/* vim: set sw=3 ts=3: */

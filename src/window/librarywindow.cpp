@@ -437,3 +437,4 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
 
    return colour;
 }
+/* vim: set sw=3 ts=3: */

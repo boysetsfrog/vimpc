@@ -79,3 +79,4 @@ void Window::Refresh()
 {
    wnoutrefresh(N_WINDOW());
 }
+/* vim: set sw=3 ts=3: */

@@ -83,3 +83,4 @@ void BrowseWindow::Clear()
    ScrollTo(0);
    browse_.Clear();
 }
+/* vim: set sw=3 ts=3: */

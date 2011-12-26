@@ -308,3 +308,4 @@ void Player::HandleAutoScroll()
 }
 
 
+/* vim: set sw=3 ts=3: */
