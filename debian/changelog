@@ -1,3 +1,9 @@
+vimpc (0.05~psych0tik.2) unstable; urgency=low
+
+  * Build which includes all of the patches I've submitted upstream
+
+ -- Rich Healey <richo@psych0tik.net>  Mon, 26 Dec 2011 18:47:29 +1100
+
 vimpc (0.05~psych0tik.1) unstable; urgency=low
 
   * Pre-0.05 build
