@@ -26,6 +26,7 @@
 #include "buffer/playlist.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
+#include "mode/command.hpp"
 
 #include <iomanip>
 #include <limits>
@@ -49,6 +50,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    actionTable_     (),
    jumpTable_       (),
    alignTable_      (),
+   quitTable_       (),
    search_          (search),
    screen_          (screen),
    client_          (client),
@@ -170,6 +172,10 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    alignTable_['\n']       = &Normal::AlignTo<Screen::Top>;
    alignTable_['-']        = &Normal::AlignTo<Screen::Bottom>;
 
+   // Support for Z{Z,Q}
+   quitTable_['Z']         = &Normal::Quit;
+   quitTable_['Q']         = &Normal::QuitAll;
+
    escapeTable_['1']       = &Normal::SetActiveWindow<Screen::Absolute, 0>;
    escapeTable_['2']       = &Normal::SetActiveWindow<Screen::Absolute, 1>;
    escapeTable_['3']       = &Normal::SetActiveWindow<Screen::Absolute, 2>;
@@ -259,6 +265,10 @@ bool Normal::Handle(int input)
    else if (input == 'z')
    {
       action = &alignTable_;
+   }
+   else if (input == 'Z')
+   {
+       action = &quitTable_;
    }
    else
    {
@@ -573,6 +583,21 @@ void Normal::SetActiveWindow(uint32_t count)
    }
 }
 
+// Proxy for quit commands
+void Normal::Quit(uint32_t count)
+{
+   QuitAll(0);
+}
+
+void Normal::QuitAll(uint32_t count)
+{
+   if (settings_.StopOnQuit() == true)
+   {
+      Player::Stop();
+   }
+
+   Player::Quit();
+}
 
 // Implementation of editting functions
 template <int8_t OFFSET>
