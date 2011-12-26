@@ -138,6 +138,10 @@ namespace Ui
       template <Screen::Location LOCATION>
       void AlignTo(uint32_t line);
 
+   private: //Quitting
+      void Quit(uint32_t count);
+      void QuitAll(uint32_t count);
+
    private: //Windows
       template <Screen::Skip SKIP, uint32_t OFFSET>
       void SetActiveWindow(uint32_t count);
@@ -167,6 +171,7 @@ namespace Ui
       ActionTable      actionTable_;
       ActionTable      jumpTable_;
       ActionTable      alignTable_;
+      ActionTable      quitTable_;
       ActionTable      escapeTable_;
 
       Ui::Search     & search_;
