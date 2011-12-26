@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   mode.hpp - abstract class for all modes 
+   mode.hpp - abstract class for all modes
    */
 
 #ifndef __UI__MODE
@@ -30,7 +30,7 @@ namespace Ui
 
    public:
       //! Called whenever the mode is initialised
-      //! 
+      //!
       //! \param input The input that caused the mode change
       virtual void Initialise(int input) = 0;
 
@@ -53,6 +53,7 @@ namespace Ui
       //!
       //! \param input input to check for a mode change
       virtual bool CausesModeToStart(int input) const = 0;
+      virtual bool CausesModeToEnd(int input) const = 0;
    };
 }
 

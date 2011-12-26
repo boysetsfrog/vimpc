@@ -283,6 +283,11 @@ bool Normal::CausesModeToStart(int input) const
    return ((input == '\n') || (input == ESCAPE_KEY));
 }
 
+bool Normal::CausesModeToEnd(int input) const
+{
+   return false;
+}
+
 
 void Normal::ClearScreen(uint32_t count)
 {
