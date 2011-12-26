@@ -428,6 +428,11 @@ void Screen::Scroll(Size size, Direction direction, uint32_t count)
 {
    int32_t scrollCount = count;
 
+   if (size == FullPage)
+   {
+      scrollCount *= (MaxRows());
+   }
+
    if (size == Page)
    {
       scrollCount *= (MaxRows() / 2);

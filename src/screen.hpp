@@ -99,7 +99,7 @@ namespace Ui
       } Location;
 
       // Scroll sizes
-      typedef enum { Line, Page } Size;
+      typedef enum { Line, Page, FullPage } Size;
 
       // Scroll directions
       typedef enum { Up, Down } Direction;
