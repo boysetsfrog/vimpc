@@ -97,3 +97,4 @@ namespace Ui
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

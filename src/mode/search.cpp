@@ -239,3 +239,4 @@ bool Search::InputStringHandler(std::string input)
    lastSearch_ = input;
    return SearchResult(Next, 1);
 }
+/* vim: set sw=3 ts=3: */

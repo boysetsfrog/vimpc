@@ -80,3 +80,4 @@ void ModeWindow::HideCursor()
 {
    cursorVisible_ = false;
 }
+/* vim: set sw=3 ts=3: */

@@ -381,3 +381,4 @@ uint16_t Cursor::LimitCursorPosition(uint16_t position) const
 
    return position;
 }
+/* vim: set sw=3 ts=3: */

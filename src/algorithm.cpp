@@ -53,3 +53,4 @@ bool Algorithm::isNumeric(std::string const & s1)
 
    return true;
 }
+/* vim: set sw=3 ts=3: */

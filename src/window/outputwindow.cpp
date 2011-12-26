@@ -166,3 +166,4 @@ void OutputWindow::Clear()
    ScrollTo(0);
    outputs_.Clear();
 }
+/* vim: set sw=3 ts=3: */

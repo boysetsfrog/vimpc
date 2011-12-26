@@ -63,3 +63,4 @@ void ConsoleWindow::Clear()
    werase(N_WINDOW());
    ResetScroll();
 }
+/* vim: set sw=3 ts=3: */

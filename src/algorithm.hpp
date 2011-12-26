@@ -45,3 +45,4 @@ bool Algorithm::isCase(std::string const & s1, T op)
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

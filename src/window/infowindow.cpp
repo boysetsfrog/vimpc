@@ -96,3 +96,4 @@ void InfoWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
    SongWindow::DeleteLine(0, 1, false);
 }
+/* vim: set sw=3 ts=3: */
