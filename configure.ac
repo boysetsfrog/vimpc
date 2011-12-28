@@ -12,7 +12,7 @@ CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 AC_CHECK_HEADERS(sys/ioctl.h termios.h)
 
 AC_MSG_CHECKING(for svnversion)
-if hash svnversion; then
+if hash svnversion && test -d .svn; then
    AC_MSG_RESULT(yes)
    PACKAGE_SVN_REVISION=`svnversion`
    AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", "Define to the subversion repository version of this package.")
