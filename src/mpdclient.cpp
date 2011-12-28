@@ -93,7 +93,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
          connect_hostname = host_env;
 
          pos = connect_hostname.find_last_of("@");
-         if ( pos )
+         if ( pos != connect_hostname.npos )
          {
             connect_password = connect_hostname.substr(0, pos);
             connect_hostname = connect_hostname.substr(pos + 1);
