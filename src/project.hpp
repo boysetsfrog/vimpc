@@ -25,6 +25,14 @@
 
 #include <sstream>
 
+#ifndef PACKAGE_URL
+#define PACKAGE_URL ""
+#endif
+
+#ifndef PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT ""
+#endif
+
 namespace Main
 {
    namespace Project
