@@ -28,7 +28,8 @@
 using namespace Ui;
 
 InfoWindow::InfoWindow(Mpc::Song * song, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
-   SongWindow (settings, screen, client, search, name)
+   SongWindow    (settings, screen, client, search, name),
+   m_ActiveWindow(screen_.GetActiveWindow())
 {
    Add(song);
 }
@@ -99,6 +100,13 @@ void InfoWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
 void InfoWindow::Edit()
 {
-	screen_.SetVisible(screen_.GetActiveWindow(), false);
+   int const InfoWindowId = screen_.GetActiveWindow();
+
+   if (screen_.IsVisible(m_ActiveWindow) == true)
+   {
+      screen_.SetActiveAndVisible(m_ActiveWindow);
+   }
+
+   screen_.SetVisible(InfoWindowId, false);
 }
 /* vim: set sw=3 ts=3: */

@@ -739,6 +739,20 @@ void Screen::SetActiveWindow(Skip skip)
    SetActiveWindow(static_cast<int32_t>(window));
 }
 
+
+bool Screen::IsVisible(int32_t window)
+{
+   for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+   {
+      if (visibleWindows_.at(i) == window)
+      {
+         return true;
+      }
+   }
+   
+   return false;
+}
+
 void Screen::SetVisible(int32_t window, bool visible)
 {
    if (mainWindows_[window] != NULL)

@@ -50,6 +50,10 @@ namespace Ui
 
    public:
       void Save(std::string const & name) {}
+
+   private:
+      int const m_ActiveWindow; 
+
    };
 }
 
