@@ -9,7 +9,7 @@ AC_PROG_CXX
 # Need to check this directory on bsd systems
 CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 
-AC_CHECK_HEADERS(sys/ioctl.h termios.h) 
+AC_CHECK_HEADERS(sys/ioctl.h termios.h)
 
 AC_MSG_CHECKING(for svnversion)
 if hash svnversion; then
@@ -18,6 +18,15 @@ if hash svnversion; then
    AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", "Define to the subversion repository version of this package.")
 else
    AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING(for git)
+if test -d .git; then
+    AC_MSG_RESULT(yes)
+    PACKAGE_GIT_REVISION=`git rev-parse HEAD`
+    AC_DEFINE_UNQUOTED(PACKAGE_GIT_REVISION, "${PACKAGE_GIT_REVISION}", "Define to the git repository version of this package.")
+else
+    AC_MSG_RESULT(no)
 fi
 
 MP_WITH_CURSES

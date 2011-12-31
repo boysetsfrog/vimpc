@@ -53,10 +53,14 @@ namespace Main
       {
          static std::ostringstream versionBuffer;
 
-      #ifdef PACKAGE_SVN_REVISION
-         versionBuffer << PACKAGE_STRING << " [" << PACKAGE_SVN_REVISION << "]" ;
+      #ifdef PACKAGE_GIT_REVISION
+         versionBuffer << PACKAGE_STRING << " [" << PACKAGE_GIT_REVISION << "]" ;
       #else
+      # ifdef PACKAGE_SVN_REVISION
+         versionBuffer << PACKAGE_STRING << " [" << PACKAGE_SVN_REVISION << "]" ;
+      # else
          versionBuffer << PACKAGE_STRING;
+      # endif
       #endif
 
          static std::string const VersionString(versionBuffer.str());
