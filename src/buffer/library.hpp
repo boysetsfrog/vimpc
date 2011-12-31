@@ -21,6 +21,7 @@
 #ifndef __UI__LIBRARY
 #define __UI__LIBRARY
 
+#include "algorithm.hpp"
 #include "buffer.hpp"
 #include "song.hpp"
 
@@ -78,7 +79,8 @@ namespace Mpc
 
          if (song_ == NULL)
          {
-            comparison = ((artist_ < rhs.artist_) || (album_ < rhs.album_));
+            comparison = (Algorithm::icompare(artist_, rhs.artist_) || 
+                         (Algorithm::icompare(album_, rhs.album_)));
          }
 
          if ((song_ != NULL) && (rhs.song_ != NULL) && (comparison == false))
