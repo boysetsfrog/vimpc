@@ -42,6 +42,8 @@ char const * const ExpandArtistsSetting    = "expand-artists";
 char const * const HideTabBarSetting       = "hidetabbar"; // \todo this is going to be quite hard, we do dodgy hacks with MaxRows everywhere!
 char const * const HighlightSearchSetting  = "hlsearch";
 char const * const IgnoreCaseSearchSetting = "ignorecase";
+char const * const IgnoreCaseSortSetting   = "sortignorecase";
+char const * const IgnoreTheSortSetting    = "sortignorethe";
 char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
 char const * const SearchWrapSetting       = "searchwrap";
 char const * const SingleQuitSetting       = "singlequit";
@@ -73,6 +75,8 @@ Settings::Settings() :
    toggleTable_[HideTabBarSetting]       = new Setting<bool>(false);
    toggleTable_[HighlightSearchSetting]  = new Setting<bool>(true);
    toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
+   toggleTable_[IgnoreCaseSortSetting]   = new Setting<bool>(true);
+   toggleTable_[IgnoreTheSortSetting]    = new Setting<bool>(false);
    toggleTable_[PlaylistNumbersSetting]  = new Setting<bool>(true);
    toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
    toggleTable_[SingleQuitSetting]       = new Setting<bool>(false);
@@ -200,6 +204,16 @@ bool Settings::HightlightSearch() const
 bool Settings::IgnoreCaseSearch() const
 {
    return Get(IgnoreCaseSearchSetting);
+}
+
+bool Settings::IgnoreCaseSort() const
+{
+   return Get(IgnoreCaseSortSetting);
+}
+
+bool Settings::IgnoreTheSort() const
+{
+   return Get(IgnoreTheSortSetting);
 }
 
 bool Settings::PlaylistNumbers() const

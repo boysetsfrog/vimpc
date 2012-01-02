@@ -84,6 +84,12 @@ namespace Main
          //! Turn off case sensitivity on searching
          bool IgnoreCaseSearch() const;
 
+			//! Turn off case sensitivity on sorting
+			bool IgnoreCaseSort() const;
+
+			//! Ignore 'the' when sorting
+			bool IgnoreTheSort() const;
+
          //! Determine whether to wrap searching
          bool SearchWrap() const;
 
