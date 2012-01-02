@@ -10,8 +10,10 @@ NORMAL MODE
 MOTION:
   [count] k, Up           | scroll up [count]
   [count] j, Down         | scroll down [count]
-  [count] Pg Up, Ctrl+u   | scroll up by [count] pages
-  [count] Pg Dn, Ctrl+d   | scroll down by [count] pages
+  [count] Pg Up, Ctrl+u   | scroll up by [count] half pages
+  [count] Pg Dn, Ctrl+d   | scroll down by [count] half pages
+  [count] Ctrl+f          | scroll down by [count] pages
+  [count] Ctrl+b          | scroll up by [count] pages
   [count] Ctrl+y          | scroll down a line, maintain selection
   [count] Ctrl+e          | scroll up a line, maintain selection
           Home            | scroll to the top
@@ -213,6 +215,11 @@ or postfixed with !  which will toggle the setting.
   [no]searchwrap[!]       | wrap search results when using n/N
   [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
   [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
+  [no]songnumbers[!]      | display id numbers next to songs in any window
+  [no]sortignorecase[!]   | ignore case when sorting by artist/album
+                          | if changed whilst running, must :redraw the library
+  [no]sortignorethe[!]    | ignore the prefix 'the' when sorting by artist/album
+                          | if changed whilst running, must :redraw the library
   [no]songnumbers[!]      | display id numbers next to songs in any window
   [no]stoponquit[!]       | automatically stop playback when vimpc is quit
   [no]timeremaining[!]    | display the time remaining rather than elapsed

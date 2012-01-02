@@ -112,7 +112,7 @@ bool InputMode::CausesModeToStart(int input) const
 
 bool InputMode::CausesModeToEnd(int input) const
 {
-   return ((input == KEY_BACKSPACE) && (inputString_ == "") && (backedOut_));
+   return (((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_ == "") && (backedOut_));
 }
 
 bool InputMode::HasCompleteInput(int input)

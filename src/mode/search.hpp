@@ -64,7 +64,6 @@ namespace Ui
    public: //Ui::InputMode
       void Initialise(int input);
       bool CausesModeToStart(int input) const;
-      bool CausesModeToEnd(int input) const;
 
    public:
       std::string LastSearchString() const;

@@ -60,11 +60,6 @@ bool Search::CausesModeToStart(int input) const
    return ((input == prompt_[Forwards]) || (input == prompt_[Backwards]));
 }
 
-bool Search::CausesModeToEnd(int input) const
-{
-   return ((input == KEY_BACKSPACE) && (inputString_ == "") && (backedOut_));
-}
-
 std::string Search::LastSearchString() const
 {
    return StripFlags(lastSearch_);

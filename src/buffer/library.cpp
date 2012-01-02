@@ -329,4 +329,5 @@ void Mpc::MarkUnexpanded(LibraryEntry * const entry)
 {
    entry->expanded_ = false;
 }
+
 /* vim: set sw=3 ts=3: */
