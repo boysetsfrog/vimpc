@@ -1,3 +1,9 @@
+vimpc (0.05~psych0tik.3) unstable; urgency=low
+
+  * Bump for upstream patches
+
+ -- Rich Healey <richo@psych0tik.net>  Tue, 03 Jan 2012 08:32:39 +1100
+
 vimpc (0.05~psych0tik.2) unstable; urgency=low
 
   * Build which includes all of the patches I've submitted upstream
