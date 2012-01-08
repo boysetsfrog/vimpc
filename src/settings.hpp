@@ -47,6 +47,9 @@ namespace Main
    //! Manages settings which are set via :set command
    class Settings
    {
+      private:
+         typedef std::map<std::string, Setting<bool> * > SettingsToggleTable;
+
       public:
          static Settings & Instance();
 
@@ -84,11 +87,11 @@ namespace Main
          //! Turn off case sensitivity on searching
          bool IgnoreCaseSearch() const;
 
-			//! Turn off case sensitivity on sorting
-			bool IgnoreCaseSort() const;
+         //! Turn off case sensitivity on sorting
+         bool IgnoreCaseSort() const;
 
-			//! Ignore 'the' when sorting
-			bool IgnoreTheSort() const;
+         //! Ignore 'the' when sorting
+         bool IgnoreTheSort() const;
 
          //! Determine whether to wrap searching
          bool SearchWrap() const;
@@ -129,7 +132,11 @@ namespace Main
 
       private:
          //! Get the value for the given \p setting
-         bool Get(std::string setting) const { return toggleTable_.at(setting)->Get(); }
+         bool Get(std::string setting) const 
+         { 
+            SettingsToggleTable::const_iterator it = toggleTable_.find(setting);
+            return ((it != toggleTable_.end()) && (it->second->Get()));
+         }
 
       private:
          //! Sets the startup window
@@ -142,7 +149,6 @@ namespace Main
          typedef std::map<std::string, ptrToMember> SettingsFunctionTable;
          SettingsFunctionTable settingsTable_;
 
-         typedef std::map<std::string, Setting<bool> * > SettingsToggleTable;
          SettingsToggleTable   toggleTable_;
    };
 }
