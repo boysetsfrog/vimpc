@@ -72,6 +72,8 @@ namespace Ui
       void ChangeVolume(uint32_t count);
 
    private:
+      template <Ui::Player::Location LOCATION>
+      void SeekTo(uint32_t count);
       void Left(uint32_t count);
       void Right(uint32_t count);
       void Confirm(uint32_t count);
