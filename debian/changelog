@@ -1,3 +1,12 @@
+vimpc (0.05~psych0tik.5) unstable; urgency=low
+
+  * Merge upstream patches again
+  * I goes to start of song
+  * Support older C++ standard
+  * > Works as expected in consume mode
+
+ -- Rich Healey <richo@psych0tik.net>  Wed, 11 Jan 2012 08:58:01 +1100
+
 vimpc (0.05~psych0tik.4) unstable; urgency=low
 
   * Added extra files to install
