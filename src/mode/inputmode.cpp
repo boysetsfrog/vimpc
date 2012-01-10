@@ -196,7 +196,7 @@ void InputMode::InitialiseHistorySearch(std::string const & inputString)
 
 std::string InputMode::SearchHistory(Direction direction, std::string const & inputString)
 {
-   static History::const_reverse_iterator historyIterator;
+   static History::reverse_iterator historyIterator;
    static std::string historyLastResult(inputString);
    static std::string historyStart     (inputString);
 

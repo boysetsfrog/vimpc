@@ -210,13 +210,19 @@ bool Vimpc::RequiresModeChange(int input) const
 Vimpc::ModeName Vimpc::ModeAfterInput(int input) const
 {
    ModeName newMode = currentMode_;
+   ModeTable::const_iterator it;
 
    // Check if we are returning to normal mode
    if (currentMode_ != Normal)
    {
-      Ui::Mode const & normalMode = assert_reference(modeTable_.at(Normal));
-      Ui::Mode const & commandMode = assert_reference(modeTable_.at(Command));
-      Ui::Mode const & searchMode = assert_reference(modeTable_.at(Search));
+      it = modeTable_.find(Normal);
+      Ui::Mode const & normalMode = assert_reference(it->second);
+
+      it = modeTable_.find(Command);
+      Ui::Mode const & commandMode = assert_reference(it->second);
+
+      it = modeTable_.find(Search);
+      Ui::Mode const & searchMode = assert_reference(it->second);
 
       if (normalMode.CausesModeToStart(input) == true)
       {
