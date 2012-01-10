@@ -84,6 +84,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    //actionTable_['Q']       = &Normal::Insert;
 
    // Skipping
+   actionTable_['I']       = &Normal::SeekTo<Player::Start>;
    actionTable_['>']       = &Normal::SkipSong<Player::Next>;
    actionTable_['<']       = &Normal::SkipSong<Player::Previous>;
    actionTable_[']']       = &Normal::SkipArtist<Player::Next>;
@@ -343,6 +344,18 @@ void Normal::ChangeVolume(uint32_t count)
    Player::Volume(CurrentVolume);
 }
 
+template <Ui::Player::Location LOCATION>
+void Normal::SeekTo(uint32_t count)
+{
+   if (LOCATION == Player::Start)
+   {
+      client_.SeekTo(0);
+   }
+   else if (LOCATION == Player::End)
+   {
+      Player::SkipSong(Player::Next, count);
+   }
+}
 
 void Normal::Left(uint32_t count)
 {
