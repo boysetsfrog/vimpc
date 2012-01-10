@@ -1,3 +1,9 @@
+vimpc (0.05~psych0tik.6) unstable; urgency=low
+
+  * Add dependency on later libmpdclient2
+
+ -- Rich Healey <richo@psych0tik.net>  Wed, 11 Jan 2012 10:34:11 +1100
+
 vimpc (0.05~psych0tik.5) unstable; urgency=low
 
   * Merge upstream patches again
