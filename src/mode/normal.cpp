@@ -48,9 +48,6 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    lastActionCount_ (0),
    wasSpecificCount_(false),
    actionTable_     (),
-   jumpTable_       (),
-   alignTable_      (),
-   quitTable_       (),
    search_          (search),
    screen_          (screen),
    client_          (client),
@@ -62,21 +59,21 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    //       to the tab/window or more modal or something
 
    // \todo display current count somewhere ?
-   actionTable_['.']       = &Normal::RepeatLastAction;
-   actionTable_['c']       = &Normal::ClearScreen;
+   actionTable_["."]       = &Normal::RepeatLastAction;
+   actionTable_["c"]       = &Normal::ClearScreen;
 
    // Player
-   actionTable_['p']           = &Normal::Pause;
-   actionTable_['s']           = &Normal::Stop;
-   actionTable_[KEY_BACKSPACE] = &Normal::Stop;
+   actionTable_["p"]       = &Normal::Pause;
+   actionTable_["s"]       = &Normal::Stop;
+   actionTable_["<BS>"]    = &Normal::Stop;
 
-   actionTable_['C']       = &Normal::Consume;
-   actionTable_['R']       = &Normal::Random;
-   actionTable_['E']       = &Normal::Repeat;
-   actionTable_['S']       = &Normal::Single;
+   actionTable_["C"]       = &Normal::Consume;
+   actionTable_["R"]       = &Normal::Random;
+   actionTable_["E"]       = &Normal::Repeat;
+   actionTable_["S"]       = &Normal::Single;
 
-   actionTable_['+']       = &Normal::ChangeVolume<1>;
-   actionTable_['-']       = &Normal::ChangeVolume<-1>;
+   actionTable_["+"]       = &Normal::ChangeVolume<1>;
+   actionTable_["-"]       = &Normal::ChangeVolume<-1>;
 
    // Console
    // \todo add an "insert" mode to console that just stays in command entry mode
@@ -84,108 +81,112 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    //actionTable_['Q']       = &Normal::Insert;
 
    // Skipping
-   actionTable_['I']       = &Normal::SeekTo<Player::Start>;
-   actionTable_['>']       = &Normal::SkipSong<Player::Next>;
-   actionTable_['<']       = &Normal::SkipSong<Player::Previous>;
-   actionTable_[']']       = &Normal::SkipArtist<Player::Next>;
-   actionTable_['[']       = &Normal::SkipArtist<Player::Previous>;
-   actionTable_['}']       = &Normal::SkipAlbum<Player::Next>;
-   actionTable_['{']       = &Normal::SkipAlbum<Player::Previous>;
+   actionTable_["I"]       = &Normal::SeekTo<Player::Start>;
+   actionTable_[">"]       = &Normal::SkipSong<Player::Next>;
+   actionTable_["<"]       = &Normal::SkipSong<Player::Previous>;
+   actionTable_["]"]       = &Normal::SkipArtist<Player::Next>;
+   actionTable_["["]       = &Normal::SkipArtist<Player::Previous>;
+   actionTable_["}"]       = &Normal::SkipAlbum<Player::Next>;
+   actionTable_["{"]       = &Normal::SkipAlbum<Player::Previous>;
 
    // Selection
-   actionTable_['H']       = &Normal::Select<ScrollWindow::First>;
-   actionTable_['M']       = &Normal::Select<ScrollWindow::Middle>;
-   actionTable_['L']       = &Normal::Select<ScrollWindow::Last>;
+   actionTable_["H"]       = &Normal::Select<ScrollWindow::First>;
+   actionTable_["M"]       = &Normal::Select<ScrollWindow::Middle>;
+   actionTable_["L"]       = &Normal::Select<ScrollWindow::Last>;
 
    // Playlist
-   actionTable_['d']       = &Normal::DeleteSong<Mpc::Song::Single>;
-   actionTable_['D']       = &Normal::DeleteSong<Mpc::Song::All>;
-   actionTable_['a']       = &Normal::AddSong<Mpc::Song::Single>;
-   actionTable_['A']       = &Normal::AddSong<Mpc::Song::All>;
-   actionTable_['x']       = &Normal::CropSong<Mpc::Song::Single>;
-   actionTable_['X']       = &Normal::CropSong<Mpc::Song::All>;
+   actionTable_["d"]       = &Normal::DeleteSong<Mpc::Song::Single>;
+   actionTable_["D"]       = &Normal::DeleteSong<Mpc::Song::All>;
+   actionTable_["a"]       = &Normal::AddSong<Mpc::Song::Single>;
+   actionTable_["A"]       = &Normal::AddSong<Mpc::Song::All>;
+   actionTable_["x"]       = &Normal::CropSong<Mpc::Song::Single>;
+   actionTable_["X"]       = &Normal::CropSong<Mpc::Song::All>;
 
-   actionTable_[KEY_DC]    = &Normal::DeleteSong<Mpc::Song::Single>;
+   actionTable_["<Del>"]   = &Normal::DeleteSong<Mpc::Song::Single>;
 
    // ! \todo this is a bit dodgy, is there a better key for this?
    //         we need a paste above and paste below
-   actionTable_['P']       = &Normal::PasteBuffer;
+   actionTable_["P"]       = &Normal::PasteBuffer;
 
    // Navigation
-   actionTable_['l']       = &Normal::Right;
-   actionTable_['h']       = &Normal::Left;
-   actionTable_['\n']      = &Normal::Confirm;
-   actionTable_[KEY_ENTER] = &Normal::Confirm;
+   actionTable_["l"]       = &Normal::Right;
+   actionTable_["h"]       = &Normal::Left;
+   actionTable_["\n"]      = &Normal::Confirm;
+   actionTable_["<Return>"]= &Normal::Confirm;
+   actionTable_["<C-J>"]   = &Normal::Confirm;
+   actionTable_["<Enter>"] = &Normal::Confirm;
 
    // Searching
-   actionTable_['N']       = &Normal::SearchResult<Search::Previous>;
-   actionTable_['n']       = &Normal::SearchResult<Search::Next>;
+   actionTable_["N"]       = &Normal::SearchResult<Search::Previous>;
+   actionTable_["n"]       = &Normal::SearchResult<Search::Next>;
 
    // Scrolling
-   actionTable_['k']       = &Normal::Scroll<Screen::Line, Screen::Up>;
-   actionTable_['j']       = &Normal::Scroll<Screen::Line, Screen::Down>;
-   actionTable_[KEY_PPAGE] = &Normal::Scroll<Screen::Page, Screen::Up>;
-   actionTable_[KEY_NPAGE] = &Normal::Scroll<Screen::Page, Screen::Down>;
-   actionTable_['U'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Up>; //CTRL + U
-   actionTable_['D'+1 - 'A'] = &Normal::Scroll<Screen::Page, Screen::Down>; //CTRL + D
-   actionTable_['B'+1 - 'A'] = &Normal::Scroll<Screen::FullPage, Screen::Up>; //CTRL + B
-   actionTable_['F'+1 - 'A'] = &Normal::Scroll<Screen::FullPage, Screen::Down>; //CTRL + F
-   actionTable_['Y'+1 - 'A'] = &Normal::Align<Screen::Up>; //CTRL + Y
-   actionTable_['E'+1 - 'A'] = &Normal::Align<Screen::Down>; //CTRL + E
-   actionTable_[KEY_HOME]  = &Normal::ScrollTo<Screen::Top>;
-   actionTable_['f']       = &Normal::ScrollToCurrent<1>;
-   actionTable_['F']       = &Normal::ScrollToCurrent<-1>;
-   actionTable_[KEY_END]   = &Normal::ScrollTo<Screen::Bottom>;
-   actionTable_['G']       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
+   actionTable_["k"]       = &Normal::Scroll<Screen::Line, Screen::Up>;
+   actionTable_["j"]       = &Normal::Scroll<Screen::Line, Screen::Down>;
+   actionTable_["<PageUp>"]   = &Normal::Scroll<Screen::Page, Screen::Up>;
+   actionTable_["<PageDown>"] = &Normal::Scroll<Screen::Page, Screen::Down>;
+   actionTable_["<C-U>"]   = &Normal::Scroll<Screen::Page, Screen::Up>;
+   actionTable_["<C-D>"]   = &Normal::Scroll<Screen::Page, Screen::Down>;
+   actionTable_["<C-B>"]   = &Normal::Scroll<Screen::FullPage, Screen::Up>;
+   actionTable_["<C-F>"]   = &Normal::Scroll<Screen::FullPage, Screen::Down>;
+   actionTable_["<C-Y>"]   = &Normal::Align<Screen::Up>;
+   actionTable_["<C-E>"]   = &Normal::Align<Screen::Down>;
+   actionTable_["<Home>"]  = &Normal::ScrollTo<Screen::Top>;
+   actionTable_["f"]       = &Normal::ScrollToCurrent<1>;
+   actionTable_["F"]       = &Normal::ScrollToCurrent<-1>;
+   actionTable_["<End>"]   = &Normal::ScrollTo<Screen::Bottom>;
+   actionTable_["G"]       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
 
-   actionTable_['Z'+1 - 'A'] = &Normal::SendSignal<SIGTSTP>;
-   actionTable_['C'+1 - 'A'] = &Normal::SendSignal<SIGINT>;
+   actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
+   actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
    // Editting
-   actionTable_['A'+1 - 'A'] = &Normal::Move<1>; //CTRL + A
-   actionTable_['X'+1 - 'A'] = &Normal::Move<-1>; //CTRL + X
+   actionTable_["<C-A>"]   = &Normal::Move<1>;
+   actionTable_["<C-X>"]   = &Normal::Move<-1>;
 
    //
-   actionTable_[KEY_LEFT]  = actionTable_['h'];
-   actionTable_[KEY_RIGHT] = actionTable_['l'];
-   actionTable_[KEY_DOWN]  = actionTable_['j'];
-   actionTable_[KEY_UP]    = actionTable_['k'];
+   actionTable_["<Left>"]  = actionTable_["h"];
+   actionTable_["<Right>"] = actionTable_["l"];
+   actionTable_["<Down>"]  = actionTable_["j"];
+   actionTable_["<Up>"]    = actionTable_["k"];
 
    //
-   actionTable_['e']       = &Normal::Edit;
-   actionTable_['v']       = &Normal::Visual;
+   actionTable_["e"]       = &Normal::Edit;
+   actionTable_["v"]       = &Normal::Visual;
 
    // Library
-   actionTable_['o']       = &Normal::Expand;
-   actionTable_['u']       = &Normal::Collapse;
+   actionTable_["o"]       = &Normal::Expand;
+   actionTable_["u"]       = &Normal::Collapse;
 
    // Jumping
-   jumpTable_['g']         = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
-   jumpTable_['f']         = &Normal::ScrollToCurrent<1>;
-   jumpTable_['F']         = &Normal::ScrollToCurrent<-1>;
-   jumpTable_['p']         = &Normal::ScrollToPlaylistSong<Search::Next>;
-   jumpTable_['P']         = &Normal::ScrollToPlaylistSong<Search::Previous>;
-   jumpTable_['t']         = &Normal::SetActiveWindow<Screen::Next, 0>;
-   jumpTable_['T']         = &Normal::SetActiveWindow<Screen::Previous, 0>;
+   actionTable_["gg"]      = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
+   actionTable_["gf"]      = &Normal::ScrollToCurrent<1>;
+   actionTable_["gF"]      = &Normal::ScrollToCurrent<-1>;
+   actionTable_["gp"]      = &Normal::ScrollToPlaylistSong<Search::Next>;
+   actionTable_["gP"]      = &Normal::ScrollToPlaylistSong<Search::Previous>;
+   actionTable_["gt"]      = &Normal::SetActiveWindow<Screen::Next, 0>;
+   actionTable_["gT"]      = &Normal::SetActiveWindow<Screen::Previous, 0>;
 
    // Align the text to a location on the screen
-   alignTable_['.']        = &Normal::AlignTo<Screen::Centre>;
-   alignTable_['\n']       = &Normal::AlignTo<Screen::Top>;
-   alignTable_['-']        = &Normal::AlignTo<Screen::Bottom>;
+   actionTable_["z."]        = &Normal::AlignTo<Screen::Centre>;
+   actionTable_["z<Enter>"]  = &Normal::AlignTo<Screen::Top>;
+   actionTable_["z<Return>"] = &Normal::AlignTo<Screen::Top>;
+   actionTable_["z-"]        = &Normal::AlignTo<Screen::Bottom>;
 
    // Support for Z{Z,Q}
-   quitTable_['Z']         = &Normal::Quit;
-   quitTable_['Q']         = &Normal::QuitAll;
+   actionTable_["ZZ"]        = &Normal::Quit;
+   actionTable_["ZQ"]        = &Normal::QuitAll;
 
-   escapeTable_['1']       = &Normal::SetActiveWindow<Screen::Absolute, 0>;
-   escapeTable_['2']       = &Normal::SetActiveWindow<Screen::Absolute, 1>;
-   escapeTable_['3']       = &Normal::SetActiveWindow<Screen::Absolute, 2>;
-   escapeTable_['4']       = &Normal::SetActiveWindow<Screen::Absolute, 3>;
-   escapeTable_['5']       = &Normal::SetActiveWindow<Screen::Absolute, 4>;
-   escapeTable_['6']       = &Normal::SetActiveWindow<Screen::Absolute, 5>;
-   escapeTable_['7']       = &Normal::SetActiveWindow<Screen::Absolute, 6>;
-   escapeTable_['8']       = &Normal::SetActiveWindow<Screen::Absolute, 7>;
-   escapeTable_['9']       = &Normal::SetActiveWindow<Screen::Absolute, 8>;
+   // Alt key combos
+   actionTable_["<A-1>"]     = &Normal::SetActiveWindow<Screen::Absolute, 0>;
+   actionTable_["<A-2>"]     = &Normal::SetActiveWindow<Screen::Absolute, 1>;
+   actionTable_["<A-3>"]     = &Normal::SetActiveWindow<Screen::Absolute, 2>;
+   actionTable_["<A-4>"]     = &Normal::SetActiveWindow<Screen::Absolute, 3>;
+   actionTable_["<A-5>"]     = &Normal::SetActiveWindow<Screen::Absolute, 4>;
+   actionTable_["<A-6>"]     = &Normal::SetActiveWindow<Screen::Absolute, 5>;
+   actionTable_["<A-7>"]     = &Normal::SetActiveWindow<Screen::Absolute, 6>;
+   actionTable_["<A-8>"]     = &Normal::SetActiveWindow<Screen::Absolute, 7>;
+   actionTable_["<A-9>"]     = &Normal::SetActiveWindow<Screen::Absolute, 8>;
 
    window_ = screen.CreateModeWindow();
 }
@@ -219,13 +220,7 @@ bool Normal::Handle(int input)
 
    bool result = true;
 
-   if ((input & (1 << 31)) != 0)
-   {
-      input  = (input & 0x7FFFFFFF);
-      action = &escapeTable_;
-   }
-
-   if ((input >= '0') && (input <= '9') && (action != &escapeTable_))
+   if ((input >= '0') && (input <= '9') && ((input & (1 << 31)) == 0))
    {
       uint64_t const newActionCount = ((static_cast<uint64_t>(actionCount_) * 10) + (input - '0'));
 
@@ -236,12 +231,12 @@ bool Normal::Handle(int input)
    }
    else if (input == ESCAPE_KEY)
    {
-      action       = &actionTable_;
+      input_       = "";
       actionCount_ = 0;
 
       screen_.ActiveWindow().Escape();
    }
-   else if (action->find(input) != action->end())
+   else
    {
       wasSpecificCount_ = (actionCount_ != 0);
 
@@ -253,26 +248,33 @@ bool Normal::Handle(int input)
          lastActionCount_ = actionCount_;
       }
 
-      ptrToMember actionFunc = (*action)[input];
-      (*this.*actionFunc)(count);
-      actionCount_ = 0;
+      // Todo use a function that turns characters into strings, required for pageup etc
+      input_ += InputCharToString(input);
 
-      action = &actionTable_;
-   }
-   else if (input == 'g')
-   {
-      action = &jumpTable_;
-   }
-   else if (input == 'z')
-   {
-      action = &alignTable_;
-   }
-   else if (input == 'Z')
-   {
-       action = &quitTable_;
-   }
-   else
-   {
+      int         foundCount = 0;
+      ptrToMember actionFunc;
+
+      for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
+      {
+         if (it->first.substr(0, input_.size()) == input_)
+         {
+            foundCount++;
+            actionFunc = it->second;
+         }
+      }
+
+      if (foundCount == 1)
+      {
+         (*this.*actionFunc)(count);
+         actionCount_ = 0;
+         input_       = "";
+      }
+      else if (foundCount == 0)
+      {
+         actionCount_ = 0;
+         input_       = "";
+      }
+
       action = &actionTable_;
    }
 
@@ -287,6 +289,65 @@ bool Normal::CausesModeToStart(int input) const
 bool Normal::CausesModeToEnd(int input) const
 {
    return false;
+}
+
+std::string Normal::InputCharToString(int input) const
+{
+   static std::map<int, std::string> conversionTable;
+
+   std::string result    = "";
+   bool        converted = false;
+
+   if (conversionTable.size() == 0)
+   {
+      conversionTable[KEY_PPAGE]     = "PageUp";
+      conversionTable[KEY_NPAGE]     = "PageDown";
+      conversionTable[KEY_HOME]      = "Home";
+      conversionTable[KEY_END]       = "End";
+      conversionTable[KEY_LEFT]      = "Left";
+      conversionTable[KEY_RIGHT]     = "Right";
+      conversionTable[KEY_DOWN]      = "Down";
+      conversionTable[KEY_UP]        = "Up";
+      conversionTable[KEY_DC]        = "Del";
+      conversionTable[KEY_BACKSPACE] = "BS";
+      conversionTable[0x7F]          = "BS";
+      conversionTable[KEY_ENTER]     = "Enter";
+      conversionTable['\n']          = "Return";
+   }
+
+   std::map<int, std::string>::const_iterator it = conversionTable.find(input);
+
+   if ((it == conversionTable.end()) && ((input & (1 << 31)) != 0))
+   {
+      input     = (input & 0x7FFFFFFF);
+      converted = true;
+      result    = "A-";
+   }
+
+   if ((it == conversionTable.end()) && ((input <= 27) && (input >= 1)))
+   {
+      input     = 'A' + input - 1;
+      converted = true;
+      result    = "C-";
+   }
+
+   if (it != conversionTable.end())
+   {
+      converted = true;
+      result += it->second;
+   }
+   else
+   {
+      result += char (input);
+   }
+
+   if (converted == true)
+   {
+      result = "<" + result + ">";
+      //printf("The result %s\n", result.c_str());
+   }
+
+   return result;
 }
 
 

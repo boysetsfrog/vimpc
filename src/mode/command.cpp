@@ -65,6 +65,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["findartist"]= &Command::FindArtist;
    commandTable_["findsong"]  = &Command::FindSong;
    commandTable_["move"]      = &Command::Move;
+   commandTable_["map"]       = &Command::Map;
    commandTable_["password"]  = &Command::Password;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
@@ -512,6 +513,10 @@ void Command::FindSong(std::string const & arguments)
 {
    client_.SearchSong(arguments);
    Find("FS:" + arguments);
+}
+
+void Command::Map(std::string const & arguments)
+{
 }
 
 void Command::Random(std::string const & arguments)

@@ -58,6 +58,9 @@ namespace Ui
       bool CausesModeToStart(int input) const;
       bool CausesModeToEnd(int input) const;
 
+   private:
+      std::string InputCharToString(int input) const;
+
    private: // Ui::Player wrapper functions
       void ClearScreen(uint32_t count);
       void Pause(uint32_t count);
@@ -161,20 +164,17 @@ namespace Ui
 
    private:
       typedef void (Ui::Normal::*ptrToMember)(uint32_t);
-      typedef std::map<int, ptrToMember> ActionTable;
+      typedef std::map<std::string, ptrToMember> ActionTable;
 
    private:
       ModeWindow *     window_;
+      std::string      input_;
       uint32_t         actionCount_;
       int32_t          lastAction_;
       uint32_t         lastActionCount_;
       bool             wasSpecificCount_;
 
       ActionTable      actionTable_;
-      ActionTable      jumpTable_;
-      ActionTable      alignTable_;
-      ActionTable      quitTable_;
-      ActionTable      escapeTable_;
 
       Ui::Search     & search_;
       Ui::Screen     & screen_;

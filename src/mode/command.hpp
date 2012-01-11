@@ -120,6 +120,8 @@ namespace Ui
       void FindArtist(std::string const & arguments);
       void FindSong(std::string const & arguments);
 
+      void Map(std::string const & arguments);
+
       void Rescan(std::string const & arguments);
       void Update(std::string const & arguments);
 
