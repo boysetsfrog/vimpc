@@ -57,6 +57,7 @@ namespace Ui
       bool Handle(int input);
       bool CausesModeToStart(int input) const;
       bool CausesModeToEnd(int input) const;
+      bool WaitingForMoreInput() const { return (input_.size() > 0); }
 
    private:
       std::string InputCharToString(int input) const;

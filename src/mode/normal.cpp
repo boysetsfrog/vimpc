@@ -205,6 +205,7 @@ void Normal::Initialise(int input)
 
 void Normal::Finalise(int input)
 {
+   input_ = "";
    window_->Print(0);
 }
 

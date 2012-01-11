@@ -46,10 +46,12 @@ Vimpc::Vimpc() :
    search_      (*(new Ui::Search (screen_, client_, settings_))),
    screen_      (settings_, client_, search_),
    client_      (this, settings_, screen_),
-   modeTable_   ()
+   modeTable_   (),
+   normalMode_  (*(new Ui::Normal (screen_, client_, settings_, search_)))
 {
+
    modeTable_[Command] = new Ui::Command(screen_, client_, settings_);
-   modeTable_[Normal]  = new Ui::Normal (screen_, client_, settings_, search_);
+   modeTable_[Normal]  = &normalMode_;
    modeTable_[Search]  = &search_;
 
    ENSURE(modeTable_.size()     == ModeCount);
@@ -157,6 +159,11 @@ Ui::Mode & Vimpc::CurrentMode()
 
 int Vimpc::Input() const
 {
+   if (currentMode_ == Normal)
+   {
+      return screen_.WaitForInput(!normalMode_.WaitingForMoreInput());
+   }
+
    return screen_.WaitForInput();
 }
 
