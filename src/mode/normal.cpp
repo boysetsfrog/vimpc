@@ -83,7 +83,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    // Skipping
    actionTable_["I"]       = &Normal::SeekTo<Player::Start>;
    actionTable_[">"]       = &Normal::SkipSong<Player::Next>;
-   actionTable_["<"]       = &Normal::SkipSong<Player::Previous>;
+   actionTable_["<lt>"]    = &Normal::SkipSong<Player::Previous>;
    actionTable_["]"]       = &Normal::SkipArtist<Player::Next>;
    actionTable_["["]       = &Normal::SkipArtist<Player::Previous>;
    actionTable_["}"]       = &Normal::SkipAlbum<Player::Next>;
@@ -314,6 +314,7 @@ std::string Normal::InputCharToString(int input) const
       conversionTable[0x7F]          = "BS";
       conversionTable[KEY_ENTER]     = "Enter";
       conversionTable['\n']          = "Return";
+      conversionTable['<']           = "lt";
    }
 
    std::map<int, std::string>::const_iterator it = conversionTable.find(input);
