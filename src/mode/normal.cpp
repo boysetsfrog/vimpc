@@ -261,6 +261,10 @@ bool Normal::Handle(int input)
          {
             foundCount++;
             actionFunc = it->second;
+            if (it->first.size() == input_.size())
+            {
+               break;
+            }
          }
       }
 
