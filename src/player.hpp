@@ -127,6 +127,12 @@ namespace Ui
          Previous
       } Skip;
 
+      typedef enum
+      {
+         Start,
+         End
+      } Location;
+
       //! Skips forwards or backwards a given number of songs
       //!
       //! \param skip  Direction to skip in playlist
@@ -167,3 +173,4 @@ namespace Ui
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

@@ -47,6 +47,9 @@ namespace Main
    //! Manages settings which are set via :set command
    class Settings
    {
+      private:
+         typedef std::map<std::string, Setting<bool> * > SettingsToggleTable;
+
       public:
          static Settings & Instance();
 
@@ -66,6 +69,9 @@ namespace Main
          //! Determine whether to autmatically scroll to playing song
          bool AutoScroll() const;
 
+         //! Show numbers in the browse window
+         bool BrowseNumbers() const;
+
          //! Determine if we should use colours
          bool ColourEnabled() const;
 
@@ -81,8 +87,17 @@ namespace Main
          //! Turn off case sensitivity on searching
          bool IgnoreCaseSearch() const;
 
+         //! Turn off case sensitivity on sorting
+         bool IgnoreCaseSort() const;
+
+         //! Ignore 'the' when sorting
+         bool IgnoreTheSort() const;
+
          //! Determine whether to wrap searching
          bool SearchWrap() const;
+
+         //! Show id next to each song in the playlist
+         bool PlaylistNumbers() const;
 
          //! Quit will quit the entire application not just close a tab
          bool SingleQuit() const;
@@ -90,6 +105,9 @@ namespace Main
          //! If used with ignore case, case sensitivy search is re-enabled when an upper case
          //! character is used in the search string
          bool SmartCase() const;
+
+         //! Show id numbers next to songs in any window
+         bool SongNumbers() const;
 
          //! Determines whether we should stop playing when we quit
          bool StopOnQuit() const;
@@ -114,7 +132,11 @@ namespace Main
 
       private:
          //! Get the value for the given \p setting
-         bool Get(std::string setting) const { return toggleTable_.at(setting)->Get(); }
+         bool Get(std::string setting) const 
+         { 
+            SettingsToggleTable::const_iterator it = toggleTable_.find(setting);
+            return ((it != toggleTable_.end()) && (it->second->Get()));
+         }
 
       private:
          //! Sets the startup window
@@ -127,9 +149,9 @@ namespace Main
          typedef std::map<std::string, ptrToMember> SettingsFunctionTable;
          SettingsFunctionTable settingsTable_;
 
-         typedef std::map<std::string, Setting<bool> * > SettingsToggleTable;
          SettingsToggleTable   toggleTable_;
    };
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

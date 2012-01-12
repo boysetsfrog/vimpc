@@ -245,6 +245,24 @@ void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const *
    }
 }
 
+void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const
+{
+   for (Mpc::LibraryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
+   {
+      if ((*it)->type_ == AlbumType)
+      {
+         for (Mpc::LibraryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
+         {
+            (*callback)((*jt)->song_);
+         }
+      }
+      else if ((*it)->type_ == SongType)
+      {
+         (*callback)((*it)->song_);
+      }
+   }
+}
+
 void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
 {
    for (uint32_t i = 0; i < Size(); ++i)
@@ -311,3 +329,5 @@ void Mpc::MarkUnexpanded(LibraryEntry * const entry)
 {
    entry->expanded_ = false;
 }
+
+/* vim: set sw=3 ts=3: */

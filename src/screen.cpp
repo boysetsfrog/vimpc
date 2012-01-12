@@ -129,7 +129,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    visibleWindows_.push_back(static_cast<int32_t>(Playlist));
 
    // Commands must be read through a window that is always visible
-   commandWindow_         = stdscr;
+   commandWindow_         = statusWindow_;
    keypad(commandWindow_, true);
 
    // Window setup
@@ -231,10 +231,28 @@ Ui::InfoWindow * Screen::CreateInfoWindow(std::string const & name, Mpc::Song * 
       ++id;
    }
 
-   Ui::InfoWindow * window = new InfoWindow(song, *this, name);
+   Ui::InfoWindow * window = new InfoWindow(song, settings_, *this, client_, search_, name);
    mainWindows_[id]        = window;
 
    return window;
+}
+
+void Screen::CreateSongInfoWindow(Mpc::Song * song)
+{
+   if (song != NULL)
+   {
+      if (GetWindowFromName("songinfo") != Ui::Screen::Unknown)
+      {
+         SetVisible(GetWindowFromName("songinfo"), false);
+      }
+
+      InfoWindow * window = CreateInfoWindow("songinfo", song);
+
+      if (window->ContentSize() > -1)
+      {
+         SetActiveAndVisible(GetWindowFromName(window->Name()));
+      }
+   }
 }
 
 
@@ -410,6 +428,11 @@ void Screen::Scroll(Size size, Direction direction, uint32_t count)
 {
    int32_t scrollCount = count;
 
+   if (size == FullPage)
+   {
+      scrollCount *= (MaxRows());
+   }
+
    if (size == Page)
    {
       scrollCount *= (MaxRows() / 2);
@@ -571,7 +594,7 @@ uint32_t Screen::MaxColumns() const
    return maxColumns_;
 }
 
-uint32_t Screen::WaitForInput() const
+uint32_t Screen::WaitForInput(bool HandleEscape) const
 {
    // \todo this doesn't seem to work if constructed
    // when the screen is constructed, find out why
@@ -584,13 +607,7 @@ uint32_t Screen::WaitForInput() const
 
    int32_t input = wgetch(commandWindow_);
 
-   if (input != ERR)
-   {
-      // \todo make own function
-      errorWindow.ClearError();
-   }
-
-   if (input == 27)
+   if ((input == 27) && (HandleEscape == true))
    {
       wtimeout(commandWindow_, 0);
 
@@ -604,18 +621,15 @@ uint32_t Screen::WaitForInput() const
       wtimeout(commandWindow_, 100);
    }
 
+   if (input != ERR)
+   {
+      // \todo make own function
+      errorWindow.ClearError();
+   }
+
    return input;
 }
 
-void Screen::ClearInput() const
-{
-   int32_t input = ERR;
-
-   do
-   {
-      input = wgetch(commandWindow_);
-   } while (input != ERR);
-}
 
 void Screen::HandleMouseEvent()
 {
@@ -723,6 +737,20 @@ void Screen::SetActiveWindow(Skip skip)
    }
 
    SetActiveWindow(static_cast<int32_t>(window));
+}
+
+
+bool Screen::IsVisible(int32_t window)
+{
+   for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+   {
+      if (visibleWindows_.at(i) == window)
+      {
+         return true;
+      }
+   }
+
+   return false;
 }
 
 void Screen::SetVisible(int32_t window, bool visible)
@@ -927,3 +955,4 @@ void ResizeHandler(int i)
 {
    WindowResized = true;
 }
+/* vim: set sw=3 ts=3: */

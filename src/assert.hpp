@@ -73,3 +73,4 @@ namespace Assert
 
 #endif
 #endif
+/* vim: set sw=3 ts=3: */

@@ -32,6 +32,7 @@ using namespace Ui;
 
 InputMode::InputMode(Ui::Screen & screen) :
    inputString_       (""),
+   backedOut_         (false),
    window_            (NULL),
    cursor_            (inputString_),
    screen_            (screen),
@@ -109,6 +110,10 @@ bool InputMode::CausesModeToStart(int input) const
    return (static_cast<char>(input) == Prompt()[0]);
 }
 
+bool InputMode::CausesModeToEnd(int input) const
+{
+   return (((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_ == "") && (backedOut_));
+}
 
 bool InputMode::HasCompleteInput(int input)
 {
@@ -128,11 +133,19 @@ void InputMode::GenerateInputString(int input)
    }
    else if (RequireDeletion(input) == true)
    {
-      const int cursorMovement = ((input == KEY_BACKSPACE) || (input == 0x7F)) ? 1 : 0;
-
-      if ((cursorPosition - cursorMovement) >= 0)
+      if (inputString_.empty() == false)
       {
-         inputString_.erase((cursorPosition - cursorMovement), 1);
+         backedOut_ = false;
+         const int cursorMovement = ((input == KEY_BACKSPACE) || (input == 0x7F)) ? 1 : 0;
+
+         if ((cursorPosition - cursorMovement) >= 0)
+         {
+            inputString_.erase((cursorPosition - cursorMovement), 1);
+         }
+      }
+      else
+      {
+         backedOut_ = true;
       }
    }
    if (InputIsValidCharacter(input) == true)
@@ -144,7 +157,7 @@ void InputMode::GenerateInputString(int input)
 
 bool InputMode::RequireDeletion(int input) const
 {
-   return (((input == KEY_BACKSPACE) || (input == 0x7F) || (input == KEY_DC)) && (inputString_.empty() == false));
+   return (((input == KEY_BACKSPACE) || (input == 0x7F) || (input == KEY_DC)));
 }
 
 
@@ -183,7 +196,7 @@ void InputMode::InitialiseHistorySearch(std::string const & inputString)
 
 std::string InputMode::SearchHistory(Direction direction, std::string const & inputString)
 {
-   static History::const_reverse_iterator historyIterator;
+   static History::reverse_iterator historyIterator;
    static std::string historyLastResult(inputString);
    static std::string historyStart     (inputString);
 
@@ -368,3 +381,4 @@ uint16_t Cursor::LimitCursorPosition(uint16_t position) const
 
    return position;
 }
+/* vim: set sw=3 ts=3: */

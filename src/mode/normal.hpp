@@ -56,6 +56,11 @@ namespace Ui
       void Refresh();
       bool Handle(int input);
       bool CausesModeToStart(int input) const;
+      bool CausesModeToEnd(int input) const;
+      bool WaitingForMoreInput() const { return (input_.size() > 0); }
+
+   private:
+      std::string InputCharToString(int input) const;
 
    private: // Ui::Player wrapper functions
       void ClearScreen(uint32_t count);
@@ -71,6 +76,8 @@ namespace Ui
       void ChangeVolume(uint32_t count);
 
    private:
+      template <Ui::Player::Location LOCATION>
+      void SeekTo(uint32_t count);
       void Left(uint32_t count);
       void Right(uint32_t count);
       void Confirm(uint32_t count);
@@ -82,6 +89,7 @@ namespace Ui
 
    private:
       void Edit(uint32_t count);
+      void Visual(uint32_t count);
 
    private:
       template <Mpc::Song::SongCollection COLLECTION>
@@ -136,6 +144,10 @@ namespace Ui
       template <Screen::Location LOCATION>
       void AlignTo(uint32_t line);
 
+   private: //Quitting
+      void Quit(uint32_t count);
+      void QuitAll(uint32_t count);
+
    private: //Windows
       template <Screen::Skip SKIP, uint32_t OFFSET>
       void SetActiveWindow(uint32_t count);
@@ -153,21 +165,17 @@ namespace Ui
 
    private:
       typedef void (Ui::Normal::*ptrToMember)(uint32_t);
-      typedef std::map<int, ptrToMember> ActionTable;
+      typedef std::map<std::string, ptrToMember> ActionTable;
 
    private:
       ModeWindow *     window_;
+      std::string      input_;
       uint32_t         actionCount_;
       int32_t          lastAction_;
       uint32_t         lastActionCount_;
       bool             wasSpecificCount_;
 
       ActionTable      actionTable_;
-      ActionTable      jumpTable_;
-      ActionTable      alignTable_;
-      ActionTable      escapeTable_;
-      ActionTable      addTable_;
-      ActionTable      deleteTable_;
 
       Ui::Search     & search_;
       Ui::Screen     & screen_;
@@ -179,3 +187,4 @@ namespace Ui
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

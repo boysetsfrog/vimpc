@@ -26,7 +26,7 @@
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
-namespace Ui   { class Mode; }
+namespace Ui   { class Mode; class Normal; }
 namespace Main { class Settings; }
 
 namespace Main
@@ -98,7 +98,9 @@ namespace Main
       Ui::Screen     screen_;
       Mpc::Client    client_;
       ModeTable      modeTable_;
+      Ui::Normal   & normalMode_;
    };
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

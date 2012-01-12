@@ -46,10 +46,12 @@ Vimpc::Vimpc() :
    search_      (*(new Ui::Search (screen_, client_, settings_))),
    screen_      (settings_, client_, search_),
    client_      (this, settings_, screen_),
-   modeTable_   ()
+   modeTable_   (),
+   normalMode_  (*(new Ui::Normal (screen_, client_, settings_, search_)))
 {
+
    modeTable_[Command] = new Ui::Command(screen_, client_, settings_);
-   modeTable_[Normal]  = new Ui::Normal (screen_, client_, settings_, search_);
+   modeTable_[Normal]  = &normalMode_;
    modeTable_[Search]  = &search_;
 
    ENSURE(modeTable_.size()     == ModeCount);
@@ -91,6 +93,9 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          client_.Connect(hostname, port);
       }
 
+      client_.DisplaySongInformation();
+      screen_.Update();
+
       // If we still have no connection, report an error
       if (client_.Connected() == false)
       {
@@ -101,9 +106,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
          mode.Refresh();
       }
-
-      client_.DisplaySongInformation();
-      screen_.Update();
 
       // The main loop
       while (Running == true)
@@ -121,6 +123,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
          updateTime += mtime;
+
+         client_.CheckForUpdates();
 
          if (input != ERR)
          {
@@ -155,6 +159,11 @@ Ui::Mode & Vimpc::CurrentMode()
 
 int Vimpc::Input() const
 {
+   if (currentMode_ == Normal)
+   {
+      return screen_.WaitForInput(!normalMode_.WaitingForMoreInput());
+   }
+
    return screen_.WaitForInput();
 }
 
@@ -208,15 +217,38 @@ bool Vimpc::RequiresModeChange(int input) const
 Vimpc::ModeName Vimpc::ModeAfterInput(int input) const
 {
    ModeName newMode = currentMode_;
+   ModeTable::const_iterator it;
 
    // Check if we are returning to normal mode
    if (currentMode_ != Normal)
    {
-      Ui::Mode const & normalMode = assert_reference(modeTable_.at(Normal));
+      it = modeTable_.find(Normal);
+      Ui::Mode const & normalMode = assert_reference(it->second);
+
+      it = modeTable_.find(Command);
+      Ui::Mode const & commandMode = assert_reference(it->second);
+
+      it = modeTable_.find(Search);
+      Ui::Mode const & searchMode = assert_reference(it->second);
 
       if (normalMode.CausesModeToStart(input) == true)
       {
          newMode = Normal;
+      }
+      //\TODO This reaks
+      else if (currentMode_ == Command)
+      {
+         if (commandMode.CausesModeToEnd(input))
+         {
+            newMode = Normal;
+         }
+      }
+      else if (currentMode_ == Search)
+      {
+         if (searchMode.CausesModeToEnd(input))
+         {
+            newMode = Normal;
+         }
       }
    }
    // Must be in normal mode to be able to enter any other mode
@@ -259,3 +291,4 @@ void Vimpc::SetSkipConfigConnects(bool val)
 }
 
 
+/* vim: set sw=3 ts=3: */

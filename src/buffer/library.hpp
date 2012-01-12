@@ -21,12 +21,13 @@
 #ifndef __UI__LIBRARY
 #define __UI__LIBRARY
 
+#include "algorithm.hpp"
 #include "buffer.hpp"
+#include "settings.hpp"
 #include "song.hpp"
 
 #include <vector>
 
-namespace Main { class Settings; }
 namespace Ui   { class LibraryWindow; }
 
 namespace Mpc
@@ -76,9 +77,12 @@ namespace Mpc
       {
          bool comparison = false;
 
+			Main::Settings const & settings = Main::Settings::Instance();
+
          if (song_ == NULL)
          {
-            comparison = ((artist_ < rhs.artist_) || (album_ < rhs.album_));
+            comparison = (Algorithm::icompare(artist_, rhs.artist_, settings.IgnoreTheSort(), settings.IgnoreCaseSort()) || 
+                         (Algorithm::icompare(album_, rhs.album_, settings.IgnoreTheSort(), settings.IgnoreCaseSort())));
          }
 
          if ((song_ != NULL) && (rhs.song_ != NULL) && (comparison == false))
@@ -218,6 +222,7 @@ namespace Mpc
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
+      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
       void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
 
    public:
@@ -240,3 +245,4 @@ namespace Mpc
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

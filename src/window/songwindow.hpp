@@ -81,13 +81,21 @@ namespace Ui
    public:
       void Save(std::string const & name);
 
-   private:
-      void    Clear();
-      size_t  BufferSize() const { return Buffer().Size(); }
-      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const nextSong) const;
-
    public:
       virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
+
+   protected:
+      void PrintBlankId() const;
+      virtual void PrintId(uint32_t Id) const;
+
+      virtual void PrintSong(int32_t Id, int32_t colour, Mpc::Song * Song) const;
+      virtual void PrintDuration(int32_t Id, int32_t colour, std::string duration) const;
+
+
+   private:
+      size_t  BufferSize() const { return Buffer().Size(); }
+      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const song) const;
+      void    Clear();
 
    private:
       Main::Settings const & settings_;
@@ -98,3 +106,4 @@ namespace Ui
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

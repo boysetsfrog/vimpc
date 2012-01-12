@@ -10,19 +10,21 @@ NORMAL MODE
 MOTION:
   [count] k, Up           | scroll up [count]
   [count] j, Down         | scroll down [count]
-  [count] Pg Up, Ctrl+u   | scroll up by [count] pages
-  [count] Pg Dn, Ctrl+d   | scroll down by [count] pages
+  [count] Pg Up, Ctrl+u   | scroll up by [count] half pages
+  [count] Pg Dn, Ctrl+d   | scroll down by [count] half pages
+  [count] Ctrl+f          | scroll down by [count] pages
+  [count] Ctrl+b          | scroll up by [count] pages
   [count] Ctrl+y          | scroll down a line, maintain selection
   [count] Ctrl+e          | scroll up a line, maintain selection
           Home            | scroll to the top
-          End             | scroll to the bottom 
+          End             | scroll to the bottom
   [count] f               | scroll to the currently playing song + [count]
   [count] F               | scroll to the currently playing song - [count]
   [count] gg              | scroll to the top, or to the line [count]
   [count] G               | scroll to the bottom, or the line [count]
   [count] H               | select the top visible line + [count]
   [count] M               | select the middle visible line
-  [count] L               | select the bottom visible line - [count] 
+  [count] L               | select the bottom visible line - [count]
   [count] z<Enter>        | selected line (or [count]) to display at the top
   [count] z.              | selected line (or [count]) to display in centres
   [count] z-              | selected line (or [count]) to display at the bottom
@@ -31,8 +33,8 @@ WINDOWS/TABS:
   [count] gt              | next window/tab, or to window/tab number [count]
   [count] gT              | previous window/tab, or back [count] windows/tabs
           Alt+<number>    | change to the given window/tab number
-                                
-SEARCHING:                       
+
+SEARCHING:
           /<exp>          | searches forward for <exp> (regular expression)
           ?<exp>          | searches backward for <exp> (regular expression)
   [count] n               | scroll to next result
@@ -40,21 +42,23 @@ SEARCHING:
 
 SEARCH FLAGS:
           \c              | if in search expression, disables case sensitivity
+          \C              | if in search expression, enables case sensitivity
 
-PLAYING (ALSO SEE PLAYLIST):                          
+PLAYING (ALSO SEE PLAYLIST):
+  [count] I               | skip to the start of the currently playing song
   [count] <               | skip to the previous song
   [count] >               | skip to the next song
   [count] [               | skip to the previous artist
   [count] ]               | skip to the next artist
   [count] {               | skip to the previous album
   [count] }               | skip to the next album
-                 
+
   [count] +               | increase volume
   [count] -               | decrease volume
-                 
+
           p               | toggle pause on/off
           s, backspace    | stop playback
-                 
+
           C               | toggle consume
           R               | toggle random
           E               | toggle repeat
@@ -66,16 +70,18 @@ ALL WINDOWS:
           X               | delete all songs from the selected line to the end
 
 PLAYLIST:
+          v               | enter visual selection mode
   [count] d, del          | delete songs
   [count] h, Left         | seek back [count] seconds
   [count] l, Right        | seek forward [count] seconds
-          P               | re-insert songs that were just deleted 
+          P               | re-insert songs that were just deleted
           e               | information about selected song
           Ctrl+a          | move song down
           Ctrl+x          | move song up
           <Enter>         | play the selected song
 
 BROWSE:
+          v               | enter visual selection mode
   [count] a               | add songs to playlist
   [count] d, del          | delete songs
           <Enter>         | append the song to the playlist and play it
@@ -85,12 +91,13 @@ LISTS:
   [count] d, del          | delete lists
           e               | view lists contents
           <Enter>         | play the currently selected list
-   
+
 LIBRARY:
   [count] a               | add song, album, artist to playlist
   [count] d, del          | delete song, album, artist
           h, Left         | collapse selection
           l, Right        | expand selection
+          e               | view artist/album contents in new window
           <Enter>         | clear playlist, add song/album/artist and play it
 
 OUTPUTS:
@@ -98,14 +105,19 @@ OUTPUTS:
           D               | disable all outputs
           <Enter>         | enable the selected output
 
+SONGINFO:
+          a               | add song to the playlist
+          d               | delete song from playlist
+          <Enter>         | append the song to the playlist and play it
+
 
 COMMAND/EX MODE
 --------------------------------------------------
 
   :<command>              | executes the command <command>
-                          | the full command does not need to be given 
-                          | provided it is a unique match 
-                          | ie :con does not work 
+                          | the full command does not need to be given
+                          | provided it is a unique match
+                          | ie :con does not work
                           | as it could be :console or :connect
                           | but :conn will call the :connect command
 
@@ -146,7 +158,7 @@ PLAYLIST:
   delete <pos1> [pos2]    | delete the song at <pos1>, or from <pos1> to [pos2]
   deleteall               | delete all songs in the playlist
   move <pos1> <pos2>      | move song from <pos1> to <pos2>
-  swap <pos1> <pos2>      | swap songs in <pos1> and <pos2>         
+  swap <pos1> <pos2>      | swap songs in <pos1> and <pos2>
 
 PLAYLISTS:
   toplaylist <name>       | save contents of window/tab to playlist <name>
@@ -154,7 +166,7 @@ PLAYLISTS:
   edit <name>             | same as load
   save <name>             | save the current playlist <name>
   write <name>            | same as save
-                                  
+
 WINDOWS/TABS:
   browse                  | open browse window
   console                 | open console window
@@ -179,31 +191,41 @@ MISC:
   clear                   | clears the console window
   connect [host] [port]   | connects to [host] [port]
   echo <string>           | echos the given string to the console window
+  password <password>     | authenticate to mpd using <password>
   quit[!]                 | if only one tab then quit, otherwise close the tab
   quitall[!]              | quit vimpc
                           | Note: if ! is appended to quit, playback is stopped
   redraw                  | redraws the window
   set                     | sets a configurable setting, see SETTINGS section
-                                  
+
 
 SETTINGS
 --------------------------------------------------
 
-All settings can be prefixed with no, which will disable the setting, 
+All settings can be prefixed with no, which will disable the setting,
 or postfixed with !  which will toggle the setting.
 
-  [no]autoscroll[!]       | automatically scroll when skipping songs 
+  [no]autoscroll[!]       | automatically scroll when skipping songs
+  [no]browsenumbers[!]    | display id numbers next to songs in the browse window
   [no]colour[!]           | enable or disable colours
   [no]expand-artists[!]   | when enabled, expand to artist by default in library
                           | if changed whilst running, must :redraw the library
   [no]hlsearch[!]         | highlight search results
   [no]ignorecase[!]       | case insensitive searching
+  [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
   [no]searchwrap[!]       | wrap search results when using n/N
   [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
   [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
+  [no]songnumbers[!]      | display id numbers next to songs in any window
+  [no]sortignorecase[!]   | ignore case when sorting by artist/album
+                          | if changed whilst running, must :redraw the library
+  [no]sortignorethe[!]    | ignore the prefix 'the' when sorting by artist/album
+                          | if changed whilst running, must :redraw the library
+  [no]songnumbers[!]      | display id numbers next to songs in any window
   [no]stoponquit[!]       | automatically stop playback when vimpc is quit
   [no]timeremaining[!]    | display the time remaining rather than elapsed
   [no]windownumbers[!]    | display the number next to the window in the tab bar
+
 
   window <window>         | sets the window that will start with focus
                           | only useful if called from ~/.vimpcrc file

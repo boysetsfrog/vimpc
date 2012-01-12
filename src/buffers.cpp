@@ -67,3 +67,4 @@ Ui::Console & Main::Console()
    static Ui::Console * buffer = new Ui::Console();
    return *buffer;
 }
+/* vim: set sw=3 ts=3: */

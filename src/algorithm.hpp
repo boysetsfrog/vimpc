@@ -22,7 +22,9 @@
 #define __MAIN__ALGORITHM
 
 #include <algorithm>
+
 #include <string>
+#include <pcrecpp.h>
 
 namespace Algorithm
 {
@@ -30,6 +32,7 @@ namespace Algorithm
    bool isCase(std::string const & s1, T op);
    bool isLower(std::string const & s1);
    bool isUpper(std::string const & s1);
+   bool icompare(std::string const & s1, std::string const & s2, bool ignoreLeadingThe = false, bool caseInsensitive = true);
    bool iequals(std::string const & s1, std::string const & s2);
 
    bool isNumeric(std::string const & s1);
@@ -45,3 +48,5 @@ bool Algorithm::isCase(std::string const & s1, T op)
 }
 
 #endif
+
+/* vim: set sw=3 ts=3: */

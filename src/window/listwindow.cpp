@@ -84,12 +84,9 @@ void ListWindow::Print(uint32_t line) const
          wattron(window, A_REVERSE);
       }
 
-      wattron(window, A_BOLD);
-
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
       mvwaddstr(window, line, 1, lists_.Get(printLine).c_str());
 
-      wattroff(window, A_BOLD);
       wattroff(window, A_REVERSE);
 
       if (settings_.ColourEnabled() == true)
@@ -143,7 +140,7 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 
 void ListWindow::AdjustScroll(std::string list)
 {
-   currentSelection_ = LimitCurrentSelection(currentSelection_);
+   LimitCurrentSelection();
 }
 
 
@@ -229,3 +226,4 @@ void ListWindow::Clear()
    ScrollTo(0);
    lists_.Clear();
 }
+/* vim: set sw=3 ts=3: */

@@ -50,6 +50,9 @@ namespace Ui
    public:
       void Redraw();
 
+   protected:
+      void PrintId(uint32_t Id) const;
+
    private:
       void    Clear();
       size_t  BufferSize() const   { return browse_.Size(); }
@@ -64,3 +67,4 @@ namespace Ui
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

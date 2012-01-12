@@ -85,6 +85,9 @@ namespace Ui
       //! \param port The port to connect with
       void Connect(std::string const & arguments);
 
+      //! Specify a password to mpd
+      void Password(std::string const & password);
+
       //! Echos a string to the console window
       //!
       //! \param echo The string to be echoed
@@ -116,6 +119,8 @@ namespace Ui
       void FindAlbum(std::string const & arguments);
       void FindArtist(std::string const & arguments);
       void FindSong(std::string const & arguments);
+
+      void Map(std::string const & arguments);
 
       void Rescan(std::string const & arguments);
       void Update(std::string const & arguments);
@@ -204,3 +209,4 @@ namespace Ui
    }
 
 #endif
+/* vim: set sw=3 ts=3: */

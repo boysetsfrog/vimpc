@@ -64,8 +64,23 @@ void BrowseWindow::Redraw()
    ScrollTo(currentLine);
 }
 
+
+void BrowseWindow::PrintId(uint32_t Id) const
+{
+   if (settings_.BrowseNumbers() == true)
+   {
+      SongWindow::PrintId(Id);
+   }
+   else
+   {
+      SongWindow::PrintBlankId();
+   }
+}
+
+
 void BrowseWindow::Clear()
 {
    ScrollTo(0);
    browse_.Clear();
 }
+/* vim: set sw=3 ts=3: */

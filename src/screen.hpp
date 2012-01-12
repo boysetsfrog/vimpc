@@ -99,7 +99,7 @@ namespace Ui
       } Location;
 
       // Scroll sizes
-      typedef enum { Line, Page } Size;
+      typedef enum { Line, Page, FullPage } Size;
 
       // Scroll directions
       typedef enum { Up, Down } Direction;
@@ -121,6 +121,8 @@ namespace Ui
       // Create a new song window, usually used for search results
       Ui::SongWindow * CreateSongWindow(std::string const & name);
       Ui::InfoWindow * CreateInfoWindow(std::string const & name, Mpc::Song * song = NULL);
+
+      void CreateSongInfoWindow(Mpc::Song * song = NULL);
 
       // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();
@@ -163,8 +165,7 @@ namespace Ui
    public:
       uint32_t MaxRows()      const;
       uint32_t MaxColumns()   const;
-      uint32_t WaitForInput() const;
-      void     ClearInput()   const;
+      uint32_t WaitForInput(bool HandleEscape = true) const;
 
       void HandleMouseEvent();
 
@@ -181,6 +182,7 @@ namespace Ui
       void SetActiveWindow(Skip skip);
 
       // Show or hide the given window
+      bool IsVisible(int32_t window);
       void SetVisible(int32_t window, bool visible);
       uint32_t VisibleWindows() { return visibleWindows_.size(); }
 
@@ -216,3 +218,4 @@ namespace Ui
    };
 }
 #endif
+/* vim: set sw=3 ts=3: */

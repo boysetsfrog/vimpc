@@ -21,11 +21,13 @@
 #include "librarywindow.hpp"
 
 #include "buffers.hpp"
+#include "buffers.hpp"
 #include "colour.hpp"
+#include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
-#include "buffers.hpp"
+#include "songwindow.hpp"
 #include "mode/search.hpp"
 
 #include <algorithm>
@@ -73,7 +75,32 @@ void LibraryWindow::Redraw()
 
 uint32_t LibraryWindow::Current() const
 {
-   return CurrentLine();
+   int32_t current         = CurrentLine();
+   int32_t currentSongId   = client_.GetCurrentSong();
+   Mpc::Song * currentSong = NULL;
+
+   if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
+   {
+      currentSong = Main::Playlist().Get(currentSongId);
+   }
+
+   if ((currentSong != NULL) && (currentSong->Entry() != NULL))
+   {
+      Mpc::LibraryEntry * entry = currentSong->Entry();
+      current = library_.Index(entry);
+
+      if ((current == -1) && (entry->parent_ != NULL))
+      {
+         current = library_.Index(entry->parent_);
+      }
+
+      if ((current == -1) && (entry->parent_ != NULL) && (entry->parent_->parent_ != NULL))
+      {
+         current = library_.Index(entry->parent_->parent_);
+      }
+   }
+
+   return current;
 }
 
 std::string LibraryWindow::SearchPattern(int32_t id)
@@ -287,7 +314,11 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
 void LibraryWindow::AddAllLines()
 {
-   client_.AddAllSongs();
+   if (client_.Connected() == true)
+   {
+      client_.AddAllSongs();
+   }
+
    ScrollTo(CurrentLine());
 }
 
@@ -313,45 +344,79 @@ void LibraryWindow::DeleteAllLines()
    Main::Playlist().Clear();
 }
 
+void LibraryWindow::Edit()
+{
+   Mpc::LibraryEntry * entry = library_.Get(CurrentLine());
+
+   if (entry->type_ != Mpc::SongType)
+   {
+      std::string title = library_.Get(CurrentLine())->album_;
+      title = (title != "") ? title : library_.Get(CurrentLine())->artist_;
+
+      SongWindow * window = screen_.CreateSongWindow("L:" + title);
+
+      Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
+
+      // Do not need to sort as this ensures it will be sorted in the same order as the library
+      Main::Library().ForEachChild(CurrentLine(), &callback);
+
+      if (window->ContentSize() > -1)
+      {
+         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      }
+      else
+      {
+         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+      }
+   }
+   else
+   {
+      screen_.CreateSongInfoWindow(entry->song_);
+   }
+}
+
 
 void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll)
 {
-   if (count > 1)
+   if (client_.Connected() == true)
    {
-      client_.StartCommandList();
-   }
-
-   Mpc::LibraryEntry * previous = NULL;
-
-   uint32_t total = 0;
-   uint32_t i     = line;
-
-   for (i = line; ((total <= count) && (i < BufferSize())); ++i)
-   {
-      Mpc::LibraryEntry * current = library_.Get(i);
-
-      if ((previous == NULL) ||
-          ((current->Parent() != previous) &&
-           ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
+      if (count > 1)
       {
-         ++total;
+         client_.StartCommandList();
+      }
 
-         if (total <= count)
+      Mpc::LibraryEntry * previous = NULL;
+
+      uint32_t total = 0;
+      uint32_t i     = line;
+
+      for (i = line; ((total <= count) && (i < BufferSize())); ++i)
+      {
+         Mpc::LibraryEntry * current = library_.Get(i);
+
+         if ((previous == NULL) ||
+            ((current->Parent() != previous) &&
+            ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
          {
-            (library_.*function)(Mpc::Song::Single, client_, i);
-            previous = current;
+            ++total;
+
+            if (total <= count)
+            {
+               (library_.*function)(Mpc::Song::Single, client_, i);
+               previous = current;
+            }
          }
       }
-   }
 
-   if (count > 1)
-   {
-      client_.SendCommandList();
-   }
+      if (count > 1)
+      {
+         client_.SendCommandList();
+      }
 
-   if (scroll == true)
-   {
-      Scroll(i - line - 1);
+      if (scroll == true)
+      {
+         Scroll(i - line - 1);
+      }
    }
 }
 
@@ -397,3 +462,4 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
 
    return colour;
 }
+/* vim: set sw=3 ts=3: */

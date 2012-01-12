@@ -22,38 +22,40 @@
 #define __UI__INFOWINDOW
 
 #include "song.hpp"
-#include "scrollwindow.hpp"
+#include "songwindow.hpp"
 
 namespace Ui
 {
    class Screen;
 
-   class InfoWindow : public ScrollWindow
+   class InfoWindow : public SongWindow
    {
    public:
-      InfoWindow(Mpc::Song * song, Ui::Screen & screen, std::string name = "Unknown");
-      InfoWindow(Ui::Screen & screen, std::string name = "Unknown");
+      InfoWindow(Mpc::Song * song, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name = "Unknown");
       virtual ~InfoWindow();
 
    public:
       void Print(uint32_t line) const;
-      uint32_t Current() const { return CurrentLine(); };
+      uint32_t Current() const              { return CurrentLine(); };
       std::string SearchPattern(int32_t id) { return ""; }
 
-   protected:
-      size_t BufferSize() const
-      {
-         if (song_ != NULL)
-         {
-            return 1;
-         }
+   public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines() {}
+      void CropLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
+      void CropAllLines() {}
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteAllLines() {}
+      void Edit();
 
-         return 0;
-      }
+   public:
+      void Save(std::string const & name) {}
 
    private:
-      Mpc::Song * song_;
+      int const m_ActiveWindow; 
+
    };
 }
 
 #endif
+/* vim: set sw=3 ts=3: */

@@ -65,6 +65,8 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["findartist"]= &Command::FindArtist;
    commandTable_["findsong"]  = &Command::FindSong;
    commandTable_["move"]      = &Command::Move;
+   commandTable_["map"]       = &Command::Map;
+   commandTable_["password"]  = &Command::Password;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
    commandTable_["q"]         = &Command::Quit;
@@ -146,36 +148,58 @@ void Command::GenerateInputString(int input)
 
 bool Command::ExecuteCommand(std::string const & input)
 {
+   pcrecpp::RE const blankCommand("^\\s*$");
+   pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
+
+   std::string matchString, commandString;
    std::string command, arguments;
 
    SplitCommand(input, command, arguments);
 
+   std::string fullCommand(command + " " + arguments);
+
    if (aliasTable_.find(command) != aliasTable_.end())
    {
-      pcrecpp::RE const blankCommand("^\\s*$");
-      pcrecpp::RE const multipleCommandAlias("^(\\s*([^;]+)\\s*;?).*$");
-      std::string       resolvedAlias(aliasTable_[command] + " " + arguments);
+      fullCommand = aliasTable_[command] + " " + arguments;
+   }
 
-      std::string matchString;
-      std::string commandString;
-
-      while (multipleCommandAlias.FullMatch(resolvedAlias.c_str(), &matchString, &commandString) == true)
+   if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
+       (command != "alias")) // In the case of alias we don't actually want to run the commands
+   {
+      // There are multiple commands seperated gy ';' we have to handle each one
+      while (multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true)
       {
-         resolvedAlias = resolvedAlias.substr(matchString.size(), resolvedAlias.size());
+         fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
 
          if (blankCommand.FullMatch(commandString) == false)
          {
             ExecuteCommand(commandString);
          }
       }
+
+      // The last command does not need a ';'
+      if (blankCommand.FullMatch(fullCommand) == false)
+      {
+         ExecuteCommand(fullCommand);
+      }
+   }
+   else if (aliasTable_.find(command) != aliasTable_.end())
+   {
+      // We are a single command alias, but this could actually be
+      // another alias, so ensure to look this up in the table to
+      // by calling this fucking again
+      ExecuteCommand(fullCommand);
    }
    else
    {
+      // Ignore the connect command when starting up if -h/-p used
+      // on the command line
       if (command == "connect" && settings_.SkipConfigConnects())
       {
          return true;
       }
 
+      // Just a normal command
       ExecuteCommand(command, arguments);
    }
 
@@ -334,6 +358,11 @@ void Command::Connect(std::string const & arguments)
    client_.Connect(hostname, std::atoi(port.c_str()));
 }
 
+void Command::Password(std::string const & password)
+{
+   client_.Password(password.c_str());
+}
+
 void Command::Echo(std::string const & echo)
 {
    Main::Console().Add(echo);
@@ -484,6 +513,10 @@ void Command::FindSong(std::string const & arguments)
 {
    client_.SearchSong(arguments);
    Find("FS:" + arguments);
+}
+
+void Command::Map(std::string const & arguments)
+{
 }
 
 void Command::Random(std::string const & arguments)
@@ -850,3 +883,4 @@ std::string Command::TabComplete(std::string const & command)
    return result;
 }
 
+/* vim: set sw=3 ts=3: */

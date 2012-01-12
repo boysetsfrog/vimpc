@@ -68,3 +68,4 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
    return true;
 }
 #endif
+/* vim: set sw=3 ts=3: */

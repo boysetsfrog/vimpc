@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   inputmode.hpp - handles all input modes requiring a full string 
+   inputmode.hpp - handles all input modes requiring a full string
    */
 
 #ifndef __UI__INPUTMODE
@@ -88,6 +88,7 @@ namespace Ui
       virtual void Refresh();
       virtual bool Handle(int input);
       virtual bool CausesModeToStart(int input) const;
+      virtual bool CausesModeToEnd(int input) const;
 
    public:
       virtual bool HasCompleteInput(int input);
@@ -105,7 +106,7 @@ namespace Ui
       void ResetHistory(int input);
       void AddToHistory(std::string const & inputString);
       void InitialiseHistorySearch(std::string const & inputString);
-      
+
       // Search up/down in the history, for the previously entered input
       // until we reach the top/bottom of the stack
       typedef enum
@@ -120,11 +121,12 @@ namespace Ui
 
    protected:
       std::string      inputString_;
+      bool             backedOut_;
 
    private:
       typedef std::vector<std::string> History;
 
-   private: 
+   private:
       ModeWindow     * window_;
       Cursor           cursor_;
       Ui::Screen     & screen_;
@@ -133,15 +135,15 @@ namespace Ui
       History          searchHistory_;
 
       // Class used to search through the history table
-      class HistoryNotCompletionMatch 
+      class HistoryNotCompletionMatch
       {
       public:
-         HistoryNotCompletionMatch(std::string const & key) : 
-            key_(key) 
+         HistoryNotCompletionMatch(std::string const & key) :
+            key_(key)
          {}
 
       public:
-         bool operator() (std::string const & inputString) 
+         bool operator() (std::string const & inputString)
          {
             return !(key_.compare(inputString.substr(0, key_.length())) == 0);
          }
@@ -153,3 +155,4 @@ namespace Ui
 }
 
 #endif
+/* vim: set sw=3 ts=3: */
