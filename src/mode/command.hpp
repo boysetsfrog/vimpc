@@ -35,13 +35,14 @@ namespace Main
 namespace Ui
 {
    class ConsoleWindow;
+   class Normal;
 
    // Handles all input received whilst in command mode
    class Command : public InputMode, public Player
    {
 
    public:
-      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
+      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Normal & normalMode);
       ~Command();
 
    public:
@@ -121,6 +122,7 @@ namespace Ui
       void FindSong(std::string const & arguments);
 
       void Map(std::string const & arguments);
+      void Unmap(std::string const & arguments);
 
       void Rescan(std::string const & arguments);
       void Update(std::string const & arguments);
@@ -185,6 +187,7 @@ namespace Ui
       Ui::Screen         & screen_;
       Mpc::Client        & client_;
       Main::Settings     & settings_;
+      Ui::Normal         & normalMode_;
 
       // Tab completion searching class
       class TabCompletionMatch

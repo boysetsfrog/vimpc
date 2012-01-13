@@ -23,6 +23,7 @@
 
 #include <map>
 
+#include "callback.hpp"
 #include "screen.hpp"
 #include "search.hpp"
 
@@ -58,6 +59,10 @@ namespace Ui
       bool CausesModeToStart(int input) const;
       bool CausesModeToEnd(int input) const;
       bool WaitingForMoreInput() const { return (input_.size() > 0); }
+
+   public:
+      void Map(std::string key, std::string mapping);
+      void Unmap(std::string key);
 
    private:
       std::string InputCharToString(int input) const;
@@ -167,6 +172,10 @@ namespace Ui
       typedef void (Ui::Normal::*ptrToMember)(uint32_t);
       typedef std::map<std::string, ptrToMember> ActionTable;
 
+      typedef std::pair<ptrToMember, uint32_t> KeyMapItem;
+      typedef std::map<std::string, std::vector<KeyMapItem> > MapTable;
+
+
    private:
       ModeWindow *     window_;
       std::string      input_;
@@ -176,6 +185,7 @@ namespace Ui
       bool             wasSpecificCount_;
 
       ActionTable      actionTable_;
+      MapTable         mapTable_;
 
       Ui::Search     & search_;
       Ui::Screen     & screen_;

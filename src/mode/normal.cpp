@@ -217,8 +217,6 @@ void Normal::Refresh()
 
 bool Normal::Handle(int input)
 {
-   static ActionTable * action = &actionTable_;
-
    bool result = true;
 
    if ((input >= '0') && (input <= '9') && ((input & (1 << 31)) == 0))
@@ -252,21 +250,66 @@ bool Normal::Handle(int input)
       // Todo use a function that turns characters into strings, required for pageup etc
       input_ += InputCharToString(input);
 
+      bool        isMap = false;
       int         foundCount = 0;
+      std::string found = "";
       ptrToMember actionFunc;
 
-      for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
+      for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
       {
          if (it->first.substr(0, input_.size()) == input_)
          {
+            found = it->first;
+            isMap = true;
             foundCount++;
-            actionFunc = it->second;
          }
       }
 
-      if (foundCount == 1)
+      if (foundCount == 0)
       {
-         (*this.*actionFunc)(count);
+         for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
+         {
+            if (it->first.substr(0, input_.size()) == input_)
+            {
+               found = it->first;
+               foundCount++;
+               actionFunc = it->second;
+            }
+         }
+      }
+
+      if ((foundCount == 1) && (input_ == found))
+      {
+         if (isMap == true)
+         {
+            for (int i = 0; i < count; ++i)
+            {
+               std::vector<KeyMapItem> KeyMap = mapTable_[input_];
+
+               for (std::vector<KeyMapItem>::iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
+               {
+                  uint32_t Parameter = (*it).second;
+
+                  if (Parameter == 0)
+                  {
+                     Parameter = 1;
+                  }
+                  else
+                  {
+                     wasSpecificCount_ = true;
+                  }
+
+                  (*this.*((*it).first))(Parameter);
+
+                  wasSpecificCount_ = false;
+               }
+            }
+         }
+         else
+         {
+            (*this.*actionFunc)(count);
+         }
+
          actionCount_ = 0;
          input_       = "";
       }
@@ -275,8 +318,6 @@ bool Normal::Handle(int input)
          actionCount_ = 0;
          input_       = "";
       }
-
-      action = &actionTable_;
    }
 
    return result;
@@ -290,6 +331,113 @@ bool Normal::CausesModeToStart(int input) const
 bool Normal::CausesModeToEnd(int input) const
 {
    return false;
+}
+
+
+void Normal::Map(std::string key, std::string mapping)
+{
+   std::vector<KeyMapItem> KeyMap;
+
+   KeyMapItem Item;
+   Item.second = 1;
+
+   int         count = 0;
+   std::string input;
+
+   for (int i = 0; i < mapping.length(); )
+   {
+      char next = mapping.at(i);
+
+      if ((next >= '0') && (next <= '9'))
+      {
+         count *= 10;
+         count += next - '0';
+         ++i;
+      }
+      else
+      {
+         int max        = 0;
+         int foundcount = 0;
+
+         // check map table for a match
+         for (MapTable::iterator it = mapTable_.begin(); (it != mapTable_.end()); ++it)
+         {
+            if ((it->first == mapping.substr(i, it->first.length())) && (it->first.length() >= max))
+            {
+               if (max == it->first.length())
+               {
+                  ++foundcount;
+               }
+               else
+               {
+                  input      = it->first;
+                  foundcount = 1;
+                  max        = it->first.length();
+               }
+            }
+         }
+         //
+         // check action table
+         if ((max == 0) && (foundcount == 0))
+         {
+            for (ActionTable::iterator it = actionTable_.begin(); (it != actionTable_.end()); ++it)
+            {
+               if ((it->first == mapping.substr(i, it->first.length())) && (it->first.length() >= max))
+               {
+                  if (max == it->first.length())
+                  {
+                     ++foundcount;
+                  }
+                  else
+                  {
+                     input      = it->first;
+                     foundcount = 1;
+                     max        = it->first.length();
+                  }
+               }
+            }
+
+            if ((max > 0) && (foundcount == 1))
+            {
+               Item.first  = actionTable_[input];
+               Item.second = count;
+               count = 0;
+               KeyMap.push_back(Item);
+               i += input.length();
+            }
+            else
+            {
+               //error?
+               ++i;
+            }
+         }
+         else if ((max >= 1) && (foundcount == 1))
+         {
+            std::vector<KeyMapItem> KeyMapTmp = mapTable_[input];
+
+            for (std::vector<KeyMapItem>::iterator it = KeyMapTmp.begin(); it != KeyMapTmp.end(); ++it)
+            {
+               // if there is count before this bunch of stuff is mapped that won't work
+               KeyMap.push_back(*it);
+            }
+
+            i += input.length();
+            count = 0;
+         }
+         else
+         {
+            //error?
+            ++i;
+         }
+      }
+   }
+
+   mapTable_[key] = KeyMap;
+}
+
+void Normal::Unmap(std::string key)
+{
+   mapTable_.erase(key);
 }
 
 std::string Normal::InputCharToString(int input) const

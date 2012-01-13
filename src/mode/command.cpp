@@ -29,6 +29,7 @@
 #include "buffers.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
+#include "mode/normal.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
@@ -36,7 +37,7 @@
 using namespace Ui;
 
 // COMMANDS
-Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Normal & normalMode) :
    InputMode           (screen),
    Player              (screen, client, settings),
    initTabCompletion_  (true),
@@ -45,7 +46,8 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_       (),
    screen_             (screen),
    client_             (client),
-   settings_           (settings)
+   settings_           (settings),
+   normalMode_         (normalMode)
 {
    // \todo find a away to add aliases to tab completion
    commandTable_["!mpc"]      = &Command::Mpc;
@@ -65,7 +67,6 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["findartist"]= &Command::FindArtist;
    commandTable_["findsong"]  = &Command::FindSong;
    commandTable_["move"]      = &Command::Move;
-   commandTable_["map"]       = &Command::Map;
    commandTable_["password"]  = &Command::Password;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
@@ -85,6 +86,9 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["swap"]      = &Command::Swap;
    commandTable_["stop"]      = &Command::Stop;
    commandTable_["volume"]    = &Command::Volume;
+
+   commandTable_["map"]       = &Command::Map;
+   commandTable_["unmap"]     = &Command::Unmap;
 
    commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
    commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
@@ -517,6 +521,18 @@ void Command::FindSong(std::string const & arguments)
 
 void Command::Map(std::string const & arguments)
 {
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string key     = arguments.substr(0, arguments.find(" "));
+      std::string mapping = arguments.substr(arguments.find(" ") + 1);
+
+      normalMode_.Map(key, mapping);
+   }
+}
+
+void Command::Unmap(std::string const & arguments)
+{
+   normalMode_.Unmap(arguments);
 }
 
 void Command::Random(std::string const & arguments)

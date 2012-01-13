@@ -140,6 +140,24 @@ PLAYBACK:
 
   shuffle                 | shuffle the playlist
 
+KEY MAPPING:
+   map <keys> <otherkeys> | create a mapping from <keys> to <otherkeys>
+                          | <keys> can be more than one key (ie. y or yy)
+                          | likewise with <otherkeys> but that can also include
+                          | counts, etc
+                          |
+                          | e.g. :map ytr <C-D>5a 
+                          |      will cause "ytr" to do a "Ctrl+D" then "5a"
+                          |
+                          | The mapping that is used is based upon what the keys
+                          | do when the map is added. If you remap 'a' then redo
+                          | the example map, it will cause different behaviour.
+                          |
+                          | NOTE: currently you can't map to ex mode commands 
+                          | or searching
+                          |
+   unmap <keys>           | remove the mapping of <keys>
+
 FIND:
   find[!] <search>        | search in database and display results in new window
   findartist[!] <search>  | search in database in artist tag only
