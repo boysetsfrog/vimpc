@@ -56,6 +56,7 @@ namespace Ui
       void Finalise(int input);
       void Refresh();
       bool Handle(int input);
+      void HandleMap(std::string input, int count);
       bool CausesModeToStart(int input) const;
       bool CausesModeToEnd(int input) const;
       bool WaitingForMoreInput() const { return (input_.size() > 0); }
@@ -65,6 +66,8 @@ namespace Ui
       void Unmap(std::string key);
 
    private:
+      template<typename T>
+      bool CheckTableForInput(T table, std::string const & toMap, std::string & result);
       std::string InputCharToString(int input) const;
 
    private: // Ui::Player wrapper functions

@@ -247,73 +247,45 @@ bool Normal::Handle(int input)
          lastActionCount_ = actionCount_;
       }
 
-      // Todo use a function that turns characters into strings, required for pageup etc
+      // Convert character input into vimpc strings using conversion table
       input_ += InputCharToString(input);
 
-      bool        isMap = false;
-      int         foundCount = 0;
-      std::string found = "";
-      ptrToMember actionFunc;
+      bool inMap    = false;
+      bool complete = true;
 
       for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
       {
          if (it->first.substr(0, input_.size()) == input_)
          {
-            found = it->first;
-            isMap = true;
-            foundCount++;
+            complete = (it->first == input_) && complete;
+            inMap    = true;
          }
       }
 
-      if (foundCount == 0)
+      if ((inMap == true) && (complete == true))
       {
+         HandleMap(input_, count);
+      }
+      else if (inMap == false)
+      {
+         ptrToMember actionFunc = NULL;
+
          for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
          {
             if (it->first.substr(0, input_.size()) == input_)
             {
-               found = it->first;
-               foundCount++;
+               complete   = (it->first == input_) && complete;
                actionFunc = it->second;
             }
          }
-      }
 
-      if ((foundCount == 1) && (input_ == found))
-      {
-         if (isMap == true)
-         {
-            for (int i = 0; i < count; ++i)
-            {
-               std::vector<KeyMapItem> KeyMap = mapTable_[input_];
-
-               for (std::vector<KeyMapItem>::iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
-               {
-                  uint32_t Parameter = (*it).second;
-
-                  if (Parameter == 0)
-                  {
-                     Parameter = 1;
-                  }
-                  else
-                  {
-                     wasSpecificCount_ = true;
-                  }
-
-                  (*this.*((*it).first))(Parameter);
-
-                  wasSpecificCount_ = false;
-               }
-            }
-         }
-         else
+         if ((complete == true) && (actionFunc != NULL))
          {
             (*this.*actionFunc)(count);
          }
-
-         actionCount_ = 0;
-         input_       = "";
       }
-      else if (foundCount == 0)
+      
+      if (complete == true)
       {
          actionCount_ = 0;
          input_       = "";
@@ -322,6 +294,25 @@ bool Normal::Handle(int input)
 
    return result;
 }
+
+void Normal::HandleMap(std::string input, int count)
+{
+   for (int i = 0; i < count; ++i)
+   {
+      bool specificCount = wasSpecificCount_;
+      std::vector<KeyMapItem> KeyMap = mapTable_[input_];
+
+      for (std::vector<KeyMapItem>::iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
+      {
+         uint32_t const Parameter = ((*it).second > 0) ? (*it).second : 1;
+         wasSpecificCount_ = ((*it).second > 0);
+         (*this.*((*it).first))(Parameter);
+      }
+
+      wasSpecificCount_ = specificCount;
+   }
+}
+
 
 bool Normal::CausesModeToStart(int input) const
 {
@@ -341,12 +332,12 @@ void Normal::Map(std::string key, std::string mapping)
    KeyMapItem Item;
    Item.second = 1;
 
+   bool         error = false;
    int         count = 0;
-   std::string input;
 
    for (int i = 0; i < mapping.length(); )
    {
-      char next = mapping.at(i);
+      char const next = mapping.at(i);
 
       if ((next >= '0') && (next <= '9'))
       {
@@ -356,88 +347,72 @@ void Normal::Map(std::string key, std::string mapping)
       }
       else
       {
-         int max        = 0;
-         int foundcount = 0;
+         std::string const toMap = mapping.substr(i);
+         std::string       input;
 
-         // check map table for a match
-         for (MapTable::iterator it = mapTable_.begin(); (it != mapTable_.end()); ++it)
-         {
-            if ((it->first == mapping.substr(i, it->first.length())) && (it->first.length() >= max))
-            {
-               if (max == it->first.length())
-               {
-                  ++foundcount;
-               }
-               else
-               {
-                  input      = it->first;
-                  foundcount = 1;
-                  max        = it->first.length();
-               }
-            }
-         }
-         //
-         // check action table
-         if ((max == 0) && (foundcount == 0))
-         {
-            for (ActionTable::iterator it = actionTable_.begin(); (it != actionTable_.end()); ++it)
-            {
-               if ((it->first == mapping.substr(i, it->first.length())) && (it->first.length() >= max))
-               {
-                  if (max == it->first.length())
-                  {
-                     ++foundcount;
-                  }
-                  else
-                  {
-                     input      = it->first;
-                     foundcount = 1;
-                     max        = it->first.length();
-                  }
-               }
-            }
+         bool const found = CheckTableForInput(mapTable_, toMap, input);
 
-            if ((max > 0) && (foundcount == 1))
+         if (found == false)
+         {
+            error = !(CheckTableForInput(actionTable_, toMap, input));
+
+            if (error == false)
             {
                Item.first  = actionTable_[input];
                Item.second = count;
-               count = 0;
                KeyMap.push_back(Item);
-               i += input.length();
-            }
-            else
-            {
-               //error?
-               ++i;
             }
          }
-         else if ((max >= 1) && (foundcount == 1))
+         else
          {
             std::vector<KeyMapItem> KeyMapTmp = mapTable_[input];
 
             for (std::vector<KeyMapItem>::iterator it = KeyMapTmp.begin(); it != KeyMapTmp.end(); ++it)
             {
-               // if there is count before this bunch of stuff is mapped that won't work
+               // \todo If there is a count before this bunch of stuff is mapped that won't work
                KeyMap.push_back(*it);
             }
+         }
 
-            i += input.length();
-            count = 0;
-         }
-         else
+         if (error == true)
          {
-            //error?
-            ++i;
+            break;
          }
+
+         i += input.length();
+         count = 0;
       }
    }
 
-   mapTable_[key] = KeyMap;
+   if (error == false)
+   {
+      mapTable_[key] = KeyMap;
+   }
 }
 
 void Normal::Unmap(std::string key)
 {
    mapTable_.erase(key);
+}
+
+template <typename T>
+bool Normal::CheckTableForInput(T table, std::string const & toMap, std::string & result)
+{
+   int max = 0;
+
+   for (typename T::iterator it = table.begin(); (it != table.end()); ++it)
+   {
+      if ((it->first == toMap.substr(0, it->first.length())) && (it->first.length() >= max))
+      {
+         if (max < it->first.length())
+         {
+            result     = it->first;
+            max        = it->first.length();
+         }
+      }
+   }
+
+   return (max != 0);
 }
 
 std::string Normal::InputCharToString(int input) const
