@@ -142,20 +142,7 @@ PLAYBACK:
 
 KEY MAPPING:
    map <keys> <otherkeys> | create a mapping from <keys> to <otherkeys>
-                          | <keys> can be more than one key (ie. y or yy)
-                          | likewise with <otherkeys> but that can also include
-                          | counts, etc
-                          |
-                          | e.g. :map ytr <C-D>5a 
-                          |      will cause "ytr" to do a "Ctrl+D" then "5a"
-                          |
-                          | The mapping that is used is based upon what the keys
-                          | do when the map is added. If you remap 'a' then redo
-                          | the example map, it will cause different behaviour.
-                          |
-                          | NOTE: currently you can't map to ex mode commands 
-                          | or searching
-                          |
+                          | see later section "MAPPING KEYS"
    unmap <keys>           | remove the mapping of <keys>
 
 FIND:
@@ -217,6 +204,45 @@ MISC:
   set                     | sets a configurable setting, see SETTINGS section
 
 
+MAPPING KEYS
+--------------------------------------------------
+
+Any key combination can be mapped to any other key combination including
+to ex mode commands.
+
+To create a map, the command :map is used which will map the key
+combination provided as the first parameter to the second.
+
+i.e. map FF :browse<C-M>gg/
+
+This will make the normal mode input FF change to the browse tab, go to the
+first line and then enter search mode. All ex mode or search commands
+you want to execute must be terminated by <C-M>,<Return> or <Enter>
+otherwise you will stay in that mode.
+
+Ctrl key combinations are mapped using <C-x> where x is the key
+
+i.e <C-D> to map Ctrl+D
+
+Alt key combinations work in the same way.
+
+
+KEYS:
+
+As well as regular ascii keys other keyboard keys can be
+mapped and are described below.
+   
+   <Down>, <Left>, <Right>, <Up> | Directional keys
+   <PageUp>, <PageDown>          | Page up and down
+   <C-x>                         | Ctrl+x
+   <A-x>                         | Alt+x
+   <Enter>                       | Enter key
+   <Return>                      | Return key
+   <BS>                          | Backspace key
+   <Del>                         | Delete key
+   <lt>                          | Less than symbol 
+
+
 SETTINGS
 --------------------------------------------------
 
@@ -247,4 +273,6 @@ or postfixed with !  which will toggle the setting.
 
   window <window>         | sets the window that will start with focus
                           | only useful if called from ~/.vimpcrc file
+
+
 

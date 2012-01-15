@@ -13,9 +13,13 @@ set window browse
 set nostoponquit
 
 " A silly example of an alias
-alias smiths deleteall; findartist! The Smiths; play 1
+" alias smiths deleteall; findartist! The Smiths; play 1
 
-" If you connect in the config file you should try and do it as late as possible
+" An example map
+" map the F key to change to the browse window, go to the first line and enter search mode
+" map F :browse<C-M>gg/
+
+" Connect to a specific host using the config file
 " connect somehost someport
 
 echo Config File Complete
