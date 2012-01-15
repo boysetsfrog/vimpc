@@ -52,6 +52,17 @@ namespace Ui
       // \param[in] input The command string to execute, including the arguments
       bool ExecuteCommand(std::string const & input);
 
+      // If command queue'ing is enabled, commands that require an active mpd connection
+      // will be queued up if a connection is not present, then when a connection becomes
+      // active they will be handled
+      void SetQueueCommands(bool enabled);
+
+      // Execute all the commands which have been queued up
+      void ExecuteQueuedCommands();
+
+      // Returns true if the given command requires an mpd connection
+      bool RequiresConnection(std::string const & command);
+
    public: // Ui::InputMode
       void Initialise(int input);
       bool Handle(int input);
@@ -179,11 +190,16 @@ namespace Ui
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
 
+      typedef std::pair<std::string, std::string>    CommandArgPair;
+      typedef std::vector<CommandArgPair>            CommandQueue;
+
    private:
       bool                 initTabCompletion_;
       bool                 forceCommand_;
+      bool                 queueCommands_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
+      CommandQueue         commandQueue_;
       Ui::Screen         & screen_;
       Mpc::Client        & client_;
       Main::Settings     & settings_;

@@ -67,6 +67,9 @@ namespace Main
    public:
       static void SetRunning(bool isRunning);
 
+      //! Perform any required actions on a connect
+      void OnConnected();
+
    private:
       //! Read input from the screen
       int  Input() const;

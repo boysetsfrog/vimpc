@@ -420,7 +420,11 @@ void Normal::HandleMap(std::string input, int count)
          KeyMapItem item = (*it);
 
          uint32_t const param = (item.count_ > 0) ? item.count_ : 1;
-         wasSpecificCount_ = (item.count_ > 0);
+
+         if (KeyMap.size() > 1)
+         {
+            wasSpecificCount_ = (item.count_ > 0);
+         }
 
          if ((item.mode_ == Main::Vimpc::Normal) && (item.action_ != NULL))
          {

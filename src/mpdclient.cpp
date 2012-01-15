@@ -137,7 +137,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    {
       screen_.Update();
       DisplaySongInformation();
-      vimpc_->CurrentMode().Refresh();
+      vimpc_->OnConnected();
 
       GetVersion();
       UpdateStatus();

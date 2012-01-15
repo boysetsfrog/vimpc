@@ -77,10 +77,12 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       mode.Initialise(0);
    }
 
-   SetSkipConfigConnects(hostname != "");
+   SetSkipConfigConnects((hostname != "") || (port != 0));
 
    // Parse the config file
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
+
+   commandMode.SetQueueCommands(true);
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
 
    SetSkipConfigConnects(false);
@@ -106,6 +108,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
          mode.Refresh();
       }
+
+      commandMode.SetQueueCommands(false);
 
       // The main loop
       while (Running == true)
@@ -258,6 +262,14 @@ void Vimpc::Handle(int input)
 #ifdef HAVE_MOUSE_SUPPORT
    }
 #endif
+}
+
+void Vimpc::OnConnected()
+{
+   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
+   commandMode.ExecuteQueuedCommands();
+
+   CurrentMode().Refresh();
 }
 
 void Vimpc::HandleMouse()
