@@ -229,9 +229,40 @@ void Command::ExecuteQueuedCommands()
 
 bool Command::RequiresConnection(std::string const & command)
 {
-   return ((command == "consume") ||
-           (command == "add") || 
-           (command == "password"));
+   return ((command == "!mpc") ||
+           (command == "add") ||
+           (command == "consume") ||
+           (command == "delete") ||
+           (command == "deleteall") ||
+           (command == "disable") ||
+           (command == "enable") ||
+           (command == "find") ||
+           (command == "findalbum") ||
+           (command == "findartist") ||
+           (command == "findsong") ||
+           (command == "move") ||
+           (command == "password") ||
+           (command == "pause") ||
+           (command == "play") ||
+           (command == "random") ||
+           (command == "repeat") ||
+           (command == "seek") ||
+           (command == "seek+") ||
+           (command == "seek-") ||
+           (command == "single") ||
+           (command == "shuffle") ||
+           (command == "swap") ||
+           (command == "stop") ||
+           (command == "volume") ||
+           (command == "rescan") ||
+           (command == "update") ||
+           (command == "next") ||
+           (command == "previous") ||
+           (command == "load") ||
+           (command == "save") ||
+           (command == "edit") ||
+           (command == "write") ||
+           (command == "toplaylist"));
 }
 
 
