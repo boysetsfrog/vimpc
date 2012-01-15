@@ -21,12 +21,12 @@
 #include "normal.hpp"
 
 #include "mpdclient.hpp"
-#include "vimpc.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 #include "mode/command.hpp"
+#include "mode/inputmode.hpp"
 
 #include <iomanip>
 #include <limits>
@@ -40,7 +40,7 @@
 
 using namespace Ui;
 
-Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search) :
+Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search) :
    Player           (screen, client, settings),
    window_          (NULL),
    actionCount_     (0),
@@ -48,6 +48,7 @@ Normal::Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    lastActionCount_ (0),
    wasSpecificCount_(false),
    actionTable_     (),
+   vimpc_           (vimpc),
    search_          (search),
    screen_          (screen),
    client_          (client),
@@ -295,24 +296,6 @@ bool Normal::Handle(int input)
    return result;
 }
 
-void Normal::HandleMap(std::string input, int count)
-{
-   for (int i = 0; i < count; ++i)
-   {
-      bool specificCount = wasSpecificCount_;
-      std::vector<KeyMapItem> KeyMap = mapTable_[input_];
-
-      for (std::vector<KeyMapItem>::iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
-      {
-         uint32_t const Parameter = ((*it).second > 0) ? (*it).second : 1;
-         wasSpecificCount_ = ((*it).second > 0);
-         (*this.*((*it).first))(Parameter);
-      }
-
-      wasSpecificCount_ = specificCount;
-   }
-}
-
 
 bool Normal::CausesModeToStart(int input) const
 {
@@ -329,14 +312,12 @@ void Normal::Map(std::string key, std::string mapping)
 {
    std::vector<KeyMapItem> KeyMap;
 
-   KeyMapItem Item;
-   Item.second = 1;
-
-   bool         error = false;
-   int         count = 0;
+   bool  error = false;
+   int   count = 0;
 
    for (int i = 0; i < mapping.length(); )
    {
+      KeyMapItem item;
       char const next = mapping.at(i);
 
       if ((next >= '0') && (next <= '9'))
@@ -348,7 +329,7 @@ void Normal::Map(std::string key, std::string mapping)
       else
       {
          std::string const toMap = mapping.substr(i);
-         std::string       input;
+         std::string input;
 
          bool const found = CheckTableForInput(mapTable_, toMap, input);
 
@@ -358,16 +339,26 @@ void Normal::Map(std::string key, std::string mapping)
 
             if (error == false)
             {
-               Item.first  = actionTable_[input];
-               Item.second = count;
-               KeyMap.push_back(Item);
+               item.action_ = actionTable_[input];
+               item.count_  = count;
+               KeyMap.push_back(item);
+            }
+            else if (vimpc_->RequiresModeChange(Main::Vimpc::Normal, toMap.at(0)) == true)
+            {
+               error = false;
+               input = Ui::InputMode::SplitStringAtTerminator(toMap);
+
+               item.mode_   = vimpc_->ModeAfterInput(Main::Vimpc::Normal, toMap.at(0));
+               item.input_  = input;
+               item.count_  = count;
+               KeyMap.push_back(item);
             }
          }
          else
          {
-            std::vector<KeyMapItem> KeyMapTmp = mapTable_[input];
+            std::vector<KeyMapItem> KeyMapVector = mapTable_[input];
 
-            for (std::vector<KeyMapItem>::iterator it = KeyMapTmp.begin(); it != KeyMapTmp.end(); ++it)
+            for (std::vector<KeyMapItem>::iterator it = KeyMapVector.begin(); it != KeyMapVector.end(); ++it)
             {
                // \todo If there is a count before this bunch of stuff is mapped that won't work
                KeyMap.push_back(*it);
@@ -376,6 +367,7 @@ void Normal::Map(std::string key, std::string mapping)
 
          if (error == true)
          {
+            Error(ErrorNumber::CouldNotMapKeys, "Failed to map the specified keys");
             break;
          }
 
@@ -406,13 +398,42 @@ bool Normal::CheckTableForInput(T table, std::string const & toMap, std::string 
       {
          if (max < it->first.length())
          {
-            result     = it->first;
-            max        = it->first.length();
+            result = it->first;
+            max    = it->first.length();
          }
       }
    }
 
    return (max != 0);
+}
+
+void Normal::HandleMap(std::string input, int count)
+{
+   bool specificCount = wasSpecificCount_;
+
+   for (int i = 0; i < count; ++i)
+   {
+      std::vector<KeyMapItem> KeyMap = mapTable_[input_];
+
+      for (std::vector<KeyMapItem>::iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
+      {
+         KeyMapItem item = (*it);
+
+         uint32_t const param = (item.count_ > 0) ? item.count_ : 1;
+         wasSpecificCount_ = (item.count_ > 0);
+
+         if ((item.mode_ == Main::Vimpc::Normal) && (item.action_ != NULL))
+         {
+            (*this.*(item.action_))(param);
+         }
+         else
+         {
+            vimpc_->ChangeMode(item.input_.at(0), item.input_.substr(1));
+         }
+      }
+   }
+
+   wasSpecificCount_ = specificCount;
 }
 
 std::string Normal::InputCharToString(int input) const

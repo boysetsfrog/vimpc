@@ -38,11 +38,31 @@ namespace Main
       ~Vimpc();
 
    public:
+      //! All available modes
+      typedef enum
+      {
+         Command,
+         Normal,
+         Search,
+         ModeCount
+      } ModeName;
+
+   public:
       //! Start vimpc
       void Run(std::string hostname = "", uint16_t port = 0);
 
       //! Return the currently active mode
       Ui::Mode & CurrentMode();
+
+      //! Check if the given \p input will require the curently active mode
+      //! to be changed
+      bool RequiresModeChange(ModeName mode, int input) const;
+
+      //! Determines the mode that will be active after the next call to
+      //! ChangeMode with the \p input given
+      ModeName ModeAfterInput(ModeName mode, int input) const;
+
+      void ChangeMode(char input, std::string initial);
 
    public:
       static void SetRunning(bool isRunning);
@@ -62,23 +82,6 @@ namespace Main
       bool ModesAreInitialised();
 
    private:
-      //! All available modes
-      typedef enum
-      {
-         Command,
-         Normal,
-         Search,
-         ModeCount
-      } ModeName;
-
-      //! Check if the given \p input will require the curently active mode
-      //! to be changed
-      bool RequiresModeChange(int input) const;
-
-      //! Determines the mode that will be active after the next call to
-      //! ChangeMode with the \p input given
-      ModeName ModeAfterInput(int input)     const;
-
       //! Change the currently active mode based on \p input
       void ChangeMode(int input);
 
