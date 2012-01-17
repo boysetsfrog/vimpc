@@ -94,6 +94,10 @@ int main(int argc, char** argv)
          {
             port = atoi(optarg);
          }
+         else if (option == ':' || option == '?')
+         {
+            runVimpc  = false;
+         }
 
          std::cout << output << std::endl;
       }
