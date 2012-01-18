@@ -23,12 +23,13 @@
 
 #include <map>
 
+#include "callback.hpp"
 #include "screen.hpp"
 #include "search.hpp"
+#include "vimpc.hpp"
 
 namespace Main
 {
-   class Vimpc;
    class Settings;
 }
 
@@ -43,7 +44,7 @@ namespace Ui
    class Normal : public Mode, public Player
    {
    public:
-      Normal(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search);
+      Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search);
       ~Normal();
 
    private:
@@ -57,6 +58,18 @@ namespace Ui
       bool Handle(int input);
       bool CausesModeToStart(int input) const;
       bool CausesModeToEnd(int input) const;
+      bool WaitingForMoreInput() const { return (input_.size() > 0); }
+
+   public:
+      void Map(std::string key, std::string mapping);
+      void Unmap(std::string key);
+
+   private:
+      template<typename T>
+      bool CheckTableForInput(T table, std::string const & toMap, std::string & result);
+      void HandleMap(std::string input, int count);
+
+      std::string InputCharToString(int input) const;
 
    private: // Ui::Player wrapper functions
       void ClearScreen(uint32_t count);
@@ -156,26 +169,46 @@ namespace Ui
       template <int SIGNAL>
       void SendSignal(uint32_t count);
 
+      void ChangeMode(uint32_t count);
+
    private:
       void DisplayModeLine();
 
    private:
       typedef void (Ui::Normal::*ptrToMember)(uint32_t);
-      typedef std::map<int, ptrToMember> ActionTable;
+      typedef std::map<std::string, ptrToMember> ActionTable;
+
+      struct KeyMapItem
+      {
+         KeyMapItem() :
+            mode_  (Main::Vimpc::Normal),
+            input_ (""),
+            action_(NULL),
+            count_ (0)
+         {
+         }
+
+         Main::Vimpc::ModeName mode_;
+         std::string           input_;
+         ptrToMember           action_;
+         uint32_t              count_;
+      };
+
+      typedef std::map<std::string, std::vector<KeyMapItem> > MapTable;
+
 
    private:
       ModeWindow *     window_;
+      std::string      input_;
       uint32_t         actionCount_;
       int32_t          lastAction_;
       uint32_t         lastActionCount_;
       bool             wasSpecificCount_;
 
       ActionTable      actionTable_;
-      ActionTable      jumpTable_;
-      ActionTable      alignTable_;
-      ActionTable      quitTable_;
-      ActionTable      escapeTable_;
+      MapTable         mapTable_;
 
+      Main::Vimpc *    vimpc_;
       Ui::Search     & search_;
       Ui::Screen     & screen_;
       Mpc::Client    & client_;

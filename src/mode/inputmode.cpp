@@ -97,7 +97,6 @@ bool InputMode::Handle(int const input)
    {
       ResetHistory(input);
       GenerateInputString(input);
-
       window_->SetCursorPosition(cursor_.UpdatePosition(input));
       window_->SetLine("%s%s", Prompt(), inputString_.c_str());
    }
@@ -113,6 +112,71 @@ bool InputMode::CausesModeToStart(int input) const
 bool InputMode::CausesModeToEnd(int input) const
 {
    return (((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_ == "") && (backedOut_));
+}
+
+
+/* static */ std::string InputMode::SplitStringAtTerminator(std::string input)
+{
+   std::vector<std::string> terminators;
+
+   terminators.push_back("\n");
+   terminators.push_back("<C-M>");
+   terminators.push_back("<Enter>");
+   terminators.push_back("<Return>");
+
+   for (int i = 0; i < input.length(); ++i)
+   {
+      for (std::vector<std::string>::iterator it = terminators.begin(); it != terminators.end(); ++it)
+      {
+         if (input.substr(i, (*it).length()) == (*it))
+         {
+            return input.substr(0, i + (*it).length());
+         }
+      }
+   }
+
+   return input;
+}
+
+/* static */ std::string InputMode::RemoveStringTerminator(std::string input)
+{
+   std::vector<std::string> terminators;
+
+   terminators.push_back("\n");
+   terminators.push_back("<C-M>");
+   terminators.push_back("<Enter>");
+   terminators.push_back("<Return>");
+
+   for (int i = 0; i < input.length(); ++i)
+   {
+      for (std::vector<std::string>::iterator it = terminators.begin(); it != terminators.end(); ++it)
+      {
+         if (input.substr(i, (*it).length()) == (*it))
+         {
+            return input.substr(0, i);
+         }
+      }
+   }
+
+   return input;
+}
+
+bool InputMode::SetInputString(std::string input)
+{
+   inputString_ = RemoveStringTerminator(input);
+
+   if (inputString_ != input)
+   {
+      Handle('\n');
+      return true;
+   }
+   else
+   {
+      window_->SetCursorPosition(inputString_.length() + PromptSize);
+      window_->SetLine("%s%s", Prompt(), inputString_.c_str());
+   }
+
+   return false;
 }
 
 bool InputMode::HasCompleteInput(int input)

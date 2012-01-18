@@ -46,10 +46,12 @@ Vimpc::Vimpc() :
    search_      (*(new Ui::Search (screen_, client_, settings_))),
    screen_      (settings_, client_, search_),
    client_      (this, settings_, screen_),
-   modeTable_   ()
+   modeTable_   (),
+   normalMode_  (*(new Ui::Normal (this, screen_, client_, settings_, search_)))
 {
-   modeTable_[Command] = new Ui::Command(screen_, client_, settings_);
-   modeTable_[Normal]  = new Ui::Normal (screen_, client_, settings_, search_);
+
+   modeTable_[Command] = new Ui::Command(screen_, client_, settings_, normalMode_);
+   modeTable_[Normal]  = &normalMode_;
    modeTable_[Search]  = &search_;
 
    ENSURE(modeTable_.size()     == ModeCount);
@@ -75,10 +77,12 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       mode.Initialise(0);
    }
 
-   SetSkipConfigConnects(hostname != "");
+   SetSkipConfigConnects((hostname != "") || (port != 0));
 
    // Parse the config file
    Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
+
+   commandMode.SetQueueCommands(true);
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
 
    SetSkipConfigConnects(false);
@@ -104,6 +108,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
          mode.Refresh();
       }
+
+      commandMode.SetQueueCommands(false);
 
       // The main loop
       while (Running == true)
@@ -148,6 +154,75 @@ Ui::Mode & Vimpc::CurrentMode()
    return assert_reference(modeTable_[currentMode_]);
 }
 
+bool Vimpc::RequiresModeChange(ModeName mode, int input) const
+{
+   return (mode != ModeAfterInput(mode, input));
+}
+
+Vimpc::ModeName Vimpc::ModeAfterInput(ModeName mode, int input) const
+{
+   ModeName newMode = mode;
+   ModeTable::const_iterator it;
+
+   // Check if we are returning to normal mode
+   if (mode != Normal)
+   {
+      it = modeTable_.find(Normal);
+      Ui::Mode const & normalMode = assert_reference(it->second);
+
+      it = modeTable_.find(Command);
+      Ui::Mode const & commandMode = assert_reference(it->second);
+
+      it = modeTable_.find(Search);
+      Ui::Mode const & searchMode = assert_reference(it->second);
+
+      if (normalMode.CausesModeToStart(input) == true)
+      {
+         newMode = Normal;
+      }
+      else if ((mode == Command) && (commandMode.CausesModeToEnd(input) == true))
+      {
+         newMode = Normal;
+      }
+      else if ((mode == Search) && (searchMode.CausesModeToEnd(input) == true))
+      {
+         newMode = Normal;
+      }
+   }
+   // Must be in normal mode to be able to enter any other mode
+   else
+   {
+      for (ModeTable::const_iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
+      {
+         Ui::Mode const & mode = assert_reference(it->second);
+
+         if (mode.CausesModeToStart(input) == true)
+         {
+            newMode = it->first;
+         }
+      }
+   }
+
+   return newMode;
+}
+
+void Vimpc::ChangeMode(char input, std::string initial)
+{
+   ChangeMode(input);
+
+   Ui::InputMode * mode = dynamic_cast<Ui::InputMode *> (modeTable_.find(currentMode_)->second);
+
+   if (mode != NULL)
+   {
+      bool finished = mode->SetInputString(initial);
+
+      if (finished == true)
+      {
+         ChangeMode('\n');
+      }
+   }
+}
+
 
 /* static */ void Vimpc::SetRunning(bool isRunning)
 {
@@ -157,6 +232,11 @@ Ui::Mode & Vimpc::CurrentMode()
 
 int Vimpc::Input() const
 {
+   if (currentMode_ == Normal)
+   {
+      return screen_.WaitForInput(!normalMode_.WaitingForMoreInput());
+   }
+
    return screen_.WaitForInput();
 }
 
@@ -175,13 +255,21 @@ void Vimpc::Handle(int input)
       // Input must be handled before mode is changed
       mode.Handle(input);
 
-      if (RequiresModeChange(input) == true)
+      if (RequiresModeChange(currentMode_, input) == true)
       {
          ChangeMode(input);
       }
 #ifdef HAVE_MOUSE_SUPPORT
    }
 #endif
+}
+
+void Vimpc::OnConnected()
+{
+   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
+   commandMode.ExecuteQueuedCommands();
+
+   CurrentMode().Refresh();
 }
 
 void Vimpc::HandleMouse()
@@ -202,69 +290,10 @@ bool Vimpc::ModesAreInitialised()
 }
 
 
-bool Vimpc::RequiresModeChange(int input) const
-{
-   return (currentMode_ != ModeAfterInput(input));
-}
-
-Vimpc::ModeName Vimpc::ModeAfterInput(int input) const
-{
-   ModeName newMode = currentMode_;
-   ModeTable::const_iterator it;
-
-   // Check if we are returning to normal mode
-   if (currentMode_ != Normal)
-   {
-      it = modeTable_.find(Normal);
-      Ui::Mode const & normalMode = assert_reference(it->second);
-
-      it = modeTable_.find(Command);
-      Ui::Mode const & commandMode = assert_reference(it->second);
-
-      it = modeTable_.find(Search);
-      Ui::Mode const & searchMode = assert_reference(it->second);
-
-      if (normalMode.CausesModeToStart(input) == true)
-      {
-         newMode = Normal;
-      }
-      //\TODO This reaks
-      else if (currentMode_ == Command)
-      {
-         if (commandMode.CausesModeToEnd(input))
-         {
-            newMode = Normal;
-         }
-      }
-      else if (currentMode_ == Search)
-      {
-         if (searchMode.CausesModeToEnd(input))
-         {
-            newMode = Normal;
-         }
-      }
-   }
-   // Must be in normal mode to be able to enter any other mode
-   else
-   {
-      for (ModeTable::const_iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
-      {
-         Ui::Mode const & mode = assert_reference(it->second);
-
-         if (mode.CausesModeToStart(input) == true)
-         {
-            newMode = it->first;
-         }
-      }
-   }
-
-   return newMode;
-}
-
 void Vimpc::ChangeMode(int input)
 {
    ModeName const oldModeName = currentMode_;
-   ModeName const newModeName = ModeAfterInput(input);
+   ModeName const newModeName = ModeAfterInput(currentMode_, input);
 
    if (newModeName != oldModeName)
    {

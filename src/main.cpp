@@ -47,7 +47,6 @@ ASSERT_FUNCTION()
 int main(int argc, char** argv)
 {
    bool runVimpc           = true;
-   bool skipConfigConnects = false;
    int  option             = 0;
    int  option_index       = 0;
 
@@ -89,13 +88,15 @@ int main(int argc, char** argv)
          }
          else if (option == 'h')
          {
-            skipConfigConnects = true;
             hostname = optarg;
          }
          else if (option == 'p')
          {
-            skipConfigConnects = true;
             port = atoi(optarg);
+         }
+         else if (option == ':' || option == '?')
+         {
+            runVimpc  = false;
          }
 
          std::cout << output << std::endl;

@@ -594,7 +594,7 @@ uint32_t Screen::MaxColumns() const
    return maxColumns_;
 }
 
-uint32_t Screen::WaitForInput() const
+uint32_t Screen::WaitForInput(bool HandleEscape) const
 {
    // \todo this doesn't seem to work if constructed
    // when the screen is constructed, find out why
@@ -607,13 +607,7 @@ uint32_t Screen::WaitForInput() const
 
    int32_t input = wgetch(commandWindow_);
 
-   if (input != ERR)
-   {
-      // \todo make own function
-      errorWindow.ClearError();
-   }
-
-   if (input == 27)
+   if ((input == 27) && (HandleEscape == true))
    {
       wtimeout(commandWindow_, 0);
 
@@ -625,6 +619,12 @@ uint32_t Screen::WaitForInput() const
       }
 
       wtimeout(commandWindow_, 100);
+   }
+
+   if (input != ERR)
+   {
+      // \todo make own function
+      errorWindow.ClearError();
    }
 
    return input;
@@ -749,7 +749,7 @@ bool Screen::IsVisible(int32_t window)
          return true;
       }
    }
-   
+
    return false;
 }
 

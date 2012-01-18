@@ -29,6 +29,7 @@
 #include "buffers.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
+#include "mode/normal.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
@@ -36,16 +37,18 @@
 using namespace Ui;
 
 // COMMANDS
-Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
+Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Normal & normalMode) :
    InputMode           (screen),
    Player              (screen, client, settings),
    initTabCompletion_  (true),
    forceCommand_       (false),
+   queueCommands_      (false),
    aliasTable_         (),
    commandTable_       (),
    screen_             (screen),
    client_             (client),
-   settings_           (settings)
+   settings_           (settings),
+   normalMode_         (normalMode)
 {
    // \todo find a away to add aliases to tab completion
    commandTable_["!mpc"]      = &Command::Mpc;
@@ -84,6 +87,9 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["swap"]      = &Command::Swap;
    commandTable_["stop"]      = &Command::Stop;
    commandTable_["volume"]    = &Command::Volume;
+
+   commandTable_["map"]       = &Command::Map;
+   commandTable_["unmap"]     = &Command::Unmap;
 
    commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
    commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
@@ -212,6 +218,60 @@ bool Command::ExecuteCommand(std::string const & input)
    }
 
    return true;
+}
+
+void Command::SetQueueCommands(bool enabled)
+{
+   queueCommands_ = enabled;
+}
+
+
+void Command::ExecuteQueuedCommands()
+{
+   for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
+   {
+      ExecuteCommand((*it).first, (*it).second);
+   }
+
+   commandQueue_.clear();
+}
+
+bool Command::RequiresConnection(std::string const & command)
+{
+   return ((command == "!mpc") ||
+           (command == "add") ||
+           (command == "consume") ||
+           (command == "delete") ||
+           (command == "deleteall") ||
+           (command == "disable") ||
+           (command == "enable") ||
+           (command == "find") ||
+           (command == "findalbum") ||
+           (command == "findartist") ||
+           (command == "findsong") ||
+           (command == "move") ||
+           (command == "password") ||
+           (command == "pause") ||
+           (command == "play") ||
+           (command == "random") ||
+           (command == "repeat") ||
+           (command == "seek") ||
+           (command == "seek+") ||
+           (command == "seek-") ||
+           (command == "single") ||
+           (command == "shuffle") ||
+           (command == "swap") ||
+           (command == "stop") ||
+           (command == "volume") ||
+           (command == "rescan") ||
+           (command == "update") ||
+           (command == "next") ||
+           (command == "previous") ||
+           (command == "load") ||
+           (command == "save") ||
+           (command == "edit") ||
+           (command == "write") ||
+           (command == "toplaylist"));
 }
 
 
@@ -359,11 +419,17 @@ void Command::Volume(std::string const & arguments)
 
 void Command::Connect(std::string const & arguments)
 {
-   size_t pos = arguments.find_first_of(" ");
-   std::string hostname = arguments.substr(0, pos);
-   std::string port     = arguments.substr(pos + 1);
+   size_t   pos  = arguments.find_first_of(" ");
+   uint32_t port = 0;
 
-   client_.Connect(hostname, std::atoi(port.c_str()));
+   std::string hostname = arguments.substr(0, pos);
+
+   if (pos != std::string::npos)
+   {
+      port = atoi(arguments.substr(pos + 1).c_str());
+   }
+
+   client_.Connect(hostname, port);
 }
 
 void Command::Password(std::string const & password)
@@ -521,6 +587,22 @@ void Command::FindSong(std::string const & arguments)
 {
    client_.SearchSong(arguments);
    Find("FS:" + arguments);
+}
+
+void Command::Map(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string key     = arguments.substr(0, arguments.find(" "));
+      std::string mapping = arguments.substr(arguments.find(" ") + 1);
+
+      normalMode_.Map(key, mapping);
+   }
+}
+
+void Command::Unmap(std::string const & arguments)
+{
+   normalMode_.Unmap(arguments);
 }
 
 void Command::Random(std::string const & arguments)
@@ -774,10 +856,18 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    // If we have found a command execute it, with \p arguments
    if (matchingCommand == true)
    {
-      CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
-      CommandFunction const commandFunction = it->second;
-
-      (*this.*commandFunction)(arguments);
+      if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (client_.Connected() == true))
+      {
+         CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
+         CommandFunction const commandFunction = it->second;
+   
+         (*this.*commandFunction)(arguments);
+      }
+      else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
+      {
+         CommandArgPair pair(commandToExecute, arguments);
+         commandQueue_.push_back(pair);
+      }
    }
    else if (validCommandCount > 1)
    {

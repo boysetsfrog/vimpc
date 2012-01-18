@@ -29,6 +29,7 @@ namespace ErrorNumber
       ClientError,
       ClientNoConnection,
       CommandNonexistant,
+      CouldNotMapKeys,
       DoesNotExist,
       ExternalProgramError,
       FindNoResults,

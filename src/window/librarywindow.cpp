@@ -75,7 +75,32 @@ void LibraryWindow::Redraw()
 
 uint32_t LibraryWindow::Current() const
 {
-   return CurrentLine();
+   int32_t current         = CurrentLine();
+   int32_t currentSongId   = client_.GetCurrentSong();
+   Mpc::Song * currentSong = NULL;
+
+   if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
+   {
+      currentSong = Main::Playlist().Get(currentSongId);
+   }
+
+   if ((currentSong != NULL) && (currentSong->Entry() != NULL))
+   {
+      Mpc::LibraryEntry * entry = currentSong->Entry();
+      current = library_.Index(entry);
+
+      if ((current == -1) && (entry->parent_ != NULL))
+      {
+         current = library_.Index(entry->parent_);
+      }
+
+      if ((current == -1) && (entry->parent_ != NULL) && (entry->parent_->parent_ != NULL))
+      {
+         current = library_.Index(entry->parent_->parent_);
+      }
+   }
+
+   return current;
 }
 
 std::string LibraryWindow::SearchPattern(int32_t id)

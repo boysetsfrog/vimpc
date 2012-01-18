@@ -35,13 +35,14 @@ namespace Main
 namespace Ui
 {
    class ConsoleWindow;
+   class Normal;
 
    // Handles all input received whilst in command mode
    class Command : public InputMode, public Player
    {
 
    public:
-      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
+      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Normal & normalMode);
       ~Command();
 
    public:
@@ -50,6 +51,17 @@ namespace Ui
       //
       // \param[in] input The command string to execute, including the arguments
       bool ExecuteCommand(std::string const & input);
+
+      // If command queue'ing is enabled, commands that require an active mpd connection
+      // will be queued up if a connection is not present, then when a connection becomes
+      // active they will be handled
+      void SetQueueCommands(bool enabled);
+
+      // Execute all the commands which have been queued up
+      void ExecuteQueuedCommands();
+
+      // Returns true if the given command requires an mpd connection
+      bool RequiresConnection(std::string const & command);
 
    public: // Ui::InputMode
       void Initialise(int input);
@@ -120,6 +132,9 @@ namespace Ui
       void FindArtist(std::string const & arguments);
       void FindSong(std::string const & arguments);
 
+      void Map(std::string const & arguments);
+      void Unmap(std::string const & arguments);
+
       void Rescan(std::string const & arguments);
       void Update(std::string const & arguments);
 
@@ -175,14 +190,20 @@ namespace Ui
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
 
+      typedef std::pair<std::string, std::string>    CommandArgPair;
+      typedef std::vector<CommandArgPair>            CommandQueue;
+
    private:
       bool                 initTabCompletion_;
       bool                 forceCommand_;
+      bool                 queueCommands_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
+      CommandQueue         commandQueue_;
       Ui::Screen         & screen_;
       Mpc::Client        & client_;
       Main::Settings     & settings_;
+      Ui::Normal         & normalMode_;
 
       // Tab completion searching class
       class TabCompletionMatch
