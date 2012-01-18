@@ -1,3 +1,9 @@
+vimpc (0.05~psych0tik.7) unstable; urgency=low
+
+  * Add latest development sources
+
+ -- Rich Healey <richo@psych0tik.net>  Wed, 18 Jan 2012 14:37:07 +1100
+
 vimpc (0.05~psych0tik.6) unstable; urgency=low
 
   * Add dependency on later libmpdclient2
