@@ -419,11 +419,23 @@ void Normal::HandleMap(std::string input, int count)
       {
          KeyMapItem item = (*it);
 
-         uint32_t const param = (item.count_ > 0) ? item.count_ : 1;
+         uint32_t param = (item.count_ > 0) ? item.count_ : 1;
 
-         if (KeyMap.size() > 1)
+         if (wasSpecificCount_ == false)
          {
             wasSpecificCount_ = (item.count_ > 0);
+         }
+
+         // If we are mapping to a single key
+         if (KeyMap.size() == 1)
+         {
+            // Pass in the specified count, rather than looping count times
+            // if there is only one key mapped and no count mapped
+            if (item.count_ == 0)
+            {
+               param = count;
+               i = count;
+            }
          }
 
          if ((item.mode_ == Main::Vimpc::Normal) && (item.action_ != NULL))
@@ -434,6 +446,8 @@ void Normal::HandleMap(std::string input, int count)
          {
             vimpc_->ChangeMode(item.input_.at(0), item.input_.substr(1));
          }
+
+         wasSpecificCount_ = false;
       }
    }
 
