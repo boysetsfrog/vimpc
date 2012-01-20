@@ -61,14 +61,25 @@ namespace Ui
       bool WaitingForMoreInput() const { return (input_.size() > 0); }
 
    public:
+      // Map a key combination to any other key combination
       void Map(std::string key, std::string mapping);
+
+      // Remove a key mapping
       void Unmap(std::string key);
 
    private:
+      // Check the action or map table for a particular a key combination
       template<typename T>
       bool CheckTableForInput(T table, std::string const & toMap, std::string & result);
+
+      // Handle the execution of a complete input command
+      bool Handle(std::string input, int count);
+
+      // Handle the execution of a key combination that corresponds to an
+      // entry in the key map
       void HandleMap(std::string input, int count);
 
+      // Convert an input character into it's escaped string name
       std::string InputCharToString(int input) const;
 
    private: // Ui::Player wrapper functions
@@ -81,6 +92,7 @@ namespace Ui
       void Repeat(uint32_t count);
       void Single(uint32_t count);
 
+      // Change the volume by count lots of Delta
       template <int Delta>
       void ChangeVolume(uint32_t count);
 
@@ -90,6 +102,8 @@ namespace Ui
       void Left(uint32_t count);
       void Right(uint32_t count);
       void Confirm(uint32_t count);
+
+      // Execute the last action again
       void RepeatLastAction(uint32_t count);
 
    private:
@@ -201,7 +215,7 @@ namespace Ui
       ModeWindow *     window_;
       std::string      input_;
       uint32_t         actionCount_;
-      int32_t          lastAction_;
+      std::string      lastAction_;
       uint32_t         lastActionCount_;
       bool             wasSpecificCount_;
 
