@@ -509,8 +509,6 @@ std::string Normal::InputCharToString(int input) const
       converted = true;
       sprintf(key, "%d", (input - KEY_F(0)));
       result += "F" + std::string(key);
-
-      printf ("%s", result.c_str());
    }
    else if (it != conversionTable.end())
    {

@@ -217,12 +217,12 @@ i.e. map FF :browse<C-M>gg/
 
 This will make the normal mode input FF change to the browse tab, go to the
 first line and then enter search mode. All ex mode or search commands
-you want to execute must be terminated by <C-M>,<Return> or <Enter>
+you want to execute must be terminated by <C-M>, <Return> or <Enter>
 otherwise you will stay in that mode.
 
 Ctrl key combinations are mapped using <C-x> where x is the key
 
-i.e <C-D> to map Ctrl+D
+i.e <C-D> to map ctrl+d
 
 Alt key combinations work in the same way.
 
