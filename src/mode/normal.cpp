@@ -502,7 +502,17 @@ std::string Normal::InputCharToString(int input) const
       result    = "C-";
    }
 
-   if (it != conversionTable.end())
+
+   if ((input >= KEY_F(0)) && (input <= KEY_F(12)))
+   {
+      char key[8];
+      converted = true;
+      sprintf(key, "%d", (input - KEY_F(0)));
+      result += "F" + std::string(key);
+
+      printf ("%s", result.c_str());
+   }
+   else if (it != conversionTable.end())
    {
       converted = true;
       result += it->second;

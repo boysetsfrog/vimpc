@@ -241,6 +241,7 @@ mapped and are described below.
    <BS>                          | Backspace key
    <Del>                         | Delete key
    <lt>                          | Less than symbol 
+   <F1>, <F2>, etc               | Function keys
 
 
 SETTINGS
