@@ -44,8 +44,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    Player           (screen, client, settings),
    window_          (NULL),
    actionCount_     (0),
-   lastAction_      (0),
-   lastActionCount_ (0),
+   lastAction_      (""),
+   lastActionCount_ (1),
    wasSpecificCount_(false),
    actionTable_     (),
    vimpc_           (vimpc),
@@ -242,52 +242,19 @@ bool Normal::Handle(int input)
 
       uint32_t count = (actionCount_ > 0) ? actionCount_ : 1;
 
-      if (input != '.')
-      {
-         lastAction_      = input;
-         lastActionCount_ = actionCount_;
-      }
-
       // Convert character input into vimpc strings using conversion table
       input_ += InputCharToString(input);
 
-      bool inMap    = false;
-      bool complete = true;
+      bool const complete = Handle(input_, count);
 
-      for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
-      {
-         if (it->first.substr(0, input_.size()) == input_)
-         {
-            complete = (it->first == input_) && complete;
-            inMap    = true;
-         }
-      }
-
-      if ((inMap == true) && (complete == true))
-      {
-         HandleMap(input_, count);
-      }
-      else if (inMap == false)
-      {
-         ptrToMember actionFunc = NULL;
-
-         for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
-         {
-            if (it->first.substr(0, input_.size()) == input_)
-            {
-               complete   = (it->first == input_) && complete;
-               actionFunc = it->second;
-            }
-         }
-
-         if ((complete == true) && (actionFunc != NULL))
-         {
-            (*this.*actionFunc)(count);
-         }
-      }
-      
       if (complete == true)
       {
+         if (input_ != ".")
+         {
+            lastAction_      = input_;
+            lastActionCount_ = count;
+         }
+
          actionCount_ = 0;
          input_       = "";
       }
@@ -315,7 +282,7 @@ void Normal::Map(std::string key, std::string mapping)
    bool  error = false;
    int   count = 0;
 
-   for (int i = 0; i < mapping.length(); )
+   for (uint32_t i = 0; i < mapping.length(); )
    {
       KeyMapItem item;
       char const next = mapping.at(i);
@@ -390,7 +357,7 @@ void Normal::Unmap(std::string key)
 template <typename T>
 bool Normal::CheckTableForInput(T table, std::string const & toMap, std::string & result)
 {
-   int max = 0;
+   uint32_t max = 0;
 
    for (typename T::iterator it = table.begin(); (it != table.end()); ++it)
    {
@@ -407,23 +374,75 @@ bool Normal::CheckTableForInput(T table, std::string const & toMap, std::string 
    return (max != 0);
 }
 
+bool Normal::Handle(std::string input, int count)
+{
+   bool inMap    = false;
+   bool complete = true;
+
+   for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
+   {
+      if (it->first.substr(0, input.size()) == input)
+      {
+         complete = (it->first == input) && complete;
+         inMap    = true;
+      }
+   }
+
+   if ((inMap == true) && (complete == true))
+   {
+      HandleMap(input, count);
+   }
+   else if (inMap == false)
+   {
+      ptrToMember actionFunc = NULL;
+
+      for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
+      {
+         if (it->first.substr(0, input.size()) == input)
+         {
+            complete   = (it->first == input) && complete;
+            actionFunc = it->second;
+         }
+      }
+
+      if ((complete == true) && (actionFunc != NULL))
+      {
+         (*this.*actionFunc)(count);
+      }
+   }
+
+   return complete;
+}
+
 void Normal::HandleMap(std::string input, int count)
 {
    bool specificCount = wasSpecificCount_;
 
    for (int i = 0; i < count; ++i)
    {
-      std::vector<KeyMapItem> KeyMap = mapTable_[input_];
+      std::vector<KeyMapItem> KeyMap = mapTable_[input];
 
       for (std::vector<KeyMapItem>::iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
       {
          KeyMapItem item = (*it);
 
-         uint32_t const param = (item.count_ > 0) ? item.count_ : 1;
+         uint32_t param = (item.count_ > 0) ? item.count_ : 1;
 
-         if (KeyMap.size() > 1)
+         if (wasSpecificCount_ == false)
          {
             wasSpecificCount_ = (item.count_ > 0);
+         }
+
+         // If we are mapping to a single key
+         if (KeyMap.size() == 1)
+         {
+            // Pass in the specified count, rather than looping count times
+            // if there is only one key mapped and no count mapped
+            if (item.count_ == 0)
+            {
+               param = count;
+               i = count;
+            }
          }
 
          if ((item.mode_ == Main::Vimpc::Normal) && (item.action_ != NULL))
@@ -434,6 +453,8 @@ void Normal::HandleMap(std::string input, int count)
          {
             vimpc_->ChangeMode(item.input_.at(0), item.input_.substr(1));
          }
+
+         wasSpecificCount_ = false;
       }
    }
 
@@ -481,7 +502,15 @@ std::string Normal::InputCharToString(int input) const
       result    = "C-";
    }
 
-   if (it != conversionTable.end())
+
+   if ((input >= KEY_F(0)) && (input <= KEY_F(12)))
+   {
+      char key[8];
+      converted = true;
+      sprintf(key, "%d", (input - KEY_F(0)));
+      result += "F" + std::string(key);
+   }
+   else if (it != conversionTable.end())
    {
       converted = true;
       result += it->second;
@@ -585,11 +614,14 @@ void Normal::Confirm(uint32_t count)
 
 void Normal::RepeatLastAction(uint32_t count)
 {
-   actionCount_ = (actionCount_ > 0) ? count : lastActionCount_;
-
-   if (lastAction_ != 0)
+   if (wasSpecificCount_ == false)
    {
-      Handle(lastAction_);
+      count = lastActionCount_;
+   }
+
+   if (lastAction_ != "")
+   {
+      Handle(lastAction_, count);
    }
 }
 
