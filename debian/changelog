@@ -1,3 +1,12 @@
+vimpc (0.05) unstable; urgency=low
+
+  * Support for http streams in playlist
+  * Ability to map keys using :map command
+  * Case insensitive sorting of windows
+  * Password support
+
+ -- Rich Healey <richo@psych0tik.net>  Mon, 23 Jan 2012 08:55:05 +1100
+
 vimpc (0.05~psych0tik.7) unstable; urgency=low
 
   * Add latest development sources
