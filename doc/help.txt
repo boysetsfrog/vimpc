@@ -70,7 +70,7 @@ ALL WINDOWS:
           X               | delete all songs from the selected line to the end
 
 PLAYLIST:
-          v               | enter visual selection mode
+          v, V            | enter visual selection mode
   [count] d, del          | delete songs
   [count] h, Left         | seek back [count] seconds
   [count] l, Right        | seek forward [count] seconds
@@ -81,7 +81,7 @@ PLAYLIST:
           <Enter>         | play the selected song
 
 BROWSE:
-          v               | enter visual selection mode
+          v, V            | enter visual selection mode
   [count] a               | add songs to playlist
   [count] d, del          | delete songs
           <Enter>         | append the song to the playlist and play it
