@@ -53,14 +53,20 @@ namespace Ui
    public:
       bool IsSelected(uint32_t line) const;
       Selection CurrentSelection() const;
+      void ResetSelection();
 
    protected:
       void LimitCurrentSelection() const;
 
    private:
+      void UpdateLastSelection();
+
+   private:
       bool              visualMode_;
       mutable int64_t   currentLine_;
       mutable Selection currentSelection_;
+      Selection         lastSelection_;
+      bool              hadSelection_;
    };
 }
 

@@ -31,6 +31,9 @@ SelectWindow::SelectWindow(Ui::Screen & screen, std::string name) :
 {
    currentSelection_.first  = 0;
    currentSelection_.second = 0;
+
+   lastSelection_ = currentSelection_;
+   hadSelection_  = false;
 }
 
 SelectWindow::~SelectWindow()
@@ -91,6 +94,7 @@ uint16_t SelectWindow::CurrentLine() const
 
 void SelectWindow::Confirm()
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
@@ -98,25 +102,31 @@ void SelectWindow::Confirm()
 
 void SelectWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
 
 void SelectWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
 
 void SelectWindow::Escape()
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
 
 void SelectWindow::Visual()
 {
-   visualMode_ = !visualMode_;
+   UpdateLastSelection();
+
+   hadSelection_ = true;
+   visualMode_   = !visualMode_;
    currentSelection_.first = currentLine_;
 }
 
@@ -131,6 +141,20 @@ bool SelectWindow::IsSelected(uint32_t line) const
 Ui::Selection SelectWindow::CurrentSelection() const
 {
    return currentSelection_;
+}
+
+void SelectWindow::ResetSelection()
+{
+   if (hadSelection_ == true)
+   {
+      if ((lastSelection_.first > -1) && (lastSelection_.second < BufferSize()))
+      {
+         visualMode_       = true;
+         currentSelection_ = lastSelection_;
+         currentLine_      = currentSelection_.second;
+         ScrollTo(currentLine_);
+      }
+   }
 }
 
 
@@ -152,4 +176,14 @@ void SelectWindow::LimitCurrentSelection() const
 
    currentSelection_.second = currentLine_;
 }
+
+void SelectWindow::UpdateLastSelection()
+{
+   if (visualMode_ == true)
+   {
+      lastSelection_ = currentSelection_;
+   }
+}
+
+
 /* vim: set sw=3 ts=3: */

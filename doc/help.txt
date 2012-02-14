@@ -68,9 +68,12 @@ ALL WINDOWS:
           A               | add all songs in window to the playlist
           D               | delete all songs in window from the playlist
           X               | delete all songs from the selected line to the end
+          v, V            | enter visual selection mode
+          gv              | reselect the last visual selected songs
+          gp              | scroll forward to a song that is in the playlist
+          gP              | scroll backward to a song that is in the playlist
 
 PLAYLIST:
-          v, V            | enter visual selection mode
   [count] d, del          | delete songs
   [count] h, Left         | seek back [count] seconds
   [count] l, Right        | seek forward [count] seconds
@@ -81,7 +84,6 @@ PLAYLIST:
           <Enter>         | play the selected song
 
 BROWSE:
-          v, V            | enter visual selection mode
   [count] a               | add songs to playlist
   [count] d, del          | delete songs
           <Enter>         | append the song to the playlist and play it

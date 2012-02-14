@@ -174,6 +174,7 @@ namespace Ui
    private: //Windows
       template <Screen::Skip SKIP, uint32_t OFFSET>
       void SetActiveWindow(uint32_t count);
+      void ResetSelection(uint32_t count);
 
    private: //Editting
       template <int8_t OFFSET>

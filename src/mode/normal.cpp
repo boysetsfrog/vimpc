@@ -168,6 +168,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["gP"]      = &Normal::ScrollToPlaylistSong<Search::Previous>;
    actionTable_["gt"]      = &Normal::SetActiveWindow<Screen::Next, 0>;
    actionTable_["gT"]      = &Normal::SetActiveWindow<Screen::Previous, 0>;
+   actionTable_["gv"]      = &Normal::ResetSelection;
 
    // Align the text to a location on the screen
    actionTable_["z."]        = &Normal::AlignTo<Screen::Centre>;
@@ -843,6 +844,11 @@ void Normal::SetActiveWindow(uint32_t count)
    {
       screen_.SetActiveWindow(SKIP);
    }
+}
+
+void Normal::ResetSelection(uint32_t count)
+{
+   screen_.ActiveWindow().ResetSelection();
 }
 
 // Proxy for quit commands
