@@ -153,10 +153,36 @@ void Player::Update()
 
 void Player::SkipSong(Skip skip, uint32_t count)
 {
-   //! \todo When in consume mode and doing something like '5>' it should consume
-   //!       all the songs that is skipping over, currently there is a hack fix
-   //!       so that plain > works, but when a count is used it does not
-   if ((client_.Random() == false) && (count != 1))
+   // If consume or random we have to send a lot of next commands
+   // rather than just skipping directly to the right song
+   // this is slow and only works in small amounts
+   if ((client_.Random() == true) || (client_.Consume() == true) || (count == 1))
+   {
+      if (count != 1)
+      {
+         client_.StartCommandList();
+      }
+
+      for (int i = 0; i < count; ++i)
+      {
+         if (skip == Previous)
+         {
+            client_.Previous();
+         }
+         else
+         {
+            client_.Next();
+         }
+      }
+
+      if (count != 1)
+      {
+         client_.SendCommandList();
+      }
+
+      HandleAutoScroll();
+   }
+   else
    {
       int64_t directionCount = count;
 
@@ -177,17 +203,6 @@ void Player::SkipSong(Skip skip, uint32_t count)
       }
 
       client_.Play(song);
-   }
-   else
-   {
-      if (skip == Previous)
-      {
-         client_.Previous();
-      }
-      else
-      {
-         client_.Next();
-      }
    }
 
    HandleAutoScroll();

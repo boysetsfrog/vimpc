@@ -147,6 +147,7 @@ namespace Mpc
       void SearchAny(std::string const & search, bool exact = false);
       void SearchArtist(std::string const & search, bool exact = false);
       void SearchAlbum(std::string const & search, bool exact = false);
+      void SearchGenre(std::string const & search, bool exact = false);
       void SearchSong(std::string const & search, bool exact = false);
 
    public:

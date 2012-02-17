@@ -143,15 +143,13 @@ void LibraryWindow::Print(uint32_t line) const
 {
    std::string const BlankLine(screen_.MaxColumns(), ' ');
 
-   WINDOW * window = N_WINDOW();
+   uint32_t printLine = (line + FirstLine());
+   WINDOW * window    = N_WINDOW();
+   int32_t  colour    = DetermineSongColour(library_.Get(printLine));
 
    if ((line + FirstLine()) < BufferSize())
    {
-      uint32_t printLine = (line + FirstLine());
-
-      int colour = DetermineSongColour(library_.Get(printLine));
-
-      if (printLine == CurrentLine())
+      if (IsSelected(printLine) == true)
       {
          if (settings_.ColourEnabled() == true)
          {
@@ -203,26 +201,26 @@ void LibraryWindow::Print(uint32_t line) const
          expandCol += 6;
          wmove(window, line, expandCol);
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          wprintw(window, "%5s | " , library_.Get(printLine)->song_->Track().c_str());
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattron(window, COLOR_PAIR(YELLOWONDEFAULT));
          }
 
          waddstr(window, library_.Get(printLine)->song_->DurationString().c_str());
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattroff(window, COLOR_PAIR(YELLOWONDEFAULT));
          }
@@ -304,12 +302,14 @@ void LibraryWindow::Confirm()
 
    library_.AddToPlaylist(Mpc::Song::Single, client_, CurrentLine());
    client_.Play(0);
+   SelectWindow::Confirm();
 }
 
 
 void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
    DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll);
+   SelectWindow::AddLine(line, count, scroll);
 }
 
 void LibraryWindow::AddAllLines()
@@ -325,6 +325,7 @@ void LibraryWindow::AddAllLines()
 void LibraryWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
 {
    DeleteLine(line, count, scroll);
+   SelectWindow::DeleteLine(line, count, scroll);
 }
 
 void LibraryWindow::CropAllLines()

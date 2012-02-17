@@ -130,6 +130,7 @@ namespace Ui
       void FindAny(std::string const & arguments);
       void FindAlbum(std::string const & arguments);
       void FindArtist(std::string const & arguments);
+      void FindGenre(std::string const & arguments);
       void FindSong(std::string const & arguments);
 
       void Map(std::string const & arguments);

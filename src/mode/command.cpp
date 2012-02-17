@@ -66,6 +66,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["find"]      = &Command::FindAny;
    commandTable_["findalbum"] = &Command::FindAlbum;
    commandTable_["findartist"]= &Command::FindArtist;
+   commandTable_["findgenre"] = &Command::FindGenre;
    commandTable_["findsong"]  = &Command::FindSong;
    commandTable_["move"]      = &Command::Move;
    commandTable_["password"]  = &Command::Password;
@@ -239,6 +240,7 @@ bool Command::RequiresConnection(std::string const & command)
            (command == "find") ||
            (command == "findalbum") ||
            (command == "findartist") ||
+           (command == "findgenre") ||
            (command == "findsong") ||
            (command == "move") ||
            (command == "password") ||
@@ -565,19 +567,25 @@ void Command::FindAny(std::string const & arguments)
 void Command::FindAlbum(std::string const & arguments)
 {
    client_.SearchAlbum(arguments);
-   Find("FAL:" + arguments);
+   Find("F:" + arguments);
 }
 
 void Command::FindArtist(std::string const & arguments)
 {
    client_.SearchArtist(arguments);
-   Find("FAR:" + arguments);
+   Find("F:" + arguments);
+}
+
+void Command::FindGenre(std::string const & arguments)
+{
+   client_.SearchGenre(arguments);
+   Find("F:" + arguments);
 }
 
 void Command::FindSong(std::string const & arguments)
 {
    client_.SearchSong(arguments);
-   Find("FS:" + arguments);
+   Find("F:" + arguments);
 }
 
 void Command::Map(std::string const & arguments)
