@@ -907,7 +907,7 @@ void Command::Mpc(std::string const & arguments)
    // we are using but still allow the person running the command
    // to do -h and -p flags
    std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) +
-                             " mpc " + arguments);
+                             " mpc " + arguments + " 2>&1");
 
    Main::Console().Add("> mpc " + arguments);
 

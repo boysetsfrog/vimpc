@@ -151,6 +151,7 @@ FIND:
   find[!] <search>        | search in database and display results in new window
   findartist[!] <search>  | search in database in artist tag only
   findalbum[!] <search>   | search in database in album tag only
+  findgenre[!] <search>   | search in database in genre tag only
   findsong[!] <search>    | search in database in title tag only
 
   Note: Appending a ! to any search term will automatically add the songs to the
