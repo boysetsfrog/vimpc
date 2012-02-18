@@ -225,29 +225,82 @@ std::string Song::FormatString(std::string fmt) const
 
    std::string result = fmt;
 
-   int j     = 0;
-   int right = -1;
+   int  j     = 0;
+   int  right = -1;
+   int  start = -1;
+   bool valid = true;
+   bool skip  = false;
 
    for (int i = 0; i < fmt.size(); )
    {
-      if ((fmt[i] == '%') && ((i + 1) < fmt.size())) 
+      switch (fmt[i])
       {
-         std::string next = "";
-
-         if (songInfo.find(fmt[i + 1]) != songInfo.end())
+         case '{':
          {
-            SongFunction Function = songInfo[fmt[i + 1]];
-            next = (*this.*Function)();
+            start = j;
+            valid = true;
+            ++i;
+            result.erase(j, 1);
+            break;
          }
+         case '}':
+         {
+            if (valid == false)
+            {
+               result.erase(start, j - start);
+               j = start;
+            }
+            result.erase(j, 1);
+            ++i;
+            start = -1;
+            break;
+         }
+         case '|':
+         {
+            if (valid == true)
+            {
+               skip = true; 
+            }
+            result.erase(j, 1);
+            ++i;
+            break;
+         }
+         case '%':
+         {
+            if (start == -1)
+            {
+               skip = false;
+            }
 
-         result.replace(j, 2, next);
-         j += next.size();
-         i += 2;
-      }
-      else
-      {
-         ++i;
-         ++j;
+            if ((i + 1) < fmt.size())
+            {
+               std::string next = "";
+
+               if ((songInfo.find(fmt[i + 1]) != songInfo.end()) &&
+                   (skip == false))
+               {
+                  SongFunction Function = songInfo[fmt[i + 1]];
+                  next = (*this.*Function)();
+               }
+
+               if ((next == "") || (next == "Unknown"))
+               {
+                  valid = false;
+               }
+
+               result.replace(j, 2, next);
+               j += next.size();
+               i += 2;
+            }
+            else
+            {
+               ++i, ++j;
+            }
+            break;
+         }
+         default:
+            ++i, ++j;
+            break;
       }
    }
 

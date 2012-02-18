@@ -63,7 +63,7 @@ Settings & Settings::Instance()
 
 Settings::Settings() :
    defaultWindow_("playlist"),
-   songFormat_   ("%a - %t$R$H[$H%l$H]$H"),
+   songFormat_   ("{%a - %t}|{%f}$R$H[$H%l$H]$H"),
    libFormat_    (""),
    settingsTable_(),
    toggleTable_  ()
