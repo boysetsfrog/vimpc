@@ -37,6 +37,7 @@ namespace Ui
       virtual ~ModeWindow();
 
    public:
+      void SetLine(std::string const & line);
       void SetLine(char const * const fmt, ... );
       virtual void Print(uint32_t line) const;
 
