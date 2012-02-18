@@ -99,10 +99,8 @@ void SongWindow::Print(uint32_t line) const
          PrintBlankId();
       }
 
-      PrintSong(printLine, colour, song);
-
-      wmove(window, line, (screen_.MaxColumns() - song->DurationString().size() - 2));
-      PrintDuration(printLine, colour, song->DurationString());
+      //PrintSong(line, printLine, colour, "{%a - %t}|{%f} $R[$3%l]", song);
+      PrintSong(line, printLine, colour, settings_.SongFormat(), song);
    }
 
    if ((IsSelected(printLine) == true) && (song != NULL))
@@ -389,36 +387,89 @@ void SongWindow::PrintId(uint32_t Id) const
    waddstr(window, "] ");
 }
 
-void SongWindow::PrintSong(int32_t Id, int32_t colour, Mpc::Song * song) const
+void SongWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::string fmt, Mpc::Song * song) const
 {
    WINDOW * window = N_WINDOW();
+   std::string songString = song->FormatString(fmt);
+
+   int j          = 0;
+   int index      = -1;
+   bool highlight = true;
+
+   std::string stripped = songString;
+
+   for (int i = 0; i < songString.size(); )
+   {
+      if ((songString[i] == '$') && ((i + 1) < songString.size()))
+      {
+         if (songString[i + 1] == 'R')
+         {
+            index = j;
+         }
+
+         std::string next = "";
+         stripped.replace(j, 2, next);
+         j += next.size();
+         i += 2;
+      }
+      else
+      {
+         ++j;
+         ++i;
+      }
+   }
 
    if (settings_.ColourEnabled() == true)
    {
       wattron(window, COLOR_PAIR(colour));
    }
 
-   std::string artist = song->Artist().c_str();
-   std::string title  = song->Title().c_str();
+   for (int i = 0; i < songString.size(); )
+   {
+      if ((songString[i] == '$') && ((i + 1) < songString.size()))
+      {
+         switch (songString[i + 1])
+         {
+            case 'R':
+               wmove(window, line, (screen_.MaxColumns() - (stripped.size() - index)));
+               break;
 
-   if ((title == "Unknown") || (song->Entry() == NULL))
-   {
-      artist = "Unknown";
-      title = song->URI().c_str();
-   }
+            case 'H':
+               {
+                  if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
+                  {
+                     if (highlight == false)
+                     {
+                        wattron(window, COLOR_PAIR(colour));
+                     }
+                     else
+                     {
+                        wattroff(window, COLOR_PAIR(colour));
+                     }
 
-   if (artist != "Unknown")
-   {
-      wprintw(window, "%s - %s", artist.c_str(), title.c_str());
-   }
-   else
-   {
-      wprintw(window, "%s", title.c_str());
+                     highlight = !highlight;
+                  }
+               }
+
+             default:
+               break;
+         }
+
+         i += 2;
+      }
+      else
+      {
+         wprintw(window, "%c", songString[i]);
+         ++i;
+      }
    }
 
    if (settings_.ColourEnabled() == true)
    {
-      wattroff(window, COLOR_PAIR(colour));
+      if (highlight == true)
+      {
+         wattroff(window, COLOR_PAIR(colour));
+      }
    }
 }
 
@@ -450,7 +501,6 @@ void SongWindow::PrintDuration(int32_t Id, int32_t colour, std::string duration)
       waddstr(window, "]");
    }
 }
-
 
 
 int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const song) const

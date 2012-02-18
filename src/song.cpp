@@ -46,6 +46,7 @@ Song::Song(Song const & song) :
    uri_      (song.URI()),
    duration_ (song.Duration())
 {
+   SetDuration(duration_);
 }
 
 Song::~Song()
@@ -165,6 +166,13 @@ std::string const & Song::URI() const
 void Song::SetDuration(int32_t duration)
 {
    duration_ = duration;
+
+   char cduration[32];
+   uint32_t const minutes = static_cast<uint32_t>(duration_ / 60);
+   uint32_t const seconds = (duration_ - (minutes * 60));
+
+   snprintf(cduration, 32, "%2d:%.2d", minutes, seconds);
+   durationString_ = (std::string(cduration));
 }
 
 int32_t Song::Duration() const
@@ -182,16 +190,9 @@ LibraryEntry * Song::Entry() const
    return entry_;
 }
 
-std::string Song::DurationString() const
+std::string const & Song::DurationString() const
 {
-   char duration[32];
-
-   uint32_t const minutes = static_cast<uint32_t>(duration_ / 60);
-   uint32_t const seconds = (duration_ - (minutes * 60));
-
-   snprintf(duration, 32, "%2d:%.2d", minutes, seconds);
-
-   return (std::string(duration));
+   return durationString_;
 }
 
 
@@ -206,4 +207,51 @@ std::string Song::FullDescription() const
    std::string fullDescription(artist_ + " - " + title_ + " " + album_ + " " + DurationString());
    return fullDescription;
 }
+
+std::string Song::FormatString(std::string fmt) const
+{
+   typedef std::string const & (Mpc::Song::*SongFunction)() const;
+   static std::map<char, SongFunction> songInfo;
+
+   if (songInfo.size() == 0)
+   {
+      songInfo['a'] = &Mpc::Song::Artist;
+      songInfo['b'] = &Mpc::Song::Album;
+      songInfo['l'] = &Mpc::Song::DurationString;
+      songInfo['t'] = &Mpc::Song::Title;
+      songInfo['n'] = &Mpc::Song::Track;
+      songInfo['f'] = &Mpc::Song::URI;
+   }
+
+   std::string result = fmt;
+
+   int j     = 0;
+   int right = -1;
+
+   for (int i = 0; i < fmt.size(); )
+   {
+      if ((fmt[i] == '%') && ((i + 1) < fmt.size())) 
+      {
+         std::string next = "";
+
+         if (songInfo.find(fmt[i + 1]) != songInfo.end())
+         {
+            SongFunction Function = songInfo[fmt[i + 1]];
+            next = (*this.*Function)();
+         }
+
+         result.replace(j, 2, next);
+         j += next.size();
+         i += 2;
+      }
+      else
+      {
+         ++i;
+         ++j;
+      }
+   }
+
+   return result;
+}
+
 /* vim: set sw=3 ts=3: */

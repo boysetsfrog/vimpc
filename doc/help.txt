@@ -275,8 +275,10 @@ or postfixed with !  which will toggle the setting.
   [no]windownumbers[!]    | display the number next to the window in the tab bar
 
 
+  songformat <fmt>        | set the format to print songs
+  libformat <fmt>         | set the format to print songs in the library
+
   window <window>         | sets the window that will start with focus
                           | only useful if called from ~/.vimpcrc file
-
 
 

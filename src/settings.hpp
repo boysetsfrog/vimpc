@@ -65,6 +65,10 @@ namespace Main
          //! Gets the default startup window
          std::string Window() const;
 
+         //! Gets the format for printing songs
+         std::string SongFormat() const;
+         std::string LibraryFormat() const;
+
       public: //Toggle Settings
          //! Determine whether to autmatically scroll to playing song
          bool AutoScroll() const;
@@ -142,8 +146,13 @@ namespace Main
          //! Sets the startup window
          void SetWindow(std::string const & arguments);
 
+         void SetSongFormat(std::string const & arguments);
+         void SetLibFormat(std::string const & arguments);
+
       private:
          std::string defaultWindow_;
+         std::string songFormat_;
+         std::string libFormat_;
 
          typedef void (Main::Settings::*ptrToMember)(std::string const &);
          typedef std::map<std::string, ptrToMember> SettingsFunctionTable;

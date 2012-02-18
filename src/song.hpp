@@ -78,13 +78,15 @@ namespace Mpc
 
       void SetDuration(int32_t duration);
       int32_t Duration() const;
-      std::string DurationString() const;
+      std::string const & DurationString() const;
 
       void SetEntry(LibraryEntry * entry);
       LibraryEntry * Entry() const;
 
       std::string PlaylistDescription() const;
       std::string FullDescription()     const;
+
+      std::string FormatString(std::string fmt) const;
 
    private:
       int32_t     reference_;
@@ -93,6 +95,7 @@ namespace Mpc
       std::string title_;
       std::string track_;
       std::string uri_;
+      std::string durationString_;
       int32_t     duration_;
 
       LibraryEntry * entry_;
