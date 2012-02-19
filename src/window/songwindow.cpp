@@ -521,7 +521,7 @@ int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const s
       {
          pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(song->PlaylistDescription()))
+         if (expression.FullMatch(song->FormatString(settings_.SongFormat())))
          {
             colour = Colour::SongMatch;
          }

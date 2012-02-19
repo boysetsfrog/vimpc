@@ -27,24 +27,28 @@
 using namespace Mpc;
 
 Song::Song() :
-   reference_(0),
-   artist_   (""),
-   album_    (""),
-   title_    (""),
-   track_    (""),
-   uri_      (""),
-   duration_ (0),
-   entry_    (NULL)
+   reference_ (0),
+   artist_    (""),
+   album_     (""),
+   title_     (""),
+   track_     (""),
+   uri_       (""),
+   duration_  (0),
+   lastFormat_(""),
+   formatted_ (""),
+   entry_     (NULL)
 { }
 
 Song::Song(Song const & song) :
-   reference_(0),
-   artist_   (song.Artist()),
-   album_    (song.Album()),
-   title_    (song.Title()),
-   track_    (song.Track()),
-   uri_      (song.URI()),
-   duration_ (song.Duration())
+   reference_ (0),
+   artist_    (song.Artist()),
+   album_     (song.Album()),
+   title_     (song.Title()),
+   track_     (song.Track()),
+   uri_       (song.URI()),
+   duration_  (song.Duration()),
+   lastFormat_(song.lastFormat_),
+   formatted_ (song.formatted_)
 {
    SetDuration(duration_);
 }
@@ -225,6 +229,13 @@ std::string Song::FormatString(std::string fmt) const
 
    std::string result = fmt;
 
+   if (lastFormat_ == fmt)
+   {
+      return formatted_;
+   }
+
+   lastFormat_ = fmt;
+
    int  j     = 0;
    int  right = -1;
    int  start = -1;
@@ -304,6 +315,7 @@ std::string Song::FormatString(std::string fmt) const
       }
    }
 
+   formatted_ = result;
    return result;
 }
 

@@ -98,6 +98,9 @@ namespace Mpc
       std::string durationString_;
       int32_t     duration_;
 
+      mutable std::string lastFormat_;
+      mutable std::string formatted_;
+
       LibraryEntry * entry_;
    };
 }

@@ -64,7 +64,7 @@ namespace Ui
       {
          if (id > 0)
          {
-            return Buffer().Get(id)->PlaylistDescription();
+            return Buffer().Get(id)->FormatString(settings_.SongFormat());
          }
          return "";
       }
