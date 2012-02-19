@@ -264,7 +264,7 @@ of these strings is based upon those of ncmpcpp.
    $R  - Begin right alignment
    $H  - Toggle highlight color off/on
    {,} - Will only display contents between { and } if not empty
-   |   - Alternative to use if prior entry is blank
+   \|   - Alternative to use if prior entry is blank
 
 Examples:
    The default song format is: {%a - %t}|{%f}$R$H[$H%l$H]$H

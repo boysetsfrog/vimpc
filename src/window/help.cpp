@@ -82,13 +82,22 @@ void HelpWindow::Print(uint32_t line) const
          }
       }
 
-      if (currentLine.find('|') != std::string::npos)
+      int pos = currentLine.find('|');
+
+      if ((pos != std::string::npos) && 
+         ((pos <= 0) || (currentLine[pos - 1] != '\\')))
       {
          std::string firstHalf = currentLine.substr(0, currentLine.find_last_of('|') - 1);
          std::string lastHalf = currentLine.substr(currentLine.find_last_of('|') + 1);
 
          mvwaddstr(window, line, 0, firstHalf.c_str());
          waddstr(window, lastHalf.c_str());
+      }
+      else if ((pos != std::string::npos) && 
+              ((pos > 0) && (currentLine[pos - 1] == '\\')))
+      {
+         currentLine.erase(pos-1, 1); 
+         mvwaddstr(window, line, 0, currentLine.c_str());
       }
       else
       {
