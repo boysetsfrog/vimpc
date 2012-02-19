@@ -64,13 +64,13 @@ Settings & Settings::Instance()
 Settings::Settings() :
    defaultWindow_("playlist"),
    songFormat_   ("{%a - %t}|{%f}$R$H[$H%l$H]$H"),
-   libFormat_    (""),
+   libFormat_    ("$H[$H%l$H]$H {%t}|{%f}"),
    settingsTable_(),
    toggleTable_  ()
 {
    settingsTable_["window"]              = &Settings::SetWindow;
    settingsTable_["songformat"]          = &Settings::SetSongFormat;
-   settingsTable_["libformat"]           = &Settings::SetLibFormat;
+   settingsTable_["libraryformat"]       = &Settings::SetLibFormat;
 
    toggleTable_[AutoScrollSetting]       = new Setting<bool>(true);
    toggleTable_[BrowseNumbersSetting]    = new Setting<bool>(true);

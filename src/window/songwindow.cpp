@@ -35,7 +35,7 @@
 using namespace Ui;
 
 SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
-   SelectWindow     (screen, name),
+   SelectWindow     (settings, screen, name),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -99,7 +99,6 @@ void SongWindow::Print(uint32_t line) const
          PrintBlankId();
       }
 
-      //PrintSong(line, printLine, colour, "{%a - %t}|{%f} $R[$3%l]", song);
       PrintSong(line, printLine, colour, settings_.SongFormat(), song);
    }
 
@@ -387,120 +386,6 @@ void SongWindow::PrintId(uint32_t Id) const
    waddstr(window, "] ");
 }
 
-void SongWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::string fmt, Mpc::Song * song) const
-{
-   WINDOW * window = N_WINDOW();
-   std::string songString = song->FormatString(fmt);
-
-   int j          = 0;
-   int index      = -1;
-   bool highlight = true;
-
-   std::string stripped = songString;
-
-   for (int i = 0; i < songString.size(); )
-   {
-      if ((songString[i] == '$') && ((i + 1) < songString.size()))
-      {
-         if (songString[i + 1] == 'R')
-         {
-            index = j;
-         }
-
-         std::string next = "";
-         stripped.replace(j, 2, next);
-         j += next.size();
-         i += 2;
-      }
-      else
-      {
-         ++j;
-         ++i;
-      }
-   }
-
-   if (settings_.ColourEnabled() == true)
-   {
-      wattron(window, COLOR_PAIR(colour));
-   }
-
-   for (int i = 0; i < songString.size(); )
-   {
-      if ((songString[i] == '$') && ((i + 1) < songString.size()))
-      {
-         switch (songString[i + 1])
-         {
-            case 'R':
-               wmove(window, line, (screen_.MaxColumns() - (stripped.size() - index)));
-               break;
-
-            case 'H':
-               {
-                  if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
-                  {
-                     if (highlight == false)
-                     {
-                        wattron(window, COLOR_PAIR(colour));
-                     }
-                     else
-                     {
-                        wattroff(window, COLOR_PAIR(colour));
-                     }
-
-                     highlight = !highlight;
-                  }
-               }
-
-             default:
-               break;
-         }
-
-         i += 2;
-      }
-      else
-      {
-         wprintw(window, "%c", songString[i]);
-         ++i;
-      }
-   }
-
-   if (settings_.ColourEnabled() == true)
-   {
-      if (highlight == true)
-      {
-         wattroff(window, COLOR_PAIR(colour));
-      }
-   }
-}
-
-void SongWindow::PrintDuration(int32_t Id, int32_t colour, std::string duration) const
-{
-   WINDOW * window = N_WINDOW();
-
-   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == true))
-   {
-      wattron(window, COLOR_PAIR(colour));
-      waddstr(window, "[");
-   }
-   else if (settings_.ColourEnabled() == true)
-   {
-      waddstr(window, "[");
-      wattron(window, COLOR_PAIR(colour));
-   }
-
-   wprintw(window, "%s", duration.c_str());
-
-   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == true))
-   {
-      waddstr(window, "]");
-      wattroff(window, COLOR_PAIR(colour));
-   }
-   else if (settings_.ColourEnabled() == true)
-   {
-      wattroff(window, COLOR_PAIR(colour));
-      waddstr(window, "]");
-   }
-}
 
 
 int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const song) const

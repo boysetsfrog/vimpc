@@ -36,7 +36,7 @@
 using namespace Ui;
 
 LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen, "library"),
+   SelectWindow     (settings, screen, "library"),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -122,7 +122,7 @@ std::string LibraryWindow::SearchPattern(int32_t id)
          break;
 
       case Mpc::SongType:
-         pattern = entry->song_->Title();
+         pattern = entry->song_->FormatString(settings_.LibraryFormat());
          break;
 
       default:
@@ -213,6 +213,9 @@ void LibraryWindow::Print(uint32_t line) const
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
+         PrintSong(line, printLine, colour, settings_.LibraryFormat(), library_.Get(printLine)->song_);
+
+         /*
          if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattron(window, COLOR_PAIR(YELLOWONDEFAULT));
@@ -246,6 +249,7 @@ void LibraryWindow::Print(uint32_t line) const
          }
 
          waddstr(window, title.c_str());
+         */
       }
 
       wattroff(window, A_BOLD | A_REVERSE);
@@ -436,7 +440,7 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
 
       if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
           ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
-          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->Title()) == true)))
+          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.LibraryFormat())) == true)))
       {
          colour = Colour::SongMatch;
       }

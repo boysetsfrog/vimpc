@@ -24,6 +24,8 @@
 #include "song.hpp"
 #include "scrollwindow.hpp"
 
+namespace Main { class Settings; }
+
 namespace Ui
 {
    typedef std::pair<int64_t, int64_t> Selection;
@@ -33,7 +35,7 @@ namespace Ui
    public:
 
    public:
-      SelectWindow(Ui::Screen & screen, std::string name = "Unknown");
+      SelectWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name = "Unknown");
       ~SelectWindow();
 
    public:
@@ -57,11 +59,13 @@ namespace Ui
 
    protected:
       void LimitCurrentSelection() const;
+      void PrintSong(int32_t line, int32_t Id, int32_t colour, std::string fmt, Mpc::Song * Song) const;
 
    private:
       void UpdateLastSelection();
 
    private:
+      Main::Settings const & settings_;
       bool              visualMode_;
       mutable int64_t   currentLine_;
       mutable Selection currentSelection_;
