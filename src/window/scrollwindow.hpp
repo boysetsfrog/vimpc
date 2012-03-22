@@ -74,6 +74,7 @@ namespace Ui
       void SetName(std::string const &);
 
       bool Select(Position position, uint32_t count);
+      virtual void ResetSelection() {}
       void SetAutoScroll(bool autoScroll);
       bool AutoScroll() const;
 

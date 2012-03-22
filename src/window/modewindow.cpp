@@ -36,6 +36,13 @@ ModeWindow::~ModeWindow()
 {
 }
 
+
+void ModeWindow::SetLine(std::string const & line)
+{
+   buffer_.Add(line);
+   Print(0);
+}
+
 void ModeWindow::SetLine(char const * const fmt, ...)
 {
    static uint16_t const InputBufferSize = 256;
@@ -61,7 +68,7 @@ void ModeWindow::Print(uint32_t line) const
    noecho();
 
    werase(window);
-   mvwprintw(window, line, 0, buffer_.Get(0).c_str());
+   mvwprintw(window, line, 0, "%s", buffer_.Get(0).c_str());
    wmove(window, line, cursorPosition_);
    wrefresh(window);
 }

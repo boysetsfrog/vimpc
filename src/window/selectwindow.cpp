@@ -20,17 +20,22 @@
 
 #include "selectwindow.hpp"
 
+#include "settings.hpp"
 #include "screen.hpp"
 
 using namespace Ui;
 
-SelectWindow::SelectWindow(Ui::Screen & screen, std::string name) :
+SelectWindow::SelectWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name) :
    ScrollWindow     (screen, name),
+   settings_        (settings),
    visualMode_      (false),
    currentLine_     (0)
 {
    currentSelection_.first  = 0;
    currentSelection_.second = 0;
+
+   lastSelection_ = currentSelection_;
+   hadSelection_  = false;
 }
 
 SelectWindow::~SelectWindow()
@@ -91,6 +96,7 @@ uint16_t SelectWindow::CurrentLine() const
 
 void SelectWindow::Confirm()
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
@@ -98,25 +104,31 @@ void SelectWindow::Confirm()
 
 void SelectWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
 
 void SelectWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
 
 void SelectWindow::Escape()
 {
+   UpdateLastSelection();
    visualMode_ = false;
    currentSelection_.first = currentLine_;
 }
 
 void SelectWindow::Visual()
 {
-   visualMode_ = !visualMode_;
+   UpdateLastSelection();
+
+   hadSelection_ = true;
+   visualMode_   = !visualMode_;
    currentSelection_.first = currentLine_;
 }
 
@@ -131,6 +143,20 @@ bool SelectWindow::IsSelected(uint32_t line) const
 Ui::Selection SelectWindow::CurrentSelection() const
 {
    return currentSelection_;
+}
+
+void SelectWindow::ResetSelection()
+{
+   if (hadSelection_ == true)
+   {
+      if ((lastSelection_.first > -1) && (lastSelection_.second < BufferSize()))
+      {
+         visualMode_       = true;
+         currentSelection_ = lastSelection_;
+         currentLine_      = currentSelection_.second;
+         ScrollTo(currentLine_);
+      }
+   }
 }
 
 
@@ -152,4 +178,100 @@ void SelectWindow::LimitCurrentSelection() const
 
    currentSelection_.second = currentLine_;
 }
+
+void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::string fmt, Mpc::Song * song) const
+{
+   WINDOW * window = N_WINDOW();
+   std::string songString = song->FormatString(fmt);
+
+   int j          = 0;
+   int index      = -1;
+   bool highlight = true;
+
+   std::string stripped = songString;
+
+   for (int i = 0; i < songString.size(); )
+   {
+      if ((songString[i] == '$') && ((i + 1) < songString.size()))
+      {
+         if (songString[i + 1] == 'R')
+         {
+            index = j;
+         }
+
+         std::string next = "";
+         stripped.replace(j, 2, next);
+         j += next.size();
+         i += 2;
+      }
+      else
+      {
+         ++j;
+         ++i;
+      }
+   }
+
+   if (settings_.ColourEnabled() == true)
+   {
+      wattron(window, COLOR_PAIR(colour));
+   }
+
+   for (int i = 0; i < songString.size(); )
+   {
+      if ((songString[i] == '$') && ((i + 1) < songString.size()))
+      {
+         switch (songString[i + 1])
+         {
+            case 'R':
+               wmove(window, line, (screen_.MaxColumns() - (stripped.size() - index)));
+               break;
+
+            case 'H':
+               {
+                  if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
+                  {
+                     if (highlight == false)
+                     {
+                        wattron(window, COLOR_PAIR(colour));
+                     }
+                     else
+                     {
+                        wattroff(window, COLOR_PAIR(colour));
+                     }
+
+                     highlight = !highlight;
+                  }
+               }
+
+             default:
+               break;
+         }
+
+         i += 2;
+      }
+      else
+      {
+         wprintw(window, "%c", songString[i]);
+         ++i;
+      }
+   }
+
+   if (settings_.ColourEnabled() == true)
+   {
+      if (highlight == true)
+      {
+         wattroff(window, COLOR_PAIR(colour));
+      }
+   }
+}
+
+void SelectWindow::UpdateLastSelection()
+{
+   if (visualMode_ == true)
+   {
+      lastSelection_ = currentSelection_;
+   }
+}
+
+
 /* vim: set sw=3 ts=3: */

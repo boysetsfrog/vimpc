@@ -34,7 +34,7 @@
 using namespace Ui;
 
 OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen, "outputs"),
+   SelectWindow     (settings, screen, "outputs"),
    settings_        (settings),
    client_          (client),
    search_          (search),

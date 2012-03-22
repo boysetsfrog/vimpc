@@ -27,25 +27,30 @@
 using namespace Mpc;
 
 Song::Song() :
-   reference_(0),
-   artist_   (""),
-   album_    (""),
-   title_    (""),
-   track_    (""),
-   uri_      (""),
-   duration_ (0),
-   entry_    (NULL)
+   reference_ (0),
+   artist_    (""),
+   album_     (""),
+   title_     (""),
+   track_     (""),
+   uri_       (""),
+   duration_  (0),
+   lastFormat_(""),
+   formatted_ (""),
+   entry_     (NULL)
 { }
 
 Song::Song(Song const & song) :
-   reference_(0),
-   artist_   (song.Artist()),
-   album_    (song.Album()),
-   title_    (song.Title()),
-   track_    (song.Track()),
-   uri_      (song.URI()),
-   duration_ (song.Duration())
+   reference_ (0),
+   artist_    (song.Artist()),
+   album_     (song.Album()),
+   title_     (song.Title()),
+   track_     (song.Track()),
+   uri_       (song.URI()),
+   duration_  (song.Duration()),
+   lastFormat_(song.lastFormat_),
+   formatted_ (song.formatted_)
 {
+   SetDuration(duration_);
 }
 
 Song::~Song()
@@ -165,6 +170,13 @@ std::string const & Song::URI() const
 void Song::SetDuration(int32_t duration)
 {
    duration_ = duration;
+
+   char cduration[32];
+   uint32_t const minutes = static_cast<uint32_t>(duration_ / 60);
+   uint32_t const seconds = (duration_ - (minutes * 60));
+
+   snprintf(cduration, 32, "%2d:%.2d", minutes, seconds);
+   durationString_ = (std::string(cduration));
 }
 
 int32_t Song::Duration() const
@@ -182,16 +194,9 @@ LibraryEntry * Song::Entry() const
    return entry_;
 }
 
-std::string Song::DurationString() const
+std::string const & Song::DurationString() const
 {
-   char duration[32];
-
-   uint32_t const minutes = static_cast<uint32_t>(duration_ / 60);
-   uint32_t const seconds = (duration_ - (minutes * 60));
-
-   snprintf(duration, 32, "%2d:%.2d", minutes, seconds);
-
-   return (std::string(duration));
+   return durationString_;
 }
 
 
@@ -206,4 +211,112 @@ std::string Song::FullDescription() const
    std::string fullDescription(artist_ + " - " + title_ + " " + album_ + " " + DurationString());
    return fullDescription;
 }
+
+std::string Song::FormatString(std::string fmt) const
+{
+   typedef std::string const & (Mpc::Song::*SongFunction)() const;
+   static std::map<char, SongFunction> songInfo;
+
+   if (songInfo.size() == 0)
+   {
+      songInfo['a'] = &Mpc::Song::Artist;
+      songInfo['b'] = &Mpc::Song::Album;
+      songInfo['l'] = &Mpc::Song::DurationString;
+      songInfo['t'] = &Mpc::Song::Title;
+      songInfo['n'] = &Mpc::Song::Track;
+      songInfo['f'] = &Mpc::Song::URI;
+   }
+
+   std::string result = fmt;
+
+   if (lastFormat_ == fmt)
+   {
+      return formatted_;
+   }
+
+   lastFormat_ = fmt;
+
+   int  j     = 0;
+   int  right = -1;
+   int  start = -1;
+   bool valid = true;
+   bool skip  = false;
+
+   for (int i = 0; i < fmt.size(); )
+   {
+      switch (fmt[i])
+      {
+         case '{':
+         {
+            start = j;
+            valid = true;
+            ++i;
+            result.erase(j, 1);
+            break;
+         }
+         case '}':
+         {
+            if (valid == false)
+            {
+               result.erase(start, j - start);
+               j = start;
+            }
+            result.erase(j, 1);
+            ++i;
+            start = -1;
+            break;
+         }
+         case '|':
+         {
+            if (valid == true)
+            {
+               skip = true; 
+            }
+            result.erase(j, 1);
+            ++i;
+            break;
+         }
+         case '%':
+         {
+            if (start == -1)
+            {
+               skip = false;
+            }
+
+            if ((i + 1) < fmt.size())
+            {
+               std::string next = "";
+
+               if ((songInfo.find(fmt[i + 1]) != songInfo.end()) &&
+                   (skip == false))
+               {
+                  SongFunction Function = songInfo[fmt[i + 1]];
+                  next = (*this.*Function)();
+               }
+
+               if ((next == "") || (next == "Unknown"))
+               {
+                  valid = false;
+               }
+
+               result.replace(j, 2, next);
+               j += next.size();
+               i += 2;
+            }
+            else
+            {
+               ++i, ++j;
+            }
+            break;
+         }
+         default:
+            ++i, ++j;
+            break;
+      }
+   }
+
+   formatted_ = result;
+   return result;
+}
+
 /* vim: set sw=3 ts=3: */

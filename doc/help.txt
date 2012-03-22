@@ -68,9 +68,12 @@ ALL WINDOWS:
           A               | add all songs in window to the playlist
           D               | delete all songs in window from the playlist
           X               | delete all songs from the selected line to the end
+          v, V            | enter visual selection mode
+          gv              | reselect the last visual selected songs
+          gp              | scroll forward to a song that is in the playlist
+          gP              | scroll backward to a song that is in the playlist
 
 PLAYLIST:
-          v               | enter visual selection mode
   [count] d, del          | delete songs
   [count] h, Left         | seek back [count] seconds
   [count] l, Right        | seek forward [count] seconds
@@ -81,7 +84,6 @@ PLAYLIST:
           <Enter>         | play the selected song
 
 BROWSE:
-          v               | enter visual selection mode
   [count] a               | add songs to playlist
   [count] d, del          | delete songs
           <Enter>         | append the song to the playlist and play it
@@ -149,6 +151,7 @@ FIND:
   find[!] <search>        | search in database and display results in new window
   findartist[!] <search>  | search in database in artist tag only
   findalbum[!] <search>   | search in database in album tag only
+  findgenre[!] <search>   | search in database in genre tag only
   findsong[!] <search>    | search in database in title tag only
 
   Note: Appending a ! to any search term will automatically add the songs to the
@@ -244,6 +247,37 @@ mapped and are described below.
    <F1>, <F2>, etc               | Function keys
 
 
+PRINT FORMATS
+-------------------------------------------------
+
+The song and library formats used to print the songs can be set using
+the settings songformat and libraryformat respectively. The formatting
+of these strings is based upon those of ncmpcpp.
+
+   %a  - Artist
+   %b  - Album
+   %t  - Song title
+   %n  - Track number
+   %l  - Duration
+   %f  - Filename/URI
+
+   $R  - Begin right alignment
+   $H  - Toggle highlight color off/on
+   {,} - Will only display contents between { and } if not empty
+   \|   - Alternative to use if prior entry is blank
+
+Examples:
+   The default song format is: {%a - %t}\|{%f}$R$H[$H%l$H]$H
+   This displays artist - title if they both exist otherwise
+   displays the filename and displays the duration aligned
+   to the right. The $H ensures that [ and ] will not change
+   color when that song is highlighted.
+
+   The default library format is: $H[$H%l$H]$H {%t}\|{%f}
+   This displays the duration, again not highlighting [ and ]
+   followed by a space, then either the song title or if that
+   is empty the filename.
+   
 SETTINGS
 --------------------------------------------------
 
@@ -271,9 +305,11 @@ or postfixed with !  which will toggle the setting.
   [no]timeremaining[!]    | display the time remaining rather than elapsed
   [no]windownumbers[!]    | display the number next to the window in the tab bar
 
+  songformat <fmt>        | set the format to print songs
+  libraryformat <fmt>     | set the format to print songs in the library
+                          | set PRINT FORMATS section
 
   window <window>         | sets the window that will start with focus
                           | only useful if called from ~/.vimpcrc file
-
 
 

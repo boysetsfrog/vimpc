@@ -36,7 +36,7 @@
 using namespace Ui;
 
 LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen, "library"),
+   SelectWindow     (settings, screen, "library"),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -122,7 +122,7 @@ std::string LibraryWindow::SearchPattern(int32_t id)
          break;
 
       case Mpc::SongType:
-         pattern = entry->song_->Title();
+         pattern = entry->song_->FormatString(settings_.LibraryFormat());
          break;
 
       default:
@@ -143,15 +143,13 @@ void LibraryWindow::Print(uint32_t line) const
 {
    std::string const BlankLine(screen_.MaxColumns(), ' ');
 
-   WINDOW * window = N_WINDOW();
+   uint32_t printLine = (line + FirstLine());
+   WINDOW * window    = N_WINDOW();
+   int32_t  colour    = DetermineSongColour(library_.Get(printLine));
 
    if ((line + FirstLine()) < BufferSize())
    {
-      uint32_t printLine = (line + FirstLine());
-
-      int colour = DetermineSongColour(library_.Get(printLine));
-
-      if (printLine == CurrentLine())
+      if (IsSelected(printLine) == true)
       {
          if (settings_.ColourEnabled() == true)
          {
@@ -203,26 +201,29 @@ void LibraryWindow::Print(uint32_t line) const
          expandCol += 6;
          wmove(window, line, expandCol);
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          wprintw(window, "%5s | " , library_.Get(printLine)->song_->Track().c_str());
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         PrintSong(line, printLine, colour, settings_.LibraryFormat(), library_.Get(printLine)->song_);
+
+         /*
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattron(window, COLOR_PAIR(YELLOWONDEFAULT));
          }
 
          waddstr(window, library_.Get(printLine)->song_->DurationString().c_str());
 
-         if ((settings_.ColourEnabled() == true) && (printLine != CurrentLine()))
+         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
          {
             wattroff(window, COLOR_PAIR(YELLOWONDEFAULT));
          }
@@ -248,6 +249,7 @@ void LibraryWindow::Print(uint32_t line) const
          }
 
          waddstr(window, title.c_str());
+         */
       }
 
       wattroff(window, A_BOLD | A_REVERSE);
@@ -304,12 +306,14 @@ void LibraryWindow::Confirm()
 
    library_.AddToPlaylist(Mpc::Song::Single, client_, CurrentLine());
    client_.Play(0);
+   SelectWindow::Confirm();
 }
 
 
 void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
    DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll);
+   SelectWindow::AddLine(line, count, scroll);
 }
 
 void LibraryWindow::AddAllLines()
@@ -325,6 +329,7 @@ void LibraryWindow::AddAllLines()
 void LibraryWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
 {
    DeleteLine(line, count, scroll);
+   SelectWindow::DeleteLine(line, count, scroll);
 }
 
 void LibraryWindow::CropAllLines()
@@ -435,7 +440,7 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
 
       if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
           ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
-          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->Title()) == true)))
+          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.LibraryFormat())) == true)))
       {
          colour = Colour::SongMatch;
       }

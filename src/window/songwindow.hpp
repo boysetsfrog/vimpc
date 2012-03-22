@@ -64,7 +64,7 @@ namespace Ui
       {
          if (id > 0)
          {
-            return Buffer().Get(id)->PlaylistDescription();
+            return Buffer().Get(id)->FormatString(settings_.SongFormat());
          }
          return "";
       }
@@ -86,11 +86,7 @@ namespace Ui
 
    protected:
       void PrintBlankId() const;
-      virtual void PrintId(uint32_t Id) const;
-
-      virtual void PrintSong(int32_t Id, int32_t colour, Mpc::Song * Song) const;
-      virtual void PrintDuration(int32_t Id, int32_t colour, std::string duration) const;
-
+      void PrintId(uint32_t Id) const;
 
    private:
       size_t  BufferSize() const { return Buffer().Size(); }

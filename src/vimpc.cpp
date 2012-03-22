@@ -69,8 +69,6 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run(std::string hostname, uint16_t port)
 {
-   screen_.Start();
-
    // Set up the display
    {
       Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
@@ -86,6 +84,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
 
    SetSkipConfigConnects(false);
+
+   screen_.Start();
 
    if (configExecutionResult == true)
    {

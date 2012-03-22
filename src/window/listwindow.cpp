@@ -35,7 +35,7 @@
 using namespace Ui;
 
 ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
-   SelectWindow     (screen, "lists"),
+   SelectWindow     (settings, screen, "lists"),
    settings_        (settings),
    client_          (client),
    search_          (search),

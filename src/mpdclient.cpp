@@ -247,8 +247,13 @@ void Client::Next()
 {
    if (Connected() == true)
    {
-      mpd_run_next(connection_);
-      CheckError();
+      mpd_send_next(connection_);
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+      }
 
       forceUpdate_ = true;
       CheckForUpdates();
@@ -259,8 +264,13 @@ void Client::Previous()
 {
    if (Connected() == true)
    {
-      mpd_run_previous(connection_);
-      CheckError();
+      mpd_send_previous(connection_);
+
+      if (listMode_ == false)
+      {
+         mpd_response_finish(connection_);
+         CheckError();
+      }
 
       forceUpdate_ = true;
       CheckForUpdates();
@@ -741,6 +751,17 @@ void Client::SearchArtist(std::string const & search, bool exact)
       mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, search.c_str());
    }
 }
+
+void Client::SearchGenre(std::string const & search, bool exact)
+{
+   if (Connected() == true)
+   {
+      mpd_search_db_songs(connection_, exact);
+      mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_GENRE, search.c_str());
+   }
+}
+
+
 
 void Client::SearchAlbum(std::string const & search, bool exact)
 {

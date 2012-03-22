@@ -63,10 +63,14 @@ Settings & Settings::Instance()
 
 Settings::Settings() :
    defaultWindow_("playlist"),
+   songFormat_   ("{%a - %t}|{%f}$R$H[$H%l$H]$H"),
+   libFormat_    ("$H[$H%l$H]$H {%t}|{%f}"),
    settingsTable_(),
    toggleTable_  ()
 {
    settingsTable_["window"]              = &Settings::SetWindow;
+   settingsTable_["songformat"]          = &Settings::SetSongFormat;
+   settingsTable_["libraryformat"]       = &Settings::SetLibFormat;
 
    toggleTable_[AutoScrollSetting]       = new Setting<bool>(true);
    toggleTable_[BrowseNumbersSetting]    = new Setting<bool>(true);
@@ -170,6 +174,16 @@ std::string Settings::Window() const
    return defaultWindow_;
 }
 
+std::string Settings::SongFormat() const
+{
+   return songFormat_;
+}
+
+std::string Settings::LibraryFormat() const
+{
+   return libFormat_;
+}
+
 
 bool Settings::AutoScroll() const
 {
@@ -263,6 +277,16 @@ void Settings::SetWindow(std::string const & arguments)
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
    defaultWindow_ = window;
+}
+
+void Settings::SetSongFormat(std::string const & arguments)
+{
+   songFormat_ = arguments;
+}
+
+void Settings::SetLibFormat(std::string const & arguments)
+{
+   libFormat_ = arguments;
 }
 
 void Settings::SetSkipConfigConnects(bool val)

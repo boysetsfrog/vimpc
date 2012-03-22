@@ -173,7 +173,7 @@ bool InputMode::SetInputString(std::string input)
    else
    {
       window_->SetCursorPosition(inputString_.length() + PromptSize);
-      window_->SetLine("%s%s", Prompt(), inputString_.c_str());
+      window_->SetLine(std::string(Prompt()) + inputString_);
    }
 
    return false;

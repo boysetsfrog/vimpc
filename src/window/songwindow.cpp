@@ -35,7 +35,7 @@
 using namespace Ui;
 
 SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
-   SelectWindow     (screen, name),
+   SelectWindow     (settings, screen, name),
    settings_        (settings),
    client_          (client),
    search_          (search),
@@ -99,10 +99,7 @@ void SongWindow::Print(uint32_t line) const
          PrintBlankId();
       }
 
-      PrintSong(printLine, colour, song);
-
-      wmove(window, line, (screen_.MaxColumns() - song->DurationString().size() - 2));
-      PrintDuration(printLine, colour, song->DurationString());
+      PrintSong(line, printLine, colour, settings_.SongFormat(), song);
    }
 
    if ((IsSelected(printLine) == true) && (song != NULL))
@@ -389,68 +386,6 @@ void SongWindow::PrintId(uint32_t Id) const
    waddstr(window, "] ");
 }
 
-void SongWindow::PrintSong(int32_t Id, int32_t colour, Mpc::Song * song) const
-{
-   WINDOW * window = N_WINDOW();
-
-   if (settings_.ColourEnabled() == true)
-   {
-      wattron(window, COLOR_PAIR(colour));
-   }
-
-   std::string artist = song->Artist().c_str();
-   std::string title  = song->Title().c_str();
-
-   if ((title == "Unknown") || (song->Entry() == NULL))
-   {
-      artist = "Unknown";
-      title = song->URI().c_str();
-   }
-
-   if (artist != "Unknown")
-   {
-      wprintw(window, "%s - %s", artist.c_str(), title.c_str());
-   }
-   else
-   {
-      wprintw(window, "%s", title.c_str());
-   }
-
-   if (settings_.ColourEnabled() == true)
-   {
-      wattroff(window, COLOR_PAIR(colour));
-   }
-}
-
-void SongWindow::PrintDuration(int32_t Id, int32_t colour, std::string duration) const
-{
-   WINDOW * window = N_WINDOW();
-
-   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == true))
-   {
-      wattron(window, COLOR_PAIR(colour));
-      waddstr(window, "[");
-   }
-   else if (settings_.ColourEnabled() == true)
-   {
-      waddstr(window, "[");
-      wattron(window, COLOR_PAIR(colour));
-   }
-
-   wprintw(window, "%s", duration.c_str());
-
-   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == true))
-   {
-      waddstr(window, "]");
-      wattroff(window, COLOR_PAIR(colour));
-   }
-   else if (settings_.ColourEnabled() == true)
-   {
-      wattroff(window, COLOR_PAIR(colour));
-      waddstr(window, "]");
-   }
-}
-
 
 
 int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const song) const
@@ -471,7 +406,7 @@ int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const s
       {
          pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(song->PlaylistDescription()))
+         if (expression.FullMatch(song->FormatString(settings_.SongFormat())))
          {
             colour = Colour::SongMatch;
          }
