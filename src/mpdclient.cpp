@@ -220,7 +220,8 @@ void Client::Play(uint32_t const playId)
    {
       ClearCommand();
       mpd_send_play_pos(connection_, playId);
-      CheckForUpdates();
+      currentSongId_ = playId;
+      state_ = MPD_STATE_PLAY;
    }
 }
 
@@ -230,7 +231,15 @@ void Client::Pause()
    {
       ClearCommand();
       mpd_send_toggle_pause(connection_);
-      CheckForUpdates();
+
+      if (state_ == MPD_STATE_PLAY)
+      {
+         state_ = MPD_STATE_PAUSE;
+      }
+      else if (state_ == MPD_STATE_PAUSE)
+      {
+         state_ = MPD_STATE_PLAY;
+      }
    }
 }
 
@@ -240,7 +249,11 @@ void Client::Stop()
    {
       ClearCommand();
       mpd_send_stop(connection_);
-      CheckForUpdates();
+
+      state_ = MPD_STATE_STOP;
+      currentSong_ = NULL;
+      currentSongId_  = -1;
+      currentSongURI_ = "";
    }
 }
 
@@ -646,9 +659,7 @@ std::string Client::CurrentState()
    {
       if (currentStatus_ != NULL)
       {
-         mpd_state state = mpd_status_get_state(currentStatus_);
-
-         switch (state)
+         switch (state_)
          {
             case MPD_STATE_UNKNOWN:
                currentState_ = "Unknown";
@@ -779,24 +790,21 @@ void Client::CheckForUpdates()
          {
             mpd_song_free(currentSong_);
             currentSong_ = NULL;
+            currentSongId_  = -1;
+            currentSongURI_ = "";
          }
 
-         if(mpd_status_get_state(currentStatus_) != MPD_STATE_STOP)
+         if (state_ != MPD_STATE_STOP)
          {
             ClearCommand();
             currentSong_ = mpd_run_current_song(connection_);
             CheckError();
-         }
 
-         if (currentSong_ != NULL)
-         {
-            currentSongId_  = mpd_song_get_pos(currentSong_);
-            currentSongURI_ = mpd_song_get_uri(currentSong_);
-         }
-         else
-         {
-            currentSongId_  = -1;
-            currentSongURI_ = "";
+            if (currentSong_ != NULL)
+            {
+               currentSongId_  = mpd_song_get_pos(currentSong_);
+               currentSongURI_ = mpd_song_get_uri(currentSong_);
+            }
          }
 
          UpdateStatus();
@@ -879,6 +887,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
          repeat_        = mpd_status_get_repeat(currentStatus_);
          single_        = mpd_status_get_single(currentStatus_);
          consume_       = mpd_status_get_consume(currentStatus_);
+         state_         = mpd_status_get_state(currentStatus_);
 
          if ((queueVersion_ > -1) &&
              ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))

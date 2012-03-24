@@ -236,6 +236,7 @@ namespace Mpc
       bool                    repeat_;
       bool                    single_;
       bool                    consume_;
+      mpd_state               state_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
