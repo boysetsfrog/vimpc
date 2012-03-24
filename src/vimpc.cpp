@@ -136,7 +136,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             client_.UpdateDisplay();
          }
 
-         if ((input == ERR) && (client_.TimeSinceUpdate() > 500))
+         if ((input == ERR) && (client_.TimeSinceUpdate() > 1000))
          {
             client_.CheckForUpdates();
          }

@@ -101,7 +101,6 @@ namespace Mpc
 
       std::string PlaylistDescription() const;
       std::string FullDescription()     const;
-
       std::string FormatString(std::string fmt) const;
 
    private:

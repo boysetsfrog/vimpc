@@ -231,6 +231,12 @@ namespace Mpc
       uint32_t                versionPatch_;
       long                    timeSinceUpdate_;
 
+      uint32_t                volume_;
+      bool                    random_;
+      bool                    repeat_;
+      bool                    single_;
+      bool                    consume_;
+
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
       int32_t                 currentSongId_;
