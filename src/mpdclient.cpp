@@ -285,8 +285,7 @@ void Client::Seek(int32_t Offset)
    if (Connected() == true)
    {
       ClearCommand();
-      uint32_t const elapsed  = mpd_status_get_elapsed_time(currentStatus_);
-      mpd_send_seek_pos(connection_, currentSongId_, elapsed + Offset);
+      mpd_send_seek_pos(connection_, currentSongId_, elapsed_ + Offset);
    }
 }
 
@@ -723,7 +722,7 @@ void Client::DisplaySongInformation()
       {
          mpd_status * const status   = currentStatus_;
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
-         uint32_t     const elapsed  = mpd_status_get_elapsed_time(status);
+         uint32_t     const elapsed  = elapsed_;
          uint32_t     const remain   = duration - elapsed;
          char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
          char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
@@ -774,6 +773,18 @@ void Client::Update()
 void Client::IncrementTime(long time)
 {
    timeSinceUpdate_ += time;
+   elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
+
+   if ((currentSong_ != NULL) &&
+       (elapsed_ > mpd_song_get_duration(currentSong_)))
+   {
+      elapsed_ = mpd_song_get_duration(currentSong_);
+
+      if (timeSinceUpdate_ > 1000)
+      {
+         UpdateStatus();
+      }
+   }
 }
 
 long Client::TimeSinceUpdate()
@@ -910,15 +921,20 @@ void Client::UpdateStatus(bool ExpectUpdate)
          single_   = mpd_status_get_single(currentStatus_);
          consume_  = mpd_status_get_consume(currentStatus_);
 
-         if ((state_ != mpd_status_get_state(currentStatus_)) ||
-             ((mpd_status_get_state(currentStatus_) != MPD_STATE_STOP) &&
-              ((mpd_status_get_elapsed_time(currentStatus_) < elapsed_) ||
+         // Check if we need to update the current song
+         if ((mpdstate_ != mpd_status_get_state(currentStatus_)) ||
+             ((currentSong_ != NULL) && 
+              ((elapsed_ >= mpd_song_get_duration(currentSong_) - 1) ||
+               (mpd_status_get_elapsed_time(currentStatus_) < elapsed_) ||
                (mpd_status_get_elapsed_time(currentStatus_) <= 1))))
          {
-            state_ = mpd_status_get_state(currentStatus_);
-            elapsed_ = mpd_status_get_elapsed_time(currentStatus_);
             UpdateCurrentSong();
          }
+
+         mpdstate_   = mpd_status_get_state(currentStatus_);
+         mpdelapsed_ = mpd_status_get_elapsed_time(currentStatus_);
+         elapsed_    = mpdelapsed_;
+         state_      = mpdstate_;
 
          if ((queueVersion_ > -1) &&
              ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))

@@ -136,9 +136,10 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             client_.UpdateDisplay();
          }
 
-         if (((input == ERR) && (client_.TimeSinceUpdate() > 1000)) && (settings_.Polling() == true))
+         if (((input == ERR) && (client_.TimeSinceUpdate() > 900)) && (settings_.Polling() == true))
          {
             client_.UpdateStatus();
+            client_.DisplaySongInformation();
          }
 
          if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))

@@ -239,7 +239,9 @@ namespace Mpc
       bool                    single_;
       bool                    consume_;
       uint32_t                elapsed_;
+      uint32_t                mpdelapsed_;
       mpd_state               state_;
+      mpd_state               mpdstate_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
