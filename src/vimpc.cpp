@@ -136,15 +136,14 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             client_.UpdateDisplay();
          }
 
-         if ((input == ERR) && (client_.TimeSinceUpdate() > 1000))
+         if (((input == ERR) && (client_.TimeSinceUpdate() > 1000)) && (settings_.Polling() == true))
          {
-            client_.CheckForUpdates();
+            client_.UpdateStatus();
          }
 
          if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
          {
             updateTime = 0;
-
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
             client_.DisplaySongInformation();
             screen_.Update();

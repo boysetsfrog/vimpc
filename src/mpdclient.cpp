@@ -86,6 +86,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    repeat_               (false),
    single_               (false),
    consume_              (false),
+   elapsed_              (0),
+   state_                (MPD_STATE_STOP),
 
    currentSong_          (NULL),
    currentStatus_        (NULL),
@@ -95,7 +97,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    screen_               (screen),
    queueVersion_         (-1),
    forceUpdate_          (true),
-   listMode_             (false)
+   listMode_             (false),
+   idleMode_             (false)
 {
 }
 
@@ -180,7 +183,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       screen_.Redraw(Ui::Screen::Playlist);
 
       UpdateStatus();
-      CheckForUpdates();
+      UpdateCurrentSong();
 
       if (connect_password != "")
       {
@@ -263,7 +266,7 @@ void Client::Next()
    {
       ClearCommand();
       mpd_send_next(connection_);
-      CheckForUpdates();
+      UpdateCurrentSong();
    }
 }
 
@@ -273,7 +276,7 @@ void Client::Previous()
    {
       ClearCommand();
       mpd_send_previous(connection_);
-      CheckForUpdates();
+      UpdateCurrentSong();
    }
 }
 
@@ -778,14 +781,34 @@ long Client::TimeSinceUpdate()
    return timeSinceUpdate_;
 }
 
-void Client::CheckForUpdates()
+void Client::IdleMode()
+{
+   if ((Connected() == true) && (settings_.Polling() == false) &&
+       (idleMode_ == false))
+   {
+      idleMode_ = true;
+      mpd_send_idle(connection_);
+   }
+}
+
+bool Client::HadEvents()
+{
+   if ((Connected() == true) && (settings_.Polling() == false) && 
+       (idleMode_ == true))
+   {
+      idleMode_ = false;
+      return (mpd_run_noidle(connection_) != 0);
+   }
+
+   return false;
+}
+
+void Client::UpdateCurrentSong()
 {
    if ((Connected() == true))
    {
       if (listMode_ == false)
       {
-         timeSinceUpdate_ = 0;
-
          if (currentSong_ != NULL)
          {
             mpd_song_free(currentSong_);
@@ -806,8 +829,6 @@ void Client::CheckForUpdates()
                currentSongURI_ = mpd_song_get_uri(currentSong_);
             }
          }
-
-         UpdateStatus();
       }
    }
    else
@@ -874,7 +895,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
          currentStatus_ = NULL;
       }
 
-      currentStatus_ = mpd_run_status(connection_);
+      timeSinceUpdate_ = 0;
+      currentStatus_   = mpd_run_status(connection_);
       CheckError();
 
       if (currentStatus_ != NULL)
@@ -882,12 +904,21 @@ void Client::UpdateStatus(bool ExpectUpdate)
          unsigned int version  = mpd_status_get_queue_version(currentStatus_);
          unsigned int qVersion = static_cast<uint32_t>(queueVersion_);
 
-         volume_        = mpd_status_get_volume(currentStatus_);
-         random_        = mpd_status_get_random(currentStatus_);
-         repeat_        = mpd_status_get_repeat(currentStatus_);
-         single_        = mpd_status_get_single(currentStatus_);
-         consume_       = mpd_status_get_consume(currentStatus_);
-         state_         = mpd_status_get_state(currentStatus_);
+         volume_   = mpd_status_get_volume(currentStatus_);
+         random_   = mpd_status_get_random(currentStatus_);
+         repeat_   = mpd_status_get_repeat(currentStatus_);
+         single_   = mpd_status_get_single(currentStatus_);
+         consume_  = mpd_status_get_consume(currentStatus_);
+
+         if ((state_ != mpd_status_get_state(currentStatus_)) ||
+             ((mpd_status_get_state(currentStatus_) != MPD_STATE_STOP) &&
+              ((mpd_status_get_elapsed_time(currentStatus_) < elapsed_) ||
+               (mpd_status_get_elapsed_time(currentStatus_) <= 1))))
+         {
+            state_ = mpd_status_get_state(currentStatus_);
+            elapsed_ = mpd_status_get_elapsed_time(currentStatus_);
+            UpdateCurrentSong();
+         }
 
          if ((queueVersion_ > -1) &&
              ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))

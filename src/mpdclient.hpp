@@ -176,7 +176,10 @@ namespace Mpc
       void Update();
       void IncrementTime(long time);
       long TimeSinceUpdate();
-      void CheckForUpdates();
+      void IdleMode();
+      bool HadEvents();
+      void UpdateCurrentSong();
+      void UpdateStatus(bool ExpectUpdate = false);
       void UpdateDisplay();
 
    public:
@@ -210,7 +213,6 @@ namespace Mpc
 
    private:
       unsigned int QueueVersion();
-      void UpdateStatus(bool ExpectUpdate = false);
       void UpdateCurrentSongPosition();
       Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
 
@@ -236,6 +238,7 @@ namespace Mpc
       bool                    repeat_;
       bool                    single_;
       bool                    consume_;
+      uint32_t                elapsed_;
       mpd_state               state_;
 
       struct mpd_song *       currentSong_;
@@ -248,6 +251,7 @@ namespace Mpc
       int                     queueVersion_;
       bool                    forceUpdate_;
       bool                    listMode_;
+      bool                    idleMode_;
    };
 
    //

@@ -82,6 +82,7 @@ Settings::Settings() :
    toggleTable_[sIgnoreCaseSearch] = new Setting<bool>(false);
    toggleTable_[sIgnoreCaseSort]   = new Setting<bool>(true);
    toggleTable_[sIgnoreTheSort]    = new Setting<bool>(false);
+   toggleTable_[sPolling]          = new Setting<bool>(true);
    toggleTable_[sPlaylistNumbers]  = new Setting<bool>(true);
    toggleTable_[sSearchWrap]       = new Setting<bool>(true);
    toggleTable_[sSingleQuit]       = new Setting<bool>(false);
