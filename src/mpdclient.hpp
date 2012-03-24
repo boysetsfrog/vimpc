@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 - 2011 Nathan Sweetman
+   Copyright (C) 2010 - 2012 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -50,14 +50,28 @@ namespace Ui
 // \todo cache all the values that we can
 namespace Mpc
 {
+   class Client;
    class Output;
    class Song;
 
    uint32_t SecondsToMinutes(uint32_t duration);
    uint32_t RemainingSeconds(uint32_t duration);
 
+   class CommandList
+   {
+      public:
+         CommandList(Mpc::Client & client, bool condition = true);
+         ~CommandList();
+
+      private:
+         bool          condition_;
+         Mpc::Client & client_;
+   };
+
    class Client
    {
+      friend class Mpc::CommandList;
+
    public:
       Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
@@ -74,11 +88,6 @@ namespace Mpc
       std::string Hostname();
       uint16_t Port();
       bool Connected() const;
-
-   public:
-      // Command lists
-      void StartCommandList();
-      void SendCommandList();
 
    public:
       // Playback functions
@@ -165,6 +174,8 @@ namespace Mpc
       // Database state
       void Rescan();
       void Update();
+      void IncrementTime(long time);
+      long TimeSinceUpdate();
       void CheckForUpdates();
 
    public:
@@ -191,6 +202,12 @@ namespace Mpc
       void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
 
    private:
+      void ClearCommand();
+      bool Command(bool InputCommand);
+      void StartCommandList();
+      void SendCommandList();
+
+   private:
       unsigned int QueueVersion();
       void UpdateStatus(bool ExpectUpdate = false);
       Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
@@ -210,6 +227,7 @@ namespace Mpc
       uint32_t                versionMajor_;
       uint32_t                versionMinor_;
       uint32_t                versionPatch_;
+      long                    timeSinceUpdate_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
@@ -222,7 +240,6 @@ namespace Mpc
       bool                    forceUpdate_;
       bool                    listMode_;
    };
-
 
    //
    template <typename Object>

@@ -158,10 +158,7 @@ void Player::SkipSong(Skip skip, uint32_t count)
    // this is slow and only works in small amounts
    if ((client_.Random() == true) || (client_.Consume() == true) || (count == 1))
    {
-      if (count != 1)
-      {
-         client_.StartCommandList();
-      }
+      Mpc::CommandList list(client_, (count != 1));
 
       for (int i = 0; i < count; ++i)
       {
@@ -173,11 +170,6 @@ void Player::SkipSong(Skip skip, uint32_t count)
          {
             client_.Next();
          }
-      }
-
-      if (count != 1)
-      {
-         client_.SendCommandList();
       }
 
       HandleAutoScroll();

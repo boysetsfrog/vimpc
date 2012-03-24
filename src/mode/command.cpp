@@ -530,15 +530,13 @@ void Command::Find(std::string const & arguments)
       }
       else
       {
-         client_.StartCommandList();
+         Mpc::CommandList list(client_);
 
          for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
          {
             client_.Add(Main::PlaylistTmp().Get(i));
             Main::Playlist().Add(Main::PlaylistTmp().Get(i));
          }
-
-         client_.SendCommandList();
       }
    }
    else

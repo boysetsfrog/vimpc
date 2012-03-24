@@ -128,22 +128,16 @@ void SongWindow::Confirm()
 {
    if (Buffer().Size() > CurrentLine())
    {
-      int64_t pos1 = CurrentSelection().first;
-      int64_t pos2 = CurrentSelection().second;
+      int64_t pos1, pos2;
+      uint32_t count = GetPositions(pos1, pos2);
 
-      if (pos2 < pos1)
-      {
-         pos2 = pos1;
-         pos1 = CurrentSelection().second;
-      }
-
-      if (pos1 == pos2)
+      if (count == 1)
       {
          AddToPlaylist(CurrentLine());
       }
       else
       {
-         AddLine(pos1, pos2 - pos1 + 1, false);
+         AddLine(pos1, count, false);
       }
 
       if (Buffer().Get(CurrentLine()) != NULL)
@@ -218,38 +212,25 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
    if (client_.Connected() == true)
    {
-      int64_t pos1 = CurrentSelection().first;
-      int64_t pos2 = CurrentSelection().second;
+      int64_t pos1, pos2;
+      uint32_t const posCount = GetPositions(pos1, pos2);
 
-      if (pos2 < pos1)
+      if (posCount > 1)
       {
-         pos2 = pos1;
-         pos1 = CurrentSelection().second;
+         count = posCount;
+         line  = pos1;
       }
 
-      if (pos1 != pos2)
       {
-         count  = pos2 - pos1 + 1;
-         line   = pos1;
-         scroll = false;
+         Mpc::CommandList list(client_, (count > 1));
+
+         for (uint32_t i = 0; i < count; ++i)
+         {
+            AddToPlaylist(line + i);
+         }
       }
 
-      if (count > 1)
-      {
-         client_.StartCommandList();
-      }
-
-      for (uint32_t i = 0; i < count; ++i)
-      {
-         AddToPlaylist(line + i);
-      }
-
-      if (count > 1)
-      {
-         client_.SendCommandList();
-      }
-
-      if (scroll == true)
+      if ((scroll == true) && (posCount == 1))
       {
          Scroll(count);
       }
@@ -279,49 +260,36 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
    if (client_.Connected() == true)
    {
-      int64_t pos1 = CurrentSelection().first;
-      int64_t pos2 = CurrentSelection().second;
+      int64_t pos1, pos2;
+      uint32_t const posCount = GetPositions(pos1, pos2);
 
-      if (pos2 < pos1)
+      if (posCount > 1)
       {
-         pos2 = pos1;
-         pos1 = CurrentSelection().second;
-      }
-
-      if (pos1 != pos2)
-      {
-         count  = pos2 - pos1 + 1;
+         count  = posCount;
          line   = pos1;
-         scroll = false;
       }
 
-      if (count > 1)
       {
-         client_.StartCommandList();
-      }
+         Mpc::CommandList list(client_, (count > 1));
 
-      for (uint32_t i = 0; i < count; ++i)
-      {
-         int32_t index = line;
-
-         if (index + i < BufferSize())
+         for (uint32_t i = 0; i < count; ++i)
          {
-            index = Main::Playlist().Index(Buffer().Get(index + i));
+            int32_t index = line;
 
-            if (index >= 0)
+            if (index + i < BufferSize())
             {
-               client_.Delete(index);
-               Main::Playlist().Remove(index, 1);
+               index = Main::Playlist().Index(Buffer().Get(index + i));
+
+               if (index >= 0)
+               {
+                  client_.Delete(index);
+                  Main::Playlist().Remove(index, 1);
+               }
             }
          }
       }
 
-      if (count > 1)
-      {
-         client_.SendCommandList();
-      }
-
-      if (scroll == true)
+      if ((scroll == true) && (posCount == 1))
       {
          Scroll(count);
       }
@@ -347,15 +315,13 @@ void SongWindow::Edit()
 
 void SongWindow::Save(std::string const & name)
 {
-   client_.StartCommandList();
+   Mpc::CommandList list(client_);
    client_.CreatePlaylist(name);
 
    for (unsigned int i = 0; i < BufferSize(); ++i)
    {
       client_.AddToPlaylist(name, Buffer().Get(i));
    }
-
-   client_.SendCommandList();
 }
 
 
@@ -387,7 +353,6 @@ void SongWindow::PrintId(uint32_t Id) const
 }
 
 
-
 int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const song) const
 {
    int32_t colour = Colour::Song;
@@ -404,7 +369,7 @@ int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const s
       }
       else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
       {
-         pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+         pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
          if (expression.FullMatch(song->FormatString(settings_.SongFormat())))
          {
@@ -414,6 +379,20 @@ int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const s
    }
 
    return colour;
+}
+
+uint32_t SongWindow::GetPositions(int64_t & pos1, int64_t & pos2) const
+{
+   pos1 = CurrentSelection().first;
+   pos2 = CurrentSelection().second;
+
+   if (pos2 < pos1)
+   {
+      pos2 = pos1;
+      pos1 = CurrentSelection().second;
+   }
+
+   return ((uint32_t) (pos2 - pos1 + 1));
 }
 
 void SongWindow::Clear()

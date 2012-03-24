@@ -115,6 +115,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       while (Running == true)
       {
          static long updateTime = 0;
+         static long clientTime = 0;
 
          struct timeval start, end;
 
@@ -127,21 +128,24 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
          updateTime += mtime;
-
-         client_.CheckForUpdates();
+         client_.IncrementTime(mtime);
 
          if (input != ERR)
          {
             Handle(input);
          }
 
+         if ((input == ERR) && (client_.TimeSinceUpdate() > 500))
+         {
+            client_.CheckForUpdates();
+         }
+
          if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
          {
             updateTime = 0;
-            client_.DisplaySongInformation();
 
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-
+            client_.DisplaySongInformation();
             screen_.Update();
             mode.Refresh();
          }

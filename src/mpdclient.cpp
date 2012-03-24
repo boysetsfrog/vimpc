@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2012 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@
 
 using namespace Mpc;
 
+#define MPDCOMMAND 
+
 
 // Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
@@ -44,6 +46,26 @@ uint32_t Mpc::SecondsToMinutes(uint32_t duration)
 uint32_t Mpc::RemainingSeconds(uint32_t duration)
 {
    return (duration - (SecondsToMinutes(duration) * 60));
+}
+
+
+CommandList::CommandList(Mpc::Client & client, bool condition) :
+   condition_(condition),
+   client_   (client)
+{
+   if (condition_)
+   {
+      client_.ClearCommand();
+      client_.StartCommandList();
+   }
+}
+
+CommandList::~CommandList()
+{
+   if (condition_)
+   {
+      client_.SendCommandList();
+   }
 }
 
 
@@ -163,7 +185,7 @@ void Client::Password(std::string const & password)
 {
    if (Connected() == true)
    {
-      mpd_run_password(connection_, password.c_str());
+      Command(mpd_send_password(connection_, password.c_str()));
    }
 }
 
@@ -183,38 +205,11 @@ bool Client::Connected() const
 }
 
 
-void Client::StartCommandList()
-{
-   if (Connected() == true)
-   {
-      listMode_ = true;
-      mpd_command_list_begin(connection_, true);
-   }
-}
-
-void Client::SendCommandList()
-{
-   if (Connected() == true)
-   {
-      mpd_command_list_end(connection_);
-      mpd_response_finish(connection_);
-
-      CheckError();
-      UpdateStatus(true);
-
-      listMode_    = false;
-   }
-}
-
 void Client::Play(uint32_t const playId)
 {
    if (Connected() == true)
    {
-      uint32_t id = playId;
-      mpd_run_play_pos(connection_, id);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_play_pos(connection_, playId));
       CheckForUpdates();
    }
 }
@@ -223,10 +218,7 @@ void Client::Pause()
 {
    if (Connected() == true)
    {
-      mpd_run_toggle_pause(connection_);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_toggle_pause(connection_));
       CheckForUpdates();
    }
 }
@@ -235,10 +227,7 @@ void Client::Stop()
 {
    if (Connected() == true)
    {
-      mpd_run_stop(connection_);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_stop(connection_));
       CheckForUpdates();
    }
 }
@@ -247,15 +236,7 @@ void Client::Next()
 {
    if (Connected() == true)
    {
-      mpd_send_next(connection_);
-
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-      }
-
-      forceUpdate_ = true;
+      Command(mpd_send_next(connection_));
       CheckForUpdates();
    }
 }
@@ -264,15 +245,7 @@ void Client::Previous()
 {
    if (Connected() == true)
    {
-      mpd_send_previous(connection_);
-
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-      }
-
-      forceUpdate_ = true;
+      Command(mpd_send_previous(connection_));
       CheckForUpdates();
    }
 }
@@ -282,11 +255,7 @@ void Client::Seek(int32_t Offset)
    if (Connected() == true)
    {
       uint32_t const elapsed  = mpd_status_get_elapsed_time(currentStatus_);
-      mpd_run_seek_pos(connection_, currentSongId_, elapsed + Offset);
-      CheckError();
-
-      forceUpdate_ = true;
-      CheckForUpdates();
+      Command(mpd_send_seek_pos(connection_, currentSongId_, elapsed + Offset));
    }
 }
 
@@ -294,11 +263,7 @@ void Client::SeekTo(uint32_t Time)
 {
    if (Connected() == true)
    {
-      mpd_run_seek_pos(connection_, currentSongId_, Time);
-      CheckError();
-
-      forceUpdate_ = true;
-      CheckForUpdates();
+      Command(mpd_send_seek_pos(connection_, currentSongId_, Time));
    }
 }
 
@@ -307,10 +272,7 @@ bool Client::Random()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      CheckForUpdates();
-
-      bool const random = mpd_status_get_random(currentStatus_);
-      return random;
+      return mpd_status_get_random(currentStatus_);
    }
    else
    {
@@ -322,10 +284,7 @@ void Client::SetRandom(bool const random)
 {
    if (Connected() == true)
    {
-      mpd_run_random(connection_, random);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_random(connection_, random));
       CheckForUpdates();
    }
 }
@@ -335,10 +294,7 @@ bool Client::Single()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      CheckForUpdates();
-
-      bool const single = mpd_status_get_single(currentStatus_);
-      return single;
+      return mpd_status_get_single(currentStatus_);
    }
    else
    {
@@ -350,10 +306,7 @@ void Client::SetSingle(bool const single)
 {
    if (Connected() == true)
    {
-      mpd_run_single(connection_, single);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_single(connection_, single));
       CheckForUpdates();
    }
 }
@@ -363,10 +316,7 @@ bool Client::Consume()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      CheckForUpdates();
-
-      bool const consume = mpd_status_get_consume(currentStatus_);
-      return consume;
+      return mpd_status_get_consume(currentStatus_);
    }
    else
    {
@@ -378,10 +328,7 @@ void Client::SetConsume(bool const consume)
 {
    if (Connected() == true)
    {
-      mpd_run_consume(connection_, consume);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_consume(connection_, consume));
       CheckForUpdates();
    }
 }
@@ -390,10 +337,7 @@ bool Client::Repeat()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      CheckForUpdates();
-
-      bool const repeat = mpd_status_get_repeat(currentStatus_);
-      return repeat;
+      return mpd_status_get_repeat(currentStatus_);
    }
    else
    {
@@ -405,10 +349,7 @@ void Client::SetRepeat(bool const repeat)
 {
    if (Connected() == true)
    {
-      mpd_run_repeat(connection_, repeat);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_repeat(connection_, repeat));
       CheckForUpdates();
    }
 }
@@ -417,10 +358,7 @@ int32_t Client::Volume()
 {
    if ((Connected() == true) && (currentStatus_ != NULL))
    {
-      CheckForUpdates();
-
-      int32_t const volume = mpd_status_get_volume(currentStatus_);
-      return volume;
+      return mpd_status_get_volume(currentStatus_);
    }
    else
    {
@@ -432,10 +370,7 @@ void Client::SetVolume(uint32_t volume)
 {
    if (Connected() == true)
    {
-      (void) mpd_run_set_volume(connection_, volume);
-      CheckError();
-
-      forceUpdate_ = true;
+      Command(mpd_send_set_volume(connection_, volume));
       CheckForUpdates();
    }
 }
@@ -445,9 +380,7 @@ void Client::Shuffle()
 {
    if (Connected() == true)
    {
-      (void) mpd_run_shuffle(connection_);
-      CheckError();
-
+      Command(mpd_send_shuffle(connection_));
       UpdateStatus();
    }
 }
@@ -456,14 +389,8 @@ void Client::Move(uint32_t position1, uint32_t position2)
 {
    if (Connected() == true)
    {
-      CheckForUpdates();
-
-      (void) mpd_run_move(connection_, position1, position2);
-      CheckError();
+      Command(mpd_send_move(connection_, position1, position2));
       UpdateStatus(true);
-
-      forceUpdate_ = true;
-      CheckForUpdates();
    }
 }
 
@@ -471,11 +398,8 @@ void Client::Swap(uint32_t position1, uint32_t position2)
 {
    if (Connected() == true)
    {
-      (void) mpd_run_swap(connection_, position1, position2);
-      CheckError();
-
-      forceUpdate_ = true;
-      CheckForUpdates();
+      Command(mpd_send_swap(connection_, position1, position2));
+      UpdateStatus(true);
    }
 }
 
@@ -484,21 +408,8 @@ void Client::CreatePlaylist(std::string const & name)
 {
    if (Connected() == true)
    {
-      (void) mpd_send_save(connection_, name.c_str());
-
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-      }
-
-      (void) mpd_send_playlist_clear(connection_, name.c_str());
-
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-      }
+      Command(mpd_send_save(connection_, name.c_str()));
+      Command(mpd_send_playlist_clear(connection_, name.c_str()));
    }
 }
 
@@ -506,9 +417,7 @@ void Client::SavePlaylist(std::string const & name)
 {
    if (Connected() == true)
    {
-      (void) mpd_run_save(connection_, name.c_str());
-      CheckError();
-
+      Command(mpd_send_save(connection_, name.c_str()));
       screen_.Redraw(Ui::Screen::Lists);
    }
 }
@@ -519,8 +428,7 @@ void Client::LoadPlaylist(std::string const & name)
    {
       Clear();
 
-      (void) mpd_run_load(connection_, name.c_str());
-      CheckError();
+      Command(mpd_send_load(connection_, name.c_str()));
       UpdateStatus();
    }
 }
@@ -529,9 +437,7 @@ void Client::RemovePlaylist(std::string const & name)
 {
    if (Connected() == true)
    {
-      (void) mpd_run_rm(connection_, name.c_str());
-      CheckError();
-
+      Command(mpd_send_rm(connection_, name.c_str()));
       screen_.Redraw(Ui::Screen::Lists);
    }
 }
@@ -540,16 +446,7 @@ void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
 {
    if (Connected() == true)
    {
-      (void) mpd_send_playlist_add(connection_, name.c_str(), song->URI().c_str());
-
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-
-         forceUpdate_ = true;
-         CheckForUpdates();
-      }
+      Command(mpd_send_playlist_add(connection_, name.c_str(), song->URI().c_str()));
    }
 }
 
@@ -557,9 +454,7 @@ void Client::EnableOutput(Mpc::Output * output)
 {
    if (Connected() == true)
    {
-      (void) mpd_run_enable_output(connection_, output->Id());
-      CheckError();
-
+      Command(mpd_send_enable_output(connection_, output->Id()));
       screen_.Redraw(Ui::Screen::Outputs);
    }
 }
@@ -568,9 +463,7 @@ void Client::DisableOutput(Mpc::Output * output)
 {
    if (Connected() == true)
    {
-      (void) mpd_run_disable_output(connection_, output->Id());
-      CheckError();
-
+      Command(mpd_send_disable_output(connection_, output->Id()));
       screen_.Redraw(Ui::Screen::Outputs);
    }
 }
@@ -588,19 +481,8 @@ uint32_t Client::Add(Mpc::Song & song)
 {
    if (Connected() == true)
    {
-      CheckForUpdates();
-
-      mpd_send_add(connection_, song.URI().c_str());
-
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-         UpdateStatus(true);
-
-         forceUpdate_ = true;
-         CheckForUpdates();
-      }
+      Command(mpd_send_add(connection_, song.URI().c_str()));
+      UpdateStatus(true);
    }
 
    return TotalNumberOfSongs() - 1;
@@ -610,21 +492,14 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
 {
    if (Connected() == true)
    {
-      CheckForUpdates();
-
-      mpd_send_add_id_to(connection_, song.URI().c_str(), position);
+      Command(mpd_send_add_id_to(connection_, song.URI().c_str(), position));
 
       if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
       {
          ++currentSongId_;
       }
 
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-         UpdateStatus(true);
-      }
+      UpdateStatus(true);
    }
 
    return TotalNumberOfSongs() - 1;
@@ -634,9 +509,7 @@ uint32_t Client::AddAllSongs()
 {
    if (Connected() == true)
    {
-      mpd_run_add(connection_, "/");
-      CheckError();
-      CheckForUpdates();
+      Command(mpd_send_add(connection_, "/"));
    }
 
    return TotalNumberOfSongs() - 1;
@@ -646,11 +519,7 @@ uint32_t Client::Add(std::string const & URI)
 {
    if (Connected() == true)
    {
-      CheckForUpdates();
-
-      mpd_run_add(connection_, URI.c_str());
-
-      CheckError();
+      Command(mpd_send_add(connection_, URI.c_str()));
       UpdateStatus();
    }
 
@@ -662,21 +531,14 @@ void Client::Delete(uint32_t position)
 {
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
-      CheckForUpdates();
-
-      mpd_send_delete(connection_, position);
+      Command(mpd_send_delete(connection_, position));
 
       if ((currentSongId_ > -1) && (position < static_cast<uint32_t>(currentSongId_)))
       {
          --currentSongId_;
       }
 
-      if (listMode_ == false)
-      {
-         mpd_response_finish(connection_);
-         CheckError();
-         UpdateStatus(true);
-      }
+      UpdateStatus(true);
    }
 }
 
@@ -684,25 +546,19 @@ void Client::Delete(uint32_t position1, uint32_t position2)
 {
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
-      CheckForUpdates();
-
       // Only use range if MPD is >= 0.16
       if (versionMinor_ < 16)
       {
-         StartCommandList();
+         CommandList list(*this);
 
          for (uint32_t i = 0; i < (position2 - position1); ++i)
          {
             Delete(position1);
          }
-
-         SendCommandList();
-         CheckError();
       }
       else
       {
-         mpd_run_delete_range(connection_, position1, position2);
-         CheckError();
+         Command(mpd_send_delete_range(connection_, position1, position2));
 
          if (currentSongId_ > -1)
          {
@@ -727,8 +583,7 @@ void Client::Clear()
 {
    if (Connected() == true)
    {
-      mpd_run_clear(connection_);
-      CheckError();
+      Command(mpd_send_clear(connection_));
       UpdateStatus(true);
    }
 }
@@ -786,8 +641,6 @@ std::string Client::CurrentState()
 {
    if (Connected() == true)
    {
-      CheckForUpdates();
-
       if (currentStatus_ != NULL)
       {
          mpd_state state = mpd_status_get_state(currentStatus_);
@@ -849,8 +702,6 @@ void Client::DisplaySongInformation()
 {
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
-      CheckForUpdates();
-
       if ((currentSong_ != NULL) && (currentStatus_ != NULL))
       {
          mpd_status * const status   = currentStatus_;
@@ -889,8 +740,7 @@ void Client::Rescan()
 {
    if (Connected() == true)
    {
-      mpd_run_rescan(connection_, "/");
-      CheckError();
+      Command(mpd_send_rescan(connection_, "/"));
    }
 }
 
@@ -898,62 +748,118 @@ void Client::Update()
 {
    if (Connected() == true)
    {
-      mpd_run_update(connection_, "/");
-      CheckError();
+      Command(mpd_send_update(connection_, "/"));
    }
+}
+
+void Client::IncrementTime(long time)
+{
+   timeSinceUpdate_ += time;
+}
+
+long Client::TimeSinceUpdate()
+{
+   return timeSinceUpdate_;
 }
 
 void Client::CheckForUpdates()
 {
-   static bool   updated = false;
-   static struct timeval start;
-   static struct timeval end;
-
-   gettimeofday(&end, NULL);
+   ClearCommand();
 
    if ((Connected() == true))
    {
       if (listMode_ == false)
       {
-         long const seconds  = end.tv_sec  - start.tv_sec;
-         long const useconds = end.tv_usec - start.tv_usec;
-         long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
+         timeSinceUpdate_ = 0;
 
-         if ((updated == false) || (mtime > 250) || (forceUpdate_ == true))
+         if (currentSong_ != NULL)
          {
-            forceUpdate_ = false;
-            updated      = true;
+            mpd_song_free(currentSong_);
+            currentSong_ = NULL;
+         }
 
-            if (currentSong_ != NULL)
-            {
-               mpd_song_free(currentSong_);
-               currentSong_ = NULL;
-            }
-
+         if( mpd_status_get_state(currentStatus_) != MPD_STATE_STOP)
+         {
             currentSong_ = mpd_run_current_song(connection_);
             CheckError();
-
-            if (currentSong_ != NULL)
-            {
-               currentSongId_  = mpd_song_get_pos(currentSong_);
-               currentSongURI_ = mpd_song_get_uri(currentSong_);
-            }
-            else
-            {
-               currentSongId_  = -1;
-               currentSongURI_ = "";
-            }
-
-            UpdateStatus();
-
-            gettimeofday(&start, NULL);
          }
+
+         if (currentSong_ != NULL)
+         {
+            currentSongId_  = mpd_song_get_pos(currentSong_);
+            currentSongURI_ = mpd_song_get_uri(currentSong_);
+         }
+         else
+         {
+            currentSongId_  = -1;
+            currentSongURI_ = "";
+         }
+
+         UpdateStatus();
       }
    }
    else
    {
       currentSongId_ = -1;
       currentSongURI_ = "";
+   }
+}
+
+
+void Client::ClearCommand()
+{
+   if (listMode_ == false)
+   {
+      Command(false);
+   }
+}
+
+bool Client::Command(bool InputCommand)
+{
+   static bool activecommand = false;
+
+   if (Connected() == true)
+   {
+      if (activecommand == true)
+      {
+         activecommand = false;
+         mpd_response_finish(connection_);
+         CheckError();
+      }
+
+      if (InputCommand == true)
+      {
+         activecommand = true;
+      }
+   }
+   else
+   {
+      activecommand = false;
+   }
+
+   return InputCommand;
+}
+
+void Client::StartCommandList()
+{
+   if (Connected() == true)
+   {
+      listMode_ = true;
+      mpd_command_list_begin(connection_, true);
+   }
+}
+
+void Client::SendCommandList()
+{
+   if (Connected() == true)
+   {
+      mpd_command_list_end(connection_);
+      mpd_response_finish(connection_);
+
+      CheckError();
+
+      listMode_ = false;
+      UpdateStatus(true);
    }
 }
 
@@ -965,7 +871,9 @@ unsigned int Client::QueueVersion()
 
 void Client::UpdateStatus(bool ExpectUpdate)
 {
-   if (Connected() == true)
+   ClearCommand();
+
+   if ((Connected() == true) && (listMode_ == false))
    {
       if (currentStatus_ != NULL)
       {

@@ -313,7 +313,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
       wattroff(statusWindow_, A_REVERSE);
    }
 
-   wrefresh(statusWindow_);
+   wnoutrefresh(statusWindow_);
 }
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const

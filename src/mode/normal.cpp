@@ -701,7 +701,7 @@ void Normal::PasteBuffer(uint32_t count)
 {
    uint32_t position = 0;
 
-   client_.StartCommandList();
+   Mpc::CommandList list(client_);
 
    for (uint32_t i = 0; i < count; ++i)
    {
@@ -713,8 +713,6 @@ void Normal::PasteBuffer(uint32_t count)
          position++;
       }
    }
-
-   client_.SendCommandList();
 }
 
 
