@@ -399,7 +399,7 @@ void Client::Swap(uint32_t position1, uint32_t position2)
    if (Connected() == true)
    {
       Command(mpd_send_swap(connection_, position1, position2));
-      UpdateStatus(true);
+      UpdateStatus();
    }
 }
 
@@ -805,6 +805,12 @@ void Client::CheckForUpdates()
    }
 }
 
+void Client::UpdateDisplay()
+{
+   // Try and correct display without requesting status from mpd
+   UpdateCurrentSongPosition();
+}
+
 
 void Client::ClearCommand()
 {
@@ -897,6 +903,21 @@ void Client::UpdateStatus(bool ExpectUpdate)
          }
 
          queueVersion_ = version;
+      }
+   }
+}
+
+void Client::UpdateCurrentSongPosition()
+{
+   if ((currentSong_ != NULL) && 
+       (*Main::Playlist().Get(currentSongId_) != *currentSong_))
+   {
+      for (uint32_t i = 0; i < Main::Playlist().Size(); ++i)
+      {
+         if (*Main::Playlist().Get(i) == *currentSong_)
+         {
+            currentSongId_ = i;
+         }
       }
    }
 }

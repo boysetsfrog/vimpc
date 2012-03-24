@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <mpd/song.h>
 
 namespace Mpc
 {
@@ -48,6 +49,21 @@ namespace Mpc
       bool operator==(Song const & rhs)
       {
          return (this->uri_ == rhs.URI());
+      }
+
+      bool operator!=(Song const & rhs)
+      {
+         return (this->uri_ != rhs.URI());
+      }
+
+      bool operator==(mpd_song const & rhs)
+      {
+         return (this->uri_ == (mpd_song_get_uri(&rhs)));
+      }
+
+      bool operator!=(mpd_song const & rhs)
+      {
+         return (this->uri_ != (mpd_song_get_uri(&rhs)));
       }
 
       bool operator<(Song const & rhs) const
