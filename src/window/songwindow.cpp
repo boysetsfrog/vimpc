@@ -25,11 +25,14 @@
 #include "buffers.hpp"
 #include "callback.hpp"
 #include "colour.hpp"
+#include "errorcodes.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
+
 #include "buffer/library.hpp"
 #include "mode/search.hpp"
+#include "window/error.hpp"
 #include "window/infowindow.hpp"
 
 using namespace Ui;
@@ -315,12 +318,22 @@ void SongWindow::Edit()
 
 void SongWindow::Save(std::string const & name)
 {
-   Mpc::CommandList list(client_);
-   client_.CreatePlaylist(name);
-
-   for (unsigned int i = 0; i < BufferSize(); ++i)
+   if (Main::Lists().Index(name) == -1)
    {
-      client_.AddToPlaylist(name, Buffer().Get(i));
+      Mpc::CommandList list(client_);
+      client_.CreatePlaylist(name);
+
+      for (unsigned int i = 0; i < BufferSize(); ++i)
+      {
+         client_.AddToPlaylist(name, Buffer().Get(i));
+      }
+
+      Main::Lists().Add(name);
+      Main::Lists().Sort();
+   }
+   else
+   {
+      Error(ErrorNumber::FileExists, "Playlist with that namealready exists");
    }
 }
 

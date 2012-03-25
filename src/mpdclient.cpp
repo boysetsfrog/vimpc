@@ -502,7 +502,6 @@ void Client::CreatePlaylist(std::string const & name)
       ClearCommand();
       mpd_run_save(connection_, name.c_str());
       mpd_run_playlist_clear(connection_, name.c_str());
-      Mpc::Lists().Add(name);
    }
    else
    {
@@ -516,7 +515,6 @@ void Client::SavePlaylist(std::string const & name)
    {
       ClearCommand();
       mpd_run_save(connection_, name.c_str());
-      Mpc::Lists().Add(name);
    }
    else
    {
@@ -544,13 +542,6 @@ void Client::RemovePlaylist(std::string const & name)
    if (Connected() == true)
    {
       ClearCommand();
-      
-      int32_t Index = Mpc::Lists().Index(name);
-      if (Index >= 0)
-      {
-         Mpc::Lists().Remove((uint32_t) Index, 1);
-      }
-
       mpd_run_rm(connection_, name.c_str());
    }
    else
@@ -578,7 +569,6 @@ void Client::EnableOutput(Mpc::Output * output)
    {
       ClearCommand();
       mpd_run_enable_output(connection_, output->Id());
-      output->SetEnabled(true);
    }
    else
    {
@@ -592,7 +582,6 @@ void Client::DisableOutput(Mpc::Output * output)
    {
       ClearCommand();
       mpd_run_disable_output(connection_, output->Id());
-      output->SetEnabled(false);
    }
    else
    {

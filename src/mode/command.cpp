@@ -494,10 +494,12 @@ void Command::Output(std::string const & arguments)
       if (ON == true)
       {
          client_.EnableOutput(Main::Outputs().Get(output));
+         Main::Outputs().Get(output)->SetEnabled(true);
       }
       else
       {
          client_.DisableOutput(Main::Outputs().Get(output));
+         Main::Outputs().Get(output)->SetEnabled(false);
       }
    }
    else
@@ -523,6 +525,12 @@ void Command::SavePlaylist(std::string const & arguments)
 {
    if (arguments != "")
    {
+      if (Main::Lists().Index(arguments) == -1)
+      {
+         Main::Lists().Add(arguments);
+         Main::Lists().Sort();
+      }
+
       client_.SavePlaylist(arguments);
    }
    else
@@ -536,7 +544,6 @@ void Command::ToPlaylist(std::string const & arguments)
    if (arguments != "")
    {
       screen_.ActiveWindow().Save(arguments);
-      screen_.Redraw(Ui::Screen::Lists);
    }
    else
    {

@@ -28,6 +28,12 @@
 // Lists
 namespace Mpc
 {
+   class ListComparator
+   {
+      public:
+      bool operator() (std::string i, std::string j) { return (i<j); };
+   };
+
    class Lists : public Main::Buffer<std::string>
    {
    private:
@@ -40,6 +46,15 @@ namespace Mpc
       }
       ~Lists()
       {
+      }
+
+   public:
+      using Main::Buffer<std::string>::Sort;
+
+      void Sort()
+      {
+         ListComparator sorter;
+         Main::Buffer<std::string>::Sort(sorter);
       }
    };
 }

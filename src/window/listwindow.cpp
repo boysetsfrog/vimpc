@@ -57,10 +57,7 @@ void ListWindow::Redraw()
    Clear();
    client_.ForEachPlaylist(lists_, static_cast<void (Mpc::Lists::*)(std::string)>(&Mpc::Lists::Add));
 
-   Ui::ListComparator sorter;
-
-   lists_.Main::Buffer<std::string>::Sort(sorter);
-
+   lists_.Sort();
    SetScrollLine(0);
    ScrollTo(0);
 }
@@ -185,9 +182,12 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (line + i < BufferSize())
       {
-         client_.RemovePlaylist(Main::Lists().Get(line + i));
+         client_.RemovePlaylist(Main::Lists().Get(line + 1));
       }
    }
+
+   Main::Lists().Remove(line, count);
+   Main::Lists().Sort();
 }
 
 void ListWindow::DeleteAllLines()
