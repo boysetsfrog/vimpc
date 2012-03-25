@@ -224,7 +224,8 @@ void Client::Play(uint32_t const playId)
       ClearCommand();
       mpd_send_play_pos(connection_, playId);
       currentSongId_ = playId;
-      state_ = MPD_STATE_PLAY;
+      state_   = MPD_STATE_PLAY;
+      UpdateStatus();
    }
 }
 
@@ -266,7 +267,7 @@ void Client::Next()
    {
       ClearCommand();
       mpd_send_next(connection_);
-      UpdateCurrentSong();
+      UpdateStatus();
    }
 }
 
@@ -276,7 +277,7 @@ void Client::Previous()
    {
       ClearCommand();
       mpd_send_previous(connection_);
-      UpdateCurrentSong();
+      UpdateStatus();
    }
 }
 
@@ -773,14 +774,15 @@ void Client::Update()
 void Client::IncrementTime(long time)
 {
    timeSinceUpdate_ += time;
+   timeSinceSong_   += time;
    elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
 
    if ((currentSong_ != NULL) &&
-       (elapsed_ > mpd_song_get_duration(currentSong_)))
+       (elapsed_ >= mpd_song_get_duration(currentSong_)))
    {
       elapsed_ = mpd_song_get_duration(currentSong_);
 
-      if (timeSinceUpdate_ > 1000)
+      if (timeSinceUpdate_ >= 1000)
       {
          UpdateStatus();
       }
@@ -831,6 +833,7 @@ void Client::UpdateCurrentSong()
          if (state_ != MPD_STATE_STOP)
          {
             ClearCommand();
+            timeSinceSong_ = 0;
             currentSong_ = mpd_run_current_song(connection_);
             CheckError();
 
@@ -923,17 +926,17 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
          // Check if we need to update the current song
          if ((mpdstate_ != mpd_status_get_state(currentStatus_)) ||
+             ((mpdstate_ != MPD_STATE_STOP) && (currentSong_ == NULL)) ||
              ((currentSong_ != NULL) && 
-              ((elapsed_ >= mpd_song_get_duration(currentSong_) - 1) ||
-               (mpd_status_get_elapsed_time(currentStatus_) < elapsed_) ||
-               (mpd_status_get_elapsed_time(currentStatus_) <= 1))))
+              ((elapsed_ >= mpd_song_get_duration(currentSong_) - 3) ||
+               (mpd_status_get_elapsed_time(currentStatus_) < mpdelapsed_) ||
+               (mpd_status_get_elapsed_time(currentStatus_) <= 3))))
          {
             UpdateCurrentSong();
          }
 
          mpdstate_   = mpd_status_get_state(currentStatus_);
          mpdelapsed_ = mpd_status_get_elapsed_time(currentStatus_);
-         elapsed_    = mpdelapsed_;
          state_      = mpdstate_;
 
          if ((queueVersion_ > -1) &&

@@ -232,6 +232,7 @@ namespace Mpc
       uint32_t                versionMinor_;
       uint32_t                versionPatch_;
       long                    timeSinceUpdate_;
+      long                    timeSinceSong_;
 
       uint32_t                volume_;
       bool                    random_;
