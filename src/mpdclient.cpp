@@ -420,7 +420,7 @@ void Client::SavePlaylist(std::string const & name)
    if (Connected() == true)
    {
       ClearCommand();
-      mpd_send_save(connection_, name.c_str());
+      mpd_run_save(connection_, name.c_str());
       screen_.Redraw(Ui::Screen::Lists);
    }
 }
@@ -431,7 +431,7 @@ void Client::LoadPlaylist(std::string const & name)
    {
       Clear();
       ClearCommand();
-      mpd_send_load(connection_, name.c_str());
+      mpd_run_load(connection_, name.c_str());
       UpdateStatus();
    }
 }
@@ -461,7 +461,7 @@ void Client::EnableOutput(Mpc::Output * output)
    if (Connected() == true)
    {
       ClearCommand();
-      mpd_send_enable_output(connection_, output->Id());
+      mpd_run_enable_output(connection_, output->Id());
       screen_.Redraw(Ui::Screen::Outputs);
    }
 }
@@ -471,7 +471,7 @@ void Client::DisableOutput(Mpc::Output * output)
    if (Connected() == true)
    {
       ClearCommand();
-      mpd_send_disable_output(connection_, output->Id());
+      mpd_run_disable_output(connection_, output->Id());
       screen_.Redraw(Ui::Screen::Outputs);
    }
 }
