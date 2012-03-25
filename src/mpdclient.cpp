@@ -177,13 +177,9 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
       // Must redraw the library first
       screen_.Redraw(Ui::Screen::Library);
-      screen_.Redraw(Ui::Screen::Browse);
-      screen_.Redraw(Ui::Screen::Lists);
-      screen_.Redraw(Ui::Screen::Outputs);
-      screen_.Redraw(Ui::Screen::Playlist);
+      screen_.Redraw(screen_.GetActiveWindow());
 
       UpdateStatus();
-      UpdateCurrentSong();
 
       if (connect_password != "")
       {

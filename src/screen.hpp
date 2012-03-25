@@ -206,6 +206,7 @@ namespace Ui
 
       std::vector<int32_t>      visibleWindows_;
       std::vector<ModeWindow *> modeWindows_;
+      mutable std::map<int32_t, bool> drawn_;
 
       bool      started_;
       int32_t   maxRows_;

@@ -116,6 +116,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    statusWindow_          = newwin(1, maxColumns_, mainRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
 
+
    // Mark the default windows as visible
    visibleWindows_.push_back(static_cast<int32_t>(Help));
 
@@ -499,6 +500,8 @@ void Screen::Update()
 
 void Screen::Redraw() const
 {
+   // Keep track of which windows have been drawn atleast once
+   drawn_[window_] = true;
    Redraw(window_);
 }
 
@@ -510,6 +513,9 @@ void Screen::Redraw(int32_t window) const
    {
       (it->second)->Redraw();
    }
+
+   // Keep track of which windows have been drawn atleast once
+   drawn_[window] = true;
 }
 
 bool Screen::Resize(bool forceResize)
@@ -708,6 +714,11 @@ void Screen::SetActiveWindow(uint32_t window)
    if ((window < visibleWindows_.size()))
    {
       window_ = visibleWindows_.at(window);
+   }
+
+   if (drawn_[window_] == false)
+   {
+      Redraw(window_);
    }
 
    Update();
