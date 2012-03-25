@@ -518,6 +518,14 @@ void Screen::Redraw(int32_t window) const
    drawn_[window] = true;
 }
 
+void Screen::Initialise(int32_t window) const
+{
+   if (drawn_[window] == false)
+   {
+      Redraw(window);
+   }
+}
+
 bool Screen::Resize(bool forceResize)
 {
    bool WasWindowResized = false;

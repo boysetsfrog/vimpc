@@ -60,6 +60,7 @@ void Player::Pause()
 
 void Player::Play(uint32_t position)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
    client_.Play(position);
 }
 
@@ -153,6 +154,8 @@ void Player::Update()
 
 void Player::SkipSong(Skip skip, uint32_t count)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
+
    // If consume or random we have to send a lot of next commands
    // rather than just skipping directly to the right song
    // this is slow and only works in small amounts
@@ -202,11 +205,13 @@ void Player::SkipSong(Skip skip, uint32_t count)
 
 void Player::SkipAlbum(Skip skip, uint32_t count)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
    SkipSongByInformation(skip, count, &Mpc::Song::Album);
 }
 
 void Player::SkipArtist(Skip skip, uint32_t count)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
    SkipSongByInformation(skip, count, &Mpc::Song::Artist);
 }
 

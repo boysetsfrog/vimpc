@@ -306,11 +306,14 @@ void Command::Play(std::string const & arguments)
 
 void Command::Add(std::string const & arguments)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
    client_.Add(arguments);
 }
 
 void Command::Delete(std::string const & arguments)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
+
    size_t pos = arguments.find_first_of(" ");
 
    if (pos != std::string::npos)
@@ -445,6 +448,8 @@ template <bool ON>
 void Command::Output(std::string const & arguments)
 {
    int32_t output = -1;
+
+   screen_.Initialise(Ui::Screen::Outputs);
 
    if (Algorithm::isNumeric(arguments.c_str()) == true)
    {
@@ -661,6 +666,8 @@ void Command::Shuffle(std::string const & arguments)
 
 void Command::Move(std::string const & arguments)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
+
    if ((arguments.find(" ") != string::npos))
    {
       int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
@@ -699,6 +706,8 @@ void Command::Move(std::string const & arguments)
 
 void Command::Swap(std::string const & arguments)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
+
    if ((arguments.find(" ") != string::npos))
    {
       std::string position1 = arguments.substr(0, arguments.find(" "));

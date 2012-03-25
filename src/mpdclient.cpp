@@ -177,7 +177,13 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
       // Must redraw the library first
       screen_.Redraw(Ui::Screen::Library);
-      screen_.Redraw(screen_.GetActiveWindow());
+      screen_.Redraw(Ui::Screen::Playlist);
+
+      if ((screen_.GetActiveWindow() != Ui::Screen::Library) &&
+          (screen_.GetActiveWindow() != Ui::Screen::Playlist))
+      {
+         screen_.Redraw(screen_.GetActiveWindow());
+      }
 
       UpdateStatus();
 

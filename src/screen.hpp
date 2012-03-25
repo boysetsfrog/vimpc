@@ -158,6 +158,7 @@ namespace Ui
       // Reinitialise the given main window, ie rebuild playlist, library, etc
       void Redraw() const;
       void Redraw(int32_t window) const;
+      void Initialise(int32_t window) const;
 
       // Handle a screen resize
       bool Resize(bool forceResize = false);
