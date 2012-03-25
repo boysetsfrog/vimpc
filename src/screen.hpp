@@ -159,6 +159,8 @@ namespace Ui
       void Redraw() const;
       void Redraw(int32_t window) const;
       void Initialise(int32_t window) const;
+      void Invalidate(int32_t window) const;
+      void InvalidateAll() const;
 
       // Handle a screen resize
       bool Resize(bool forceResize = false);

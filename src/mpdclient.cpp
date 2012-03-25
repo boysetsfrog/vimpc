@@ -181,6 +181,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       UpdateStatus();
 
       // Must redraw the library first
+      screen_.InvalidateAll();
       screen_.Redraw(Ui::Screen::Library);
       screen_.Redraw(Ui::Screen::Playlist);
 

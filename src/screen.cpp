@@ -527,6 +527,19 @@ void Screen::Initialise(int32_t window) const
    }
 }
 
+void Screen::Invalidate(int32_t window) const
+{
+   drawn_[window] = false;
+}
+
+void Screen::InvalidateAll() const
+{
+   for (int i = 0; i < MainWindowCount; ++ i)
+   {
+      Invalidate(i);
+   }
+}
+
 bool Screen::Resize(bool forceResize)
 {
    bool WasWindowResized = false;
