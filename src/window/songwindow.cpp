@@ -320,8 +320,9 @@ void SongWindow::Save(std::string const & name)
 {
    if (Main::Lists().Index(name) == -1)
    {
-      Mpc::CommandList list(client_);
       client_.CreatePlaylist(name);
+
+      Mpc::CommandList list(client_);
 
       for (unsigned int i = 0; i < BufferSize(); ++i)
       {
