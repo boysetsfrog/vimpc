@@ -106,6 +106,9 @@ namespace Main
          //! Show id next to each song in the playlist
          bool PlaylistNumbers() const;
 
+         //! Reconnect to server when connection drops
+         bool Reconnect() const;
+
          //! Quit will quit the entire application not just close a tab
          bool SingleQuit() const;
 

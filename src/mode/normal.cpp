@@ -658,29 +658,35 @@ void Normal::Visual(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 void Normal::AddSong(uint32_t count)
 {
-   if (COLLECTION == Mpc::Song::All)
+   if (client_.Connected())
    {
-      screen_.ActiveWindow().AddAllLines();
-   }
-   else if (COLLECTION == Mpc::Song::Single)
-   {
-      screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+      if (COLLECTION == Mpc::Song::All)
+      {
+         screen_.ActiveWindow().AddAllLines();
+      }
+      else if (COLLECTION == Mpc::Song::Single)
+      {
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+      }
    }
 }
 
 template <Mpc::Song::SongCollection COLLECTION>
 void Normal::DeleteSong(uint32_t count)
 {
-   //! \todo Make delete and add take a movement operation?
-   //!       ie to do stuff like dG, this may require making some kind of movement
-   //!          table or something rather than the way it currently works
-   if (COLLECTION == Mpc::Song::All)
+   if (client_.Connected())
    {
-      screen_.ActiveWindow().DeleteAllLines();
-   }
-   else if (COLLECTION == Mpc::Song::Single)
-   {
-      screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
+      //! \todo Make delete and add take a movement operation?
+      //!       ie to do stuff like dG, this may require making some kind of movement
+      //!          table or something rather than the way it currently works
+      if (COLLECTION == Mpc::Song::All)
+      {
+         screen_.ActiveWindow().DeleteAllLines();
+      }
+      else if (COLLECTION == Mpc::Song::Single)
+      {
+         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
+      }
    }
 }
 

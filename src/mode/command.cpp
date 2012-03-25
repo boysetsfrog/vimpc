@@ -60,6 +60,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["delete"]    = &Command::Delete;
    commandTable_["deleteall"] = &Command::DeleteAll;
    commandTable_["disable"]   = &Command::Output<false>;
+   commandTable_["disconnect"] = &Command::Disconnect;
    commandTable_["echo"]      = &Command::Echo;
    commandTable_["enable"]    = &Command::Output<true>;
    commandTable_["error"]     = &Command::EchoError;
@@ -77,6 +78,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["quit"]      = &Command::Quit;
    commandTable_["quitall"]   = &Command::QuitAll;
    commandTable_["random"]    = &Command::Random;
+   commandTable_["reconnect"] = &Command::Reconnect;
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["repeat"]    = &Command::Repeat;
    commandTable_["set"]       = &Command::Set;
@@ -306,28 +308,38 @@ void Command::Play(std::string const & arguments)
 
 void Command::Add(std::string const & arguments)
 {
-   screen_.Initialise(Ui::Screen::Playlist);
-   client_.Add(arguments);
+   if (client_.Connected() == true)
+   {
+      screen_.Initialise(Ui::Screen::Playlist);
+      client_.Add(arguments);
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Command::Delete(std::string const & arguments)
 {
-   screen_.Initialise(Ui::Screen::Playlist);
-
-   size_t pos = arguments.find_first_of(" ");
-
-   if (pos != std::string::npos)
+   if (client_.Connected() == true)
    {
-      uint32_t pos1 = atoi(arguments.substr(0, pos).c_str()) - 1;
-      uint32_t pos2 = atoi(arguments.substr(pos + 1).c_str()) - 1;
+      screen_.Initialise(Ui::Screen::Playlist);
 
-      client_.Delete(pos1, pos2 + 1);
-      Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
-   }
-   else
-   {
-      client_.Delete(atoi(arguments.c_str()) - 1);
-      Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
+      size_t pos = arguments.find_first_of(" ");
+
+      if (pos != std::string::npos)
+      {
+         uint32_t pos1 = atoi(arguments.substr(0, pos).c_str()) - 1;
+         uint32_t pos2 = atoi(arguments.substr(pos + 1).c_str()) - 1;
+
+         client_.Delete(pos1, pos2 + 1);
+         Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
+      }
+      else
+      {
+         client_.Delete(atoi(arguments.c_str()) - 1);
+         Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
+      }
    }
 }
 
@@ -426,6 +438,16 @@ void Command::Connect(std::string const & arguments)
    }
 
    client_.Connect(hostname, port);
+}
+
+void Command::Disconnect(std::string const & arguments)
+{
+   client_.Disconnect();
+}
+
+void Command::Reconnect(std::string const & arguments)
+{
+   client_.Reconnect();
 }
 
 void Command::Password(std::string const & password)

@@ -197,7 +197,9 @@ MISC:
                           | each command may be seperated by ;
                           | i.e alias hello echo "hello"; echo "world";
   clear                   | clears the console window
-  connect [host] [port]   | connects to [host] [port]
+  connect [host] [port]   | connects to [host] [port] or to the default
+  disconnect              | disconnect from host
+  reconnect               | reconnect to host last connected to
   echo <string>           | echos the given string to the console window
   password <password>     | authenticate to mpd using <password>
   quit[!]                 | if only one tab then quit, otherwise close the tab

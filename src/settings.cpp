@@ -46,6 +46,7 @@ char const * const sIgnoreCaseSort   = "sortignorecase";
 char const * const sIgnoreTheSort    = "sortignorethe";
 char const * const sPlaylistNumbers  = "playlistnumbers"; //disable song numbers in playlist
 char const * const sPolling          = "polling"; 
+char const * const sReconnect        = "reconnect";
 char const * const sSearchWrap       = "searchwrap";
 char const * const sSingleQuit       = "singlequit";
 char const * const sSongNumbers      = "songnumbers";
@@ -84,6 +85,7 @@ Settings::Settings() :
    toggleTable_[sIgnoreTheSort]    = new Setting<bool>(false);
    toggleTable_[sPolling]          = new Setting<bool>(true);
    toggleTable_[sPlaylistNumbers]  = new Setting<bool>(true);
+   toggleTable_[sReconnect]        = new Setting<bool>(true);
    toggleTable_[sSearchWrap]       = new Setting<bool>(true);
    toggleTable_[sSingleQuit]       = new Setting<bool>(false);
    toggleTable_[sSongNumbers]      = new Setting<bool>(true);
@@ -235,6 +237,11 @@ bool Settings::IgnoreTheSort() const
 bool Settings::PlaylistNumbers() const
 {
    return Get(sPlaylistNumbers);
+}
+
+bool Settings::Reconnect() const
+{
+   return Get(sReconnect);
 }
 
 bool Settings::SearchWrap() const

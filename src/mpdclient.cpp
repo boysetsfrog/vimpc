@@ -74,12 +74,15 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    vimpc_                (vimpc),
    settings_             (settings),
    connection_           (NULL),
+
    hostname_             (""),
    port_                 (0),
    versionMajor_         (-1),
    versionMinor_         (-1),
    versionPatch_         (-1),
    timeSinceUpdate_      (0),
+   timeSinceSong_        (0),
+   retried_              (false),
 
    volume_               (100),
    random_               (false),
@@ -94,6 +97,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    currentSongId_        (-1),
    currentSongURI_       (""),
    currentState_         ("Disconnected"),
+
    screen_               (screen),
    queueVersion_         (-1),
    forceUpdate_          (true),
@@ -167,7 +171,8 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    CheckError();
 
    if (Connected() == true)
-   {
+   {  
+      retried_ = false;
       screen_.Update();
       DisplaySongInformation();
       vimpc_->OnConnected();
@@ -194,12 +199,30 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    }
 }
 
+void Client::Disconnect()
+{
+   if (Connected() == true)
+   {
+      DeleteConnection();
+   }
+}
+
+void Client::Reconnect()
+{
+   Disconnect();
+   Connect(hostname_, port_);
+}
+
 void Client::Password(std::string const & password)
 {
    if (Connected() == true)
    {
       ClearCommand();
       mpd_send_password(connection_, password.c_str());
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -229,6 +252,10 @@ void Client::Play(uint32_t const playId)
       state_   = MPD_STATE_PLAY;
       UpdateStatus();
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Pause()
@@ -247,6 +274,10 @@ void Client::Pause()
          state_ = MPD_STATE_PLAY;
       }
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Stop()
@@ -261,6 +292,10 @@ void Client::Stop()
       currentSongId_  = -1;
       currentSongURI_ = "";
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Next()
@@ -270,6 +305,10 @@ void Client::Next()
       ClearCommand();
       mpd_send_next(connection_);
       UpdateStatus();
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -281,6 +320,10 @@ void Client::Previous()
       mpd_send_previous(connection_);
       UpdateStatus();
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Seek(int32_t Offset)
@@ -290,6 +333,10 @@ void Client::Seek(int32_t Offset)
       ClearCommand();
       mpd_send_seek_pos(connection_, currentSongId_, elapsed_ + Offset);
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::SeekTo(uint32_t Time)
@@ -298,6 +345,10 @@ void Client::SeekTo(uint32_t Time)
    {
       ClearCommand();
       mpd_send_seek_pos(connection_, currentSongId_, Time);
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -315,6 +366,10 @@ void Client::SetRandom(bool const random)
       mpd_send_random(connection_, random);
       random_ = random;
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 
@@ -330,6 +385,10 @@ void Client::SetSingle(bool const single)
       ClearCommand();
       mpd_send_single(connection_, single);
       single_ = single;
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -347,6 +406,10 @@ void Client::SetConsume(bool const consume)
       mpd_send_consume(connection_, consume);
       consume_ = consume;
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 bool Client::Repeat()
@@ -361,6 +424,10 @@ void Client::SetRepeat(bool const repeat)
       ClearCommand();
       mpd_send_repeat(connection_, repeat);
       repeat_ = repeat;
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -377,6 +444,10 @@ void Client::SetVolume(uint32_t volume)
       mpd_send_set_volume(connection_, volume);
       volume_ = volume;
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 
@@ -388,6 +459,10 @@ void Client::Shuffle()
       mpd_send_shuffle(connection_);
       UpdateStatus();
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Move(uint32_t position1, uint32_t position2)
@@ -398,6 +473,10 @@ void Client::Move(uint32_t position1, uint32_t position2)
       mpd_send_move(connection_, position1, position2);
       UpdateStatus(true);
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Swap(uint32_t position1, uint32_t position2)
@@ -407,6 +486,10 @@ void Client::Swap(uint32_t position1, uint32_t position2)
       ClearCommand();
       mpd_send_swap(connection_, position1, position2);
       UpdateStatus();
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -419,6 +502,10 @@ void Client::CreatePlaylist(std::string const & name)
       mpd_run_save(connection_, name.c_str());
       mpd_run_playlist_clear(connection_, name.c_str());
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::SavePlaylist(std::string const & name)
@@ -428,6 +515,10 @@ void Client::SavePlaylist(std::string const & name)
       ClearCommand();
       mpd_run_save(connection_, name.c_str());
       screen_.Redraw(Ui::Screen::Lists);
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -440,6 +531,10 @@ void Client::LoadPlaylist(std::string const & name)
       mpd_run_load(connection_, name.c_str());
       UpdateStatus();
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::RemovePlaylist(std::string const & name)
@@ -451,6 +546,10 @@ void Client::RemovePlaylist(std::string const & name)
       mpd_run_rm(connection_, name.c_str());
       screen_.Redraw(Ui::Screen::Lists);
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
@@ -459,6 +558,10 @@ void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
    {
       ClearCommand();
       mpd_send_playlist_add(connection_, name.c_str(), song->URI().c_str());
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -470,6 +573,10 @@ void Client::EnableOutput(Mpc::Output * output)
       mpd_run_enable_output(connection_, output->Id());
       screen_.Redraw(Ui::Screen::Outputs);
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::DisableOutput(Mpc::Output * output)
@@ -480,6 +587,10 @@ void Client::DisableOutput(Mpc::Output * output)
       mpd_run_disable_output(connection_, output->Id());
       screen_.Redraw(Ui::Screen::Outputs);
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 
@@ -488,6 +599,10 @@ void Client::Add(Mpc::Song * song)
    if ((Connected() == true) && (song != NULL))
    {
       (void) Add(*song);
+   }
+   else if (Connected() == false)
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -498,6 +613,10 @@ uint32_t Client::Add(Mpc::Song & song)
       ClearCommand();
       mpd_send_add(connection_, song.URI().c_str());
       UpdateStatus(true);
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 
    return TotalNumberOfSongs() - 1;
@@ -517,6 +636,10 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
 
       UpdateStatus(true);
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 
    return TotalNumberOfSongs() - 1;
 }
@@ -527,6 +650,10 @@ uint32_t Client::AddAllSongs()
    {
       ClearCommand();
       mpd_send_add(connection_, "/");
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 
    return TotalNumberOfSongs() - 1;
@@ -539,6 +666,10 @@ uint32_t Client::Add(std::string const & URI)
       ClearCommand();
       mpd_send_add(connection_, URI.c_str());
       UpdateStatus();
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 
    return TotalNumberOfSongs() - 1;
@@ -558,6 +689,10 @@ void Client::Delete(uint32_t position)
       }
 
       UpdateStatus(true);
+   }
+   else if (Connected() == false)
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -597,6 +732,10 @@ void Client::Delete(uint32_t position1, uint32_t position2)
 
       UpdateStatus(true);
    }
+   else if (Connected() == false)
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Clear()
@@ -606,6 +745,10 @@ void Client::Clear()
       ClearCommand();
       mpd_send_clear(connection_);
       UpdateStatus(true);
+   }
+   else if (Connected() == false)
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -762,6 +905,10 @@ void Client::Rescan()
       ClearCommand();
       mpd_send_rescan(connection_, "/");
    }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Client::Update()
@@ -770,6 +917,10 @@ void Client::Update()
    {
       ClearCommand();
       mpd_send_update(connection_, "/");
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
    }
 }
 
@@ -1022,7 +1173,12 @@ void Client::CheckError()
          if (ClearError == false)
          {
             DeleteConnection();
-            currentState_ = "Disconnected";
+
+            if ((settings_.Reconnect() == true) && (retried_ == false))
+            {
+               retried_ = true;
+               Connect(hostname_, port_); 
+            }
          }
       }
    }
@@ -1031,6 +1187,12 @@ void Client::CheckError()
 void Client::DeleteConnection()
 {
    listMode_ = false;
+   currentState_ = "Disconnected";
+   volume_       = -1;
+   random_       = false;
+   single_       = false;
+   consume_      = false;
+   repeat_       = false;
 
    versionMajor_ = -1;
    versionMinor_ = -1;

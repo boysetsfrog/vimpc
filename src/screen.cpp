@@ -522,6 +522,7 @@ void Screen::Initialise(int32_t window) const
 {
    if (drawn_[window] == false)
    {
+      drawn_[window] = true;
       Redraw(window);
    }
 }
