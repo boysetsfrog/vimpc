@@ -34,7 +34,7 @@
 
 using namespace Mpc;
 
-#define MPDCOMMAND 
+#define MPDCOMMAND
 
 
 // Helper functions
@@ -171,7 +171,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    CheckError();
 
    if (Connected() == true)
-   {  
+   {
       retried_ = false;
       screen_.Update();
       DisplaySongInformation();
@@ -924,7 +924,11 @@ void Client::IncrementTime(long time)
 {
    timeSinceUpdate_ += time;
    timeSinceSong_   += time;
-   elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
+
+   if (state_ == MPD_STATE_PLAY)
+   {
+      elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
+   }
 
    if ((currentSong_ != NULL) &&
        (elapsed_ >= mpd_song_get_duration(currentSong_)))
@@ -955,7 +959,7 @@ void Client::IdleMode()
 
 bool Client::HadEvents()
 {
-   if ((Connected() == true) && (settings_.Polling() == false) && 
+   if ((Connected() == true) && (settings_.Polling() == false) &&
        (idleMode_ == true))
    {
       idleMode_ = false;
@@ -1076,7 +1080,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
          // Check if we need to update the current song
          if ((mpdstate_ != mpd_status_get_state(currentStatus_)) ||
              ((mpdstate_ != MPD_STATE_STOP) && (currentSong_ == NULL)) ||
-             ((currentSong_ != NULL) && 
+             ((currentSong_ != NULL) &&
               ((elapsed_ >= mpd_song_get_duration(currentSong_) - 3) ||
                (mpd_status_get_elapsed_time(currentStatus_) < mpdelapsed_) ||
                (mpd_status_get_elapsed_time(currentStatus_) <= 3))))
@@ -1102,7 +1106,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
 void Client::UpdateCurrentSongPosition()
 {
-   if ((currentSong_ != NULL) && (currentSongId_ >= 0) && 
+   if ((currentSong_ != NULL) && (currentSongId_ >= 0) &&
        (currentSongId_ < Main::Playlist().Size()) &&
        (*Main::Playlist().Get(currentSongId_) != *currentSong_))
    {
@@ -1173,7 +1177,7 @@ void Client::CheckError()
             if ((settings_.Reconnect() == true) && (retried_ == false))
             {
                retried_ = true;
-               Connect(hostname_, port_); 
+               Connect(hostname_, port_);
             }
          }
       }
