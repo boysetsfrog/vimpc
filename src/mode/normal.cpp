@@ -83,6 +83,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
 
    // Skipping
    actionTable_["I"]       = &Normal::SeekTo<Player::Start>;
+   actionTable_["^"]       = &Normal::SeekTo<Player::Start>;
    actionTable_[">"]       = &Normal::SkipSong<Player::Next>;
    actionTable_["<lt>"]    = &Normal::SkipSong<Player::Previous>;
    actionTable_["]"]       = &Normal::SkipArtist<Player::Next>;
@@ -110,6 +111,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["P"]       = &Normal::PasteBuffer;
 
    // Navigation
+   actionTable_["<Esc>"]   = &Normal::Escape;
    actionTable_["l"]       = &Normal::Right;
    actionTable_["h"]       = &Normal::Left;
    actionTable_["\n"]      = &Normal::Confirm;
@@ -230,13 +232,6 @@ bool Normal::Handle(int input)
       {
          actionCount_ = newActionCount;
       }
-   }
-   else if (input == ESCAPE_KEY)
-   {
-      input_       = "";
-      actionCount_ = 0;
-
-      screen_.ActiveWindow().Escape();
    }
    else
    {
@@ -472,6 +467,7 @@ std::string Normal::InputCharToString(int input) const
 
    if (conversionTable.size() == 0)
    {
+      conversionTable[ESCAPE_KEY]    = "Esc";
       conversionTable[KEY_PPAGE]     = "PageUp";
       conversionTable[KEY_NPAGE]     = "PageDown";
       conversionTable[KEY_HOME]      = "Home";
@@ -612,6 +608,13 @@ void Normal::Right(uint32_t count)
 void Normal::Confirm(uint32_t count)
 {
    screen_.ActiveWindow().Confirm();
+}
+
+void Normal::Escape(uint32_t count)
+{
+   input_       = "";
+   actionCount_ = 0;
+   screen_.ActiveWindow().Escape();
 }
 
 void Normal::RepeatLastAction(uint32_t count)

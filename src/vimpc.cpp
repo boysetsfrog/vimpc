@@ -115,12 +115,18 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       while (Running == true)
       {
          static long updateTime = 0;
-         static long clientTime = 0;
-
          struct timeval start, end;
 
          gettimeofday(&start, NULL);
+
          int input = Input();
+
+         if (input != ERR)
+         {
+            Handle(input);
+            client_.UpdateDisplay();
+         }
+
          gettimeofday(&end,   NULL);
 
          long const seconds  = end.tv_sec  - start.tv_sec;
@@ -129,12 +135,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          updateTime += mtime;
          client_.IncrementTime(mtime);
-
-         if (input != ERR)
-         {
-            Handle(input);
-            client_.UpdateDisplay();
-         }
 
          if ((((input == ERR) && (client_.TimeSinceUpdate() > 900)) && (settings_.Polling() == true)) ||
              (((input == ERR) && (client_.TimeSinceUpdate() > 10000)) && (settings_.Polling() == false)))
@@ -168,29 +168,14 @@ bool Vimpc::RequiresModeChange(ModeName mode, int input) const
 Vimpc::ModeName Vimpc::ModeAfterInput(ModeName mode, int input) const
 {
    ModeName newMode = mode;
-   ModeTable::const_iterator it;
 
    // Check if we are returning to normal mode
    if (mode != Normal)
    {
-      it = modeTable_.find(Normal);
-      Ui::Mode const & normalMode = assert_reference(it->second);
+      ModeTable::const_iterator it = modeTable_.find(mode);
+      Ui::Mode const & currentMode = assert_reference(it->second);
 
-      it = modeTable_.find(Command);
-      Ui::Mode const & commandMode = assert_reference(it->second);
-
-      it = modeTable_.find(Search);
-      Ui::Mode const & searchMode = assert_reference(it->second);
-
-      if (normalMode.CausesModeToStart(input) == true)
-      {
-         newMode = Normal;
-      }
-      else if ((mode == Command) && (commandMode.CausesModeToEnd(input) == true))
-      {
-         newMode = Normal;
-      }
-      else if ((mode == Search) && (searchMode.CausesModeToEnd(input) == true))
+      if (currentMode.CausesModeToEnd(input) == true)
       {
          newMode = Normal;
       }
@@ -200,11 +185,14 @@ Vimpc::ModeName Vimpc::ModeAfterInput(ModeName mode, int input) const
    {
       for (ModeTable::const_iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
       {
-         Ui::Mode const & mode = assert_reference(it->second);
-
-         if (mode.CausesModeToStart(input) == true)
+         if (it->first != Normal)
          {
-            newMode = it->first;
+            Ui::Mode const & nextMode = assert_reference(it->second);
+
+            if (nextMode.CausesModeToStart(input) == true)
+            {
+               newMode = it->first;
+            }
          }
       }
    }
@@ -224,6 +212,8 @@ void Vimpc::ChangeMode(char input, std::string initial)
 
       if (finished == true)
       {
+         // The string input complete, change the mode as if
+         // a return key was pressed
          ChangeMode('\n');
       }
    }

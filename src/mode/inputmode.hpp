@@ -91,10 +91,10 @@ namespace Ui
       virtual bool CausesModeToEnd(int input) const;
 
    public:
-      static std::string SplitStringAtTerminator(std::string input);
-      static std::string RemoveStringTerminator(std::string input);
+      static std::string SplitStringAtTerminator(std::string input, bool keepTerminator = true);
+
       virtual bool SetInputString(std::string input);
-      virtual bool HasCompleteInput(int input);
+      virtual bool HasCompleteInput(int input) const;
       virtual void GenerateInputString(int input);
       virtual bool InputStringHandler(std::string input) = 0;
 
