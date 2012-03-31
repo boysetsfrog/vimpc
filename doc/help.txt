@@ -45,7 +45,7 @@ SEARCH FLAGS:
           \C              | if in search expression, enables case sensitivity
 
 PLAYING (ALSO SEE PLAYLIST):
-  [count] I               | skip to the start of the currently playing song
+  [count] ^, I            | skip to the start of the currently playing song
   [count] <               | skip to the previous song
   [count] >               | skip to the next song
   [count] [               | skip to the previous artist
@@ -264,18 +264,19 @@ of these strings is based upon those of ncmpcpp.
    %f  - Filename/URI
 
    $R  - Begin right alignment
+   $E  - Add ellipsis for trimmed text (must be before right align)
    $H  - Toggle highlight color off/on
    {,} - Will only display contents between { and } if not empty
    \|   - Alternative to use if prior entry is blank
 
 Examples:
-   The default song format is: {%a - %t}\|{%f}$R$H[$H%l$H]$H
+   The default song format is: "{%a - %t}\|{%f}$E$R $H[$H%l$H]$H"
    This displays artist - title if they both exist otherwise
    displays the filename and displays the duration aligned
    to the right. The $H ensures that [ and ] will not change
    color when that song is highlighted.
 
-   The default library format is: $H[$H%l$H]$H {%t}\|{%f}
+   The default library format is: "$H[$H%l$H]$H {%t}\|{%f}$E$R "
    This displays the duration, again not highlighting [ and ]
    followed by a space, then either the song title or if that
    is empty the filename.

@@ -181,12 +181,14 @@ void SelectWindow::LimitCurrentSelection() const
 
 void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::string fmt, Mpc::Song * song) const
 {
+   //! \TODO this definitely needs some cleaning up
    WINDOW * window = N_WINDOW();
    std::string songString = song->FormatString(fmt);
 
-   int j          = 0;
-   int index      = -1;
+   int  j         = 0;
+   int  align     = -1;
    bool highlight = true;
+   bool elided    = false;
 
    std::string stripped = songString;
 
@@ -194,9 +196,13 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
    {
       if ((songString[i] == '$') && ((i + 1) < songString.size()))
       {
-         if (songString[i + 1] == 'R')
+         if (songString[i + 1] == 'E')
          {
-            index = j;
+            elided = true;
+         }
+         else if (songString[i + 1] == 'R')
+         {
+            align = j;
          }
 
          std::string next = "";
@@ -211,6 +217,11 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
       }
    }
 
+   if (align == -1)
+   {
+      align = stripped.size();
+   }
+
    if (settings_.ColourEnabled() == true)
    {
       wattron(window, COLOR_PAIR(colour));
@@ -223,7 +234,8 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
          switch (songString[i + 1])
          {
             case 'R':
-               wmove(window, line, (screen_.MaxColumns() - (stripped.size() - index)));
+               elided = false;
+               wmove(window, line, (screen_.MaxColumns() - (stripped.size() - align)));
                break;
 
             case 'H':
@@ -249,9 +261,15 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
 
          i += 2;
       }
-      else
+      else if ((elided == false) || 
+               (getcurx(window) < screen_.MaxColumns() - 3 - (stripped.size() - align)))
       {
          wprintw(window, "%c", songString[i]);
+         ++i;
+      }
+      else 
+      {
+         wprintw(window, "...");
          ++i;
       }
    }
