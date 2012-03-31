@@ -293,6 +293,7 @@ or postfixed with !  which will toggle the setting.
                           | if changed whilst running, must :redraw the library
   [no]hlsearch[!]         | highlight search results
   [no]ignorecase[!]       | case insensitive searching
+  [no]incsearch[!]        | search for results as you are typing
   [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
   [no]searchwrap[!]       | wrap search results when using n/N
   [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab

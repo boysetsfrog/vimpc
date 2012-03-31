@@ -34,7 +34,9 @@ using namespace Ui;
 Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
    InputMode   (screen),
    direction_  (Forwards),
+   currentLine_(-1),
    lastSearch_ (""),
+   hasSearched_(false),
    prompt_     (),
    settings_   (settings),
    screen_     (screen)
@@ -50,10 +52,48 @@ Search::~Search()
 
 void Search::Initialise(int input)
 {
-   direction_ = GetDirectionForInput(input);
+   direction_   = GetDirectionForInput(input);
+   currentLine_ = screen_.ActiveWindow().CurrentLine();
 
    InputMode::Initialise(input);
 }
+
+void Search::Finalise(int input)
+{
+   if ((lastSearch_ != inputString_) || (hasSearched_ == false))
+   {
+      screen_.ScrollTo(currentLine_);
+   }
+
+   InputMode::Finalise(input);
+}
+
+bool Search::Handle(int input)
+{
+   bool Result = true;
+
+   if (settings_.IncrementalSearch() == false)
+   {
+      Result = InputMode::Handle(input);
+   }
+   else
+   {
+      if (HasCompleteInput(input) == false)
+      {
+         InputMode::Handle(input);
+         Result = SearchResult(Next, inputString_, currentLine_, 1, false);
+      }
+      else
+      {
+         lastSearch_  = inputString_;
+         hasSearched_ = true;
+         Result = SearchResult(Next, inputString_, currentLine_, 1);
+      }
+   }
+
+   return Result;
+}
+
 
 bool Search::CausesModeToStart(int input) const
 {
@@ -72,6 +112,11 @@ pcrecpp::RE_Options Search::LastSearchOptions() const
 
 bool Search::SearchResult(Skip skip, uint32_t count)
 {
+   return SearchResult(skip, lastSearch_, screen_.ActiveWindow().CurrentLine(), count);
+}
+
+bool Search::SearchResult(Skip skip, std::string const & search, int32_t line, uint32_t count, bool raiseError)
+{
    Direction direction = direction_;
 
    if (skip == Previous)
@@ -79,16 +124,28 @@ bool Search::SearchResult(Skip skip, uint32_t count)
       direction = SwapDirection(direction);
    }
 
-   SearchWindow(direction, lastSearch_, count);
+   bool const found = SearchWindow(direction, search, line, count);
+
+   if (found == false)
+   {
+      if (raiseError == true)
+      {
+         Error(ErrorNumber::SearchNoResults, "Pattern not found: " + search);
+      }
+      else
+      {
+         screen_.ScrollTo(currentLine_);
+      }
+   }
 
    return true;
 }
 
-bool Search::SearchWindow(Direction direction, std::string search, uint32_t count)
+bool Search::SearchWindow(Direction direction, std::string search, int32_t startLine, uint32_t count)
 {
    bool found = false;
 
-   found = SearchForResult(direction, search, count, screen_.ActiveWindow().CurrentLine());
+   found = SearchForResult(direction, search, count, startLine);
 
    if ((found == false) && (settings_.SearchWrap() == true))
    {
@@ -102,16 +159,11 @@ bool Search::SearchWindow(Direction direction, std::string search, uint32_t coun
       }
    }
 
-   if (found == false)
-   {
-      Error(ErrorNumber::SearchNoResults, "Pattern not found: " + search);
-   }
-
-   return true;
+   return found;
 }
 
 
-bool Search::SearchForResult(Direction direction,  std::string search, uint32_t count, int32_t startLine)
+bool Search::SearchForResult(Direction direction, std::string search, uint32_t count, int32_t startLine)
 {
    bool found = false;
 
@@ -231,7 +283,8 @@ char const * Search::Prompt() const
 
 bool Search::InputStringHandler(std::string input)
 {
-   lastSearch_ = input;
+   lastSearch_  = input;
+   hasSearched_ = true;
    return SearchResult(Next, 1);
 }
 /* vim: set sw=3 ts=3: */

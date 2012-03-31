@@ -97,6 +97,9 @@ namespace Main
          //! Ignore 'the' when sorting
          bool IgnoreTheSort() const;
 
+         //! Search for results whilst typing
+         bool IncrementalSearch() const;
+
          //! Determine whether to wrap searching
          bool SearchWrap() const;
 

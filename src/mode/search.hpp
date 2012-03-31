@@ -63,16 +63,18 @@ namespace Ui
 
    public: //Ui::InputMode
       void Initialise(int input);
+      void Finalise(int input);
+      bool Handle(int input);
       bool CausesModeToStart(int input) const;
 
    public:
       std::string LastSearchString() const;
       pcrecpp::RE_Options LastSearchOptions() const;
-
       bool SearchResult(Skip skip, uint32_t count);
-      bool SearchWindow(Direction direction, std::string search, uint32_t count);
 
    private:
+      bool SearchResult(Skip skip, std::string const & search, int32_t line, uint32_t count, bool raiseError = true);
+      bool SearchWindow(Direction direction, std::string search, int32_t startLine, uint32_t count);
       bool SearchForResult(Direction direction, std::string search, uint32_t count, int32_t startLine);
       Direction SwapDirection(Direction direction) const;
       Direction GetDirectionForInput(int input) const;
@@ -87,7 +89,9 @@ namespace Ui
 
    private:
       Direction           direction_;
+      int32_t             currentLine_;
       std::string         lastSearch_;
+      bool                hasSearched_;
       char                prompt_[DirectionCount];
       Main::Settings &    settings_;
       Ui::Screen     &    screen_;
