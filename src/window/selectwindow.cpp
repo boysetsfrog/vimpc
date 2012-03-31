@@ -45,12 +45,19 @@ SelectWindow::~SelectWindow()
 
 void SelectWindow::Resize(int rows, int columns)
 {
-   if (currentLine_ >= rows)
+   ScrollWindow::Resize(rows, columns);
+
+   if (currentLine_ >= (rows + FirstLine()))
    {
-      currentLine_ = rows - 1;
+      currentLine_ = FirstLine() + rows - 1;
+   }
+   else if (currentLine_ <= FirstLine())
+   {
+      currentLine_ = FirstLine();
+      ScrollTo(FirstLine());
    }
 
-   ScrollWindow::Resize(rows, columns);
+   LimitCurrentSelection();
 }
 
 void SelectWindow::Scroll(int32_t scrollCount)
