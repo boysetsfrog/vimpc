@@ -115,6 +115,10 @@ namespace Mpc
       bool Repeat();
       void SetRepeat(bool repeat);
 
+      int32_t Crossfade();
+      void SetCrossfade(bool crossfade);
+      void SetCrossfade(uint32_t crossfade);
+
       int32_t Volume();
       void SetVolume(uint32_t volume);
 
@@ -242,6 +246,8 @@ namespace Mpc
       bool                    repeat_;
       bool                    single_;
       bool                    consume_;
+      bool                    crossfade_;
+      uint32_t                crossfadeTime_;
       uint32_t                elapsed_;
       uint32_t                mpdelapsed_;
       mpd_state               state_;

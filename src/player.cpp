@@ -85,6 +85,11 @@ void Player::ToggleConsume()
    SetConsume(!client_.Consume());
 }
 
+void Player::ToggleCrossfade()
+{
+   SetCrossfade((client_.Crossfade() == 0));
+}
+
 void Player::ToggleRandom()
 {
    SetRandom(!client_.Random());
@@ -118,6 +123,16 @@ void Player::SetRepeat(bool repeat)
 void Player::SetConsume(bool consume)
 {
    client_.SetConsume(consume);
+}
+
+void Player::SetCrossfade(bool crossfade)
+{
+   client_.SetCrossfade(crossfade);
+}
+
+void Player::SetCrossfade(uint32_t crossfade)
+{
+   client_.SetCrossfade(crossfade);
 }
 
 void Player::Shuffle()

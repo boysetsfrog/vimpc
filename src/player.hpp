@@ -75,6 +75,9 @@ namespace Ui
       //! Toggles consume on or off
       void ToggleConsume();
 
+      //! Toggles crossfade on or off
+      void ToggleCrossfade();
+
       //! Toggles repeat on or off
       void ToggleRepeat();
 
@@ -95,6 +98,10 @@ namespace Ui
 
       //! Disables/Enables consume functionality
       void SetConsume(bool consume);
+
+      //! Disables/Enables consume functionality
+      void SetCrossfade(bool crossfade);
+      void SetCrossfade(uint32_t crossfade);
 
       //! Shuffle the playlist
       void Shuffle();

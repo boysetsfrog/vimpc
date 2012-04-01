@@ -57,6 +57,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["clear"]     = &Command::ClearScreen;
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["consume"]   = &Command::Consume;
+   commandTable_["crossfade"] = &Command::Crossfade;
    commandTable_["delete"]    = &Command::Delete;
    commandTable_["deleteall"] = &Command::DeleteAll;
    commandTable_["disable"]   = &Command::Output<false>;
@@ -685,6 +686,18 @@ void Command::Consume(std::string const & arguments)
    else
    {
       Player::ToggleConsume();
+   }
+}
+
+void Command::Crossfade(std::string const & arguments)
+{
+   if (arguments.empty() == false)
+   {
+      Player::SetCrossfade((uint32_t) atoi(arguments.c_str()));
+   }
+   else
+   {
+      Player::ToggleCrossfade();
    }
 }
 

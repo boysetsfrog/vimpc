@@ -45,6 +45,7 @@ char const * const sIgnoreCaseSearch = "ignorecase";
 char const * const sIgnoreCaseSort   = "sortignorecase";
 char const * const sIgnoreTheSort    = "sortignorethe";
 char const * const sIncSearch        = "incsearch";
+char const * const sMouse            = "mouse";
 char const * const sPlaylistNumbers  = "playlistnumbers"; //disable song numbers in playlist
 char const * const sPolling          = "polling"; 
 char const * const sReconnect        = "reconnect";
@@ -85,6 +86,7 @@ Settings::Settings() :
    toggleTable_[sIgnoreCaseSort]   = new Setting<bool>(true);
    toggleTable_[sIgnoreTheSort]    = new Setting<bool>(false);
    toggleTable_[sIncSearch]        = new Setting<bool>(false);
+   toggleTable_[sMouse]            = new Setting<bool>(false);
    toggleTable_[sPolling]          = new Setting<bool>(true);
    toggleTable_[sPlaylistNumbers]  = new Setting<bool>(true);
    toggleTable_[sReconnect]        = new Setting<bool>(true);
@@ -239,6 +241,11 @@ bool Settings::IgnoreTheSort() const
 bool Settings::IncrementalSearch() const
 {
    return Get(sIncSearch);
+}
+
+bool Settings::Mouse() const
+{
+   return Get(sMouse);
 }
 
 bool Settings::PlaylistNumbers() const

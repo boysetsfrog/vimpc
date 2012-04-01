@@ -82,6 +82,7 @@ namespace Ui
       void Repeat(std::string const & arguments);
       void Single(std::string const & arguments);
       void Consume(std::string const & arguments);
+      void Crossfade(std::string const & arguments);
       void Move(std::string const & arguments);
       void Shuffle(std::string const & arguments);
       void Swap(std::string const & arguments);

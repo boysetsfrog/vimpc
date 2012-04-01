@@ -100,8 +100,8 @@ namespace Main
          //! Search for results whilst typing
          bool IncrementalSearch() const;
 
-         //! Determine whether to wrap searching
-         bool SearchWrap() const;
+         //! Handle mouse keys
+         bool Mouse() const;
 
          //! Poll for status updates
          bool Polling() const;
@@ -111,6 +111,9 @@ namespace Main
 
          //! Reconnect to server when connection drops
          bool Reconnect() const;
+
+         //! Determine whether to wrap searching
+         bool SearchWrap() const;
 
          //! Quit will quit the entire application not just close a tab
          bool SingleQuit() const;

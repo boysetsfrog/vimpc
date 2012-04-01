@@ -88,6 +88,7 @@ namespace Ui
       void Stop(uint32_t count);
 
       void Consume(uint32_t count);
+      void Crossfade(uint32_t count);
       void Random(uint32_t count);
       void Repeat(uint32_t count);
       void Single(uint32_t count);

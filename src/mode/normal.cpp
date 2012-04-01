@@ -69,6 +69,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<BS>"]    = &Normal::Stop;
 
    actionTable_["C"]       = &Normal::Consume;
+   actionTable_["T"]       = &Normal::Crossfade;
    actionTable_["R"]       = &Normal::Random;
    actionTable_["E"]       = &Normal::Repeat;
    actionTable_["S"]       = &Normal::Single;
@@ -549,6 +550,11 @@ void Normal::Consume(uint32_t count)
    Player::ToggleConsume();
 }
 
+void Normal::Crossfade(uint32_t count)
+{
+   Player::ToggleCrossfade();
+}
+
 void Normal::Random(uint32_t count)
 {
    Player::ToggleRandom();
@@ -939,16 +945,17 @@ void Normal::DisplayModeLine()
       }
    }
 
-   std::string toggles = "";
-   std::string random  = (client_.Random() == true) ? "random, " : "";
-   std::string repeat  = (client_.Repeat() == true) ? "repeat, " : "";
-   std::string single  = (client_.Single() == true) ? "single, " : "";
-   std::string consume = (client_.Consume() == true) ? "consume, " : "";
+   std::string toggles   = "";
+   std::string random    = (client_.Random() == true) ? "random, " : "";
+   std::string repeat    = (client_.Repeat() == true) ? "repeat, " : "";
+   std::string single    = (client_.Single() == true) ? "single, " : "";
+   std::string consume   = (client_.Consume() == true) ? "consume, " : "";
+   std::string crossfade = (client_.Crossfade() > 0) ? "crossfade, " : "";
 
-   if ((random != "") || (repeat != "") || (single != "") || (consume != ""))
+   if ((random != "") || (repeat != "") || (single != "") || (consume != "") || (crossfade != ""))
    {
       toggles += " [ON: ";
-      toggles += random + repeat + single + consume;
+      toggles += random + repeat + single + consume + crossfade;
       toggles = toggles.substr(0, toggles.length() - 2);
       toggles += "]";
    }

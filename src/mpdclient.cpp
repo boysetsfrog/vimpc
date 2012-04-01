@@ -89,6 +89,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    repeat_               (false),
    single_               (false),
    consume_              (false),
+   crossfade_            (false),
+   crossfadeTime_        (0),
    elapsed_              (0),
    state_                (MPD_STATE_STOP),
 
@@ -425,6 +427,47 @@ void Client::SetRepeat(bool const repeat)
       ClearCommand();
       mpd_send_repeat(connection_, repeat);
       repeat_ = repeat;
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
+}
+
+int32_t Client::Crossfade()
+{
+   if (crossfade_ == true)
+   {
+      return crossfadeTime_;
+   }
+
+   return 0;
+}
+
+void Client::SetCrossfade(bool crossfade)
+{
+   if (crossfade == true)
+   {
+      SetCrossfade(crossfadeTime_);
+   }
+   else
+   {
+      SetCrossfade((uint32_t) 0);
+   }
+}
+
+void Client::SetCrossfade(uint32_t crossfade)
+{
+   if (Connected() == true)
+   {
+      ClearCommand();
+      mpd_send_crossfade(connection_, crossfade);
+      crossfade_     = (crossfade != 0);
+
+      if (crossfade_ == true)
+      {
+         crossfadeTime_ = crossfade;
+      }
    }
    else
    {
@@ -1076,6 +1119,12 @@ void Client::UpdateStatus(bool ExpectUpdate)
          repeat_   = mpd_status_get_repeat(currentStatus_);
          single_   = mpd_status_get_single(currentStatus_);
          consume_  = mpd_status_get_consume(currentStatus_);
+         crossfade_ = (mpd_status_get_crossfade(currentStatus_) > 0);
+
+         if (crossfade_ == true)
+         {
+            crossfadeTime_ = mpd_status_get_crossfade(currentStatus_);
+         }
 
          // Check if we need to update the current song
          if ((mpdstate_ != mpd_status_get_state(currentStatus_)) ||

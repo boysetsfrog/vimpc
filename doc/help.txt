@@ -60,6 +60,7 @@ PLAYING (ALSO SEE PLAYLIST):
           s, backspace    | stop playback
 
           C               | toggle consume
+          T               | toggle crossfade
           R               | toggle random
           E               | toggle repeat
           S               | toggle single
@@ -139,6 +140,7 @@ PLAYBACK:
   repeat [on/off]         | toggles repeat, or sets on/off
   single [on/off]         | toggles single, or sets on/off
   consume [on/off]        | toggles consume, or sets on/off
+  crossfade [0-10]        | toggles crossfade, or sets crossfade time
 
   shuffle                 | shuffle the playlist
 
