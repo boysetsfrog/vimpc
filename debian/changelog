@@ -1,3 +1,9 @@
+vimpc (0.06~psych0tiklucid.1) lucid; urgency=low
+
+  * Development build
+
+ -- Rich Healey <richo@psych0tik.net>  Wed, 04 Apr 2012 16:48:13 +1000
+
 vimpc (0.05) unstable; urgency=low
 
   * Support for http streams in playlist
