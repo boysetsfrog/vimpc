@@ -34,24 +34,28 @@ using namespace Main;
 // \TODO some settings i would like to add are commented out here
 //       once they are implemented this can be removed
 
-char const * const AutoScrollSetting       = "autoscroll";
-char const * const BrowseNumbersSetting    = "browsenumbers"; //disable song numbers in browse
-char const * const ColourSetting           = "colour";
-char const * const ExpandArtistsSetting    = "expand-artists";
-//char const * const GraphicalVolumeSetting  = "graphicalvolume"; //Display volume graphically (colours) something like [||||||||  ][80%]
-char const * const HideTabBarSetting       = "hidetabbar"; // \todo this is going to be quite hard, we do dodgy hacks with MaxRows everywhere!
-char const * const HighlightSearchSetting  = "hlsearch";
-char const * const IgnoreCaseSearchSetting = "ignorecase";
-char const * const IgnoreCaseSortSetting   = "sortignorecase";
-char const * const IgnoreTheSortSetting    = "sortignorethe";
-char const * const PlaylistNumbersSetting  = "playlistnumbers"; //disable song numbers in playlist
-char const * const SearchWrapSetting       = "searchwrap";
-char const * const SingleQuitSetting       = "singlequit";
-char const * const SongNumbersSetting      = "songnumbers";
-char const * const SmartCaseSetting        = "smartcase";
-char const * const StopOnQuitSetting       = "stoponquit";
-char const * const TimeRemainingSetting    = "timeremaining";
-char const * const WindowNumbersSetting    = "windownumbers";
+char const * const sAutoScroll       = "autoscroll";
+char const * const sBrowseNumbers    = "browsenumbers"; //disable song numbers in browse
+char const * const sColour           = "colour";
+char const * const sExpandArtists    = "expand-artists";
+char const * const sGraphicalVolume  = "graphicalvolume"; // \todo Display volume graphically (colours) something like [||||||||  ][80%]
+char const * const sHideTabBar       = "hidetabbar"; // \todo this is going to be quite hard, we do dodgy hacks with MaxRows everywhere!
+char const * const sHighlightSearch  = "hlsearch";
+char const * const sIgnoreCaseSearch = "ignorecase";
+char const * const sIgnoreCaseSort   = "sortignorecase";
+char const * const sIgnoreTheSort    = "sortignorethe";
+char const * const sIncSearch        = "incsearch";
+char const * const sMouse            = "mouse";
+char const * const sPlaylistNumbers  = "playlistnumbers"; //disable song numbers in playlist
+char const * const sPolling          = "polling"; 
+char const * const sReconnect        = "reconnect";
+char const * const sSearchWrap       = "searchwrap";
+char const * const sSingleQuit       = "singlequit";
+char const * const sSongNumbers      = "songnumbers";
+char const * const sSmartCase        = "smartcase";
+char const * const sStopOnQuit       = "stoponquit";
+char const * const sTimeRemaining    = "timeremaining";
+char const * const sWindowNumbers    = "windownumbers";
 
 bool skipConfigConnects_ (false);
 
@@ -63,37 +67,41 @@ Settings & Settings::Instance()
 
 Settings::Settings() :
    defaultWindow_("playlist"),
-   songFormat_   ("{%a - %t}|{%f}$R$H[$H%l$H]$H"),
-   libFormat_    ("$H[$H%l$H]$H {%t}|{%f}"),
+   songFormat_   ("{%a - %t}|{%f}$E$R $H[$H%l$H]$H"),
+   libFormat_    ("$H[$H%l$H]$H {%t}|{%f}$E$R "),
    settingsTable_(),
    toggleTable_  ()
 {
-   settingsTable_["window"]              = &Settings::SetWindow;
-   settingsTable_["songformat"]          = &Settings::SetSongFormat;
-   settingsTable_["libraryformat"]       = &Settings::SetLibFormat;
+   settingsTable_["window"]        = &Settings::SetWindow;
+   settingsTable_["songformat"]    = &Settings::SetSongFormat;
+   settingsTable_["libraryformat"] = &Settings::SetLibFormat;
 
-   toggleTable_[AutoScrollSetting]       = new Setting<bool>(true);
-   toggleTable_[BrowseNumbersSetting]    = new Setting<bool>(true);
-   toggleTable_[ColourSetting]           = new Setting<bool>(true);
-   toggleTable_[ExpandArtistsSetting]    = new Setting<bool>(false);
-   toggleTable_[HideTabBarSetting]       = new Setting<bool>(false);
-   toggleTable_[HighlightSearchSetting]  = new Setting<bool>(true);
-   toggleTable_[IgnoreCaseSearchSetting] = new Setting<bool>(false);
-   toggleTable_[IgnoreCaseSortSetting]   = new Setting<bool>(true);
-   toggleTable_[IgnoreTheSortSetting]    = new Setting<bool>(false);
-   toggleTable_[PlaylistNumbersSetting]  = new Setting<bool>(true);
-   toggleTable_[SearchWrapSetting]       = new Setting<bool>(true);
-   toggleTable_[SingleQuitSetting]       = new Setting<bool>(false);
-   toggleTable_[SongNumbersSetting]      = new Setting<bool>(true);
-   toggleTable_[SmartCaseSetting]        = new Setting<bool>(false);
-   toggleTable_[StopOnQuitSetting]       = new Setting<bool>(false);
-   toggleTable_[TimeRemainingSetting]    = new Setting<bool>(false);
-   toggleTable_[WindowNumbersSetting]    = new Setting<bool>(false);
+   toggleTable_[sAutoScroll]       = new Setting<bool>(true);
+   toggleTable_[sBrowseNumbers]    = new Setting<bool>(true);
+   toggleTable_[sColour]           = new Setting<bool>(true);
+   toggleTable_[sExpandArtists]    = new Setting<bool>(false);
+   toggleTable_[sHideTabBar]       = new Setting<bool>(false);
+   toggleTable_[sHighlightSearch]  = new Setting<bool>(true);
+   toggleTable_[sIgnoreCaseSearch] = new Setting<bool>(false);
+   toggleTable_[sIgnoreCaseSort]   = new Setting<bool>(true);
+   toggleTable_[sIgnoreTheSort]    = new Setting<bool>(false);
+   toggleTable_[sIncSearch]        = new Setting<bool>(false);
+   toggleTable_[sMouse]            = new Setting<bool>(false);
+   toggleTable_[sPolling]          = new Setting<bool>(true);
+   toggleTable_[sPlaylistNumbers]  = new Setting<bool>(true);
+   toggleTable_[sReconnect]        = new Setting<bool>(true);
+   toggleTable_[sSearchWrap]       = new Setting<bool>(true);
+   toggleTable_[sSingleQuit]       = new Setting<bool>(false);
+   toggleTable_[sSongNumbers]      = new Setting<bool>(true);
+   toggleTable_[sSmartCase]        = new Setting<bool>(false);
+   toggleTable_[sStopOnQuit]       = new Setting<bool>(false);
+   toggleTable_[sTimeRemaining]    = new Setting<bool>(false);
+   toggleTable_[sWindowNumbers]    = new Setting<bool>(false);
 }
 
 Settings::~Settings()
 {
-   for (SettingsToggleTable::iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   for (SettingsTable::iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
    {
       delete it->second;
    }
@@ -187,87 +195,107 @@ std::string Settings::LibraryFormat() const
 
 bool Settings::AutoScroll() const
 {
-   return Get(AutoScrollSetting);
+   return Get(sAutoScroll);
 }
 
 bool Settings::BrowseNumbers() const
 {
-   return Get(BrowseNumbersSetting);
+   return Get(sBrowseNumbers);
 }
 
 bool Settings::ColourEnabled() const
 {
-   return Get(ColourSetting);
+   return Get(sColour);
 }
 
 bool Settings::ExpandArtists() const
 {
-   return Get(ExpandArtistsSetting);
+   return Get(sExpandArtists);
 }
 
 bool Settings::HideTabBar() const
 {
-   return Get(HideTabBarSetting);
+   return Get(sHideTabBar);
 }
 
 bool Settings::HightlightSearch() const
 {
-   return Get(HighlightSearchSetting);
+   return Get(sHighlightSearch);
 }
 
 bool Settings::IgnoreCaseSearch() const
 {
-   return Get(IgnoreCaseSearchSetting);
+   return Get(sIgnoreCaseSearch);
 }
 
 bool Settings::IgnoreCaseSort() const
 {
-   return Get(IgnoreCaseSortSetting);
+   return Get(sIgnoreCaseSort);
 }
 
 bool Settings::IgnoreTheSort() const
 {
-   return Get(IgnoreTheSortSetting);
+   return Get(sIgnoreTheSort);
+}
+
+bool Settings::IncrementalSearch() const
+{
+   return Get(sIncSearch);
+}
+
+bool Settings::Mouse() const
+{
+   return Get(sMouse);
 }
 
 bool Settings::PlaylistNumbers() const
 {
-   return Get(PlaylistNumbersSetting);
+   return Get(sPlaylistNumbers);
+}
+
+bool Settings::Reconnect() const
+{
+   return Get(sReconnect);
 }
 
 bool Settings::SearchWrap() const
 {
-   return Get(SearchWrapSetting);
+   return Get(sSearchWrap);
+}
+
+bool Settings::Polling() const
+{
+   return Get(sPolling);
 }
 
 bool Settings::SingleQuit() const
 {
-   return Get(SingleQuitSetting);
+   return Get(sSingleQuit);
 }
 
 bool Settings::SmartCase() const
 {
-   return Get(SmartCaseSetting);
+   return Get(sSmartCase);
 }
 
 bool Settings::SongNumbers() const
 {
-   return Get(SongNumbersSetting);
+   return Get(sSongNumbers);
 }
 
 bool Settings::StopOnQuit() const
 {
-   return Get(StopOnQuitSetting);
+   return Get(sStopOnQuit);
 }
 
 bool Settings::TimeRemaining() const
 {
-   return Get(TimeRemainingSetting);
+   return Get(sTimeRemaining);
 }
 
 bool Settings::WindowNumbers() const
 {
-   return Get(WindowNumbersSetting);
+   return Get(sWindowNumbers);
 }
 
 

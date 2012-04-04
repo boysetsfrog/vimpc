@@ -45,7 +45,7 @@ SEARCH FLAGS:
           \C              | if in search expression, enables case sensitivity
 
 PLAYING (ALSO SEE PLAYLIST):
-  [count] I               | skip to the start of the currently playing song
+  [count] ^, I            | skip to the start of the currently playing song
   [count] <               | skip to the previous song
   [count] >               | skip to the next song
   [count] [               | skip to the previous artist
@@ -60,6 +60,7 @@ PLAYING (ALSO SEE PLAYLIST):
           s, backspace    | stop playback
 
           C               | toggle consume
+          T               | toggle crossfade
           R               | toggle random
           E               | toggle repeat
           S               | toggle single
@@ -139,6 +140,7 @@ PLAYBACK:
   repeat [on/off]         | toggles repeat, or sets on/off
   single [on/off]         | toggles single, or sets on/off
   consume [on/off]        | toggles consume, or sets on/off
+  crossfade [0-10]        | toggles crossfade, or sets crossfade time
 
   shuffle                 | shuffle the playlist
 
@@ -197,7 +199,9 @@ MISC:
                           | each command may be seperated by ;
                           | i.e alias hello echo "hello"; echo "world";
   clear                   | clears the console window
-  connect [host] [port]   | connects to [host] [port]
+  connect [host] [port]   | connects to [host] [port] or to the default
+  disconnect              | disconnect from host
+  reconnect               | reconnect to host last connected to
   echo <string>           | echos the given string to the console window
   password <password>     | authenticate to mpd using <password>
   quit[!]                 | if only one tab then quit, otherwise close the tab
@@ -262,18 +266,19 @@ of these strings is based upon those of ncmpcpp.
    %f  - Filename/URI
 
    $R  - Begin right alignment
+   $E  - Add ellipsis for trimmed text (must be before right align)
    $H  - Toggle highlight color off/on
    {,} - Will only display contents between { and } if not empty
    \|   - Alternative to use if prior entry is blank
 
 Examples:
-   The default song format is: {%a - %t}\|{%f}$R$H[$H%l$H]$H
+   The default song format is: "{%a - %t}\|{%f}$E$R $H[$H%l$H]$H"
    This displays artist - title if they both exist otherwise
    displays the filename and displays the duration aligned
    to the right. The $H ensures that [ and ] will not change
    color when that song is highlighted.
 
-   The default library format is: $H[$H%l$H]$H {%t}\|{%f}
+   The default library format is: "$H[$H%l$H]$H {%t}\|{%f}$E$R "
    This displays the duration, again not highlighting [ and ]
    followed by a space, then either the song title or if that
    is empty the filename.
@@ -291,6 +296,7 @@ or postfixed with !  which will toggle the setting.
                           | if changed whilst running, must :redraw the library
   [no]hlsearch[!]         | highlight search results
   [no]ignorecase[!]       | case insensitive searching
+  [no]incsearch[!]        | search for results as you are typing
   [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
   [no]searchwrap[!]       | wrap search results when using n/N
   [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab

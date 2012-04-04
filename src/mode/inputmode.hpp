@@ -83,18 +83,19 @@ namespace Ui
       InputMode & operator=(InputMode & inputMode);
 
    public: // Ui::Mode
-      virtual void Initialise(int input);
-      virtual void Finalise(int input);
-      virtual void Refresh();
-      virtual bool Handle(int input);
-      virtual bool CausesModeToStart(int input) const;
-      virtual bool CausesModeToEnd(int input) const;
+      void Initialise(int input);
+      void Finalise(int input);
+      void Refresh();
+      bool Handle(int input);
+      bool CausesModeToStart(int input) const;
+      bool CausesModeToEnd(int input) const;
 
    public:
-      static std::string SplitStringAtTerminator(std::string input);
-      static std::string RemoveStringTerminator(std::string input);
-      virtual bool SetInputString(std::string input);
-      virtual bool HasCompleteInput(int input);
+      static std::string SplitStringAtTerminator(std::string input, bool keepTerminator = true);
+
+      bool SetInputString(std::string input);
+      bool HasCompleteInput(int input) const;
+
       virtual void GenerateInputString(int input);
       virtual bool InputStringHandler(std::string input) = 0;
 

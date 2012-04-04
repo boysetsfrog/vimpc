@@ -39,6 +39,7 @@ namespace ErrorNumber
       PlaylistEmpty,
       SearchNoResults,
       SettingNonexistant,
+      FileExists,
       Unknown
    };
 }

@@ -116,6 +116,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    statusWindow_          = newwin(1, maxColumns_, mainRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
 
+
    // Mark the default windows as visible
    visibleWindows_.push_back(static_cast<int32_t>(Help));
 
@@ -313,7 +314,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
       wattroff(statusWindow_, A_REVERSE);
    }
 
-   wrefresh(statusWindow_);
+   wnoutrefresh(statusWindow_);
 }
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
@@ -499,6 +500,8 @@ void Screen::Update()
 
 void Screen::Redraw() const
 {
+   // Keep track of which windows have been drawn atleast once
+   drawn_[window_] = true;
    Redraw(window_);
 }
 
@@ -509,6 +512,31 @@ void Screen::Redraw(int32_t window) const
    if ((it != mainWindows_.end()) && (it->second != NULL))
    {
       (it->second)->Redraw();
+   }
+
+   // Keep track of which windows have been drawn atleast once
+   drawn_[window] = true;
+}
+
+void Screen::Initialise(int32_t window) const
+{
+   if (drawn_[window] == false)
+   {
+      drawn_[window] = true;
+      Redraw(window);
+   }
+}
+
+void Screen::Invalidate(int32_t window) const
+{
+   drawn_[window] = false;
+}
+
+void Screen::InvalidateAll() const
+{
+   for (int i = 0; i < MainWindowCount; ++ i)
+   {
+      Invalidate(i);
    }
 }
 
@@ -708,6 +736,11 @@ void Screen::SetActiveWindow(uint32_t window)
    if ((window < visibleWindows_.size()))
    {
       window_ = visibleWindows_.at(window);
+   }
+
+   if (drawn_[window_] == false)
+   {
+      Redraw(window_);
    }
 
    Update();

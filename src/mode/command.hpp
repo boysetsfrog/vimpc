@@ -82,6 +82,7 @@ namespace Ui
       void Repeat(std::string const & arguments);
       void Single(std::string const & arguments);
       void Consume(std::string const & arguments);
+      void Crossfade(std::string const & arguments);
       void Move(std::string const & arguments);
       void Shuffle(std::string const & arguments);
       void Swap(std::string const & arguments);
@@ -96,6 +97,8 @@ namespace Ui
       //! \param host The hostname to connect to
       //! \param port The port to connect with
       void Connect(std::string const & arguments);
+      void Disconnect(std::string const & arguments);
+      void Reconnect(std::string const & arguments);
 
       //! Specify a password to mpd
       void Password(std::string const & password);

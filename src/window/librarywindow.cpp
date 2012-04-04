@@ -145,10 +145,11 @@ void LibraryWindow::Print(uint32_t line) const
 
    uint32_t printLine = (line + FirstLine());
    WINDOW * window    = N_WINDOW();
-   int32_t  colour    = DetermineSongColour(library_.Get(printLine));
 
    if ((line + FirstLine()) < BufferSize())
    {
+      int32_t colour = DetermineSongColour(library_.Get(printLine));
+
       if (IsSelected(printLine) == true)
       {
          if (settings_.ColourEnabled() == true)
@@ -312,6 +313,22 @@ void LibraryWindow::Confirm()
 
 void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
+   int64_t pos1 = CurrentSelection().first;
+   int64_t pos2 = CurrentSelection().second;
+
+   if (pos2 < pos1)
+   {
+      pos2 = pos1;
+      pos1 = CurrentSelection().second;
+   }
+
+   if (pos1 != pos2)
+   {
+      count  = pos2 - pos1 + 1;
+      line   = pos1;
+      scroll = false;
+   }
+
    DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll);
    SelectWindow::AddLine(line, count, scroll);
 }
@@ -385,37 +402,31 @@ void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t 
 {
    if (client_.Connected() == true)
    {
-      if (count > 1)
-      {
-         client_.StartCommandList();
-      }
-
       Mpc::LibraryEntry * previous = NULL;
 
       uint32_t total = 0;
       uint32_t i     = line;
 
-      for (i = line; ((total <= count) && (i < BufferSize())); ++i)
       {
-         Mpc::LibraryEntry * current = library_.Get(i);
+         Mpc::CommandList list(client_, (count > 1));
 
-         if ((previous == NULL) ||
-            ((current->Parent() != previous) &&
-            ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
+         for (i = line; ((total <= count) && (i < BufferSize())); ++i)
          {
-            ++total;
+            Mpc::LibraryEntry * current = library_.Get(i);
 
-            if (total <= count)
+            if ((previous == NULL) ||
+               ((current->Parent() != previous) &&
+               ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
             {
-               (library_.*function)(Mpc::Song::Single, client_, i);
-               previous = current;
+               ++total;
+
+               if (total <= count)
+               {
+                  (library_.*function)(Mpc::Song::Single, client_, i);
+                  previous = current;
+               }
             }
          }
-      }
-
-      if (count > 1)
-      {
-         client_.SendCommandList();
       }
 
       if (scroll == true)

@@ -48,7 +48,7 @@ namespace Main
    class Settings
    {
       private:
-         typedef std::map<std::string, Setting<bool> * > SettingsToggleTable;
+         typedef std::map<std::string, Setting<bool> * > SettingsTable;
 
       public:
          static Settings & Instance();
@@ -97,11 +97,23 @@ namespace Main
          //! Ignore 'the' when sorting
          bool IgnoreTheSort() const;
 
-         //! Determine whether to wrap searching
-         bool SearchWrap() const;
+         //! Search for results whilst typing
+         bool IncrementalSearch() const;
+
+         //! Handle mouse keys
+         bool Mouse() const;
+
+         //! Poll for status updates
+         bool Polling() const;
 
          //! Show id next to each song in the playlist
          bool PlaylistNumbers() const;
+
+         //! Reconnect to server when connection drops
+         bool Reconnect() const;
+
+         //! Determine whether to wrap searching
+         bool SearchWrap() const;
 
          //! Quit will quit the entire application not just close a tab
          bool SingleQuit() const;
@@ -138,14 +150,13 @@ namespace Main
          //! Get the value for the given \p setting
          bool Get(std::string setting) const 
          { 
-            SettingsToggleTable::const_iterator it = toggleTable_.find(setting);
+            SettingsTable::const_iterator it = toggleTable_.find(setting);
             return ((it != toggleTable_.end()) && (it->second->Get()));
          }
 
       private:
          //! Sets the startup window
          void SetWindow(std::string const & arguments);
-
          void SetSongFormat(std::string const & arguments);
          void SetLibFormat(std::string const & arguments);
 
@@ -158,7 +169,7 @@ namespace Main
          typedef std::map<std::string, ptrToMember> SettingsFunctionTable;
          SettingsFunctionTable settingsTable_;
 
-         SettingsToggleTable   toggleTable_;
+         SettingsTable toggleTable_;
    };
 }
 

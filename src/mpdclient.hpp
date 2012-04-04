@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 - 2011 Nathan Sweetman
+   Copyright (C) 2010 - 2012 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -50,14 +50,28 @@ namespace Ui
 // \todo cache all the values that we can
 namespace Mpc
 {
+   class Client;
    class Output;
    class Song;
 
    uint32_t SecondsToMinutes(uint32_t duration);
    uint32_t RemainingSeconds(uint32_t duration);
 
+   class CommandList
+   {
+      public:
+         CommandList(Mpc::Client & client, bool condition = true);
+         ~CommandList();
+
+      private:
+         bool          condition_;
+         Mpc::Client & client_;
+   };
+
    class Client
    {
+      friend class Mpc::CommandList;
+
    public:
       Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
@@ -69,16 +83,13 @@ namespace Mpc
    public:
       // Mpd Connections
       void Connect(std::string const & hostname = "", uint16_t port = 0);
+      void Disconnect();
+      void Reconnect();
       void Password(std::string const & password);
 
       std::string Hostname();
       uint16_t Port();
       bool Connected() const;
-
-   public:
-      // Command lists
-      void StartCommandList();
-      void SendCommandList();
 
    public:
       // Playback functions
@@ -103,6 +114,10 @@ namespace Mpc
 
       bool Repeat();
       void SetRepeat(bool repeat);
+
+      int32_t Crossfade();
+      void SetCrossfade(bool crossfade);
+      void SetCrossfade(uint32_t crossfade);
 
       int32_t Volume();
       void SetVolume(uint32_t volume);
@@ -165,7 +180,13 @@ namespace Mpc
       // Database state
       void Rescan();
       void Update();
-      void CheckForUpdates();
+      void IncrementTime(long time);
+      long TimeSinceUpdate();
+      void IdleMode();
+      bool HadEvents();
+      void UpdateCurrentSong();
+      void UpdateStatus(bool ExpectUpdate = false);
+      void UpdateDisplay();
 
    public:
       //! \todo port these over to using the callback object
@@ -191,8 +212,14 @@ namespace Mpc
       void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
 
    private:
+      void ClearCommand();
+      bool Command(bool InputCommand);
+      void StartCommandList();
+      void SendCommandList();
+
+   private:
       unsigned int QueueVersion();
-      void UpdateStatus(bool ExpectUpdate = false);
+      void UpdateCurrentSongPosition();
       Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
 
    private:
@@ -210,6 +237,21 @@ namespace Mpc
       uint32_t                versionMajor_;
       uint32_t                versionMinor_;
       uint32_t                versionPatch_;
+      long                    timeSinceUpdate_;
+      long                    timeSinceSong_;
+      bool                    retried_;
+
+      uint32_t                volume_;
+      bool                    random_;
+      bool                    repeat_;
+      bool                    single_;
+      bool                    consume_;
+      bool                    crossfade_;
+      uint32_t                crossfadeTime_;
+      uint32_t                elapsed_;
+      uint32_t                mpdelapsed_;
+      mpd_state               state_;
+      mpd_state               mpdstate_;
 
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
@@ -221,8 +263,8 @@ namespace Mpc
       int                     queueVersion_;
       bool                    forceUpdate_;
       bool                    listMode_;
+      bool                    idleMode_;
    };
-
 
    //
    template <typename Object>

@@ -158,6 +158,9 @@ namespace Ui
       // Reinitialise the given main window, ie rebuild playlist, library, etc
       void Redraw() const;
       void Redraw(int32_t window) const;
+      void Initialise(int32_t window) const;
+      void Invalidate(int32_t window) const;
+      void InvalidateAll() const;
 
       // Handle a screen resize
       bool Resize(bool forceResize = false);
@@ -206,6 +209,7 @@ namespace Ui
 
       std::vector<int32_t>      visibleWindows_;
       std::vector<ModeWindow *> modeWindows_;
+      mutable std::map<int32_t, bool> drawn_;
 
       bool      started_;
       int32_t   maxRows_;

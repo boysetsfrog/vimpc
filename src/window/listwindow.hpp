@@ -35,12 +35,6 @@ namespace Ui   { class Search; }
 // List window class
 namespace Ui
 {
-   class ListComparator
-   {
-      public:
-      bool operator() (std::string i, std::string j) { return (i<j); };
-   };
-
    class ListWindow : public Ui::SelectWindow
    {
    public:

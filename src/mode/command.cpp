@@ -57,9 +57,11 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["clear"]     = &Command::ClearScreen;
    commandTable_["connect"]   = &Command::Connect;
    commandTable_["consume"]   = &Command::Consume;
+   commandTable_["crossfade"] = &Command::Crossfade;
    commandTable_["delete"]    = &Command::Delete;
    commandTable_["deleteall"] = &Command::DeleteAll;
    commandTable_["disable"]   = &Command::Output<false>;
+   commandTable_["disconnect"] = &Command::Disconnect;
    commandTable_["echo"]      = &Command::Echo;
    commandTable_["enable"]    = &Command::Output<true>;
    commandTable_["error"]     = &Command::EchoError;
@@ -77,6 +79,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["quit"]      = &Command::Quit;
    commandTable_["quitall"]   = &Command::QuitAll;
    commandTable_["random"]    = &Command::Random;
+   commandTable_["reconnect"] = &Command::Reconnect;
    commandTable_["redraw"]    = &Command::Redraw;
    commandTable_["repeat"]    = &Command::Repeat;
    commandTable_["set"]       = &Command::Set;
@@ -315,25 +318,38 @@ void Command::Play(std::string const & arguments)
 
 void Command::Add(std::string const & arguments)
 {
-   client_.Add(arguments);
+   if (client_.Connected() == true)
+   {
+      screen_.Initialise(Ui::Screen::Playlist);
+      client_.Add(arguments);
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+   }
 }
 
 void Command::Delete(std::string const & arguments)
 {
-   size_t pos = arguments.find_first_of(" ");
-
-   if (pos != std::string::npos)
+   if (client_.Connected() == true)
    {
-      uint32_t pos1 = atoi(arguments.substr(0, pos).c_str()) - 1;
-      uint32_t pos2 = atoi(arguments.substr(pos + 1).c_str()) - 1;
+      screen_.Initialise(Ui::Screen::Playlist);
 
-      client_.Delete(pos1, pos2 + 1);
-      Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
-   }
-   else
-   {
-      client_.Delete(atoi(arguments.c_str()) - 1);
-      Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
+      size_t pos = arguments.find_first_of(" ");
+
+      if (pos != std::string::npos)
+      {
+         uint32_t pos1 = atoi(arguments.substr(0, pos).c_str()) - 1;
+         uint32_t pos2 = atoi(arguments.substr(pos + 1).c_str()) - 1;
+
+         client_.Delete(pos1, pos2 + 1);
+         Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
+      }
+      else
+      {
+         client_.Delete(atoi(arguments.c_str()) - 1);
+         Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
+      }
    }
 }
 
@@ -434,6 +450,16 @@ void Command::Connect(std::string const & arguments)
    client_.Connect(hostname, port);
 }
 
+void Command::Disconnect(std::string const & arguments)
+{
+   client_.Disconnect();
+}
+
+void Command::Reconnect(std::string const & arguments)
+{
+   client_.Reconnect();
+}
+
 void Command::Password(std::string const & password)
 {
    client_.Password(password.c_str());
@@ -454,6 +480,8 @@ template <bool ON>
 void Command::Output(std::string const & arguments)
 {
    int32_t output = -1;
+
+   screen_.Initialise(Ui::Screen::Outputs);
 
    if (Algorithm::isNumeric(arguments.c_str()) == true)
    {
@@ -476,10 +504,12 @@ void Command::Output(std::string const & arguments)
       if (ON == true)
       {
          client_.EnableOutput(Main::Outputs().Get(output));
+         Main::Outputs().Get(output)->SetEnabled(true);
       }
       else
       {
          client_.DisableOutput(Main::Outputs().Get(output));
+         Main::Outputs().Get(output)->SetEnabled(false);
       }
    }
    else
@@ -505,6 +535,12 @@ void Command::SavePlaylist(std::string const & arguments)
 {
    if (arguments != "")
    {
+      if (Main::Lists().Index(arguments) == -1)
+      {
+         Main::Lists().Add(arguments);
+         Main::Lists().Sort();
+      }
+
       client_.SavePlaylist(arguments);
    }
    else
@@ -518,7 +554,6 @@ void Command::ToPlaylist(std::string const & arguments)
    if (arguments != "")
    {
       screen_.ActiveWindow().Save(arguments);
-      screen_.Redraw(Ui::Screen::Lists);
    }
    else
    {
@@ -539,15 +574,13 @@ void Command::Find(std::string const & arguments)
       }
       else
       {
-         client_.StartCommandList();
+         Mpc::CommandList list(client_);
 
          for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
          {
             client_.Add(Main::PlaylistTmp().Get(i));
             Main::Playlist().Add(Main::PlaylistTmp().Get(i));
          }
-
-         client_.SendCommandList();
       }
    }
    else
@@ -665,6 +698,18 @@ void Command::Consume(std::string const & arguments)
    }
 }
 
+void Command::Crossfade(std::string const & arguments)
+{
+   if (arguments.empty() == false)
+   {
+      Player::SetCrossfade((uint32_t) atoi(arguments.c_str()));
+   }
+   else
+   {
+      Player::ToggleCrossfade();
+   }
+}
+
 void Command::Shuffle(std::string const & arguments)
 {
    Player::Shuffle();
@@ -672,6 +717,8 @@ void Command::Shuffle(std::string const & arguments)
 
 void Command::Move(std::string const & arguments)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
+
    if ((arguments.find(" ") != string::npos))
    {
       int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
@@ -710,6 +757,8 @@ void Command::Move(std::string const & arguments)
 
 void Command::Swap(std::string const & arguments)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
+
    if ((arguments.find(" ") != string::npos))
    {
       std::string position1 = arguments.substr(0, arguments.find(" "));

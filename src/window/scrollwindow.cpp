@@ -44,6 +44,10 @@ void ScrollWindow::Resize(int rows, int columns)
 {
    if ((scrollLine_ > rows) || (rows > scrollLine_))
    {
+      scrollLine_ = FirstLine() + rows;
+   }
+   if (scrollLine_ < rows)
+   {
       scrollLine_ = rows;
    }
 

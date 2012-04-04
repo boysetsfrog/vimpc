@@ -69,6 +69,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<BS>"]    = &Normal::Stop;
 
    actionTable_["C"]       = &Normal::Consume;
+   actionTable_["T"]       = &Normal::Crossfade;
    actionTable_["R"]       = &Normal::Random;
    actionTable_["E"]       = &Normal::Repeat;
    actionTable_["S"]       = &Normal::Single;
@@ -83,6 +84,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
 
    // Skipping
    actionTable_["I"]       = &Normal::SeekTo<Player::Start>;
+   actionTable_["^"]       = &Normal::SeekTo<Player::Start>;
    actionTable_[">"]       = &Normal::SkipSong<Player::Next>;
    actionTable_["<lt>"]    = &Normal::SkipSong<Player::Previous>;
    actionTable_["]"]       = &Normal::SkipArtist<Player::Next>;
@@ -110,6 +112,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["P"]       = &Normal::PasteBuffer;
 
    // Navigation
+   actionTable_["<Esc>"]   = &Normal::Escape;
    actionTable_["l"]       = &Normal::Right;
    actionTable_["h"]       = &Normal::Left;
    actionTable_["\n"]      = &Normal::Confirm;
@@ -230,13 +233,6 @@ bool Normal::Handle(int input)
       {
          actionCount_ = newActionCount;
       }
-   }
-   else if (input == ESCAPE_KEY)
-   {
-      input_       = "";
-      actionCount_ = 0;
-
-      screen_.ActiveWindow().Escape();
    }
    else
    {
@@ -472,6 +468,7 @@ std::string Normal::InputCharToString(int input) const
 
    if (conversionTable.size() == 0)
    {
+      conversionTable[ESCAPE_KEY]    = "Esc";
       conversionTable[KEY_PPAGE]     = "PageUp";
       conversionTable[KEY_NPAGE]     = "PageDown";
       conversionTable[KEY_HOME]      = "Home";
@@ -553,6 +550,11 @@ void Normal::Consume(uint32_t count)
    Player::ToggleConsume();
 }
 
+void Normal::Crossfade(uint32_t count)
+{
+   Player::ToggleCrossfade();
+}
+
 void Normal::Random(uint32_t count)
 {
    Player::ToggleRandom();
@@ -614,6 +616,13 @@ void Normal::Confirm(uint32_t count)
    screen_.ActiveWindow().Confirm();
 }
 
+void Normal::Escape(uint32_t count)
+{
+   input_       = "";
+   actionCount_ = 0;
+   screen_.ActiveWindow().Escape();
+}
+
 void Normal::RepeatLastAction(uint32_t count)
 {
    if (wasSpecificCount_ == false)
@@ -658,29 +667,35 @@ void Normal::Visual(uint32_t count)
 template <Mpc::Song::SongCollection COLLECTION>
 void Normal::AddSong(uint32_t count)
 {
-   if (COLLECTION == Mpc::Song::All)
+   if (client_.Connected())
    {
-      screen_.ActiveWindow().AddAllLines();
-   }
-   else if (COLLECTION == Mpc::Song::Single)
-   {
-      screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+      if (COLLECTION == Mpc::Song::All)
+      {
+         screen_.ActiveWindow().AddAllLines();
+      }
+      else if (COLLECTION == Mpc::Song::Single)
+      {
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+      }
    }
 }
 
 template <Mpc::Song::SongCollection COLLECTION>
 void Normal::DeleteSong(uint32_t count)
 {
-   //! \todo Make delete and add take a movement operation?
-   //!       ie to do stuff like dG, this may require making some kind of movement
-   //!          table or something rather than the way it currently works
-   if (COLLECTION == Mpc::Song::All)
+   if (client_.Connected())
    {
-      screen_.ActiveWindow().DeleteAllLines();
-   }
-   else if (COLLECTION == Mpc::Song::Single)
-   {
-      screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
+      //! \todo Make delete and add take a movement operation?
+      //!       ie to do stuff like dG, this may require making some kind of movement
+      //!          table or something rather than the way it currently works
+      if (COLLECTION == Mpc::Song::All)
+      {
+         screen_.ActiveWindow().DeleteAllLines();
+      }
+      else if (COLLECTION == Mpc::Song::Single)
+      {
+         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
+      }
    }
 }
 
@@ -701,7 +716,7 @@ void Normal::PasteBuffer(uint32_t count)
 {
    uint32_t position = 0;
 
-   client_.StartCommandList();
+   Mpc::CommandList list(client_);
 
    for (uint32_t i = 0; i < count; ++i)
    {
@@ -713,8 +728,6 @@ void Normal::PasteBuffer(uint32_t count)
          position++;
       }
    }
-
-   client_.SendCommandList();
 }
 
 
@@ -932,16 +945,17 @@ void Normal::DisplayModeLine()
       }
    }
 
-   std::string toggles = "";
-   std::string random  = (client_.Random() == true) ? "random, " : "";
-   std::string repeat  = (client_.Repeat() == true) ? "repeat, " : "";
-   std::string single  = (client_.Single() == true) ? "single, " : "";
-   std::string consume = (client_.Consume() == true) ? "consume, " : "";
+   std::string toggles   = "";
+   std::string random    = (client_.Random() == true) ? "random, " : "";
+   std::string repeat    = (client_.Repeat() == true) ? "repeat, " : "";
+   std::string single    = (client_.Single() == true) ? "single, " : "";
+   std::string consume   = (client_.Consume() == true) ? "consume, " : "";
+   std::string crossfade = (client_.Crossfade() > 0) ? "crossfade, " : "";
 
-   if ((random != "") || (repeat != "") || (single != "") || (consume != ""))
+   if ((random != "") || (repeat != "") || (single != "") || (consume != "") || (crossfade != ""))
    {
       toggles += " [ON: ";
-      toggles += random + repeat + single + consume;
+      toggles += random + repeat + single + consume + crossfade;
       toggles = toggles.substr(0, toggles.length() - 2);
       toggles += "]";
    }

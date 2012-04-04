@@ -29,6 +29,7 @@
 
 using namespace Ui;
 
+#define ESCAPE_KEY 27
 
 InputMode::InputMode(Ui::Screen & screen) :
    inputString_       (""),
@@ -111,11 +112,13 @@ bool InputMode::CausesModeToStart(int input) const
 
 bool InputMode::CausesModeToEnd(int input) const
 {
-   return (((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_ == "") && (backedOut_));
+   return ((((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_ == "") && (backedOut_)) ||
+           (input == ESCAPE_KEY) || 
+           (HasCompleteInput(input)));
 }
 
 
-/* static */ std::string InputMode::SplitStringAtTerminator(std::string input)
+/* static */ std::string InputMode::SplitStringAtTerminator(std::string input, bool keepTerminator)
 {
    std::vector<std::string> terminators;
 
@@ -130,30 +133,7 @@ bool InputMode::CausesModeToEnd(int input) const
       {
          if (input.substr(i, (*it).length()) == (*it))
          {
-            return input.substr(0, i + (*it).length());
-         }
-      }
-   }
-
-   return input;
-}
-
-/* static */ std::string InputMode::RemoveStringTerminator(std::string input)
-{
-   std::vector<std::string> terminators;
-
-   terminators.push_back("\n");
-   terminators.push_back("<C-M>");
-   terminators.push_back("<Enter>");
-   terminators.push_back("<Return>");
-
-   for (int i = 0; i < input.length(); ++i)
-   {
-      for (std::vector<std::string>::iterator it = terminators.begin(); it != terminators.end(); ++it)
-      {
-         if (input.substr(i, (*it).length()) == (*it))
-         {
-            return input.substr(0, i);
+            return input.substr(0, i + ((keepTerminator == true) ? (*it).length() : 0));
          }
       }
    }
@@ -163,7 +143,7 @@ bool InputMode::CausesModeToEnd(int input) const
 
 bool InputMode::SetInputString(std::string input)
 {
-   inputString_ = RemoveStringTerminator(input);
+   inputString_ = SplitStringAtTerminator(input, false);
 
    if (inputString_ != input)
    {
@@ -179,7 +159,7 @@ bool InputMode::SetInputString(std::string input)
    return false;
 }
 
-bool InputMode::HasCompleteInput(int input)
+bool InputMode::HasCompleteInput(int input) const
 {
    return (input == '\n');
 }
@@ -310,7 +290,7 @@ std::string InputMode::SearchHistory(Direction direction, std::string const & in
 bool InputMode::InputIsValidCharacter(int input)
 {
    return (input < std::numeric_limits<char>::max())
-       && (input != 27)
+       && (input != ESCAPE_KEY)
        && (input != '\n');
 }
 

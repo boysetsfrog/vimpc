@@ -60,6 +60,7 @@ void Player::Pause()
 
 void Player::Play(uint32_t position)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
    client_.Play(position);
 }
 
@@ -82,6 +83,11 @@ void Player::Quit()
 void Player::ToggleConsume()
 {
    SetConsume(!client_.Consume());
+}
+
+void Player::ToggleCrossfade()
+{
+   SetCrossfade((client_.Crossfade() == 0));
 }
 
 void Player::ToggleRandom()
@@ -119,6 +125,16 @@ void Player::SetConsume(bool consume)
    client_.SetConsume(consume);
 }
 
+void Player::SetCrossfade(bool crossfade)
+{
+   client_.SetCrossfade(crossfade);
+}
+
+void Player::SetCrossfade(uint32_t crossfade)
+{
+   client_.SetCrossfade(crossfade);
+}
+
 void Player::Shuffle()
 {
    client_.Shuffle();
@@ -153,15 +169,14 @@ void Player::Update()
 
 void Player::SkipSong(Skip skip, uint32_t count)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
+
    // If consume or random we have to send a lot of next commands
    // rather than just skipping directly to the right song
    // this is slow and only works in small amounts
    if ((client_.Random() == true) || (client_.Consume() == true) || (count == 1))
    {
-      if (count != 1)
-      {
-         client_.StartCommandList();
-      }
+      Mpc::CommandList list(client_, (count != 1));
 
       for (int i = 0; i < count; ++i)
       {
@@ -173,11 +188,6 @@ void Player::SkipSong(Skip skip, uint32_t count)
          {
             client_.Next();
          }
-      }
-
-      if (count != 1)
-      {
-         client_.SendCommandList();
       }
 
       HandleAutoScroll();
@@ -210,11 +220,13 @@ void Player::SkipSong(Skip skip, uint32_t count)
 
 void Player::SkipAlbum(Skip skip, uint32_t count)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
    SkipSongByInformation(skip, count, &Mpc::Song::Album);
 }
 
 void Player::SkipArtist(Skip skip, uint32_t count)
 {
+   screen_.Initialise(Ui::Screen::Playlist);
    SkipSongByInformation(skip, count, &Mpc::Song::Artist);
 }
 

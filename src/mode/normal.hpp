@@ -88,6 +88,7 @@ namespace Ui
       void Stop(uint32_t count);
 
       void Consume(uint32_t count);
+      void Crossfade(uint32_t count);
       void Random(uint32_t count);
       void Repeat(uint32_t count);
       void Single(uint32_t count);
@@ -102,6 +103,7 @@ namespace Ui
       void Left(uint32_t count);
       void Right(uint32_t count);
       void Confirm(uint32_t count);
+      void Escape(uint32_t count);
 
       // Execute the last action again
       void RepeatLastAction(uint32_t count);
