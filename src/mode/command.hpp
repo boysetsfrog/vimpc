@@ -42,7 +42,7 @@ namespace Ui
    {
 
    public:
-      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Normal & normalMode);
+      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
       ~Command();
 
    public:
@@ -99,6 +99,8 @@ namespace Ui
       void Connect(std::string const & arguments);
       void Disconnect(std::string const & arguments);
       void Reconnect(std::string const & arguments);
+
+      void NoHighlightSearch(std::string const & arguments);
 
       //! Specify a password to mpd
       void Password(std::string const & password);
@@ -204,6 +206,7 @@ namespace Ui
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       CommandQueue         commandQueue_;
+      Ui::Search         & search_;
       Ui::Screen         & screen_;
       Mpc::Client        & client_;
       Main::Settings     & settings_;

@@ -37,7 +37,7 @@
 using namespace Ui;
 
 // COMMANDS
-Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Normal & normalMode) :
+Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
    InputMode           (screen),
    Player              (screen, client, settings),
    initTabCompletion_  (true),
@@ -45,6 +45,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    queueCommands_      (false),
    aliasTable_         (),
    commandTable_       (),
+   search_             (search),
    screen_             (screen),
    client_             (client),
    settings_           (settings),
@@ -71,6 +72,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["findgenre"] = &Command::FindGenre;
    commandTable_["findsong"]  = &Command::FindSong;
    commandTable_["move"]      = &Command::Move;
+   commandTable_["nohlsearch"] = &Command::NoHighlightSearch;
    commandTable_["password"]  = &Command::Password;
    commandTable_["pause"]     = &Command::Pause;
    commandTable_["play"]      = &Command::Play;
@@ -755,6 +757,11 @@ void Command::Move(std::string const & arguments)
    {
       Error(ErrorNumber::InvalidParameter, "Expected two arguments");
    }
+}
+
+void Command::NoHighlightSearch(std::string const & arguments)
+{
+   search_.SetHighlightSearch(false);
 }
 
 void Command::Swap(std::string const & arguments)

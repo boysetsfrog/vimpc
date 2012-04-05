@@ -381,7 +381,8 @@ int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const s
       {
          colour = Colour::FullAdd;
       }
-      else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+      else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+               (search_.HighlightSearch() == true))
       {
          pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 

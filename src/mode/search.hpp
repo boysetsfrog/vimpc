@@ -72,6 +72,9 @@ namespace Ui
       pcrecpp::RE_Options LastSearchOptions() const;
       bool SearchResult(Skip skip, uint32_t count);
 
+      void SetHighlightSearch(bool highlight) { highlight_ = highlight; }
+      bool HighlightSearch() const { return highlight_; }
+
    private:
       bool SearchResult(Skip skip, std::string const & search, int32_t line, uint32_t count, bool raiseError = true);
       bool SearchWindow(Direction direction, std::string search, int32_t startLine, uint32_t count);
@@ -92,6 +95,7 @@ namespace Ui
       int32_t             currentLine_;
       std::string         lastSearch_;
       bool                hasSearched_;
+      bool                highlight_;
       char                prompt_[DirectionCount];
       Main::Settings &    settings_;
       Ui::Screen     &    screen_;

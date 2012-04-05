@@ -50,7 +50,7 @@ Vimpc::Vimpc() :
    normalMode_  (*(new Ui::Normal (this, screen_, client_, settings_, search_)))
 {
 
-   modeTable_[Command] = new Ui::Command(screen_, client_, settings_, normalMode_);
+   modeTable_[Command] = new Ui::Command(screen_, client_, settings_, search_, normalMode_);
    modeTable_[Normal]  = &normalMode_;
    modeTable_[Search]  = &search_;
 

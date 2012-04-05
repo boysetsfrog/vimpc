@@ -37,6 +37,7 @@ Search::Search(Ui::Screen & screen, Mpc::Client & client, Main::Settings & setti
    currentLine_(-1),
    lastSearch_ (""),
    hasSearched_(false),
+   highlight_  (true),
    prompt_     (),
    settings_   (settings),
    screen_     (screen)
@@ -52,6 +53,7 @@ Search::~Search()
 
 void Search::Initialise(int input)
 {
+   highlight_   = false;
    direction_   = GetDirectionForInput(input);
    currentLine_ = screen_.ActiveWindow().CurrentLine();
 
@@ -60,6 +62,8 @@ void Search::Initialise(int input)
 
 void Search::Finalise(int input)
 {
+   highlight_ = true;
+
    if ((lastSearch_ != inputString_) || (hasSearched_ == false))
    {
       screen_.ScrollTo(currentLine_);
