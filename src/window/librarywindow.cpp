@@ -71,6 +71,8 @@ void LibraryWindow::Redraw()
          }
       }
    }
+
+   screen_.Redraw(Ui::Screen::Browse);
 }
 
 uint32_t LibraryWindow::Current() const
