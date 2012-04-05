@@ -199,6 +199,17 @@ bool Command::ExecuteCommand(std::string const & input)
       // by calling this fucking again
       ExecuteCommand(fullCommand);
    }
+   else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
+   {
+      uint32_t line = atoi(command.c_str());
+
+      if (line >= 1)
+      {
+         --line;
+      }
+
+      screen_.ScrollTo(line);
+   }
    else
    {
       // Ignore the connect command when starting up if -h/-p used

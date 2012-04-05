@@ -93,6 +93,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    crossfadeTime_        (0),
    elapsed_              (0),
    state_                (MPD_STATE_STOP),
+   mpdstate_             (MPD_STATE_UNKNOWN),
 
    currentSong_          (NULL),
    currentStatus_        (NULL),

@@ -48,6 +48,7 @@ OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen,
 
 OutputWindow::~OutputWindow()
 {
+   Clear();
 }
 
 
