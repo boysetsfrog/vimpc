@@ -20,6 +20,8 @@
 
 #include "command.hpp"
 
+#include <unistd.h>
+
 #include <algorithm>
 #include <pcrecpp.h>
 #include <sstream>
@@ -37,7 +39,7 @@
 using namespace Ui;
 
 // COMMANDS
-Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
+Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
    InputMode           (screen),
    Player              (screen, client, settings),
    initTabCompletion_  (true),
@@ -45,6 +47,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    queueCommands_      (false),
    aliasTable_         (),
    commandTable_       (),
+   vimpc_              (vimpc),
    search_             (search),
    screen_             (screen),
    client_             (client),
@@ -90,6 +93,7 @@ Command::Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & set
    commandTable_["seek-"]     = &Command::Seek<-1>;
    commandTable_["single"]    = &Command::Single;
    commandTable_["shuffle"]   = &Command::Shuffle;
+   commandTable_["sleep"]     = &Command::Sleep;
    commandTable_["swap"]      = &Command::Swap;
    commandTable_["stop"]      = &Command::Stop;
    commandTable_["volume"]    = &Command::Volume;
@@ -479,6 +483,12 @@ void Command::EchoError(std::string const & arguments)
    Error(ErrorNumber::Unknown, arguments);
 }
 
+void Command::Sleep(std::string const & seconds)
+{
+   vimpc_->ChangeMode('\n', "");
+   usleep(1000 * 1000 * atoi(seconds.c_str()));
+}
+
 
 template <bool ON>
 void Command::Output(std::string const & arguments)
@@ -706,7 +716,7 @@ void Command::Crossfade(std::string const & arguments)
 {
    if (arguments.empty() == false)
    {
-      Player::SetCrossfade((uint32_t) atoi(arguments.c_str()));
+      Player::SetCrossfade(static_cast<uint32_t>(atoi(arguments.c_str())));
    }
    else
    {

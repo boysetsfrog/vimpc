@@ -126,6 +126,7 @@ bool InputMode::CausesModeToEnd(int input) const
    terminators.push_back("<C-M>");
    terminators.push_back("<Enter>");
    terminators.push_back("<Return>");
+   terminators.push_back("<CR>");
 
    for (int i = 0; i < input.length(); ++i)
    {

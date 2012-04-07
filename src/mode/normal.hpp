@@ -113,6 +113,7 @@ namespace Ui
       void Collapse(uint32_t count);
 
    private:
+      void Close(uint32_t count);
       void Edit(uint32_t count);
       void Visual(uint32_t count);
 

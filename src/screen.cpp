@@ -474,6 +474,10 @@ void Screen::ScrollTo(Location location, uint32_t line)
    ScrollTo(scroll[location]);
 }
 
+void Screen::ScrollToAZ(std::string const & input)
+{
+}
+
 
 void Screen::Clear()
 {

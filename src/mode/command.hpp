@@ -42,7 +42,7 @@ namespace Ui
    {
 
    public:
-      Command(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
+      Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
       ~Command();
 
    public:
@@ -112,6 +112,8 @@ namespace Ui
 
       //! Similar to echo but in the errror window
       void EchoError(std::string const & echo);
+
+      void Sleep(std::string const & seconds);
 
    private:
       void Add(std::string const & arguments);
@@ -206,6 +208,7 @@ namespace Ui
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       CommandQueue         commandQueue_;
+      Main::Vimpc *        vimpc_;
       Ui::Search         & search_;
       Ui::Screen         & screen_;
       Mpc::Client        & client_;

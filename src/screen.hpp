@@ -149,6 +149,7 @@ namespace Ui
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(uint32_t line);
       void ScrollTo(Location location, uint32_t line = 0);
+      void ScrollToAZ(std::string const & input);
 
    public:
       // Clear the console window

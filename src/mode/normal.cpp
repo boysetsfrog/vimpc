@@ -121,6 +121,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<Return>"]= &Normal::Confirm;
    actionTable_["<C-J>"]   = &Normal::Confirm;
    actionTable_["<Enter>"] = &Normal::Confirm;
+   actionTable_["<CR>"]    = &Normal::Confirm;
 
    // Searching
    actionTable_["N"]       = &Normal::SearchResult<Search::Previous>;
@@ -157,6 +158,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<Up>"]    = actionTable_["k"];
 
    //
+   actionTable_["q"]       = &Normal::Close;
    actionTable_["e"]       = &Normal::Edit;
    actionTable_["v"]       = &Normal::Visual;
    actionTable_["V"]       = &Normal::Visual;
@@ -670,6 +672,11 @@ void Normal::Collapse(uint32_t count)
 }
 
 
+void Normal::Close(uint32_t count)
+{
+   screen_.SetVisible(screen_.GetActiveWindow(), false);
+}
+
 void Normal::Edit(uint32_t count)
 {
    screen_.ActiveWindow().Edit();
@@ -855,6 +862,7 @@ void Normal::GotoMark(std::string const & input)
    // with that letter
    if ((input[0] >= 'A') && (input[0] <= 'Z'))
    {
+      screen_.ScrollToAZ(input);
    }
    else if (markTable_.find(input) != markTable_.end())
    {
@@ -865,7 +873,6 @@ void Normal::GotoMark(std::string const & input)
    else
    {
       Error(ErrorNumber::NoSuchMark, "Mark not set");
-      //screen_.ScrollTo(0);
    }
 }
 

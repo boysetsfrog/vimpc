@@ -73,6 +73,7 @@
            gv              | reselect the last visual selected songs
            gp              | scroll forward to a song that is in the playlist
            gP              | scroll backward to a song that is in the playlist
+           q               | closes the current window
  
  PLAYLIST:
    [count] d, del          | delete songs
@@ -87,6 +88,7 @@
  BROWSE:
    [count] a               | add songs to playlist
    [count] d, del          | delete songs
+           e               | information about selected song
            <Enter>         | append the song to the playlist and play it
  
  LISTS:
@@ -150,14 +152,13 @@
    consume [on/off]        | toggles consume, or sets on/off
    crossfade [0-10]        | toggles crossfade, or sets crossfade time
  
-   shuffle                 | shuffle the playlist
- 
  QUEUE:
    add <uri>               | add a song/strem using the given <uri>
    delete <pos1> [pos2]    | delete the song at <pos1>, or from <pos1> to [pos2]
    deleteall               | delete all songs in the playlist
    move <pos1> <pos2>      | move song from <pos1> to <pos2>
    swap <pos1> <pos2>      | swap songs in <pos1> and <pos2>
+   shuffle                 | shuffle the playlist
  
  PLAYLISTS:
    toplaylist <name>       | save contents of window/tab to playlist <name>
@@ -219,6 +220,9 @@
    alias <name> <commands> | create an alias <name> which executes the commands
                            | each command may be seperated by ;
                            | i.e alias hello echo "hello"; echo "world";
+
+ MISC:
+    sleep <seconds>        | do nothing for <seconds> seconds
  
  
  MAPPING KEYS
