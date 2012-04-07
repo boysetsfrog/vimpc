@@ -83,11 +83,9 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    raw();
    noecho();
 
-   mouse_ = settings_.Mouse();
-
-   if (mouse_ == true)
+   if (settings_.Mouse() == true)
    {
-      SetupMouse();
+      SetupMouse(true);
    }
 
    maxRows_    = LINES;
@@ -640,8 +638,11 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
    // Mouse support was turned on, set it up
    if ((mouse_ == false) && (settings_.Mouse() == true))
    {
-      mouse_ = true;
-      SetupMouse();
+      SetupMouse(true);
+   }
+   else if ((mouse_ == true) && (settings_.Mouse() == false))
+   {
+      SetupMouse(false);
    }
 
    int32_t input = wgetch(commandWindow_);
@@ -898,10 +899,19 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
 }
 
 
-void Screen::SetupMouse() const
+void Screen::SetupMouse(bool on) const
 {
 #ifdef HAVE_MOUSE_SUPPORT
-   mousemask(ALL_MOUSE_EVENTS, NULL);
+   if (on == true)
+   {
+      mouse_ = true;
+      mousemask(ALL_MOUSE_EVENTS, NULL);
+   }
+   else
+   {
+      mouse_ = false;
+      mousemask(0, NULL);
+   }
 #endif
 }
 

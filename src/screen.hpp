@@ -199,7 +199,7 @@ namespace Ui
       void MoveWindow(int32_t window, uint32_t position);
 
    private:
-      void SetupMouse() const;
+      void SetupMouse(bool on) const;
       void ClearStatus() const;
       void UpdateTabWindow() const;
 
