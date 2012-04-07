@@ -305,6 +305,9 @@
    [no]hlsearch[!]         | highlight search results
    [no]ignorecase[!]       | case insensitive searching
    [no]incsearch[!]        | search for results as you are typing
+   [no]mouse[!]            | turn mouse support on
+                           | Note: if build with older ncurses, scroll wheel will
+                           | not work correctly
    [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
    [no]searchwrap[!]       | wrap search results when using n/N
    [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab

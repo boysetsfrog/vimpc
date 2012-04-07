@@ -57,6 +57,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    statusWindow_    (NULL),
    tabWindow_       (NULL),
    commandWindow_   (NULL),
+   mouse_           (false),
    started_         (false),
    maxRows_         (0),
    maxColumns_      (0),
@@ -82,9 +83,12 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    raw();
    noecho();
 
-#ifdef HAVE_MOUSE_SUPPORT
-   mousemask(ALL_MOUSE_EVENTS, NULL);
-#endif
+   mouse_ = settings_.Mouse();
+
+   if (mouse_ == true)
+   {
+      SetupMouse();
+   }
 
    maxRows_    = LINES;
    maxColumns_ = COLS;
@@ -633,6 +637,13 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
       errorWindow.Print(0);
    }
 
+   // Mouse support was turned on, set it up
+   if ((mouse_ == false) && (settings_.Mouse() == true))
+   {
+      mouse_ = true;
+      SetupMouse();
+   }
+
    int32_t input = wgetch(commandWindow_);
 
    if ((input == 27) && (HandleEscape == true))
@@ -662,50 +673,53 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
 void Screen::HandleMouseEvent()
 {
 #ifdef HAVE_MOUSE_SUPPORT
-   MEVENT event;
-
-   //! \TODO this seems to scroll quite slowly and not properly at all
-   if (getmouse(&event) == OK)
+   if (mouse_ == true)
    {
-#if (NCURSES_MOUSE_VERSION > 1)
-      if (event.bstate & BUTTON4_PRESSED)
-      {
-         ActiveWindow().Scroll(-3);
-      }
-      else if (event.bstate & BUTTON5_PRESSED)
-      {
-         ActiveWindow().Scroll(3);
-      }
-      else
-#endif
-      if (event.y == 0)
-      {
-         if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
-         {
-            int32_t x = 0;
-            for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
-            {
-               std::string name = GetNameFromWindow(static_cast<int32_t>(*it));
-               x += name.length() + 2;
+      MEVENT event;
 
-               if (event.x < x)
+      //! \TODO this seems to scroll quite slowly and not properly at all
+      if (getmouse(&event) == OK)
+      {
+#if (NCURSES_MOUSE_VERSION > 1)
+         if (event.bstate & BUTTON4_PRESSED)
+         {
+            ActiveWindow().Scroll(-3);
+         }
+         else if (event.bstate & BUTTON5_PRESSED)
+         {
+            ActiveWindow().Scroll(3);
+         }
+         else
+#endif
+         if (event.y == 0)
+         {
+            if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
+            {
+               int32_t x = 0;
+               for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
                {
-                  SetActiveAndVisible(GetWindowFromName(name));
-                  break;
+                  std::string name = GetNameFromWindow(static_cast<int32_t>(*it));
+                  x += name.length() + 2;
+
+                  if (event.x < x)
+                  {
+                     SetActiveAndVisible(GetWindowFromName(name));
+                     break;
+                  }
                }
             }
          }
-      }
-      else if ((event.y > 0) && (event.y <= static_cast<int32_t>(MaxRows())))
-      {
-         if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
+         else if ((event.y > 0) && (event.y <= static_cast<int32_t>(MaxRows())))
          {
-            ActiveWindow().ScrollTo(ActiveWindow().FirstLine() + event.y - 1);
-         }
+            if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
+            {
+               ActiveWindow().ScrollTo(ActiveWindow().FirstLine() + event.y - 1);
+            }
 
-         if ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED)
-         {
-            ActiveWindow().Confirm();
+            if ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED)
+            {
+               ActiveWindow().Confirm();
+            }
          }
       }
    }
@@ -883,6 +897,13 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
    }
 }
 
+
+void Screen::SetupMouse() const
+{
+#ifdef HAVE_MOUSE_SUPPORT
+   mousemask(ALL_MOUSE_EVENTS, NULL);
+#endif
+}
 
 void Screen::ClearStatus() const
 {

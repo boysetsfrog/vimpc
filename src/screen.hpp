@@ -29,7 +29,9 @@
 
 #include <string>
 
-//#define HAVE_MOUSE_SUPPORT
+// Changed to being on by default
+// will need to check ncurses properly
+#define HAVE_MOUSE_SUPPORT
 
 // Forward declarations
 namespace Main
@@ -197,6 +199,7 @@ namespace Ui
       void MoveWindow(int32_t window, uint32_t position);
 
    private:
+      void SetupMouse() const;
       void ClearStatus() const;
       void UpdateTabWindow() const;
 
@@ -211,6 +214,7 @@ namespace Ui
       std::vector<ModeWindow *> modeWindows_;
       mutable std::map<int32_t, bool> drawn_;
 
+      mutable bool mouse_;
       bool      started_;
       int32_t   maxRows_;
       int32_t   mainRows_;
