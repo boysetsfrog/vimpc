@@ -607,6 +607,19 @@ void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
    }
 }
 
+
+void Client::SetOutput(Mpc::Output * output, bool enable)
+{
+   if (enable == true)
+   {
+      EnableOutput(output);
+   }
+   else
+   {
+      DisableOutput(output);
+   }
+}
+
 void Client::EnableOutput(Mpc::Output * output)
 {
    if (Connected() == true)

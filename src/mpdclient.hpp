@@ -138,6 +138,7 @@ namespace Mpc
 
    public:
       // Outputs
+      void SetOutput(Mpc::Output * output, bool enable);
       void EnableOutput(Mpc::Output * output);
       void DisableOutput(Mpc::Output * output);
 

@@ -118,27 +118,45 @@ void OutputWindow::Confirm()
 {
    if (outputs_.Size() > CurrentLine())
    {
-      client_.EnableOutput(outputs_.Get(CurrentLine()));
-      outputs_.Get(CurrentLine())->SetEnabled(true);
+      bool const enabled = !(outputs_.Get(CurrentLine())->Enabled());
+      client_.SetOutput(outputs_.Get(CurrentLine()), enabled);
+      outputs_.Get(CurrentLine())->SetEnabled(enabled);
    }
+}
+
+void OutputWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   SetOutput(line, true, count, scroll);
+}
+
+void OutputWindow::AddAllLines()
+{
+   AddLine(0, BufferSize(), false);
 }
 
 void OutputWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
-   for (unsigned int i = 0; i < count; ++i)
-   {
-      if (line + i < BufferSize())
-      {
-         client_.DisableOutput(outputs_.Get(line + i));
-         outputs_.Get(line + i)->SetEnabled(false);
-      }
-   }
+   SetOutput(line, false, count, scroll);
 }
 
 void OutputWindow::DeleteAllLines()
 {
    DeleteLine(0, BufferSize(), false);
 }
+
+
+void OutputWindow::SetOutput(uint32_t line, bool enable, uint32_t count, bool scroll)
+{
+   for (unsigned int i = 0; i < count; ++i)
+   {
+      if (line + i < BufferSize())
+      {
+         client_.SetOutput(outputs_.Get(line + i), enable);
+         outputs_.Get(line + i)->SetEnabled(enable);
+      }
+   }
+}
+
 
 int32_t OutputWindow::DetermineColour(uint32_t line) const
 {

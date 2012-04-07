@@ -104,9 +104,11 @@
            <Enter>         | clear playlist, add song/album/artist and play it
  
  OUTPUTS:
+           a               | enable the selected output
+           A               | enable all outputs
            d               | disable the selected output
            D               | disable all outputs
-           <Enter>         | enable the selected output
+           <Enter>         | toggle the selected output
  
  SONGINFO:
            a               | add song to the playlist

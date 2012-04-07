@@ -67,8 +67,13 @@ namespace Ui
       std::string SearchPattern(int32_t id) { return outputs_.Get(id)->Name(); }
 
    public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+
+   private:
+      void SetOutput(uint32_t line, bool enable, uint32_t count = 1, bool scroll = true);
 
    private:
       void    Clear();
