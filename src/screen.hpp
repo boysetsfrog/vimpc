@@ -181,6 +181,7 @@ namespace Ui
       Ui::ScrollWindow & Window(uint32_t window) const;
 
       // Changes the currently active window by setting it explicitly
+      void SetActiveWindowType(MainWindow window);
       void SetActiveWindow(uint32_t window);
 
       // Changes the currently active window by rotating through those available

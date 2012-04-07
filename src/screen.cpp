@@ -751,6 +751,17 @@ Ui::ScrollWindow & Screen::Window(uint32_t window) const
    return assert_reference(it->second);
 }
 
+void Screen::SetActiveWindowType(MainWindow window)
+{
+   window_ = window;
+
+   if (drawn_[window_] == false)
+   {
+      Redraw(window_);
+   }
+
+   Update();
+}
 
 void Screen::SetActiveWindow(uint32_t window)
 {
