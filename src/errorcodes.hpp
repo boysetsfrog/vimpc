@@ -40,6 +40,7 @@ namespace ErrorNumber
       SearchNoResults,
       SettingNonexistant,
       FileExists,
+      NoSuchMark,
       Unknown
    };
 }

@@ -864,7 +864,8 @@ void Normal::GotoMark(std::string const & input)
    }
    else
    {
-      screen_.ScrollTo(0);
+      Error(ErrorNumber::NoSuchMark, "Mark not set");
+      //screen_.ScrollTo(0);
    }
 }
 
