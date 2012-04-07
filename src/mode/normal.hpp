@@ -162,6 +162,13 @@ namespace Ui
       template <Search::Skip SKIP>
       void ScrollToPlaylistSong(uint32_t count);
 
+   private:
+      void NextGotoMark(uint32_t count);
+      void NextAddMark(uint32_t count);
+
+      void AddMark(std::string const & input);
+      void GotoMark(std::string const & input);
+
    private: //Alignment
       template <Screen::Direction DIRECTION>
       void Align(uint32_t count);
@@ -212,6 +219,7 @@ namespace Ui
       };
 
       typedef std::map<std::string, std::vector<KeyMapItem> > MapTable;
+      typedef std::map<std::string, std::pair<uint32_t, uint32_t> > MarkTable;
 
 
    private:
@@ -221,8 +229,11 @@ namespace Ui
       std::string      lastAction_;
       uint32_t         lastActionCount_;
       bool             wasSpecificCount_;
+      bool             addMark_;
+      bool             gotoMark_;
 
       ActionTable      actionTable_;
+      MarkTable        markTable_;
       MapTable         mapTable_;
 
       Main::Vimpc *    vimpc_;

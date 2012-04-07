@@ -47,6 +47,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    lastAction_      (""),
    lastActionCount_ (1),
    wasSpecificCount_(false),
+   addMark_         (false),
+   gotoMark_        (false),
    actionTable_     (),
    vimpc_           (vimpc),
    search_          (search),
@@ -173,6 +175,13 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["gT"]      = &Normal::SetActiveWindow<Screen::Previous, 0>;
    actionTable_["gv"]      = &Normal::ResetSelection;
 
+   // Marks
+   actionTable_["m"]       = &Normal::NextAddMark;
+   actionTable_["g`"]      = &Normal::NextGotoMark;
+   actionTable_["g'"]      = &Normal::NextGotoMark;
+   actionTable_["'"]       = &Normal::NextGotoMark;
+   actionTable_["`"]       = &Normal::NextGotoMark;
+
    // Align the text to a location on the screen
    actionTable_["z."]        = &Normal::AlignTo<Screen::Centre>;
    actionTable_["z<Enter>"]  = &Normal::AlignTo<Screen::Top>;
@@ -225,7 +234,15 @@ bool Normal::Handle(int input)
 {
    bool result = true;
 
-   if ((input >= '0') && (input <= '9') && ((input & (1 << 31)) == 0))
+   if (gotoMark_ == true)
+   {
+      GotoMark(InputCharToString(input));
+   }
+   else if (addMark_ == true)
+   {
+      AddMark(InputCharToString(input));
+   }
+   else if ((input >= '0') && (input <= '9') && ((input & (1 << 31)) == 0))
    {
       uint64_t const newActionCount = ((static_cast<uint64_t>(actionCount_) * 10) + (input - '0'));
 
@@ -810,6 +827,44 @@ void Normal::ScrollToPlaylistSong(uint32_t count)
    else
    {
       screen_.ScrollTo(screen_.ActiveWindow().Playlist(count));
+   }
+}
+
+
+void Normal::NextGotoMark(uint32_t count)
+{
+   gotoMark_ = true; 
+}
+
+void Normal::NextAddMark(uint32_t count)
+{
+   addMark_ = true; 
+}
+
+void Normal::AddMark(std::string const & input)
+{
+   addMark_ = false;
+   markTable_[input] = std::pair<uint32_t, uint32_t>(screen_.GetActiveWindow(), screen_.ActiveWindow().CurrentLine());
+}
+
+void Normal::GotoMark(std::string const & input)
+{
+   gotoMark_ = false; 
+
+   // Marks A-Z jump to the first line starting
+   // with that letter
+   if ((input[0] >= 'A') && (input[0] <= 'Z'))
+   {
+   }
+   else if (markTable_.find(input) != markTable_.end())
+   {
+      MarkTable::const_iterator it = markTable_.find(input);
+      screen_.SetActiveWindow(static_cast<Screen::MainWindow>(it->second.first));
+      screen_.ScrollTo(it->second.second);
+   }
+   else
+   {
+      screen_.ScrollTo(0);
    }
 }
 
