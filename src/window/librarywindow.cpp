@@ -302,6 +302,21 @@ void LibraryWindow::Right(Ui::Player & player, uint32_t count)
    }
 }
 
+void LibraryWindow::Click()
+{
+   if (library_.Get(CurrentLine())->type_ != Mpc::SongType)
+   {
+      if (library_.Get(CurrentLine())->expanded_ == false)
+      {
+         library_.Expand(CurrentLine());
+      }
+      else
+      {
+         library_.Collapse(CurrentLine());
+      }
+   }
+}
+
 void LibraryWindow::Confirm()
 {
    client_.Clear();

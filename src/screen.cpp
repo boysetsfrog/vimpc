@@ -720,6 +720,7 @@ void Screen::HandleMouseEvent()
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
                ActiveWindow().ScrollTo(ActiveWindow().FirstLine() + event.y - 1);
+               ActiveWindow().Click();
             }
 
             if ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED)

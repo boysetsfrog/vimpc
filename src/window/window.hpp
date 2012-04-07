@@ -45,6 +45,7 @@ namespace Ui
       virtual void Print(uint32_t line) const = 0;
       virtual void Left(Ui::Player & player, uint32_t count);
       virtual void Right(Ui::Player & player, uint32_t count);
+      virtual void Click();
       virtual void Confirm();
       virtual void Redraw();
       virtual void Move(int row, int column);

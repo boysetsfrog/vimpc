@@ -51,6 +51,10 @@ void Window::Right(Ui::Player & player, uint32_t count)
 
 }
 
+void Window::Click()
+{
+}
+
 void Window::Confirm()
 {
 }
