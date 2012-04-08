@@ -66,19 +66,20 @@ void LibraryWindow::Redraw()
 
 void LibraryWindow::SoftRedraw()
 {
+   for (unsigned int i = 0; i < library_.Size(); ++i)
+   {
+      library_.Collapse(i);
+   }
+
    library_.Sort();
 
    for (unsigned int i = 0; i < library_.Size(); ++i)
    {
       if (library_.Get(i)->type_ == Mpc::ArtistType)
       {
-         if (settings_.ExpandArtists() == true)
+         if ((settings_.ExpandArtists() == true) && (library_.Get(i)->expanded_ == false))
          {
             library_.Expand(i);
-         }
-         else
-         {
-            library_.Collapse(i);
          }
       }
    }
