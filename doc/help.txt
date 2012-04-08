@@ -307,7 +307,6 @@
    [no]browsenumbers[!]    | display id numbers next to songs in the browse window
    [no]colour[!]           | enable or disable colours
    [no]expand-artists[!]   | when enabled, expand to artist by default in library
-                           | if changed whilst running, must :redraw the library
    [no]hlsearch[!]         | highlight search results
    [no]ignorecase[!]       | case insensitive searching
    [no]incsearch[!]        | search for results as you are typing
@@ -320,9 +319,7 @@
    [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
    [no]songnumbers[!]      | display id numbers next to songs in any window
    [no]sortignorecase[!]   | ignore case when sorting by artist/album
-                           | if changed whilst running, must :redraw the library
    [no]sortignorethe[!]    | ignore the prefix 'the' when sorting by artist/album
-                           | if changed whilst running, must :redraw the library
    [no]songnumbers[!]      | display id numbers next to songs in any window
    [no]stoponquit[!]       | automatically stop playback when vimpc is quit
    [no]timeremaining[!]    | display the time remaining rather than elapsed

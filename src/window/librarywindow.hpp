@@ -54,6 +54,8 @@ namespace Ui
       void Click();
       void Confirm();
       void Redraw();
+      void SoftRedraw();
+      bool RequiresRedraw();
 
       uint32_t Current() const;
 
@@ -82,6 +84,10 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Library         & library_;
+
+      bool                   ignoreCase_;
+      bool                   ignoreThe_;
+      bool                   expandArtist_;
    };
 }
 #endif

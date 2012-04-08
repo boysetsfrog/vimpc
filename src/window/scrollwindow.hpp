@@ -65,6 +65,8 @@ namespace Ui
       virtual void Edit() {}
       virtual void Escape() {}
       virtual void Visual() {}
+      virtual void SoftRedraw() {}
+      virtual bool RequiresRedraw() { return false; }
 
    public:
       virtual void Save(std::string const & name) {}

@@ -40,8 +40,15 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
    settings_        (settings),
    client_          (client),
    search_          (search),
-   library_         (Main::Library())
+   library_         (Main::Library()),
+
+   ignoreCase_      (false),
+   ignoreThe_       (false),
+   expandArtist_    (false)
 {
+   ignoreCase_   = settings_.IgnoreCaseSort();
+   ignoreThe_    = settings_.IgnoreTheSort();
+   expandArtist_ = settings_.ExpandArtists();
 }
 
 LibraryWindow::~LibraryWindow()
@@ -54,7 +61,11 @@ void LibraryWindow::Redraw()
 {
    Clear();
    client_.ForEachLibrarySong(library_, &Mpc::Library::Add);
+   SoftRedraw();
+}
 
+void LibraryWindow::SoftRedraw()
+{
    library_.Sort();
 
    for (unsigned int i = 0; i < library_.Size(); ++i)
@@ -73,7 +84,19 @@ void LibraryWindow::Redraw()
    }
 
    screen_.Redraw(Ui::Screen::Browse);
+
+   ignoreCase_   = settings_.IgnoreCaseSort();
+   ignoreThe_    = settings_.IgnoreTheSort();
+   expandArtist_ = settings_.ExpandArtists();
 }
+
+bool LibraryWindow::RequiresRedraw()
+{
+   return ((ignoreCase_   != settings_.IgnoreCaseSort()) ||
+           (ignoreThe_    != settings_.IgnoreTheSort())  ||
+           (expandArtist_ != settings_.ExpandArtists()));
+}
+
 
 uint32_t LibraryWindow::Current() const
 {
@@ -217,42 +240,6 @@ void LibraryWindow::Print(uint32_t line) const
          }
 
          PrintSong(line, printLine, colour, settings_.LibraryFormat(), library_.Get(printLine)->song_);
-
-         /*
-         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
-         {
-            wattron(window, COLOR_PAIR(YELLOWONDEFAULT));
-         }
-
-         waddstr(window, library_.Get(printLine)->song_->DurationString().c_str());
-
-         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
-         {
-            wattroff(window, COLOR_PAIR(YELLOWONDEFAULT));
-         }
-
-         waddstr(window, " - ");
-
-         if (settings_.ColourEnabled() == true)
-         {
-            wattron(window, COLOR_PAIR(colour));
-         }
-
-         std::string title = library_.Get(printLine)->song_->Title();
-
-         if (title == "Unknown")
-         {
-            title = library_.Get(printLine)->song_->URI();
-         }
-
-         if (title.length() >= 48)
-         {
-            title  = title.substr(0, 45);
-            title += "...";
-         }
-
-         waddstr(window, title.c_str());
-         */
       }
 
       wattroff(window, A_BOLD | A_REVERSE);

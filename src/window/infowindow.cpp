@@ -51,9 +51,9 @@ void InfoWindow::Print(uint32_t line) const
       }
 
       wattron(window, A_BOLD);
-      mvwaddstr(window, 0, 0, " URI: ");
+      mvwaddstr(window, 0, 0, " File     : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 0, 6, "%s", song->URI().c_str());
+      mvwprintw(window, 0, 12, "%s", song->URI().c_str());
 
       wattron(window, A_BOLD);
       mvwaddstr(window, 3, 0, " Artist   : ");
@@ -68,18 +68,23 @@ void InfoWindow::Print(uint32_t line) const
       wattron(window, A_BOLD);
       mvwaddstr(window, 5, 0, " Track    : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 5, 12, "%s - %s", song->Track().c_str(), song->Title().c_str());
+      mvwprintw(window, 5, 12, "%s", song->Track().c_str());
 
       wattron(window, A_BOLD);
-      mvwaddstr(window, 6, 0, " Duration : ");
+      mvwaddstr(window, 6, 0, " Title    : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 6, 12, "%d:%d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
+      mvwprintw(window, 6, 12, "%s", song->Title().c_str());
+
+      wattron(window, A_BOLD);
+      mvwaddstr(window, 7, 0, " Duration : ");
+      wattroff(window, A_BOLD);
+      mvwprintw(window, 7, 12, "%d:%d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
 
 
       wattron(window, A_BOLD);
-      mvwaddstr(window, 8, 0, " In Playlist : ");
+      mvwaddstr(window, 9, 0, " Playlist : ");
       wattroff(window, A_BOLD);
-      mvwprintw(window, 8, 15, "%s", (song->Reference() > 0) ? "Yes" : "No");
+      mvwprintw(window, 9, 12, "%s", (song->Reference() > 0) ? "Yes" : "No");
 
       //mvwaddstr(window, 4, 0, song->Duration().c_str());
       //
