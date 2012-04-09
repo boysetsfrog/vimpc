@@ -58,6 +58,9 @@ namespace Main
          ~Settings();
 
       public:
+         //! List all the available settings (including no versions);
+         std::vector<std::string> AvailableSettings() const;
+
          //! Calls the correct setter function based upon the given input
          void Set(std::string const & input);
 

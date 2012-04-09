@@ -108,6 +108,27 @@ Settings::~Settings()
 }
 
 
+std::vector<std::string> Settings::AvailableSettings() const
+{
+   std::vector<std::string> AllSettings;
+
+   for (SettingsTable::const_iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   {
+      AllSettings.push_back(it->first);
+      AllSettings.push_back("no" + it->first);
+   }
+
+   for (SettingsFunctionTable::const_iterator it = settingsTable_.begin(); it != settingsTable_.end(); ++it)
+   {
+      AllSettings.push_back(it->first);
+   }
+
+   std::sort(AllSettings.begin(), AllSettings.end());
+
+   return AllSettings;
+}
+
+
 void Settings::Set(std::string const & input)
 {
    std::string       setting, arguments;

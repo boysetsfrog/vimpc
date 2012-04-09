@@ -127,6 +127,14 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    commandTable_["edit"]       = &Command::LoadPlaylist;
    commandTable_["write"]      = &Command::SavePlaylist;
    commandTable_["toplaylist"] = &Command::ToPlaylist;
+
+   // Add all settings to command table to provide tab completion
+   std::vector<std::string> AllSettings = settings_.AvailableSettings();
+
+   for (uint32_t i = 0; i < AllSettings.size(); ++i)
+   {
+      commandTable_["set " + AllSettings.at(i)] = commandTable_["set"];
+   }
 }
 
 Command::~Command()
