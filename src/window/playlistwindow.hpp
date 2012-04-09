@@ -51,6 +51,7 @@ namespace Ui
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
       void Redraw();
+      void ScrollToFirstMatch(std::string const & input) { }
 
       uint32_t Current() const;
 

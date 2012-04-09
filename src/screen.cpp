@@ -476,6 +476,7 @@ void Screen::ScrollTo(Location location, uint32_t line)
 
 void Screen::ScrollToAZ(std::string const & input)
 {
+   ActiveWindow().ScrollToFirstMatch(input);
 }
 
 

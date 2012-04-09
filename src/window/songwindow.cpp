@@ -316,6 +316,22 @@ void SongWindow::Edit()
 }
 
 
+void SongWindow::ScrollToFirstMatch(std::string const & input)
+{
+   for (uint32_t i = 0; i < BufferSize(); ++i)
+   {
+      Mpc::Song * song = Buffer().Get(i);
+      std::string line = song->FormatString(settings_.SongFormat());
+
+      if (Algorithm::imatch(line, input, settings_.IgnoreTheSort(), settings_.IgnoreCaseSort()) == true)
+      {
+         ScrollTo(i);
+         break;
+      }
+   }
+}
+
+
 void SongWindow::Save(std::string const & name)
 {
    if (Main::Lists().Index(name) == -1)

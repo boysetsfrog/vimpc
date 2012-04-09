@@ -403,6 +403,22 @@ void LibraryWindow::Edit()
 }
 
 
+void LibraryWindow::ScrollToFirstMatch(std::string const & input)
+{
+   for (uint32_t i = 0; i < BufferSize(); ++i)
+   {
+      Mpc::LibraryEntry * entry = library_.Get(i);
+
+      if ((entry->type_ == Mpc::ArtistType) &&
+          (Algorithm::imatch(entry->artist_, input, settings_.IgnoreTheSort(), settings_.IgnoreCaseSort()) == true))
+      {
+         ScrollTo(i);
+         break;
+      }
+   }
+}
+
+
 void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll)
 {
    if (client_.Connected() == true)

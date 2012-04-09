@@ -77,6 +77,7 @@ namespace Ui
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
       void Edit();
+      void ScrollToFirstMatch(std::string const & input);
 
    public:
       void Save(std::string const & name);

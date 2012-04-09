@@ -20,6 +20,23 @@
 
 #include "algorithm.hpp"
 
+std::string PrepString(std::string const & s1, bool ignoreLeadingThe, bool caseInsensitive)
+{
+   std::string Result = s1;
+
+   if (ignoreLeadingThe == true)
+	{
+      pcrecpp::RE("\\s*[tT][hH][eE]\\s*").Replace("", &Result);  
+   }
+
+	if (caseInsensitive == true)
+	{
+		std::transform(Result.begin(), Result.end(), Result.begin(), ::tolower);
+	}
+
+   return Result;
+}
+
 bool Algorithm::isLower(std::string const & s1)
 {
    return isCase(s1, ::tolower);
@@ -32,22 +49,25 @@ bool Algorithm::isUpper(std::string const & s1)
 
 bool Algorithm::icompare(std::string const & s1, std::string const & s2, bool ignoreLeadingThe, bool caseInsensitive)
 {
-   std::string lower1(s1);
-   std::string lower2(s2);
-
-   if (ignoreLeadingThe == true)
-	{
-      pcrecpp::RE("\\s*[tT][hH][eE]\\s*").Replace("", &lower1);  
-      pcrecpp::RE("\\s*[tT][hH][eE]\\s*").Replace("", &lower2);  
-   }
-
-	if (caseInsensitive == true)
-	{
-		std::transform(lower1.begin(), lower1.end(), lower1.begin(), ::tolower);
-		std::transform(lower2.begin(), lower2.end(), lower2.begin(), ::tolower);
-	}
-
+   std::string const lower1(PrepString(s1, ignoreLeadingThe, caseInsensitive));
+   std::string const lower2(PrepString(s2, ignoreLeadingThe, caseInsensitive));
    return (lower1 < lower2);
+}
+
+bool Algorithm::imatch(std::string const & s1, std::string const & s2, bool ignoreLeadingThe, bool caseInsensitive)
+{
+   std::string lower1(PrepString(s1, ignoreLeadingThe, caseInsensitive));
+   std::string lower2(PrepString(s2, ignoreLeadingThe, caseInsensitive));
+
+   if (lower1.size() > lower2.size())
+   {
+      lower1 = lower1.substr(0, lower2.length());
+   }
+   else if (lower2.size() > lower1.size())
+   {
+      lower2 = lower2.substr(0, lower1.length());
+   }
+   return (lower1 == lower2);
 }
 
 
