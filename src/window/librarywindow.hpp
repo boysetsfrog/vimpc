@@ -73,7 +73,7 @@ namespace Ui
       void ScrollToFirstMatch(std::string const & input);
 
    private:
-      void DoForLine(LibraryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DoForLine(LibraryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true, bool countskips = false);
 
    private:
       void    Clear();

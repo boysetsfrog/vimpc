@@ -334,7 +334,7 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll);
+   DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll, (pos1 != pos2));
    SelectWindow::AddLine(line, count, scroll);
 }
 
@@ -361,7 +361,24 @@ void LibraryWindow::CropAllLines()
 
 void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
-   DoForLine(&Mpc::Library::RemoveFromPlaylist, line, count, scroll);
+   int64_t pos1 = CurrentSelection().first;
+   int64_t pos2 = CurrentSelection().second;
+
+   if (pos2 < pos1)
+   {
+      pos2 = pos1;
+      pos1 = CurrentSelection().second;
+   }
+
+   if (pos1 != pos2)
+   {
+      count  = pos2 - pos1 + 1;
+      line   = pos1;
+      scroll = false;
+   }
+
+   DoForLine(&Mpc::Library::RemoveFromPlaylist, line, count, scroll, (pos1 != pos2));
+   SelectWindow::DeleteLine(line, count, scroll);
 }
 
 void LibraryWindow::DeleteAllLines()
@@ -419,7 +436,7 @@ void LibraryWindow::ScrollToFirstMatch(std::string const & input)
 }
 
 
-void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll)
+void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll, bool countskips)
 {
    if (client_.Connected() == true)
    {
@@ -446,6 +463,10 @@ void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t 
                   (library_.*function)(Mpc::Song::Single, client_, i);
                   previous = current;
                }
+            }
+            else if (countskips == true)
+            {
+               ++total;
             }
          }
       }
