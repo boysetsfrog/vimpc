@@ -33,6 +33,20 @@
    [count] gt              | next window/tab, or to window/tab number [count]
    [count] gT              | previous window/tab, or back [count] windows/tabs
            Alt+<number>    | change to the given window/tab number
+
+ MARKS:
+           m<Key>          | set a mark called <Key>
+                           | this mark will hold the tab and line combination
+           '<Key>          | jump to mark named <Key>
+           `<Key>          | as above
+           g'<Key>         | as above
+           g`<Key>         | as above
+
+   Default marks are created for A - Z. These marks will allow you to
+   instantly jump to the first artist in the current window that begins
+   with the corresponding letter. ie. 'A will jump to the first artist
+   starting with A. (Only for browse and library windows)
+
  
  PLAYING (ALSO SEE PLAYLIST):
    [count] ^, I            | skip to the start of the currently playing song
@@ -64,7 +78,7 @@
  SEARCH FLAGS:
            \c              | if in search expression, disables case sensitivity
            \C              | if in search expression, enables case sensitivity
- 
+
  ALL WINDOWS:
            A               | add all songs in window to the playlist
            D               | delete all songs in window from the playlist
@@ -311,8 +325,6 @@
    [no]ignorecase[!]       | case insensitive searching
    [no]incsearch[!]        | search for results as you are typing
    [no]mouse[!]            | turn mouse support on
-                           | Note: if build with older ncurses, scroll wheel will
-                           | not work correctly
    [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
    [no]searchwrap[!]       | wrap search results when using n/N
    [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
