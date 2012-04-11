@@ -123,7 +123,8 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
       {
          colour = Colour::CurrentSong;
       }
-      else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+      else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+               (search_.HighlightSearch() == true))
       {
          pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 

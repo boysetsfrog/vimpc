@@ -162,7 +162,8 @@ int32_t OutputWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = Colour::Song;
 
-   if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+   if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+       (search_.HighlightSearch() == true))
    {
       pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 

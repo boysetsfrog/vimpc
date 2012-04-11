@@ -487,7 +487,8 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
    {
       colour = Colour::CurrentSong;
    }
-   else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true))
+   else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+            (search_.HighlightSearch() == true))
    {
       pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
