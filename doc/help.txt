@@ -336,7 +336,25 @@
     This displays the duration, again not highlighting [ and ]
     followed by a space, then either the song title or if that
     is empty the filename.
+
+
+ MOUSE SUPPORT
+ ==================================================
+
+ Mouse support can be enabled using :set mouse
+
+ The mouse can be used to change between tabs by clicking on
+ on the name of the tab. Or to select an item within a window
+ by clicking on it. Double clicking an item will generally
+ do whatever <Enter> would do by default on that item.
+
+ The scroll wheel works somewhat, but it unforunately depends 
+ on the build of ncurses you are using.
+
+ NOTE: The behaviour of the mouse cannot currently be mapped or 
+ altered in anyway.
     
+
  SETTINGS
  ==================================================
  
