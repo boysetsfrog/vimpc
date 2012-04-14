@@ -62,7 +62,8 @@ void SongWindow::AddToPlaylist(uint32_t position)
 {
    if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
    {
-      if (settings_.AddPosition() == Main::Settings::End)
+      if ((settings_.AddPosition() == Main::Settings::End) ||
+          (client_.GetCurrentSong() == -1))
       {
          Main::Playlist().Add(Buffer().Get(position));
          client_.Add(*(Buffer().Get(position)));
