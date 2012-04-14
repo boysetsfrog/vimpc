@@ -79,6 +79,10 @@
            \c              | if in search expression, disables case sensitivity
            \C              | if in search expression, enables case sensitivity
 
+
+ WINDOWS/TABS
+ ==================================================
+
  ALL WINDOWS:
            A               | add all songs in window to the playlist
            D               | delete all songs in window from the playlist
@@ -90,6 +94,9 @@
            q               | closes the current window
  
  PLAYLIST:
+   Window showing the songs currently in the mpd playlist. Songs will
+   be played in the order that they are listed on this window.
+
    [count] d, del          | delete songs
    [count] h, Left         | seek back [count] seconds
    [count] l, Right        | seek forward [count] seconds
@@ -100,26 +107,40 @@
            <Enter>         | play the selected song
  
  BROWSE:
+   The browse window shows every single song in the mpd database. It is
+   default sorted according to the songformat 
+
    [count] a               | add songs to playlist
    [count] d, del          | delete songs
            e               | information about selected song
            <Enter>         | append the song to the playlist and play it
  
  LISTS:
+   Shows the playlists that have been saved into mpd's playlist directory.
+
    [count] a               | add list contents to playlist
    [count] d, del          | delete lists
            e               | view lists contents
            <Enter>         | play the currently selected list
  
  LIBRARY:
-   [count] a               | add song, album, artist to playlist
+   The library window is a heirachy of an artist/album/song form.
+   By default only the artists are shown but these can be expanded
+   or collapsed using left/right keys. Any file which does not have
+   an artist tag will show up under "Unknown", likewise for the album.
+   Any file which has multiple artists on the same album will show up
+   under "Various"
+
+   [count] a               | add song, album or artist to playlist
    [count] d, del          | delete song, album, artist
            h, Left         | collapse selection
            l, Right        | expand selection
-           e               | view artist/album contents in new window
+           e               | view artist/album contents in songinfo window
            <Enter>         | clear playlist, add song/album/artist and play it
  
  OUTPUTS:
+    Lists all the available mpd outputs.
+
            a               | enable the selected output
            A               | enable all outputs
            d               | disable the selected output
@@ -127,6 +148,9 @@
            <Enter>         | toggle the selected output
  
  SONGINFO:
+   More detailed information about a particular song, 
+   this window is opened by selecting a song and pressing 'e'.
+
            a               | add song to the playlist
            d               | delete song from playlist
            <Enter>         | append the song to the playlist and play it
@@ -141,6 +165,8 @@
                            | ie :con does not work
                            | as it could be :console or :connect
                            | but :conn will call the :connect command
+
+   :<number>               | go to the given line number <number>
  
  CONNECTIONS:
    connect [host] [port]   | connects to [host] [port] or to the default
@@ -204,6 +230,7 @@
    console                 | open console window (see CONSOLE section)
    help                    | open help window (this one)
    library                 | open library window
+   lists                   | open the lists window
    outputs                 | open outputs window
    playlist                | open playlist window
  
@@ -230,7 +257,6 @@
    map <keys> <otherkeys>  | create a mapping from <keys> to <otherkeys>
                            | see later section "MAPPING KEYS"
    unmap <keys>            | remove the mapping of <keys>
-                           |
    alias <name> <commands> | create an alias <name> which executes the commands
                            | each command may be seperated by ;
                            | i.e alias hello echo "hello"; echo "world";
@@ -337,11 +363,12 @@
    [no]timeremaining[!]    | display the time remaining rather than elapsed
    [no]windownumbers[!]    | display the number next to the window in the tab bar
  
+
+   add <where>             | set where to add songs to the playlist
+                           | either "end" or "next" (defaults to end)
    songformat <fmt>        | set the format to print songs
    libraryformat <fmt>     | set the format to print songs in the library
                            | set PRINT FORMATS section
- 
    window <window>         | sets the window that will start with focus
                            | only useful if called from ~/.vimpcrc file
- 
  

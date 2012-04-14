@@ -232,12 +232,14 @@ namespace Mpc
    private:
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
+      void CheckIfVariousRemoved(LibraryEntry * const entry);
 
       typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
       typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;
 
    private:
       std::map<std::string, Mpc::Song *> uriMap_;
+      Mpc::LibraryEntry * variousArtist_;
    };
 
    //Flag a library entry as not expanded, this does not actually collapse it however

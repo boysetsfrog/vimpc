@@ -134,7 +134,7 @@ namespace Mpc
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
       void RemovePlaylist(std::string const & name);
-      void AddToPlaylist(std::string const & name, Mpc::Song * song);
+      void AddToNamedPlaylist(std::string const & name, Mpc::Song * song);
 
    public:
       // Outputs

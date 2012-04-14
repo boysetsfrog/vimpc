@@ -62,8 +62,16 @@ void SongWindow::AddToPlaylist(uint32_t position)
 {
    if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
    {
-      Main::Playlist().Add(Buffer().Get(position));
-      client_.Add(*(Buffer().Get(position)));
+      if (settings_.AddPosition() == Main::Settings::End)
+      {
+         Main::Playlist().Add(Buffer().Get(position));
+         client_.Add(*(Buffer().Get(position)));
+      }
+      else
+      {
+         Main::Playlist().Add(Buffer().Get(position), client_.GetCurrentSong() + 1);
+         client_.Add(*(Buffer().Get(position)), client_.GetCurrentSong() + 1);
+      }
    }
 }
 
@@ -342,7 +350,7 @@ void SongWindow::Save(std::string const & name)
 
       for (unsigned int i = 0; i < BufferSize(); ++i)
       {
-         client_.AddToPlaylist(name, Buffer().Get(i));
+         client_.AddToNamedPlaylist(name, Buffer().Get(i));
       }
 
       Main::Lists().Add(name);

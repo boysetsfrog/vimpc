@@ -47,6 +47,13 @@ namespace Main
    //! Manages settings which are set via :set command
    class Settings
    {
+      public:
+         typedef enum
+         {
+            End,
+            Next
+         } Position;
+
       private:
          typedef std::map<std::string, Setting<bool> * > SettingsTable;
 
@@ -65,6 +72,9 @@ namespace Main
          void Set(std::string const & input);
 
       public: //Specific Settings
+         //! Get the location to add songs
+         Position AddPosition() const;
+         
          //! Gets the default startup window
          std::string Window() const;
 
@@ -158,13 +168,15 @@ namespace Main
          }
 
       private:
+         void SetAdd(std::string const & arguments);
          //! Sets the startup window
          void SetWindow(std::string const & arguments);
          void SetSongFormat(std::string const & arguments);
          void SetLibFormat(std::string const & arguments);
 
       private:
-         std::string defaultWindow_;
+         Position    add_;
+         std::string window_;
          std::string songFormat_;
          std::string libFormat_;
 

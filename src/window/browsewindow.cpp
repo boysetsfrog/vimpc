@@ -57,8 +57,10 @@ void BrowseWindow::Redraw()
 
    Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
 
-   // Do not need to sort as this ensures it will be sorted in the same order as the library
    Main::Library().ForEachSong(&callback);
+
+   BrowseComparator sorter;
+   Buffer().Sort(sorter);
 
    SetScrollLine(scrollLine);
    ScrollTo(currentLine);

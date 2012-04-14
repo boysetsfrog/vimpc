@@ -64,6 +64,24 @@ namespace Ui
       Ui::Search     const & search_;
       Mpc::Browse &          browse_;
    };
+
+   class BrowseComparator
+   {
+      public:
+      BrowseComparator() :
+         settings_(Main::Settings::Instance())
+      {
+      }
+
+      public:
+      bool operator() (Mpc::Song * i, Mpc::Song * j) 
+      { 
+         return (i->FormatString(settings_.SongFormat()) < j->FormatString(settings_.SongFormat()));
+      };
+
+      private:
+         Main::Settings const & settings_;
+   };
 }
 
 #endif

@@ -28,9 +28,11 @@
 
 using namespace Mpc;
 
-Library::Library()
+Library::Library() :
+   variousArtist_(NULL)
 {
    AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::MarkUnexpanded));
+   AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Library::CheckIfVariousRemoved));
 }
 
 Library::~Library()
@@ -39,15 +41,17 @@ Library::~Library()
 
 void Library::Add(Mpc::Song * song)
 {
-   static Mpc::LibraryEntry * LastArtistEntry = NULL;
-   static Mpc::LibraryEntry * LastAlbumEntry  = NULL;
-   static std::string         LastArtist      = "";
-   static std::string         LastAlbum       = "";
+   static Mpc::LibraryEntry * LastArtistEntry    = NULL;
+   static Mpc::LibraryEntry * LastAlbumEntry     = NULL;
+   static std::string         LastArtist         = "";
+   static std::string         LastAlbum          = "";
 
    std::string artist = song->Artist();
    std::string album  = song->Album();
 
-   if ((LastArtistEntry == NULL) || (Algorithm::iequals(LastArtist, artist) == false))
+   if ((LastArtistEntry == NULL) || 
+       (((Algorithm::iequals(LastArtist, artist) == false)) &&
+         ((LastAlbumEntry == NULL) || (Algorithm::iequals(LastAlbum, album) == false))))
    {
       Mpc::LibraryEntry * entry = NULL;
 
@@ -83,7 +87,6 @@ void Library::Add(Mpc::Song * song)
 
       for (Mpc::LibraryEntryVector::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
       {
-
          if (Algorithm::iequals((*it)->album_, album) == true)
          {
             entry           = (*it);
@@ -109,10 +112,35 @@ void Library::Add(Mpc::Song * song)
       }
    }
 
-   if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) && (Algorithm::iequals(LastArtist, artist) == true) && (Algorithm::iequals(LastAlbum, album) == true))
+   if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) && 
+       //(Algorithm::iequals(LastArtist, artist) == true) && 
+       (Algorithm::iequals(LastAlbum, album) == true))
    {
       Mpc::LibraryEntry * const entry   = new Mpc::LibraryEntry();
       Mpc::Song * const         newSong = new Mpc::Song(*song);
+
+      if (Algorithm::iequals(LastArtist, artist) == false)
+      {
+         if (variousArtist_ == NULL)
+         {
+            LastArtistEntry->artist_ = "Various";
+            variousArtist_ = LastArtistEntry;
+         }
+         else if (variousArtist_ != LastArtistEntry)
+         {
+            LastArtistEntry->children_.pop_back();
+
+            if (LastArtistEntry->children_.size() == 0)
+            {
+               delete LastArtistEntry;
+               Remove(Index(LastArtistEntry), 1); 
+            }
+
+            variousArtist_->children_.push_back(LastAlbumEntry);
+            LastAlbumEntry->parent_ = variousArtist_;
+            LastArtistEntry = variousArtist_;
+         }
+      }
 
       entry->expanded_ = true;
       entry->artist_   = artist;
@@ -212,8 +240,16 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
-      Main::Playlist().Add(entry->song_);
-      client.Add(*(entry->song_));
+      if (Main::Settings::Instance().AddPosition() == Main::Settings::End)
+      {
+         Main::Playlist().Add(entry->song_);
+         client.Add(*(entry->song_));
+      }
+      else
+      {
+         Main::Playlist().Add(entry->song_, client.GetCurrentSong() + 1);
+         client.Add(*(entry->song_), client.GetCurrentSong() + 1);
+      }
    }
    else
    {
@@ -321,6 +357,15 @@ void Library::Collapse(uint32_t line)
 
       Remove(Index(entryToCollapse) + 1, Index(entryToCollapse->children_.back()) + last - Index(entryToCollapse));
       entryToCollapse->expanded_ = false;
+   }
+}
+
+
+void Library::CheckIfVariousRemoved(LibraryEntry * const entry)
+{
+   if (entry == variousArtist_)
+   {
+      variousArtist_ = NULL;
    }
 }
 

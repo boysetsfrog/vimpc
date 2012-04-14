@@ -453,7 +453,7 @@ void Client::SetCrossfade(bool crossfade)
    }
    else
    {
-      SetCrossfade((uint32_t) 0);
+      SetCrossfade(static_cast<uint32_t>(0));
    }
 }
 
@@ -594,7 +594,7 @@ void Client::RemovePlaylist(std::string const & name)
    }
 }
 
-void Client::AddToPlaylist(std::string const & name, Mpc::Song * song)
+void Client::AddToNamedPlaylist(std::string const & name, Mpc::Song * song)
 {
    if (Connected() == true)
    {

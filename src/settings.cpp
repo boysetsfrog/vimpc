@@ -66,12 +66,14 @@ Settings & Settings::Instance()
 }
 
 Settings::Settings() :
-   defaultWindow_("playlist"),
+   add_          (Settings::End),
+   window_       ("playlist"),
    songFormat_   ("{%a - %t}|{%f}$E$R $H[$H%l$H]$H"),
    libFormat_    ("$H[$H%l$H]$H {%t}|{%f}$E$R "),
    settingsTable_(),
    toggleTable_  ()
 {
+   settingsTable_["add"]           = &Settings::SetAdd;
    settingsTable_["window"]        = &Settings::SetWindow;
    settingsTable_["songformat"]    = &Settings::SetSongFormat;
    settingsTable_["libraryformat"] = &Settings::SetLibFormat;
@@ -197,10 +199,14 @@ void Settings::SetSingleSetting(std::string setting)
    }
 }
 
+Settings::Position Settings::AddPosition() const
+{
+   return add_;
+}
 
 std::string Settings::Window() const
 {
-   return defaultWindow_;
+   return window_;
 }
 
 std::string Settings::SongFormat() const
@@ -320,12 +326,24 @@ bool Settings::WindowNumbers() const
 }
 
 
+void Settings::SetAdd(std::string const & arguments)
+{
+   if (arguments == "end")
+   {
+      add_ = Settings::End;
+   }
+   else
+   {
+      add_ = Settings::Next;
+   }
+}
+
 void Settings::SetWindow(std::string const & arguments)
 {
    std::string window(arguments);
    std::transform(window.begin(), window.end(), window.begin(), ::tolower);
 
-   defaultWindow_ = window;
+   window_ = window;
 }
 
 void Settings::SetSongFormat(std::string const & arguments)
