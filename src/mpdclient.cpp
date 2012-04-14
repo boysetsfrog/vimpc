@@ -922,7 +922,7 @@ void Client::DisplaySongInformation()
          mpd_status * const status   = currentStatus_;
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = elapsed_;
-         uint32_t     const remain   = duration - elapsed;
+         uint32_t     const remain   = (duration > elapsed) ? duration - elapsed : 0;
          char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
          char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
@@ -938,6 +938,7 @@ void Client::DisplaySongInformation()
          }
          else
          {
+            
             screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
                                   SecondsToMinutes(remain),  RemainingSeconds(remain),
                                   SecondsToMinutes(duration), RemainingSeconds(duration));
