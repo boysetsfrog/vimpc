@@ -49,7 +49,7 @@ void Library::Add(Mpc::Song * song)
    std::string artist = song->Artist();
    std::string album  = song->Album();
 
-   if ((LastArtistEntry == NULL) || 
+   if ((LastArtistEntry == NULL) ||
        (((Algorithm::iequals(LastArtist, artist) == false)) &&
          ((LastAlbumEntry == NULL) || (Algorithm::iequals(LastAlbum, album) == false))))
    {
@@ -112,34 +112,38 @@ void Library::Add(Mpc::Song * song)
       }
    }
 
-   if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) && 
-       //(Algorithm::iequals(LastArtist, artist) == true) && 
+   if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) &&
+       //(Algorithm::iequals(LastArtist, artist) == true) &&
        (Algorithm::iequals(LastAlbum, album) == true))
    {
       Mpc::LibraryEntry * const entry   = new Mpc::LibraryEntry();
       Mpc::Song * const         newSong = new Mpc::Song(*song);
 
-      if (Algorithm::iequals(LastArtist, artist) == false)
+      if ((Algorithm::iequals(LastArtist, artist) == false) &&
+          (LastArtist != "Various"))
       {
+         LastArtist = "Various";
+
          if (variousArtist_ == NULL)
          {
-            LastArtistEntry->artist_ = "Various";
-            variousArtist_ = LastArtistEntry;
+            variousArtist_ = new Mpc::LibraryEntry();
+            variousArtist_->expanded_ = false;
+            variousArtist_->artist_   = "Various";
+            variousArtist_->type_     = Mpc::ArtistType;
+            Add(variousArtist_);
          }
-         else if (variousArtist_ != LastArtistEntry)
+
+         LastArtistEntry->children_.pop_back();
+
+         if (LastArtistEntry->children_.size() == 0)
          {
-            LastArtistEntry->children_.pop_back();
-
-            if (LastArtistEntry->children_.size() == 0)
-            {
-               delete LastArtistEntry;
-               Remove(Index(LastArtistEntry), 1); 
-            }
-
-            variousArtist_->children_.push_back(LastAlbumEntry);
-            LastAlbumEntry->parent_ = variousArtist_;
-            LastArtistEntry = variousArtist_;
+            delete LastArtistEntry;
+            Remove(Index(LastArtistEntry), 1);
          }
+
+         variousArtist_->children_.push_back(LastAlbumEntry);
+         LastAlbumEntry->parent_ = variousArtist_;
+         LastArtistEntry = variousArtist_;
       }
 
       entry->expanded_ = true;
@@ -178,7 +182,7 @@ void Library::Sort()
 
    for (uint32_t i = 0; (i < Size()); ++i)
    {
-      Sort(Get(i));
+      //Sort(Get(i));
    }
 }
 
