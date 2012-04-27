@@ -28,6 +28,8 @@
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
+
+#include "buffer/list.hpp"
 #include "mode/search.hpp"
 #include "window/console.hpp"
 
@@ -50,6 +52,7 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & scr
 
 PlaylistWindow::~PlaylistWindow()
 {
+   playlist_.Clear();
 }
 
 

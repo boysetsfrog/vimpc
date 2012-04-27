@@ -25,6 +25,7 @@
 #include "settings.hpp"
 #include "vimpc.hpp"
 
+#include "buffer/playlist.hpp"
 #include "mode/mode.hpp"
 #include "window/error.hpp"
 
@@ -111,6 +112,18 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 
 Client::~Client()
 {
+   if (currentStatus_ != NULL)
+   {
+      mpd_status_free(currentStatus_);
+      currentStatus_ = NULL;
+   }
+
+   if (currentSong_ != NULL)
+   {
+      mpd_song_free(currentSong_);
+      currentSong_ = NULL;
+   }
+
    DeleteConnection();
 }
 
@@ -989,9 +1002,9 @@ void Client::IncrementTime(long time)
    }
 
    if ((currentSong_ != NULL) &&
-       (elapsed_ >= mpd_song_get_duration(currentSong_)))
+       (elapsed_ > mpd_song_get_duration(currentSong_)))
    {
-      elapsed_ = mpd_song_get_duration(currentSong_);
+      elapsed_ = 0;
 
       if (timeSinceUpdate_ >= 1000)
       {

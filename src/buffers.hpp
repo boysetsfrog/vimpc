@@ -23,15 +23,24 @@
 
 #include <iostream>
 
-#include "window/console.hpp"
-#include "buffer/browse.hpp"
-#include "buffer/library.hpp"
-#include "buffer/list.hpp"
-#include "buffer/outputs.hpp"
-#include "buffer/playlist.hpp"
+namespace Mpc
+{
+   class Playlist;
+   class Browse;
+   class Library;
+   class Lists;
+   class Outputs;
+}
+
+namespace Ui
+{
+   class Console;
+}
 
 namespace Main
 {
+   void Delete();
+
    Mpc::Playlist & Playlist();
    Mpc::Playlist & PlaylistPasteBuffer();
    Mpc::Playlist & PlaylistTmp();

@@ -43,12 +43,25 @@ namespace Main
    template <typename T>
    class Buffer : private std::vector<T>
    {
+   private:
+      typedef std::vector<Main::CallbackInterface<T> *> CallbackList;
+      typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
+
    public:
       typedef T BufferType;
 
    public:
       Buffer<T>() { }
-      ~Buffer<T>() { }
+      ~Buffer<T>()
+      {
+         for (typename CallbackMap::iterator it = callback_.begin(); (it != callback_.end()); ++it)
+         {
+            for (typename CallbackList::const_iterator jt = it->second.begin(); (jt != it->second.end()); ++jt)
+            {
+               delete *jt;
+            }
+         }
+      }
 
    private:
       Buffer<T>(Buffer<T> const & buffer);
@@ -177,10 +190,6 @@ namespace Main
       {
          callback_[event].push_back(callback);
       }
-
-   private:
-      typedef std::vector<Main::CallbackInterface<T> *> CallbackList;
-      typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
 
    private:
       void Callback(BufferCallbackEvent event, T & param) const

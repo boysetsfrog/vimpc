@@ -24,6 +24,11 @@
 
 #include "buffer/library.hpp"
 
+const std::string UnknownArtist = "Unknown Artist";
+const std::string UnknownAlbum  = "Unknown Album";
+const std::string UnknownTitle  = "Unknown";
+const std::string UnknownURI    = "Unknown";
+
 using namespace Mpc;
 
 Song::Song() :
@@ -90,7 +95,7 @@ void Song::SetArtist(const char * artist)
    }
    else
    {
-      artist_ = "Unknown";
+      artist_ = UnknownArtist;
    }
 }
 
@@ -107,7 +112,7 @@ void Song::SetAlbum(const char * album)
    }
    else
    {
-      album_ = "Unknown";
+      album_ = UnknownAlbum;
    }
 }
 
@@ -124,7 +129,7 @@ void Song::SetTitle(const char * title)
    }
    else
    {
-      title_ = "Unknown";
+      title_ = UnknownTitle;
    }
 }
 
@@ -158,7 +163,7 @@ void Song::SetURI(const char * uri)
    }
    else
    {
-      uri_ = "Unknown";
+      uri_ = UnknownURI;
    }
 }
 
@@ -294,7 +299,7 @@ std::string Song::FormatString(std::string fmt) const
                   next = (*this.*Function)();
                }
 
-               if ((next == "") || (next == "Unknown"))
+               if ((next == "") || (next.substr(0, strlen("Unknown") -1) == "Unknown"))
                {
                   valid = false;
                }

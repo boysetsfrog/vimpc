@@ -26,6 +26,8 @@
 
 #include <algorithm>
 
+const std::string VariousArtist = "Various Artists";
+
 using namespace Mpc;
 
 Library::Library() :
@@ -37,6 +39,19 @@ Library::Library() :
 
 Library::~Library()
 {
+   Clear();
+}
+
+void Library::Clear()
+{
+   Main::Playlist().Clear();
+
+   while (Size() > 0)
+   {
+      LibraryEntry * entry = Get(0);
+      Remove(0, 1);
+      delete entry;
+   }
 }
 
 void Library::Add(Mpc::Song * song)
@@ -120,15 +135,15 @@ void Library::Add(Mpc::Song * song)
       Mpc::Song * const         newSong = new Mpc::Song(*song);
 
       if ((Algorithm::iequals(LastArtist, artist) == false) &&
-          (LastArtist != "Various"))
+          (LastArtist != VariousArtist))
       {
-         LastArtist = "Various";
+         LastArtist = VariousArtist;
 
          if (variousArtist_ == NULL)
          {
             variousArtist_ = new Mpc::LibraryEntry();
             variousArtist_->expanded_ = false;
-            variousArtist_->artist_   = "Various";
+            variousArtist_->artist_   = VariousArtist;
             variousArtist_->type_     = Mpc::ArtistType;
             Add(variousArtist_);
          }
@@ -137,8 +152,8 @@ void Library::Add(Mpc::Song * song)
 
          if (LastArtistEntry->children_.size() == 0)
          {
-            delete LastArtistEntry;
             Remove(Index(LastArtistEntry), 1);
+            delete LastArtistEntry;
          }
 
          variousArtist_->children_.push_back(LastAlbumEntry);

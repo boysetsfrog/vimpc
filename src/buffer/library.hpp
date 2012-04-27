@@ -216,6 +216,7 @@ namespace Mpc
    public:
       Mpc::Song * Song(std::string uri) const;
 
+      void Clear();
       void Sort();
       void Sort(LibraryEntry * entry);
       void Add(Mpc::Song * song);
@@ -232,6 +233,7 @@ namespace Mpc
    private:
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
+      void DeleteEntry(LibraryEntry * const entry);
       void CheckIfVariousRemoved(LibraryEntry * const entry);
 
       typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;

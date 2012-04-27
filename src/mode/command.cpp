@@ -31,6 +31,10 @@
 #include "buffers.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
+
+#include "buffer/list.hpp"
+#include "buffer/outputs.hpp"
+#include "buffer/playlist.hpp"
 #include "mode/normal.hpp"
 #include "window/console.hpp"
 #include "window/error.hpp"

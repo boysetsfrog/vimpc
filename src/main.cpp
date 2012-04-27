@@ -111,6 +111,8 @@ int main(int argc, char** argv)
       vimpc.Run(hostname, port);
    }
 
+   Main::Delete();
+
    return 0;
 }
 /* vim: set sw=3 ts=3: */

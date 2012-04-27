@@ -28,6 +28,8 @@
 #include "screen.hpp"
 #include "settings.hpp"
 #include "songwindow.hpp"
+
+#include "buffer/playlist.hpp"
 #include "mode/search.hpp"
 
 #include <algorithm>
@@ -59,9 +61,12 @@ LibraryWindow::~LibraryWindow()
 
 void LibraryWindow::Redraw()
 {
+   Main::Playlist().Clear();
    Clear();
    client_.ForEachLibrarySong(library_, &Mpc::Library::Add);
    SoftRedraw();
+
+   client_.ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 }
 
 void LibraryWindow::SoftRedraw()

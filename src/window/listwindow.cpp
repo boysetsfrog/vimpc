@@ -28,6 +28,9 @@
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
+
+#include "buffer/list.hpp"
+#include "buffer/playlist.hpp"
 #include "mode/search.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"

@@ -31,6 +31,8 @@
 #include "screen.hpp"
 
 #include "buffer/library.hpp"
+#include "buffer/list.hpp"
+#include "buffer/playlist.hpp"
 #include "mode/search.hpp"
 #include "window/error.hpp"
 #include "window/infowindow.hpp"

@@ -20,51 +20,103 @@
 
 #include "buffers.hpp"
 
+#include "window/console.hpp"
+#include "buffer/browse.hpp"
+#include "buffer/library.hpp"
+#include "buffer/list.hpp"
+#include "buffer/outputs.hpp"
+#include "buffer/playlist.hpp"
+
+static Mpc::Playlist * p_buffer  = NULL;
+static Mpc::Playlist * pt_buffer = NULL;
+static Mpc::Playlist * t_buffer  = NULL;
+static Mpc::Browse *   b_buffer  = NULL;
+static Mpc::Library *  l_buffer  = NULL;
+static Mpc::Lists *    i_buffer  = NULL;
+static Mpc::Outputs *  o_buffer  = NULL;
+static Ui::Console *   c_buffer  = NULL;
+
+void Main::Delete()
+{
+   delete l_buffer;
+   delete p_buffer;
+   delete pt_buffer;
+   delete t_buffer;
+   delete b_buffer;
+   delete i_buffer;
+   delete o_buffer;
+   delete c_buffer;
+}
+
 Mpc::Playlist & Main::Playlist()
 {
-   static Mpc::Playlist * buffer = new Mpc::Playlist(true);
-   return *buffer;
+   if (p_buffer == NULL)
+   {
+      p_buffer = new Mpc::Playlist(true);
+   }
+   return *p_buffer;
 }
 
 Mpc::Playlist & Main::PlaylistPasteBuffer()
 {
-   static Mpc::Playlist * buffer = new Mpc::Playlist();
-   return *buffer;
+   if (pt_buffer == NULL)
+   {
+      pt_buffer = new Mpc::Playlist();
+   }
+   return *pt_buffer;
 }
 
 Mpc::Playlist & Main::PlaylistTmp()
 {
-   static Mpc::Playlist * buffer = new Mpc::Playlist();
-   return *buffer;
+   if (t_buffer == NULL)
+   {
+      t_buffer = new Mpc::Playlist();
+   }
+   return *t_buffer;
 }
 
 Mpc::Browse & Main::Browse()
 {
-   static Mpc::Browse * buffer = new Mpc::Browse();
-   return *buffer;
+   if (b_buffer == NULL)
+   {
+      b_buffer = new Mpc::Browse();
+   }
+   return *b_buffer;
 }
 
 Mpc::Library & Main::Library()
 {
-   static Mpc::Library * buffer = new Mpc::Library();
-   return *buffer;
+   if (l_buffer == NULL)
+   {
+      l_buffer = new Mpc::Library();
+   }
+   return *l_buffer;
 }
 
 Mpc::Lists & Main::Lists()
 {
-   static Mpc::Lists * buffer = new Mpc::Lists();
-   return *buffer;
+   if (i_buffer == NULL)
+   {
+      i_buffer = new Mpc::Lists();
+   }
+   return *i_buffer;
 }
 
 Mpc::Outputs & Main::Outputs()
 {
-   static Mpc::Outputs * buffer = new Mpc::Outputs();
-   return *buffer;
+   if (o_buffer == NULL)
+   {
+      o_buffer = new Mpc::Outputs();
+   }
+   return *o_buffer;
 }
 
 Ui::Console & Main::Console()
 {
-   static Ui::Console * buffer = new Ui::Console();
-   return *buffer;
+   if (c_buffer == NULL)
+   {
+      c_buffer = new Ui::Console();
+   }
+   return *c_buffer;
 }
 /* vim: set sw=3 ts=3: */

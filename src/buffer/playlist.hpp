@@ -22,8 +22,10 @@
 #define __MPC__PLAYLIST
 
 // Includes
+#include "buffers.hpp"
 #include "buffer.hpp"
 #include "callback.hpp"
+#include "library.hpp"
 #include "song.hpp"
 
 // Playlist
@@ -42,9 +44,21 @@ namespace Mpc
          {
             AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
             AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
+            AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Mpc::Playlist::DeleteSong));
          }
       }
-      ~Playlist() {}
+      ~Playlist()
+      {
+         Clear();
+      }
+
+      void DeleteSong(Mpc::Song * song)
+      {
+         if (Main::Library().Song(song->URI()) == NULL)
+         {
+            delete song;
+         }
+      }
    };
 }
 #endif
