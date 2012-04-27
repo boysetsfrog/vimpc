@@ -33,7 +33,6 @@ using namespace Mpc;
 Library::Library() :
    variousArtist_(NULL)
 {
-   AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::MarkUnexpanded));
    AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Library::CheckIfVariousRemoved));
 }
 
