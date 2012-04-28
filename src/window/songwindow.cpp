@@ -64,7 +64,7 @@ void SongWindow::AddToPlaylist(uint32_t position)
 {
    if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
    {
-      if ((settings_.AddPosition() == Main::Settings::End) ||
+      if ((settings_.Get(Setting::AddPosition) == Setting::AddEnd) ||
           (client_.GetCurrentSong() == -1))
       {
          Main::Playlist().Add(Buffer().Get(position));
@@ -89,7 +89,7 @@ void SongWindow::Print(uint32_t line) const
    // Reverse the colours to indicate the selected song
    if ((IsSelected(printLine) == true) && (song != NULL))
    {
-      if (settings_.ColourEnabled() == true)
+      if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattron(window, COLOR_PAIR(colour));
       }
@@ -104,7 +104,7 @@ void SongWindow::Print(uint32_t line) const
    {
       wmove(window, line, 0);
 
-      if (settings_.SongNumbers() == true)
+      if (settings_.Get(Setting::SongNumbers) == true)
       {
          PrintId(printLine);
       }
@@ -113,12 +113,12 @@ void SongWindow::Print(uint32_t line) const
          PrintBlankId();
       }
 
-      PrintSong(line, printLine, colour, settings_.SongFormat(), song);
+      PrintSong(line, printLine, colour, settings_.Get(Setting::SongFormat), song);
    }
 
    if ((IsSelected(printLine) == true) && (song != NULL))
    {
-      if (settings_.ColourEnabled() == true)
+      if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattroff(window, COLOR_PAIR(colour));
       }
@@ -332,9 +332,9 @@ void SongWindow::ScrollToFirstMatch(std::string const & input)
    for (uint32_t i = 0; i < BufferSize(); ++i)
    {
       Mpc::Song * song = Buffer().Get(i);
-      std::string line = song->FormatString(settings_.SongFormat());
+      std::string line = song->FormatString(settings_.Get(Setting::SongFormat));
 
-      if (Algorithm::imatch(line, input, settings_.IgnoreTheSort(), settings_.IgnoreCaseSort()) == true)
+      if (Algorithm::imatch(line, input, settings_.Get(Setting::IgnoreTheSort), settings_.Get(Setting::IgnoreCaseSort)) == true)
       {
          ScrollTo(i);
          break;
@@ -378,14 +378,14 @@ void SongWindow::PrintId(uint32_t Id) const
 
    waddstr(window, "[");
 
-   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
+   if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(Id) == false))
    {
       wattron(window, COLOR_PAIR(Colour::SongId));
    }
 
    wprintw(window, "%5d", Id + 1);
 
-   if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
+   if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(Id) == false))
    {
       wattroff(window, COLOR_PAIR(Colour::SongId));
    }
@@ -408,12 +408,12 @@ int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const s
       {
          colour = Colour::FullAdd;
       }
-      else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+      else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
                (search_.HighlightSearch() == true))
       {
          pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(song->FormatString(settings_.SongFormat())))
+         if (expression.FullMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
          {
             colour = Colour::SongMatch;
          }

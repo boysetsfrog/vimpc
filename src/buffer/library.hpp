@@ -81,8 +81,8 @@ namespace Mpc
 
          if (song_ == NULL)
          {
-            comparison = (Algorithm::icompare(artist_, rhs.artist_, settings.IgnoreTheSort(), settings.IgnoreCaseSort()) || 
-                         (Algorithm::icompare(album_, rhs.album_, settings.IgnoreTheSort(), settings.IgnoreCaseSort())));
+            comparison = (Algorithm::icompare(artist_, rhs.artist_, settings.Get(Setting::IgnoreTheSort), settings.Get(Setting::IgnoreCaseSort)) || 
+                         (Algorithm::icompare(album_, rhs.album_, settings.Get(Setting::IgnoreTheSort), settings.Get(Setting::IgnoreCaseSort))));
          }
 
          if ((song_ != NULL) && (rhs.song_ != NULL) && (comparison == false))

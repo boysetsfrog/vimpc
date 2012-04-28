@@ -240,7 +240,7 @@ void Vimpc::Handle(int input)
    Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
 
 #ifdef HAVE_MOUSE_SUPPORT
-   if ((input == KEY_MOUSE) && (settings_.Mouse() == true))
+   if ((input == KEY_MOUSE) && (settings_.Get(::Setting::Mouse) == true))
    {
       HandleMouse();
    }

@@ -935,7 +935,7 @@ void Normal::Quit(uint32_t count)
 
 void Normal::QuitAll(uint32_t count)
 {
-   if (settings_.StopOnQuit() == true)
+   if (settings_.Get(Setting::StopOnQuit) == true)
    {
       Player::Stop();
    }

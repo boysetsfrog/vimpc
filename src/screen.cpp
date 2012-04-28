@@ -89,7 +89,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    raw();
    noecho();
 
-   if (settings_.Mouse() == true)
+   if (settings_.Get(Setting::Mouse) == true)
    {
       SetupMouse(true);
    }
@@ -207,7 +207,7 @@ void Screen::Start()
    if (started_ == false)
    {
       started_ = true;
-      SetActiveAndVisible(GetWindowFromName(settings_.Window()));
+      SetActiveAndVisible(GetWindowFromName(settings_.Get(Setting::Window)));
       wrefresh(statusWindow_);
    }
 
@@ -296,7 +296,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 {
    ClearStatus();
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -313,7 +313,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    vw_printw(statusWindow_, fmt, args);
    va_end(args);
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -327,7 +327,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -344,7 +344,7 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
    vw_printw(statusWindow_, fmt, args);
    va_end(args);
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -660,11 +660,11 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
    }
 
    // Mouse support was turned on, set it up
-   if ((mouse_ == false) && (settings_.Mouse() == true))
+   if ((mouse_ == false) && (settings_.Get(Setting::Mouse) == true))
    {
       SetupMouse(true);
    }
-   else if ((mouse_ == true) && (settings_.Mouse() == false))
+   else if ((mouse_ == true) && (settings_.Get(Setting::Mouse) == false))
    {
       SetupMouse(false);
    }
@@ -956,7 +956,7 @@ void Screen::ClearStatus() const
 
    werase(statusWindow_);
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -967,7 +967,7 @@ void Screen::ClearStatus() const
 
    mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
    }
@@ -983,7 +983,7 @@ void Screen::UpdateTabWindow() const
 
    werase(tabWindow_);
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
    }
@@ -996,7 +996,7 @@ void Screen::UpdateTabWindow() const
 
    for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
    {
-      if (settings_.ColourEnabled() == true)
+      if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
       }
@@ -1006,7 +1006,7 @@ void Screen::UpdateTabWindow() const
 
       if (*it == window_)
       {
-         if (settings_.ColourEnabled() == true)
+         if (settings_.Get(Setting::ColourEnabled) == true)
          {
             wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
          }
@@ -1016,7 +1016,7 @@ void Screen::UpdateTabWindow() const
 
       wmove(tabWindow_, 0, length);
 
-      if (settings_.WindowNumbers() == true)
+      if (settings_.Get(Setting::WindowNumbers) == true)
       {
          waddstr(tabWindow_, "[");
          wattron(tabWindow_, A_BOLD);
@@ -1040,7 +1040,7 @@ void Screen::UpdateTabWindow() const
       ++count;
    }
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattroff(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
    }

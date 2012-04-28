@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 - 2011 Nathan Sweetman
+   Copyright (C) 2010 - 2012 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -31,33 +31,10 @@
 
 using namespace Main;
 
-// \TODO some settings i would like to add are commented out here
-//       once they are implemented this can be removed
-
-char const * const sAutoScroll       = "autoscroll";
-char const * const sBrowseNumbers    = "browsenumbers"; //disable song numbers in browse
-char const * const sColour           = "colour";
-char const * const sExpandArtists    = "expand-artists";
-char const * const sGraphicalVolume  = "graphicalvolume"; // \todo Display volume graphically (colours) something like [||||||||  ][80%]
-char const * const sHideTabBar       = "hidetabbar"; // \todo this is going to be quite hard, we do dodgy hacks with MaxRows everywhere!
-char const * const sHighlightSearch  = "hlsearch";
-char const * const sIgnoreCaseSearch = "ignorecase";
-char const * const sIgnoreCaseSort   = "sortignorecase";
-char const * const sIgnoreTheSort    = "sortignorethe";
-char const * const sIncSearch        = "incsearch";
-char const * const sMouse            = "mouse";
-char const * const sPlaylistNumbers  = "playlistnumbers"; //disable song numbers in playlist
-char const * const sPolling          = "polling"; 
-char const * const sReconnect        = "reconnect";
-char const * const sSearchWrap       = "searchwrap";
-char const * const sSingleQuit       = "singlequit";
-char const * const sSongNumbers      = "songnumbers";
-char const * const sSmartCase        = "smartcase";
-char const * const sStopOnQuit       = "stoponquit";
-char const * const sTimeRemaining    = "timeremaining";
-char const * const sWindowNumbers    = "windownumbers";
-
 bool skipConfigConnects_ (false);
+
+std::string Setting::AddEnd  = "end";
+std::string Setting::AddNext = "next";
 
 Settings & Settings::Instance()
 {
@@ -66,44 +43,28 @@ Settings & Settings::Instance()
 }
 
 Settings::Settings() :
-   add_          (Settings::End),
-   window_       ("playlist"),
-   songFormat_   ("{%a - %t}|{%f}$E$R $H[$H%l$H]$H"),
-   libFormat_    ("$H[$H%l$H]$H {%t}|{%f}$E$R "),
-   settingsTable_(),
-   toggleTable_  ()
+   toggleTable_  (),
+   stringTable_  ()
 {
-   settingsTable_["add"]           = &Settings::SetAdd;
-   settingsTable_["window"]        = &Settings::SetWindow;
-   settingsTable_["songformat"]    = &Settings::SetSongFormat;
-   settingsTable_["libraryformat"] = &Settings::SetLibFormat;
+#define X(a, b, c) toggleTable_[b] = new SettingValue<bool>(c); \
+                   settingName_[Setting::a] = b;
+   TOGGLE_SETTINGS
+#undef X
 
-   toggleTable_[sAutoScroll]       = new Setting<bool>(true);
-   toggleTable_[sBrowseNumbers]    = new Setting<bool>(true);
-   toggleTable_[sColour]           = new Setting<bool>(true);
-   toggleTable_[sExpandArtists]    = new Setting<bool>(false);
-   toggleTable_[sHideTabBar]       = new Setting<bool>(false);
-   toggleTable_[sHighlightSearch]  = new Setting<bool>(true);
-   toggleTable_[sIgnoreCaseSearch] = new Setting<bool>(false);
-   toggleTable_[sIgnoreCaseSort]   = new Setting<bool>(true);
-   toggleTable_[sIgnoreTheSort]    = new Setting<bool>(false);
-   toggleTable_[sIncSearch]        = new Setting<bool>(false);
-   toggleTable_[sMouse]            = new Setting<bool>(false);
-   toggleTable_[sPolling]          = new Setting<bool>(true);
-   toggleTable_[sPlaylistNumbers]  = new Setting<bool>(true);
-   toggleTable_[sReconnect]        = new Setting<bool>(true);
-   toggleTable_[sSearchWrap]       = new Setting<bool>(true);
-   toggleTable_[sSingleQuit]       = new Setting<bool>(false);
-   toggleTable_[sSongNumbers]      = new Setting<bool>(true);
-   toggleTable_[sSmartCase]        = new Setting<bool>(false);
-   toggleTable_[sStopOnQuit]       = new Setting<bool>(false);
-   toggleTable_[sTimeRemaining]    = new Setting<bool>(false);
-   toggleTable_[sWindowNumbers]    = new Setting<bool>(false);
+#define X(a, b, c) stringTable_[b] = new SettingValue<std::string>(c); \
+                   settingName_[Setting::a] = b;
+   STRING_SETTINGS
+#undef X
 }
 
 Settings::~Settings()
 {
-   for (SettingsTable::iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   for (BoolSettingsTable::iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   {
+      delete it->second;
+   }
+
+   for (StringSettingsTable::iterator it = stringTable_.begin(); it != stringTable_.end(); ++it)
    {
       delete it->second;
    }
@@ -114,13 +75,13 @@ std::vector<std::string> Settings::AvailableSettings() const
 {
    std::vector<std::string> AllSettings;
 
-   for (SettingsTable::const_iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   for (BoolSettingsTable::const_iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
    {
       AllSettings.push_back(it->first);
       AllSettings.push_back("no" + it->first);
    }
 
-   for (SettingsFunctionTable::const_iterator it = settingsTable_.begin(); it != settingsTable_.end(); ++it)
+   for (StringSettingsTable::const_iterator it = stringTable_.begin(); it != stringTable_.end(); ++it)
    {
       AllSettings.push_back(it->first);
    }
@@ -149,12 +110,38 @@ void Settings::Set(std::string const & input)
    }
 }
 
+bool Settings::Get(::Setting::ToggleSettings setting) const
+{
+   SettingNameTable::const_iterator it = settingName_.find(setting);
+
+   if (it != settingName_.end())
+   {
+      return GetBool(it->second);
+   }
+
+   ASSERT(false);
+   return false;
+}
+
+std::string Settings::Get(::Setting::StringSettings setting) const
+{
+   SettingNameTable::const_iterator it = settingName_.find(setting);
+
+   if (it != settingName_.end())
+   {
+      return GetString(it->second);
+   }
+
+   ASSERT(false);
+   return "";
+}
+
 void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 {
-   if (settingsTable_.find(setting) != settingsTable_.end())
+   if (stringTable_.find(setting) != stringTable_.end())
    {
-      ptrToMember settingFunc = settingsTable_[setting];
-      (*this.*settingFunc)(arguments);
+      SettingValue<std::string> * const set = stringTable_[setting];
+      set->Set(arguments);
    }
    else
    {
@@ -182,7 +169,7 @@ void Settings::SetSingleSetting(std::string setting)
 
    if (toggleTable_.find(setting) != toggleTable_.end())
    {
-      Setting<bool> * const set = toggleTable_[setting];
+      SettingValue<bool> * const set = toggleTable_[setting];
 
       if (toggle == true)
       {
@@ -197,163 +184,6 @@ void Settings::SetSingleSetting(std::string setting)
    {
       ErrorString(ErrorNumber::SettingNonexistant, setting);
    }
-}
-
-Settings::Position Settings::AddPosition() const
-{
-   return add_;
-}
-
-std::string Settings::Window() const
-{
-   return window_;
-}
-
-std::string Settings::SongFormat() const
-{
-   return songFormat_;
-}
-
-std::string Settings::LibraryFormat() const
-{
-   return libFormat_;
-}
-
-
-bool Settings::AutoScroll() const
-{
-   return Get(sAutoScroll);
-}
-
-bool Settings::BrowseNumbers() const
-{
-   return Get(sBrowseNumbers);
-}
-
-bool Settings::ColourEnabled() const
-{
-   return Get(sColour);
-}
-
-bool Settings::ExpandArtists() const
-{
-   return Get(sExpandArtists);
-}
-
-bool Settings::HideTabBar() const
-{
-   return Get(sHideTabBar);
-}
-
-bool Settings::HightlightSearch() const
-{
-   return Get(sHighlightSearch);
-}
-
-bool Settings::IgnoreCaseSearch() const
-{
-   return Get(sIgnoreCaseSearch);
-}
-
-bool Settings::IgnoreCaseSort() const
-{
-   return Get(sIgnoreCaseSort);
-}
-
-bool Settings::IgnoreTheSort() const
-{
-   return Get(sIgnoreTheSort);
-}
-
-bool Settings::IncrementalSearch() const
-{
-   return Get(sIncSearch);
-}
-
-bool Settings::Mouse() const
-{
-   return Get(sMouse);
-}
-
-bool Settings::PlaylistNumbers() const
-{
-   return Get(sPlaylistNumbers);
-}
-
-bool Settings::Reconnect() const
-{
-   return Get(sReconnect);
-}
-
-bool Settings::SearchWrap() const
-{
-   return Get(sSearchWrap);
-}
-
-bool Settings::Polling() const
-{
-   return Get(sPolling);
-}
-
-bool Settings::SingleQuit() const
-{
-   return Get(sSingleQuit);
-}
-
-bool Settings::SmartCase() const
-{
-   return Get(sSmartCase);
-}
-
-bool Settings::SongNumbers() const
-{
-   return Get(sSongNumbers);
-}
-
-bool Settings::StopOnQuit() const
-{
-   return Get(sStopOnQuit);
-}
-
-bool Settings::TimeRemaining() const
-{
-   return Get(sTimeRemaining);
-}
-
-bool Settings::WindowNumbers() const
-{
-   return Get(sWindowNumbers);
-}
-
-
-void Settings::SetAdd(std::string const & arguments)
-{
-   if (arguments == "end")
-   {
-      add_ = Settings::End;
-   }
-   else
-   {
-      add_ = Settings::Next;
-   }
-}
-
-void Settings::SetWindow(std::string const & arguments)
-{
-   std::string window(arguments);
-   std::transform(window.begin(), window.end(), window.begin(), ::tolower);
-
-   window_ = window;
-}
-
-void Settings::SetSongFormat(std::string const & arguments)
-{
-   songFormat_ = arguments;
-}
-
-void Settings::SetLibFormat(std::string const & arguments)
-{
-   libFormat_ = arguments;
 }
 
 void Settings::SetSkipConfigConnects(bool val)

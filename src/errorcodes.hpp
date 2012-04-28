@@ -22,6 +22,7 @@
 #define __ERRORCODES
 
 #include <string>
+
 #define ERRORCODES \
    X(Invalid, "") \
    X(CommandAmbiguous,      "Command is ambigous, please be more specific") \

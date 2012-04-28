@@ -229,7 +229,7 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
       align = stripped.size();
    }
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(window, COLOR_PAIR(colour));
    }
@@ -247,7 +247,7 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
 
             case 'H':
                {
-                  if ((settings_.ColourEnabled() == true) && (IsSelected(Id) == false))
+                  if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(Id) == false))
                   {
                      if (highlight == false)
                      {
@@ -281,7 +281,7 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
       }
    }
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       if (highlight == true)
       {

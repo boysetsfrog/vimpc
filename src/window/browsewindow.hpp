@@ -76,7 +76,7 @@ namespace Ui
       public:
       bool operator() (Mpc::Song * i, Mpc::Song * j) 
       { 
-         return (i->FormatString(settings_.SongFormat()) < j->FormatString(settings_.SongFormat()));
+         return (i->FormatString(settings_.Get(Setting::SongFormat)) < j->FormatString(settings_.Get(Setting::SongFormat)));
       };
 
       private:

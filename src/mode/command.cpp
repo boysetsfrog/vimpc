@@ -420,7 +420,7 @@ void Command::SeekTo(std::string const & arguments)
 
 void Command::Quit(std::string const & arguments)
 {
-   if (settings_.SingleQuit() == true)
+   if (settings_.Get(Setting::SingleQuit) == true)
    {
       QuitAll(arguments);
    }
@@ -432,7 +432,7 @@ void Command::Quit(std::string const & arguments)
 
 void Command::QuitAll(std::string const & arguments)
 {
-   if ((forceCommand_ == true) || (settings_.StopOnQuit() == true))
+   if ((forceCommand_ == true) || (settings_.Get(Setting::StopOnQuit) == true))
    {
       Player::Stop();
    }

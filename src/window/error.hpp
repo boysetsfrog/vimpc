@@ -48,14 +48,14 @@ namespace Ui
    public:
       void Print(uint32_t line) const
       {
-         if (Main::Settings::Instance().ColourEnabled() == true)
+         if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
          {
             wattron(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
          }
 
          ModeWindow::Print(line);
 
-         if (Main::Settings::Instance().ColourEnabled() == true)
+         if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
          {
             wattroff(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
          }

@@ -48,9 +48,9 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
    ignoreThe_       (false),
    expandArtist_    (false)
 {
-   ignoreCase_   = settings_.IgnoreCaseSort();
-   ignoreThe_    = settings_.IgnoreTheSort();
-   expandArtist_ = settings_.ExpandArtists();
+   ignoreCase_   = settings_.Get(Setting::IgnoreCaseSort);
+   ignoreThe_    = settings_.Get(Setting::IgnoreTheSort);
+   expandArtist_ = settings_.Get(Setting::ExpandArtists);
 }
 
 LibraryWindow::~LibraryWindow()
@@ -82,7 +82,7 @@ void LibraryWindow::SoftRedraw()
    {
       if (library_.Get(i)->type_ == Mpc::ArtistType)
       {
-         if ((settings_.ExpandArtists() == true) && (library_.Get(i)->expanded_ == false))
+         if ((settings_.Get(Setting::ExpandArtists) == true) && (library_.Get(i)->expanded_ == false))
          {
             library_.Expand(i);
          }
@@ -91,16 +91,16 @@ void LibraryWindow::SoftRedraw()
 
    screen_.Redraw(Ui::Screen::Browse);
 
-   ignoreCase_   = settings_.IgnoreCaseSort();
-   ignoreThe_    = settings_.IgnoreTheSort();
-   expandArtist_ = settings_.ExpandArtists();
+   ignoreCase_   = settings_.Get(Setting::IgnoreCaseSort);
+   ignoreThe_    = settings_.Get(Setting::IgnoreTheSort);
+   expandArtist_ = settings_.Get(Setting::ExpandArtists);
 }
 
 bool LibraryWindow::RequiresRedraw()
 {
-   return ((ignoreCase_   != settings_.IgnoreCaseSort()) ||
-           (ignoreThe_    != settings_.IgnoreTheSort())  ||
-           (expandArtist_ != settings_.ExpandArtists()));
+   return ((ignoreCase_   != settings_.Get(Setting::IgnoreCaseSort)) ||
+           (ignoreThe_    != settings_.Get(Setting::IgnoreTheSort))  ||
+           (expandArtist_ != settings_.Get(Setting::ExpandArtists)));
 }
 
 
@@ -153,7 +153,7 @@ std::string LibraryWindow::SearchPattern(int32_t id)
          break;
 
       case Mpc::SongType:
-         pattern = entry->song_->FormatString(settings_.LibraryFormat());
+         pattern = entry->song_->FormatString(settings_.Get(Setting::LibraryFormat));
          break;
 
       default:
@@ -183,7 +183,7 @@ void LibraryWindow::Print(uint32_t line) const
 
       if (IsSelected(printLine) == true)
       {
-         if (settings_.ColourEnabled() == true)
+         if (settings_.Get(Setting::ColourEnabled) == true)
          {
             wattron(window, COLOR_PAIR(colour));
          }
@@ -207,7 +207,7 @@ void LibraryWindow::Print(uint32_t line) const
             expandCol += 3;
          }
 
-         if (settings_.ColourEnabled() == true)
+         if (settings_.Get(Setting::ColourEnabled) == true)
          {
             wattron(window, COLOR_PAIR(colour));
          }
@@ -223,7 +223,7 @@ void LibraryWindow::Print(uint32_t line) const
             waddstr(window, library_.Get(printLine)->album_.c_str());
          }
 
-         if (settings_.ColourEnabled() == true)
+         if (settings_.Get(Setting::ColourEnabled) == true)
          {
             wattroff(window, COLOR_PAIR(colour));
          }
@@ -233,24 +233,24 @@ void LibraryWindow::Print(uint32_t line) const
          expandCol += 6;
          wmove(window, line, expandCol);
 
-         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
+         if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(printLine) == false))
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
 
          wprintw(window, "%5s | " , library_.Get(printLine)->song_->Track().c_str());
 
-         if ((settings_.ColourEnabled() == true) && (IsSelected(printLine) == false))
+         if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(printLine) == false))
          {
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         PrintSong(line, printLine, colour, settings_.LibraryFormat(), library_.Get(printLine)->song_);
+         PrintSong(line, printLine, colour, settings_.Get(Setting::LibraryFormat), library_.Get(printLine)->song_);
       }
 
       wattroff(window, A_BOLD | A_REVERSE);
 
-      if (settings_.ColourEnabled() == true)
+      if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattroff(window, COLOR_PAIR(colour));
       }
@@ -432,7 +432,7 @@ void LibraryWindow::ScrollToFirstMatch(std::string const & input)
       Mpc::LibraryEntry * entry = library_.Get(i);
 
       if ((entry->type_ == Mpc::ArtistType) &&
-          (Algorithm::imatch(entry->artist_, input, settings_.IgnoreTheSort(), settings_.IgnoreCaseSort()) == true))
+          (Algorithm::imatch(entry->artist_, input, settings_.Get(Setting::IgnoreTheSort), settings_.Get(Setting::IgnoreCaseSort)) == true))
       {
          ScrollTo(i);
          break;
@@ -492,14 +492,14 @@ int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry
    {
       colour = Colour::CurrentSong;
    }
-   else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+   else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
             (search_.HighlightSearch() == true))
    {
       pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
       if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
           ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
-          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.LibraryFormat())) == true)))
+          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
       {
          colour = Colour::SongMatch;
       }

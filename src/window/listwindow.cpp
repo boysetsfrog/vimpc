@@ -74,7 +74,7 @@ void ListWindow::Print(uint32_t line) const
       WINDOW * window = N_WINDOW();
       int32_t  colour = DetermineColour(printLine);
 
-      if (settings_.ColourEnabled() == true)
+      if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattron(window, COLOR_PAIR(colour));
       }
@@ -89,7 +89,7 @@ void ListWindow::Print(uint32_t line) const
 
       wattroff(window, A_REVERSE);
 
-      if (settings_.ColourEnabled() == true)
+      if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattroff(window, COLOR_PAIR(colour));
       }
@@ -124,7 +124,7 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = Colour::Song;
 
-   if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+   if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
        (search_.HighlightSearch() == true))
    {
       pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());

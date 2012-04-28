@@ -76,7 +76,7 @@ bool Search::Handle(int input)
 {
    bool Result = true;
 
-   if (settings_.IncrementalSearch() == false)
+   if (settings_.Get(Setting::IncrementalSearch) == false)
    {
       Result = InputMode::Handle(input);
    }
@@ -151,7 +151,7 @@ bool Search::SearchWindow(Direction direction, std::string search, int32_t start
 
    found = SearchForResult(direction, search, count, startLine);
 
-   if ((found == false) && (settings_.SearchWrap() == true))
+   if ((found == false) && (settings_.Get(Setting::SearchWrap) == true))
    {
       if (direction == Forwards)
       {
@@ -230,14 +230,14 @@ pcrecpp::RE_Options Search::GetOptions(const std::string & search) const
 {
    pcrecpp::RE_Options opt;
 
-   if ((settings_.IgnoreCaseSearch() == true) && (settings_.SmartCase() == true))
+   if ((settings_.Get(Setting::IgnoreCaseSearch) == true) && (settings_.Get(Setting::SmartCase) == true))
    {
       if (Algorithm::isLower(search) == true)
       {
          opt.set_caseless(true);
       }
    }
-   else if (settings_.IgnoreCaseSearch() == true)
+   else if (settings_.Get(Setting::IgnoreCaseSearch) == true)
    {
       opt.set_caseless(true);
    }

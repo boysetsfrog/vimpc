@@ -945,7 +945,7 @@ void Client::DisplaySongInformation()
 
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
 
-         if (settings_.TimeRemaining() == false)
+         if (settings_.Get(Setting::TimeRemaining) == false)
          {
             screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
                                   SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
@@ -1021,7 +1021,7 @@ long Client::TimeSinceUpdate()
 
 void Client::IdleMode()
 {
-   if ((Connected() == true) && (settings_.Polling() == false) &&
+   if ((Connected() == true) && (settings_.Get(Setting::Polling) == false) &&
        (idleMode_ == false))
    {
       idleMode_ = true;
@@ -1031,7 +1031,7 @@ void Client::IdleMode()
 
 bool Client::HadEvents()
 {
-   if ((Connected() == true) && (settings_.Polling() == false) &&
+   if ((Connected() == true) && (settings_.Get(Setting::Polling) == false) &&
        (idleMode_ == true))
    {
       idleMode_ = false;
@@ -1252,7 +1252,7 @@ void Client::CheckError()
          {
             DeleteConnection();
 
-            if ((settings_.Reconnect() == true) && (retried_ == false))
+            if ((settings_.Get(Setting::Reconnect) == true) && (retried_ == false))
             {
                retried_ = true;
                Connect(hostname_, port_);

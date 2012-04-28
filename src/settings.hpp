@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 - 2011 Nathan Sweetman
+   Copyright (C) 2010 - 2012 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -26,16 +26,70 @@
 #include <string>
 #include <map>
 
+// Create an enum entry, name and value for each settinf
+// X(enum-entry, setting-name, default-value)
+#define TOGGLE_SETTINGS \
+   X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
+   X(BrowseNumbers,    "browsenumbers",  true)  /* Show numbers in the browse window */ \
+   X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \
+   X(ExpandArtists,    "expand-artists", false) /* Expand artists in the library window by default */ \
+   X(HideTabBar,       "hidetabbar",     false) /* Hide the tab bar from the display */ \
+   X(HighlightSearch,  "hlsearch",       true)  /* Show search results in a different colour */ \
+   X(IgnoreCaseSearch, "ignorecase",     false) /* Turn off case sensitivity on searching */ \
+   X(IgnoreCaseSort,   "sortignorecase", true)  /* Turn off case sensitivity on sorting */\
+   X(IgnoreTheSort,    "sortignorethe",  false) /* Ignore 'the' when sorting */ \
+   X(IncrementalSearch,"incsearch",      false) /* Search for results whilst typing */ \
+   X(Mouse,            "mouse",          false) /* Handle mouse keys */ \
+   X(Polling,          "polling",        true)  /* Poll for status updates */ \
+   X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
+   X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
+   X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \
+   X(SingleQuit,       "singlequit",     false) /* Quit the entire application not just close a tab */ \
+   X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \
+   X(SmartCase,        "smartcase",      false) /* Case sensitivy enabled when upper case char is used */  \
+   X(StopOnQuit,       "stoponquit",     false) /* Stop playing when we quit */ \
+   X(TimeRemaining,    "timeremaining",  false) /* Show time left rather than time elapsed */ \
+   X(WindowNumbers,    "windownumbers",  false) /* Window numbers next to each window in the tab list */
+
+#define STRING_SETTINGS \
+   X(LibraryFormat,    "libraryformat",  "$H[$H%l$H]$H {%t}|{%f}$E$R ") /* Library format string */ \
+   X(SongFormat,       "songformat",     "{%a - %t}|{%f}$E$R $H[$H%l$H]$H") /* Song format string */ \
+   X(Window,           "window",         "playlist") /* Startup window */ \
+   X(AddPosition,      "add",            "end")      /* position to add songs */
+
+class Setting
+{
+public:
+   // Use for add position
+   static std::string AddEnd;
+   static std::string AddNext;
+
+#define X(a, b, c) a,
+   typedef enum
+   {
+      TOGGLE_SETTINGS
+      ToggleCount
+   } ToggleSettings;
+
+   typedef enum
+   {
+      StartString = ToggleCount,
+      STRING_SETTINGS
+      StringCount
+   } StringSettings;
+#undef X
+};
+                      
 namespace Main
 {
    //! Holds the value of an individual setting
    template <typename T>
-   class Setting
+   class SettingValue
    {
       public:
-         Setting() { }
-         Setting(T v) : value_(v) { }
-         ~Setting() { }
+         SettingValue() { }
+         SettingValue(T v) : value_(v) { }
+         ~SettingValue() { }
 
          T Get() const { return value_; }
          void Set(T v) { value_ = v; }
@@ -47,15 +101,9 @@ namespace Main
    //! Manages settings which are set via :set command
    class Settings
    {
-      public:
-         typedef enum
-         {
-            End,
-            Next
-         } Position;
-
       private:
-         typedef std::map<std::string, Setting<bool> * > SettingsTable;
+         typedef std::map<std::string, SettingValue<bool> * >        BoolSettingsTable;
+         typedef std::map<std::string, SettingValue<std::string> * > StringSettingsTable;
 
       public:
          static Settings & Instance();
@@ -71,86 +119,14 @@ namespace Main
          //! Calls the correct setter function based upon the given input
          void Set(std::string const & input);
 
-      public: //Specific Settings
-         //! Get the location to add songs
-         Position AddPosition() const;
-         
-         //! Gets the default startup window
-         std::string Window() const;
+         //! Get the value of a particular setting
+         bool Get(Setting::ToggleSettings setting) const;
+         std::string Get(Setting::StringSettings setting) const;
 
-         //! Gets the format for printing songs
-         std::string SongFormat() const;
-         std::string LibraryFormat() const;
-
-      public: //Toggle Settings
-         //! Determine whether to autmatically scroll to playing song
-         bool AutoScroll() const;
-
-         //! Show numbers in the browse window
-         bool BrowseNumbers() const;
-
-         //! Determine if we should use colours
-         bool ColourEnabled() const;
-
-         //! Should we expand artists in the library window by default
-         bool ExpandArtists() const;
-
-         //! Hide the tab bar from the display
-         bool HideTabBar() const;
-
-         //! Determine whether to show search results in a different colour
-         bool HightlightSearch() const;
-
-         //! Turn off case sensitivity on searching
-         bool IgnoreCaseSearch() const;
-
-         //! Turn off case sensitivity on sorting
-         bool IgnoreCaseSort() const;
-
-         //! Ignore 'the' when sorting
-         bool IgnoreTheSort() const;
-
-         //! Search for results whilst typing
-         bool IncrementalSearch() const;
-
-         //! Handle mouse keys
-         bool Mouse() const;
-
-         //! Poll for status updates
-         bool Polling() const;
-
-         //! Show id next to each song in the playlist
-         bool PlaylistNumbers() const;
-
-         //! Reconnect to server when connection drops
-         bool Reconnect() const;
-
-         //! Determine whether to wrap searching
-         bool SearchWrap() const;
-
-         //! Quit will quit the entire application not just close a tab
-         bool SingleQuit() const;
-
-         //! If used with ignore case, case sensitivy search is re-enabled when an upper case
-         //! character is used in the search string
-         bool SmartCase() const;
-
-         //! Show id numbers next to songs in any window
-         bool SongNumbers() const;
-
-         //! Determines whether we should stop playing when we quit
-         bool StopOnQuit() const;
-
-         //! Show time left rather than time elapsed
-         bool TimeRemaining() const;
-
-         //! Show window numbers next to each window in the tab list
-         bool WindowNumbers() const;
-
+      public:
          //! Set/Get whether or not to connect if asked to in config
          void SetSkipConfigConnects(bool val);
          bool SkipConfigConnects() const;
-
 
       private:
          //! Used to handle settings that require very specific paramters
@@ -161,30 +137,28 @@ namespace Main
 
       private:
          //! Get the value for the given \p setting
-         bool Get(std::string setting) const 
+         bool GetBool(std::string setting) const 
          { 
-            SettingsTable::const_iterator it = toggleTable_.find(setting);
+            BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
             return ((it != toggleTable_.end()) && (it->second->Get()));
          }
 
-      private:
-         void SetAdd(std::string const & arguments);
-         //! Sets the startup window
-         void SetWindow(std::string const & arguments);
-         void SetSongFormat(std::string const & arguments);
-         void SetLibFormat(std::string const & arguments);
+         std::string GetString(std::string setting) const 
+         { 
+            StringSettingsTable::const_iterator it = stringTable_.find(setting);
+            if (it != stringTable_.end())
+            {
+               return (it->second->Get());
+            }
+            return "";
+         }
 
       private:
-         Position    add_;
-         std::string window_;
-         std::string songFormat_;
-         std::string libFormat_;
+         typedef std::map<int, std::string> SettingNameTable;
+         SettingNameTable     settingName_;
 
-         typedef void (Main::Settings::*ptrToMember)(std::string const &);
-         typedef std::map<std::string, ptrToMember> SettingsFunctionTable;
-         SettingsFunctionTable settingsTable_;
-
-         SettingsTable toggleTable_;
+         BoolSettingsTable    toggleTable_;
+         StringSettingsTable  stringTable_;
    };
 }
 

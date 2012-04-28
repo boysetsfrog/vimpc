@@ -67,7 +67,7 @@ void HelpWindow::Print(uint32_t line) const
 
       if ((FirstLine() == 0) && (line == 0))
       {
-         if (settings_.ColourEnabled() == true)
+         if (settings_.Get(Setting::ColourEnabled) == true)
          {
             wattron(window, COLOR_PAIR(BLUEONDEFAULT));
          }
@@ -76,7 +76,7 @@ void HelpWindow::Print(uint32_t line) const
       }
       else if (Algorithm::isUpper(currentLine) == true)
       {
-         if (settings_.ColourEnabled() == true)
+         if (settings_.Get(Setting::ColourEnabled) == true)
          {
             wattron(window, COLOR_PAIR(REDONDEFAULT));
          }
@@ -105,7 +105,7 @@ void HelpWindow::Print(uint32_t line) const
       }
    }
 
-   if (settings_.ColourEnabled() == true)
+   if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattroff(window, COLOR_PAIR(REDONDEFAULT) | COLOR_PAIR(BLUEONDEFAULT));
    }

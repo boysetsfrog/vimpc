@@ -126,12 +126,12 @@ int32_t PlaylistWindow::DetermineSongColour(uint32_t line, Mpc::Song const * con
       {
          colour = Colour::CurrentSong;
       }
-      else if ((search_.LastSearchString() != "") && (settings_.HightlightSearch() == true) &&
+      else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
                (search_.HighlightSearch() == true))
       {
          pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(song->FormatString(settings_.SongFormat())))
+         if (expression.FullMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
          {
             colour = Colour::SongMatch;
          }
@@ -206,7 +206,7 @@ void PlaylistWindow::Save(std::string const & name)
 
 void PlaylistWindow::PrintId(uint32_t Id) const
 {
-   if (settings_.PlaylistNumbers() == true)
+   if (settings_.Get(Setting::PlaylistNumbers) == true)
    {
       SongWindow::PrintId(Id);
    }

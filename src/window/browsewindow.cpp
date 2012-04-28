@@ -69,7 +69,7 @@ void BrowseWindow::Redraw()
 
 void BrowseWindow::PrintId(uint32_t Id) const
 {
-   if (settings_.BrowseNumbers() == true)
+   if (settings_.Get(Setting::BrowseNumbers) == true)
    {
       SongWindow::PrintId(Id);
    }

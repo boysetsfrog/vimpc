@@ -331,7 +331,7 @@ uint32_t Player::First(Mpc::Song const * const song, uint32_t position, Mpc::Son
 
 void Player::HandleAutoScroll()
 {
-   if (settings_.AutoScroll() == true)
+   if (settings_.Get(Setting::AutoScroll) == true)
    {
       screen_.ScrollTo(Screen::Current);
    }
