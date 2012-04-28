@@ -709,11 +709,15 @@ void Screen::HandleMouseEvent()
 
          if (event.bstate & BUTTON4_PRESSED)
          {
-            ActiveWindow().Scroll(-3);
+#if (NCURSES_MOUSE_VERSION <= 1)
+            ActiveWindow().Scroll(-12);
+#else
+            ActiveWindow().Scroll(-6);
+#endif
          }
          else if (event.bstate & BUTTON5_PRESSED)
          {
-            ActiveWindow().Scroll(3);
+            ActiveWindow().Scroll(6);
          }
          else if (event.y == 0)
          {
