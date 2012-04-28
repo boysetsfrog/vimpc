@@ -287,7 +287,7 @@ std::string Song::FormatString(std::string fmt) const
                   next = (*this.*Function)();
                }
 
-               if ((next == "") || (next.substr(0, strlen("Unknown") -1) == "Unknown"))
+               if ((next == "") || (next.substr(0, strlen("Unknown")) == "Unknown"))
                {
                   valid = false;
                }
