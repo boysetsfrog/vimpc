@@ -351,7 +351,7 @@ void Normal::Map(std::string key, std::string mapping)
 
          if (error == true)
          {
-            Error(ErrorNumber::CouldNotMapKeys, "Failed to map the specified keys");
+            ErrorString(ErrorNumber::CouldNotMapKeys);
             break;
          }
 
@@ -872,7 +872,7 @@ void Normal::GotoMark(std::string const & input)
    }
    else
    {
-      Error(ErrorNumber::NoSuchMark, "Mark not set");
+      ErrorString(ErrorNumber::NoSuchMark);
    }
 }
 
@@ -981,33 +981,54 @@ void Normal::SendSignal(uint32_t count)
 
 void Normal::DisplayModeLine()
 {
-   std::ostringstream modeStream;
+   std::string const state(StateString());
+   std::string const scrolls(ScrollString());
 
+   int32_t const WhiteSpaceLength = screen_.MaxColumns() - (state.size()) - (scrolls.size() - 1);
+
+   std::string blankLine("");
+
+   if (WhiteSpaceLength > 0)
+   {
+      blankLine = std::string(WhiteSpaceLength, ' ');
+   }
+
+   window_->SetLine("%s%s%s", state.c_str(), blankLine.c_str(), scrolls.c_str());
+}
+
+std::string Normal::ScrollString()
+{
    float currentScroll = 0.0;
+   std::ostringstream scrollStream;
 
-   if (screen_.ActiveWindow().ContentSize() > 0)
+   if (screen_.ActiveWindow().ContentSize() > -1)
    {
       currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().ContentSize()) - 1));
       currentScroll += .005;
-      modeStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
+      scrollStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
+
+      if (screen_.ActiveWindow().ContentSize() > static_cast<int32_t>(screen_.MaxRows()) - 1)
+      {
+         if (currentScroll <= .010)
+         {
+            scrollStream << "Top ";
+         }
+         else if (currentScroll >= 1.0)
+         {
+            scrollStream << "Bot ";
+         }
+         else
+         {
+            scrollStream << std::setw(2) << static_cast<int>(currentScroll * 100) << "%%";
+         }
+      }
    }
 
-   if (screen_.ActiveWindow().ContentSize() > static_cast<int32_t>(screen_.MaxRows()) - 1)
-   {
-      if (currentScroll <= .010)
-      {
-         modeStream << "Top ";
-      }
-      else if (currentScroll >= 1.0)
-      {
-         modeStream << "Bot ";
-      }
-      else
-      {
-         modeStream << std::setw(2) << static_cast<int>(currentScroll * 100) << "%%";
-      }
-   }
+   return scrollStream.str();
+}
 
+std::string Normal::StateString()
+{
    std::string toggles   = "";
    std::string random    = (client_.Random() == true) ? "random, " : "";
    std::string repeat    = (client_.Repeat() == true) ? "repeat, " : "";
@@ -1023,7 +1044,6 @@ void Normal::DisplayModeLine()
       toggles += "]";
    }
 
-
    std::string volume = "";
 
    if (client_.Volume() != -1)
@@ -1033,19 +1053,7 @@ void Normal::DisplayModeLine()
       volume += " [Volume: " + std::string(vol) + "%]";
    }
 
-   std::string currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);
-
-   std::string modeLine(modeStream.str());
-
-   int32_t const WhiteSpaceLength = screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1);
-
-   std::string blankLine("");
-
-   if (WhiteSpaceLength > 0)
-   {
-      blankLine = std::string(screen_.MaxColumns() - (currentState.size()) - (modeLine.size() - 1), ' ');
-   }
-
-   window_->SetLine("%s%s%s", currentState.c_str(),  blankLine.c_str(), modeLine.c_str());
+   std::string const currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);
+   return currentState;
 }
 /* vim: set sw=3 ts=3: */

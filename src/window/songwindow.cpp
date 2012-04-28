@@ -361,7 +361,7 @@ void SongWindow::Save(std::string const & name)
    }
    else
    {
-      Error(ErrorNumber::FileExists, "Playlist with that namealready exists");
+      ErrorString(ErrorNumber::PlaylistExists);
    }
 }
 

@@ -59,9 +59,6 @@ namespace Ui
       void AdjustScroll(Mpc::Song * song);
 
    public:
-      std::string SearchPattern(int32_t id) { return playlist_.Get(id)->PlaylistDescription(); }
-
-   public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void AddAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);

@@ -158,7 +158,7 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
    }
    else
    {
-      Error(ErrorNumber::SettingNonexistant, "No such setting: " + setting);
+      ErrorString(ErrorNumber::SettingNonexistant, setting);
    }
 }
 
@@ -195,7 +195,7 @@ void Settings::SetSingleSetting(std::string setting)
    }
    else
    {
-      Error(ErrorNumber::SettingNonexistant, "No such setting: " + setting);
+      ErrorString(ErrorNumber::SettingNonexistant, setting);
    }
 }
 

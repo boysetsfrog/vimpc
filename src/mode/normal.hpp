@@ -198,6 +198,8 @@ namespace Ui
 
    private:
       void DisplayModeLine();
+      std::string StateString();
+      std::string ScrollString();
 
    private:
       typedef void (Ui::Normal::*ptrToMember)(uint32_t);

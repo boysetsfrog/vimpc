@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2012 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -21,29 +21,44 @@
 #ifndef __ERRORCODES
 #define __ERRORCODES
 
+#include <string>
+#define ERRORCODES \
+   X(Invalid, "") \
+   X(CommandAmbiguous,      "Command is ambigous, please be more specific") \
+   X(ClientError,           "Client Error") \
+   X(ClientNoConnection,    "Not Connected") \
+   X(CommandNonexistant,    "Command not found") \
+   X(CouldNotMapKeys,       "Failed to map the specified keys") \
+   X(TabDoesNotExist,       "No such tab/window") \
+   X(ExternalProgramError,  "Executing external program failed") \
+   X(FindNoResults,         "Find: no results matching this pattern found") \
+   X(HelpFileNonexistant,   "Unable to open help file") \
+   X(NoParameter,           "Expected a parameter") \
+   X(InvalidParameter,      "Invalid parameter") \
+   X(NoOutput,              "No such output") \
+   X(PlaylistEmpty,         "Playlist: empty") \
+   X(SearchNoResults,       "Pattern not found") \
+   X(SettingNonexistant,    "No such setting") \
+   X(PlaylistExists,        "Playlist with that name already exists") \
+   X(NoSuchMark,            "Mark not set") \
+   X(Unknown,               "Unknown")
+
 namespace ErrorNumber
 {
    enum
    {
-      CommandAmbiguous = 1,
-      ClientError,
-      ClientNoConnection,
-      CommandNonexistant,
-      CouldNotMapKeys,
-      DoesNotExist,
-      ExternalProgramError,
-      FindNoResults,
-      HelpFileNonexistant,
-      InvalidParameter,
-      NoOutput,
-      PlaylistEmpty,
-      SearchNoResults,
-      SettingNonexistant,
-      FileExists,
-      NoSuchMark,
-      Unknown
+#define X(Number, String) Number,
+      ERRORCODES
+#undef X
+      ErrorCount
    };
 }
+
+class ErrorStrings
+{
+public:
+   static std::string Default[];
+};
 
 #endif
 /* vim: set sw=3 ts=3: */

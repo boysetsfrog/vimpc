@@ -16,6 +16,7 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/callback.hpp \
                    src/colour.hpp \
                    src/config.hpp \
+                   src/errorcodes.cpp \
                    src/errorcodes.hpp \
                    src/main.cpp \
                    src/mpdclient.cpp \

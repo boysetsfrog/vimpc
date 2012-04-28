@@ -163,7 +163,7 @@ void HelpWindow::LoadHelpFile()
    }
    else
    {
-      Error(ErrorNumber::HelpFileNonexistant, "Unable to open help file");
+      ErrorString(ErrorNumber::HelpFileNonexistant);
    }
 }
 

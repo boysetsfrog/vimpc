@@ -239,7 +239,7 @@ void Client::Password(std::string const & password)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -265,13 +265,15 @@ void Client::Play(uint32_t const playId)
    {
       ClearCommand();
       mpd_send_play_pos(connection_, playId);
+
       currentSongId_ = playId;
-      state_   = MPD_STATE_PLAY;
+      state_         = MPD_STATE_PLAY;
+
       UpdateStatus();
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -293,7 +295,7 @@ void Client::Pause()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -311,7 +313,7 @@ void Client::Stop()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -325,7 +327,7 @@ void Client::Next()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -339,7 +341,7 @@ void Client::Previous()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -352,7 +354,7 @@ void Client::Seek(int32_t Offset)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -365,7 +367,7 @@ void Client::SeekTo(uint32_t Time)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -385,7 +387,7 @@ void Client::SetRandom(bool const random)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -405,7 +407,7 @@ void Client::SetSingle(bool const single)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -425,7 +427,7 @@ void Client::SetConsume(bool const consume)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -444,7 +446,7 @@ void Client::SetRepeat(bool const repeat)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -485,7 +487,7 @@ void Client::SetCrossfade(uint32_t crossfade)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -504,7 +506,7 @@ void Client::SetVolume(uint32_t volume)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -519,7 +521,7 @@ void Client::Shuffle()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -533,7 +535,7 @@ void Client::Move(uint32_t position1, uint32_t position2)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -547,7 +549,7 @@ void Client::Swap(uint32_t position1, uint32_t position2)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -562,7 +564,7 @@ void Client::CreatePlaylist(std::string const & name)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -575,7 +577,7 @@ void Client::SavePlaylist(std::string const & name)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -590,7 +592,7 @@ void Client::LoadPlaylist(std::string const & name)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -603,7 +605,7 @@ void Client::RemovePlaylist(std::string const & name)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -616,7 +618,7 @@ void Client::AddToNamedPlaylist(std::string const & name, Mpc::Song * song)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -642,7 +644,7 @@ void Client::EnableOutput(Mpc::Output * output)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -655,7 +657,7 @@ void Client::DisableOutput(Mpc::Output * output)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -668,7 +670,7 @@ void Client::Add(Mpc::Song * song)
    }
    else if (Connected() == false)
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -682,7 +684,7 @@ uint32_t Client::Add(Mpc::Song & song)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 
    return TotalNumberOfSongs() - 1;
@@ -704,7 +706,7 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 
    return TotalNumberOfSongs() - 1;
@@ -719,7 +721,7 @@ uint32_t Client::AddAllSongs()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 
    return TotalNumberOfSongs() - 1;
@@ -735,7 +737,7 @@ uint32_t Client::Add(std::string const & URI)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 
    return TotalNumberOfSongs() - 1;
@@ -758,7 +760,7 @@ void Client::Delete(uint32_t position)
    }
    else if (Connected() == false)
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -800,7 +802,7 @@ void Client::Delete(uint32_t position1, uint32_t position2)
    }
    else if (Connected() == false)
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -814,7 +816,7 @@ void Client::Clear()
    }
    else if (Connected() == false)
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -951,7 +953,6 @@ void Client::DisplaySongInformation()
          }
          else
          {
-            
             screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
                                   SecondsToMinutes(remain),  RemainingSeconds(remain),
                                   SecondsToMinutes(duration), RemainingSeconds(duration));
@@ -974,7 +975,7 @@ void Client::Rescan()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -987,7 +988,7 @@ void Client::Update()
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -1263,7 +1264,7 @@ void Client::CheckError()
 
 void Client::DeleteConnection()
 {
-   listMode_ = false;
+   listMode_     = false;
    currentState_ = "Disconnected";
    volume_       = -1;
    random_       = false;

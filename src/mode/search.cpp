@@ -134,7 +134,7 @@ bool Search::SearchResult(Skip skip, std::string const & search, int32_t line, u
    {
       if (raiseError == true)
       {
-         Error(ErrorNumber::SearchNoResults, "Pattern not found: " + search);
+         ErrorString(ErrorNumber::SearchNoResults, search);
       }
       else
       {

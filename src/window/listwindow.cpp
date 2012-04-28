@@ -214,7 +214,7 @@ void ListWindow::Edit()
    else
    {
       screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-      Error(ErrorNumber::PlaylistEmpty, "Playlist: empty");
+      ErrorString(ErrorNumber::PlaylistEmpty);
    }
 }
 

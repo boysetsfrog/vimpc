@@ -71,16 +71,35 @@ namespace Ui
 }
 
 static void Error(uint32_t errorNumber, std::string errorString);
+static void ErrorString(uint32_t errorNumber);
+static void ErrorString(uint32_t errorNumber, std::string errorString);
 
 void Error(uint32_t errorNumber, std::string errorString)
 {
-   if (errorNumber != 0)
+   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
       Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
       errorWindow.SetError(true);
       errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
    }
    //\todo if a critical error, also print to console window
+}
+
+
+void ErrorString(uint32_t errorNumber)
+{
+   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
+   {
+      Error(errorNumber, ErrorStrings::Default[errorNumber]);
+   }
+}
+
+void ErrorString(uint32_t errorNumber, std::string Additional)
+{
+   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
+   {
+      Error(errorNumber, ErrorStrings::Default[errorNumber] + ": " + Additional);
+   }
 }
 
 #endif

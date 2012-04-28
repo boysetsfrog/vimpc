@@ -46,6 +46,8 @@ namespace Mpc
       } SongCollection;
 
    public:
+      // When we equate songs we can just check if they refer
+      // to the same file in the database, if they do, they are the same
       bool operator==(Song const & rhs)
       {
          return (this->uri_ == rhs.URI());
@@ -66,6 +68,7 @@ namespace Mpc
          return (this->uri_ != (mpd_song_get_uri(&rhs)));
       }
 
+      // Sort by artist then title
       bool operator<(Song const & rhs) const
       {
          return ((artist_ < rhs.artist_) || (title_ < rhs.title_));
@@ -74,6 +77,8 @@ namespace Mpc
    public:
       int32_t Reference() const;
 
+      // Find the corresponding entry in the library
+      // for this song and update it's reference count
       static void IncrementReference(Song * song);
       static void DecrementReference(Song * song);
 
@@ -99,8 +104,6 @@ namespace Mpc
       void SetEntry(LibraryEntry * entry);
       LibraryEntry * Entry() const;
 
-      std::string PlaylistDescription() const;
-      std::string FullDescription()     const;
       std::string FormatString(std::string fmt) const;
 
    private:

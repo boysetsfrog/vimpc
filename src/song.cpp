@@ -77,7 +77,7 @@ int32_t Song::Reference() const
    }
 }
 
-/*static */ void Song::DecrementReference(Song * song)
+/* static */ void Song::DecrementReference(Song * song)
 {
    song->reference_ -= 1;
 
@@ -204,18 +204,6 @@ std::string const & Song::DurationString() const
    return durationString_;
 }
 
-
-std::string Song::PlaylistDescription() const
-{
-   std::string fullDescription(artist_ + " - " + title_ + " " + DurationString());
-   return fullDescription;
-}
-
-std::string Song::FullDescription() const
-{
-   std::string fullDescription(artist_ + " - " + title_ + " " + album_ + " " + DurationString());
-   return fullDescription;
-}
 
 std::string Song::FormatString(std::string fmt) const
 {

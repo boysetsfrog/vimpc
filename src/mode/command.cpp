@@ -332,7 +332,7 @@ void Command::Play(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::InvalidParameter, "Invalid song id");
+      ErrorString(ErrorNumber::InvalidParameter, "song id");
    }
 }
 
@@ -345,7 +345,7 @@ void Command::Add(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::ClientNoConnection, "Not Connected");
+      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
@@ -450,7 +450,7 @@ void Command::Volume(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::InvalidParameter, "Invalid volume specified");
+      ErrorString(ErrorNumber::InvalidParameter);
    }
 }
 
@@ -492,7 +492,8 @@ void Command::Echo(std::string const & echo)
 
 void Command::EchoError(std::string const & arguments)
 {
-   Error(ErrorNumber::Unknown, arguments);
+   int32_t error = atoi(arguments.substr(0, arguments.find(" ")).c_str());
+   ErrorString(error, arguments.substr(arguments.find(" ") + 1));
 }
 
 void Command::Sleep(std::string const & seconds)
@@ -540,7 +541,7 @@ void Command::Output(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::NoOutput, "No such output");
+      ErrorString(ErrorNumber::NoOutput);
    }
 }
 
@@ -553,7 +554,7 @@ void Command::LoadPlaylist(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::InvalidParameter, "Expected parameter");
+      ErrorString(ErrorNumber::NoParameter);
    }
 }
 
@@ -571,7 +572,7 @@ void Command::SavePlaylist(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::InvalidParameter, "Expected parameter");
+      ErrorString(ErrorNumber::NoParameter);
    }
 }
 
@@ -583,7 +584,7 @@ void Command::ToPlaylist(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::InvalidParameter, "Expected parameter");
+      ErrorString(ErrorNumber::NoParameter);
    }
 }
 
@@ -596,7 +597,7 @@ void Command::Find(std::string const & arguments)
 
       if (Main::PlaylistTmp().Size() == 0)
       {
-         Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+         ErrorString(ErrorNumber::FindNoResults);
       }
       else
       {
@@ -621,7 +622,7 @@ void Command::Find(std::string const & arguments)
       else
       {
          screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         Error(ErrorNumber::FindNoResults, "Find: no results matching this pattern found");
+         ErrorString(ErrorNumber::FindNoResults);
       }
    }
 }
@@ -869,7 +870,7 @@ void Command::HideWindow(std::string const & arguments)
       }
       else
       {
-         Error(ErrorNumber::DoesNotExist, "No such tab/window");
+         ErrorString(ErrorNumber::TabDoesNotExist, arguments);
       }
    }
 
@@ -899,7 +900,7 @@ void Command::RenameWindow(std::string const & arguments)
       }
       else
       {
-         Error(ErrorNumber::DoesNotExist, "No such tab/window");
+         ErrorString(ErrorNumber::TabDoesNotExist, oldname);
       }
    }
    else
@@ -959,11 +960,11 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    }
    else if (validCommandCount > 1)
    {
-      Error(ErrorNumber::CommandAmbiguous, "Command is ambigous, please be more specific: " + command);
+      ErrorString(ErrorNumber::CommandAmbiguous, command);
    }
    else
    {
-      Error(ErrorNumber::CommandNonexistant, "Command not found: " + command);
+      ErrorString(ErrorNumber::CommandNonexistant, command);
    }
 
    forceCommand_ = false;
@@ -1013,7 +1014,7 @@ void Command::Mpc(std::string const & arguments)
    }
    else
    {
-      Error(ErrorNumber::ExternalProgramError, "Executing program mpc failed");
+      ErrorString(ErrorNumber::ExternalProgramError, "mpc");
    }
 }
 
