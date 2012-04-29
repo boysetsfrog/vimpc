@@ -54,7 +54,7 @@ namespace Ui
       virtual uint32_t Current() const { return CurrentLine(); };
       virtual uint32_t Playlist(int count) const { return Current(); };
 
-      virtual std::string SearchPattern(int32_t id) { return ""; }
+      virtual std::string SearchPattern(int32_t id) const { return ""; }
 
    public:
       virtual void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}

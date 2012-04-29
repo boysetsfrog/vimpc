@@ -28,8 +28,14 @@
 
 #include <execinfo.h>
 
+void breakpoint()
+{
+}
+
 ASSERT_FUNCTION()
 {
+   BREAKPOINT
+
    int const BufferSize = 128;
    void    * buffer[BufferSize];
    int       nptrs;

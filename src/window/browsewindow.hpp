@@ -56,7 +56,8 @@ namespace Ui
    private:
       void    Clear();
       size_t  BufferSize() const   { return browse_.Size(); }
-      Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
+      Main::Buffer<Mpc::Song *> & Buffer() { return browse_; }
+      Main::Buffer<Mpc::Song *> const & Buffer() const { return browse_; }
 
    private:
       Main::Settings const & settings_;

@@ -64,7 +64,7 @@ namespace Ui
       void AdjustScroll(Mpc::Output * output);
 
    public:
-      std::string SearchPattern(int32_t id) { return outputs_.Get(id)->Name(); }
+      std::string SearchPattern(int32_t id) const { return outputs_.Get(id)->Name(); }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);

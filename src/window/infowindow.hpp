@@ -37,7 +37,7 @@ namespace Ui
    public:
       void Print(uint32_t line) const;
       uint32_t Current() const              { return CurrentLine(); };
-      std::string SearchPattern(int32_t id) { return ""; }
+      std::string SearchPattern(int32_t id) const { return ""; }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);

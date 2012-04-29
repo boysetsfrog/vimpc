@@ -31,6 +31,9 @@
 #define ENSURE(_expression)                        ASSERT(_expression)
 #define ASSERT_FUNCTION()                          void assert_failed(const char * file, const char * function, int line)
 
+void breakpoint();
+#define BREAKPOINT breakpoint();
+
 extern ASSERT_FUNCTION();
 
 #define STATIC_ASSERT(exp) (static_assert_failed <(exp) >())
@@ -60,6 +63,7 @@ namespace Assert
 #define REQUIRE(ignore)       ((void) 0)
 #define ENSURE(ignore)        ((void) 0)
 #define STATIC_ASSERT(ignore) ((void) 0)
+#define BREAKPOINT
 
 namespace Assert
 {

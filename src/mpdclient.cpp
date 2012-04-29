@@ -994,6 +994,8 @@ void Client::Update()
 
 void Client::IncrementTime(long time)
 {
+   REQUIRE(time >= 0);
+
    timeSinceUpdate_ += time;
    timeSinceSong_   += time;
 
@@ -1282,6 +1284,8 @@ void Client::DeleteConnection()
       mpd_connection_free(connection_);
       connection_ = NULL;
    }
+
+   ENSURE(connection_ == NULL);
 }
 
 

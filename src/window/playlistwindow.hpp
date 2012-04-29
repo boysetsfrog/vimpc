@@ -76,7 +76,8 @@ namespace Ui
       int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const song) const;
 
    public:
-      Main::Buffer<Mpc::Song *> & Buffer() const { return playlist_; }
+      Main::Buffer<Mpc::Song *> & Buffer() { return playlist_; }
+      Main::Buffer<Mpc::Song *> const & Buffer() const { return playlist_; }
 
    private:
       Main::Settings const & settings_;

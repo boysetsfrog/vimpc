@@ -58,7 +58,7 @@ namespace Ui
       void AdjustScroll(std::string list);
 
    public:
-      std::string SearchPattern(int32_t id) { return lists_.Get(id); }
+      std::string SearchPattern(int32_t id) const { return lists_.Get(id); }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);

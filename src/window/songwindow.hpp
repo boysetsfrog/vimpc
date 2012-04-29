@@ -60,14 +60,7 @@ namespace Ui
       void AddToPlaylist(uint32_t position);
 
    public:
-      std::string SearchPattern(int32_t id)
-      {
-         if (id > 0)
-         {
-            return Buffer().Get(id)->FormatString(settings_.Get(Setting::SongFormat));
-         }
-         return "";
-      }
+      std::string SearchPattern(int32_t id) const;
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
@@ -83,7 +76,8 @@ namespace Ui
       void Save(std::string const & name);
 
    public:
-      virtual Main::Buffer<Mpc::Song *> & Buffer() const { return browse_; }
+      virtual Main::Buffer<Mpc::Song *> & Buffer() { return browse_; }
+      virtual Main::Buffer<Mpc::Song *> const & Buffer() const { return Buffer(); }
 
    protected:
       virtual void PrintBlankId() const;
@@ -100,7 +94,7 @@ namespace Ui
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      mutable Mpc::Browse    browse_;
+      Mpc::Browse            browse_;
    };
 }
 

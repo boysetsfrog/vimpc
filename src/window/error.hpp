@@ -29,23 +29,33 @@
 #include <stdint.h>
 #include <string>
 
+//! Display an error window with the given error
+static void Error(uint32_t errorNumber, std::string errorString);
+static void ErrorString(uint32_t errorNumber);
+static void ErrorString(uint32_t errorNumber, std::string additional);
+
+// Errors cannot be added to the window directly
+// The Accessor functions defined above must be used
 namespace Ui
 {
-   class ErrorWindow : public Ui::ModeWindow
+   class ErrorWindow : private Ui::ModeWindow
    {
-   //! \todo why is this a singleton?
-   public:
+      friend class Ui::Screen;
+      friend void ::Error(uint32_t errorNumber, std::string errorString);
+
+   // Everything is private to prevent errors being set on the window
+   // directly without using the helper functions
+   private:
       static ErrorWindow & Instance()
       {
          static ErrorWindow errorWindow;
          return errorWindow;
       }
 
-   private:
       ErrorWindow() : ModeWindow(COLS, LINES), hasError_(false) { }
       ~ErrorWindow() { }
 
-   public:
+   private:
       void Print(uint32_t line) const
       {
          if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
@@ -62,17 +72,13 @@ namespace Ui
       }
 
       void ClearError()             { hasError_ = false; }
-      void SetError(bool hasError)  { hasError_ = hasError; }
       bool HasError() const         { return hasError_; }
+      void SetError(bool hasError)  { hasError_ = hasError; }
 
    private:
       bool hasError_;
    };
 }
-
-static void Error(uint32_t errorNumber, std::string errorString);
-static void ErrorString(uint32_t errorNumber);
-static void ErrorString(uint32_t errorNumber, std::string errorString);
 
 void Error(uint32_t errorNumber, std::string errorString)
 {
@@ -82,9 +88,7 @@ void Error(uint32_t errorNumber, std::string errorString)
       errorWindow.SetError(true);
       errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
    }
-   //\todo if a critical error, also print to console window
 }
-
 
 void ErrorString(uint32_t errorNumber)
 {
@@ -94,11 +98,11 @@ void ErrorString(uint32_t errorNumber)
    }
 }
 
-void ErrorString(uint32_t errorNumber, std::string Additional)
+void ErrorString(uint32_t errorNumber, std::string additional)
 {
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
-      Error(errorNumber, ErrorStrings::Default[errorNumber] + ": " + Additional);
+      Error(errorNumber, ErrorStrings::Default[errorNumber] + ": " + additional);
    }
 }
 

@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <vector>
 
+#include "assert.hpp"
 #include "callback.hpp"
 #include "window/window.hpp"
 
@@ -178,6 +179,7 @@ namespace Main
          // We need to remove one by one to ensure
          // that the callback is called at the right time
          Remove(0, Size());
+         ENSURE(Size() == 0);
       }
 
       size_t Size() const
