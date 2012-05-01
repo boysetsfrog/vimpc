@@ -196,7 +196,7 @@ void Library::Sort()
 
    for (uint32_t i = 0; (i < Size()); ++i)
    {
-      //Sort(Get(i));
+      Sort(Get(i));
    }
 }
 
