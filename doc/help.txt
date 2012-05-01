@@ -127,9 +127,9 @@
    The library window is a heirachy of an artist/album/song form.
    By default only the artists are shown but these can be expanded
    or collapsed using left/right keys. Any file which does not have
-   an artist tag will show up under "Unknown", likewise for the album.
-   Any file which has multiple artists on the same album will show up
-   under "Various"
+   an artist tag will show up under "Unknown Artist", likewise for 
+   the album ("Unknown Album"). Any file which has multiple artists on 
+   the same album will show up under "Various Artists"
 
    [count] a               | add song, album or artist to playlist
    [count] d, del          | delete song, album, artist
