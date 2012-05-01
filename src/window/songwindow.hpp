@@ -77,7 +77,7 @@ namespace Ui
 
    public:
       virtual Main::Buffer<Mpc::Song *> & Buffer() { return browse_; }
-      virtual Main::Buffer<Mpc::Song *> const & Buffer() const { return Buffer(); }
+      virtual Main::Buffer<Mpc::Song *> const & Buffer() const { return browse_; }
 
    protected:
       virtual void PrintBlankId() const;
