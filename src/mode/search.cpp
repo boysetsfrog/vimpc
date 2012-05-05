@@ -74,24 +74,44 @@ void Search::Finalise(int input)
 
 bool Search::Handle(int input)
 {
-   bool Result = true;
+   static bool LastIncFound  = true;
+   static std::string Match  = "";
+   bool        Result        = true;
 
    if (settings_.Get(Setting::IncrementalSearch) == false)
    {
       Result = InputMode::Handle(input);
+      LastIncFound = true;
+      Match        = "";
    }
    else
    {
-      if (HasCompleteInput(input) == false)
-      {
-         InputMode::Handle(input);
-         Result = SearchResult(Next, inputString_, currentLine_, 1, false);
-      }
-      else
+      if (HasCompleteInput(input) == true)
       {
          lastSearch_  = inputString_;
          hasSearched_ = true;
          Result = SearchResult(Next, inputString_, currentLine_, 1);
+         LastIncFound = true;
+         Match        = "";
+      }
+      // If we know there are no results, don't search, otherwise incsearch
+      else
+      {
+         Result = InputMode::Handle(input);
+
+         if ((inputString_ == Match) || (LastIncFound == true))
+         {
+            LastIncFound = SearchResult(Next, inputString_, currentLine_, 1, false);
+
+            if (LastIncFound == true)
+            {
+               Match = inputString_;
+            }
+         }
+         else 
+         {
+            LastIncFound = false;
+         }
       }
    }
 
@@ -116,7 +136,8 @@ pcrecpp::RE_Options Search::LastSearchOptions() const
 
 bool Search::SearchResult(Skip skip, uint32_t count)
 {
-   return SearchResult(skip, lastSearch_, screen_.ActiveWindow().CurrentLine(), count);
+   (void) SearchResult(skip, lastSearch_, screen_.ActiveWindow().CurrentLine(), count);
+   return true;
 }
 
 bool Search::SearchResult(Skip skip, std::string const & search, int32_t line, uint32_t count, bool raiseError)
@@ -142,7 +163,7 @@ bool Search::SearchResult(Skip skip, std::string const & search, int32_t line, u
       }
    }
 
-   return true;
+   return found;
 }
 
 bool Search::SearchWindow(Direction direction, std::string search, int32_t startLine, uint32_t count)

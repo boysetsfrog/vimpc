@@ -102,7 +102,7 @@ namespace Ui
    private:
       virtual char const * Prompt() const = 0;
 
-   private:
+   protected:
       bool RequireDeletion(int input) const;
 
    private:
