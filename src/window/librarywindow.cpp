@@ -22,6 +22,7 @@
 
 #include "buffers.hpp"
 #include "buffers.hpp"
+#include "callback.hpp"
 #include "colour.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
@@ -71,9 +72,20 @@ void LibraryWindow::Redraw()
 
 void LibraryWindow::SoftRedraw()
 {
-   for (unsigned int i = 0; i < library_.Size(); ++i)
+   // The library needs to be completely collapsed before sorting as the sort cannot compare different types
+   // so we mark everything as collapsed then remove anything that is not an artist from the buffer
+   library_.ForEachParent(new Main::CallbackFunction<Mpc::LibraryEntry *>(&Mpc::MarkUnexpanded));
+
+   for (unsigned int i = 0; i < library_.Size(); )
    {
-      library_.Collapse(i);
+      if (library_.Get(i)->type_ != Mpc::ArtistType)
+      {
+         library_.Remove(i, 1);
+      }
+      else
+      {
+          ++i;
+      }
    }
 
    library_.Sort();
@@ -94,6 +106,8 @@ void LibraryWindow::SoftRedraw()
    ignoreCase_   = settings_.Get(Setting::IgnoreCaseSort);
    ignoreThe_    = settings_.Get(Setting::IgnoreTheSort);
    expandArtist_ = settings_.Get(Setting::ExpandArtists);
+
+   ScrollTo(CurrentLine());
 }
 
 bool LibraryWindow::RequiresRedraw()

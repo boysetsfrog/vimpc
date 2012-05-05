@@ -338,6 +338,25 @@ void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
    }
 }
 
+void Library::ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const
+{
+   for (uint32_t i = 0; i < Size(); ++i)
+   {
+      if (Get(i)->type_ == ArtistType)
+      {
+         for (Mpc::LibraryEntryVector::iterator it = Get(i)->children_.begin(); (it != Get(i)->children_.end()); ++it)
+         {
+            if ((*it)->type_ == AlbumType)
+            {
+               (*callback)(*it);
+            }
+         }
+
+         (*callback)(Get(i));
+      }
+   }
+}
+
 
 void Library::Expand(uint32_t line)
 {

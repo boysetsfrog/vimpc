@@ -226,6 +226,7 @@ namespace Mpc
 
       void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
       void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
+      void ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
 
    public:
       void Expand(uint32_t line);
