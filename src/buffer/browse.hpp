@@ -41,16 +41,6 @@ namespace Mpc
    public:
       Browse(bool IncrementReferences = false);
       ~Browse();
-
-   public:
-   void Sort();
-
-   private:
-      class BrowseComparator
-      {
-         public:
-         bool operator() (Mpc::Song * i, Mpc::Song * j) { return (*i<*j); };
-      };
    };
 }
 

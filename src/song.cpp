@@ -87,6 +87,14 @@ int32_t Song::Reference() const
    }
 }
 
+/* static */ void Song::SwapThe(std::string & String)
+{
+   if (pcrecpp::RE("^\\s*[tT][hH][eE]\\s+").Replace("", &String))
+   {
+      String += ", The";
+   }
+}
+
 void Song::SetArtist(const char * artist)
 {
    if (artist != NULL)
@@ -213,7 +221,9 @@ std::string Song::FormatString(std::string fmt) const
    if (songInfo.size() == 0)
    {
       songInfo['a'] = &Mpc::Song::Artist;
+      songInfo['A'] = &Mpc::Song::Artist;
       songInfo['b'] = &Mpc::Song::Album;
+      songInfo['B'] = &Mpc::Song::Album;
       songInfo['l'] = &Mpc::Song::DurationString;
       songInfo['t'] = &Mpc::Song::Title;
       songInfo['n'] = &Mpc::Song::Track;
@@ -234,6 +244,8 @@ std::string Song::FormatString(std::string fmt) const
    int  start = -1;
    bool valid = true;
    bool skip  = false;
+
+   //! \TODO this really needs cleaning up, it is a disgrace
 
    for (int i = 0; i < fmt.size(); )
    {
@@ -285,6 +297,11 @@ std::string Song::FormatString(std::string fmt) const
                {
                   SongFunction Function = songInfo[fmt[i + 1]];
                   next = (*this.*Function)();
+
+                  if ((fmt[i + 1] == 'B') || (fmt[i + 1] == 'A'))
+                  {
+                     SwapThe(next);
+                  }
                }
 
                if ((next == "") || (next.substr(0, strlen("Unknown")) == "Unknown"))

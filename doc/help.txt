@@ -313,7 +313,9 @@
  of these strings is based upon those of ncmpcpp.
  
     %a  - Artist
+    %A  - Artist, but swap "The Band" to "Band, The"
     %b  - Album
+    %B  - Album, but swap "The Album" to "Album, The"
     %t  - Song title
     %n  - Track number
     %l  - Duration

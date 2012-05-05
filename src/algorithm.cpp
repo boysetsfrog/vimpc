@@ -26,7 +26,7 @@ std::string PrepString(std::string const & s1, bool ignoreLeadingThe, bool caseI
 
    if (ignoreLeadingThe == true)
 	{
-      pcrecpp::RE("\\s*[tT][hH][eE]\\s*").Replace("", &Result);  
+      pcrecpp::RE("\\s*[tT][hH][eE]\\s+").Replace("", &Result);  
    }
 
 	if (caseInsensitive == true)

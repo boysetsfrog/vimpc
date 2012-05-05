@@ -39,9 +39,4 @@ Browse::~Browse()
 {
 }
 
-void Browse::Sort()
-{
-   Mpc::Browse::BrowseComparator comparator;
-   Main::Buffer<Browse::BufferType>::Sort(comparator);
-}
 /* vim: set sw=3 ts=3: */
