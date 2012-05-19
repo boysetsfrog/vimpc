@@ -187,7 +187,6 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    CheckError();
 
-
    if (Connected() == true)
    {
       fd_      = mpd_connection_get_fd(connection_);
@@ -198,6 +197,11 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
       GetVersion();
       UpdateStatus();
+
+      if (connect_password != "")
+      {
+         Password(connect_password);
+      }
 
       // Must redraw the library first
       screen_.InvalidateAll();
@@ -211,11 +215,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       }
 
       UpdateStatus();
-
-      if (connect_password != "")
-      {
-         Password(connect_password);
-      }
+      IdleMode();
    }
 }
 
@@ -1029,7 +1029,7 @@ void Client::IdleMode()
    if ((Connected() == true) && (settings_.Get(Setting::Polling) == false) &&
        (idleMode_ == false))
    {
-      mpd_response_finish(connection_);
+      ClearCommand();
       idleMode_ = true;
       mpd_send_idle(connection_);
    }
