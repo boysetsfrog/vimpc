@@ -222,14 +222,14 @@ void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & 
 {
    if (position < Size())
    {
+      Mpc::CommandList list(client);
+
       if (Collection == Mpc::Song::Single)
       {
          AddToPlaylist(client, Get(position));
       }
       else
       {
-         Mpc::CommandList list(client);
-
          for (uint32_t i = 0; i < Size(); ++i)
          {
             AddToPlaylist(client, Get(i));
