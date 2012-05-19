@@ -40,7 +40,7 @@
    X(IgnoreTheSort,    "sortignorethe",  false) /* Ignore 'the' when sorting */ \
    X(IncrementalSearch,"incsearch",      false) /* Search for results whilst typing */ \
    X(Mouse,            "mouse",          true)  /* Handle mouse keys */ \
-   X(Polling,          "polling",        true)  /* Poll for status updates */ \
+   X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
    X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
    X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \

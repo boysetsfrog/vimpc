@@ -32,11 +32,11 @@
 #include <mpd/tag.h>
 #include <mpd/status.h>
 #include <sys/time.h>
+#include <poll.h>
 
 using namespace Mpc;
 
 #define MPDCOMMAND
-
 
 // Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
@@ -183,6 +183,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    //! \TODO make the connection async
    connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
+   fd_         = mpd_connection_get_fd(connection_);
 
    CheckError();
 
@@ -1031,13 +1032,27 @@ void Client::IdleMode()
    }
 }
 
+bool Client::IsIdle()
+{
+   return idleMode_;
+}
+
 bool Client::HadEvents()
 {
-   if ((Connected() == true) && (settings_.Get(Setting::Polling) == false) &&
-       (idleMode_ == true))
+   if ((settings_.Get(Setting::Polling) == false) && (idleMode_ == true) && (Connected() == true))
    {
-      idleMode_ = false;
-      return (mpd_run_noidle(connection_) != 0);
+      pollfd fds;
+
+      fds.fd = fd_;
+      fds.events = POLLIN;
+
+      if (poll(&fds, 1, 0) > 0)
+      {
+         idleMode_ = false;
+         bool result = (mpd_recv_idle(connection_, false) != 0);
+         mpd_response_finish(connection_);
+         return result;
+      }
    }
 
    return false;
@@ -1088,6 +1103,12 @@ void Client::UpdateDisplay()
 
 void Client::ClearCommand()
 {
+   if ((idleMode_ == true) && (Connected() == true))
+   {
+      mpd_run_noidle(connection_);
+      idleMode_ = false;
+   }
+
    if ((listMode_ == false) && (Connected() == true))
    {
       mpd_response_finish(connection_);

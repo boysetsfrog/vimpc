@@ -184,6 +184,7 @@ namespace Mpc
       void IncrementTime(long time);
       long TimeSinceUpdate();
       void IdleMode();
+      bool IsIdle();
       bool HadEvents();
       void UpdateCurrentSong();
       void UpdateStatus(bool ExpectUpdate = false);
@@ -232,6 +233,7 @@ namespace Mpc
       Main::Vimpc *           vimpc_;
       Main::Settings &        settings_;
       struct mpd_connection * connection_;
+      int                     fd_;
 
       std::string             hostname_;
       uint16_t                port_;

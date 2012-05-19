@@ -110,6 +110,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       }
 
       commandMode.SetQueueCommands(false);
+      client_.IdleMode();
 
       // The main loop
       while (Running == true)
@@ -136,7 +137,9 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          updateTime += mtime;
          client_.IncrementTime(mtime);
 
-         if (((input == ERR) && (client_.TimeSinceUpdate() > 900)))// && (settings_.Polling() == true))
+         if ((input == ERR) && 
+             (((client_.TimeSinceUpdate() > 900) && (settings_.Get(::Setting::Polling) == true)) ||
+              ((settings_.Get(::Setting::Polling) == false) && (client_.HadEvents() == true))))
          {
             client_.UpdateStatus();
             client_.DisplaySongInformation();
@@ -149,6 +152,11 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             client_.DisplaySongInformation();
             screen_.Update();
             mode.Refresh();
+         }
+
+         if ((settings_.Get(::Setting::Polling) == false) && (client_.IsIdle() == false))
+         {
+            client_.IdleMode();
          }
       }
    }
