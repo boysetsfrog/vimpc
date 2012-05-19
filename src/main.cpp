@@ -26,7 +26,9 @@
 
 #ifdef __DEBUG_ASSERT
 
+#ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
+#endif
 
 void breakpoint()
 {
@@ -43,8 +45,10 @@ ASSERT_FUNCTION()
    endwin();
    std::cout << "ASSERTION FAILED: " << file << " in " << function << " on line " << line << std::endl << std::endl;
 
+#ifdef HAVE_EXECINFO_H
    nptrs = backtrace(buffer, BufferSize);
    backtrace_symbols_fd(buffer, nptrs, STDERR_FILENO);
+#endif
    exit(1);
 }
 

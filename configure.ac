@@ -55,6 +55,7 @@ AC_MSG_CHECKING(whether to enable debugging)
 debug_default="no"
 AC_ARG_ENABLE(debug, [ --enable-debug=[no/yes] turn on debugging [default=$debug_default]],, enable_debug=$debug_default)
 if test "x$enable_debug" = "xyes"; then
+   AC_CHECK_HEADER(execinfo.h, [AC_DEFINE_UNQUOTED(HAVE_EXECINFO_H,1,Define to 1 if there is an <execinfo.h> header file)],[])
    CXXFLAGS=""
    CPPFLAGS="$CPPFLAGS -g -pg \\
             -D__DEBUG_PRINTS  \\

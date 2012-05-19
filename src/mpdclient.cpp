@@ -1307,6 +1307,7 @@ void Client::DeleteConnection()
    single_       = false;
    consume_      = false;
    repeat_       = false;
+   idleMode_     = false;
 
    versionMajor_ = -1;
    versionMinor_ = -1;
