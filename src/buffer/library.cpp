@@ -228,6 +228,8 @@ void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & 
       }
       else
       {
+         Mpc::CommandList list(client);
+
          for (uint32_t i = 0; i < Size(); ++i)
          {
             AddToPlaylist(client, Get(i));
