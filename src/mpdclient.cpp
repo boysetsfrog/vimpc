@@ -1126,6 +1126,8 @@ void Client::StartCommandList()
 {
    if (Connected() == true)
    {
+      ClearCommand();
+
       listMode_ = true;
       mpd_command_list_begin(connection_, true);
    }
