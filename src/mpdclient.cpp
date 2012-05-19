@@ -1027,6 +1027,7 @@ void Client::IdleMode()
    if ((Connected() == true) && (settings_.Get(Setting::Polling) == false) &&
        (idleMode_ == false))
    {
+      mpd_response_finish(connection_);
       idleMode_ = true;
       mpd_send_idle(connection_);
    }
@@ -1103,16 +1104,16 @@ void Client::UpdateDisplay()
 
 void Client::ClearCommand()
 {
+   if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
+   {
+      mpd_response_finish(connection_);
+      CheckError();
+   }
+
    if ((idleMode_ == true) && (Connected() == true))
    {
       mpd_run_noidle(connection_);
       idleMode_ = false;
-   }
-
-   if ((listMode_ == false) && (Connected() == true))
-   {
-      mpd_response_finish(connection_);
-      CheckError();
    }
 }
 

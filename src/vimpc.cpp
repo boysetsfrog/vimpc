@@ -154,7 +154,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             mode.Refresh();
          }
 
-         if ((settings_.Get(::Setting::Polling) == false) && (client_.IsIdle() == false))
+         if ((input == ERR) && (settings_.Get(::Setting::Polling) == false) && (client_.IsIdle() == false))
          {
             client_.IdleMode();
          }
