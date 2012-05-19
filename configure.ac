@@ -59,7 +59,17 @@ if test "x$enable_debug" = "xyes"; then
    CXXFLAGS=""
    CPPFLAGS="$CPPFLAGS -g -pg \\
             -D__DEBUG_PRINTS  \\
-            -D__DEBUG_ASSERT  \\
+            -D__DEBUG_ASSERT"
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING(whether to enable warnings)
+warn_default="no"
+AC_ARG_ENABLE(warnings, [ --enable-warnings=[no/yes] turn on warnings [default=$warn_default]],, enable_warnings=$warn_default)
+if test "x$enable_warnings" = "xyes"; then
+   CPPFLAGS="$CPPFLAGS  \\
             -Waddress -Warray-bounds -Wc++0x-compat -Wchar-subscripts -Wenum-compare -Wcomment -Wformat \\
             -Wmissing-braces -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wsign-compare -Wstrict-aliasing \\
             -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized \\
@@ -70,6 +80,7 @@ if test "x$enable_debug" = "xyes"; then
 else
    AC_MSG_RESULT(no)
 fi
+
 
 CPPFLAGS="$CPPFLAGS -DHELP_DIRECTORY='\"$docdir\"'"
 
