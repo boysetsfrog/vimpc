@@ -75,6 +75,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    vimpc_                (vimpc),
    settings_             (settings),
    connection_           (NULL),
+   fd_                   (-1),
 
    hostname_             (""),
    port_                 (0),
@@ -183,12 +184,13 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
    //! \TODO make the connection async
    connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
-   fd_         = mpd_connection_get_fd(connection_);
 
    CheckError();
 
+
    if (Connected() == true)
    {
+      fd_      = mpd_connection_get_fd(connection_);
       retried_ = false;
       screen_.Update();
       DisplaySongInformation();
@@ -1042,17 +1044,20 @@ bool Client::HadEvents()
 {
    if ((settings_.Get(Setting::Polling) == false) && (idleMode_ == true) && (Connected() == true))
    {
-      pollfd fds;
-
-      fds.fd = fd_;
-      fds.events = POLLIN;
-
-      if (poll(&fds, 1, 0) > 0)
+      if (fd_ != -1)
       {
-         idleMode_ = false;
-         bool result = (mpd_recv_idle(connection_, false) != 0);
-         mpd_response_finish(connection_);
-         return result;
+         pollfd fds;
+
+         fds.fd = fd_;
+         fds.events = POLLIN;
+
+         if (poll(&fds, 1, 0) > 0)
+         {
+            idleMode_ = false;
+            bool result = (mpd_recv_idle(connection_, false) != 0);
+            mpd_response_finish(connection_);
+            return result;
+         }
       }
    }
 
@@ -1305,6 +1310,7 @@ void Client::DeleteConnection()
    {
       mpd_connection_free(connection_);
       connection_ = NULL;
+      fd_         = -1;
    }
 
    ENSURE(connection_ == NULL);
