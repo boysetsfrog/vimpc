@@ -37,6 +37,7 @@
 using namespace Mpc;
 
 #define MPDCOMMAND
+//#define _DEBUG_ASSERT_ON_ERROR
 
 // Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
@@ -1276,6 +1277,10 @@ void Client::CheckError()
          char error[255];
          snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
          Error(ErrorNumber::ClientError, error);
+
+#ifdef _DEBUG_ASSERT_ON_ERROR
+         ASSERT(false);
+#endif
 
          bool ClearError = mpd_connection_clear_error(connection_);
 
