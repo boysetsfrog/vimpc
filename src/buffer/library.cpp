@@ -242,6 +242,8 @@ void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Clie
 {
    if (position < Size())
    {
+      Mpc::CommandList list(client);
+
       if (Collection == Mpc::Song::Single)
       {
          RemoveFromPlaylist(client, Get(position));

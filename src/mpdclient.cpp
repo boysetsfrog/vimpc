@@ -310,8 +310,8 @@ void Client::Stop()
       ClearCommand();
       mpd_send_stop(connection_);
 
-      state_ = MPD_STATE_STOP;
-      currentSong_ = NULL;
+      state_          = MPD_STATE_STOP;
+      currentSong_    = NULL;
       currentSongId_  = -1;
       currentSongURI_ = "";
    }
@@ -1110,16 +1110,15 @@ void Client::UpdateDisplay()
 
 void Client::ClearCommand()
 {
-   if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
-   {
-      mpd_response_finish(connection_);
-      CheckError();
-   }
-
    if ((idleMode_ == true) && (Connected() == true))
    {
       mpd_run_noidle(connection_);
       idleMode_ = false;
+   }
+   else if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
+   {
+      mpd_response_finish(connection_);
+      CheckError();
    }
 }
 
