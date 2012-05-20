@@ -269,6 +269,7 @@ namespace Mpc
       bool                    forceUpdate_;
       bool                    listMode_;
       bool                    idleMode_;
+      bool                    hadEvents_;
    };
 
    //

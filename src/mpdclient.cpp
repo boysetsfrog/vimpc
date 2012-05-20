@@ -109,7 +109,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    queueVersion_         (-1),
    forceUpdate_          (true),
    listMode_             (false),
-   idleMode_             (false)
+   idleMode_             (false),
+   hadEvents_            (false)
 {
 }
 
@@ -1049,6 +1050,18 @@ bool Client::IsCommandList()
 
 bool Client::HadEvents()
 {
+   if (hadEvents_ == true) 
+   {
+      if (idleMode_ == true)
+      {
+         mpd_run_noidle(connection_);
+         idleMode_ = false;
+      }
+
+      hadEvents_ = false;
+      return true;
+   }
+
    if ((settings_.Get(Setting::Polling) == false) && (idleMode_ == true) && (Connected() == true))
    {
       if (fd_ != -1)
@@ -1117,12 +1130,11 @@ void Client::ClearCommand()
 {
    if ((idleMode_ == true) && (Connected() == true))
    {
-      mpd_run_noidle(connection_);
-      CheckError();
-
+      hadEvents_ = (mpd_run_noidle(connection_) != 0);
       idleMode_ = false;
    }
-   else if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
+
+   if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
    {
       mpd_response_finish(connection_);
       CheckError();
