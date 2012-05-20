@@ -1056,7 +1056,6 @@ bool Client::HadEvents()
          {
             idleMode_ = false;
             bool result = (mpd_recv_idle(connection_, false) != 0);
-            mpd_response_finish(connection_);
             return result;
          }
       }
@@ -1126,23 +1125,22 @@ void Client::StartCommandList()
 {
    if (Connected() == true)
    {
-      ClearCommand();
-
-      listMode_ = true;
       mpd_command_list_begin(connection_, true);
+      listMode_ = true;
    }
 }
 
 void Client::SendCommandList()
 {
-   if (Connected() == true)
+   if ((Connected() == true) && (listMode_ == true))
    {
+      listMode_ = false;
       mpd_command_list_end(connection_);
-      mpd_response_finish(connection_);
-
       CheckError();
 
-      listMode_ = false;
+      mpd_response_finish(connection_);
+      CheckError();
+
       UpdateStatus(true);
    }
 }
