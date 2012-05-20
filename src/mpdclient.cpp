@@ -218,7 +218,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       }
 
       UpdateStatus();
-      IdleMode();
+		IdleMode();
    }
 }
 
@@ -1059,6 +1059,7 @@ bool Client::HadEvents()
       {
          mpd_send_noidle(connection_);
          mpd_recv_idle(connection_, false);
+			CheckError();
          idleMode_ = false;
       }
 
@@ -1079,6 +1080,7 @@ bool Client::HadEvents()
          {
             idleMode_ = false;
             bool result = (mpd_recv_idle(connection_, false) != 0);
+			   CheckError();
             return result;
          }
       }
@@ -1136,6 +1138,7 @@ void Client::ClearCommand()
    {
       mpd_send_noidle(connection_);
       hadEvents_ = (mpd_recv_idle(connection_, false) != 0);
+		CheckError();
       idleMode_ = false;
    }
 

@@ -110,7 +110,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       }
 
       commandMode.SetQueueCommands(false);
-      client_.IdleMode();
 
       // The main loop
       while (Running == true)
@@ -143,6 +142,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          {
             client_.UpdateStatus();
             client_.DisplaySongInformation();
+            client_.IdleMode();
          }
 
          if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
@@ -152,11 +152,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             client_.DisplaySongInformation();
             screen_.Update();
             mode.Refresh();
-         }
-
-         if ((input == ERR) && (settings_.Get(::Setting::Polling) == false) && (client_.IsIdle() == false))
-         {
-            client_.IdleMode();
          }
       }
    }
