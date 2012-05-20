@@ -1033,8 +1033,11 @@ void Client::IdleMode()
        (idleMode_ == false))
    {
       ClearCommand();
-      idleMode_ = true;
-      mpd_send_idle(connection_);
+
+      if (mpd_send_idle(connection_) == true)
+      {
+         idleMode_ = true;
+      }
    }
 }
 
@@ -1054,7 +1057,8 @@ bool Client::HadEvents()
    {
       if (idleMode_ == true)
       {
-         mpd_run_noidle(connection_);
+         mpd_send_noidle(connection_);
+         mpd_recv_idle(connection_, false);
          idleMode_ = false;
       }
 
@@ -1130,7 +1134,8 @@ void Client::ClearCommand()
 {
    if ((idleMode_ == true) && (Connected() == true))
    {
-      hadEvents_ = (mpd_run_noidle(connection_) != 0);
+      mpd_send_noidle(connection_);
+      hadEvents_ = (mpd_recv_idle(connection_, false) != 0);
       idleMode_ = false;
    }
 
