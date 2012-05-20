@@ -724,6 +724,7 @@ uint32_t Client::AddAllSongs()
    {
       ClearCommand();
       mpd_send_add(connection_, "/");
+      UpdateStatus();
    }
    else
    {
