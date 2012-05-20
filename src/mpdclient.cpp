@@ -1145,7 +1145,7 @@ void Client::StartCommandList()
 {
    if (Connected() == true)
    {
-      mpd_command_list_begin(connection_, true);
+      mpd_command_list_begin(connection_, false);
       
       if (CheckError() == false)
       {
@@ -1160,9 +1160,6 @@ void Client::SendCommandList()
    {
       listMode_ = false;
       mpd_command_list_end(connection_);
-      CheckError();
-
-      mpd_response_finish(connection_);
       CheckError();
 
       UpdateStatus(true);
