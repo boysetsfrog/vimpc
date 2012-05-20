@@ -228,7 +228,7 @@ namespace Mpc
 
    private:
       void GetVersion();
-      void CheckError();
+      bool CheckError();
       void DeleteConnection();
 
    private:

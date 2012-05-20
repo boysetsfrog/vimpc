@@ -1146,7 +1146,11 @@ void Client::StartCommandList()
    if (Connected() == true)
    {
       mpd_command_list_begin(connection_, true);
-      listMode_ = true;
+      
+      if (CheckError() == false)
+      {
+         listMode_ = true;
+      }
    }
 }
 
@@ -1285,7 +1289,7 @@ void Client::GetVersion()
    }
 }
 
-void Client::CheckError()
+bool Client::CheckError()
 {
    if (connection_ != NULL)
    {
@@ -1311,8 +1315,12 @@ void Client::CheckError()
                Connect(hostname_, port_);
             }
          }
+
+         return true;
       }
    }
+
+   return false;
 }
 
 void Client::DeleteConnection()
