@@ -65,6 +65,7 @@ namespace Mpc
 
       private:
          bool          condition_;
+         bool          list_;
          Mpc::Client & client_;
    };
 
@@ -185,6 +186,7 @@ namespace Mpc
       long TimeSinceUpdate();
       void IdleMode();
       bool IsIdle();
+      bool IsCommandList();
       bool HadEvents();
       void UpdateCurrentSong();
       void UpdateStatus(bool ExpectUpdate = false);

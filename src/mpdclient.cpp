@@ -53,9 +53,10 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 
 CommandList::CommandList(Mpc::Client & client, bool condition) :
    condition_(condition),
+   list_     (client.IsCommandList()),
    client_   (client)
 {
-   if (condition_)
+   if ((condition_) && (list_ == false))
    {
       client_.ClearCommand();
       client_.StartCommandList();
@@ -64,7 +65,7 @@ CommandList::CommandList(Mpc::Client & client, bool condition) :
 
 CommandList::~CommandList()
 {
-   if (condition_)
+   if ((condition_) && (list_ == false))
    {
       client_.SendCommandList();
    }
@@ -1041,6 +1042,11 @@ bool Client::IsIdle()
    return idleMode_;
 }
 
+bool Client::IsCommandList()
+{
+   return listMode_;
+}
+
 bool Client::HadEvents()
 {
    if ((settings_.Get(Setting::Polling) == false) && (idleMode_ == true) && (Connected() == true))
@@ -1112,6 +1118,8 @@ void Client::ClearCommand()
    if ((idleMode_ == true) && (Connected() == true))
    {
       mpd_run_noidle(connection_);
+      CheckError();
+
       idleMode_ = false;
    }
    else if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
