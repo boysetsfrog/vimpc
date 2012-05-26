@@ -49,6 +49,7 @@ namespace Main
    Mpc::Lists    & Lists();
    Mpc::Outputs  & Outputs();
    Ui::Console   & Console();
+   Ui::Console   & DebugConsole();
 }
 
 #endif

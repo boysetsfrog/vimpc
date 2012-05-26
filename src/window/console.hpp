@@ -24,7 +24,7 @@
 #include <string>
 
 #include "buffer/buffer.hpp"
-#include "scrollwindow.hpp"
+#include "window/scrollwindow.hpp"
 
 //! \todo seperate console from console window
 namespace Ui
@@ -40,7 +40,7 @@ namespace Ui
    class ConsoleWindow : public Ui::ScrollWindow
    {
    public:
-      ConsoleWindow(Ui::Screen & screen);
+      ConsoleWindow(Ui::Screen & screen, std::string name, Console & console);
       ~ConsoleWindow();
 
    public:

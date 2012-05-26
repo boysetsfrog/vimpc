@@ -27,6 +27,7 @@
 
 #include "buffer/playlist.hpp"
 #include "mode/mode.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 
 #include <mpd/tag.h>
@@ -197,6 +198,8 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       screen_.Update();
       DisplaySongInformation();
       vimpc_->OnConnected();
+
+      Debug("Connected to host " + connect_hostname);
 
       GetVersion();
       UpdateStatus();

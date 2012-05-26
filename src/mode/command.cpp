@@ -120,6 +120,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 
    commandTable_["browse"]    = &Command::SetActiveAndVisible<Ui::Screen::Browse>;
    commandTable_["console"]   = &Command::SetActiveAndVisible<Ui::Screen::Console>;
+#ifdef __DEBUG_PRINTS
+   commandTable_["debug"]     = &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>;
+#endif
    commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
    commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
    commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;

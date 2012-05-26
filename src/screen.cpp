@@ -37,6 +37,7 @@
 
 #include "window/browsewindow.hpp"
 #include "window/console.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 #include "window/help.hpp"
 #include "window/infowindow.hpp"
@@ -108,11 +109,12 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    signal(SIGWINCH, ResizeHandler);
 
    // Create all the windows
-   mainWindows_[Help]     = new Ui::HelpWindow    (settings, *this);
-   mainWindows_[Console]  = new Ui::ConsoleWindow (*this);
-   mainWindows_[Outputs]  = new Ui::OutputWindow  (settings, *this, client, search);
-   mainWindows_[Library]  = new Ui::LibraryWindow (settings, *this, client, search);
-   mainWindows_[Browse]   = new Ui::BrowseWindow  (settings, *this, client, search);
+   mainWindows_[Help]         = new Ui::HelpWindow    (settings, *this);
+   mainWindows_[DebugConsole] = new Ui::ConsoleWindow (*this, "debug",   Main::DebugConsole());
+   mainWindows_[Console]      = new Ui::ConsoleWindow (*this, "console", Main::Console());
+   mainWindows_[Outputs]      = new Ui::OutputWindow  (settings, *this, client, search);
+   mainWindows_[Library]      = new Ui::LibraryWindow (settings, *this, client, search);
+   mainWindows_[Browse]       = new Ui::BrowseWindow  (settings, *this, client, search);
 
 #if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
    mainWindows_[Lists]    = new Ui::ListWindow    (settings, *this, client, search);
@@ -143,11 +145,14 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Window setup
    mainWindows_[Console]->SetAutoScroll(true);
+   mainWindows_[DebugConsole]->SetAutoScroll(true);
 
    wtimeout(commandWindow_, 100);
 
    ClearStatus();
-   SetVisible(Console, false);
+
+   SetVisible(Console,        false);
+   SetVisible(DebugConsole,   false);
 }
 
 Screen::~Screen()
@@ -498,14 +503,10 @@ void Screen::Update()
       {
          if (mainWindows_[visibleWindows_.at(i)]->RequiresRedraw() == true)
          {
+            Debug("Soft redraw of window " + mainWindows_[visibleWindows_.at(i)]->Name());
             mainWindows_[visibleWindows_.at(i)]->SoftRedraw();
          }
-
-         if (visibleWindows_.at(i) == window_)
-         {
-         }
       }
-
 
       ActiveWindow().Erase();
 

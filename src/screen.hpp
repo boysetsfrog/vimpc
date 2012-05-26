@@ -75,6 +75,7 @@ namespace Ui
       typedef enum
       {
          Help = 0,
+         DebugConsole,
          Console,
          Outputs,
          Library,
