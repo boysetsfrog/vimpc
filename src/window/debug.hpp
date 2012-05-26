@@ -22,7 +22,7 @@
 #define __UI__DEBUG
 
 #include "buffers.hpp"
-#include "window\console.hpp"
+#include "window/console.hpp"
 
 #include <string>
 
