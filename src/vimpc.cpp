@@ -142,7 +142,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          {
             client_.UpdateStatus();
             client_.DisplaySongInformation();
-            client_.IdleMode();
          }
 
          if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
@@ -152,6 +151,11 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             client_.DisplaySongInformation();
             screen_.Update();
             mode.Refresh();
+         }
+
+         if ((input == ERR) && (client_.IsIdle() == false))
+         {
+            client_.IdleMode();
          }
       }
    }

@@ -1049,6 +1049,7 @@ void Client::IdleMode()
 
       if (mpd_send_idle(connection_) == true)
       {
+         Debug("Entered idle mode");
          idleMode_ = true;
       }
    }
@@ -1072,6 +1073,7 @@ bool Client::HadEvents()
       {
          mpd_send_noidle(connection_);
          mpd_recv_idle(connection_, false);
+         Debug("Left idle mode");
 			CheckError();
          idleMode_ = false;
       }
@@ -1093,6 +1095,13 @@ bool Client::HadEvents()
          {
             idleMode_ = false;
             bool result = (mpd_recv_idle(connection_, false) != 0);
+            Debug("Left idle mode");
+
+            if (result == true)
+            {
+               Debug("Had an event");
+            }
+
 			   CheckError();
             return result;
          }
@@ -1151,6 +1160,7 @@ void Client::ClearCommand()
    {
       mpd_send_noidle(connection_);
       hadEvents_ = (mpd_recv_idle(connection_, false) != 0);
+      Debug("Left idle mode");
 		CheckError();
       idleMode_ = false;
    }
