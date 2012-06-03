@@ -1,3 +1,20 @@
+Version 0.06
+-------------
+- printf style formatting of song prints
+- Support for mpd idle mode
+- Reduced network traffic when in "polling" mode
+- Added "Various Artist" to library to hold albums with more than one artist
+- Vim style mark support, with default marks for A-Z locations
+- More efficient use of command lists to speed up add/delete commands
+- Turned on mouse support by default
+- Automatic redrawing of windows when settings are changed
+- Added 'incsearch' setting to search as you type
+- Added 'add' setting to add songs either 'next' or at the 'end'
+- Added support for :1 :2 etc, to jump to a given line
+- gV to reselect previously selected selection
+- Added findgenre command
+- Minor performance improvements
+
 Version 0.05
 -------------
 - Support for http streams in playlist
