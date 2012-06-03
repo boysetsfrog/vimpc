@@ -59,6 +59,8 @@
    X(Window,           "window",         "playlist") /* Startup window */ \
    X(AddPosition,      "add",            "end")      /* position to add songs */
 
+//! \TODO convert parameter validation to using regular expression specified in the X macro
+
 class Setting
 {
 public:
@@ -156,10 +158,21 @@ namespace Main
          }
 
       private:
+         bool AddPositionFilter(std::string arguments) const;
+
+      private:
          typedef std::map<int, std::string> SettingNameTable;
          SettingNameTable     settingName_;
 
+         // Used to validate non boolean settings
+         typedef bool (Main::Settings::*SettingsFilterFunction)(std::string) const;
+         typedef std::map<std::string, SettingsFilterFunction> SettingsFilterTable;
+         SettingsFilterTable  filterTable_;
+
+         // Holds yes/no, on/off style settings
          BoolSettingsTable    toggleTable_;
+
+         // Settings that are represented by a string value
          StringSettingsTable  stringTable_;
    };
 }

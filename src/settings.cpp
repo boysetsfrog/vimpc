@@ -21,6 +21,7 @@
 #include "settings.hpp"
 
 #include "assert.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 
 #include <algorithm>
@@ -55,6 +56,8 @@ Settings::Settings() :
                    settingName_[Setting::a] = b;
    STRING_SETTINGS
 #undef X
+
+   filterTable_[settingName_[::Setting::AddPosition]] = &Settings::AddPositionFilter;
 }
 
 Settings::~Settings()
@@ -140,8 +143,27 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 {
    if (stringTable_.find(setting) != stringTable_.end())
    {
-      SettingValue<std::string> * const set = stringTable_[setting];
-      set->Set(arguments);
+      bool ValidSetting = true;
+
+      // Validate the arguments
+      if (filterTable_.find(setting) != filterTable_.end())
+      {
+         Debug("Setting checked for setting for " + setting); 
+
+         SettingsFilterFunction const function = filterTable_[setting];
+         ValidSetting = (*this.*function)(arguments);
+      }
+
+      if (ValidSetting == true)
+      {
+         Debug("Valid setting " + setting + " - " + arguments); 
+         SettingValue<std::string> * const set = stringTable_[setting];
+         set->Set(arguments);
+      }
+      else
+      {
+         ErrorString(ErrorNumber::InvalidParameter, arguments);
+      }
    }
    else
    {
@@ -194,5 +216,10 @@ void Settings::SetSkipConfigConnects(bool val)
 bool Settings::SkipConfigConnects() const
 {
    return skipConfigConnects_;
+}
+
+bool Settings::AddPositionFilter(std::string arguments) const
+{
+   return ((arguments == "end") || (arguments == "next"));
 }
 /* vim: set sw=3 ts=3: */
