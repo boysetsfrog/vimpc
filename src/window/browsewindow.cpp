@@ -26,8 +26,9 @@
 #include "callback.hpp"
 #include "colour.hpp"
 #include "mpdclient.hpp"
-#include "settings.hpp"
 #include "screen.hpp"
+#include "settings.hpp"
+#include "songsorter.hpp"
 #include "buffer/library.hpp"
 #include "mode/search.hpp"
 #include "window/console.hpp"
@@ -41,6 +42,7 @@ BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen,
    search_          (search),
    browse_          (Main::Browse())
 {
+   sort_ = settings_.Get(Setting::Sort);
 }
 
 BrowseWindow::~BrowseWindow()
@@ -48,22 +50,29 @@ BrowseWindow::~BrowseWindow()
 }
 
 
-void BrowseWindow::Redraw()
+void BrowseWindow::SoftRedraw()
 {
    uint16_t currentLine = CurrentLine();
    uint16_t scrollLine  = ScrollLine();
 
    Clear();
 
+   sort_ = settings_.Get(Setting::Sort);
+
    Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
 
    Main::Library().ForEachSong(&callback);
 
-   BrowseComparator sorter;
+   Ui::SongSorter const sorter(settings_.Get(::Setting::Sort));
    Buffer().Sort(sorter);
 
    SetScrollLine(scrollLine);
    ScrollTo(currentLine);
+}
+
+bool BrowseWindow::RequiresRedraw()
+{
+   return (sort_ != settings_.Get(Setting::Sort));
 }
 
 

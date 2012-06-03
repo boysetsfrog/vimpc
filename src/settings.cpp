@@ -58,6 +58,7 @@ Settings::Settings() :
 #undef X
 
    filterTable_[settingName_[::Setting::AddPosition]] = &Settings::AddPositionFilter;
+   filterTable_[settingName_[::Setting::Sort]]        = &Settings::SortFilter;
 }
 
 Settings::~Settings()
@@ -222,4 +223,10 @@ bool Settings::AddPositionFilter(std::string arguments) const
 {
    return ((arguments == "end") || (arguments == "next"));
 }
+
+bool Settings::SortFilter(std::string arguments) const
+{
+   return ((arguments == "format") || (arguments == "library"));
+}
+
 /* vim: set sw=3 ts=3: */

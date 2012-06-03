@@ -48,7 +48,9 @@ namespace Ui
       BrowseWindow & operator=(BrowseWindow & browse);
 
    public:
-      void Redraw();
+      void SoftRedraw();
+      void Redraw() { SoftRedraw(); }
+      bool RequiresRedraw();
 
    protected:
       void PrintId(uint32_t Id) const;
@@ -64,24 +66,8 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Browse &          browse_;
-   };
 
-   class BrowseComparator
-   {
-      public:
-      BrowseComparator() :
-         settings_(Main::Settings::Instance())
-      {
-      }
-
-      public:
-      bool operator() (Mpc::Song * i, Mpc::Song * j) 
-      { 
-         return (i->FormatString(settings_.Get(Setting::SongFormat)) < j->FormatString(settings_.Get(Setting::SongFormat)));
-      };
-
-      private:
-         Main::Settings const & settings_;
+      std::string            sort_;
    };
 }
 

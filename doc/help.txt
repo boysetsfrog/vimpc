@@ -386,6 +386,9 @@
 
    add <where>             | set where to add songs to the playlist
                            | either "end" or "next" (defaults to end)
+   sort <option>           | sort the browse window based on the songformat or
+                           | the order of the library, options are either
+                           | "format" or "library" (defaults to format)
    songformat <fmt>        | set the format to print songs
    libraryformat <fmt>     | set the format to print songs in the library
                            | set PRINT FORMATS section

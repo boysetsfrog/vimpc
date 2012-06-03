@@ -52,12 +52,13 @@
    X(WindowNumbers,    "windownumbers",  false) /* Window numbers next to each window in the tab list */
 
 #define STRING_SETTINGS \
-   X(AlbumFormat,      "albumformat",    "%B") /* Library format string */ \
-   X(ArtistFormat,     "artistformat",   "%A") /* Library format string */ \
+   X(AlbumFormat,      "albumformat",    "%B")       /* Library format string */ \
+   X(ArtistFormat,     "artistformat",   "%A")       /* Library format string */ \
    X(LibraryFormat,    "libraryformat",  "$H[$H%l$H]$H {%t}|{%f}$E$R ") /* Library format string */ \
    X(SongFormat,       "songformat",     "{%a - %t}|{%f}$E$R $H[$H%l$H]$H") /* Song format string */ \
    X(Window,           "window",         "playlist") /* Startup window */ \
-   X(AddPosition,      "add",            "end")      /* position to add songs */
+   X(AddPosition,      "add",            "end")      /* position to add songs */ \
+   X(Sort,             "sort",           "format")   /* Sort based on song format */
 
 //! \TODO convert parameter validation to using regular expression specified in the X macro
 
@@ -159,6 +160,7 @@ namespace Main
 
       private:
          bool AddPositionFilter(std::string arguments) const;
+         bool SortFilter(std::string arguments) const;
 
       private:
          typedef std::map<int, std::string> SettingNameTable;
