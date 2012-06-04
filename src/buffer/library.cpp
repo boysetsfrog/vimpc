@@ -258,11 +258,16 @@ void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Clie
    }
 }
 
-void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry)
+void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
-      if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
+      if (position != -1)
+      {
+         Main::Playlist().Add(entry->song_, position);
+         client.Add(*(entry->song_), position);
+      }
+      else if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
           (client.GetCurrentSong() == -1))
       {
          Main::Playlist().Add(entry->song_);
@@ -276,9 +281,16 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
    }
    else
    {
+      int current = -1;
+
+      if (Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddNext)
+      {
+         current = client.GetCurrentSong() + 1;
+      }
+
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
-         AddToPlaylist(client, (*it));
+         AddToPlaylist(client, (*it), current++);
       }
    }
 }

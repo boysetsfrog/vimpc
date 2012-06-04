@@ -233,7 +233,7 @@ namespace Mpc
       void Collapse(uint32_t line);
 
    private:
-      void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
+      void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position = -1);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
       void DeleteEntry(LibraryEntry * const entry);
       void CheckIfVariousRemoved(LibraryEntry * const entry);

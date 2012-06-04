@@ -275,6 +275,7 @@
  combination provided as the first parameter to the second.
  
  i.e. map FF :browse<C-M>gg/
+      map @ :set add next<C-M>a:set add end<C-M>
  
  This will make the normal mode input FF change to the browse tab, go to the
  first line and then enter search mode. All ex mode or search commands
