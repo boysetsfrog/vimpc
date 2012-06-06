@@ -340,6 +340,22 @@ void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> 
    }
 }
 
+void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const
+{
+   for (Mpc::LibraryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
+   {
+      if ((*it)->type_ == AlbumType)
+      {
+         for (Mpc::LibraryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
+         {
+            (*callback)(*jt);
+         }
+      }
+
+      (*callback)(*it);
+   }
+}
+
 void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
 {
    for (uint32_t i = 0; i < Size(); ++i)
@@ -406,17 +422,23 @@ void Library::Collapse(uint32_t line)
       entryToCollapse = parent;
    }
 
-   if ((entryToCollapse != NULL) && (entryToCollapse->expanded_ == true))
+   if (Index(entryToCollapse) >= 0)
    {
-      uint32_t last = 0;
+      uint32_t Pos = Index(entryToCollapse);
+      Main::CallbackInterface<LibraryEntry *> * callback = new CallbackObject(*this, &Library::RemoveAndUnexpand);
+      ForEachChild(Pos, callback);
+      delete callback;
 
-      if ((entryToCollapse->children_.size() != 0) && (entryToCollapse->children_.back()->expanded_ == true))
-      {
-         last += entryToCollapse->children_.back()->children_.size();
-      }
-
-      Remove(Index(entryToCollapse) + 1, Index(entryToCollapse->children_.back()) + last - Index(entryToCollapse));
       entryToCollapse->expanded_ = false;
+   }
+}
+
+void Library::RemoveAndUnexpand(LibraryEntry * const entry)
+{
+   if (Index(entry) != -1)
+   {
+      Remove(Index(entry), 1);
+      entry->expanded_ = false;
    }
 }
 

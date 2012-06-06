@@ -225,6 +225,7 @@ namespace Mpc
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
       void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
+      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
       void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
       void ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
 
@@ -237,6 +238,7 @@ namespace Mpc
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
       void DeleteEntry(LibraryEntry * const entry);
       void CheckIfVariousRemoved(LibraryEntry * const entry);
+      void RemoveAndUnexpand(LibraryEntry * const entry);
 
       typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
       typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;
