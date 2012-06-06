@@ -283,14 +283,20 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
    {
       int current = -1;
 
-      if (Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddNext)
+      if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddNext) &&
+          (client.GetCurrentSong() != -1))
       {
          current = client.GetCurrentSong() + 1;
       }
 
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
-         AddToPlaylist(client, (*it), current++);
+         AddToPlaylist(client, (*it), current);
+
+         if (current != -1)
+         {
+            current++;
+         }
       }
    }
 }
