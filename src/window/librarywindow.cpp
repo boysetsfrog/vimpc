@@ -329,7 +329,7 @@ void LibraryWindow::Confirm()
    client_.Clear();
    Main::Playlist().Clear();
 
-   AddLine(CurrentLine(), 0, true);
+   AddLine(CurrentLine(), 1, true);
    client_.Play(0);
    SelectWindow::Confirm();
 }
