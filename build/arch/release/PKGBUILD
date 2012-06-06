@@ -21,7 +21,7 @@ install=
 changelog=
 source=(http://sourceforge.net/projects/vimpc/files/Release%20$pkgver/$pkgname-$pkgver.tar.gz)
 noextract=()
-md5sums=('4f012da079fde0047d82b7653d6c4801')
+md5sums=('a1b83a4d7888fc9b242a17dd4ccc788c')
 
 build() {
   cd "$srcdir/$pkgname"
