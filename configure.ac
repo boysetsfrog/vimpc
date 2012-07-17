@@ -12,7 +12,7 @@ CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 AC_CHECK_HEADERS(sys/ioctl.h termios.h)
 
 AC_MSG_CHECKING(for svnversion)
-if hash svnversion && test -d .svn; then
+if test -d .svn && hash svnversion 2>/dev/null; then
    AC_MSG_RESULT(yes)
    PACKAGE_SVN_REVISION=`svnversion`
    AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", "Define to the subversion repository version of this package.")
@@ -21,7 +21,7 @@ else
 fi
 
 AC_MSG_CHECKING(for git)
-if test -d .git; then
+if test -d .git && hash git 2>/dev/null; then
     AC_MSG_RESULT(yes)
     PACKAGE_GIT_REVISION=`git rev-parse HEAD`
     AC_DEFINE_UNQUOTED(PACKAGE_GIT_REVISION, "${PACKAGE_GIT_REVISION}", "Define to the git repository version of this package.")
