@@ -649,7 +649,7 @@ void Client::EnableOutput(Mpc::Output * output)
    if (Connected() == true)
    {
       ClearCommand();
-      mpd_run_enable_output(connection_, output->Id());
+      mpd_send_enable_output(connection_, output->Id());
    }
    else
    {
@@ -662,7 +662,7 @@ void Client::DisableOutput(Mpc::Output * output)
    if (Connected() == true)
    {
       ClearCommand();
-      mpd_run_disable_output(connection_, output->Id());
+      mpd_send_disable_output(connection_, output->Id());
    }
    else
    {
