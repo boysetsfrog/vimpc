@@ -369,6 +369,7 @@
    [no]colour[!]           | enable or disable colours
    [no]expand-artists[!]   | when enabled, expand to artist by default in library
    [no]hlsearch[!]         | highlight search results
+   [no]hidetabbar[!]       | don't show the tab bar at the top of vimpc
    [no]ignorecase[!]       | case insensitive searching
    [no]incsearch[!]        | search for results as you are typing
    [no]mouse[!]            | turn mouse support on

@@ -65,6 +65,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    tabWindow_       (NULL),
    commandWindow_   (NULL),
    mouse_           (false),
+   hideTabBar_      (false),
    started_         (false),
    maxRows_         (0),
    maxColumns_      (0),
@@ -125,7 +126,6 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
    statusWindow_          = newwin(1, maxColumns_, mainRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
-
 
    // Mark the default windows as visible
    visibleWindows_.push_back(static_cast<int32_t>(Help));
@@ -510,11 +510,24 @@ void Screen::Update()
 
       ActiveWindow().Erase();
 
-      UpdateTabWindow();
-
-      if (mainRows_ >= 0)
+      // Force a resize of the windows if the tab bar was recently
+      // hidden or shown
+      if (hideTabBar_ != settings_.Get(Setting::HideTabBar))
       {
-         for (uint32_t i = 0; (i < static_cast<uint32_t>(mainRows_)); ++i)
+         hideTabBar_ = settings_.Get(Setting::HideTabBar);
+         Resize(true);
+      }
+
+      // Only paint the tab bar if it is currently visible
+      if (settings_.Get(Setting::HideTabBar) == false)
+      {
+         UpdateTabWindow();
+      }
+
+      // Paint the main window
+      if (MaxRows() >= 0)
+      {
+         for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
          {
             ActiveWindow().Print(i);
          }
@@ -594,10 +607,18 @@ bool Screen::Resize(bool forceResize)
 
       if (maxRows_ >= 0)
       {
+         int32_t topline = 0;
+
          resizeterm(maxRows_, maxColumns_);
          wresize(stdscr, maxRows_, maxColumns_);
 
-         mainRows_ = maxRows_ - 3;
+         mainRows_ = maxRows_ - 2;
+
+         if (settings_.Get(Setting::HideTabBar) == false)
+         {
+            topline = 1;
+            mainRows_--;
+         }
 
          if (mainRows_ < 0)
          {
@@ -606,22 +627,25 @@ bool Screen::Resize(bool forceResize)
 
          wresize(statusWindow_, 1, maxColumns_);
          wresize(tabWindow_,    1, maxColumns_);
-         mvwin(statusWindow_, mainRows_ + 1, 0);
+         mvwin(statusWindow_, maxRows_ - 2, 0);
 
          for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
          {
             (*it)->Resize(1, maxColumns_);
-            (*it)->Move(mainRows_ + 2, 0);
+            (*it)->Move(maxRows_ - 1, 0);
          }
 
-         mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), mainRows_ + 2, 0);
+         mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), maxRows_ - 1, 0);
 
          for (int i = 0; (i < MainWindowCount); ++i)
          {
             if (mainWindows_[i] != NULL)
             {
+               uint16_t CurrentLine = mainWindows_[i]->CurrentLine();
                wclear(mainWindows_[i]->N_WINDOW());
                mainWindows_[i]->Resize(mainRows_, maxColumns_);
+               mainWindows_[i]->Move(topline, 0);
+               mainWindows_[i]->ScrollTo(CurrentLine);
             }
          }
 
