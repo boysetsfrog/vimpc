@@ -725,16 +725,27 @@ void Screen::HandleMouseEvent()
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
                int32_t x = 0;
+               int32_t i = 1;
+
                for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
                {
                   std::string name = GetNameFromWindow(static_cast<int32_t>(*it));
                   x += name.length() + 2;
+
+                  if (settings_.Get(Setting::WindowNumbers) == true)
+                  {
+                     char buffer[32];
+                     sprintf(buffer, "[%d]", i);
+                     x += strlen(buffer);
+                  }
 
                   if (event.x < x)
                   {
                      SetActiveAndVisible(GetWindowFromName(name));
                      break;
                   }
+
+                  ++i;
                }
             }
          }
