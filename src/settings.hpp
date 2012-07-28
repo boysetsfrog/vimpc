@@ -33,7 +33,6 @@
    X(BrowseNumbers,    "browsenumbers",  true)  /* Show numbers in the browse window */ \
    X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \
    X(ExpandArtists,    "expand-artists", false) /* Expand artists in the library window by default */ \
-   X(HideTabBar,       "hidetabbar",     false) /* Hide the tab bar from the display */ \
    X(HighlightSearch,  "hlsearch",       true)  /* Show search results in a different colour */ \
    X(IgnoreCaseSearch, "ignorecase",     false) /* Turn off case sensitivity on searching */ \
    X(IgnoreCaseSort,   "sortignorecase", true)  /* Turn off case sensitivity on sorting */\
@@ -48,6 +47,7 @@
    X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \
    X(SmartCase,        "smartcase",      false) /* Case sensitivy enabled when upper case char is used */  \
    X(StopOnQuit,       "stoponquit",     false) /* Stop playing when we quit */ \
+   X(TabBar,           "tabbar",         true)  /* Show the tab bar */ \
    X(TimeRemaining,    "timeremaining",  false) /* Show time left rather than time elapsed */ \
    X(WindowNumbers,    "windownumbers",  false) /* Window numbers next to each window in the tab list */
 

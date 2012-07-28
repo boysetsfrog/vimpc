@@ -218,7 +218,7 @@ namespace Ui
       mutable std::map<int32_t, bool> drawn_;
 
       mutable bool mouse_;
-      mutable bool hideTabBar_;
+      mutable bool tabBar_;
       bool      started_;
       int32_t   maxRows_;
       int32_t   mainRows_;

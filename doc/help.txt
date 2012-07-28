@@ -369,7 +369,6 @@
    [no]colour[!]           | enable or disable colours
    [no]expand-artists[!]   | when enabled, expand to artist by default in library
    [no]hlsearch[!]         | highlight search results
-   [no]hidetabbar[!]       | don't show the tab bar at the top of vimpc
    [no]ignorecase[!]       | case insensitive searching
    [no]incsearch[!]        | search for results as you are typing
    [no]mouse[!]            | turn mouse support on
@@ -382,6 +381,7 @@
    [no]sortignorethe[!]    | ignore the prefix 'the' when sorting by artist/album
    [no]songnumbers[!]      | display id numbers next to songs in any window
    [no]stoponquit[!]       | automatically stop playback when vimpc is quit
+   [no]tabbar[!]           | whether or not to show the tab bar
    [no]timeremaining[!]    | display the time remaining rather than elapsed
    [no]windownumbers[!]    | display the number next to the window in the tab bar
  

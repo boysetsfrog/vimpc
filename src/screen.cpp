@@ -65,7 +65,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    tabWindow_       (NULL),
    commandWindow_   (NULL),
    mouse_           (false),
-   hideTabBar_      (false),
+   tabBar_          (true),
    started_         (false),
    maxRows_         (0),
    maxColumns_      (0),
@@ -512,14 +512,14 @@ void Screen::Update()
 
       // Force a resize of the windows if the tab bar was recently
       // hidden or shown
-      if (hideTabBar_ != settings_.Get(Setting::HideTabBar))
+      if (tabBar_ != settings_.Get(Setting::TabBar))
       {
-         hideTabBar_ = settings_.Get(Setting::HideTabBar);
+         tabBar_ = settings_.Get(Setting::TabBar);
          Resize(true);
       }
 
       // Only paint the tab bar if it is currently visible
-      if (settings_.Get(Setting::HideTabBar) == false)
+      if (settings_.Get(Setting::TabBar) == true)
       {
          UpdateTabWindow();
       }
@@ -614,7 +614,7 @@ bool Screen::Resize(bool forceResize)
 
          mainRows_ = maxRows_ - 2;
 
-         if (settings_.Get(Setting::HideTabBar) == false)
+         if (settings_.Get(Setting::TabBar) == true)
          {
             topline = 1;
             mainRows_--;
@@ -744,7 +744,7 @@ void Screen::HandleMouseEvent()
          {
             ActiveWindow().Scroll(6);
          }
-         else if (event.y == 0)
+         else if ((event.y == 0) && (settings_.Get(Setting::TabBar) == true))
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
@@ -773,11 +773,12 @@ void Screen::HandleMouseEvent()
                }
             }
          }
-         else if ((event.y > 0) && (event.y <= static_cast<int32_t>(MaxRows())))
+         else if ((event.y >= 0) && (event.y <= static_cast<int32_t>(MaxRows())))
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
-               ActiveWindow().ScrollTo(ActiveWindow().FirstLine() + event.y - 1);
+               int const tabSize = ((settings_.Get(Setting::TabBar) == true) ? 1 : 0);
+               ActiveWindow().ScrollTo(ActiveWindow().FirstLine() + event.y - tabSize);
                ActiveWindow().Click();
             }
 
