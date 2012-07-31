@@ -90,6 +90,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    retried_              (false),
 
    volume_               (100),
+   updating_             (false),
    random_               (false),
    repeat_               (false),
    single_               (false),
@@ -517,6 +518,11 @@ void Client::SetVolume(uint32_t volume)
    {
       ErrorString(ErrorNumber::ClientNoConnection);
    }
+}
+
+bool Client::IsUpdating()
+{
+   return updating_;
 }
 
 
@@ -1225,6 +1231,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
          unsigned int qVersion = static_cast<uint32_t>(queueVersion_);
 
          volume_   = mpd_status_get_volume(currentStatus_);
+         updating_ = (mpd_status_get_update_id(currentStatus_) == 1);
          random_   = mpd_status_get_random(currentStatus_);
          repeat_   = mpd_status_get_repeat(currentStatus_);
          single_   = mpd_status_get_single(currentStatus_);
@@ -1356,6 +1363,7 @@ void Client::DeleteConnection()
    listMode_     = false;
    currentState_ = "Disconnected";
    volume_       = -1;
+   updating_     = false;
    random_       = false;
    single_       = false;
    consume_      = false;

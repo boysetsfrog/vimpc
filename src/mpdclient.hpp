@@ -123,6 +123,8 @@ namespace Mpc
       int32_t Volume();
       void SetVolume(uint32_t volume);
 
+      bool IsUpdating();
+
    public:
       // Playlist editing
       void Shuffle();
@@ -247,6 +249,7 @@ namespace Mpc
       bool                    retried_;
 
       uint32_t                volume_;
+      bool                    updating_;
       bool                    random_;
       bool                    repeat_;
       bool                    single_;

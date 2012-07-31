@@ -1053,7 +1053,14 @@ std::string Normal::StateString()
       volume += " [Volume: " + std::string(vol) + "%]";
    }
 
-   std::string const currentState("[State: " + client_.CurrentState() + "]" + volume + toggles);
+   std::string updating = "";
+
+   if (client_.IsUpdating() == true)
+   {
+      updating += " [Updating]";
+   }
+
+   std::string const currentState("[State: " + client_.CurrentState() + "]" + volume + toggles + updating);
    return currentState;
 }
 /* vim: set sw=3 ts=3: */
