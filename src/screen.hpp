@@ -81,6 +81,7 @@ namespace Ui
          Library,
          Lists,
          Browse,
+         Directory,
          Playlist,
          MainWindowCount,
 

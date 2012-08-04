@@ -38,13 +38,6 @@ namespace Mpc
 
    typedef std::vector<LibraryEntry *> LibraryEntryVector;
 
-   typedef enum
-   {
-      ArtistType = 0,
-      AlbumType,
-      SongType
-   } EntryType;
-
    class LibraryEntry
    {
    public:

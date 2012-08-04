@@ -131,7 +131,6 @@ void Library::Add(Mpc::Song * song)
        (Algorithm::iequals(LastAlbum, album) == true))
    {
       Mpc::LibraryEntry * const entry   = new Mpc::LibraryEntry();
-      Mpc::Song * const         newSong = new Mpc::Song(*song);
 
       if ((Algorithm::iequals(LastArtist, artist) == false) &&
           (LastArtist != VariousArtist))
@@ -163,13 +162,13 @@ void Library::Add(Mpc::Song * song)
       entry->expanded_ = true;
       entry->artist_   = artist;
       entry->album_    = album;
-      entry->song_     = newSong;
+      entry->song_     = song;
       entry->type_     = Mpc::SongType;
       entry->parent_   = LastAlbumEntry;
 
-      newSong->SetEntry(entry);
+      song->SetEntry(entry);
 
-      uriMap_[newSong->URI()] = newSong;
+      uriMap_[song->URI()] = song;
 
       LastAlbumEntry->children_.push_back(entry);
    }

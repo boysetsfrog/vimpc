@@ -206,6 +206,9 @@ namespace Mpc
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
+      void ForEachDirectory(Object & object, void (Object::*callBack)(std::string));
+
+      template <typename Object>
       void ForEachPlaylistSong(std::string Playlist, Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
@@ -216,6 +219,8 @@ namespace Mpc
 
       template <typename Object>
       void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
+
+      void GetAllMetaInformation();
 
    private:
       void ClearCommand();
@@ -273,6 +278,9 @@ namespace Mpc
       bool                    listMode_;
       bool                    idleMode_;
       bool                    hadEvents_;
+
+      std::vector<Mpc::Song *> songs_;
+      std::vector<std::string> paths_;
    };
 
    //
@@ -342,31 +350,19 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song * ))
    {
-      if (Connected() == true)
+      for (std::vector<Mpc::Song *>::iterator it = songs_.begin(); it != songs_.end(); ++it)
       {
-			ClearCommand();
+         (object.*callBack)(*it);
+      }
+   }
 
-         mpd_send_list_all_meta(connection_, NULL);
-
-         mpd_entity * nextEntity = mpd_recv_entity(connection_);
-
-         for(; nextEntity != NULL; nextEntity = mpd_recv_entity(connection_))
-         {
-            if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_SONG)
-            {
-               mpd_song const * const nextSong = mpd_entity_get_song(nextEntity);
-
-               if (nextSong != NULL)
-               {
-                  Song * const newSong = CreateSong(-1, nextSong);
-
-                  (object.*callBack)(newSong);
-
-                  delete newSong;
-               }
-            }
-            mpd_entity_free(nextEntity);
-         }
+   //
+   template <typename Object>
+   void Client::ForEachDirectory(Object & object, void (Object::*callBack)(std::string))
+   {
+      for (std::vector<std::string>::iterator it = paths_.begin(); it != paths_.end(); ++it)
+      {
+         (object.*callBack)(*it);
       }
    }
 

@@ -28,6 +28,7 @@ namespace Mpc
    class Playlist;
    class Browse;
    class Library;
+   class Directory;
    class Lists;
    class Outputs;
 }
@@ -41,15 +42,16 @@ namespace Main
 {
    void Delete();
 
-   Mpc::Playlist & Playlist();
-   Mpc::Playlist & PlaylistPasteBuffer();
-   Mpc::Playlist & PlaylistTmp();
-   Mpc::Browse   & Browse();
-   Mpc::Library  & Library();
-   Mpc::Lists    & Lists();
-   Mpc::Outputs  & Outputs();
-   Ui::Console   & Console();
-   Ui::Console   & DebugConsole();
+   Mpc::Playlist  & Playlist();
+   Mpc::Playlist  & PlaylistPasteBuffer();
+   Mpc::Playlist  & PlaylistTmp();
+   Mpc::Browse    & Browse();
+   Mpc::Library   & Library();
+   Mpc::Directory & Directory();
+   Mpc::Lists     & Lists();
+   Mpc::Outputs   & Outputs();
+   Ui::Console    & Console();
+   Ui::Console    & DebugConsole();
 }
 
 #endif

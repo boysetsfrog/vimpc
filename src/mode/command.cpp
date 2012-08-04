@@ -125,6 +125,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 #endif
    commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
    commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
+   commandTable_["directory"] = &Command::SetActiveAndVisible<Ui::Screen::Directory>;
    commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
    commandTable_["outputs"]   = &Command::SetActiveAndVisible<Ui::Screen::Outputs>;
    commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;

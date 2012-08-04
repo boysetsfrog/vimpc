@@ -29,6 +29,14 @@ namespace Mpc
 {
    class LibraryEntry;
 
+   typedef enum
+   {
+      ArtistType = 0,
+      AlbumType,
+      PathType,
+      SongType
+   } EntryType;
+
    class Song
    {
    public:

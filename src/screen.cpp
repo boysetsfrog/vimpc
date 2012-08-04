@@ -38,6 +38,7 @@
 #include "window/browsewindow.hpp"
 #include "window/console.hpp"
 #include "window/debug.hpp"
+#include "window/directorywindow.hpp"
 #include "window/error.hpp"
 #include "window/help.hpp"
 #include "window/infowindow.hpp"
@@ -110,12 +111,13 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    signal(SIGWINCH, ResizeHandler);
 
    // Create all the windows
-   mainWindows_[Help]         = new Ui::HelpWindow    (settings, *this);
-   mainWindows_[DebugConsole] = new Ui::ConsoleWindow (*this, "debug",   Main::DebugConsole());
-   mainWindows_[Console]      = new Ui::ConsoleWindow (*this, "console", Main::Console());
-   mainWindows_[Outputs]      = new Ui::OutputWindow  (settings, *this, client, search);
-   mainWindows_[Library]      = new Ui::LibraryWindow (settings, *this, client, search);
-   mainWindows_[Browse]       = new Ui::BrowseWindow  (settings, *this, client, search);
+   mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this);
+   mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (*this, "debug",   Main::DebugConsole());
+   mainWindows_[Console]      = new Ui::ConsoleWindow  (*this, "console", Main::Console());
+   mainWindows_[Outputs]      = new Ui::OutputWindow   (settings, *this, client, search);
+   mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, client, search);
+   mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, client, search);
+   mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, client, search);
 
 #if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
    mainWindows_[Lists]    = new Ui::ListWindow    (settings, *this, client, search);
@@ -135,9 +137,11 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
       visibleWindows_.push_back(static_cast<int32_t>(Lists));
    }
 
+   visibleWindows_.push_back(static_cast<int32_t>(Directory));
    visibleWindows_.push_back(static_cast<int32_t>(Library));
    visibleWindows_.push_back(static_cast<int32_t>(Browse));
    visibleWindows_.push_back(static_cast<int32_t>(Playlist));
+   visibleWindows_.push_back(static_cast<int32_t>(Outputs));
 
    // Commands must be read through a window that is always visible
    commandWindow_         = statusWindow_;

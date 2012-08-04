@@ -118,6 +118,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 
 Client::~Client()
 {
+   songs_.clear();
+
    if (currentStatus_ != NULL)
    {
       mpd_status_free(currentStatus_);
@@ -212,6 +214,9 @@ void Client::Connect(std::string const & hostname, uint16_t port)
 
       // Must redraw the library first
       screen_.InvalidateAll();
+
+      GetAllMetaInformation();
+
       screen_.Redraw(Ui::Screen::Library);
       screen_.Redraw(Ui::Screen::Playlist);
 
@@ -1177,6 +1182,48 @@ void Client::ClearCommand()
       CheckError();
    }
 }
+
+
+void Client::GetAllMetaInformation()
+{
+   songs_.clear();
+   paths_.clear();
+
+   if (Connected() == true)
+   {
+      ClearCommand();
+
+      mpd_send_list_all_meta(connection_, NULL);
+
+      mpd_entity * nextEntity = mpd_recv_entity(connection_);
+
+      for(; nextEntity != NULL; nextEntity = mpd_recv_entity(connection_))
+      {
+         if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_SONG)
+         {
+            mpd_song const * const nextSong = mpd_entity_get_song(nextEntity);
+
+            if (nextSong != NULL)
+            {
+               Song * const newSong = CreateSong(-1, nextSong);
+               songs_.push_back(newSong);
+            }
+         }
+         else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_DIRECTORY)
+         {
+            mpd_directory const * const nextDirectory = mpd_entity_get_directory(nextEntity);
+
+            if (nextDirectory != NULL)
+            {
+               paths_.push_back(std::string(mpd_directory_get_path(nextDirectory)));
+            }
+         }
+
+         mpd_entity_free(nextEntity);
+      }
+   }
+}
+
 
 void Client::StartCommandList()
 {

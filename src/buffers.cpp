@@ -23,23 +23,26 @@
 #include "window/console.hpp"
 #include "buffer/browse.hpp"
 #include "buffer/library.hpp"
+#include "buffer/directory.hpp"
 #include "buffer/list.hpp"
 #include "buffer/outputs.hpp"
 #include "buffer/playlist.hpp"
 
-static Mpc::Playlist * p_buffer  = NULL;
-static Mpc::Playlist * pt_buffer = NULL;
-static Mpc::Playlist * t_buffer  = NULL;
-static Mpc::Browse *   b_buffer  = NULL;
-static Mpc::Library *  l_buffer  = NULL;
-static Mpc::Lists *    i_buffer  = NULL;
-static Mpc::Outputs *  o_buffer  = NULL;
-static Ui::Console *   c_buffer  = NULL;
-static Ui::Console *   d_buffer  = NULL;
+static Mpc::Playlist *  p_buffer    = NULL;
+static Mpc::Playlist *  pt_buffer   = NULL;
+static Mpc::Playlist *  t_buffer    = NULL;
+static Mpc::Browse *    b_buffer    = NULL;
+static Mpc::Library *   l_buffer    = NULL;
+static Mpc::Directory * dir_buffer  = NULL;
+static Mpc::Lists *     i_buffer    = NULL;
+static Mpc::Outputs *   o_buffer    = NULL;
+static Ui::Console *    c_buffer    = NULL;
+static Ui::Console *    d_buffer    = NULL;
 
 void Main::Delete()
 {
    delete l_buffer;
+   delete dir_buffer;
    delete p_buffer;
    delete pt_buffer;
    delete t_buffer;
@@ -93,6 +96,15 @@ Mpc::Library & Main::Library()
       l_buffer = new Mpc::Library();
    }
    return *l_buffer;
+}
+
+Mpc::Directory & Main::Directory()
+{
+   if (dir_buffer == NULL)
+   {
+      dir_buffer = new Mpc::Directory();
+   }
+   return *dir_buffer;
 }
 
 Mpc::Lists & Main::Lists()

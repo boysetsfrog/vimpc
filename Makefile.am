@@ -39,6 +39,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/buffer/buffer.hpp \
                    src/buffer/library.cpp \
                    src/buffer/library.hpp \
+                   src/buffer/directory.cpp \
+                   src/buffer/directory.hpp \
                    src/buffer/list.hpp \
                    src/buffer/outputs.hpp \
                    src/buffer/playlist.hpp \
@@ -55,6 +57,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/browsewindow.hpp \
                    src/window/console.cpp \
                    src/window/console.hpp \
+                   src/window/directorywindow.cpp \
+                   src/window/directorywindow.hpp \
                    src/window/error.hpp \
                    src/window/help.cpp \
                    src/window/help.hpp \

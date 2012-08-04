@@ -1,0 +1,93 @@
+/*
+   Vimpc
+   Copyright (C) 2010 - 2012 Nathan Sweetman
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   directorywindow.hpp - navigate the mpd directory
+   */
+
+#ifndef __UI__DIRECTORYWINDOW
+#define __UI__DIRECTORYWINDOW
+
+#include "song.hpp"
+#include "buffer/directory.hpp"
+#include "window/selectwindow.hpp"
+
+#include <map>
+
+namespace Main { class Settings; }
+namespace Mpc  { class Client; }
+
+namespace Ui
+{
+   class Search;
+
+   class DirectoryWindow : public Ui::SelectWindow
+   {
+   private:
+      typedef void (Mpc::Directory::*DirectoryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+
+   public:
+      DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      ~DirectoryWindow();
+
+   private:
+      DirectoryWindow(DirectoryWindow & library);
+      DirectoryWindow & operator=(DirectoryWindow & library);
+
+   public:
+      void Print(uint32_t line) const;
+      void Left(Ui::Player & player, uint32_t count);
+      void Right(Ui::Player & player, uint32_t count);
+      void Click();
+      void Confirm();
+      void Redraw();
+      void SoftRedraw();
+      bool RequiresRedraw();
+
+      uint32_t Current() const;
+
+   public:
+      std::string SearchPattern(int32_t id) const;
+
+   public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines();
+      void CropLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void CropAllLines();
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteAllLines();
+      void Edit();
+      void ScrollToFirstMatch(std::string const & input);
+
+   private:
+      void DoForLine(DirectoryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true, bool countskips = false);
+
+   private:
+      void    Clear();
+      size_t  BufferSize() const { return directory_.Size(); }
+      int32_t DetermineSongColour(Mpc::DirectoryEntry const * const entry) const;
+
+   private:
+      Main::Settings const & settings_;
+      Mpc::Client          & client_;
+      Ui::Search     const & search_;
+      mutable Mpc::Directory & directory_;
+      std::string            path_;
+      mutable bool           redraw_;
+   };
+}
+#endif
+/* vim: set sw=3 ts=3: */

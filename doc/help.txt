@@ -137,6 +137,14 @@
            l, Right        | expand selection
            e               | view artist/album contents in songinfo window
            <Enter>         | clear playlist, add song/album/artist and play it
+
+ DIRECTORY:
+    Filesystem navigation of music.
+
+   [count] a               | add songs to playlist
+   [count] d, del          | delete songs
+           e               | information about selected song
+           <Enter>         | append the song to the playlist and play it
  
  OUTPUTS:
     Lists all the available mpd outputs.
@@ -228,6 +236,7 @@
  WINDOWS/TABS:
    browse                  | open browse window
    console                 | open console window (see CONSOLE section)
+   directory               | open directory window
    help                    | open help window (this one)
    library                 | open library window
    lists                   | open the lists window
