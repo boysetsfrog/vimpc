@@ -71,6 +71,7 @@ namespace Ui
       void DeleteAllLines();
       void Edit();
       void ScrollToFirstMatch(std::string const & input);
+      void ScrollToCurrent();
 
    private:
       void DoForLine(DirectoryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true, bool countskips = false);
@@ -84,9 +85,9 @@ namespace Ui
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      mutable Mpc::Directory & directory_;
+      Mpc::Directory &       directory_;
       std::string            path_;
-      mutable bool           redraw_;
+      bool                   redraw_;
    };
 }
 #endif

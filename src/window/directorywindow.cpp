@@ -86,6 +86,31 @@ uint32_t DirectoryWindow::Current() const
       currentSong = Main::Playlist().Get(currentSongId);
    }
 
+   if ((currentSong != NULL))
+   {
+      for (int i = 0; i < directory_.Size(); ++i)
+      {
+         if (directory_.Get(i)->song_ == currentSong)
+         {
+            current = i;
+         }
+      }
+   }
+
+   return current;
+}
+
+
+void DirectoryWindow::ScrollToCurrent()
+{
+   int32_t currentSongId   = client_.GetCurrentSong();
+   Mpc::Song * currentSong = NULL;
+
+   if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
+   {
+      currentSong = Main::Playlist().Get(currentSongId);
+   }
+
    if ((currentSong != NULL) && (currentSong->Entry() != NULL) && (currentSong->URI() != ""))
    {
       std::string Directory = currentSong->URI();
@@ -101,10 +126,7 @@ uint32_t DirectoryWindow::Current() const
 
       directory_.ChangeDirectory(Directory);
       redraw_ = true;
-      current = 0;
    }
-
-   return current;
 }
 
 std::string DirectoryWindow::SearchPattern(int32_t id) const

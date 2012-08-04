@@ -471,7 +471,7 @@ void Screen::ScrollTo(uint32_t line)
 
 void Screen::ScrollTo(Location location, uint32_t line)
 {
-   uint32_t scroll[LocationCount] = { 0, 0, 0, 0 };
+   uint32_t scroll[LocationCount];
 
    scroll[Top]          = 0;
    scroll[Bottom]       = ActiveWindow().ContentSize();
@@ -479,6 +479,13 @@ void Screen::ScrollTo(Location location, uint32_t line)
    scroll[PlaylistNext] = ActiveWindow().Playlist(1);
    scroll[PlaylistPrev] = ActiveWindow().Playlist(-1);
    scroll[Specific]     = line - 1;
+
+   if (location == Current)
+   {
+      // This changes the directory windows path
+      // so should only be called if we are going to the current song
+      ActiveWindow().ScrollToCurrent();
+   }
 
    ScrollTo(scroll[location]);
 }

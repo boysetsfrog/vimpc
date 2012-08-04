@@ -50,6 +50,7 @@ namespace Ui
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
       virtual void ScrollToFirstMatch(std::string const & input) { }
+      virtual void ScrollToCurrent() { }
 
       virtual uint32_t Current() const { return CurrentLine(); };
       virtual uint32_t Playlist(int count) const { return Current(); };
