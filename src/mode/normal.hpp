@@ -67,6 +67,11 @@ namespace Ui
       // Remove a key mapping
       void Unmap(std::string key);
 
+      // Get the current mappings
+      typedef std::map<std::string, std::string> MapNameTable;
+      MapNameTable Mappings();
+
+
    private:
       // Check the action or map table for a particular a key combination
       template<typename T>
@@ -224,7 +229,6 @@ namespace Ui
       typedef std::map<std::string, std::vector<KeyMapItem> > MapTable;
       typedef std::map<std::string, std::pair<uint32_t, uint32_t> > MarkTable;
 
-
    private:
       ModeWindow *     window_;
       std::string      input_;
@@ -238,6 +242,7 @@ namespace Ui
       ActionTable      actionTable_;
       MarkTable        markTable_;
       MapTable         mapTable_;
+      MapNameTable     mapNames_;
 
       Main::Vimpc *    vimpc_;
       Ui::Search     & search_;

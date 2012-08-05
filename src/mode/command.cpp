@@ -670,6 +670,25 @@ void Command::Map(std::string const & arguments)
 
       normalMode_.Map(key, mapping);
    }
+   else if (arguments == "")
+   {
+      Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+
+      if (mappings.size() > 0)
+      {
+         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
+
+         PagerWindow * pager = screen_.GetPagerWindow();
+         pager->Clear();
+
+         for (; it != mappings.end(); ++it)
+         {
+            pager->AddLine(it->first + "   " + it->second);
+         }
+
+         screen_.ShowPagerWindow();
+      }
+   }
 }
 
 void Command::Unmap(std::string const & arguments)

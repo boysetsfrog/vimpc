@@ -121,7 +121,15 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          int input = Input();
 
-         if (input != ERR)
+         if ((input != ERR) && (screen_.PagerIsVisible() == true)
+#ifdef HAVE_MOUSE_SUPPORT
+            && (input != KEY_MOUSE)
+#endif
+            )
+         {
+            screen_.HidePagerWindow();
+         }
+         else if (input != ERR)
          {
             Handle(input);
             client_.UpdateDisplay();
@@ -150,7 +158,11 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
             client_.DisplaySongInformation();
             screen_.Update();
-            mode.Refresh();
+
+            if (screen_.PagerIsVisible() == false)
+            {
+               mode.Refresh();
+            }
          }
 
          if ((input == ERR) && (client_.IsIdle() == false))

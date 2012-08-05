@@ -363,12 +363,19 @@ void Normal::Map(std::string key, std::string mapping)
    if (error == false)
    {
       mapTable_[key] = KeyMap;
+      mapNames_[key] = mapping;
    }
 }
 
 void Normal::Unmap(std::string key)
 {
    mapTable_.erase(key);
+   mapNames_.erase(key);
+}
+
+Ui::Normal::MapNameTable Normal::Mappings()
+{
+   return mapNames_;
 }
 
 template <typename T>

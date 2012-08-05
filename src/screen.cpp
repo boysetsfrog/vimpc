@@ -65,9 +65,11 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    statusWindow_    (NULL),
    tabWindow_       (NULL),
    commandWindow_   (NULL),
+   pagerWindow_     (NULL),
    mouse_           (false),
    tabBar_          (true),
    started_         (false),
+   pager_           (false),
    maxRows_         (0),
    maxColumns_      (0),
    settings_        (settings),
@@ -143,6 +145,9 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    visibleWindows_.push_back(static_cast<int32_t>(Playlist));
    visibleWindows_.push_back(static_cast<int32_t>(Outputs));
 
+   // Create paging window to print maps, settings, etc
+   pagerWindow_ = new PagerWindow(maxColumns_, 0);
+
    // Commands must be read through a window that is always visible
    commandWindow_         = statusWindow_;
    keypad(commandWindow_, true);
@@ -161,6 +166,8 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
 Screen::~Screen()
 {
+   delete pagerWindow_;
+
    delwin(tabWindow_);
    delwin(statusWindow_);
 
@@ -300,6 +307,28 @@ void Screen::DeleteModeWindow(ModeWindow * window)
    }
 }
 
+
+PagerWindow * Screen::GetPagerWindow()
+{
+   return pagerWindow_;
+}
+
+void Screen::ShowPagerWindow()
+{
+   pager_ = true;
+   Resize(true);
+}
+
+void Screen::HidePagerWindow()
+{
+   pager_ = false;
+   Resize(true);
+}
+
+bool Screen::PagerIsVisible()
+{
+   return pager_;
+}
 
 void Screen::SetStatusLine(char const * const fmt, ...) const
 {
@@ -545,6 +574,19 @@ void Screen::Update()
       }
 
       ActiveWindow().Refresh();
+
+      if (pager_ == true)
+      {
+         werase(pagerWindow_->N_WINDOW());
+
+         for (uint32_t i = 0; i < pagerWindow_->BufferSize(); ++i)
+         {
+            pagerWindow_->Print(i);
+         }
+
+         wrefresh(pagerWindow_->N_WINDOW());
+      }
+
       doupdate();
    }
 }
@@ -604,7 +646,8 @@ bool Screen::Resize(bool forceResize)
 #ifdef TIOCGWINSZ
       struct winsize windowSize;
 
-      if ((ioctl(0, TIOCGWINSZ, &windowSize) >= 0) && (windowSize.ws_row >= 0 && windowSize.ws_col >= 0))
+      if ((ioctl(0, TIOCGWINSZ, &windowSize) >= 0) && 
+          (windowSize.ws_row >= 0 && windowSize.ws_col >= 0))
       {
          maxRows_    = windowSize.ws_row;
          maxColumns_ = windowSize.ws_col;
@@ -622,6 +665,22 @@ bool Screen::Resize(bool forceResize)
 
          resizeterm(maxRows_, maxColumns_);
          wresize(stdscr, maxRows_, maxColumns_);
+
+         int lastRow = maxRows_ - 1;
+
+         if (pager_ == true)
+         {
+            int lines = pagerWindow_->BufferSize();
+            wresize(pagerWindow_->N_WINDOW(), lines, maxColumns_);
+            mvwin(pagerWindow_->N_WINDOW(), maxRows_ - lines, 0);
+            wclear(pagerWindow_->N_WINDOW());
+            maxRows_ -= (lines - 1);   
+         }
+         else
+         {
+            wresize(pagerWindow_->N_WINDOW(), 0, maxColumns_);
+            wclear(pagerWindow_->N_WINDOW());
+         }
 
          mainRows_ = maxRows_ - 2;
 
@@ -643,10 +702,10 @@ bool Screen::Resize(bool forceResize)
          for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
          {
             (*it)->Resize(1, maxColumns_);
-            (*it)->Move(maxRows_ - 1, 0);
+            (*it)->Move(lastRow, 0);
          }
 
-         mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), maxRows_ - 1, 0);
+         mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), lastRow, 0);
 
          for (int i = 0; (i < MainWindowCount); ++i)
          {

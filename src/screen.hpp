@@ -25,6 +25,7 @@
 #include "assert.hpp"
 #include "buffer/linebuffer.hpp"
 #include "window/modewindow.hpp"
+#include "window/pagerwindow.hpp"
 #include "window/scrollwindow.hpp"
 
 #include <string>
@@ -132,6 +133,12 @@ namespace Ui
       ModeWindow * CreateModeWindow();
       void DeleteModeWindow(ModeWindow * window);
 
+      // Pager window used to display maps, settings, etc
+      PagerWindow * GetPagerWindow();
+      void ShowPagerWindow();
+      void HidePagerWindow();
+      bool PagerIsVisible();
+
       // Update the status line to indicate currently playing song, etc
       void SetStatusLine(char const * const fmt, ... ) const;
       void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;
@@ -213,6 +220,7 @@ namespace Ui
       WINDOW *   statusWindow_;
       WINDOW *   tabWindow_;
       WINDOW *   commandWindow_;
+      PagerWindow * pagerWindow_;
 
       std::vector<int32_t>      visibleWindows_;
       std::vector<ModeWindow *> modeWindows_;
@@ -221,6 +229,7 @@ namespace Ui
       mutable bool mouse_;
       mutable bool tabBar_;
       bool      started_;
+      bool      pager_;
       int32_t   maxRows_;
       int32_t   mainRows_;
       int32_t   maxColumns_;
