@@ -1008,7 +1008,34 @@ void Command::SplitCommand(std::string const & input, std::string & command, std
 
 void Command::Set(std::string const & arguments)
 {
-   settings_.Set(arguments);
+   if (arguments != "")
+   {
+      settings_.Set(arguments);
+   }
+   else
+   {
+      std::vector<std::string> settings  = settings_.AvailableSettings();
+      std::vector<std::string>::iterator it = settings.begin();
+
+      PagerWindow * pager = screen_.GetPagerWindow();
+      pager->Clear();
+
+      for (; it != settings.end(); ++it)
+      {
+         if ((((*it).size() < 2) || ((*it).substr(0, 2) != "no")) && 
+             (settings_.GetBool(*it) == true))
+         {
+            pager->AddLine(*it);
+         }
+         else if (settings_.GetString(*it) != "")
+         {
+            std::string const value = settings_.GetString(*it);
+            pager->AddLine(*it + "=" + value);
+         }
+      }
+
+      screen_.ShowPagerWindow();
+   }
 }
 
 void Command::Mpc(std::string const & arguments)

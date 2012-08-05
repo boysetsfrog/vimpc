@@ -140,7 +140,7 @@ namespace Main
          //! Handles settings which are treated as an on/off setting
          void SetSingleSetting(std::string setting);
 
-      private:
+      public:
          //! Get the value for the given \p setting
          bool GetBool(std::string setting) const 
          { 

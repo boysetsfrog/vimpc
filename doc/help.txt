@@ -262,7 +262,8 @@
    echo <string>           | echos the given string to the console window
  
  CONFIGURATION:
-   set                     | sets a configurable setting, see SETTINGS section
+   set                     | show the currently enabled settings and their values
+   set <setting>           | sets a configurable setting, see SETTINGS section
    map                     | show the current mappings
    map <keys> <otherkeys>  | create a mapping from <keys> to <otherkeys>
                            | see later section "MAPPING KEYS"
