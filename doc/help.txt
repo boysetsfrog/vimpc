@@ -263,6 +263,7 @@
  
  CONFIGURATION:
    set                     | sets a configurable setting, see SETTINGS section
+   map                     | show the current mappings
    map <keys> <otherkeys>  | create a mapping from <keys> to <otherkeys>
                            | see later section "MAPPING KEYS"
    unmap <keys>            | remove the mapping of <keys>
