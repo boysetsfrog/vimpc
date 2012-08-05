@@ -232,16 +232,6 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
       {
          current = client.GetCurrentSong() + 1;
       }
-
-      for (Mpc::DirectoryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
-      {
-         AddToPlaylist(client, (*it), current);
-
-         if (current != -1)
-         {
-            current++;
-         }
-      }
    }
 }
 
@@ -255,86 +245,6 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
       {
          client.Delete(PlaylistIndex);
          Main::Playlist().Remove(PlaylistIndex, 1);
-      }
-   }
-   else
-   {
-      for (Mpc::DirectoryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
-      {
-         RemoveFromPlaylist(client, (*it));
-      }
-   }
-}
-
-void Directory::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const
-{
-   for (Mpc::DirectoryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
-   {
-      if ((*it)->type_ == AlbumType)
-      {
-         for (Mpc::DirectoryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
-         {
-            (*callback)((*jt)->song_);
-         }
-      }
-      else if ((*it)->type_ == SongType)
-      {
-         (*callback)((*it)->song_);
-      }
-   }
-}
-
-void Directory::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::DirectoryEntry *> * callback) const
-{
-   for (Mpc::DirectoryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
-   {
-      if ((*it)->type_ == AlbumType)
-      {
-         for (Mpc::DirectoryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
-         {
-            (*callback)(*jt);
-         }
-      }
-
-      (*callback)(*it);
-   }
-}
-
-void Directory::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
-{
-   for (uint32_t i = 0; i < Size(); ++i)
-   {
-      if (Get(i)->type_ == ArtistType)
-      {
-         for (Mpc::DirectoryEntryVector::iterator it = Get(i)->children_.begin(); (it != Get(i)->children_.end()); ++it)
-         {
-            if ((*it)->type_ == AlbumType)
-            {
-               for (Mpc::DirectoryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
-               {
-                  (*callback)((*jt)->song_);
-               }
-            }
-         }
-      }
-   }
-}
-
-void Directory::ForEachParent(Main::CallbackInterface<Mpc::DirectoryEntry *> * callback) const
-{
-   for (uint32_t i = 0; i < Size(); ++i)
-   {
-      if (Get(i)->type_ == ArtistType)
-      {
-         for (Mpc::DirectoryEntryVector::iterator it = Get(i)->children_.begin(); (it != Get(i)->children_.end()); ++it)
-         {
-            if ((*it)->type_ == AlbumType)
-            {
-               (*callback)(*it);
-            }
-         }
-
-         (*callback)(Get(i));
       }
    }
 }

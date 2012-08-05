@@ -210,7 +210,7 @@ namespace Mpc
    public:
       Mpc::Song * Song(std::string uri) const;
 
-      void Clear();
+      void Clear(bool Delete = true);
       void Sort();
       void Sort(LibraryEntry * entry);
       void Add(Mpc::Song * song);

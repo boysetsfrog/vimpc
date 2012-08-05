@@ -373,21 +373,12 @@ void DirectoryWindow::DoForLine(DirectoryFunction function, uint32_t line, uint3
          {
             Mpc::DirectoryEntry * current = directory_.Get(i);
 
-            if ((previous == NULL) ||
-               ((current->Parent() != previous) &&
-               ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
-            {
-               ++total;
+            ++total;
 
-               if (total <= count)
-               {
-                  (directory_.*function)(Mpc::Song::Single, client_, i);
-                  previous = current;
-               }
-            }
-            else if (countskips == true)
+            if (total <= count)
             {
-               ++total;
+               (directory_.*function)(Mpc::Song::Single, client_, i);
+               previous = current;
             }
          }
       }
@@ -425,17 +416,6 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
       if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
       {
          colour = Colour::FullAdd;
-      }
-      else if (entry->type_ != Mpc::SongType)
-      {
-         if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == static_cast<int32_t>(entry->children_.size())))
-         {
-            colour = Colour::FullAdd;
-         }
-         else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
-         {
-            colour = Colour::PartialAdd;
-         }
       }
    }
 

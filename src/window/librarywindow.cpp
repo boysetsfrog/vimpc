@@ -64,6 +64,7 @@ void LibraryWindow::Redraw()
 {
    Main::Playlist().Clear();
    Clear();
+   client_.GetAllMetaInformation();
    client_.ForEachLibrarySong(library_, &Mpc::Library::Add);
    SoftRedraw();
 

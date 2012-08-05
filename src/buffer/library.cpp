@@ -41,7 +41,7 @@ Library::~Library()
    Clear();
 }
 
-void Library::Clear()
+void Library::Clear(bool Delete)
 {
    Main::Playlist().Clear();
 
@@ -49,7 +49,11 @@ void Library::Clear()
    {
       LibraryEntry * entry = Get(0);
       Remove(0, 1);
-      delete entry;
+
+      if (Delete == true)
+      {
+         delete entry;
+      }
    }
 }
 

@@ -49,85 +49,8 @@ namespace Mpc
          type_    (PathType),
          name_    (""),
          path_    (""),
-         song_    (NULL),
-         children_(),
-         parent_  (),
-         childrenInPlaylist_(0),
-         partial_(0)
+         song_    (NULL)
       { }
-
-   public:
-      ~DirectoryEntry()
-      {
-         children_.clear();
-      }
-
-      void AddedToPlaylist()
-      {
-         ++childrenInPlaylist_;
-
-         if ((parent_ != NULL) && (childrenInPlaylist_ == 1))
-         {
-            parent_->AddPartial();
-         }
-
-         if ((parent_ != NULL) && ((childrenInPlaylist_ == static_cast<int32_t>(children_.size())) || (type_ == Mpc::SongType)))
-         {
-            parent_->AddedToPlaylist();
-         }
-      }
-
-      void RemovedFromPlaylist()
-      {
-         if ((parent_ != NULL) && ((childrenInPlaylist_ == static_cast<int32_t>(children_.size())) || (type_ == Mpc::SongType)))
-         {
-            parent_->RemovedFromPlaylist();
-         }
-
-         if (childrenInPlaylist_ > 0)
-         {
-            --childrenInPlaylist_;
-         }
-
-         if ((parent_ != NULL) && (childrenInPlaylist_ == 0))
-         {
-            parent_->RemovePartial();
-         }
-      }
-
-      void AddPartial()
-      {
-         ++partial_;
-
-         if (parent_ != NULL)
-         {
-            parent_->AddPartial();
-         }
-      }
-
-      void RemovePartial()
-      {
-         if (partial_ > 0)
-         {
-            --partial_;
-         }
-
-         if (parent_ != NULL)
-         {
-            parent_->RemovePartial();
-         }
-      }
-
-   public:
-      DirectoryEntry * Parent()
-      {
-         return parent_;
-      }
-
-      uint32_t InPlaylistCount()
-      {
-         return childrenInPlaylist_;
-      }
 
    private:
       DirectoryEntry(DirectoryEntry & entry);
@@ -138,10 +61,6 @@ namespace Mpc
       std::string        path_;
       std::string        name_;
       Mpc::Song *        song_;
-      DirectoryEntryVector children_;
-      DirectoryEntry *     parent_;
-      int32_t            childrenInPlaylist_;
-      int32_t            partial_;
    };
 
 
@@ -164,11 +83,6 @@ namespace Mpc
       void Add(Mpc::Song * song);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
-
-      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
-      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::DirectoryEntry *> * callback) const;
-      void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
-      void ForEachParent(Main::CallbackInterface<Mpc::DirectoryEntry *> * callback) const;
 
    private:
       void AddEntry(std::string FullPath);
