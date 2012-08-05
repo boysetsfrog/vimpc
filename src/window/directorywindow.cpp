@@ -249,7 +249,7 @@ void DirectoryWindow::Confirm()
       client_.Clear();
       Main::Playlist().Clear();
 
-      AddLine(CurrentLine(), 1, true);
+      AddLine(CurrentLine(), 1, false);
       client_.Play(0);
       SelectWindow::Confirm();
    }

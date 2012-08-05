@@ -20,7 +20,9 @@
 
 #include "pagerwindow.hpp"
 
+#include "colour.hpp"
 #include "debug.hpp"
+#include "settings.hpp"
 
 #include <iostream>
 
@@ -61,7 +63,17 @@ void PagerWindow::Print(uint32_t line) const
 
    if (line == BufferSize() - 1)
    {
+      if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
+      {
+         wattron(N_WINDOW(), COLOR_PAIR(Colour::PagerStatus) | A_BOLD);
+      }
+
       mvwprintw(window, line, 0, "%s", "Press ENTER to continue");
+
+      if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
+      {
+         wattroff(N_WINDOW(), COLOR_PAIR(Colour::PagerStatus) | A_BOLD);
+      }
    }
    else
    {

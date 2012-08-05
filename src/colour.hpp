@@ -52,6 +52,7 @@ namespace Ui
       static int SongMatch    = YELLOWONDEFAULT;
       static int PartialAdd   = CYANONDEFAULT;
       static int FullAdd      = GREENONDEFAULT;
+      static int PagerStatus  = GREENONDEFAULT;
 
       static int Error        = ERRORLINE;
       static int StatusLine   = STATUSLINE;
