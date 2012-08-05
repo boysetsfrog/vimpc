@@ -42,6 +42,7 @@
    X(SettingNonexistant,    "No such setting") \
    X(PlaylistExists,        "Playlist with that name already exists") \
    X(NoSuchMark,            "Mark not set") \
+   X(NoSuchMapping,         "No mapping found") \
    X(Unknown,               "Unknown")
 
 namespace ErrorNumber

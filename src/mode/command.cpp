@@ -688,6 +688,10 @@ void Command::Map(std::string const & arguments)
 
          screen_.ShowPagerWindow();
       }
+      else
+      {
+         ErrorString(ErrorNumber::NoSuchMapping);
+      }
    }
 }
 
