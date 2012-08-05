@@ -100,8 +100,14 @@ void Directory::ChangeDirectory(DirectoryEntry & New)
    ChangeDirectory(New.path_);
 }
 
-void Directory::Clear()
+void Directory::Clear(bool fullClear)
 {
+   if (fullClear == true)
+   {
+      paths_.clear();
+      songs_.clear();
+   }
+
    while (Size() > 0)
    {
       DirectoryEntry * entry = Get(0);

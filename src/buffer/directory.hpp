@@ -78,14 +78,14 @@ namespace Mpc
       void ChangeDirectory(std::string New);
       void ChangeDirectory(DirectoryEntry & New);
 
-      void Clear();
+      void Clear(bool fullClear = false);
       void Add(std::string directory);
       void Add(Mpc::Song * song);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
    private:
-      void AddEntry(std::string FullPath);
+      void AddEntry(std::string fullPath);
       void AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry, int32_t position = -1);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry);
       void DeleteEntry(DirectoryEntry * const entry);

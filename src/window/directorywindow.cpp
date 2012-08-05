@@ -158,7 +158,7 @@ std::string DirectoryWindow::SearchPattern(int32_t id) const
 
 void DirectoryWindow::Clear()
 {
-   directory_.Clear();
+   directory_.Clear(true);
 }
 
 void DirectoryWindow::Print(uint32_t line) const

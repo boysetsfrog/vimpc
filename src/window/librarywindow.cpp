@@ -103,6 +103,7 @@ void LibraryWindow::SoftRedraw()
    }
 
    screen_.Redraw(Ui::Screen::Browse);
+   screen_.Redraw(Ui::Screen::Directory);
 
    ignoreCase_   = settings_.Get(Setting::IgnoreCaseSort);
    ignoreThe_    = settings_.Get(Setting::IgnoreTheSort);
