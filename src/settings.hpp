@@ -42,6 +42,8 @@
    X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
    X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
+   X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
+   X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
    X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \
    X(SingleQuit,       "singlequit",     false) /* Quit the entire application not just close a tab */ \
    X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \

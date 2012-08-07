@@ -706,7 +706,7 @@ void Normal::AddSong(uint32_t count)
       }
       else if (COLLECTION == Mpc::Song::Single)
       {
-         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count);
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count, settings_.Get(Setting::ScrollOnAdd));
       }
    }
 }
@@ -725,7 +725,7 @@ void Normal::DeleteSong(uint32_t count)
       }
       else if (COLLECTION == Mpc::Song::Single)
       {
-         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count);
+         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count, settings_.Get(Setting::ScrollOnDelete));
       }
    }
 }
