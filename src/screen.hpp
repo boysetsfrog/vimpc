@@ -100,6 +100,7 @@ namespace Ui
          Specific,
          PlaylistNext,
          PlaylistPrev,
+         Random,
          LocationCount
       } Location;
 

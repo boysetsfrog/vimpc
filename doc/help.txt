@@ -18,6 +18,7 @@
    [count] Ctrl+e          | scroll up a line, maintain selection
            Home            | scroll to the top
            End             | scroll to the bottom
+           %               | scroll to a random line
    [count] f               | scroll to the currently playing song + [count]
    [count] F               | scroll to the currently playing song - [count]
    [count] gg              | scroll to the top, or to the line [count]

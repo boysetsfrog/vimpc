@@ -143,6 +143,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["F"]       = &Normal::ScrollToCurrent<-1>;
    actionTable_["<End>"]   = &Normal::ScrollTo<Screen::Bottom>;
    actionTable_["G"]       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
+   actionTable_["%"]       = &Normal::ScrollTo<Screen::Random>;
 
    actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
    actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
