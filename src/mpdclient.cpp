@@ -245,9 +245,10 @@ void Client::Reconnect()
 
 void Client::Password(std::string const & password)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_password(connection_, password.c_str());
    }
    else
@@ -274,9 +275,10 @@ bool Client::Connected() const
 
 void Client::Play(uint32_t const playId)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_play_pos(connection_, playId);
 
       currentSongId_ = playId;
@@ -292,9 +294,10 @@ void Client::Play(uint32_t const playId)
 
 void Client::Pause()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_toggle_pause(connection_);
 
       if (state_ == MPD_STATE_PLAY)
@@ -314,9 +317,10 @@ void Client::Pause()
 
 void Client::Stop()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_stop(connection_);
 
       state_          = MPD_STATE_STOP;
@@ -332,9 +336,10 @@ void Client::Stop()
 
 void Client::Next()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_next(connection_);
       UpdateStatus();
    }
@@ -346,9 +351,10 @@ void Client::Next()
 
 void Client::Previous()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_previous(connection_);
       UpdateStatus();
    }
@@ -360,9 +366,10 @@ void Client::Previous()
 
 void Client::Seek(int32_t Offset)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_seek_pos(connection_, currentSongId_, elapsed_ + Offset);
    }
    else
@@ -373,9 +380,10 @@ void Client::Seek(int32_t Offset)
 
 void Client::SeekTo(uint32_t Time)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_seek_pos(connection_, currentSongId_, Time);
    }
    else
@@ -392,9 +400,10 @@ bool Client::Random()
 
 void Client::SetRandom(bool const random)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_random(connection_, random);
       random_ = random;
    }
@@ -412,9 +421,10 @@ bool Client::Single()
 
 void Client::SetSingle(bool const single)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_single(connection_, single);
       single_ = single;
    }
@@ -432,9 +442,10 @@ bool Client::Consume()
 
 void Client::SetConsume(bool const consume)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_consume(connection_, consume);
       consume_ = consume;
    }
@@ -451,9 +462,10 @@ bool Client::Repeat()
 
 void Client::SetRepeat(bool const repeat)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_repeat(connection_, repeat);
       repeat_ = repeat;
    }
@@ -487,9 +499,10 @@ void Client::SetCrossfade(bool crossfade)
 
 void Client::SetCrossfade(uint32_t crossfade)
 {
+   ClearCommand();
+   
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_crossfade(connection_, crossfade);
       crossfade_     = (crossfade != 0);
 
@@ -511,9 +524,10 @@ int32_t Client::Volume()
 
 void Client::SetVolume(uint32_t volume)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_set_volume(connection_, volume);
       volume_ = volume;
    }
@@ -531,9 +545,10 @@ bool Client::IsUpdating()
 
 void Client::Shuffle()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_shuffle(connection_);
       UpdateStatus();
    }
@@ -545,9 +560,10 @@ void Client::Shuffle()
 
 void Client::Move(uint32_t position1, uint32_t position2)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_move(connection_, position1, position2);
       UpdateStatus(true);
    }
@@ -559,9 +575,10 @@ void Client::Move(uint32_t position1, uint32_t position2)
 
 void Client::Swap(uint32_t position1, uint32_t position2)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_swap(connection_, position1, position2);
       UpdateStatus();
    }
@@ -574,9 +591,10 @@ void Client::Swap(uint32_t position1, uint32_t position2)
 
 void Client::CreatePlaylist(std::string const & name)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_run_save(connection_, name.c_str());
       mpd_run_playlist_clear(connection_, name.c_str());
    }
@@ -588,9 +606,10 @@ void Client::CreatePlaylist(std::string const & name)
 
 void Client::SavePlaylist(std::string const & name)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_run_save(connection_, name.c_str());
    }
    else
@@ -601,10 +620,11 @@ void Client::SavePlaylist(std::string const & name)
 
 void Client::LoadPlaylist(std::string const & name)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
       Clear();
-      ClearCommand();
       mpd_run_load(connection_, name.c_str());
       UpdateStatus();
    }
@@ -616,9 +636,10 @@ void Client::LoadPlaylist(std::string const & name)
 
 void Client::RemovePlaylist(std::string const & name)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_run_rm(connection_, name.c_str());
    }
    else
@@ -629,9 +650,10 @@ void Client::RemovePlaylist(std::string const & name)
 
 void Client::AddToNamedPlaylist(std::string const & name, Mpc::Song * song)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_playlist_add(connection_, name.c_str(), song->URI().c_str());
    }
    else
@@ -655,9 +677,10 @@ void Client::SetOutput(Mpc::Output * output, bool enable)
 
 void Client::EnableOutput(Mpc::Output * output)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_enable_output(connection_, output->Id());
    }
    else
@@ -668,9 +691,10 @@ void Client::EnableOutput(Mpc::Output * output)
 
 void Client::DisableOutput(Mpc::Output * output)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_disable_output(connection_, output->Id());
    }
    else
@@ -694,9 +718,10 @@ void Client::Add(Mpc::Song * song)
 
 uint32_t Client::Add(Mpc::Song & song)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_add(connection_, song.URI().c_str());
       UpdateStatus(true);
    }
@@ -710,9 +735,10 @@ uint32_t Client::Add(Mpc::Song & song)
 
 uint32_t Client::Add(Mpc::Song & song, uint32_t position)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_add_id_to(connection_, song.URI().c_str(), position);
 
       if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
@@ -732,9 +758,10 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
 
 uint32_t Client::AddAllSongs()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_add(connection_, "/");
       UpdateStatus();
    }
@@ -748,9 +775,10 @@ uint32_t Client::AddAllSongs()
 
 uint32_t Client::Add(std::string const & URI)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_add(connection_, URI.c_str());
       UpdateStatus();
    }
@@ -765,9 +793,10 @@ uint32_t Client::Add(std::string const & URI)
 
 void Client::Delete(uint32_t position)
 {
+   ClearCommand();
+
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
-      ClearCommand();
       mpd_send_delete(connection_, position);
 
       if ((currentSongId_ > -1) && (position < static_cast<uint32_t>(currentSongId_)))
@@ -800,26 +829,31 @@ void Client::Delete(uint32_t position1, uint32_t position2)
       else
       {
          ClearCommand();
-         mpd_send_delete_range(connection_, position1, position2);
 
-         if (currentSongId_ > -1)
+         if (Connected() == true)
          {
-            uint32_t const songId = static_cast<uint32_t>(currentSongId_);
+            mpd_send_delete_range(connection_, position1, position2);
 
-            if ((position1 < songId) && (position2 < songId))
+            if (currentSongId_ > -1)
             {
-               currentSongId_ -= position2 - position1;
-            }
-            else if ((position1 <= songId) && (position2 >= songId))
-            {
-               currentSongId_ -= (currentSongId_ - position1);
+               uint32_t const songId = static_cast<uint32_t>(currentSongId_);
+
+               if ((position1 < songId) && (position2 < songId))
+               {
+                  currentSongId_ -= position2 - position1;
+               }
+               else if ((position1 <= songId) && (position2 >= songId))
+               {
+                  currentSongId_ -= (currentSongId_ - position1);
+               }
             }
          }
       }
 
       UpdateStatus(true);
    }
-   else if (Connected() == false)
+
+   if (Connected() == false)
    {
       ErrorString(ErrorNumber::ClientNoConnection);
    }
@@ -827,9 +861,10 @@ void Client::Delete(uint32_t position1, uint32_t position2)
 
 void Client::Clear()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_clear(connection_);
       UpdateStatus(true);
    }
@@ -842,10 +877,10 @@ void Client::Clear()
 
 void Client::SearchAny(std::string const & search, bool exact)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
-
       mpd_search_db_songs(connection_, exact);
       mpd_search_add_any_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, search.c_str());
    }
@@ -853,10 +888,10 @@ void Client::SearchAny(std::string const & search, bool exact)
 
 void Client::SearchArtist(std::string const & search, bool exact)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
-
       mpd_search_db_songs(connection_, exact);
       mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, search.c_str());
    }
@@ -864,10 +899,10 @@ void Client::SearchArtist(std::string const & search, bool exact)
 
 void Client::SearchGenre(std::string const & search, bool exact)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
-
       mpd_search_db_songs(connection_, exact);
       mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_GENRE, search.c_str());
    }
@@ -876,10 +911,10 @@ void Client::SearchGenre(std::string const & search, bool exact)
 
 void Client::SearchAlbum(std::string const & search, bool exact)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
-
       mpd_search_db_songs(connection_, exact);
       mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, search.c_str());
    }
@@ -887,10 +922,10 @@ void Client::SearchAlbum(std::string const & search, bool exact)
 
 void Client::SearchSong(std::string const & search, bool exact)
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
-
       mpd_search_db_songs(connection_, exact);
       mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, search.c_str());
    }
@@ -996,9 +1031,10 @@ void Client::DisplaySongInformation()
 
 void Client::Rescan()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_rescan(connection_, "/");
    }
    else
@@ -1009,9 +1045,10 @@ void Client::Rescan()
 
 void Client::Update()
 {
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
       mpd_send_update(connection_, "/");
    }
    else
@@ -1051,11 +1088,11 @@ long Client::TimeSinceUpdate()
 
 void Client::IdleMode()
 {
+   ClearCommand();
+
    if ((Connected() == true) && (settings_.Get(Setting::Polling) == false) &&
        (idleMode_ == false))
    {
-      ClearCommand();
-
       if (mpd_send_idle(connection_) == true)
       {
          Debug("Entered idle mode");
@@ -1122,6 +1159,8 @@ bool Client::HadEvents()
 
 void Client::UpdateCurrentSong()
 {
+   ClearCommand();
+
    if ((Connected() == true))
    {
       if (listMode_ == false)
@@ -1136,7 +1175,6 @@ void Client::UpdateCurrentSong()
 
          if (state_ != MPD_STATE_STOP)
          {
-            ClearCommand();
             timeSinceSong_ = 0;
             currentSong_ = mpd_run_current_song(connection_);
             CheckError();
@@ -1170,7 +1208,7 @@ void Client::ClearCommand()
       mpd_send_noidle(connection_);
       hadEvents_ = (mpd_recv_idle(connection_, false) != 0);
       Debug("Left idle mode");
-		CheckError();
+      CheckError();
       idleMode_ = false;
    }
 
@@ -1187,10 +1225,10 @@ void Client::GetAllMetaInformation()
    songs_.clear();
    paths_.clear();
 
+   ClearCommand();
+
    if (Connected() == true)
    {
-      ClearCommand();
-
       mpd_send_list_all_meta(connection_, NULL);
 
       mpd_entity * nextEntity = mpd_recv_entity(connection_);

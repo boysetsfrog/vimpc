@@ -384,7 +384,9 @@
    [no]ignorecase[!]       | case insensitive searching
    [no]incsearch[!]        | search for results as you are typing
    [no]mouse[!]            | turn mouse support on
+   [no]polling[!]          | poll mpd for status updates rather than using idle mode
    [no]playlistnumbers[!]  | display id numbers next to songs in the playlist
+   [no]reconnect[!]        | automatically reconnect if the connection drops
    [no]scrollonadd[!]      | scroll down one line after adding a song
    [no]scrollondelete[!]   | scroll down one line after deleting a song
    [no]searchwrap[!]       | wrap search results when using n/N
@@ -393,7 +395,6 @@
    [no]songnumbers[!]      | display id numbers next to songs in any window
    [no]sortignorecase[!]   | ignore case when sorting by artist/album
    [no]sortignorethe[!]    | ignore the prefix 'the' when sorting by artist/album
-   [no]songnumbers[!]      | display id numbers next to songs in any window
    [no]stoponquit[!]       | automatically stop playback when vimpc is quit
    [no]tabbar[!]           | whether or not to show the tab bar
    [no]timeremaining[!]    | display the time remaining rather than elapsed

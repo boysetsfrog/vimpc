@@ -287,10 +287,10 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *))
    {
+      ClearCommand();
+
       if (Connected() == true)
       {
-			ClearCommand();
-
          mpd_send_list_queue_meta(connection_);
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -318,10 +318,10 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *))
    {
+      ClearCommand();
+
       if (Connected() == true)
       {
-			ClearCommand();
-
          mpd_send_queue_changes_meta(connection_, oldVersion);
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -371,10 +371,10 @@ namespace Mpc
    void Client::ForEachPlaylistSong(std::string playlist, Object & object, void (Object::*callBack)(Mpc::Song * ))
    {
 #if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      ClearCommand();
+
       if (Connected() == true)
       {
-			ClearCommand();
-
          mpd_send_list_playlist_meta(connection_, playlist.c_str());
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -399,10 +399,10 @@ namespace Mpc
    void Client::ForEachPlaylist(Object & object, void (Object::*callBack)(std::string))
    {
 #if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      ClearCommand();
+
       if (Connected() == true)
       {
-			ClearCommand();
-
          mpd_send_list_playlists(connection_);
 
          mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
@@ -446,10 +446,10 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *))
    {
+      ClearCommand();
+
       if (Connected() == true)
       {
-			ClearCommand();
-
          mpd_send_outputs(connection_);
 
          mpd_output * next = mpd_recv_output(connection_);
