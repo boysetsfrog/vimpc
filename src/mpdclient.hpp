@@ -83,7 +83,7 @@ namespace Mpc
 
    public:
       // Mpd Connections
-      void Connect(std::string const & hostname = "", uint16_t port = 0);
+      void Connect(std::string const & hostname = "", uint16_t port = 0, uint32_t timeout_ms = 0);
       void Disconnect();
       void Reconnect();
       void Password(std::string const & password);

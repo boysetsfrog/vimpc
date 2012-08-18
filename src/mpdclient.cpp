@@ -87,7 +87,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    versionPatch_         (-1),
    timeSinceUpdate_      (0),
    timeSinceSong_        (0),
-   retried_              (false),
+   retried_              (true),
 
    volume_               (100),
    updating_             (false),
@@ -136,10 +136,11 @@ Client::~Client()
 }
 
 
-void Client::Connect(std::string const & hostname, uint16_t port)
+void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
 {
    std::string connect_hostname = hostname;
    uint16_t    connect_port     = port;
+   uint32_t    connect_timeout  = timeout_ms;
    std::string connect_password = "";
    size_t      pos;
 
@@ -180,6 +181,24 @@ void Client::Connect(std::string const & hostname, uint16_t port)
       }
    }
 
+   if (timeout_ms == 0)
+   {
+      char * const timeout_env = getenv("MPD_TIMEOUT");
+
+      if (settings_.Get(Setting::Timeout) != "0")
+      {
+         Debug("Connect timeout " + settings_.Get(Setting::Timeout));
+         connect_timeout = atoi(settings_.Get(Setting::Timeout).c_str());
+      }
+      else if (timeout_env != NULL)
+      {
+         connect_timeout = atoi(timeout_env);
+      }
+
+      connect_timeout *= 1000;
+
+   }
+
    // Connecting may take a long time as this is a single threaded application
    // and the mpd connect is a blocking call, so be sure to update the screen
    // first to let the user know that something is happening
@@ -190,7 +209,7 @@ void Client::Connect(std::string const & hostname, uint16_t port)
    port_     = connect_port;
 
    //! \TODO make the connection async
-   connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, 0);
+   connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, connect_timeout);
 
    CheckError();
 

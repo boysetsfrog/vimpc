@@ -58,6 +58,7 @@
    X(ArtistFormat,     "artistformat",   "%A")       /* Library format string */ \
    X(LibraryFormat,    "libraryformat",  "$H[$H%l$H]$H {%t}|{%f}$E$R ") /* Library format string */ \
    X(SongFormat,       "songformat",     "{%a - %t}|{%f}$E$R $H[$H%l$H]$H") /* Song format string */ \
+   X(Timeout,          "timeout",        "15")       /* Connection Timeout in seconds */ \
    X(Window,           "window",         "playlist") /* Startup window */ \
    X(AddPosition,      "add",            "end")      /* position to add songs */ \
    X(Sort,             "sort",           "format")   /* Sort based on song format */
