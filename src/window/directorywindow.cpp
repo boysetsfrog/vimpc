@@ -238,20 +238,23 @@ void DirectoryWindow::Click()
 
 void DirectoryWindow::Confirm()
 {
-   if (directory_.Get(CurrentLine())->type_ == Mpc::PathType)
+   if (CurrentLine() < directory_.Size())
    {
-      directory_.ChangeDirectory(*directory_.Get(CurrentLine()));
-      ScrollTo(0);
-      redraw_ = true;
-   }
-   else
-   {
-      client_.Clear();
-      Main::Playlist().Clear();
+      if (directory_.Get(CurrentLine())->type_ == Mpc::PathType)
+      {
+         directory_.ChangeDirectory(*directory_.Get(CurrentLine()));
+         ScrollTo(0);
+         redraw_ = true;
+      }
+      else
+      {
+         client_.Clear();
+         Main::Playlist().Clear();
 
-      AddLine(CurrentLine(), 1, false);
-      client_.Play(0);
-      SelectWindow::Confirm();
+         AddLine(CurrentLine(), 1, false);
+         client_.Play(0);
+         SelectWindow::Confirm();
+      }
    }
 
    SelectWindow::Confirm();
