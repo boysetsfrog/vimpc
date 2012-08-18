@@ -75,7 +75,8 @@ void LibraryWindow::SoftRedraw()
 {
    // The library needs to be completely collapsed before sorting as the sort cannot compare different types
    // so we mark everything as collapsed then remove anything that is not an artist from the buffer
-   library_.ForEachParent(new Main::CallbackFunction<Mpc::LibraryEntry *>(&Mpc::MarkUnexpanded));
+   Main::CallbackFunction<Mpc::LibraryEntry *> Callback(&Mpc::MarkUnexpanded);
+   library_.ForEachParent(&Callback);
 
    for (unsigned int i = 0; i < library_.Size(); )
    {
