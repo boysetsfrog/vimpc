@@ -313,15 +313,18 @@ void LibraryWindow::Right(Ui::Player & player, uint32_t count)
 
 void LibraryWindow::Click()
 {
-   if (library_.Get(CurrentLine())->type_ != Mpc::SongType)
+   if (CurrentLine() < library_.Size())
    {
-      if (library_.Get(CurrentLine())->expanded_ == false)
+      if (library_.Get(CurrentLine())->type_ != Mpc::SongType)
       {
-         library_.Expand(CurrentLine());
-      }
-      else
-      {
-         library_.Collapse(CurrentLine());
+         if (library_.Get(CurrentLine())->expanded_ == false)
+         {
+            library_.Expand(CurrentLine());
+         }
+         else
+         {
+            library_.Collapse(CurrentLine());
+         }
       }
    }
 }
