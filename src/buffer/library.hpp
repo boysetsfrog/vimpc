@@ -50,7 +50,7 @@ namespace Mpc
          song_    (NULL),
          expanded_(false),
          children_(),
-         parent_  (),
+         parent_  (NULL),
          childrenInPlaylist_(0),
          partial_(0)
       { }
@@ -93,16 +93,12 @@ namespace Mpc
    public:
       ~LibraryEntry()
       {
-         if (expanded_ == false)
+         for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
          {
-            for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
-            {
-               delete *it;
-            }
+            delete *it;
          }
 
          children_.clear();
-
          delete song_;
       }
 

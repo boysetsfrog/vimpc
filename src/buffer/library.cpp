@@ -47,10 +47,11 @@ void Library::Clear(bool Delete)
 
    while (Size() > 0)
    {
-      LibraryEntry * entry = Get(0);
-      Remove(0, 1);
+      int const Pos = Size() - 1;
+      LibraryEntry * entry = Get(Pos);
+      Remove(Pos, 1);
 
-      if (Delete == true)
+      if ((Delete == true) && (entry->parent_ == NULL))
       {
          delete entry;
       }
