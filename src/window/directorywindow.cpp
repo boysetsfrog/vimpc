@@ -61,11 +61,13 @@ void DirectoryWindow::Redraw()
    client_.ForEachDirectory(directory_, &Mpc::Directory::Add);
    client_.ForEachLibrarySong(directory_, &Mpc::Directory::Add);
 
+   directory_.ChangeDirectory("");
    SoftRedraw();
 }
 
 void DirectoryWindow::SoftRedraw()
 {
+
    ScrollTo(CurrentLine());
 }
 
