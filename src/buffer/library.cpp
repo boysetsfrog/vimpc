@@ -78,7 +78,9 @@ void Library::Add(Mpc::Song * song)
 
       uint32_t i = 0;
 
-      for (i = 0; ((i < Size()) && (Algorithm::iequals(Get(i)->artist_, artist) == false)); ++i);
+      for (i = 0; ((i < Size()) && 
+                   ((Algorithm::iequals(Get(i)->artist_, artist) == false) ||
+                   (Get(i)->type_ != Mpc::ArtistType))); ++i);
 
       if (i < Size())
       {
@@ -105,7 +107,8 @@ void Library::Add(Mpc::Song * song)
 
       for (Mpc::LibraryEntryVector::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
       {
-         if (Algorithm::iequals((*it)->album_, album) == true)
+         if ((Algorithm::iequals((*it)->album_, album) == true) &&
+             ((*it)->type_ == Mpc::AlbumType))
          {
             entry           = (*it);
             LastAlbumEntry  = entry;
