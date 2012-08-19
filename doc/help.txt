@@ -375,6 +375,9 @@
  
  All settings can be prefixed with no, which will disable the setting,
  or postfixed with !  which will toggle the setting.
+
+ To print a setting you can specify :set with no arguments to see all
+ current values or :set <setting>? to look at a specific setting.
  
    [no]autoscroll[!]       | automatically scroll when skipping songs
    [no]browsenumbers[!]    | display id numbers next to songs in the browse window

@@ -46,6 +46,7 @@
 #include "window/listwindow.hpp"
 #include "window/outputwindow.hpp"
 #include "window/playlistwindow.hpp"
+#include "window/result.hpp"
 #include "window/songwindow.hpp"
 
 #if (NCURSES_MOUSE_VERSION <= 1)
@@ -707,6 +708,7 @@ bool Screen::Resize(bool forceResize)
          }
 
          mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), lastRow, 0);
+         mvwin(Ui::ResultWindow::Instance().N_WINDOW(), lastRow, 0);
 
          for (int i = 0; (i < MainWindowCount); ++i)
          {
@@ -749,10 +751,15 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
    // \todo this doesn't seem to work if constructed
    // when the screen is constructed, find out why
    Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
+   Ui::ResultWindow & resultWindow(Ui::ResultWindow::Instance());
 
    if (errorWindow.HasError() == true)
    {
       errorWindow.Print(0);
+   }
+   else if (resultWindow.HasResult() == true)
+   {
+      resultWindow.Print(0);
    }
 
    // Mouse support was turned on, set it up
@@ -785,6 +792,7 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
    {
       // \todo make own function
       errorWindow.ClearError();
+      resultWindow.ClearResult();
    }
 
    return input;

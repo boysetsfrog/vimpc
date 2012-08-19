@@ -23,6 +23,7 @@
 #include "assert.hpp"
 #include "window/debug.hpp"
 #include "window/error.hpp"
+#include "window/result.hpp"
 
 #include <algorithm>
 #include <pcrecpp.h>
@@ -98,13 +99,36 @@ std::vector<std::string> Settings::AvailableSettings() const
 
 void Settings::Set(std::string const & input)
 {
+   pcrecpp::RE const printCheck ("^.*\\?$");
+
    std::string       setting, arguments;
    std::stringstream settingStream(input);
 
    std::getline(settingStream, setting,   ' ');
    std::getline(settingStream, arguments, '\n');
 
-   if (arguments == "")
+   bool const print (printCheck.FullMatch(setting.c_str()));
+
+   if (print == true)
+   {
+      setting = setting.substr(0, setting.length() - 1);
+
+      if (toggleTable_.find(setting) != toggleTable_.end())
+      {
+         SettingValue<bool> * const set = toggleTable_[setting];
+         Result(std::string("  ") + ((set->Get()) ? "" : "no") + setting);
+      }
+      else if (stringTable_.find(setting) != stringTable_.end())
+      {
+         SettingValue<std::string> * const set = stringTable_[setting];
+         Result(std::string("  ") + setting + std::string("=") + set->Get());
+      }
+      else
+      {
+         ErrorString(ErrorNumber::SettingNonexistant, setting);
+      }
+   }
+   else if (arguments == "")
    {
       SetSingleSetting(setting);
    }
