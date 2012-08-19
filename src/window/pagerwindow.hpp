@@ -31,10 +31,12 @@
 
 namespace Ui
 {
+   class Screen;
+
    class PagerWindow : public Ui::Window
    {
    public:
-      PagerWindow(int columns, int lines);
+      PagerWindow(Ui::Screen & screen, int columns, int lines);
       virtual ~PagerWindow();
 
    public:
@@ -43,10 +45,15 @@ namespace Ui
       void Print(uint32_t line) const;
       void Clear();
 
-      size_t BufferSize() const { return buffer_.Size() + 1; }
+      void Page();
+      bool IsAtEnd();
+
+      size_t BufferSize() const;
 
    private:
       Main::Buffer<std::string> buffer_;
+      int                       currentLine_;
+      Ui::Screen &              screen_;
    };
 }
 

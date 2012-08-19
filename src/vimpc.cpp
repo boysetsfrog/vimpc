@@ -127,7 +127,14 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 #endif
             )
          {
-            screen_.HidePagerWindow();
+            if (screen_.PagerIsFinished() == true)
+            {
+               screen_.HidePagerWindow();
+            }
+            else
+            {
+               screen_.PagerWindowNext();
+            }
          }
          else if (input != ERR)
          {

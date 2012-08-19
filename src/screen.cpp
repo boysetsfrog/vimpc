@@ -147,7 +147,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    visibleWindows_.push_back(static_cast<int32_t>(Outputs));
 
    // Create paging window to print maps, settings, etc
-   pagerWindow_ = new PagerWindow(maxColumns_, 0);
+   pagerWindow_ = new PagerWindow(*this, maxColumns_, 0);
 
    // Commands must be read through a window that is always visible
    commandWindow_         = statusWindow_;
@@ -320,8 +320,14 @@ void Screen::ShowPagerWindow()
    Resize(true);
 }
 
+void Screen::PagerWindowNext()
+{
+   pagerWindow_->Page();
+}
+
 void Screen::HidePagerWindow()
 {
+   pagerWindow_->Clear();
    pager_ = false;
    Resize(true);
 }
@@ -329,6 +335,11 @@ void Screen::HidePagerWindow()
 bool Screen::PagerIsVisible()
 {
    return pager_;
+}
+
+bool Screen::PagerIsFinished()
+{
+   return pagerWindow_->IsAtEnd();
 }
 
 void Screen::SetStatusLine(char const * const fmt, ...) const
@@ -669,10 +680,10 @@ bool Screen::Resize(bool forceResize)
          wresize(stdscr, maxRows_, maxColumns_);
 
          int lastRow = maxRows_ - 1;
+         int lines = pagerWindow_->BufferSize();
 
          if (pager_ == true)
          {
-            int lines = pagerWindow_->BufferSize();
             wresize(pagerWindow_->N_WINDOW(), lines, maxColumns_);
             mvwin(pagerWindow_->N_WINDOW(), maxRows_ - lines, 0);
             wclear(pagerWindow_->N_WINDOW());
@@ -710,6 +721,11 @@ bool Screen::Resize(bool forceResize)
          mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), lastRow, 0);
          mvwin(Ui::ResultWindow::Instance().N_WINDOW(), lastRow, 0);
 
+         if (pager_ == true)
+         {
+            maxRows_ += (lines - 1);
+         }
+
          for (int i = 0; (i < MainWindowCount); ++i)
          {
             if (mainWindows_[i] != NULL)
@@ -736,6 +752,16 @@ uint32_t Screen::MaxRows() const
    if (mainRows_ >= 0)
    {
       return static_cast<uint32_t>(mainRows_);
+   }
+
+   return 0;
+}
+
+uint32_t Screen::TotalRows() const
+{
+   if (maxRows_ >= 0)
+   {
+      return static_cast<uint32_t>(maxRows_);
    }
 
    return 0;

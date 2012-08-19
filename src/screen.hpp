@@ -138,7 +138,9 @@ namespace Ui
       PagerWindow * GetPagerWindow();
       void ShowPagerWindow();
       void HidePagerWindow();
+      void PagerWindowNext();
       bool PagerIsVisible();
+      bool PagerIsFinished();
 
       // Update the status line to indicate currently playing song, etc
       void SetStatusLine(char const * const fmt, ... ) const;
@@ -179,8 +181,10 @@ namespace Ui
       bool Resize(bool forceResize = false);
 
    public:
+      //! \TODO this functions need a refactor/rename
       uint32_t MaxRows()      const;
       uint32_t MaxColumns()   const;
+      uint32_t TotalRows()    const;
       uint32_t WaitForInput(bool HandleEscape = true) const;
 
       void HandleMouseEvent();

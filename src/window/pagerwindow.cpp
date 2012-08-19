@@ -22,15 +22,18 @@
 
 #include "colour.hpp"
 #include "debug.hpp"
+#include "screen.hpp"
 #include "settings.hpp"
 
 #include <iostream>
 
 using namespace Ui;
 
-PagerWindow::PagerWindow(int columns, int lines) :
+PagerWindow::PagerWindow(Ui::Screen & screen, int columns, int lines) :
    Window         (0, columns, 0, 0),
-   buffer_        ()
+   buffer_        (),
+   currentLine_   (0),
+   screen_        (screen)
 {
 }
 
@@ -75,15 +78,41 @@ void PagerWindow::Print(uint32_t line) const
          wattroff(N_WINDOW(), COLOR_PAIR(Colour::PagerStatus) | A_BOLD);
       }
    }
-   else
+   else if ((line + currentLine_) < buffer_.Size())
    {
-      mvwprintw(window, line, 0, "%s", buffer_.Get(line).c_str());
+      mvwprintw(window, line, 0, "%s", buffer_.Get((line + currentLine_)).c_str());
    }
 }
 
 void PagerWindow::Clear()
 {
    buffer_.Clear();
+   currentLine_ = 0;
 }
 
+void PagerWindow::Page()
+{
+   currentLine_ += (screen_.TotalRows() / 2);
+
+   if (currentLine_ > (buffer_.Size() - (screen_.TotalRows() /2)))
+   {
+      currentLine_ = buffer_.Size() - (screen_.TotalRows() /2);
+   }
+}
+
+bool PagerWindow::IsAtEnd()
+{
+   return ((buffer_.Size() - currentLine_) <= (screen_.TotalRows() / 2));
+}
+
+size_t PagerWindow::BufferSize() const
+{
+   if (buffer_.Size() > (screen_.TotalRows() / 2))
+   {
+      return (screen_.TotalRows() / 2) + 1; 
+   }
+
+   return buffer_.Size() + 1;
+}
 /* vim: set sw=3 ts=3: */
+
