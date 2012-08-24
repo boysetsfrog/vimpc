@@ -250,7 +250,7 @@ void Screen::Start()
 
       if (visibleWindows_.size() == 0)
       {
-         visibleWindows.push_back(Playlist);
+         SetActiveAndVisible(Playlist);
       }
 
       wrefresh(statusWindow_);
@@ -1055,7 +1055,7 @@ void Screen::SetVisible(int32_t window, bool visible)
 
 void Screen::SetActiveAndVisible(int32_t window)
 {
-   if (mainWindows_[window] != NULL)
+   if ((mainWindows_[window] != NULL) && (window != (int32_t) Unknown))
    {
       SetVisible(window, true);
 
