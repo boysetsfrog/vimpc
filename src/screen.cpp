@@ -132,19 +132,16 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    statusWindow_          = newwin(1, maxColumns_, mainRows_ + 1, 0);
    tabWindow_             = newwin(1, maxColumns_, 0, 0);
 
-   // Mark the default windows as visible
-   visibleWindows_.push_back(static_cast<int32_t>(Help));
-
-   if (mainWindows_[Lists] != NULL)
+   // Mark every tab as visible initially
+   // This means that commands such as tabhide in the config file
+   // can still be used in addition to :set windows and :set window
+   for (int i = 0; i < (int) Unknown; ++i)
    {
-      visibleWindows_.push_back(static_cast<int32_t>(Lists));
+      if (mainWindows_[i] != NULL)
+      {
+         visibleWindows_.push_back(i);
+      }
    }
-
-   visibleWindows_.push_back(static_cast<int32_t>(Directory));
-   visibleWindows_.push_back(static_cast<int32_t>(Library));
-   visibleWindows_.push_back(static_cast<int32_t>(Browse));
-   visibleWindows_.push_back(static_cast<int32_t>(Playlist));
-   visibleWindows_.push_back(static_cast<int32_t>(Outputs));
 
    // Create paging window to print maps, settings, etc
    pagerWindow_ = new PagerWindow(*this, maxColumns_, 0);
@@ -224,7 +221,38 @@ void Screen::Start()
    if (started_ == false)
    {
       started_ = true;
+
+      // Mark the default windows as visible
+      pcrecpp::StringPiece visible = settings_.Get(Setting::Windows);
+      pcrecpp::RE csv("([^,]+),?");
+      std::string window;
+
+      std::vector<int32_t>    visibleWindows;
+      std::map<int32_t, bool> addedWindows;
+
+      while (csv.Consume(&visible, &window))
+      {
+         int32_t id = GetWindowFromName(window);
+
+         if ((id != (int32_t) Unknown) && 
+             (mainWindows_[id] != NULL) &&
+             (IsVisible(id) == true) &&
+             (addedWindows.find(id) == addedWindows.end()))
+         {
+            visibleWindows.push_back(id);
+            addedWindows[id] = true;
+         }
+      }
+
+      visibleWindows_ = visibleWindows;
+
       SetActiveAndVisible(GetWindowFromName(settings_.Get(Setting::Window)));
+
+      if (visibleWindows_.size() == 0)
+      {
+         visibleWindows.push_back(Playlist);
+      }
+
       wrefresh(statusWindow_);
    }
 

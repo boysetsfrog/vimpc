@@ -70,7 +70,9 @@
    /* Connection Timeout in seconds */ \
    X(Timeout,          "timeout", "15", "\\d+") \
    /* Startup window */ \
-   X(Window,           "window",  "playlist", ".*")
+   X(Window,           "window",  "playlist", ".*") \
+   /* Startup windows */ \
+   X(Windows,          "windows", "help,lists,library,browse,playlist", ".*")
 
 //! \TODO convert parameter validation to using regular expression specified in the X macro
 

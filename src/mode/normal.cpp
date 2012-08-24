@@ -683,6 +683,11 @@ void Normal::Collapse(uint32_t count)
 void Normal::Close(uint32_t count)
 {
    screen_.SetVisible(screen_.GetActiveWindow(), false);
+
+   if (screen_.VisibleWindows() == 0)
+   {
+      Player::Quit();
+   }
 }
 
 void Normal::Edit(uint32_t count)

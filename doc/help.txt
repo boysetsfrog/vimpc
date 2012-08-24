@@ -144,6 +144,8 @@
 
    [count] a               | add songs to playlist
    [count] d, del          | delete songs
+           h, Left         | go up one directory
+           l, Right        | change into selected directory
            e               | information about selected song
            <Enter>         | append the song to the playlist and play it
  
@@ -368,8 +370,9 @@
 
  NOTE: The behaviour of the mouse cannot currently be mapped or 
  altered in anyway.
-    
 
+ 
+ 
  SETTINGS
  ==================================================
  
@@ -417,5 +420,14 @@
                            | to use the default MPD_TIMEOUT environment
                            | variable, set this to 0 (defaults to 15)
    window <window>         | sets the window that will start with focus
-                           | only useful if called from ~/.vimpcrc file
+   windows <windows>       | comma seperated list of windows to be shown at startup
+ 
+
+ CONFIGURATION FILE
+ ==================================================
+
+ The config file ~/.vimpcrc is a file containing vimpc commands 
+ (without the preceeding : ). These commands can change mpd settings 
+ such as "consume on" as well as vimpc specific settings 
+ like "set nocolour".
  
