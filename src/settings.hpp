@@ -53,15 +53,24 @@
    X(TimeRemaining,    "timeremaining",  false) /* Show time left rather than time elapsed */ \
    X(WindowNumbers,    "windownumbers",  false) /* Window numbers next to each window in the tab list */
 
+// X(enum-entry, setting-name, default-value, regex-filter)
 #define STRING_SETTINGS \
-   X(AddPosition,      "add",            "end")      /* position to add songs */ \
-   X(AlbumFormat,      "albumformat",    "%B")       /* Library format string */ \
-   X(ArtistFormat,     "artistformat",   "%A")       /* Library format string */ \
-   X(LibraryFormat,    "libraryformat",  "$H[$H%l$H]$H {%t}|{%f}$E$R ") /* Library format string */ \
-   X(SongFormat,       "songformat",     "{%a - %t}|{%f}$E$R $H[$H%l$H]$H") /* Song format string */ \
-   X(Sort,             "sort",           "format")   /* Sort based on song format */ \
-   X(Timeout,          "timeout",        "15")       /* Connection Timeout in seconds */ \
-   X(Window,           "window",         "playlist") /* Startup window */
+   /* position to add songs */ \
+   X(AddPosition,      "add", "end", "next|end") \
+   /* Library format string */ \
+   X(AlbumFormat,      "albumformat", "%B",  ".*") \
+   /* Library format string */ \
+   X(ArtistFormat,     "artistformat", "%A",  ".*") \
+   /* Library format string */ \
+   X(LibraryFormat,    "libraryformat", "$H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
+   /* Song format string */ \
+   X(SongFormat,       "songformat", "{%a - %t}|{%f}$E$R $H[$H%l$H]$H", ".*") \
+   /* Sort based on song format */ \
+   X(Sort,             "sort", "format", "format|library") \
+   /* Connection Timeout in seconds */ \
+   X(Timeout,          "timeout", "15", "\\d+") \
+   /* Startup window */ \
+   X(Window,           "window",  "playlist", ".*")
 
 //! \TODO convert parameter validation to using regular expression specified in the X macro
 
@@ -78,7 +87,9 @@ public:
       TOGGLE_SETTINGS
       ToggleCount
    } ToggleSettings;
+#undef X
 
+#define X(a, b, c, d) a,
    typedef enum
    {
       StartString = ToggleCount,
@@ -170,8 +181,7 @@ namespace Main
          SettingNameTable     settingName_;
 
          // Used to validate non boolean settings
-         typedef bool (Main::Settings::*SettingsFilterFunction)(std::string) const;
-         typedef std::map<std::string, SettingsFilterFunction> SettingsFilterTable;
+         typedef std::map<std::string, std::string> SettingsFilterTable;
          SettingsFilterTable  filterTable_;
 
          // Holds yes/no, on/off style settings

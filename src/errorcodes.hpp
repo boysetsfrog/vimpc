@@ -36,6 +36,7 @@
    X(HelpFileNonexistant,   "Unable to open help file") \
    X(NoParameter,           "Expected a parameter") \
    X(InvalidParameter,      "Invalid parameter") \
+   X(UnknownOption,         "Unkown Option") \
    X(NoOutput,              "No such output") \
    X(PlaylistEmpty,         "Playlist: empty") \
    X(SearchNoResults,       "Pattern not found") \

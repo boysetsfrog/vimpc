@@ -53,13 +53,12 @@ Settings::Settings() :
    TOGGLE_SETTINGS
 #undef X
 
-#define X(a, b, c) stringTable_[b] = new SettingValue<std::string>(c); \
-                   settingName_[Setting::a] = b;
+#define X(a, b, c,d) stringTable_[b] = new SettingValue<std::string>(c); \
+                     settingName_[Setting::a] = b; \
+                     filterTable_[b] = d;
    STRING_SETTINGS
 #undef X
 
-   filterTable_[settingName_[::Setting::AddPosition]] = &Settings::AddPositionFilter;
-   filterTable_[settingName_[::Setting::Sort]]        = &Settings::SortFilter;
 }
 
 Settings::~Settings()
@@ -173,10 +172,9 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
       // Validate the arguments
       if (filterTable_.find(setting) != filterTable_.end())
       {
+         pcrecpp::RE const filterCheck(filterTable_[setting]);
          Debug("Setting checked for setting for " + setting); 
-
-         SettingsFilterFunction const function = filterTable_[setting];
-         ValidSetting = (*this.*function)(arguments);
+         ValidSetting = (filterCheck.FullMatch(arguments));
       }
 
       if (ValidSetting == true)
@@ -187,7 +185,7 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
       }
       else
       {
-         ErrorString(ErrorNumber::InvalidParameter, arguments);
+         ErrorString(ErrorNumber::UnknownOption, arguments);
       }
    }
    else
