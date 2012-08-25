@@ -81,6 +81,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("findsong",   &Command::FindSong,     true);
    AddCommand("move",       &Command::Move,         true);
    AddCommand("nohlsearch", &Command::NoHighlightSearch, false);
+   AddCommand("normal",     &Command::Normal,       true);
    AddCommand("password",   &Command::Password,     true);
    AddCommand("pause",      &Command::Pause,        true);
    AddCommand("play",       &Command::Play,         true);
@@ -124,12 +125,12 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 #ifdef __DEBUG_PRINTS
    AddCommand("debug",      &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>, false);
 #endif
-   AddCommand("help",       &Command::SetActiveAndVisible<Ui::Screen::Help>,      false);
-   AddCommand("library",    &Command::SetActiveAndVisible<Ui::Screen::Library>,   false);
-   AddCommand("directory",  &Command::SetActiveAndVisible<Ui::Screen::Directory>, false);
-   AddCommand("playlist",   &Command::SetActiveAndVisible<Ui::Screen::Playlist>,  false);
-   AddCommand("outputs",    &Command::SetActiveAndVisible<Ui::Screen::Outputs>,   false);
-   AddCommand("lists",      &Command::SetActiveAndVisible<Ui::Screen::Lists>,     false);
+   AddCommand("help",       &Command::SetActiveAndVisible<Ui::Screen::Help>,      true);
+   AddCommand("library",    &Command::SetActiveAndVisible<Ui::Screen::Library>,   true);
+   AddCommand("directory",  &Command::SetActiveAndVisible<Ui::Screen::Directory>, true);
+   AddCommand("playlist",   &Command::SetActiveAndVisible<Ui::Screen::Playlist>,  true);
+   AddCommand("outputs",    &Command::SetActiveAndVisible<Ui::Screen::Outputs>,   true);
+   AddCommand("lists",      &Command::SetActiveAndVisible<Ui::Screen::Lists>,     true);
 
    AddCommand("load",       &Command::LoadPlaylist, true);
    AddCommand("save",       &Command::SavePlaylist, true);
@@ -801,6 +802,12 @@ void Command::NoHighlightSearch(std::string const & arguments)
    search_.SetHighlightSearch(false);
 }
 
+void Command::Normal(std::string const & arguments)
+{
+   vimpc_->ChangeMode('\n', "");
+   normalMode_.Execute(arguments);
+}
+
 void Command::Swap(std::string const & arguments)
 {
    screen_.Initialise(Ui::Screen::Playlist);
@@ -890,7 +897,7 @@ void Command::HideWindow(std::string const & arguments)
 
    if (screen_.VisibleWindows() == 0)
    {
-      Player::Quit();
+      QuitAll("");
    }
 }
 

@@ -273,10 +273,14 @@ void Vimpc::Handle(int input)
    else
    {
 #endif
+      // Only change modes explicitly when Handle didn't
+      ModeName const currentMode = currentMode_;
+
       // Input must be handled before mode is changed
       mode.Handle(input);
 
-      if (RequiresModeChange(currentMode_, input) == true)
+      if ((currentMode == currentMode_) &&
+          (RequiresModeChange(currentMode_, input) == true))
       {
          ChangeMode(input);
       }

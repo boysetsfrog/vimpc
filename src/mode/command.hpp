@@ -107,6 +107,9 @@ namespace Ui
 
       void NoHighlightSearch(std::string const & arguments);
 
+      //! Execute the input as a normal mode command
+      void Normal(std::string const & arguments);
+
       //! Specify a password to mpd
       void Password(std::string const & password);
 

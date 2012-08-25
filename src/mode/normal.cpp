@@ -293,12 +293,44 @@ bool Normal::CausesModeToEnd(int input) const
 }
 
 
+void Normal::Execute(std::string const & input)
+{
+   std::vector<KeyMapItem> KeyMap;
+
+   bool const valid = CreateKeyMap(input, KeyMap);
+
+   if (valid == true)
+   {
+      RunKeyMap(KeyMap, 1);
+   }
+   else
+   {
+      ErrorString(ErrorNumber::CouldNotParseKeys);
+   }
+}
+
+
 void Normal::Map(std::string key, std::string mapping)
 {
    std::vector<KeyMapItem> KeyMap;
 
-   bool  error = false;
-   int   count = 0;
+   bool const valid = CreateKeyMap(mapping, KeyMap);
+
+   if (valid == true)
+   {
+      mapTable_[key] = KeyMap;
+      mapNames_[key] = mapping;
+   }
+   else
+   {
+      ErrorString(ErrorNumber::CouldNotMapKeys);
+   }
+}
+
+bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap)
+{
+   bool error = false;
+   int  count = 0;
 
    for (uint32_t i = 0; i < mapping.length(); )
    {
@@ -352,7 +384,6 @@ void Normal::Map(std::string key, std::string mapping)
 
          if (error == true)
          {
-            ErrorString(ErrorNumber::CouldNotMapKeys);
             break;
          }
 
@@ -361,11 +392,7 @@ void Normal::Map(std::string key, std::string mapping)
       }
    }
 
-   if (error == false)
-   {
-      mapTable_[key] = KeyMap;
-      mapNames_[key] = mapping;
-   }
+   return !error;
 }
 
 void Normal::Unmap(std::string key)
@@ -441,49 +468,57 @@ bool Normal::Handle(std::string input, int count)
 
 void Normal::HandleMap(std::string input, int count)
 {
-   bool specificCount = wasSpecificCount_;
+   bool complete = false;
 
-   for (int i = 0; i < count; ++i)
+   for (int i = 0; ((i < count) && (complete == false)); ++i)
    {
       std::vector<KeyMapItem> KeyMap = mapTable_[input];
+      complete = RunKeyMap(KeyMap, count);
+   }
+}
 
-      for (std::vector<KeyMapItem>::iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
+bool Normal::RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count)
+{
+   bool complete      = false;
+   bool specificCount = wasSpecificCount_;
+
+   for (std::vector<KeyMapItem>::const_iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
+   {
+      KeyMapItem item = (*it);
+
+      uint32_t param = (item.count_ > 0) ? item.count_ : 1;
+
+      if (wasSpecificCount_ == false)
       {
-         KeyMapItem item = (*it);
-
-         uint32_t param = (item.count_ > 0) ? item.count_ : 1;
-
-         if (wasSpecificCount_ == false)
-         {
-            wasSpecificCount_ = (item.count_ > 0);
-         }
-
-         // If we are mapping to a single key
-         if (KeyMap.size() == 1)
-         {
-            // Pass in the specified count, rather than looping count times
-            // if there is only one key mapped and no count mapped
-            if (item.count_ == 0)
-            {
-               param = count;
-               i = count;
-            }
-         }
-
-         if ((item.mode_ == Main::Vimpc::Normal) && (item.action_ != NULL))
-         {
-            (*this.*(item.action_))(param);
-         }
-         else
-         {
-            vimpc_->ChangeMode(item.input_.at(0), item.input_.substr(1));
-         }
-
-         wasSpecificCount_ = false;
+         wasSpecificCount_ = (item.count_ > 0);
       }
+
+      // If we are mapping to a single key
+      if (KeyMap.size() == 1)
+      {
+         // Pass in the specified count, rather than looping count times
+         // if there is only one key mapped and no count mapped
+         if (item.count_ == 0)
+         {
+            param = count;
+            complete = true;
+         }
+      }
+
+      if ((item.mode_ == Main::Vimpc::Normal) && (item.action_ != NULL))
+      {
+         (*this.*(item.action_))(param);
+      }
+      else
+      {
+         vimpc_->ChangeMode(item.input_.at(0), item.input_.substr(1));
+      }
+
+      wasSpecificCount_ = false;
    }
 
    wasSpecificCount_ = specificCount;
+   return complete;
 }
 
 std::string Normal::InputCharToString(int input) const
@@ -686,7 +721,7 @@ void Normal::Close(uint32_t count)
 
    if (screen_.VisibleWindows() == 0)
    {
-      Player::Quit();
+      QuitAll(0);
    }
 }
 

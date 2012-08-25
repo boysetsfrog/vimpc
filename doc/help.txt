@@ -182,14 +182,16 @@
  CONNECTIONS:
    connect [host] [port]   | connects to [host] [port] or to the default
    disconnect              | disconnect from host
-   reconnect               | reconnect to host last connected to
    password <password>     | authenticate to mpd using <password>
+   reconnect               | reconnect to host last connected to
  
  PLAYBACK:
-   next [count]            | skip forward [count] songs
-   previous [count]        | skip backward [count] songs
+   pause                   | toggle between pause/play
    play <position>         | play the song at <position> in playlist
    stop                    | stop playback
+
+   next [count]            | skip forward [count] songs
+   previous [count]        | skip backward [count] songs
  
    volume [0-100]          | set the volume
  
@@ -197,11 +199,11 @@
    seek+ <time>            | seek forward <time>
    seek- <time>            | seek backward <time>
  
+   consume [on/off]        | toggles consume, or sets on/off
+   crossfade [0-10]        | toggles crossfade, or sets crossfade time
    random [on/off]         | toggles random, or sets on/off
    repeat [on/off]         | toggles repeat, or sets on/off
    single [on/off]         | toggles single, or sets on/off
-   consume [on/off]        | toggles consume, or sets on/off
-   crossfade [0-10]        | toggles crossfade, or sets crossfade time
  
  QUEUE:
    add <uri>               | add a song/strem using the given <uri>
@@ -209,15 +211,15 @@
    delete <pos1> [pos2]    | delete the song at <pos1>, or from <pos1> to [pos2]
    deleteall               | delete all songs in the playlist
    move <pos1> <pos2>      | move song from <pos1> to <pos2>
-   swap <pos1> <pos2>      | swap songs in <pos1> and <pos2>
    shuffle                 | shuffle the playlist
+   swap <pos1> <pos2>      | swap songs in <pos1> and <pos2>
  
  PLAYLISTS:
-   toplaylist <name>       | save contents of window/tab to playlist <name>
+   edit <name>             | load the playlist <name>
    load <name>             | load the playlist <name>
-   edit <name>             | same as load
    save <name>             | save the current playlist <name>
-   write <name>            | same as save
+   toplaylist <name>       | save contents of window/tab to playlist <name>
+   write <name>            | save the current playlist <name>
  
  SEARCHING:
    nohlsearch              | temporarily turn off search highlights
@@ -266,18 +268,19 @@
    echo <string>           | echos the given string to the console window
  
  CONFIGURATION:
-   set                     | show the currently enabled settings and their values
-   set <setting>           | sets a configurable setting, see SETTINGS section
-   map                     | show the current mappings
-   map <keys> <otherkeys>  | create a mapping from <keys> to <otherkeys>
-                           | see later section "MAPPING KEYS"
-   unmap <keys>            | remove the mapping of <keys>
    alias <name> <commands> | create an alias <name> which executes the commands
                            | each command may be seperated by ;
                            | i.e alias hello echo "hello"; echo "world";
+   map                     | show the current mappings
+   map <keys> <otherkeys>  | create a mapping from <keys> to <otherkeys>
+                           | see later section "MAPPING KEYS"
+   set                     | show the currently enabled settings and their values
+   set <setting>           | sets a configurable setting, see SETTINGS section
+   unmap <keys>            | remove the mapping of <keys>
 
  MISC:
-    sleep <seconds>        | do nothing for <seconds> seconds
+   normal <input>          | execute <input> as if it were entered in normal mode
+   sleep <seconds>         | do nothing for <seconds> seconds
  
  
  MAPPING KEYS

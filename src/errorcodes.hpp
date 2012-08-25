@@ -30,6 +30,7 @@
    X(ClientNoConnection,    "Not Connected") \
    X(CommandNonexistant,    "Command not found") \
    X(CouldNotMapKeys,       "Failed to map the specified keys") \
+   X(CouldNotParseKeys,     "Failed to parse the specified keys") \
    X(TabDoesNotExist,       "No such tab/window") \
    X(ExternalProgramError,  "Executing external program failed") \
    X(FindNoResults,         "Find: no results matching this pattern found") \

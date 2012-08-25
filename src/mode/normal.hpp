@@ -60,6 +60,9 @@ namespace Ui
       bool CausesModeToEnd(int input) const;
       bool WaitingForMoreInput() const { return (input_.size() > 0); }
 
+      // Execute a string input as a number of normal mode commands
+      void Execute(std::string const & input);
+
    public:
       // Map a key combination to any other key combination
       void Map(std::string key, std::string mapping);
@@ -72,12 +75,12 @@ namespace Ui
       MapNameTable Mappings();
 
    private:
+      // Handle the execution of a complete input command
+      bool Handle(std::string input, int count);
+
       // Check the action or map table for a particular a key combination
       template<typename T>
       bool CheckTableForInput(T table, std::string const & toMap, std::string & result);
-
-      // Handle the execution of a complete input command
-      bool Handle(std::string input, int count);
 
       // Handle the execution of a key combination that corresponds to an
       // entry in the key map
@@ -227,6 +230,10 @@ namespace Ui
 
       typedef std::map<std::string, std::vector<KeyMapItem> > MapTable;
       typedef std::map<std::string, std::pair<uint32_t, uint32_t> > MarkTable;
+
+   private:
+      bool CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap);
+      bool RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count);
 
    private:
       ModeWindow *     window_;
