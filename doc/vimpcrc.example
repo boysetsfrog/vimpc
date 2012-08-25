@@ -1,25 +1,46 @@
+" Configuration of vimpc is done using vimpc commands
+" these can include commands which require an mpd connection
+"
 " Copy this file to ~/.vimpcrc to use it
 "
-" Note: Comments are very basic and must be on their own line
+" NB: Comments are very basic and must be on their own line
 echo Parsing config file
 
-" Hide the help tab
-tabhide help
-
 " Set the default tab
-set window browse
+set window playlist
 
-" Don't stop playing music when we quit
-set nostoponquit
+" Set the windows to show at startup
+set windows help,library,browse,playlist
+
+" Stop playing music when we quit
+"set stoponquit
 
 " A silly example of an alias
-" alias smiths deleteall; findartist! The Smiths; play 1
+"alias smiths deleteall; findartist! The Smiths; play 1
 
-" An example map
+" Example maps
 " map the F key to change to the browse window, go to the first line and enter search mode
-" map F :browse<C-M>gg/
+"map F :browse<C-M>gg/
+" map @ to switch to add next, add a song, then change back
+"map @ :set add next<C-M>a:set add end<C-M>
 
 " Connect to a specific host using the config file
-" connect somehost someport
+"connect somehost someport
+
+" Turn consume on when we connect
+"consume on
+
+" Ensure that the database is up to date each connect
+"update
+
+" A more complex example, When we start vimpc
+"  - clear the playlist
+"  - add all songs
+"  - shuffle
+"  - start playling
+"deleteall
+"addall
+"shuffle
+"play 1
 
 echo Config File Complete

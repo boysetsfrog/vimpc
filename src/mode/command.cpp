@@ -61,6 +61,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    // \todo find a away to add aliases to tab completion
    AddCommand("!mpc",       &Command::Mpc,          true);
    AddCommand("add",        &Command::Add,          true);
+   AddCommand("addall",     &Command::AddAll,       true);
    AddCommand("alias",      &Command::Alias,        false);
    AddCommand("clear",      &Command::ClearScreen,  false);
    AddCommand("connect",    &Command::Connect,      false);
@@ -319,6 +320,19 @@ void Command::Add(std::string const & arguments)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.Add(arguments);
+   }
+   else
+   {
+      ErrorString(ErrorNumber::ClientNoConnection);
+   }
+}
+
+void Command::AddAll(std::string const & arguments)
+{
+   if (client_.Connected() == true)
+   {
+      screen_.Initialise(Ui::Screen::Playlist);
+      client_.AddAllSongs();
    }
    else
    {

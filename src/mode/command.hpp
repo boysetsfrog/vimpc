@@ -122,6 +122,7 @@ namespace Ui
 
    private:
       void Add(std::string const & arguments);
+      void AddAll(std::string const & arguments);
       void Delete(std::string const & arguments);
       void DeleteAll(std::string const & arguments);
 
