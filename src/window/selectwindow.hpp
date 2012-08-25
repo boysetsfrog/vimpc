@@ -33,8 +33,6 @@ namespace Ui
    class SelectWindow : public Ui::ScrollWindow
    {
    public:
-
-   public:
       SelectWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name = "Unknown");
       ~SelectWindow();
 
@@ -58,16 +56,18 @@ namespace Ui
       void ResetSelection();
 
    protected:
-      void LimitCurrentSelection() const;
+      virtual void LimitCurrentSelection() const;
       void PrintSong(int32_t line, int32_t Id, int32_t colour, std::string fmt, Mpc::Song * Song) const;
 
    private:
       void UpdateLastSelection();
 
+   protected:
+      mutable int64_t   currentLine_;
+
    private:
       Main::Settings const & settings_;
       bool              visualMode_;
-      mutable int64_t   currentLine_;
       mutable Selection currentSelection_;
       Selection         lastSelection_;
       bool              hadSelection_;

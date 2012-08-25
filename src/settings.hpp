@@ -45,6 +45,7 @@
    X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
    X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
    X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \
+   X(ShowPath,         "showpath",       true)  /* Show current path in directory window */ \
    X(SingleQuit,       "singlequit",     false) /* Quit the entire application not just close a tab */ \
    X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \
    X(SmartCase,        "smartcase",      false) /* Case sensitivy enabled when upper case char is used */  \

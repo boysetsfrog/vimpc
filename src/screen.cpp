@@ -910,8 +910,17 @@ void Screen::HandleMouseEvent()
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
-               int const tabSize = ((settings_.Get(Setting::TabBar) == true) ? 1 : 0);
-               ActiveWindow().ScrollTo(ActiveWindow().FirstLine() + event.y - tabSize);
+               int const tabSize   = ((settings_.Get(Setting::TabBar) == true) ? 1 : 0);
+               int const titleSize = ((settings_.Get(Setting::ShowPath) == true) && (GetActiveWindow() == Directory)) ? 1 : 0;
+
+               int scroll = ActiveWindow().FirstLine() + event.y - tabSize - titleSize;
+
+               if (scroll < 0)
+               {
+                  scroll = 0;
+               }
+
+               ActiveWindow().ScrollTo(scroll);
                ActiveWindow().Click();
             }
 

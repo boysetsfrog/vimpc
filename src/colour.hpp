@@ -48,6 +48,7 @@ namespace Ui
    {
       static int Song         = DEFAULT;
       static int SongId       = REDONDEFAULT;
+      static int Directory    = REDONDEFAULT;
       static int CurrentSong  = BLUEONDEFAULT;
       static int SongMatch    = YELLOWONDEFAULT;
       static int PartialAdd   = CYANONDEFAULT;

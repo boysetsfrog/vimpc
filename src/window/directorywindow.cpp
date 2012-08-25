@@ -67,7 +67,6 @@ void DirectoryWindow::Redraw()
 
 void DirectoryWindow::SoftRedraw()
 {
-
    ScrollTo(CurrentLine());
 }
 
@@ -131,6 +130,34 @@ void DirectoryWindow::ScrollToCurrent()
    }
 }
 
+
+void DirectoryWindow::Scroll(int32_t scrollCount)
+{
+   SelectWindow::Scroll(scrollCount);
+
+   if (settings_.Get(Setting::ShowPath) == true)
+   {
+      if (currentLine_ >= scrollLine_ - 1)
+      {
+         ScrollWindow::Scroll(1);
+      }
+   }
+}
+
+void DirectoryWindow::LimitCurrentSelection() const
+{
+   if (settings_.Get(Setting::ShowPath) == true)
+   {
+      if ((currentLine_ >= static_cast<int32_t>(BufferSize() - 1)) && (BufferSize() > 0))
+      {
+         currentLine_ = BufferSize() - 2;
+      }
+   }
+
+   SelectWindow::LimitCurrentSelection();
+}
+
+
 std::string DirectoryWindow::SearchPattern(int32_t id) const
 {
    //! \todo add a search that searches in collapsed songs and
@@ -170,43 +197,71 @@ void DirectoryWindow::Print(uint32_t line) const
    uint32_t printLine = (line + FirstLine());
    WINDOW * window    = N_WINDOW();
 
-   if ((line + FirstLine()) < BufferSize())
+   if ((line == 0) && (settings_.Get(Setting::ShowPath) == true))
    {
-      int32_t colour = DetermineSongColour(directory_.Get(printLine));
-
-      if (IsSelected(printLine) == true)
-      {
-         if (settings_.Get(Setting::ColourEnabled) == true)
-         {
-            wattron(window, COLOR_PAIR(colour));
-         }
-
-         wattron(window, A_REVERSE);
-      }
-
-      mvwprintw(window, line, 0, BlankLine.c_str());
-
-      uint8_t expandCol = 1;
+      int32_t colour = Colour::Directory;
 
       if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattron(window, COLOR_PAIR(colour));
       }
 
-      wmove(window, line, expandCol);
-      waddstr(window, directory_.Get(printLine)->name_.c_str());
-      Debug(directory_.Get(printLine)->name_.c_str());
-
+      wattron(window, A_BOLD);
+      std::string const Directory = "/" + directory_.CurrentDirectory();
+      mvwprintw(window, line, 0, BlankLine.c_str());
+      mvwprintw(window, line, 1, Directory.c_str());
+      wattroff(window, A_BOLD);
+      
       if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattroff(window, COLOR_PAIR(colour));
       }
-
-      wattroff(window, A_REVERSE);
-
-      if (settings_.Get(Setting::ColourEnabled) == true)
+   }
+   else
+   {
+      if (settings_.Get(Setting::ShowPath) == true)
       {
-         wattroff(window, COLOR_PAIR(colour));
+         printLine--;
+      }
+
+      if (printLine < directory_.Size())
+      {
+         int32_t colour = DetermineSongColour(directory_.Get(printLine));
+
+         if (IsSelected(printLine) == true)
+         {
+            if (settings_.Get(Setting::ColourEnabled) == true)
+            {
+               wattron(window, COLOR_PAIR(colour));
+            }
+
+            wattron(window, A_REVERSE);
+         }
+
+         mvwprintw(window, line, 0, BlankLine.c_str());
+
+         uint8_t expandCol = 1;
+
+         if (settings_.Get(Setting::ColourEnabled) == true)
+         {
+            wattron(window, COLOR_PAIR(colour));
+         }
+
+         wmove(window, line, expandCol);
+         waddstr(window, directory_.Get(printLine)->name_.c_str());
+         Debug(directory_.Get(printLine)->name_.c_str());
+
+         if (settings_.Get(Setting::ColourEnabled) == true)
+         {
+            wattroff(window, COLOR_PAIR(colour));
+         }
+
+         wattroff(window, A_REVERSE);
+
+         if (settings_.Get(Setting::ColourEnabled) == true)
+         {
+            wattroff(window, COLOR_PAIR(colour));
+         }
       }
    }
 }
@@ -303,7 +358,7 @@ void DirectoryWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
 
 void DirectoryWindow::CropAllLines()
 {
-   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+   DeleteLine(CurrentLine(), directory_.Size() - CurrentLine(), false);
 }
 
 void DirectoryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
@@ -348,7 +403,7 @@ void DirectoryWindow::Edit()
 
 void DirectoryWindow::ScrollToFirstMatch(std::string const & input)
 {
-   for (uint32_t i = 0; i < BufferSize(); ++i)
+   for (uint32_t i = 0; i < directory_.Size(); ++i)
    {
       Mpc::DirectoryEntry * entry = directory_.Get(i);
 
@@ -374,7 +429,7 @@ void DirectoryWindow::DoForLine(DirectoryFunction function, uint32_t line, uint3
       {
          Mpc::CommandList list(client_, (count > 1));
 
-         for (i = line; ((total <= count) && (i < BufferSize())); ++i)
+         for (i = line; ((total <= count) && (i < directory_.Size())); ++i)
          {
             Mpc::DirectoryEntry * current = directory_.Get(i);
 
@@ -393,6 +448,19 @@ void DirectoryWindow::DoForLine(DirectoryFunction function, uint32_t line, uint3
          Scroll(i - line - 1);
       }
    }
+}
+
+
+size_t DirectoryWindow::BufferSize() const
+{ 
+   size_t size = directory_.Size();
+
+   if (settings_.Get(Setting::ShowPath) == true)
+   {
+      ++size;
+   }
+
+   return size;
 }
 
 

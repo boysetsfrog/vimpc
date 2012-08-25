@@ -72,13 +72,17 @@ namespace Ui
       void Edit();
       void ScrollToFirstMatch(std::string const & input);
       void ScrollToCurrent();
+      void Scroll(int32_t scrollCount);
+
+   protected:
+      void LimitCurrentSelection() const;
 
    private:
       void DoForLine(DirectoryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true, bool countskips = false);
 
    private:
       void    Clear();
-      size_t  BufferSize() const { return directory_.Size(); }
+      size_t  BufferSize() const;
       int32_t DetermineSongColour(Mpc::DirectoryEntry const * const entry) const;
 
    private:
@@ -86,7 +90,6 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Directory &       directory_;
-      std::string            path_;
       bool                   redraw_;
    };
 }
