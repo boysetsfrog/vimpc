@@ -40,12 +40,17 @@ namespace Ui
    // Handles all input received whilst in command mode
    class Command : public InputMode, public Player
    {
+   private:
+      typedef void (Ui::Command::*CommandFunction)(std::string const &);
 
    public:
       Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
       ~Command();
 
    public:
+      // Add a new command to the table
+      void AddCommand(std::string const & name, CommandFunction command, bool requiresConnection);
+
       // Checks if there is any aliases defined for a command, recursively calling
       // until a proper command is found then executes that command
       //
@@ -194,12 +199,13 @@ namespace Ui
       std::string TabComplete(std::string const & command);
 
    private:
-      typedef void (Ui::Command::*CommandFunction)(std::string const &);
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
 
       typedef std::pair<std::string, std::string>    CommandArgPair;
       typedef std::vector<CommandArgPair>            CommandQueue;
+
+      typedef std::map<std::string, bool>            ConnectionMap;
 
    private:
       bool                 initTabCompletion_;
@@ -208,6 +214,7 @@ namespace Ui
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       CommandQueue         commandQueue_;
+      ConnectionMap        requiresConnection_;
       Main::Vimpc *        vimpc_;
       Ui::Search         & search_;
       Ui::Screen         & screen_;

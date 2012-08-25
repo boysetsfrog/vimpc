@@ -59,89 +59,89 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    normalMode_         (normalMode)
 {
    // \todo find a away to add aliases to tab completion
-   commandTable_["!mpc"]      = &Command::Mpc;
-   commandTable_["add"]       = &Command::Add;
-   commandTable_["alias"]     = &Command::Alias;
-   commandTable_["clear"]     = &Command::ClearScreen;
-   commandTable_["connect"]   = &Command::Connect;
-   commandTable_["consume"]   = &Command::Consume;
-   commandTable_["crossfade"] = &Command::Crossfade;
-   commandTable_["delete"]    = &Command::Delete;
-   commandTable_["deleteall"] = &Command::DeleteAll;
-   commandTable_["disable"]   = &Command::Output<false>;
-   commandTable_["disconnect"] = &Command::Disconnect;
-   commandTable_["echo"]      = &Command::Echo;
-   commandTable_["enable"]    = &Command::Output<true>;
-   commandTable_["error"]     = &Command::EchoError;
-   commandTable_["find"]      = &Command::FindAny;
-   commandTable_["findalbum"] = &Command::FindAlbum;
-   commandTable_["findartist"]= &Command::FindArtist;
-   commandTable_["findgenre"] = &Command::FindGenre;
-   commandTable_["findsong"]  = &Command::FindSong;
-   commandTable_["move"]      = &Command::Move;
-   commandTable_["nohlsearch"] = &Command::NoHighlightSearch;
-   commandTable_["password"]  = &Command::Password;
-   commandTable_["pause"]     = &Command::Pause;
-   commandTable_["play"]      = &Command::Play;
-   commandTable_["q"]         = &Command::Quit;
-   commandTable_["qall"]      = &Command::QuitAll;
-   commandTable_["quit"]      = &Command::Quit;
-   commandTable_["quitall"]   = &Command::QuitAll;
-   commandTable_["random"]    = &Command::Random;
-   commandTable_["reconnect"] = &Command::Reconnect;
-   commandTable_["redraw"]    = &Command::Redraw;
-   commandTable_["repeat"]    = &Command::Repeat;
-   commandTable_["set"]       = &Command::Set;
-   commandTable_["seek"]      = &Command::SeekTo;
-   commandTable_["seek+"]     = &Command::Seek<1>;
-   commandTable_["seek-"]     = &Command::Seek<-1>;
-   commandTable_["single"]    = &Command::Single;
-   commandTable_["shuffle"]   = &Command::Shuffle;
-   commandTable_["sleep"]     = &Command::Sleep;
-   commandTable_["swap"]      = &Command::Swap;
-   commandTable_["stop"]      = &Command::Stop;
-   commandTable_["volume"]    = &Command::Volume;
+   AddCommand("!mpc",       &Command::Mpc,          true);
+   AddCommand("add",        &Command::Add,          true);
+   AddCommand("alias",      &Command::Alias,        false);
+   AddCommand("clear",      &Command::ClearScreen,  false);
+   AddCommand("connect",    &Command::Connect,      false);
+   AddCommand("consume",    &Command::Consume,      true);
+   AddCommand("crossfade",  &Command::Crossfade,    true);
+   AddCommand("delete",     &Command::Delete,       true);
+   AddCommand("deleteall",  &Command::DeleteAll,    true);
+   AddCommand("disable",    &Command::Output<true>, true);
+   AddCommand("disconnect", &Command::Disconnect,   true);
+   AddCommand("echo",       &Command::Echo,         false);
+   AddCommand("enable",     &Command::Output<true>, true);
+   AddCommand("error",      &Command::EchoError,    false);
+   AddCommand("find",       &Command::FindAny,      true);
+   AddCommand("findalbum",  &Command::FindAlbum,    true);
+   AddCommand("findartist", &Command::FindArtist,   true);
+   AddCommand("findgenre",  &Command::FindGenre,    true);
+   AddCommand("findsong",   &Command::FindSong,     true);
+   AddCommand("move",       &Command::Move,         true);
+   AddCommand("nohlsearch", &Command::NoHighlightSearch, false);
+   AddCommand("password",   &Command::Password,     true);
+   AddCommand("pause",      &Command::Pause,        true);
+   AddCommand("play",       &Command::Play,         true);
+   AddCommand("q",          &Command::Quit,         false);
+   AddCommand("qall",       &Command::QuitAll,      false);
+   AddCommand("quit",       &Command::Quit,         false);
+   AddCommand("quitall",    &Command::QuitAll,      false);
+   AddCommand("random",     &Command::Random,       true);
+   AddCommand("reconnect",  &Command::Reconnect,    true);
+   AddCommand("redraw",     &Command::Redraw,       false);
+   AddCommand("repeat",     &Command::Repeat,       true);
+   AddCommand("set",        &Command::Set,          false);
+   AddCommand("seek",       &Command::SeekTo,       true);
+   AddCommand("seek+",      &Command::Seek<1>,      true);
+   AddCommand("seek-",      &Command::Seek<-1>,     true);
+   AddCommand("single",     &Command::Single,       true);
+   AddCommand("shuffle",    &Command::Shuffle,      true);
+   AddCommand("sleep",      &Command::Sleep,        false);
+   AddCommand("swap",       &Command::Swap,         true);
+   AddCommand("stop",       &Command::Stop,         true);
+   AddCommand("volume",     &Command::Volume,       true);
 
-   commandTable_["map"]       = &Command::Map;
-   commandTable_["unmap"]     = &Command::Unmap;
+   AddCommand("map",        &Command::Map,   false);
+   AddCommand("unmap",      &Command::Unmap, false);
 
-   commandTable_["tabfirst"]  = &Command::ChangeToWindow<First>;
-   commandTable_["tablast"]   = &Command::ChangeToWindow<Last>;
-   commandTable_["tabclose"]  = &Command::HideWindow;
-   commandTable_["tabhide"]   = &Command::HideWindow;
-   commandTable_["tabmove"]   = &Command::MoveWindow;
-   commandTable_["tabrename"] = &Command::RenameWindow;
+   AddCommand("tabfirst",   &Command::ChangeToWindow<First>, false);
+   AddCommand("tablast",    &Command::ChangeToWindow<Last>,  false);
+   AddCommand("tabclose",   &Command::HideWindow,            false);
+   AddCommand("tabhide",    &Command::HideWindow,            false);
+   AddCommand("tabmove",    &Command::MoveWindow,            false);
+   AddCommand("tabrename",  &Command::RenameWindow,          false);
 
-   commandTable_["rescan"]    = &Command::Rescan;
-   commandTable_["update"]    = &Command::Update;
+   AddCommand("rescan",     &Command::Rescan, true);
+   AddCommand("update",     &Command::Update, true);
 
-   commandTable_["next"]      = &Command::SkipSong<Player::Next>;
-   commandTable_["previous"]  = &Command::SkipSong<Player::Previous>;
+   AddCommand("next",       &Command::SkipSong<Player::Next>,     true);
+   AddCommand("previous",   &Command::SkipSong<Player::Previous>, true);
 
-   commandTable_["browse"]    = &Command::SetActiveAndVisible<Ui::Screen::Browse>;
-   commandTable_["console"]   = &Command::SetActiveAndVisible<Ui::Screen::Console>;
+   AddCommand("browse",     &Command::SetActiveAndVisible<Ui::Screen::Browse>,  false);
+   AddCommand("console",    &Command::SetActiveAndVisible<Ui::Screen::Console>, false);
 #ifdef __DEBUG_PRINTS
-   commandTable_["debug"]     = &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>;
+   AddCommand("debug",      &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>, false);
 #endif
-   commandTable_["help"]      = &Command::SetActiveAndVisible<Ui::Screen::Help>;
-   commandTable_["library"]   = &Command::SetActiveAndVisible<Ui::Screen::Library>;
-   commandTable_["directory"] = &Command::SetActiveAndVisible<Ui::Screen::Directory>;
-   commandTable_["playlist"]  = &Command::SetActiveAndVisible<Ui::Screen::Playlist>;
-   commandTable_["outputs"]   = &Command::SetActiveAndVisible<Ui::Screen::Outputs>;
-   commandTable_["lists"]     = &Command::SetActiveAndVisible<Ui::Screen::Lists>;
+   AddCommand("help",       &Command::SetActiveAndVisible<Ui::Screen::Help>,      false);
+   AddCommand("library",    &Command::SetActiveAndVisible<Ui::Screen::Library>,   false);
+   AddCommand("directory",  &Command::SetActiveAndVisible<Ui::Screen::Directory>, false);
+   AddCommand("playlist",   &Command::SetActiveAndVisible<Ui::Screen::Playlist>,  false);
+   AddCommand("outputs",    &Command::SetActiveAndVisible<Ui::Screen::Outputs>,   false);
+   AddCommand("lists",      &Command::SetActiveAndVisible<Ui::Screen::Lists>,     false);
 
-   commandTable_["load"]       = &Command::LoadPlaylist;
-   commandTable_["save"]       = &Command::SavePlaylist;
-   commandTable_["edit"]       = &Command::LoadPlaylist;
-   commandTable_["write"]      = &Command::SavePlaylist;
-   commandTable_["toplaylist"] = &Command::ToPlaylist;
+   AddCommand("load",       &Command::LoadPlaylist, true);
+   AddCommand("save",       &Command::SavePlaylist, true);
+   AddCommand("edit",       &Command::LoadPlaylist, true);
+   AddCommand("write",      &Command::SavePlaylist, true);
+   AddCommand("toplaylist", &Command::ToPlaylist,   true);
 
    // Add all settings to command table to provide tab completion
    std::vector<std::string> const AllSettings = settings_.AvailableSettings();
 
    for (uint32_t i = 0; i < AllSettings.size(); ++i)
    {
-      commandTable_["set " + AllSettings.at(i)] = commandTable_["set"];
+      AddCommand("set " + AllSettings.at(i), commandTable_["set"], false);
    }
 }
 
@@ -176,6 +176,12 @@ void Command::GenerateInputString(int input)
    }
 }
 
+
+void Command::AddCommand(std::string const & name, CommandFunction command, bool requiresConnection)
+{
+   commandTable_[name]       = command;
+   requiresConnection_[name] = requiresConnection;
+}
 
 bool Command::ExecuteCommand(std::string const & input)
 {
@@ -266,41 +272,8 @@ void Command::ExecuteQueuedCommands()
 
 bool Command::RequiresConnection(std::string const & command)
 {
-   return ((command == "!mpc") ||
-           (command == "add") ||
-           (command == "consume") ||
-           (command == "delete") ||
-           (command == "deleteall") ||
-           (command == "disable") ||
-           (command == "enable") ||
-           (command == "find") ||
-           (command == "findalbum") ||
-           (command == "findartist") ||
-           (command == "findgenre") ||
-           (command == "findsong") ||
-           (command == "move") ||
-           (command == "password") ||
-           (command == "pause") ||
-           (command == "play") ||
-           (command == "random") ||
-           (command == "repeat") ||
-           (command == "seek") ||
-           (command == "seek+") ||
-           (command == "seek-") ||
-           (command == "single") ||
-           (command == "shuffle") ||
-           (command == "swap") ||
-           (command == "stop") ||
-           (command == "volume") ||
-           (command == "rescan") ||
-           (command == "update") ||
-           (command == "next") ||
-           (command == "previous") ||
-           (command == "load") ||
-           (command == "save") ||
-           (command == "edit") ||
-           (command == "write") ||
-           (command == "toplaylist"));
+   return requiresConnection_[command];
+
 }
 
 

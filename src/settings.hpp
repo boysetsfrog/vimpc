@@ -26,7 +26,7 @@
 #include <string>
 #include <map>
 
-// Create an enum entry, name and value for each settinf
+// Create an enum entry, name and value for each setting
 // X(enum-entry, setting-name, default-value)
 #define TOGGLE_SETTINGS \
    X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
@@ -74,7 +74,6 @@
    /* Startup windows */ \
    X(Windows,          "windows", "help,lists,library,browse,playlist", ".*")
 
-//! \TODO convert parameter validation to using regular expression specified in the X macro
 
 class Setting
 {

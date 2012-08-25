@@ -71,7 +71,6 @@ namespace Ui
       typedef std::map<std::string, std::string> MapNameTable;
       MapNameTable Mappings();
 
-
    private:
       // Check the action or map table for a particular a key combination
       template<typename T>
