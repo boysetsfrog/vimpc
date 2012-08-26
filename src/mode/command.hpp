@@ -211,12 +211,15 @@ namespace Ui
 
       typedef std::map<std::string, bool>            ConnectionMap;
 
+      typedef std::vector<std::string>               TabCompTable;
+
    private:
       bool                 initTabCompletion_;
       bool                 forceCommand_;
       bool                 queueCommands_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
+      TabCompTable         settingsTable_;
       CommandQueue         commandQueue_;
       ConnectionMap        requiresConnection_;
       Main::Vimpc *        vimpc_;
@@ -226,7 +229,9 @@ namespace Ui
       Main::Settings     & settings_;
       Ui::Normal         & normalMode_;
 
+private:
       // Tab completion searching class
+      template <typename T>
       class TabCompletionMatch
       {
       public:
@@ -235,15 +240,25 @@ namespace Ui
          {}
 
       public:
-         bool operator() (std::pair<std::string, Ui::Command::CommandFunction> element)
+         bool operator() (std::pair<std::string, T> element)
          {
             std::string input(element.first);
             return (key_.compare(input.substr(0, key_.length())) == 0);
          }
 
+         bool operator() (std::string element)
+         {
+            return (key_.compare(element.substr(0, key_.length())) == 0);
+         }
+
       private:
          std::string key_;
       };
+
+      template <typename T, typename U>
+      std::string TabComplete(std::string const & tabStart, T const & table, TabCompletionMatch<U> const & completor);
+      std::string TabGetCompletion(CommandTable::const_iterator it);
+      std::string TabGetCompletion(TabCompTable::const_iterator it);
    };
 
    }

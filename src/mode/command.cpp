@@ -143,7 +143,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 
    for (uint32_t i = 0; i < AllSettings.size(); ++i)
    {
-      AddCommand("set " + AllSettings.at(i), commandTable_["set"], false);
+      settingsTable_.push_back("set " + AllSettings.at(i));
    }
 }
 
@@ -1087,22 +1087,41 @@ void Command::ResetTabCompletion(int input)
 std::string Command::TabComplete(std::string const & command)
 {
    static std::string tabStart(command);
-   static CommandTable::iterator tabIterator(commandTable_.begin());
+
+   if (initTabCompletion_ == true)
+   {
+      tabStart = command;
+   }
+
+   if (tabStart.find("set ") == 0)
+   {
+      return TabComplete(tabStart, settingsTable_, TabCompletionMatch<std::string>(tabStart));
+   }
+   else
+   {
+      return TabComplete(tabStart, commandTable_, TabCompletionMatch<CommandFunction>(tabStart));
+   }
+}
+
+
+template <typename T, typename U>
+std::string Command::TabComplete(std::string const & tabStart, T const & table, TabCompletionMatch<U> const & completor)
+{
+   static typename T::const_iterator tabIterator(table.begin());
 
    std::string result;
 
    if (initTabCompletion_ == true)
    {
       initTabCompletion_ = false;
-      tabIterator        = commandTable_.begin();
-      tabStart           = command;
+      tabIterator        = table.begin();
    }
 
-   tabIterator = find_if(tabIterator, commandTable_.end(), TabCompletionMatch(tabStart));
+   tabIterator = find_if(tabIterator, table.end(), completor);
 
-   if (tabIterator != commandTable_.end())
+   if (tabIterator != table.end())
    {
-      result = tabIterator->first;
+      result = TabGetCompletion(tabIterator);
       ++tabIterator;
    }
    else
@@ -1112,6 +1131,16 @@ std::string Command::TabComplete(std::string const & command)
    }
 
    return result;
+}
+
+std::string Command::TabGetCompletion(CommandTable::const_iterator it)
+{
+   return it->first;
+}
+
+std::string Command::TabGetCompletion(TabCompTable::const_iterator it)
+{
+   return *it;
 }
 
 /* vim: set sw=3 ts=3: */
