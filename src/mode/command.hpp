@@ -220,6 +220,7 @@ namespace Ui
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       TabCompTable         settingsTable_;
+      TabCompTable         loadTable_;
       CommandQueue         commandQueue_;
       ConnectionMap        requiresConnection_;
       Main::Vimpc *        vimpc_;

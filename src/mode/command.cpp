@@ -1091,11 +1091,24 @@ std::string Command::TabComplete(std::string const & command)
    if (initTabCompletion_ == true)
    {
       tabStart = command;
+      loadTable_.clear();
+
+      screen_.Initialise(Ui::Screen::Lists);
+
+      for (int i = 0; i < Main::Lists().Size(); ++i)
+      {
+         loadTable_.push_back("load " + Main::Lists().Get(i));
+         loadTable_.push_back("edit " + Main::Lists().Get(i));
+      }
    }
 
    if (tabStart.find("set ") == 0)
    {
       return TabComplete(tabStart, settingsTable_, TabCompletionMatch<std::string>(tabStart));
+   }
+   else if ((tabStart.find("load ") == 0) || (tabStart.find("edit ") == 0))
+   {
+      return TabComplete(tabStart, loadTable_,  TabCompletionMatch<std::string>(tabStart));
    }
    else
    {
