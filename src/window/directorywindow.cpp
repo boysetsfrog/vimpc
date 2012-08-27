@@ -164,21 +164,24 @@ std::string DirectoryWindow::SearchPattern(int32_t id) const
    //! expands things as necessary
    std::string pattern("");
 
-   Mpc::DirectoryEntry const * const entry = directory_.Get(id);
-
-   switch (entry->type_)
+   if (id < directory_.Size())
    {
-      case Mpc::PathType:
-         pattern = entry->name_;
-         break;
+      Mpc::DirectoryEntry const * const entry = directory_.Get(id);
 
-      case Mpc::SongType:
-         pattern = entry->song_->URI();
-         break;
+      switch (entry->type_)
+      {
+         case Mpc::PathType:
+            pattern = entry->name_;
+            break;
 
-      default:
-         ASSERT(false);
-         break;
+         case Mpc::SongType:
+            pattern = entry->song_->URI();
+            break;
+
+         default:
+            ASSERT(false);
+            break;
+      }
    }
 
    return pattern;
@@ -211,7 +214,7 @@ void DirectoryWindow::Print(uint32_t line) const
       mvwprintw(window, line, 0, BlankLine.c_str());
       mvwprintw(window, line, 1, Directory.c_str());
       wattroff(window, A_BOLD);
-      
+
       if (settings_.Get(Setting::ColourEnabled) == true)
       {
          wattroff(window, COLOR_PAIR(colour));
@@ -452,7 +455,7 @@ void DirectoryWindow::DoForLine(DirectoryFunction function, uint32_t line, uint3
 
 
 size_t DirectoryWindow::BufferSize() const
-{ 
+{
    size_t size = directory_.Size();
 
    if (settings_.Get(Setting::ShowPath) == true)
