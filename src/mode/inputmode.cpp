@@ -153,8 +153,9 @@ bool InputMode::SetInputString(std::string input)
    }
    else
    {
-      window_->SetCursorPosition(inputString_.length() + PromptSize);
       window_->SetLine(std::string(Prompt()) + inputString_);
+      window_->SetCursorPosition(inputString_.length() + PromptSize);
+      cursor_.SetPosition(inputString_.length() + PromptSize);
    }
 
    return false;
@@ -353,6 +354,18 @@ uint16_t Cursor::UpdatePosition(int input)
    position_ = LimitCursorPosition(position_);
 
    return position_;
+}
+
+void Cursor::SetPosition(uint16_t position)
+{
+   if (position > inputString_.size() + PromptSize)
+   {
+      position = inputString_.size() + PromptSize;
+   }
+   else
+   {
+      position_ = position;
+   }
 }
 
 void Cursor::ResetCursorPosition()

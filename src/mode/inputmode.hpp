@@ -44,6 +44,7 @@ namespace Ui
    public:
       uint16_t Position() const;
       uint16_t UpdatePosition(int input);
+      void     SetPosition(uint16_t position);
       void     ResetCursorPosition();
 
    private:
