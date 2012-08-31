@@ -173,6 +173,7 @@ std::string LibraryWindow::SearchPattern(int32_t id) const
          pattern = entry->song_->FormatString(settings_.Get(Setting::LibraryFormat));
          break;
 
+      case Mpc::PathType:
       default:
          ASSERT(false);
          break;

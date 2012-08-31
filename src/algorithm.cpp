@@ -20,6 +20,8 @@
 
 #include "algorithm.hpp"
 
+std::string PrepString(std::string const & s1, bool ignoreLeadingThe, bool caseInsensitive);
+
 std::string PrepString(std::string const & s1, bool ignoreLeadingThe, bool caseInsensitive)
 {
    std::string Result = s1;

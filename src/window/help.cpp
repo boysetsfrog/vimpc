@@ -82,7 +82,7 @@ void HelpWindow::Print(uint32_t line) const
          }
       }
 
-      int pos = currentLine.find('|');
+      uint32_t pos = currentLine.find('|');
 
       if ((pos != std::string::npos) && 
          ((pos <= 0) || (currentLine[pos - 1] != '\\')))

@@ -247,7 +247,7 @@ std::string Song::FormatString(std::string fmt) const
 
    //! \TODO this really needs cleaning up, it is a disgrace
 
-   for (int i = 0; i < fmt.size(); )
+   for (int32_t i = 0; i < static_cast<int32_t>(fmt.size()); )
    {
       switch (fmt[i])
       {
@@ -288,7 +288,7 @@ std::string Song::FormatString(std::string fmt) const
                skip = false;
             }
 
-            if ((i + 1) < fmt.size())
+            if ((i + 1) < static_cast<int32_t>(fmt.size()))
             {
                std::string next = "";
 

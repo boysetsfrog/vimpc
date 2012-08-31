@@ -128,7 +128,7 @@ bool InputMode::CausesModeToEnd(int input) const
    terminators.push_back("<Return>");
    terminators.push_back("<CR>");
 
-   for (int i = 0; i < input.length(); ++i)
+   for (uint32_t i = 0; i < input.length(); ++i)
    {
       for (std::vector<std::string>::iterator it = terminators.begin(); it != terminators.end(); ++it)
       {

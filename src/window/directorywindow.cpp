@@ -89,7 +89,7 @@ uint32_t DirectoryWindow::Current() const
 
    if ((currentSong != NULL))
    {
-      for (int i = 0; i < directory_.Size(); ++i)
+      for (int32_t i = 0; i < static_cast<int32_t>(directory_.Size()); ++i)
       {
          if (directory_.Get(i)->song_ == currentSong)
          {
@@ -164,7 +164,7 @@ std::string DirectoryWindow::SearchPattern(int32_t id) const
    //! expands things as necessary
    std::string pattern("");
 
-   if (id < directory_.Size())
+   if (id < static_cast<int32_t>(directory_.Size()))
    {
       Mpc::DirectoryEntry const * const entry = directory_.Get(id);
 
@@ -178,6 +178,8 @@ std::string DirectoryWindow::SearchPattern(int32_t id) const
             pattern = entry->song_->URI();
             break;
 
+         case Mpc::ArtistType:
+         case Mpc::AlbumType:
          default:
             ASSERT(false);
             break;

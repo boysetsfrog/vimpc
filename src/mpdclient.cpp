@@ -196,7 +196,6 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
       }
 
       connect_timeout *= 1000;
-
    }
 
    // Connecting may take a long time as this is a single threaded application
@@ -1375,16 +1374,16 @@ void Client::UpdateStatus(bool ExpectUpdate)
 void Client::UpdateCurrentSongPosition()
 {
    if ((currentSong_ != NULL) && (currentSongId_ >= 0) &&
-       (currentSongId_ < Main::Playlist().Size()) &&
+       (currentSongId_ < static_cast<int32_t>(Main::Playlist().Size())) &&
        (*Main::Playlist().Get(currentSongId_) != *currentSong_))
    {
       currentSongId_ = -1;
 
       for (uint32_t i = 0; i < screen_.MaxRows(); ++i)
       {
-         int id = i + screen_.ActiveWindow().FirstLine();
+         int32_t id = i + screen_.ActiveWindow().FirstLine();
 
-         if ((id < Main::Playlist().Size()) &&
+         if ((id < static_cast<int32_t>(Main::Playlist().Size())) &&
              (*Main::Playlist().Get(id) == *currentSong_))
          {
             currentSongId_ = id;

@@ -58,8 +58,8 @@ namespace Mpc
 
    public:
       EntryType          type_;
-      std::string        path_;
       std::string        name_;
+      std::string        path_;
       Mpc::Song *        song_;
    };
 

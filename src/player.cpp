@@ -178,7 +178,7 @@ void Player::SkipSong(Skip skip, uint32_t count)
    {
       Mpc::CommandList list(client_, (count != 1));
 
-      for (int i = 0; i < count; ++i)
+      for (uint32_t i = 0; i < count; ++i)
       {
          if (skip == Previous)
          {

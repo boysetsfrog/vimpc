@@ -27,9 +27,9 @@ using namespace Ui;
 
 SelectWindow::SelectWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name) :
    ScrollWindow     (screen, name),
+   currentLine_     (0),
    settings_        (settings),
-   visualMode_      (false),
-   currentLine_     (0)
+   visualMode_      (false)
 {
    currentSelection_.first  = 0;
    currentSelection_.second = 0;
@@ -199,7 +199,7 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
 
    std::string stripped = songString;
 
-   for (int i = 0; i < songString.size(); )
+   for (uint32_t i = 0; i < songString.size(); )
    {
       if ((songString[i] == '$') && ((i + 1) < songString.size()))
       {
@@ -234,7 +234,7 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
       wattron(window, COLOR_PAIR(colour));
    }
 
-   for (int i = 0; i < songString.size(); )
+   for (uint32_t i = 0; i < songString.size(); )
    {
       if ((songString[i] == '$') && ((i + 1) < songString.size()))
       {
@@ -269,7 +269,7 @@ void SelectWindow::PrintSong(int32_t line, int32_t Id, int32_t colour, std::stri
          i += 2;
       }
       else if ((elided == false) || 
-               (getcurx(window) < screen_.MaxColumns() - 3 - (stripped.size() - align)))
+               (getcurx(window) < static_cast<int32_t>(screen_.MaxColumns() - 3 - (stripped.size() - align))))
       {
          wprintw(window, "%c", songString[i]);
          ++i;

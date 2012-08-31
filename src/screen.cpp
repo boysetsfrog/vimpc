@@ -135,7 +135,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // Mark every tab as visible initially
    // This means that commands such as tabhide in the config file
    // can still be used in addition to :set windows and :set window
-   for (int i = 0; i < (int) Unknown; ++i)
+   for (int i = 0; i < static_cast<int>(Unknown); ++i)
    {
       if (mainWindows_[i] != NULL)
       {
@@ -234,7 +234,7 @@ void Screen::Start()
       {
          int32_t id = GetWindowFromName(window);
 
-         if ((id != (int32_t) Unknown) && 
+         if ((id != static_cast<int32_t>(Unknown)) && 
              (mainWindows_[id] != NULL) &&
              (IsVisible(id) == true) &&
              (addedWindows.find(id) == addedWindows.end()))
@@ -449,7 +449,7 @@ void Screen::Align(Direction direction, uint32_t count)
          count = min;
       }
 
-      if (selection >= (min + max - count - 1))
+      if (selection >= static_cast<int32_t>(min + max - count - 1))
       {
          selection = min + max - count - 1;
       }
@@ -1064,7 +1064,7 @@ void Screen::SetVisible(int32_t window, bool visible)
 
 void Screen::SetActiveAndVisible(int32_t window)
 {
-   if ((mainWindows_[window] != NULL) && (window != (int32_t) Unknown))
+   if ((mainWindows_[window] != NULL) && (window != static_cast<int32_t>(Unknown)))
    {
       SetVisible(window, true);
 

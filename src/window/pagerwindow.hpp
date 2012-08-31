@@ -52,7 +52,7 @@ namespace Ui
 
    private:
       Main::Buffer<std::string> buffer_;
-      int                       currentLine_;
+      uint32_t                  currentLine_;
       Ui::Screen &              screen_;
    };
 }

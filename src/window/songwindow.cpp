@@ -443,7 +443,7 @@ uint32_t SongWindow::GetPositions(int64_t & pos1, int64_t & pos2) const
       pos1 = CurrentSelection().second;
    }
 
-   return ((uint32_t) (pos2 - pos1 + 1));
+   return (static_cast<uint32_t>(pos2 - pos1 + 1));
 }
 
 void SongWindow::Clear()

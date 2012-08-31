@@ -1095,7 +1095,7 @@ std::string Command::TabComplete(std::string const & command)
 
       screen_.Initialise(Ui::Screen::Lists);
 
-      for (int i = 0; i < Main::Lists().Size(); ++i)
+      for (uint32_t i = 0; i < Main::Lists().Size(); ++i)
       {
          loadTable_.push_back("load " + Main::Lists().Get(i));
          loadTable_.push_back("edit " + Main::Lists().Get(i));
