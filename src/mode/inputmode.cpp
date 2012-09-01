@@ -38,6 +38,7 @@ InputMode::InputMode(Ui::Screen & screen) :
    cursor_            (inputString_),
    screen_            (screen),
    initHistorySearch_ (true),
+   saveToHistory_     (true),
    history_           (),
    searchHistory_     ()
 {
@@ -75,7 +76,11 @@ void InputMode::Initialise(int input)
 
 void InputMode::Finalise(int input)
 {
-   AddToHistory(inputString_);
+   if (saveToHistory_ == true)
+   {
+      AddToHistory(inputString_);
+   }
+
    window_->HideCursor();
    Refresh();
 }
@@ -96,6 +101,7 @@ bool InputMode::Handle(int const input)
    }
    else
    {
+      saveToHistory_ = true;
       ResetHistory(input);
       GenerateInputString(input);
       window_->SetCursorPosition(cursor_.UpdatePosition(input));
@@ -148,6 +154,7 @@ bool InputMode::SetInputString(std::string input)
 
    if (inputString_ != input)
    {
+      saveToHistory_ = false;
       Handle('\n');
       return true;
    }

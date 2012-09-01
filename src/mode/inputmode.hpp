@@ -136,6 +136,7 @@ namespace Ui
       Cursor           cursor_;
       Ui::Screen     & screen_;
       bool             initHistorySearch_;
+      bool             saveToHistory_;
       History          history_;
       History          searchHistory_;
 

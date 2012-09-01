@@ -39,6 +39,7 @@ using namespace Mpc;
 
 #define MPDCOMMAND
 //#define _DEBUG_ASSERT_ON_ERROR
+//#define _DEBUG_BREAK_ON_ERROR
 
 // Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
@@ -1437,6 +1438,8 @@ bool Client::CheckError()
 
 #ifdef _DEBUG_ASSERT_ON_ERROR
          ASSERT(false);
+#elif defined(_DEBUG_BREAK_ON_ERROR)
+         BREAKPOINT
 #endif
 
          bool ClearError = mpd_connection_clear_error(connection_);
