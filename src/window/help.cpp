@@ -82,10 +82,10 @@ void HelpWindow::Print(uint32_t line) const
          }
       }
 
-      uint32_t pos = currentLine.find('|');
+      size_t const pos = currentLine.find('|');
 
       if ((pos != std::string::npos) && 
-         ((pos <= 0) || (currentLine[pos - 1] != '\\')))
+         ((pos == 0) || (currentLine[pos - 1] != '\\')))
       {
          std::string firstHalf = currentLine.substr(0, currentLine.find_last_of('|') - 1);
          std::string lastHalf = currentLine.substr(currentLine.find_last_of('|') + 1);
