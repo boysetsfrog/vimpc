@@ -69,7 +69,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("crossfade",  &Command::Crossfade,    true);
    AddCommand("delete",     &Command::Delete,       true);
    AddCommand("deleteall",  &Command::DeleteAll,    true);
-   AddCommand("disable",    &Command::Output<true>, true);
+   AddCommand("disable",    &Command::Output<false>, true);
    AddCommand("disconnect", &Command::Disconnect,   true);
    AddCommand("echo",       &Command::Echo,         false);
    AddCommand("enable",     &Command::Output<true>, true);
