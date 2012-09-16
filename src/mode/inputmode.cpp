@@ -42,16 +42,20 @@ InputMode::InputMode(Ui::Screen & screen) :
    history_           (),
    searchHistory_     ()
 {
+   // Currently ctrl key combinations are 'X' - 'A' + 1 (for <C-X>)
    inputTable_[KEY_UP]        = &InputMode::SearchHistory<Up>;
    inputTable_[KEY_DOWN]      = &InputMode::SearchHistory<Down>;
    inputTable_[KEY_BACKSPACE] = &InputMode::Deletion<Cursor::CursorLeft>;
+   inputTable_['H' - 'A' + 1] = &InputMode::Deletion<Cursor::CursorLeft>;
    inputTable_[0x7F]          = &InputMode::Deletion<Cursor::CursorLeft>;
    inputTable_[KEY_DC]        = &InputMode::Deletion<Cursor::CursorNoMovement>;
    inputTable_['\t']          = &InputMode::MoveCursor<Cursor::CursorEnd>;
    inputTable_[KEY_LEFT]      = &InputMode::MoveCursor<Cursor::CursorLeft>;
    inputTable_[KEY_RIGHT]     = &InputMode::MoveCursor<Cursor::CursorRight>;
    inputTable_[KEY_HOME]      = &InputMode::MoveCursor<Cursor::CursorStart>;
+   inputTable_['B' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorStart>;
    inputTable_[KEY_END]       = &InputMode::MoveCursor<Cursor::CursorEnd>;
+   inputTable_['E' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorEnd>;
 }
 
 InputMode::~InputMode()
