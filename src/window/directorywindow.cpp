@@ -144,6 +144,23 @@ void DirectoryWindow::Scroll(int32_t scrollCount)
    }
 }
 
+void DirectoryWindow::ScrollTo(uint16_t scrollLine)
+{
+   int64_t oldSelection = currentLine_;
+   currentLine_    = (static_cast<int64_t>(scrollLine));
+   LimitCurrentSelection();
+
+   if (settings_.Get(Setting::ShowPath) == true)
+   {
+      if ((currentLine_ >= scrollLine_ - 1) || (currentLine_ < (scrollLine_ - screen_.MaxRows())))
+      {
+         ScrollWindow::ScrollTo(scrollLine);
+      }
+   }
+
+   SelectWindow::ScrollTo(scrollLine);
+}
+
 void DirectoryWindow::LimitCurrentSelection() const
 {
    if (settings_.Get(Setting::ShowPath) == true)
