@@ -541,6 +541,7 @@ std::string Normal::InputCharToString(int input) const
       conversionTable[KEY_UP]        = "Up";
       conversionTable[KEY_DC]        = "Del";
       conversionTable[KEY_BACKSPACE] = "BS";
+      conversionTable[0x20]          = "Space";
       conversionTable[0x7F]          = "BS";
       conversionTable[KEY_ENTER]     = "Enter";
       conversionTable['\n']          = "Return";
