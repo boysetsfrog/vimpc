@@ -56,6 +56,7 @@ InputMode::InputMode(Ui::Screen & screen) :
    inputTable_['B' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorStart>;
    inputTable_[KEY_END]       = &InputMode::MoveCursor<Cursor::CursorEnd>;
    inputTable_['E' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorEnd>;
+   inputTable_['U' - 'A' + 1] = &InputMode::ClearBeforeCursor;
 }
 
 InputMode::~InputMode()
@@ -334,6 +335,12 @@ void InputMode::Deletion()
    {
       backedOut_ = true;
    }
+}
+
+void InputMode::ClearBeforeCursor()
+{
+   inputString_.erase(0, cursor_.Position() - 1);
+   cursor_.UpdatePosition(Cursor::CursorStart);
 }
 
 

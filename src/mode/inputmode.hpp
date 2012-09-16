@@ -132,6 +132,8 @@ namespace Ui
       template <Cursor::CursorState State>
       void Deletion();
 
+      void ClearBeforeCursor();
+
    protected:
       std::string      inputString_;
       bool             backedOut_;
