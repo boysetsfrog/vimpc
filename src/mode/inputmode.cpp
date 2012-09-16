@@ -42,6 +42,16 @@ InputMode::InputMode(Ui::Screen & screen) :
    history_           (),
    searchHistory_     ()
 {
+   inputTable_[KEY_UP]        = &InputMode::SearchHistory<Up>;
+   inputTable_[KEY_DOWN]      = &InputMode::SearchHistory<Down>;
+   inputTable_[KEY_BACKSPACE] = &InputMode::Deletion<Cursor::CursorLeft>;
+   inputTable_[0x7F]          = &InputMode::Deletion<Cursor::CursorLeft>;
+   inputTable_[KEY_DC]        = &InputMode::Deletion<Cursor::CursorNoMovement>;
+   inputTable_['\t']          = &InputMode::MoveCursor<Cursor::CursorEnd>;
+   inputTable_[KEY_LEFT]      = &InputMode::MoveCursor<Cursor::CursorLeft>;
+   inputTable_[KEY_RIGHT]     = &InputMode::MoveCursor<Cursor::CursorRight>;
+   inputTable_[KEY_HOME]      = &InputMode::MoveCursor<Cursor::CursorStart>;
+   inputTable_[KEY_END]       = &InputMode::MoveCursor<Cursor::CursorEnd>;
 }
 
 InputMode::~InputMode()
@@ -104,7 +114,7 @@ bool InputMode::Handle(int const input)
       saveToHistory_ = true;
       ResetHistory(input);
       GenerateInputString(input);
-      window_->SetCursorPosition(cursor_.UpdatePosition(input));
+      window_->SetCursorPosition(cursor_.Position());
       window_->SetLine("%s%s", Prompt(), inputString_.c_str());
    }
 
@@ -175,35 +185,16 @@ bool InputMode::HasCompleteInput(int input) const
 
 void InputMode::GenerateInputString(int input)
 {
-   // \todo this could use a refactor
-   int64_t const cursorPosition = (cursor_.Position() - PromptSize);
-
-   if (RequireHistorySearch(input) == true)
+   if (inputTable_.find(input) != inputTable_.end())
    {
-      Direction const direction = (input == KEY_UP) ? Up : Down;
-
-      inputString_ = SearchHistory(direction, inputString_);
+      InputFunction func = inputTable_[input];
+      (*this.*func)();
    }
-   else if (RequireDeletion(input) == true)
+   else if (InputIsValidCharacter(input) == true)
    {
-      if (inputString_.empty() == false)
-      {
-         backedOut_ = false;
-         const int cursorMovement = ((input == KEY_BACKSPACE) || (input == 0x7F)) ? 1 : 0;
-
-         if ((cursorPosition - cursorMovement) >= 0)
-         {
-            inputString_.erase((cursorPosition - cursorMovement), 1);
-         }
-      }
-      else
-      {
-         backedOut_ = true;
-      }
-   }
-   if (InputIsValidCharacter(input) == true)
-   {
+      int64_t const cursorPosition = (cursor_.Position() - PromptSize);
       inputString_.insert(static_cast<std::string::size_type>(cursorPosition), 1, static_cast<char>(input));
+      cursor_.UpdatePosition(Cursor::CursorRight);
    }
 }
 
@@ -304,6 +295,44 @@ bool InputMode::InputIsValidCharacter(int input)
 }
 
 
+template <Cursor::CursorState State>
+void InputMode::MoveCursor()
+{
+   cursor_.UpdatePosition(State);
+}
+
+template <InputMode::Direction Dir>
+void InputMode::SearchHistory()
+{
+   inputString_ = SearchHistory(Dir, inputString_);
+   cursor_.UpdatePosition(Cursor::CursorEnd);
+}
+
+template <Cursor::CursorState State>
+void InputMode::Deletion()
+{
+   int64_t const cursorPosition = (cursor_.Position() - PromptSize);
+
+   if (inputString_.empty() == false)
+   {
+      int const cursorMovement = (State == Cursor::CursorLeft) ? 1 : 0;
+
+      if ((cursorPosition - cursorMovement) >= 0)
+      {
+         inputString_.erase((cursorPosition - cursorMovement), 1);
+      }
+      
+      cursor_.UpdatePosition(State);
+
+      backedOut_ = false;
+   }
+   else
+   {
+      backedOut_ = true;
+   }
+}
+
+
 // Helper Classes
 // CURSOR
 Cursor::Cursor(std::string & inputString) :
@@ -322,14 +351,10 @@ uint16_t Cursor::Position() const
    return position_;
 }
 
-uint16_t Cursor::UpdatePosition(int input)
+uint16_t Cursor::UpdatePosition(CursorState newCursorState)
 {
    uint16_t const minCursorPosition = PromptSize;
    uint16_t const maxCursorPosition = (inputString_.size() + PromptSize);
-
-   input_ = input;
-
-   CursorState newCursorState = CursorMovementState();
 
    //Determine where the cursor should move to
    switch (newCursorState)
@@ -378,55 +403,6 @@ void Cursor::SetPosition(uint16_t position)
 void Cursor::ResetCursorPosition()
 {
    position_ = PromptSize;
-}
-
-bool Cursor::WantCursorLeft() const
-{
-   return ((input_ == KEY_LEFT) ||
-           (input_ == KEY_BACKSPACE) ||
-           (input_ == 0x7F));
-}
-
-bool Cursor::WantCursorEnd() const
-{
-   return ((input_ == KEY_UP)   ||
-           (input_ == KEY_DOWN) ||
-           (input_ == '\t'));
-}
-
-bool Cursor::WantCursorRight() const
-{
-   return ((input_ == KEY_RIGHT) ||
-           (InputMode::InputIsValidCharacter(input_) == true));
-}
-
-bool Cursor::WantCursorStart() const
-{
-   return ((input_ == KEY_HOME));
-}
-
-Cursor::CursorState Cursor::CursorMovementState()
-{
-   CursorState newCursorState = CursorNoMovement;
-
-   if (WantCursorStart() == true)
-   {
-      newCursorState = CursorStart;
-   }
-   else if (WantCursorEnd() == true)
-   {
-      newCursorState = CursorEnd;
-   }
-   else if (WantCursorLeft() == true)
-   {
-      newCursorState = CursorLeft;
-   }
-   else if (WantCursorRight() == true)
-   {
-      newCursorState = CursorRight;
-   }
-
-   return newCursorState;
 }
 
 uint16_t Cursor::LimitCursorPosition(uint16_t position) const

@@ -24,6 +24,7 @@
 #include "mode.hpp"
 
 #include <stdint.h>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -42,12 +43,6 @@ namespace Ui
       ~Cursor();
 
    public:
-      uint16_t Position() const;
-      uint16_t UpdatePosition(int input);
-      void     SetPosition(uint16_t position);
-      void     ResetCursorPosition();
-
-   private:
       typedef enum
       {
          CursorNoMovement,
@@ -57,13 +52,13 @@ namespace Ui
          CursorEnd
       } CursorState;
 
+      uint16_t Position() const;
+      uint16_t UpdatePosition(CursorState newCursorState);
+      void     SetPosition(uint16_t position);
+      void     ResetCursorPosition();
+
    private:
-      CursorState CursorMovementState();
       uint16_t LimitCursorPosition(uint16_t position) const;
-      bool WantCursorLeft() const;
-      bool WantCursorRight() const;
-      bool WantCursorStart() const;
-      bool WantCursorEnd() const;
 
    private:
       int           input_;
@@ -75,6 +70,9 @@ namespace Ui
    // Handles all input received whilst in a line input mode
    class InputMode : public Mode
    {
+   private:
+      typedef void (Ui::InputMode::*InputFunction)();
+
    public:
       InputMode(Ui::Screen & screen);
       virtual ~InputMode();
@@ -124,12 +122,23 @@ namespace Ui
    public:
       static bool InputIsValidCharacter(int input);
 
+   private:
+      template <Cursor::CursorState State>
+      void MoveCursor();
+
+      template <Direction Dir>
+      void SearchHistory();
+
+      template <Cursor::CursorState State>
+      void Deletion();
+
    protected:
       std::string      inputString_;
       bool             backedOut_;
 
    private:
       typedef std::vector<std::string> History;
+      typedef std::map<int, InputFunction> InputTable;
 
    private:
       ModeWindow     * window_;
@@ -139,6 +148,7 @@ namespace Ui
       bool             saveToHistory_;
       History          history_;
       History          searchHistory_;
+      InputTable       inputTable_;
 
       // Class used to search through the history table
       class HistoryNotCompletionMatch

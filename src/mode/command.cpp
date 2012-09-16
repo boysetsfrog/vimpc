@@ -172,10 +172,8 @@ void Command::GenerateInputString(int input)
    {
       inputString_ = TabComplete(inputString_);
    }
-   else
-   {
-      InputMode::GenerateInputString(input);
-   }
+
+   InputMode::GenerateInputString(input);
 }
 
 
