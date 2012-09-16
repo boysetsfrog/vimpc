@@ -313,6 +313,7 @@
  mapped and are described below.
     
     <Down>, <Left>, <Right>, <Up> | Directional keys
+    <Space>                       | Spacebar
     <PageUp>, <PageDown>          | Page up and down
     <C-x>                         | Ctrl+x
     <A-x>                         | Alt+x
