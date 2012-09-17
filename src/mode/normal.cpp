@@ -69,6 +69,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["p"]       = &Normal::Pause;
    actionTable_["s"]       = &Normal::Stop;
    actionTable_["<BS>"]    = &Normal::Stop;
+   actionTable_["<Space>"] = &Normal::Pause;
 
    actionTable_["C"]       = &Normal::Consume;
    actionTable_["T"]       = &Normal::Crossfade;
@@ -889,12 +890,12 @@ void Normal::ScrollToPlaylistSong(uint32_t count)
 
 void Normal::NextGotoMark(uint32_t count)
 {
-   gotoMark_ = true; 
+   gotoMark_ = true;
 }
 
 void Normal::NextAddMark(uint32_t count)
 {
-   addMark_ = true; 
+   addMark_ = true;
 }
 
 void Normal::AddMark(std::string const & input)
@@ -905,7 +906,7 @@ void Normal::AddMark(std::string const & input)
 
 void Normal::GotoMark(std::string const & input)
 {
-   gotoMark_ = false; 
+   gotoMark_ = false;
 
    // Marks A-Z jump to the first line starting
    // with that letter

@@ -519,7 +519,7 @@ void Client::SetCrossfade(bool crossfade)
 void Client::SetCrossfade(uint32_t crossfade)
 {
    ClearCommand();
-   
+
    if (Connected() == true)
    {
       mpd_send_crossfade(connection_, crossfade);
@@ -1132,7 +1132,7 @@ bool Client::IsCommandList()
 
 bool Client::HadEvents()
 {
-   if (hadEvents_ == true) 
+   if (hadEvents_ == true)
    {
       if (idleMode_ == true)
       {
@@ -1285,7 +1285,7 @@ void Client::StartCommandList()
    if (Connected() == true)
    {
       mpd_command_list_begin(connection_, false);
-      
+
       if (CheckError() == false)
       {
          listMode_ = true;
