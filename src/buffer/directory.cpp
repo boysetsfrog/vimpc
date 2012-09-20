@@ -229,16 +229,6 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
          client.Add(*(entry->song_), client.GetCurrentSong() + 1);
       }
    }
-   else
-   {
-      int current = -1;
-
-      if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddNext) &&
-          (client.GetCurrentSong() != -1))
-      {
-         current = client.GetCurrentSong() + 1;
-      }
-   }
 }
 
 void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry)

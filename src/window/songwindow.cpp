@@ -247,9 +247,19 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       {
          Mpc::CommandList list(client_, (count > 1));
 
-         for (uint32_t i = 0; i < count; ++i)
+         if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
          {
-            AddToPlaylist(line + i);
+            for (uint32_t i = 0; i < count; ++i)
+            {
+               AddToPlaylist(line + i);
+            }
+         }
+         else
+         {
+            for (int32_t i = count - 1; i >= 0; --i)
+            {
+               AddToPlaylist(line + i);
+            }
          }
       }
 

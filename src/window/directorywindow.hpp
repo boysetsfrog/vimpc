@@ -79,7 +79,10 @@ namespace Ui
       void LimitCurrentSelection() const;
 
    private:
-      void DoForLine(DirectoryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true, bool countskips = false);
+      std::vector<uint32_t> PositionVector(uint32_t & line, uint32_t count, bool visual);
+
+      template <typename T>
+      void ForPositions(T start, T end, DirectoryFunction function);
 
    private:
       void    Clear();

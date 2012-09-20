@@ -358,7 +358,27 @@ void DirectoryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   DoForLine(&Mpc::Directory::AddToPlaylist, line, count, scroll, (pos1 != pos2));
+   if (client_.Connected() == true)
+   {
+      std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
+
+      if (scroll == true)
+      {
+         ScrollTo(line);
+      }
+
+      if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
+      {
+         Mpc::CommandList list(client_, (count > 1));
+         ForPositions(Positions.begin(), Positions.end(), &Mpc::Directory::AddToPlaylist);
+      }
+      else
+      {
+         Mpc::CommandList list(client_, (count > 1));
+         ForPositions(Positions.rbegin(), Positions.rend(), &Mpc::Directory::AddToPlaylist);
+      }
+   }
+
    SelectWindow::AddLine(line, count, scroll);
 }
 
@@ -401,7 +421,19 @@ void DirectoryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   DoForLine(&Mpc::Directory::RemoveFromPlaylist, line, count, scroll, (pos1 != pos2));
+   if (client_.Connected() == true)
+   {
+      std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
+
+      if (scroll == true)
+      {
+         ScrollTo(line);
+      }
+
+      Mpc::CommandList list(client_, (count > 1));
+      ForPositions(Positions.begin(), Positions.end(), &Mpc::Directory::RemoveFromPlaylist);
+   }
+
    SelectWindow::DeleteLine(line, count, scroll);
 }
 
@@ -439,36 +471,40 @@ void DirectoryWindow::ScrollToFirstMatch(std::string const & input)
 }
 
 
-void DirectoryWindow::DoForLine(DirectoryFunction function, uint32_t line, uint32_t count, bool scroll, bool countskips)
+std::vector<uint32_t> DirectoryWindow::PositionVector(uint32_t & line, uint32_t count, bool visual)
 {
-   if (client_.Connected() == true)
+   Mpc::DirectoryEntry * previous = NULL;
+
+   uint32_t total = 0;
+   uint32_t i     = line;
+
+   std::vector<uint32_t> Positions;
+
+   for (i = line; ((total <= count) && (i < directory_.Size())); ++i)
    {
-      Mpc::DirectoryEntry * previous = NULL;
+      Mpc::DirectoryEntry * current = directory_.Get(i);
 
-      uint32_t total = 0;
-      uint32_t i     = line;
+      ++total;
 
+      if (total <= count)
       {
-         Mpc::CommandList list(client_, (count > 1));
-
-         for (i = line; ((total <= count) && (i < directory_.Size())); ++i)
-         {
-            Mpc::DirectoryEntry * current = directory_.Get(i);
-
-            ++total;
-
-            if (total <= count)
-            {
-               (directory_.*function)(Mpc::Song::Single, client_, i);
-               previous = current;
-            }
-         }
+         Positions.push_back(i);
+         previous = current;
       }
+   }
 
-      if (scroll == true)
-      {
-         Scroll(i - line - 1);
-      }
+   line = (i - 1);
+   return Positions;
+}
+
+
+
+template <typename T>
+void DirectoryWindow::ForPositions(T start, T end, DirectoryFunction function)
+{
+   for (T it = start; it != end; ++it)
+   {
+      (directory_.*function)(Mpc::Song::Single, client_, *it);
    }
 }
 

@@ -73,7 +73,10 @@ namespace Ui
       void ScrollToFirstMatch(std::string const & input);
 
    private:
-      void DoForLine(LibraryFunction function, uint32_t line, uint32_t count = 1, bool scroll = true, bool countskips = false);
+      std::vector<uint32_t> PositionVector(uint32_t & line, uint32_t count, bool visual);
+
+      template <typename T>
+      void ForPositions(T start, T end, LibraryFunction function);
 
    private:
       void    Clear();

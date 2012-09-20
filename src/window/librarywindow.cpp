@@ -364,7 +364,27 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   DoForLine(&Mpc::Library::AddToPlaylist, line, count, scroll, (pos1 != pos2));
+   if (client_.Connected() == true)
+   {
+      std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
+
+      if (scroll == true)
+      {
+         ScrollTo(line);
+      }
+
+      if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
+      {
+         Mpc::CommandList list(client_, (count > 1));
+         ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::AddToPlaylist);
+      }
+      else
+      {
+         Mpc::CommandList list(client_, (count > 1));
+         ForPositions(Positions.rbegin(), Positions.rend(), &Mpc::Library::AddToPlaylist);
+      }
+   }
+
    SelectWindow::AddLine(line, count, scroll);
 }
 
@@ -407,7 +427,19 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   DoForLine(&Mpc::Library::RemoveFromPlaylist, line, count, scroll, (pos1 != pos2));
+   if (client_.Connected() == true)
+   {
+      std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
+
+      if (scroll == true)
+      {
+         ScrollTo(line);
+      }
+
+      Mpc::CommandList list(client_, (count > 1));
+      ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::RemoveFromPlaylist);
+   }
+
    SelectWindow::DeleteLine(line, count, scroll);
 }
 
@@ -466,45 +498,47 @@ void LibraryWindow::ScrollToFirstMatch(std::string const & input)
 }
 
 
-void LibraryWindow::DoForLine(LibraryFunction function, uint32_t line, uint32_t count, bool scroll, bool countskips)
+std::vector<uint32_t> LibraryWindow::PositionVector(uint32_t & line, uint32_t count, bool visual)
 {
-   if (client_.Connected() == true)
+   Mpc::LibraryEntry * previous = NULL;
+
+   uint32_t total = 0;
+   uint32_t i     = line;
+
+   std::vector<uint32_t> Positions;
+
+   for (i = line; ((total <= count) && (i < BufferSize())); ++i)
    {
-      Mpc::LibraryEntry * previous = NULL;
+      Mpc::LibraryEntry * current = library_.Get(i);
 
-      uint32_t total = 0;
-      uint32_t i     = line;
-
+      if ((previous == NULL) ||
+         ((current->Parent() != previous) &&
+         ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
       {
-         Mpc::CommandList list(client_, (count > 1));
+         ++total;
 
-         for (i = line; ((total <= count) && (i < BufferSize())); ++i)
+         if (total <= count)
          {
-            Mpc::LibraryEntry * current = library_.Get(i);
-
-            if ((previous == NULL) ||
-               ((current->Parent() != previous) &&
-               ((current->Parent() == NULL) || (current->Parent()->Parent() != previous))))
-            {
-               ++total;
-
-               if (total <= count)
-               {
-                  (library_.*function)(Mpc::Song::Single, client_, i);
-                  previous = current;
-               }
-            }
-            else if (countskips == true)
-            {
-               ++total;
-            }
+            Positions.push_back(i);
+            previous = current;
          }
       }
-
-      if (scroll == true)
+      else if (visual == true)
       {
-         Scroll(i - line - 1);
+         ++total;
       }
+   }
+
+   line = (i - 1);
+   return Positions;
+}
+
+template <typename T>
+void LibraryWindow::ForPositions(T start, T end, LibraryFunction function)
+{
+   for (T it = start; it != end; ++it)
+   {
+      (library_.*function)(Mpc::Song::Single, client_, *it);
    }
 }
 
