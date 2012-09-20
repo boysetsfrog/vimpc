@@ -63,9 +63,7 @@ LibraryWindow::~LibraryWindow()
 void LibraryWindow::Redraw()
 {
    Main::Playlist().Clear();
-   Clear();
    client_.GetAllMetaInformation();
-   client_.ForEachLibrarySong(library_, &Mpc::Library::Add);
    SoftRedraw();
 
    client_.ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
@@ -73,6 +71,12 @@ void LibraryWindow::Redraw()
 
 void LibraryWindow::SoftRedraw()
 {
+   if (client_.WasUpdated())
+   {
+      Clear();
+      client_.ForEachLibrarySong(library_, &Mpc::Library::Add);
+   }
+
    // The library needs to be completely collapsed before sorting as the sort cannot compare different types
    // so we mark everything as collapsed then remove anything that is not an artist from the buffer
    Main::CallbackFunction<Mpc::LibraryEntry *> Callback(&Mpc::MarkUnexpanded);
@@ -115,9 +119,10 @@ void LibraryWindow::SoftRedraw()
 
 bool LibraryWindow::RequiresRedraw()
 {
-   return ((ignoreCase_   != settings_.Get(Setting::IgnoreCaseSort)) ||
-           (ignoreThe_    != settings_.Get(Setting::IgnoreTheSort))  ||
-           (expandArtist_ != settings_.Get(Setting::ExpandArtists)));
+   return (((ignoreCase_   != settings_.Get(Setting::IgnoreCaseSort)) ||
+            (ignoreThe_    != settings_.Get(Setting::IgnoreTheSort))  ||
+            (expandArtist_ != settings_.Get(Setting::ExpandArtists))) ||
+           (client_.WasUpdated()));
 }
 
 

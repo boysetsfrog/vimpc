@@ -92,6 +92,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 
    volume_               (100),
    updating_             (false),
+   updated_              (false),
    random_               (false),
    repeat_               (false),
    single_               (false),
@@ -559,6 +560,11 @@ void Client::SetVolume(uint32_t volume)
 bool Client::IsUpdating()
 {
    return updating_;
+}
+
+bool Client::WasUpdated()
+{
+   return updated_;
 }
 
 
@@ -1276,6 +1282,8 @@ void Client::GetAllMetaInformation()
 
          mpd_entity_free(nextEntity);
       }
+
+      updated_ = true;
    }
 }
 
@@ -1329,8 +1337,9 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
       if (currentStatus_ != NULL)
       {
-         unsigned int version  = mpd_status_get_queue_version(currentStatus_);
-         unsigned int qVersion = static_cast<uint32_t>(queueVersion_);
+         unsigned int version     = mpd_status_get_queue_version(currentStatus_);
+         unsigned int qVersion    = static_cast<uint32_t>(queueVersion_);
+         bool const   wasUpdating = updating_;
 
          volume_   = mpd_status_get_volume(currentStatus_);
          updating_ = (mpd_status_get_update_id(currentStatus_) == 1);
@@ -1365,6 +1374,11 @@ void Client::UpdateStatus(bool ExpectUpdate)
          {
             ForEachQueuedSongChanges(qVersion, Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
             Main::Playlist().Crop(TotalNumberOfSongs());
+         }
+
+         if ((wasUpdating == true) && (updating_ == false))
+         {
+            GetAllMetaInformation();
          }
 
          queueVersion_ = version;
