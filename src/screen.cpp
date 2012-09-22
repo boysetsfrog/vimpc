@@ -863,13 +863,18 @@ void Screen::HandleMouseEvent()
       //! \TODO this seems to scroll quite slowly and not properly at all
       if (getmouse(&event) == OK)
       {
-         //printf("%u\n", event.bstate);
+         //char buffer[64];
+         //sprintf(buffer, "%u\n", event.bstate);
+         //Debug(buffer);
 
          if (event.bstate & BUTTON4_PRESSED)
          {
             Scroll(Page, Up, 1);
          }
-         else if (event.bstate & BUTTON2_PRESSED)
+         else if ((event.bstate & BUTTON2_PRESSED) 
+#if (NCURSES_MOUSE_VERSION <= 1)
+               || (event.bstate & BUTTON5_PRESSED))
+#endif
          {
             Scroll(Page, Down, 1);
          }
