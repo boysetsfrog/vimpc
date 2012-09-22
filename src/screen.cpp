@@ -867,15 +867,11 @@ void Screen::HandleMouseEvent()
 
          if (event.bstate & BUTTON4_PRESSED)
          {
-#if (NCURSES_MOUSE_VERSION <= 1)
-            ActiveWindow().Scroll(-12);
-#else
-            ActiveWindow().Scroll(-6);
-#endif
+            Scroll(Page, Up, 1);
          }
-         else if (event.bstate & BUTTON5_PRESSED)
+         else if (event.bstate & BUTTON2_PRESSED)
          {
-            ActiveWindow().Scroll(6);
+            Scroll(Page, Down, 1);
          }
          else if ((event.y == 0) && (settings_.Get(Setting::TabBar) == true))
          {
