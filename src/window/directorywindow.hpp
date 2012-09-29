@@ -96,6 +96,7 @@ namespace Ui
       Mpc::Directory &       directory_;
       bool                   redraw_;
       bool                   showLists_;
+      bool                   showPath_;
    };
 }
 #endif

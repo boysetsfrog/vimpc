@@ -46,7 +46,8 @@ DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & s
    search_          (search),
    directory_       (Main::Directory()),
    redraw_          (false),
-   showLists_       (true)
+   showLists_       (true),
+   showPath_        (true)
 {
 }
 
@@ -72,6 +73,8 @@ void DirectoryWindow::SoftRedraw()
 {
    redraw_ = false;
 
+   showPath_ = settings_.Get(Setting::ShowPath);
+
    if (showLists_ != settings_.Get(Setting::ShowLists))
    {
       showLists_ = settings_.Get(Setting::ShowLists);
@@ -84,6 +87,7 @@ void DirectoryWindow::SoftRedraw()
 bool DirectoryWindow::RequiresRedraw()
 {
    return ((redraw_) ||
+           (showPath_ != settings_.Get(Setting::ShowPath)) || 
            (showLists_ != settings_.Get(Setting::ShowLists)));
 }
 
