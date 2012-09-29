@@ -160,11 +160,13 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
    uint32_t total = Main::PlaylistTmp().Size();
 
+   if (total > 0)
    {
       Mpc::CommandList list(client_, (total > 1));
 
       for (uint32_t i = 0; i < total; ++i)
       {
+         Main::Playlist().Add(Main::PlaylistTmp().Get(i));
          client_.Add(Main::PlaylistTmp().Get(i));
       }
    }

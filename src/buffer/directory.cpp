@@ -93,6 +93,25 @@ void Directory::ChangeDirectory(std::string New)
       entry->name_ = file;
       Add(entry);
    }
+
+   std::vector<std::string> playlists = playlists_[directory_];
+
+   for (std::vector<std::string>::iterator it = playlists.begin(); (it != playlists.end()); ++it)
+   {
+      Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry();
+
+      std::string file = *it;
+
+      if (file.find("/") != std::string::npos)
+      {
+         file = file.substr(file.find_last_of("/") + 1);
+      }
+
+      entry->path_ = directory_;
+      entry->type_ = Mpc::PlaylistType;
+      entry->name_ = file;
+      Add(entry);
+   }
 }
 
 void Directory::ChangeDirectory(DirectoryEntry & New)
@@ -136,6 +155,22 @@ void Directory::Add(Mpc::Song * song)
    }
 
    songs_[Path].push_back(song);
+}
+
+void Directory::AddPlaylist(std::string playlist)
+{
+   std::string Path = playlist;
+
+   if (Path.find("/") != std::string::npos)
+   {
+      Path = Path.substr(0, Path.find_last_of("/"));
+   }
+   else
+   {
+      Path = "";
+   }
+
+   playlists_[Path].push_back(playlist);
 }
 
 
@@ -227,6 +262,39 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
       {
          Main::Playlist().Add(entry->song_, client.GetCurrentSong() + 1);
          client.Add(*(entry->song_), client.GetCurrentSong() + 1);
+      }
+   }
+   else if (entry->type_ == Mpc::PlaylistType)
+   {
+      bool const isList = client.IsCommandList();
+      std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
+
+      Main::PlaylistTmp().Clear();
+
+      if (isList == true)
+      {
+         client.SendCommandList();
+      }
+
+      client.ForEachPlaylistSong(path + entry->name_, Main::PlaylistTmp(),
+                                 static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+
+      if (isList == true)
+      {
+         client.StartCommandList();
+      }
+
+      uint32_t total = Main::PlaylistTmp().Size();
+
+      if (total > 0)
+      {
+         Mpc::CommandList list(client, (total > 1));
+
+         for (uint32_t i = 0; i < total; ++i)
+         {
+            Main::Playlist().Add(Main::PlaylistTmp().Get(i));
+            client.Add(Main::PlaylistTmp().Get(i));
+         }
       }
    }
 }

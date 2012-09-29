@@ -190,6 +190,8 @@ namespace Mpc
       void IdleMode();
       bool IsIdle();
       bool IsCommandList();
+      void StartCommandList();
+      void SendCommandList();
       bool HadEvents();
       void UpdateCurrentSong();
       void UpdateStatus(bool ExpectUpdate = false);
@@ -216,6 +218,9 @@ namespace Mpc
       void ForEachPlaylist(Object & object, void (Object::*callBack)(std::string));
 
       template <typename Object>
+      void ForEachPlaylistEntity(Object & object, void (Object::*callBack)(std::string));
+
+      template <typename Object>
       void ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
@@ -226,8 +231,6 @@ namespace Mpc
    private:
       void ClearCommand();
       bool Command(bool InputCommand);
-      void StartCommandList();
-      void SendCommandList();
 
    private:
       unsigned int QueueVersion();
@@ -283,6 +286,7 @@ namespace Mpc
 
       std::vector<Mpc::Song *> songs_;
       std::vector<std::string> paths_;
+      std::vector<std::string> playlists_;
    };
 
    //
@@ -374,12 +378,11 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachPlaylistSong(std::string playlist, Object & object, void (Object::*callBack)(Mpc::Song * ))
    {
-#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
       ClearCommand();
 
       if (Connected() == true)
       {
-         mpd_send_list_playlist_meta(connection_, playlist.c_str());
+         mpd_send_list_playlist(connection_, playlist.c_str());
 
          mpd_song * nextSong = mpd_recv_song(connection_);
 
@@ -395,7 +398,6 @@ namespace Mpc
             mpd_song_free(nextSong);
          }
       }
-#endif
    }
 
    //
@@ -419,6 +421,16 @@ namespace Mpc
          }
       }
 #endif
+   }
+
+   //
+   template <typename Object>
+   void Client::ForEachPlaylistEntity(Object & object, void (Object::*callBack)(std::string))
+   {
+      for (std::vector<std::string>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
+      {
+         (object.*callBack)(*it);
+      }
    }
 
    // Requires search to be prepared before calling

@@ -34,6 +34,7 @@ namespace Mpc
       ArtistType = 0,
       AlbumType,
       PathType,
+      PlaylistType,
       SongType
    } EntryType;
 

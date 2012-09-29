@@ -123,9 +123,9 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, client, search);
 
 #if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-   mainWindows_[Lists]    = new Ui::ListWindow    (settings, *this, client, search);
+   mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, client, search);
 #else
-   mainWindows_[Lists]    = NULL;
+   mainWindows_[Lists]        = NULL;
 #endif
 
    mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
@@ -863,20 +863,20 @@ void Screen::HandleMouseEvent()
       //! \TODO this seems to scroll quite slowly and not properly at all
       if (getmouse(&event) == OK)
       {
-         //char buffer[64];
-         //sprintf(buffer, "%u\n", event.bstate);
-         //Debug(buffer);
+         char buffer[64];
+         sprintf(buffer, "%u\n", event.bstate);
+         Debug(buffer);
 
          if (event.bstate & BUTTON4_PRESSED)
          {
-            Scroll(Page, Up, 1);
+            Scroll(-6);
          }
          else if ((event.bstate & BUTTON2_PRESSED) 
 #if (NCURSES_MOUSE_VERSION <= 1)
                || (event.bstate & BUTTON5_PRESSED))
 #endif
          {
-            Scroll(Page, Down, 1);
+            Scroll(6);
          }
          else if ((event.y == 0) && (settings_.Get(Setting::TabBar) == true))
          {

@@ -81,6 +81,7 @@ namespace Mpc
       void Clear(bool fullClear = false);
       void Add(std::string directory);
       void Add(Mpc::Song * song);
+      void AddPlaylist(std::string playlist);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
@@ -96,6 +97,7 @@ namespace Mpc
    private:
       std::vector<std::string> paths_;
       std::map<std::string, std::vector<Mpc::Song *> > songs_;
+      std::map<std::string, std::vector<std::string> > playlists_;
       std::string directory_;
    };
 }

@@ -1249,6 +1249,7 @@ void Client::GetAllMetaInformation()
 {
    songs_.clear();
    paths_.clear();
+   playlists_.clear();
 
    ClearCommand();
 
@@ -1277,6 +1278,15 @@ void Client::GetAllMetaInformation()
             if (nextDirectory != NULL)
             {
                paths_.push_back(std::string(mpd_directory_get_path(nextDirectory)));
+            }
+         }
+         else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_PLAYLIST)
+         {
+            mpd_playlist const * const nextPlaylist = mpd_entity_get_playlist(nextEntity);
+
+            if (nextPlaylist != NULL)
+            {
+               playlists_.push_back(std::string(mpd_playlist_get_path(nextPlaylist)));
             }
          }
 

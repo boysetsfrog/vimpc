@@ -60,6 +60,7 @@ void DirectoryWindow::Redraw()
    Clear();
    client_.ForEachDirectory(directory_, &Mpc::Directory::Add);
    client_.ForEachLibrarySong(directory_, &Mpc::Directory::Add);
+   client_.ForEachPlaylistEntity(directory_, &Mpc::Directory::AddPlaylist);
 
    directory_.ChangeDirectory("");
    SoftRedraw();
@@ -67,6 +68,7 @@ void DirectoryWindow::Redraw()
 
 void DirectoryWindow::SoftRedraw()
 {
+   redraw_ = false;
    ScrollTo(CurrentLine());
 }
 
@@ -188,11 +190,9 @@ std::string DirectoryWindow::SearchPattern(int32_t id) const
       switch (entry->type_)
       {
          case Mpc::PathType:
-            pattern = entry->name_;
-            break;
-
          case Mpc::SongType:
-            pattern = entry->song_->URI();
+         case Mpc::PlaylistType:
+            pattern = entry->name_;
             break;
 
          case Mpc::ArtistType:
@@ -271,7 +271,6 @@ void DirectoryWindow::Print(uint32_t line) const
 
          wmove(window, line, expandCol);
          waddstr(window, directory_.Get(printLine)->name_.c_str());
-         Debug(directory_.Get(printLine)->name_.c_str());
 
          if (settings_.Get(Setting::ColourEnabled) == true)
          {
@@ -452,6 +451,24 @@ void DirectoryWindow::Edit()
    {
       screen_.CreateSongInfoWindow(entry->song_);
    }
+   else if (entry->type_ == Mpc::PlaylistType)
+   {
+      std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
+      std::string const playlist(path + entry->name_);
+
+      SongWindow * window = screen_.CreateSongWindow("P:" + entry->name_);
+      client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+      if (window->ContentSize() > -1)
+      {
+         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+      }
+      else
+      {
+         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         ErrorString(ErrorNumber::PlaylistEmpty);
+      }
+   }
 }
 
 
@@ -535,8 +552,7 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
    {
       pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-      if (((entry->type_ == Mpc::PathType) && (expression.FullMatch(entry->name_) == true)) ||
-          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->URI()) == true)))
+      if (expression.FullMatch(entry->name_) == true)
       {
          colour = Colour::SongMatch;
       }
