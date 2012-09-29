@@ -552,7 +552,7 @@ void Command::SavePlaylist(std::string const & arguments)
 {
    if (arguments != "")
    {
-      if (Main::Lists().Index(arguments) == -1)
+      if (Main::Lists().Index(Mpc::List(arguments)) == -1)
       {
          Main::Lists().Add(arguments);
          Main::Lists().Sort();
@@ -1095,8 +1095,8 @@ std::string Command::TabComplete(std::string const & command)
 
       for (uint32_t i = 0; i < Main::Lists().Size(); ++i)
       {
-         loadTable_.push_back("load " + Main::Lists().Get(i));
-         loadTable_.push_back("edit " + Main::Lists().Get(i));
+         loadTable_.push_back("load " + Main::Lists().Get(i).name_);
+         loadTable_.push_back("edit " + Main::Lists().Get(i).name_);
       }
    }
 

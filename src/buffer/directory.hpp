@@ -27,6 +27,7 @@
 #include "song.hpp"
 
 #include "buffer/library.hpp"
+#include "buffer/list.hpp"
 
 #include <vector>
 
@@ -81,7 +82,7 @@ namespace Mpc
       void Clear(bool fullClear = false);
       void Add(std::string directory);
       void Add(Mpc::Song * song);
-      void AddPlaylist(std::string playlist);
+      void AddPlaylist(Mpc::List playlist);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 

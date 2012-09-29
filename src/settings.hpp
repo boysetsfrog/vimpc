@@ -46,6 +46,7 @@
    X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
    X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \
    X(ShowPath,         "showpath",       true)  /* Show current path in directory window */ \
+   X(ShowLists,        "showlists",      true)  /* Show playlists in directory window */ \
    X(SingleQuit,       "singlequit",     false) /* Quit the entire application not just close a tab */ \
    X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \
    X(SmartCase,        "smartcase",      false) /* Case sensitivy enabled when upper case char is used */  \
@@ -64,6 +65,8 @@
    X(ArtistFormat,     "artistformat", "%A",  ".*") \
    /* Library format string */ \
    X(LibraryFormat,    "libraryformat", "$H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
+   /* Lists to show in the lists window */ \
+   X(Playlists,        "playlists", "mpd", "all|mpd|files") \
    /* Song format string */ \
    X(SongFormat,       "songformat", "{%a - %t}|{%f}$E$R $H[$H%l$H]$H", ".*") \
    /* Sort based on song format */ \
@@ -82,6 +85,11 @@ public:
    // Use for add position
    static std::string AddEnd;
    static std::string AddNext;
+
+   // Use for playlists
+   static std::string PlaylistsMpd;
+   static std::string PlaylistsAll;
+   static std::string PlaylistsFiles;
 
 #define X(a, b, c) a,
    typedef enum

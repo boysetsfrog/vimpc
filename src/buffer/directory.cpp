@@ -94,23 +94,26 @@ void Directory::ChangeDirectory(std::string New)
       Add(entry);
    }
 
-   std::vector<std::string> playlists = playlists_[directory_];
-
-   for (std::vector<std::string>::iterator it = playlists.begin(); (it != playlists.end()); ++it)
+   if ((Main::Settings::Instance().Get(Setting::ShowLists) == true))
    {
-      Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry();
+      std::vector<std::string> playlists = playlists_[directory_];
 
-      std::string file = *it;
-
-      if (file.find("/") != std::string::npos)
+      for (std::vector<std::string>::iterator it = playlists.begin(); (it != playlists.end()); ++it)
       {
-         file = file.substr(file.find_last_of("/") + 1);
-      }
+         Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry();
 
-      entry->path_ = directory_;
-      entry->type_ = Mpc::PlaylistType;
-      entry->name_ = file;
-      Add(entry);
+         std::string file = *it;
+
+         if (file.find("/") != std::string::npos)
+         {
+            file = file.substr(file.find_last_of("/") + 1);
+         }
+
+         entry->path_ = directory_;
+         entry->type_ = Mpc::PlaylistType;
+         entry->name_ = file;
+         Add(entry);
+      }
    }
 }
 
@@ -157,9 +160,9 @@ void Directory::Add(Mpc::Song * song)
    songs_[Path].push_back(song);
 }
 
-void Directory::AddPlaylist(std::string playlist)
+void Directory::AddPlaylist(Mpc::List playlist)
 {
-   std::string Path = playlist;
+   std::string Path = playlist.path_;
 
    if (Path.find("/") != std::string::npos)
    {
@@ -170,7 +173,7 @@ void Directory::AddPlaylist(std::string playlist)
       Path = "";
    }
 
-   playlists_[Path].push_back(playlist);
+   playlists_[Path].push_back(playlist.path_);
 }
 
 

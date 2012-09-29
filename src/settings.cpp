@@ -38,6 +38,10 @@ bool skipConfigConnects_ (false);
 std::string Setting::AddEnd  = "end";
 std::string Setting::AddNext = "next";
 
+std::string Setting::PlaylistsMpd   = "mpd";
+std::string Setting::PlaylistsAll   = "all";
+std::string Setting::PlaylistsFiles = "files";
+
 Settings & Settings::Instance()
 {
    static Settings settings_;

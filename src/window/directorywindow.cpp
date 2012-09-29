@@ -45,7 +45,8 @@ DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & s
    client_          (client),
    search_          (search),
    directory_       (Main::Directory()),
-   redraw_          (false)
+   redraw_          (false),
+   showLists_       (true)
 {
 }
 
@@ -62,6 +63,7 @@ void DirectoryWindow::Redraw()
    client_.ForEachLibrarySong(directory_, &Mpc::Directory::Add);
    client_.ForEachPlaylistEntity(directory_, &Mpc::Directory::AddPlaylist);
 
+   showLists_ = settings_.Get(Setting::ShowLists);
    directory_.ChangeDirectory("");
    SoftRedraw();
 }
@@ -69,12 +71,20 @@ void DirectoryWindow::Redraw()
 void DirectoryWindow::SoftRedraw()
 {
    redraw_ = false;
+
+   if (showLists_ != settings_.Get(Setting::ShowLists))
+   {
+      showLists_ = settings_.Get(Setting::ShowLists);
+      directory_.ChangeDirectory(directory_.CurrentDirectory());
+   }
+
    ScrollTo(CurrentLine());
 }
 
 bool DirectoryWindow::RequiresRedraw()
 {
-   return redraw_;
+   return ((redraw_) ||
+           (showLists_ != settings_.Get(Setting::ShowLists)));
 }
 
 

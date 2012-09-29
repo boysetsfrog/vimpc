@@ -95,6 +95,7 @@ namespace Ui
       Ui::Search     const & search_;
       Mpc::Directory &       directory_;
       bool                   redraw_;
+      bool                   showLists_;
    };
 }
 #endif

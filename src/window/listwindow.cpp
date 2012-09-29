@@ -47,6 +47,8 @@ ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc
    typedef Main::CallbackObject<Ui::ListWindow , Mpc::Lists::BufferType> WindowCallbackObject;
    typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;
 
+   playlists_ = settings_.Get(Setting::Playlists);
+
    lists_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::ListWindow::AdjustScroll));
 }
 
@@ -57,12 +59,24 @@ ListWindow::~ListWindow()
 
 void ListWindow::Redraw()
 {
+   SoftRedraw();
+}
+
+void ListWindow::SoftRedraw()
+{
+   playlists_ = settings_.Get(Setting::Playlists);
+
    Clear();
-   client_.ForEachPlaylist(lists_, static_cast<void (Mpc::Lists::*)(std::string)>(&Mpc::Lists::Add));
+   client_.ForEachPlaylist(lists_, static_cast<void (Mpc::Lists::*)(Mpc::List)>(&Mpc::Lists::Add));
 
    lists_.Sort();
    SetScrollLine(0);
    ScrollTo(0);
+}
+
+bool ListWindow::RequiresRedraw()
+{
+   return (playlists_ != settings_.Get(Setting::Playlists));
 }
 
 void ListWindow::Print(uint32_t line) const
@@ -85,7 +99,7 @@ void ListWindow::Print(uint32_t line) const
       }
 
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-      mvwaddstr(window, line, 1, lists_.Get(printLine).c_str());
+      mvwaddstr(window, line, 1, lists_.Get(printLine).name_.c_str());
 
       wattroff(window, A_REVERSE);
 
@@ -110,7 +124,7 @@ void ListWindow::Confirm()
 {
    if (lists_.Size() > CurrentLine())
    {
-      client_.LoadPlaylist(lists_.Get(CurrentLine()));
+      client_.LoadPlaylist(lists_.Get(CurrentLine()).path_);
       client_.Play(0);
    }
 }
@@ -129,7 +143,7 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
    {
       pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-      if (expression.FullMatch(lists_.Get(line)) == true)
+      if (expression.FullMatch(lists_.Get(line).name_) == true)
       {
          colour = Colour::SongMatch;
       }
@@ -139,7 +153,7 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 }
 
 
-void ListWindow::AdjustScroll(std::string list)
+void ListWindow::AdjustScroll(Mpc::List list)
 {
    LimitCurrentSelection();
 }
@@ -153,7 +167,7 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (i < Main::Lists().Size())
       {
-         client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i), Main::PlaylistTmp(),
+         client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i).path_, Main::PlaylistTmp(),
                                     static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
       }
    }
@@ -188,7 +202,7 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (line + i < BufferSize())
       {
-         client_.RemovePlaylist(Main::Lists().Get(line));
+         client_.RemovePlaylist(Main::Lists().Get(line).path_);
          Main::Lists().Remove(line, 1);
       }
    }
@@ -204,10 +218,10 @@ void ListWindow::DeleteAllLines()
 
 void ListWindow::Edit()
 {
-   std::string const playlist(lists_.Get(CurrentLine()));
+   Mpc::List const playlist(lists_.Get(CurrentLine()));
 
-   SongWindow * window = screen_.CreateSongWindow("P:" + playlist);
-   client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+   SongWindow * window = screen_.CreateSongWindow("P:" + playlist.name_);
+   client_.ForEachPlaylistSong(playlist.path_, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
    if (window->ContentSize() > -1)
    {

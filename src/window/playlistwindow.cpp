@@ -194,7 +194,7 @@ void PlaylistWindow::DeleteAllLines()
 
 void PlaylistWindow::Save(std::string const & name)
 {
-   if (Main::Lists().Index(name) == -1)
+   if (Main::Lists().Index(Mpc::List(name)) == -1)
    {
       Main::Lists().Add(name);
       Main::Lists().Sort();

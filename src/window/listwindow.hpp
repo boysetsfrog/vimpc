@@ -51,14 +51,16 @@ namespace Ui
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
       void Redraw();
+      void SoftRedraw();
+      bool RequiresRedraw();
 
       uint32_t Current() const;
 
    public:
-      void AdjustScroll(std::string list);
+      void AdjustScroll(Mpc::List list);
 
    public:
-      std::string SearchPattern(int32_t id) const { return lists_.Get(id); }
+      std::string SearchPattern(int32_t id) const { return lists_.Get(id).name_; }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
@@ -77,6 +79,7 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Lists           & lists_;
+      std::string            playlists_;
    };
 }
 

@@ -28,13 +28,30 @@
 // Lists
 namespace Mpc
 {
+   class List
+   {
+      public:
+         List(std::string const name) : path_(""), name_(name) { }
+         List(std::string const path, std::string const name) : path_(path), name_(name) { }
+
+         bool operator!=(Mpc::List const & rhs) const
+         {
+            return ((this->path_ != rhs.path_) ||
+                    (this->name_ != rhs.name_));
+         }
+
+         std::string path_;
+         std::string name_;
+   };
+
    class ListComparator
    {
       public:
-      bool operator() (std::string i, std::string j) { return (i<j); };
+      bool operator() (List i, List j) { return (i.name_ < j.name_); };
    };
 
-   class Lists : public Main::Buffer<std::string>
+
+   class Lists : public Main::Buffer<List>
    {
    private:
       typedef Main::CallbackObject<Mpc::Lists, Lists::BufferType> CallbackObject;
@@ -49,12 +66,12 @@ namespace Mpc
       }
 
    public:
-      using Main::Buffer<std::string>::Sort;
+      using Main::Buffer<List>::Sort;
 
       void Sort()
       {
          ListComparator sorter;
-         Main::Buffer<std::string>::Sort(sorter);
+         Main::Buffer<List>::Sort(sorter);
       }
    };
 }

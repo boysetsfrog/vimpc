@@ -401,12 +401,13 @@
    [no]scrollonadd[!]      | scroll down one line after adding a song
    [no]scrollondelete[!]   | scroll down one line after deleting a song
    [no]searchwrap[!]       | wrap search results when using n/N
+   [no]showpath[!]         | show the current path in the directory window
+   [no]showlists[!]        | include playlists in the directory window
    [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
    [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
    [no]songnumbers[!]      | display id numbers next to songs in any window
    [no]sortignorecase[!]   | ignore case when sorting by artist/album
    [no]sortignorethe[!]    | ignore the prefix 'the' when sorting by artist/album
-   [no]showpath[!]         | show the current path in the directory window
    [no]stoponquit[!]       | automatically stop playback when vimpc is quit
    [no]tabbar[!]           | whether or not to show the tab bar
    [no]timeremaining[!]    | display the time remaining rather than elapsed
@@ -417,6 +418,8 @@
                            | either "end" or "next" (defaults to end)
    libraryformat <fmt>     | set the format to print songs in the library
                            | set PRINT FORMATS section
+   playlists <option>      | set which playlists to include in the lists window
+                           | "mpd", "files" or "all" (defaults to mpd)
    songformat <fmt>        | set the format to print songs
                            | set PRINT FORMATS section
    sort <option>           | sort the browse window based on the songformat or

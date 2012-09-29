@@ -364,7 +364,7 @@ void SongWindow::ScrollToFirstMatch(std::string const & input)
 
 void SongWindow::Save(std::string const & name)
 {
-   if (Main::Lists().Index(name) == -1)
+   if (Main::Lists().Index(Mpc::List(name)) == -1)
    {
       client_.CreatePlaylist(name);
 

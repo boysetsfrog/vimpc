@@ -27,6 +27,7 @@
 #include "screen.hpp"
 #include "buffers.hpp"
 #include "buffer/library.hpp"
+#include "buffer/list.hpp"
 
 // The library check in 2.1.0 doesn't seem to work
 // since we don't support versions older than that anyway, just return false
@@ -215,10 +216,10 @@ namespace Mpc
       void ForEachPlaylistSong(std::string Playlist, Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
-      void ForEachPlaylist(Object & object, void (Object::*callBack)(std::string));
+      void ForEachPlaylist(Object & object, void (Object::*callBack)(Mpc::List));
 
       template <typename Object>
-      void ForEachPlaylistEntity(Object & object, void (Object::*callBack)(std::string));
+      void ForEachPlaylistEntity(Object & object, void (Object::*callBack)(Mpc::List));
 
       template <typename Object>
       void ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song *));
@@ -286,7 +287,7 @@ namespace Mpc
 
       std::vector<Mpc::Song *> songs_;
       std::vector<std::string> paths_;
-      std::vector<std::string> playlists_;
+      std::vector<Mpc::List>   playlists_;
    };
 
    //
@@ -402,32 +403,45 @@ namespace Mpc
 
    //
    template <typename Object>
-   void Client::ForEachPlaylist(Object & object, void (Object::*callBack)(std::string))
+   void Client::ForEachPlaylist(Object & object, void (Object::*callBack)(Mpc::List))
    {
 #if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-      ClearCommand();
-
-      if (Connected() == true)
+      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
+         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
       {
-         mpd_send_list_playlists(connection_);
+         ClearCommand();
 
-         mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
-
-         for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+         if (Connected() == true)
          {
-            std::string const playlist = mpd_playlist_get_path(nextPlaylist);
-            (object.*callBack)(playlist);
-            mpd_playlist_free(nextPlaylist);
+            mpd_send_list_playlists(connection_);
+
+            mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
+
+            for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+            {
+               std::string const playlist = mpd_playlist_get_path(nextPlaylist);
+               (object.*callBack)(Mpc::List(playlist));
+               mpd_playlist_free(nextPlaylist);
+            }
          }
       }
 #endif
+
+      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
+         (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles))
+      {
+         for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
+         {
+            (object.*callBack)(*it);
+         }
+      }
    }
 
    //
    template <typename Object>
-   void Client::ForEachPlaylistEntity(Object & object, void (Object::*callBack)(std::string))
+   void Client::ForEachPlaylistEntity(Object & object, void (Object::*callBack)(Mpc::List))
    {
-      for (std::vector<std::string>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
+      for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
       {
          (object.*callBack)(*it);
       }

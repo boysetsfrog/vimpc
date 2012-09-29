@@ -1286,7 +1286,16 @@ void Client::GetAllMetaInformation()
 
             if (nextPlaylist != NULL)
             {
-               playlists_.push_back(std::string(mpd_playlist_get_path(nextPlaylist)));
+               std::string const path = mpd_playlist_get_path(nextPlaylist);
+               std::string name = path;
+
+               if (name.find("/") != std::string::npos)
+               {
+                  name = name.substr(name.find_last_of("/") + 1);
+               }
+
+               Mpc::List const list(path, name);
+               playlists_.push_back(list);
             }
          }
 

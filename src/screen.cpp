@@ -121,12 +121,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, client, search);
    mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, client, search);
    mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, client, search);
-
-#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, client, search);
-#else
-   mainWindows_[Lists]        = NULL;
-#endif
 
    mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
    statusWindow_          = newwin(1, maxColumns_, mainRows_ + 1, 0);
@@ -239,8 +234,16 @@ void Screen::Start()
              (IsVisible(id) == true) &&
              (addedWindows.find(id) == addedWindows.end()))
          {
-            visibleWindows.push_back(id);
             addedWindows[id] = true;
+
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+            if ((id == (int) Lists) && (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
+            {
+               continue;
+            }
+#endif
+
+            visibleWindows.push_back(id);
          }
       }
 
