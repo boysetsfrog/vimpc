@@ -31,7 +31,7 @@ namespace Mpc
    class List
    {
       public:
-         List(std::string const name) : path_(""), name_(name) { }
+         List(std::string const name) : path_(name), name_(name) { }
          List(std::string const path, std::string const name) : path_(path), name_(name) { }
 
          bool operator!=(Mpc::List const & rhs) const
