@@ -1487,6 +1487,10 @@ bool Client::CheckError()
                Connect(hostname_, port_);
             }
          }
+         else
+         {
+            UpdateStatus();
+         }
 
          return true;
       }
