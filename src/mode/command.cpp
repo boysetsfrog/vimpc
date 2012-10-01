@@ -319,6 +319,7 @@ void Command::Add(std::string const & arguments)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.Add(arguments);
+      client_.AddComplete();
    }
    else
    {
@@ -332,6 +333,7 @@ void Command::AddAll(std::string const & arguments)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.AddAllSongs();
+      client_.AddComplete();
    }
    else
    {

@@ -21,7 +21,6 @@
 #include "librarywindow.hpp"
 
 #include "buffers.hpp"
-#include "buffers.hpp"
 #include "callback.hpp"
 #include "colour.hpp"
 #include "error.hpp"

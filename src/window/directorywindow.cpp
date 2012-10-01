@@ -578,6 +578,15 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
       {
          colour = Colour::FullAdd;
       }
+      else if ((entry->type_ == Mpc::PathType) && (directory_.TotalReferences(entry->path_) > 0))
+      {
+         colour = Colour::PartialAdd;
+
+         if (directory_.TotalReferences(entry->path_) == directory_.AllChildSongs(entry->path_).size())
+         {
+            colour = Colour::FullAdd;
+         }
+      }
    }
 
    return colour;

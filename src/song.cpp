@@ -22,6 +22,8 @@
 
 #include <stdio.h>
 
+#include "buffers.hpp"
+#include "buffer/directory.hpp"
 #include "buffer/library.hpp"
 
 const std::string UnknownArtist = "Unknown Artist";
@@ -74,6 +76,7 @@ int32_t Song::Reference() const
    if ((song->entry_ != NULL) && (song->reference_ == 1))
    {
       song->entry_->AddedToPlaylist();
+      Main::Directory().AddedToPlaylist(song->URI());
    }
 }
 
@@ -84,6 +87,7 @@ int32_t Song::Reference() const
    if ((song->entry_ != NULL) && (song->reference_ == 0))
    {
       song->entry_->RemovedFromPlaylist();
+      Main::Directory().RemovedFromPlaylist(song->URI());
    }
 }
 

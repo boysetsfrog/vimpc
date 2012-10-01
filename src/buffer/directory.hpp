@@ -46,11 +46,11 @@ namespace Mpc
    public:
       friend class Directory;
 
-      DirectoryEntry() :
-         type_    (PathType),
-         name_    (""),
-         path_    (""),
-         song_    (NULL)
+      DirectoryEntry(EntryType Type, std::string Name, std::string Path, Mpc::Song * Song = NULL) :
+         type_    (Type),
+         name_    (Name),
+         path_    (Path),
+         song_    (Song)
       { }
 
    private:
@@ -98,12 +98,19 @@ namespace Mpc
    // Directory class
    class Directory : public Main::Buffer<DirectoryEntry *>
    {
+      friend class Mpc::Song;
+
    public:
       using Main::Buffer<DirectoryEntry *>::Add;
       using Main::Buffer<DirectoryEntry *>::Sort;
 
       Directory();
       ~Directory();
+
+   public:
+      static std::string FileFromURI(std::string const & URI);
+      static std::string DirectoryFromURI(std::string const & URI);
+      static bool IsChildPath(std::string const & Parent, std::string const & Child);
 
    public:
       std::string CurrentDirectory();
@@ -117,6 +124,34 @@ namespace Mpc
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
+      uint32_t TotalReferences(std::string const & Path) const
+      {
+         uint32_t Result = References(Path);
+         std::vector<std::string> Paths = ChildPaths(Path);
+
+         for (std::vector<std::string>::const_iterator it = Paths.begin(); it != Paths.end(); ++it)
+         {
+            Result += References(*it);
+         }
+         return Result;
+      }
+
+      std::vector<Mpc::Song *> AllChildSongs(std::string const & Path) const
+      {
+         std::vector<Mpc::Song *> Result;
+         std::vector<std::string> Paths = ChildPaths(Path);
+         std::vector<Mpc::Song *> OwnSongs = Songs(Path);
+
+         for (std::vector<std::string>::const_iterator it = Paths.begin(); it != Paths.end(); ++it)
+         {
+            std::vector<Mpc::Song *> Children = Songs(*it);
+            Result.insert(Result.end(), Children.begin(), Children.end());
+         }
+
+         Result.insert(Result.end(), OwnSongs.begin(), OwnSongs.end());
+         return Result;
+      }
+
       void Sort()
       {
          DirectoryComparator sorter;
@@ -129,11 +164,46 @@ namespace Mpc
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry);
       void DeleteEntry(DirectoryEntry * const entry);
 
+      void AddedToPlaylist(std::string URI)
+      {
+         ++references_[DirectoryFromURI(URI)];
+      }
+      void RemovedFromPlaylist(std::string URI)
+      {
+         --references_[DirectoryFromURI(URI)];
+      }
+      uint32_t References(std::string const & Path) const
+      {
+         std::map<std::string, int>::const_iterator it = references_.find(Path);
+         return (it != references_.end()) ? it->second : 0;
+      }
+      std::vector<Mpc::Song *> Songs(std::string const & Path) const
+      {
+         static std::vector<Mpc::Song *> empty;
+         std::map<std::string, std::vector<Mpc::Song *> >::const_iterator it = songs_.find(Path);
+         return (it != songs_.end()) ? it->second : empty;
+      }
+
+      std::vector<std::string> ChildPaths(std::string const & Path) const
+      {
+         std::vector<std::string> Paths;
+
+         for (std::vector<std::string>::const_iterator it = paths_.begin(); it != paths_.end(); ++it)
+         {
+            if (IsChildPath(Path, *it))
+            {
+               Paths.push_back(*it);
+            }
+         }
+         return Paths;
+      }
+
       typedef Main::CallbackObject<Mpc::Directory, Directory::BufferType> CallbackObject;
       typedef Main::CallbackFunction<Directory::BufferType> CallbackFunction;
 
    private:
-      std::vector<std::string> paths_;
+      std::vector<std::string>                         paths_;
+      std::map<std::string, int >                      references_;
       std::map<std::string, std::vector<Mpc::Song *> > songs_;
       std::map<std::string, std::vector<std::string> > playlists_;
       std::string directory_;

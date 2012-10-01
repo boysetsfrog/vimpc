@@ -111,13 +111,14 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
       commandMode.SetQueueCommands(false);
 
+      struct timeval start, end;
+      gettimeofday(&start, NULL);
+
       // The main loop
       while (Running == true)
       {
          static long updateTime = 0;
-         struct timeval start, end;
-
-         gettimeofday(&start, NULL);
+         bool clientUpdate = false;
 
          int input = Input();
 
@@ -139,7 +140,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          else if (input != ERR)
          {
             Handle(input);
-            client_.UpdateDisplay();
          }
 
          gettimeofday(&end,   NULL);
@@ -156,14 +156,18 @@ void Vimpc::Run(std::string hostname, uint16_t port)
               ((settings_.Get(::Setting::Polling) == false) && (client_.HadEvents() == true))))
          {
             client_.UpdateStatus();
-            client_.DisplaySongInformation();
+            clientUpdate = true;
          }
 
-         if ((input != ERR) || (screen_.Resize() == true) || ((updateTime >= 1000) && (input == ERR)))
+         gettimeofday(&start, NULL);
+
+         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate == true) || ((updateTime >= 250) && (input == ERR)))
          {
+            clientUpdate = false;
             updateTime = 0;
             Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
             client_.DisplaySongInformation();
+            client_.UpdateDisplay();
             screen_.Update();
 
             if (screen_.PagerIsVisible() == false)

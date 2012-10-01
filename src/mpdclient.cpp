@@ -302,13 +302,21 @@ void Client::Play(uint32_t const playId)
       mpd_send_play_pos(connection_, playId);
 
       currentSongId_ = playId;
-      state_         = MPD_STATE_PLAY;
-
+      state_ = MPD_STATE_PLAY;
       UpdateStatus();
    }
    else
    {
       ErrorString(ErrorNumber::ClientNoConnection);
+   }
+}
+
+
+void Client::AddComplete()
+{
+   if ((state_ == MPD_STATE_STOP) && (settings_.Get(Setting::PlayOnAdd) == true))
+   {
+      Play(0);
    }
 }
 
@@ -342,11 +350,8 @@ void Client::Stop()
    if (Connected() == true)
    {
       mpd_send_stop(connection_);
-
-      state_          = MPD_STATE_STOP;
-      currentSong_    = NULL;
-      currentSongId_  = -1;
-      currentSongURI_ = "";
+      state_   = MPD_STATE_STOP;
+      UpdateStatus();
    }
    else
    {
@@ -1095,7 +1100,7 @@ void Client::IncrementTime(long time)
    }
 
    if ((currentSong_ != NULL) &&
-       (elapsed_ > mpd_song_get_duration(currentSong_)))
+       (elapsed_ >= mpd_song_get_duration(currentSong_)))
    {
       elapsed_ = 0;
 
@@ -1194,21 +1199,18 @@ void Client::UpdateCurrentSong()
          {
             mpd_song_free(currentSong_);
             currentSong_ = NULL;
-            currentSongId_  = -1;
+            currentSongId_ = -1;
             currentSongURI_ = "";
          }
 
-         if (state_ != MPD_STATE_STOP)
-         {
-            timeSinceSong_ = 0;
-            currentSong_ = mpd_run_current_song(connection_);
-            CheckError();
+         currentSong_ = mpd_run_current_song(connection_);
+         timeSinceSong_ = 0;
+         CheckError();
 
-            if (currentSong_ != NULL)
-            {
-               currentSongId_  = mpd_song_get_pos(currentSong_);
-               currentSongURI_ = mpd_song_get_uri(currentSong_);
-            }
+         if (currentSong_ != NULL)
+         {
+            currentSongId_  = mpd_song_get_pos(currentSong_);
+            currentSongURI_ = mpd_song_get_uri(currentSong_);
          }
       }
    }
@@ -1376,6 +1378,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
          // Check if we need to update the current song
          if ((mpdstate_ != mpd_status_get_state(currentStatus_)) ||
              ((mpdstate_ != MPD_STATE_STOP) && (currentSong_ == NULL)) ||
+             ((mpdstate_ == MPD_STATE_STOP) && (currentSong_ != NULL)) ||
              ((currentSong_ != NULL) &&
               ((elapsed_ >= mpd_song_get_duration(currentSong_) - 3) ||
                (mpd_status_get_elapsed_time(currentStatus_) < mpdelapsed_) ||
@@ -1387,6 +1390,12 @@ void Client::UpdateStatus(bool ExpectUpdate)
          mpdstate_   = mpd_status_get_state(currentStatus_);
          mpdelapsed_ = mpd_status_get_elapsed_time(currentStatus_);
          state_      = mpdstate_;
+
+         if (mpdstate_ == MPD_STATE_STOP)
+         {
+            currentSongId_  = -1;
+            currentSongURI_ = "";
+         }
 
          if ((queueVersion_ > -1) &&
              ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))

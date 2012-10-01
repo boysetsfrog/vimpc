@@ -41,6 +41,7 @@
    X(Mouse,            "mouse",          true)  /* Handle mouse keys */ \
    X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
+   X(PlayOnAdd,        "playonadd",      true)  /* If mpd is stopped play after first add */ \
    X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
    X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
    X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \

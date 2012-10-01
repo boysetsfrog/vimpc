@@ -159,6 +159,9 @@ namespace Mpc
       //! versions above for that purpose
       uint32_t Add(std::string const & URI);
 
+      // Call after all songs have been added
+      void AddComplete();
+
       void Delete(uint32_t position);
       void Delete(uint32_t position1, uint32_t position2);
       void Clear();

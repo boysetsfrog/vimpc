@@ -78,19 +78,8 @@ void Directory::ChangeDirectory(std::string New)
 
    for (std::vector<Mpc::Song *>::iterator it = songs.begin(); (it != songs.end()); ++it)
    {
-      Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry();
-
-      std::string file = (*it)->URI();
-
-      if (file.find("/") != std::string::npos)
-      {
-         file = file.substr(file.find_last_of("/") + 1);
-      }
-
-      entry->path_ = directory_;
-      entry->type_ = Mpc::SongType;
-      entry->song_ = *it;
-      entry->name_ = file;
+      Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::SongType, FileFromURI((*it)->URI()),
+                                                            directory_, *it);
       Add(entry);
    }
 
@@ -100,18 +89,8 @@ void Directory::ChangeDirectory(std::string New)
 
       for (std::vector<std::string>::iterator it = playlists.begin(); (it != playlists.end()); ++it)
       {
-         Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry();
-
-         std::string file = *it;
-
-         if (file.find("/") != std::string::npos)
-         {
-            file = file.substr(file.find_last_of("/") + 1);
-         }
-
-         entry->path_ = directory_;
-         entry->type_ = Mpc::PlaylistType;
-         entry->name_ = file;
+         Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::PlaylistType, FileFromURI(*it),
+                                                               directory_);
          Add(entry);
       }
    }
@@ -195,17 +174,13 @@ void Directory::AddEntry(std::string fullPath)
    if (((directory.size() >= 1) && (directory[0] != '.')) || 
        ((directory.size() >= 2) && directory[1] == '.'))
    {
-      Debug(" test " + directory_ + " apple " + fullPath);
-
       if (((directory_ != "") && 
            (fullPath.find(directory_ + "/") != std::string::npos) && 
            (fullPath.find(directory_ + "/") + directory_.size() == fullPath.find_last_of("/"))) || 
           ((directory_ == "") && (fullPath.find('/') == std::string::npos)) ||
           (directory == ".."))
       {
-         Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry();
-         entry->name_ = directory;
-         entry->path_ = fullPath;
+         Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::PathType, directory, fullPath);
          Add(entry);
       }
    }
@@ -306,6 +281,10 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
          }
       }
    }
+   else if (entry->type_ == Mpc::PathType)
+   {
+      client.Add(entry->path_);
+   }
 }
 
 void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry)
@@ -320,7 +299,77 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
          Main::Playlist().Remove(PlaylistIndex, 1);
       }
    }
+   else if (entry->type_ == Mpc::PlaylistType)
+   {
+      bool const isList = client.IsCommandList();
+      std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
+
+      Main::PlaylistTmp().Clear();
+
+      if (isList == true)
+      {
+         client.SendCommandList();
+      }
+
+      client.ForEachPlaylistSong(path + entry->name_, Main::PlaylistTmp(),
+                                 static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+
+      if (isList == true)
+      {
+         client.StartCommandList();
+      }
+
+      uint32_t total = Main::PlaylistTmp().Size();
+
+      if (total > 0)
+      {
+         Mpc::CommandList list(client, (total > 1));
+
+         for (uint32_t i = 0; i < total; ++i)
+         {
+            int const PlaylistIndex = Main::Playlist().Index(Main::PlaylistTmp().Get(i));
+
+            if (PlaylistIndex >= 0)
+            {
+               client.Delete(PlaylistIndex);
+               Main::Playlist().Remove(PlaylistIndex, 1);
+            }
+         }
+      }
+   }
+   else if (entry->type_ == Mpc::PathType)
+   {
+
+   }
 }
 
+/* static */ bool Directory::IsChildPath(std::string const & Parent, std::string const & Child)
+{
+   return ((Parent == "") || (Child.find(Parent + "/") != std::string::npos));
+}
+
+/* static */ std::string Directory::FileFromURI(std::string const & URI)
+{
+   std::string File = URI;
+
+   if (File.find("/") != std::string::npos)
+   {
+      File = File.substr(File.find_last_of("/") + 1);
+   }
+
+   return File;
+}
+
+/* static */ std::string Directory::DirectoryFromURI(std::string const & URI)
+{
+   std::string Directory = "";
+
+   if (URI.find("/") != std::string::npos)
+   {
+      Directory = URI.substr(0, URI.find_last_of("/"));
+   }
+
+   return Directory; 
+}
 
 /* vim: set sw=3 ts=3: */
