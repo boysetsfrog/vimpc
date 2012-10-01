@@ -183,6 +183,14 @@
 
 
    
+ EDITTING:
+   A number of keyboard shortcuts are available when typing in
+   command mode.
+
+   Ctrl+b, Home            | go to start of line
+   Ctrl+e, End             | go to end of the line
+   Ctrl+h, Backspace       | delete previous character
+   Ctrl+u                  | clear from cursor position to start
 
  
  CONNECTING:
