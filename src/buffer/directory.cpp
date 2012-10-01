@@ -195,7 +195,11 @@ void Directory::AddEntry(std::string fullPath)
    if (((directory.size() >= 1) && (directory[0] != '.')) || 
        ((directory.size() >= 2) && directory[1] == '.'))
    {
-      if (((directory_ != "") && (fullPath.find(directory_) == 0)) ||
+      Debug(" test " + directory_ + " apple " + fullPath);
+
+      if (((directory_ != "") && 
+           (fullPath.find(directory_ + "/") != std::string::npos) && 
+           (fullPath.find(directory_ + "/") + directory_.size() == fullPath.find_last_of("/"))) || 
           ((directory_ == "") && (fullPath.find('/') == std::string::npos)) ||
           (directory == ".."))
       {

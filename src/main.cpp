@@ -47,7 +47,7 @@ ASSERT_FUNCTION()
 
 #ifdef HAVE_EXECINFO_H
    nptrs = backtrace(buffer, BufferSize);
-   backtrace_symbols_fd(buffer, nptrs, STDERR_FILENO);
+   backtrace_symbols_fd(buffer, nptrs, 2);
 #endif
    exit(1);
 }
