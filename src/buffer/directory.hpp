@@ -64,12 +64,35 @@ namespace Mpc
       Mpc::Song *        song_;
    };
 
+   class DirectoryComparator
+   {
+      public:
+      bool operator() (DirectoryEntry * i, DirectoryEntry * j) 
+      { 
+         if (i->type_ == j->type_)
+         {
+            return (i->name_ < j->name_); 
+         }
+         else if (i->type_ == PathType)
+         {
+            return true;
+         }
+         else if (j->type_ == PathType)
+         {
+            return false;
+         }
+
+         return (i->name_ < j->name_); 
+      };
+   };
+
 
    // Directory class
    class Directory : public Main::Buffer<DirectoryEntry *>
    {
    public:
       using Main::Buffer<DirectoryEntry *>::Add;
+      using Main::Buffer<DirectoryEntry *>::Sort;
 
       Directory();
       ~Directory();
@@ -85,6 +108,12 @@ namespace Mpc
       void AddPlaylist(Mpc::List playlist);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+
+      void Sort()
+      {
+         DirectoryComparator sorter;
+         Main::Buffer<DirectoryEntry *>::Sort(sorter);
+      }
 
    private:
       void AddEntry(std::string fullPath);

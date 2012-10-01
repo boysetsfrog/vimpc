@@ -115,6 +115,8 @@ void Directory::ChangeDirectory(std::string New)
          Add(entry);
       }
    }
+
+   Sort();
 }
 
 void Directory::ChangeDirectory(DirectoryEntry & New)
