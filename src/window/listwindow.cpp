@@ -198,6 +198,44 @@ void ListWindow::AddAllLines()
 
 void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
+   Main::PlaylistTmp().Clear();
+
+   for (uint32_t i = 0; i < count; ++i)
+   {
+      if (i < Main::Lists().Size())
+      {
+         client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i).path_, Main::PlaylistTmp(),
+                                    static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+      }
+   }
+
+   uint32_t total = Main::PlaylistTmp().Size();
+
+   if (total > 0)
+   {
+      Mpc::CommandList list(client_, (total > 1));
+
+      for (uint32_t i = 0; i < total; ++i)
+      {
+         int const PlaylistIndex = Main::Playlist().Index(Main::PlaylistTmp().Get(i));
+         client_.Delete(PlaylistIndex);
+         Main::Playlist().Remove(PlaylistIndex, 1);
+      }
+   }
+
+   if (scroll == true)
+   {
+      Scroll(count);
+   }
+}
+
+void ListWindow::DeleteAllLines()
+{
+   DeleteLine(0, BufferSize(), false);
+}
+
+void ListWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
+{
    for (unsigned int i = 0; i < count; ++i)
    {
       if (line + i < BufferSize())
@@ -208,13 +246,13 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
    }
 
    Main::Lists().Sort();
+   SelectWindow::DeleteLine(line, count, scroll);
 }
 
-void ListWindow::DeleteAllLines()
+void ListWindow::CropAllLines()
 {
-   DeleteLine(0, BufferSize(), false);
+   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
 }
-
 
 void ListWindow::Edit()
 {

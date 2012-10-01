@@ -67,6 +67,8 @@ namespace Ui
       void AddAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+      void CropLine(uint32_t line, uint32_t count, bool scroll);
+      void CropAllLines();
       void Edit();
 
    private:

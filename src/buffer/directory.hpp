@@ -69,7 +69,15 @@ namespace Mpc
       public:
       bool operator() (DirectoryEntry * i, DirectoryEntry * j) 
       { 
-         if (i->type_ == j->type_)
+         if (i->name_ == "..")
+         {
+            return true;
+         }
+         else if (j->name_ == "..")
+         {
+            return false;
+         }
+         else if (i->type_ == j->type_)
          {
             return (i->name_ < j->name_); 
          }

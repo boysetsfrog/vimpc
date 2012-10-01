@@ -123,7 +123,8 @@
    setting).
 
    [count] a               | add list contents to playlist
-   [count] d, del          | delete lists
+   [count] d, del          | delete lists contents from playlist
+           x               | remove the playlist
            e               | view lists contents
            <Enter>         | play the currently selected list
  
