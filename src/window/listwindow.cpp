@@ -218,8 +218,12 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       for (uint32_t i = 0; i < total; ++i)
       {
          int const PlaylistIndex = Main::Playlist().Index(Main::PlaylistTmp().Get(i));
-         client_.Delete(PlaylistIndex);
-         Main::Playlist().Remove(PlaylistIndex, 1);
+
+         if (PlaylistIndex >= 0)
+         {
+            client_.Delete(PlaylistIndex);
+            Main::Playlist().Remove(PlaylistIndex, 1);
+         }
       }
    }
 

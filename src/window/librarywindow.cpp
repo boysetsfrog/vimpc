@@ -110,11 +110,18 @@ void LibraryWindow::SoftRedraw()
    screen_.Redraw(Ui::Screen::Browse);
    screen_.Redraw(Ui::Screen::Directory);
 
+   if (RequiresRedraw() == true)
+   {
+      ScrollTo(0);
+   }
+   else
+   {
+      ScrollTo(CurrentLine());
+   }
+
    ignoreCase_   = settings_.Get(Setting::IgnoreCaseSort);
    ignoreThe_    = settings_.Get(Setting::IgnoreTheSort);
    expandArtist_ = settings_.Get(Setting::ExpandArtists);
-
-   ScrollTo(CurrentLine());
 }
 
 bool LibraryWindow::RequiresRedraw()
@@ -179,6 +186,7 @@ std::string LibraryWindow::SearchPattern(int32_t id) const
          break;
 
       case Mpc::PathType:
+      case Mpc::PlaylistType:
       default:
          ASSERT(false);
          break;
