@@ -41,7 +41,7 @@
    X(Mouse,            "mouse",          true)  /* Handle mouse keys */ \
    X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
-   X(PlayOnAdd,        "playonadd",      true)  /* If mpd is stopped play after first add */ \
+   X(PlayOnAdd,        "playonadd",      false)  /* If mpd is stopped play after first add */ \
    X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
    X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
    X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
@@ -109,7 +109,7 @@ public:
    } StringSettings;
 #undef X
 };
-                      
+
 namespace Main
 {
    //! Holds the value of an individual setting
@@ -167,14 +167,14 @@ namespace Main
 
       public:
          //! Get the value for the given \p setting
-         bool GetBool(std::string setting) const 
-         { 
+         bool GetBool(std::string setting) const
+         {
             BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
             return ((it != toggleTable_.end()) && (it->second->Get()));
          }
 
-         std::string GetString(std::string setting) const 
-         { 
+         std::string GetString(std::string setting) const
+         {
             StringSettingsTable::const_iterator it = stringTable_.find(setting);
             if (it != stringTable_.end())
             {

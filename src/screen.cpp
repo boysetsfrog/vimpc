@@ -229,7 +229,7 @@ void Screen::Start()
       {
          int32_t id = GetWindowFromName(window);
 
-         if ((id != static_cast<int32_t>(Unknown)) && 
+         if ((id != static_cast<int32_t>(Unknown)) &&
              (mainWindows_[id] != NULL) &&
              (IsVisible(id) == true) &&
              (addedWindows.find(id) == addedWindows.end()))
@@ -690,7 +690,7 @@ bool Screen::Resize(bool forceResize)
 #ifdef TIOCGWINSZ
       struct winsize windowSize;
 
-      if ((ioctl(0, TIOCGWINSZ, &windowSize) >= 0) && 
+      if ((ioctl(0, TIOCGWINSZ, &windowSize) >= 0) &&
           (windowSize.ws_row >= 0 && windowSize.ws_col >= 0))
       {
          maxRows_    = windowSize.ws_row;
@@ -718,7 +718,7 @@ bool Screen::Resize(bool forceResize)
             wresize(pagerWindow_->N_WINDOW(), lines, maxColumns_);
             mvwin(pagerWindow_->N_WINDOW(), maxRows_ - lines, 0);
             wclear(pagerWindow_->N_WINDOW());
-            maxRows_ -= (lines - 1);   
+            maxRows_ -= (lines - 1);
          }
          else
          {
@@ -874,7 +874,7 @@ void Screen::HandleMouseEvent()
          {
             Scroll(-6);
          }
-         else if ((event.bstate & BUTTON2_PRESSED) 
+         else if ((event.bstate & BUTTON2_PRESSED)
 #if (NCURSES_MOUSE_VERSION <= 1)
                || (event.bstate & BUTTON5_PRESSED))
 #endif
