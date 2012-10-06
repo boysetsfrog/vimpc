@@ -125,7 +125,6 @@ namespace Mpc
       void SetVolume(uint32_t volume);
 
       bool IsUpdating();
-      void ClearUpdateFlag();
 
    public:
       // Playlist editing

@@ -1048,7 +1048,7 @@ void Client::Rescan()
 
    if (Connected() == true)
    {
-      mpd_send_rescan(connection_, "/");
+      mpd_send_rescan(connection_, NULL);
    }
    else
    {
@@ -1062,7 +1062,7 @@ void Client::Update()
 
    if (Connected() == true)
    {
-      mpd_send_update(connection_, "/");
+      mpd_send_update(connection_, NULL);
    }
    else
    {
@@ -1351,7 +1351,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
          bool const   wasUpdating = updating_;
 
          volume_   = mpd_status_get_volume(currentStatus_);
-         updating_ = (mpd_status_get_update_id(currentStatus_) == 1);
+         updating_ = (mpd_status_get_update_id(currentStatus_) >= 1);
          random_   = mpd_status_get_random(currentStatus_);
          repeat_   = mpd_status_get_repeat(currentStatus_);
          single_   = mpd_status_get_single(currentStatus_);
