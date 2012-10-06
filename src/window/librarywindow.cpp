@@ -61,19 +61,19 @@ LibraryWindow::~LibraryWindow()
 
 void LibraryWindow::Redraw()
 {
-   Main::Playlist().Clear();
-   client_.GetAllMetaInformation();
    SoftRedraw();
-
-   client_.ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 }
 
 void LibraryWindow::SoftRedraw()
 {
    if (client_.WasUpdated())
    {
+      client_.ClearUpdateFlag();
+
+      Main::Playlist().Clear();
       Clear();
       client_.ForEachLibrarySong(library_, &Mpc::Library::Add);
+      client_.ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
    }
 
    // The library needs to be completely collapsed before sorting as the sort cannot compare different types

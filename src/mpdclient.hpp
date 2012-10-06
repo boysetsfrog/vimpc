@@ -126,6 +126,7 @@ namespace Mpc
 
       bool IsUpdating();
       bool WasUpdated();
+      void ClearUpdateFlag();
 
    public:
       // Playlist editing

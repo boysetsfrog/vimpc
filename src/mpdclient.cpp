@@ -232,14 +232,12 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
          Password(connect_password);
       }
 
-      // Must redraw the library first
+      GetAllMetaInformation();
+
       screen_.InvalidateAll();
-
       screen_.Redraw(Ui::Screen::Library);
-      screen_.Redraw(Ui::Screen::Playlist);
 
-      if ((screen_.GetActiveWindow() != Ui::Screen::Library) &&
-          (screen_.GetActiveWindow() != Ui::Screen::Playlist))
+      if (screen_.GetActiveWindow() != Ui::Screen::Playlist)
       {
          screen_.Redraw(screen_.GetActiveWindow());
       }
@@ -570,6 +568,11 @@ bool Client::IsUpdating()
 bool Client::WasUpdated()
 {
    return updated_;
+}
+
+void Client::ClearUpdateFlag()
+{
+   updated_ = false;
 }
 
 
