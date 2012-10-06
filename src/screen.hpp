@@ -87,6 +87,7 @@ namespace Ui
          MainWindowCount,
 
          Unknown,
+         SongInfo,
          Dynamic //Anything above dynamic is a dynamic window
       } MainWindow;
 
@@ -126,7 +127,7 @@ namespace Ui
 
       // Create a new song window, usually used for search results
       Ui::SongWindow * CreateSongWindow(std::string const & name);
-      Ui::InfoWindow * CreateInfoWindow(std::string const & name, Mpc::Song * song = NULL);
+      Ui::InfoWindow * CreateInfoWindow(int32_t Id, std::string const & name, Mpc::Song * song = NULL);
 
       void CreateSongInfoWindow(Mpc::Song * song = NULL);
 

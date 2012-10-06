@@ -265,18 +265,11 @@ Ui::SongWindow * Screen::CreateSongWindow(std::string const & name)
 }
 
 
-Ui::InfoWindow * Screen::CreateInfoWindow(std::string const & name, Mpc::Song * song)
+Ui::InfoWindow * Screen::CreateInfoWindow(int32_t Id, std::string const & name, Mpc::Song * song)
 {
-   int32_t id = static_cast<int32_t>(Dynamic);
-
-   while (mainWindows_.find(id) != mainWindows_.end())
-   {
-      ++id;
-   }
-
+   SetVisible(Id, false);
    Ui::InfoWindow * window = new InfoWindow(song->URI(), settings_, *this, client_, search_, name);
-   mainWindows_[id]        = window;
-
+   mainWindows_[Id]        = window;
    return window;
 }
 
@@ -284,12 +277,7 @@ void Screen::CreateSongInfoWindow(Mpc::Song * song)
 {
    if (song != NULL)
    {
-      if (GetWindowFromName("songinfo") != Ui::Screen::Unknown)
-      {
-         SetVisible(GetWindowFromName("songinfo"), false);
-      }
-
-      InfoWindow * window = CreateInfoWindow("songinfo", song);
+      InfoWindow * window = CreateInfoWindow(SongInfo, "info", song);
 
       if (window->ContentSize() > -1)
       {
@@ -638,7 +626,7 @@ void Screen::InvalidateAll()
 
    for (; (it != mainWindows_.end()); ++it)
    {
-      if (it->first < (int) MainWindowCount)
+      if (it->first < (int) Dynamic)
       {
          Invalidate(it->first);
       }
