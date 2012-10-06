@@ -158,12 +158,12 @@ void Player::Volume(uint32_t volume)
 
 void Player::Rescan()
 {
-   client_.Rescan();
+   client_.Rescan("");
 }
 
 void Player::Update()
 {
-   client_.Update();
+   client_.Update("");
 }
 
 

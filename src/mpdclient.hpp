@@ -186,8 +186,8 @@ namespace Mpc
 
    public:
       // Database state
-      void Rescan();
-      void Update();
+      void Rescan(std::string const & Path);
+      void Update(std::string const & Path);
       void IncrementTime(long time);
       long TimeSinceUpdate();
       void IdleMode();

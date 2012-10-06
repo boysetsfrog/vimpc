@@ -1042,13 +1042,13 @@ void Client::DisplaySongInformation()
 }
 
 
-void Client::Rescan()
+void Client::Rescan(std::string const & Path)
 {
    ClearCommand();
 
    if (Connected() == true)
    {
-      mpd_send_rescan(connection_, NULL);
+      mpd_send_rescan(connection_, (Path != "") ? Path.c_str() : NULL);
    }
    else
    {
@@ -1056,13 +1056,13 @@ void Client::Rescan()
    }
 }
 
-void Client::Update()
+void Client::Update(std::string const & Path)
 {
    ClearCommand();
 
    if (Connected() == true)
    {
-      mpd_send_update(connection_, NULL);
+      mpd_send_update(connection_, (Path != "") ? Path.c_str() : NULL);
    }
    else
    {

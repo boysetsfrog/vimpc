@@ -201,8 +201,8 @@
    reconnect               | reconnect to host last connected to
 
  DATABASE:
-   update                  | perform a database update
-   rescan                  | force an update including songs without changes
+   update [path]           | perform a database update
+   rescan [path]           | force an update including songs without changes
  
  PLAYBACK:
    pause                   | toggle between pause/play

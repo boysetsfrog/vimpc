@@ -839,12 +839,12 @@ void Command::Stop(std::string const & arguments)
 
 void Command::Rescan(std::string const & arguments)
 {
-   Player::Rescan();
+   client_.Rescan(arguments);
 }
 
 void Command::Update(std::string const & arguments)
 {
-   Player::Update();
+   client_.Update(arguments);
 }
 
 
