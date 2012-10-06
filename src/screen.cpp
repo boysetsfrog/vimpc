@@ -102,7 +102,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, client, search);
    mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, client, search);
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, client, search);
-   mainWindows_[Playlist]     = new Ui::PlaylistWindow(settings, *this, client, search);
+   mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, client, search);
 
    // Create paging window to print maps, settings, etc
    pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
@@ -433,21 +433,14 @@ void Screen::Align(Direction direction, uint32_t count)
 
    if (direction == Up)
    {
-      if (count > min)
-      {
-         count = min;
-      }
+      count = (count > min) ? min : count;
 
       if (selection >= static_cast<int32_t>(min + max - count - 1))
       {
          selection = min + max - count - 1;
       }
 
-      if (selection < 0)
-      {
-         selection = max;
-      }
-
+      selection = (selection < 0) ? max : selection;
       ActiveWindow().ScrollWindow::Scroll(-1 * count);
    }
    else if (direction == Down)
@@ -508,8 +501,7 @@ void Screen::Scroll(Size size, Direction direction, uint32_t count)
    {
       scrollCount *= (MaxRows());
    }
-
-   if (size == Page)
+   else if (size == Page)
    {
       scrollCount *= (MaxRows() / 2);
    }
@@ -635,18 +627,25 @@ void Screen::Initialise(int32_t window) const
    }
 }
 
-void Screen::Invalidate(int32_t window) const
+void Screen::Invalidate(int32_t window)
 {
    drawn_[window] = false;
 }
 
-void Screen::InvalidateAll() const
+void Screen::InvalidateAll()
 {
    WindowMap::const_iterator it = mainWindows_.begin();
 
    for (; (it != mainWindows_.end()); ++it)
    {
-      Invalidate(it->first);
+      if (it->first < (int) MainWindowCount)
+      {
+         Invalidate(it->first);
+      }
+      else
+      {
+         SetVisible(it->first, false);
+      }
    }
 }
 
@@ -1210,7 +1209,6 @@ void Screen::OnMouseSettingChange(bool Value)
    // If the mouse setting was changed reinitialise
    SetupMouse(Value);
 }
-
 
 void ResizeHandler(int i)
 {

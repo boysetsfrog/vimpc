@@ -90,16 +90,24 @@ void OutputWindow::Print(uint32_t line) const
 
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
 
+      waddstr(window, "[ ]");
+
       if (outputs_.Get(printLine)->Enabled() == true)
       {
-         waddstr(window, " [*]");
-      }
-      else
-      {
-         waddstr(window, " [ ]");
+         if ((printLine != CurrentLine()) && (settings_.Get(Setting::ColourEnabled) == true))
+         {
+            wattron(window, COLOR_PAIR(Colour::SongId));
+         }
+
+         mvwaddstr(window, line, 1, "*");
+         
+         if ((printLine != CurrentLine()) && (settings_.Get(Setting::ColourEnabled) == true))
+         {
+            wattroff(window, COLOR_PAIR(Colour::SongId));
+         }
       }
 
-      mvwaddstr(window, line, 5, outputs_.Get(printLine)->Name().c_str());
+      mvwaddstr(window, line, 4, outputs_.Get(printLine)->Name().c_str());
 
       wattroff(window, A_REVERSE);
 

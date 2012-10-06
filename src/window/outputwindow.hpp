@@ -59,9 +59,6 @@ namespace Ui
       void Redraw();
 
    public:
-      void AdjustScroll(Mpc::Output * output);
-
-   public:
       std::string SearchPattern(int32_t id) const { return outputs_.Get(id)->Name(); }
 
    public:
@@ -78,6 +75,7 @@ namespace Ui
       size_t  BufferSize() const { return outputs_.Size(); }
       int32_t DetermineColour(uint32_t line) const;
       void    SoftRedraw();
+      void    AdjustScroll(Mpc::Output * output);
 
    private:
       Main::Settings const & settings_;

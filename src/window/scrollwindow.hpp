@@ -67,8 +67,6 @@ namespace Ui
       virtual void Edit() {}
       virtual void Escape() {}
       virtual void Visual() {}
-
-   public:
       virtual void Save(std::string const & name) {}
 
    public:
@@ -97,9 +95,8 @@ namespace Ui
       void SoftRedrawOnSetting(Setting::StringSettings setting);
       void OnSettingChanged(bool)        { SoftRedraw(); }
       void OnSettingChanged(std::string) { SoftRedraw(); }
-      virtual void SoftRedraw() {}
 
-   protected:
+      virtual void   SoftRedraw() {}
       virtual size_t BufferSize() const = 0;
 
    protected:
