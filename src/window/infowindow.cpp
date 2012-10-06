@@ -27,17 +27,16 @@
 
 using namespace Ui;
 
-InfoWindow::InfoWindow(Mpc::Song * song, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
+InfoWindow::InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
    SongWindow    (settings, screen, client, search, name),
    m_ActiveWindow(screen_.GetActiveWindow()),
-   m_Song        (new Mpc::Song(*song))
+   m_URI         (URI)
 {
-   Add(m_Song);
+   Redraw();
 }
 
 InfoWindow::~InfoWindow()
 {
-   delete m_Song;
 }
 
 void InfoWindow::Print(uint32_t line) const
@@ -52,45 +51,48 @@ void InfoWindow::Print(uint32_t line) const
          mvwhline(window, i, 0, ' ', screen_.MaxColumns());
       }
 
-      wattron(window, A_BOLD);
-      mvwaddstr(window, 0, 0, " File     : ");
-      wattroff(window, A_BOLD);
-      mvwprintw(window, 0, 12, "%s", song->URI().c_str());
+      if (song != NULL)
+      {
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 0, 0, " File     : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 0, 12, "%s", song->URI().c_str());
 
-      wattron(window, A_BOLD);
-      mvwaddstr(window, 3, 0, " Artist   : ");
-      wattroff(window, A_BOLD);
-      mvwaddstr(window, 3, 12, song->Artist().c_str());
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 3, 0, " Artist   : ");
+         wattroff(window, A_BOLD);
+         mvwaddstr(window, 3, 12, song->Artist().c_str());
 
-      wattron(window, A_BOLD);
-      mvwaddstr(window, 4, 0, " Album    : ");
-      wattroff(window, A_BOLD);
-      mvwaddstr(window, 4, 12, song->Album().c_str());
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 4, 0, " Album    : ");
+         wattroff(window, A_BOLD);
+         mvwaddstr(window, 4, 12, song->Album().c_str());
 
-      wattron(window, A_BOLD);
-      mvwaddstr(window, 5, 0, " Track    : ");
-      wattroff(window, A_BOLD);
-      mvwprintw(window, 5, 12, "%s", song->Track().c_str());
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 5, 0, " Track    : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 5, 12, "%s", song->Track().c_str());
 
-      wattron(window, A_BOLD);
-      mvwaddstr(window, 6, 0, " Title    : ");
-      wattroff(window, A_BOLD);
-      mvwprintw(window, 6, 12, "%s", song->Title().c_str());
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 6, 0, " Title    : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 6, 12, "%s", song->Title().c_str());
 
-      wattron(window, A_BOLD);
-      mvwaddstr(window, 7, 0, " Duration : ");
-      wattroff(window, A_BOLD);
-      mvwprintw(window, 7, 12, "%d:%d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 7, 0, " Duration : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 7, 12, "%d:%d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
 
 
-      wattron(window, A_BOLD);
-      mvwaddstr(window, 9, 0, " Playlist : ");
-      wattroff(window, A_BOLD);
-      mvwprintw(window, 9, 12, "%s", (song->Reference() > 0) ? "Yes" : "No");
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 9, 0, " Playlist : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 9, 12, "%s", (song->Reference() > 0) ? "Yes" : "No");
 
-      //mvwaddstr(window, 4, 0, song->Duration().c_str());
-      //
-      // \TODO playlist positions, rating, counter, other TAGS (genre, date)
+         //mvwaddstr(window, 4, 0, song->Duration().c_str());
+         //
+         // \TODO playlist positions, rating, counter, other TAGS (genre, date)
+      }
    }
 }
 
@@ -115,5 +117,17 @@ void InfoWindow::Edit()
    }
 
    screen_.SetVisible(InfoWindowId, false);
+}
+
+void InfoWindow::Redraw()
+{
+   Clear();
+
+   Mpc::Song * song = Main::Library().Song(m_URI);
+
+   if (song)
+   {
+      Add(song);
+   }
 }
 /* vim: set sw=3 ts=3: */

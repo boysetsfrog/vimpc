@@ -288,7 +288,7 @@ Ui::InfoWindow * Screen::CreateInfoWindow(std::string const & name, Mpc::Song * 
       ++id;
    }
 
-   Ui::InfoWindow * window = new InfoWindow(song, settings_, *this, client_, search_, name);
+   Ui::InfoWindow * window = new InfoWindow(song->URI(), settings_, *this, client_, search_, name);
    mainWindows_[id]        = window;
 
    return window;
@@ -621,6 +621,7 @@ void Screen::Update()
 
       ActiveWindow().Refresh();
 
+      // Show the pager window if it is currently enabled
       if (pager_ == true)
       {
          werase(pagerWindow_->N_WINDOW());
@@ -673,9 +674,11 @@ void Screen::Invalidate(int32_t window) const
 
 void Screen::InvalidateAll() const
 {
-   for (int i = 0; i < MainWindowCount; ++ i)
+   WindowMap::const_iterator it = mainWindows_.begin();
+
+   for (; (it != mainWindows_.end()); ++it)
    {
-      Invalidate(i);
+      Invalidate(it->first);
    }
 }
 

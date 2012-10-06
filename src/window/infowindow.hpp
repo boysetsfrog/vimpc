@@ -31,7 +31,7 @@ namespace Ui
    class InfoWindow : public SongWindow
    {
    public:
-      InfoWindow(Mpc::Song * song, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name = "Unknown");
+      InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name = "Unknown");
       virtual ~InfoWindow();
 
    public:
@@ -41,17 +41,19 @@ namespace Ui
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void Edit();
+      void Redraw();
+
       void AddAllLines() {}
       void CropLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
       void CropAllLines() {}
-      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines() {}
-      void Edit();
       void Save(std::string const & name) {}
 
    private:
       int const   m_ActiveWindow; 
-      Mpc::Song * m_Song;
+      std::string m_URI;
    };
 }
 
