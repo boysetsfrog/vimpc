@@ -55,8 +55,6 @@ namespace Ui
       void Confirm();
       void Redraw();
       void SoftRedraw();
-      bool RequiresRedraw();
-
       uint32_t Current() const;
 
    public:
@@ -94,9 +92,6 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Directory &       directory_;
-      bool                   redraw_;
-      bool                   showLists_;
-      bool                   showPath_;
    };
 }
 #endif

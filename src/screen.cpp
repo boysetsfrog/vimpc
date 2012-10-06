@@ -570,16 +570,6 @@ void Screen::Update()
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
       Initialise(window_);
-
-      for (uint32_t i = 0; (i < visibleWindows_.size()); ++i)
-      {
-         if (mainWindows_[visibleWindows_.at(i)]->RequiresRedraw() == true)
-         {
-            Debug("Soft redraw of window " + mainWindows_[visibleWindows_.at(i)]->Name());
-            mainWindows_[visibleWindows_.at(i)]->SoftRedraw();
-         }
-      }
-
       ActiveWindow().Erase();
 
       // Only paint the tab bar if it is currently visible

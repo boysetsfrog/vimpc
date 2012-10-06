@@ -47,7 +47,7 @@ ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc
    typedef Main::CallbackObject<Ui::ListWindow , Mpc::Lists::BufferType> WindowCallbackObject;
    typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;
 
-   playlists_ = settings_.Get(Setting::Playlists);
+   SoftRedrawOnSetting(Setting::Playlists);
 
    lists_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::ListWindow::AdjustScroll));
 }
@@ -64,19 +64,12 @@ void ListWindow::Redraw()
 
 void ListWindow::SoftRedraw()
 {
-   playlists_ = settings_.Get(Setting::Playlists);
-
    Clear();
    client_.ForEachPlaylist(lists_, static_cast<void (Mpc::Lists::*)(Mpc::List)>(&Mpc::Lists::Add));
 
    lists_.Sort();
    SetScrollLine(0);
    ScrollTo(0);
-}
-
-bool ListWindow::RequiresRedraw()
-{
-   return (playlists_ != settings_.Get(Setting::Playlists));
 }
 
 void ListWindow::Print(uint32_t line) const

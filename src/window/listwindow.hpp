@@ -51,9 +51,6 @@ namespace Ui
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
       void Redraw();
-      void SoftRedraw();
-      bool RequiresRedraw();
-
       uint32_t Current() const;
 
    public:
@@ -72,6 +69,7 @@ namespace Ui
       void Edit();
 
    private:
+      void    SoftRedraw();
       void    Clear();
       size_t  BufferSize() const { return lists_.Size(); }
       int32_t DetermineColour(uint32_t line) const;
@@ -81,7 +79,6 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Lists           & lists_;
-      std::string            playlists_;
    };
 }
 

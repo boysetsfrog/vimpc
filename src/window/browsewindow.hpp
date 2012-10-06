@@ -49,12 +49,12 @@ namespace Ui
 
    public:
       void Redraw();
-      void SoftRedraw();
 
    protected:
       void PrintId(uint32_t Id) const;
 
    private:
+      void    SoftRedraw();
       void    Clear();
       size_t  BufferSize() const   { return browse_.Size(); }
       Main::Buffer<Mpc::Song *> & Buffer() { return browse_; }

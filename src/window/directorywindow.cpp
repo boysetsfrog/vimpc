@@ -44,11 +44,10 @@ DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & s
    settings_        (settings),
    client_          (client),
    search_          (search),
-   directory_       (Main::Directory()),
-   redraw_          (false),
-   showLists_       (true),
-   showPath_        (true)
+   directory_       (Main::Directory())
 {
+   SoftRedrawOnSetting(Setting::ShowPath);
+   SoftRedrawOnSetting(Setting::ShowLists);
 }
 
 DirectoryWindow::~DirectoryWindow()
@@ -64,33 +63,15 @@ void DirectoryWindow::Redraw()
    client_.ForEachLibrarySong(directory_, &Mpc::Directory::Add);
    client_.ForEachPlaylistEntity(directory_, &Mpc::Directory::AddPlaylist);
 
-   showLists_ = settings_.Get(Setting::ShowLists);
    directory_.ChangeDirectory("");
    SoftRedraw();
 }
 
 void DirectoryWindow::SoftRedraw()
 {
-   redraw_ = false;
-
-   showPath_ = settings_.Get(Setting::ShowPath);
-
-   if (showLists_ != settings_.Get(Setting::ShowLists))
-   {
-      showLists_ = settings_.Get(Setting::ShowLists);
-      directory_.ChangeDirectory(directory_.CurrentDirectory());
-   }
-
+   directory_.ChangeDirectory(directory_.CurrentDirectory());
    ScrollTo(CurrentLine());
 }
-
-bool DirectoryWindow::RequiresRedraw()
-{
-   return ((redraw_) ||
-           (showPath_ != settings_.Get(Setting::ShowPath)) || 
-           (showLists_ != settings_.Get(Setting::ShowLists)));
-}
-
 
 uint32_t DirectoryWindow::Current() const
 {
@@ -142,7 +123,6 @@ void DirectoryWindow::ScrollToCurrent()
       }
 
       directory_.ChangeDirectory(Directory);
-      redraw_ = true;
    }
 }
 
@@ -309,7 +289,6 @@ void DirectoryWindow::Left(Ui::Player & player, uint32_t count)
       {
          directory_.ChangeDirectory(*directory_.Get(0));
          ScrollTo(0);
-         redraw_ = true;
       }
    }
 }
@@ -320,7 +299,6 @@ void DirectoryWindow::Right(Ui::Player & player, uint32_t count)
    {
       directory_.ChangeDirectory(*directory_.Get(CurrentLine()));
       ScrollTo(0);
-      redraw_ = true;
    }
 }
 
@@ -336,7 +314,6 @@ void DirectoryWindow::Confirm()
       {
          directory_.ChangeDirectory(*directory_.Get(CurrentLine()));
          ScrollTo(0);
-         redraw_ = true;
       }
       else
       {

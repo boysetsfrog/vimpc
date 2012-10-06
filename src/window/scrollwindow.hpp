@@ -53,9 +53,8 @@ namespace Ui
       virtual void ScrollToFirstMatch(std::string const & input) { }
       virtual void ScrollToCurrent() { }
 
-      virtual uint32_t Current() const { return CurrentLine(); };
+      virtual uint32_t Current() const           { return CurrentLine(); };
       virtual uint32_t Playlist(int count) const { return Current(); };
-
       virtual std::string SearchPattern(int32_t id) const { return ""; }
 
    public:
@@ -68,8 +67,6 @@ namespace Ui
       virtual void Edit() {}
       virtual void Escape() {}
       virtual void Visual() {}
-      virtual void SoftRedraw() {}
-      virtual bool RequiresRedraw() { return false; }
 
    public:
       virtual void Save(std::string const & name) {}
@@ -100,6 +97,7 @@ namespace Ui
       void SoftRedrawOnSetting(Setting::StringSettings setting);
       void OnSettingChanged(bool)        { SoftRedraw(); }
       void OnSettingChanged(std::string) { SoftRedraw(); }
+      virtual void SoftRedraw() {}
 
    protected:
       virtual size_t BufferSize() const = 0;

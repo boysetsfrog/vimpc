@@ -57,7 +57,6 @@ namespace Ui
       void Right(Ui::Player & player, uint32_t count) { }
       void Confirm();
       void Redraw();
-      void SoftRedraw();
 
    public:
       void AdjustScroll(Mpc::Output * output);
@@ -78,6 +77,7 @@ namespace Ui
       void    Clear();
       size_t  BufferSize() const { return outputs_.Size(); }
       int32_t DetermineColour(uint32_t line) const;
+      void    SoftRedraw();
 
    private:
       Main::Settings const & settings_;

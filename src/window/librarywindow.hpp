@@ -54,7 +54,6 @@ namespace Ui
       void Click();
       void Confirm();
       void Redraw();
-      void SoftRedraw();
 
       uint32_t Current() const;
 
@@ -78,6 +77,7 @@ namespace Ui
       void ForPositions(T start, T end, LibraryFunction function);
 
    private:
+      void    SoftRedraw();
       void    Clear();
       size_t  BufferSize() const { return library_.Size(); }
       int32_t DetermineSongColour(Mpc::LibraryEntry const * const entry) const;
