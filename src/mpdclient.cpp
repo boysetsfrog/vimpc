@@ -1288,7 +1288,8 @@ void Client::GetAllMetaInformation()
       }
 
       screen_.InvalidateAll();
-      screen_.Redraw(Ui::Screen::Library);
+      Main::Library().Clear();
+      ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
    }
 }
 

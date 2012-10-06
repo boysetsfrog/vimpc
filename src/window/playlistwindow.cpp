@@ -61,6 +61,9 @@ void PlaylistWindow::Redraw()
    uint16_t currentLine = CurrentLine();
    uint16_t scrollLine  = ScrollLine();
 
+   Clear();
+   client_.ForEachQueuedSong(playlist_, static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+
    // If we are redrawing and can keep the same scroll point do so
    // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
    if (currentLine < playlist_.Size())
