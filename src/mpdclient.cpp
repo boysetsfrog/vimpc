@@ -1288,8 +1288,11 @@ void Client::GetAllMetaInformation()
       }
 
       screen_.InvalidateAll();
+
       Main::Library().Clear();
       ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
+      Main::Playlist().Clear();
+      ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
    }
 }
 
