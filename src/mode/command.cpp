@@ -136,8 +136,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("toplaylist", &Command::ToPlaylist,   true);
 
 #ifdef __DEBUG_PRINTS
-   AddCommand("debug",         &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>, false);
+   AddCommand("debug",         &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
    AddCommand("debug-getmeta", &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
+   AddCommand("debug-idle",    &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
 #endif
 
    // Add all settings to command table to provide tab completion

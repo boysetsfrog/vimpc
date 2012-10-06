@@ -47,13 +47,11 @@ namespace Ui
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines() {}
       void Edit();
-
-   public:
       void Save(std::string const & name) {}
 
    private:
-      int const m_ActiveWindow; 
-
+      int const   m_ActiveWindow; 
+      Mpc::Song * m_Song;
    };
 }
 

@@ -29,13 +29,15 @@ using namespace Ui;
 
 InfoWindow::InfoWindow(Mpc::Song * song, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
    SongWindow    (settings, screen, client, search, name),
-   m_ActiveWindow(screen_.GetActiveWindow())
+   m_ActiveWindow(screen_.GetActiveWindow()),
+   m_Song        (new Mpc::Song(*song))
 {
-   Add(song);
+   Add(m_Song);
 }
 
 InfoWindow::~InfoWindow()
 {
+   delete m_Song;
 }
 
 void InfoWindow::Print(uint32_t line) const
