@@ -120,11 +120,8 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("next",       &Command::SkipSong<Player::Next>,     true);
    AddCommand("previous",   &Command::SkipSong<Player::Previous>, true);
 
-   AddCommand("browse",     &Command::SetActiveAndVisible<Ui::Screen::Browse>,  false);
-   AddCommand("console",    &Command::SetActiveAndVisible<Ui::Screen::Console>, false);
-#ifdef __DEBUG_PRINTS
-   AddCommand("debug",      &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>, false);
-#endif
+   AddCommand("browse",     &Command::SetActiveAndVisible<Ui::Screen::Browse>,    false);
+   AddCommand("console",    &Command::SetActiveAndVisible<Ui::Screen::Console>,   false);
    AddCommand("help",       &Command::SetActiveAndVisible<Ui::Screen::Help>,      true);
    AddCommand("library",    &Command::SetActiveAndVisible<Ui::Screen::Library>,   true);
    AddCommand("directory",  &Command::SetActiveAndVisible<Ui::Screen::Directory>, true);
@@ -137,6 +134,11 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("edit",       &Command::LoadPlaylist, true);
    AddCommand("write",      &Command::SavePlaylist, true);
    AddCommand("toplaylist", &Command::ToPlaylist,   true);
+
+#ifdef __DEBUG_PRINTS
+   AddCommand("debug",         &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>, false);
+   AddCommand("debug-getmeta", &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
+#endif
 
    // Add all settings to command table to provide tab completion
    std::vector<std::string> const AllSettings = settings_.AvailableSettings();
@@ -928,6 +930,13 @@ void Command::RenameWindow(std::string const & arguments)
    {
       screen_.ActiveWindow().SetName(arguments);
    }
+}
+
+template <Ui::Command::ClientFunction FUNCTION>
+void Command::DebugClient(std::string const & arguments)
+{
+   Ui::Command::ClientFunction func = FUNCTION;
+   (client_.*func)();
 }
 
 

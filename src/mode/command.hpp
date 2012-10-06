@@ -41,6 +41,7 @@ namespace Ui
    class Command : public InputMode, public Player
    {
    private:
+      typedef void (Mpc::Client::*ClientFunction)();
       typedef void (Ui::Command::*CommandFunction)(std::string const &);
 
    public:
@@ -171,6 +172,10 @@ namespace Ui
       void HideWindow(std::string const & arguments);
       void MoveWindow(std::string const & arguments);
       void RenameWindow(std::string const & arguments);
+
+   private: // Debug only commands
+      template <ClientFunction FUNCTION>
+      void DebugClient(std::string const & arguments);
 
    private:
       // Executes \p command using \p arguments
