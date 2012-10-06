@@ -341,7 +341,23 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
    }
    else if (entry->type_ == Mpc::PathType)
    {
+      std::vector<Mpc::Song *> Songs = AllChildSongs(entry->path_);
 
+      if (Songs.size() > 0)
+      {
+         Mpc::CommandList list(client, (Songs.size() > 1));
+
+         for (uint32_t i = 0; i < Songs.size(); ++i)
+         {
+            int32_t PlaylistIndex = Main::Playlist().Index(Songs[i]);
+
+            if (PlaylistIndex >= 0)
+            {
+               client.Delete(PlaylistIndex);
+               Main::Playlist().Remove(PlaylistIndex, 1);
+            }
+         }
+      }
    }
 }
 
