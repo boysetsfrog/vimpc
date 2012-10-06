@@ -67,8 +67,6 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    tabWindow_       (NULL),
    commandWindow_   (NULL),
    pagerWindow_     (NULL),
-   mouse_           (false),
-   tabBar_          (true),
    started_         (false),
    pager_           (false),
    maxRows_         (0),
@@ -79,41 +77,23 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 {
    // ncurses initialisation
    initscr();
-
-   if (has_colors() == false)
-   {
-      settings.Set("nocolour");
-   }
-   else
-   {
-      if (Ui::Colour::InitialiseColours() == false)
-      {
-         settings.Set("nocolour");
-      }
-   }
-
    raw();
    noecho();
 
-   if (settings_.Get(Setting::Mouse) == true)
+   if ((has_colors() == false) || (Ui::Colour::InitialiseColours() == false))
    {
-      SetupMouse(true);
+      // \todo This should really use the enum entries
+      settings.Set("nocolour");
    }
 
    maxRows_    = LINES;
    maxColumns_ = COLS;
+   mainRows_   = ((maxRows_ - 3) > 0) ? (maxRows_ - 3) : 0;
 
-   mainRows_   = maxRows_ - 3;
-
-   if (mainRows_ < 0)
-   {
-      mainRows_ = 0;
-   }
-
-   //handle a resize signal
+   // Handler for the resize signal
    signal(SIGWINCH, ResizeHandler);
 
-   // Create all the windows
+   // Create all the static windows
    mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this);
    mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (*this, "debug",   Main::DebugConsole());
    mainWindows_[Console]      = new Ui::ConsoleWindow  (*this, "console", Main::Console());
@@ -122,10 +102,17 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, client, search);
    mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, client, search);
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, client, search);
+   mainWindows_[Playlist]     = new Ui::PlaylistWindow(settings, *this, client, search);
 
-   mainWindows_[Playlist] = new Ui::PlaylistWindow(settings, *this, client, search);
-   statusWindow_          = newwin(1, maxColumns_, mainRows_ + 1, 0);
-   tabWindow_             = newwin(1, maxColumns_, 0, 0);
+   // Create paging window to print maps, settings, etc
+   pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
+   statusWindow_              = newwin(1, maxColumns_, mainRows_ + 1, 0);
+   tabWindow_                 = newwin(1, maxColumns_, 0, 0);
+
+   // Commands must be read through a window that is always visible
+   commandWindow_             = statusWindow_;
+   keypad(commandWindow_, true);
+   wtimeout(commandWindow_, 100);
 
    // Mark every tab as visible initially
    // This means that commands such as tabhide in the config file
@@ -138,23 +125,22 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
       }
    }
 
-   // Create paging window to print maps, settings, etc
-   pagerWindow_ = new PagerWindow(*this, maxColumns_, 0);
+   SetVisible(DebugConsole, false);
 
-   // Commands must be read through a window that is always visible
-   commandWindow_         = statusWindow_;
-   keypad(commandWindow_, true);
-
-   // Window setup
+   // Force auto scroll on the consoles
    mainWindows_[Console]->SetAutoScroll(true);
    mainWindows_[DebugConsole]->SetAutoScroll(true);
 
-   wtimeout(commandWindow_, 100);
+   // Register settings callbacks
+   settings_.RegisterCallback(Setting::TabBar, 
+      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnTabSettingChange));
+   settings_.RegisterCallback(Setting::Mouse, 
+      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnMouseSettingChange));
+
+   // If mouse support is turned on set it up
+   SetupMouse(settings_.Get(Setting::Mouse));
 
    ClearStatus();
-
-   SetVisible(Console,        false);
-   SetVisible(DebugConsole,   false);
 }
 
 Screen::~Screen()
@@ -596,14 +582,6 @@ void Screen::Update()
 
       ActiveWindow().Erase();
 
-      // Force a resize of the windows if the tab bar was recently
-      // hidden or shown
-      if (tabBar_ != settings_.Get(Setting::TabBar))
-      {
-         tabBar_ = settings_.Get(Setting::TabBar);
-         Resize(true);
-      }
-
       // Only paint the tab bar if it is currently visible
       if (settings_.Get(Setting::TabBar) == true)
       {
@@ -824,16 +802,6 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
       resultWindow.Print(0);
    }
 
-   // Mouse support was turned on, set it up
-   if ((mouse_ == false) && (settings_.Get(Setting::Mouse) == true))
-   {
-      SetupMouse(true);
-   }
-   else if ((mouse_ == true) && (settings_.Get(Setting::Mouse) == false))
-   {
-      SetupMouse(false);
-   }
-
    int32_t input = wgetch(commandWindow_);
 
    if ((input == 27) && (HandleEscape == true))
@@ -864,7 +832,7 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
 void Screen::HandleMouseEvent()
 {
 #ifdef HAVE_MOUSE_SUPPORT
-   if (mouse_ == true)
+   if (settings_.Get(Setting::Mouse) == true)
    {
       MEVENT event;
 
@@ -1131,12 +1099,10 @@ void Screen::SetupMouse(bool on) const
 #ifdef HAVE_MOUSE_SUPPORT
    if (on == true)
    {
-      mouse_ = true;
       mousemask(ALL_MOUSE_EVENTS, NULL);
    }
    else
    {
-      mouse_ = false;
       mousemask(0, NULL);
    }
 #endif
@@ -1239,6 +1205,20 @@ void Screen::UpdateTabWindow() const
 
    wattroff(tabWindow_, A_UNDERLINE);
    wrefresh(tabWindow_);
+}
+
+void Screen::OnTabSettingChange(bool Value)
+{
+   // Force a resize of the windows if the tab bar was recently
+   // hidden or shown
+   Debug("Test that shit");
+   Resize(true);
+}
+
+void Screen::OnMouseSettingChange(bool Value)
+{
+   // If the mouse setting was changed reinitialise
+   SetupMouse(Value);
 }
 
 

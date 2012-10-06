@@ -21,6 +21,7 @@
 #ifndef __UI__SCROLLWINDOW
 #define __UI__SCROLLWINDOW
 
+#include "settings.hpp"
 #include "window.hpp"
 
 namespace Ui
@@ -93,6 +94,12 @@ namespace Ui
       void ResetScroll();
       void SetScrollLine(uint16_t scrollLine);
       uint16_t ScrollLine() const;
+
+   protected:
+      void SoftRedrawOnSetting(Setting::ToggleSettings setting);
+      void SoftRedrawOnSetting(Setting::StringSettings setting);
+      void OnSettingChanged(bool)        { SoftRedraw(); }
+      void OnSettingChanged(std::string) { SoftRedraw(); }
 
    protected:
       virtual size_t BufferSize() const = 0;

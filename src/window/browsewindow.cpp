@@ -42,39 +42,29 @@ BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen,
    search_          (search),
    browse_          (Main::Browse())
 {
-   sort_ = settings_.Get(Setting::Sort);
+   SoftRedrawOnSetting(Setting::IgnoreCaseSort);
+   SoftRedrawOnSetting(Setting::IgnoreTheSort);
+   SoftRedrawOnSetting(Setting::Sort);
 }
 
 BrowseWindow::~BrowseWindow()
 {
 }
 
+void BrowseWindow::Redraw()
+{
+   Clear();
+   Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
+   Main::Library().ForEachSong(&callback);
+   SoftRedraw();
+}
 
 void BrowseWindow::SoftRedraw()
 {
-   uint16_t currentLine = CurrentLine();
-   uint16_t scrollLine  = ScrollLine();
-
-   Clear();
-
-   sort_ = settings_.Get(Setting::Sort);
-
-   Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
-
-   Main::Library().ForEachSong(&callback);
-
    Ui::SongSorter const sorter(settings_.Get(::Setting::Sort));
    Buffer().Sort(sorter);
-
-   SetScrollLine(scrollLine);
-   ScrollTo(currentLine);
+   ScrollTo(0);
 }
-
-bool BrowseWindow::RequiresRedraw()
-{
-   return (sort_ != settings_.Get(Setting::Sort));
-}
-
 
 void BrowseWindow::PrintId(uint32_t Id) const
 {

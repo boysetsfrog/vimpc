@@ -220,6 +220,11 @@ namespace Ui
       void UpdateTabWindow() const;
 
    private:
+      // Settings callbacks
+      void OnTabSettingChange(bool);
+      void OnMouseSettingChange(bool);
+
+   private:
       int32_t    window_;
       WindowMap  mainWindows_;
       WINDOW *   statusWindow_;
@@ -231,8 +236,6 @@ namespace Ui
       std::vector<ModeWindow *> modeWindows_;
       mutable std::map<int32_t, bool> drawn_;
 
-      mutable bool mouse_;
-      mutable bool tabBar_;
       bool      started_;
       bool      pager_;
       int32_t   maxRows_;

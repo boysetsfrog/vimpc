@@ -21,7 +21,7 @@
 #ifndef __MAIN__SETTINGS
 #define __MAIN__SETTINGS
 
-#include "screen.hpp"
+#include "callback.hpp"
 
 #include <string>
 #include <map>
@@ -83,11 +83,11 @@
 class Setting
 {
 public:
-   // Use for add position
+   // Use for add position comparisons
    static std::string AddEnd;
    static std::string AddNext;
 
-   // Use for playlists
+   // Use for playlists comparisons
    static std::string PlaylistsMpd;
    static std::string PlaylistsAll;
    static std::string PlaylistsFiles;
@@ -117,24 +117,26 @@ namespace Main
    class SettingValue
    {
       public:
-         SettingValue() { }
-         SettingValue(T v) : value_(v) { }
+         SettingValue(int32_t id) : id_(id) { }
+         SettingValue(int32_t id, T v) : id_(id), value_(v) { }
          ~SettingValue() { }
 
+         int32_t Id() const { return id_; }
          T Get() const { return value_; }
          void Set(T v) { value_ = v; }
 
       private:
-         T value_;
+         int32_t const id_;
+         T             value_;
    };
 
    //! Manages settings which are set via :set command
    class Settings
    {
-      private:
-         typedef std::map<std::string, SettingValue<bool> * >        BoolSettingsTable;
-         typedef std::map<std::string, SettingValue<std::string> * > StringSettingsTable;
-
+      public:
+         typedef Main::CallbackInterface<bool> *          BoolCallback;
+         typedef Main::CallbackInterface<std::string> *   StringCallback;
+      
       public:
          static Settings & Instance();
 
@@ -152,6 +154,10 @@ namespace Main
          //! Get the value of a particular setting
          bool Get(Setting::ToggleSettings setting) const;
          std::string Get(Setting::StringSettings setting) const;
+
+         //! Register a callback to be called when a setting is changed
+         void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback) const;
+         void RegisterCallback(Setting::StringSettings setting, StringCallback callback) const;
 
       public:
          //! Set/Get whether or not to connect if asked to in config
@@ -184,22 +190,28 @@ namespace Main
          }
 
       private:
-         bool AddPositionFilter(std::string arguments) const;
-         bool SortFilter(std::string arguments) const;
-
-      private:
          typedef std::map<int, std::string> SettingNameTable;
          SettingNameTable     settingName_;
 
-         // Used to validate non boolean settings
+         // Holds yes/no, on/off style settings
+         typedef std::map<std::string, SettingValue<bool> * > BoolSettingsTable;
+         BoolSettingsTable    toggleTable_;
+
+         // Callbacks for on/off settings
+         typedef std::map<Setting::ToggleSettings, std::vector<BoolCallback> > BoolCallbackTable;
+         mutable BoolCallbackTable  tCallbackTable_;
+
+         // Used to validate string settings against a regex pattern
          typedef std::map<std::string, std::string> SettingsFilterTable;
          SettingsFilterTable  filterTable_;
 
-         // Holds yes/no, on/off style settings
-         BoolSettingsTable    toggleTable_;
-
          // Settings that are represented by a string value
+         typedef std::map<std::string, SettingValue<std::string> * > StringSettingsTable;
          StringSettingsTable  stringTable_;
+
+         // Callbacks for string style settings
+         typedef std::map<Setting::StringSettings, std::vector<StringCallback> > StringCallbackTable;
+         mutable StringCallbackTable  sCallbackTable_;
    };
 }
 

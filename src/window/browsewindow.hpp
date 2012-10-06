@@ -48,9 +48,8 @@ namespace Ui
       BrowseWindow & operator=(BrowseWindow & browse);
 
    public:
+      void Redraw();
       void SoftRedraw();
-      void Redraw() { SoftRedraw(); }
-      bool RequiresRedraw();
 
    protected:
       void PrintId(uint32_t Id) const;
@@ -66,8 +65,6 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Browse &          browse_;
-
-      std::string            sort_;
    };
 }
 

@@ -42,15 +42,11 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
    settings_        (settings),
    client_          (client),
    search_          (search),
-   library_         (Main::Library()),
-
-   ignoreCase_      (false),
-   ignoreThe_       (false),
-   expandArtist_    (false)
+   library_         (Main::Library())
 {
-   ignoreCase_   = settings_.Get(Setting::IgnoreCaseSort);
-   ignoreThe_    = settings_.Get(Setting::IgnoreTheSort);
-   expandArtist_ = settings_.Get(Setting::ExpandArtists);
+   SoftRedrawOnSetting(Setting::IgnoreCaseSort);
+   SoftRedrawOnSetting(Setting::IgnoreTheSort);
+   SoftRedrawOnSetting(Setting::ExpandArtists);
 }
 
 LibraryWindow::~LibraryWindow()
@@ -96,27 +92,7 @@ void LibraryWindow::SoftRedraw()
       }
    }
 
-   screen_.Redraw(Ui::Screen::Browse);
-
-   if (RequiresRedraw() == true)
-   {
-      ScrollTo(0);
-   }
-   else
-   {
-      ScrollTo(CurrentLine());
-   }
-
-   ignoreCase_   = settings_.Get(Setting::IgnoreCaseSort);
-   ignoreThe_    = settings_.Get(Setting::IgnoreTheSort);
-   expandArtist_ = settings_.Get(Setting::ExpandArtists);
-}
-
-bool LibraryWindow::RequiresRedraw()
-{
-   return (((ignoreCase_   != settings_.Get(Setting::IgnoreCaseSort)) ||
-            (ignoreThe_    != settings_.Get(Setting::IgnoreTheSort))  ||
-            (expandArtist_ != settings_.Get(Setting::ExpandArtists))));
+   ScrollTo(0);
 }
 
 

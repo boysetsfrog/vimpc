@@ -56,7 +56,11 @@ void OutputWindow::Redraw()
 {
    Clear();
    client_.ForEachOutput(outputs_, static_cast<void (Mpc::Outputs::*)(Mpc::Output *)>(&Mpc::Outputs::Add));
+   SoftRedraw();
+}
 
+void OutputWindow::SoftRedraw()
+{
    Ui::OutputComparator sorter;
 
    outputs_.Main::Buffer<Mpc::Output *>::Sort(sorter);
@@ -84,17 +88,19 @@ void OutputWindow::Print(uint32_t line) const
          wattron(window, A_REVERSE);
       }
 
-      wattron(window, A_BOLD);
-
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-      mvwaddstr(window, line, 1, outputs_.Get(printLine)->Name().c_str());
 
       if (outputs_.Get(printLine)->Enabled() == true)
       {
-         waddstr(window, " [Enabled]");
+         waddstr(window, " [*]");
+      }
+      else
+      {
+         waddstr(window, " [ ]");
       }
 
-      wattroff(window, A_BOLD);
+      mvwaddstr(window, line, 5, outputs_.Get(printLine)->Name().c_str());
+
       wattroff(window, A_REVERSE);
 
       if (settings_.Get(Setting::ColourEnabled) == true)
@@ -102,16 +108,6 @@ void OutputWindow::Print(uint32_t line) const
          wattroff(window, COLOR_PAIR(colour));
       }
    }
-}
-
-void OutputWindow::Left(Ui::Player & player, uint32_t count)
-{
-   //player.SkipSong(Ui::Player::Previous, count);
-}
-
-void OutputWindow::Right(Ui::Player & player, uint32_t count)
-{
-   //player.SkipSong(Ui::Player::Next, count);
 }
 
 void OutputWindow::Confirm()

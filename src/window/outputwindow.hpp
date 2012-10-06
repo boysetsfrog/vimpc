@@ -53,12 +53,11 @@ namespace Ui
 
    public:
       void Print(uint32_t line) const;
-      void Left(Ui::Player & player, uint32_t count);
-      void Right(Ui::Player & player, uint32_t count);
+      void Left(Ui::Player & player, uint32_t count)  { }
+      void Right(Ui::Player & player, uint32_t count) { }
       void Confirm();
       void Redraw();
-
-      uint32_t Current() const { return CurrentLine(); }
+      void SoftRedraw();
 
    public:
       void AdjustScroll(Mpc::Output * output);

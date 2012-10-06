@@ -176,4 +176,18 @@ void ScrollWindow::SetScrollLine(uint16_t scrollLine)
 {
    scrollLine_ = scrollLine;
 }
+
+
+void ScrollWindow::SoftRedrawOnSetting(Setting::ToggleSettings setting)
+{
+   Main::Settings::Instance().RegisterCallback(setting,
+      new Main::CallbackObject<Ui::ScrollWindow, bool>(*this, &Ui::ScrollWindow::OnSettingChanged));
+}
+
+void ScrollWindow::SoftRedrawOnSetting(Setting::StringSettings setting)
+{
+   Main::Settings::Instance().RegisterCallback(setting,
+      new Main::CallbackObject<Ui::ScrollWindow, std::string>(*this, &Ui::ScrollWindow::OnSettingChanged));
+}
+
 /* vim: set sw=3 ts=3: */

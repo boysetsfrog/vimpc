@@ -21,6 +21,7 @@
 #include "settings.hpp"
 
 #include "assert.hpp"
+#include "screen.hpp"
 #include "window/debug.hpp"
 #include "window/error.hpp"
 #include "window/result.hpp"
@@ -52,12 +53,12 @@ Settings::Settings() :
    toggleTable_  (),
    stringTable_  ()
 {
-#define X(a, b, c) toggleTable_[b] = new SettingValue<bool>(c); \
+#define X(a, b, c) toggleTable_[b] = new SettingValue<bool>((int32_t) Setting::a, c); \
                    settingName_[Setting::a] = b;
    TOGGLE_SETTINGS
 #undef X
 
-#define X(a, b, c,d) stringTable_[b] = new SettingValue<std::string>(c); \
+#define X(a, b, c,d) stringTable_[b] = new SettingValue<std::string>((int32_t) Setting::a, c); \
                      settingName_[Setting::a] = b; \
                      filterTable_[b] = d;
    STRING_SETTINGS
@@ -112,15 +113,20 @@ void Settings::Set(std::string const & input)
 
    bool const print (printCheck.FullMatch(setting.c_str()));
 
+   // If the setting is followed by '?' then
+   // Show the current value of the setting rather than changing it
    if (print == true)
    {
+      // Remove the '?' from the end of the setting
       setting = setting.substr(0, setting.length() - 1);
 
+      // Print the value either "setting" or "nosetting"
       if (toggleTable_.find(setting) != toggleTable_.end())
       {
          SettingValue<bool> * const set = toggleTable_[setting];
          Result(std::string("  ") + ((set->Get()) ? "" : "no") + setting);
       }
+      // Print the settings string value
       else if (stringTable_.find(setting) != stringTable_.end())
       {
          SettingValue<std::string> * const set = stringTable_[setting];
@@ -143,7 +149,7 @@ void Settings::Set(std::string const & input)
 
 bool Settings::Get(::Setting::ToggleSettings setting) const
 {
-   SettingNameTable::const_iterator it = settingName_.find(setting);
+   SettingNameTable::const_iterator const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
@@ -156,7 +162,7 @@ bool Settings::Get(::Setting::ToggleSettings setting) const
 
 std::string Settings::Get(::Setting::StringSettings setting) const
 {
-   SettingNameTable::const_iterator it = settingName_.find(setting);
+   SettingNameTable::const_iterator const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
@@ -167,25 +173,64 @@ std::string Settings::Get(::Setting::StringSettings setting) const
    return "";
 }
 
+
+void Settings::RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback) const
+{
+   tCallbackTable_[setting].push_back(callback);
+}
+
+void Settings::RegisterCallback(Setting::StringSettings setting, StringCallback callback) const
+{
+   sCallbackTable_[setting].push_back(callback);
+}
+
+
+void Settings::SetSkipConfigConnects(bool val)
+{
+   skipConfigConnects_ = val;
+}
+
+bool Settings::SkipConfigConnects() const
+{
+   return skipConfigConnects_;
+}
+
+
 void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 {
    if (stringTable_.find(setting) != stringTable_.end())
    {
       bool ValidSetting = true;
 
-      // Validate the arguments
+      // Validate the arguments using regex defined in settings table
       if (filterTable_.find(setting) != filterTable_.end())
       {
          pcrecpp::RE const filterCheck(filterTable_[setting]);
-         Debug("Setting checked for setting for " + setting); 
          ValidSetting = (filterCheck.FullMatch(arguments));
       }
 
       if (ValidSetting == true)
       {
-         Debug("Valid setting " + setting + " - " + arguments); 
          SettingValue<std::string> * const set = stringTable_[setting];
-         set->Set(arguments);
+
+         if (set != NULL)
+         {
+            Debug("Setting " + setting + " to " + arguments); 
+            set->Set(arguments);
+
+            // Call any registered callbacks for this setting
+            std::vector<StringCallback> Callbacks = sCallbackTable_[(Setting::StringSettings) set->Id()];
+
+            for (std::vector<StringCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+            {
+               StringCallback functor = (*it);
+               (*functor)(arguments);
+            }
+         }
+         else
+         {
+            ASSERT(false);
+         }
       }
       else
       {
@@ -203,9 +248,13 @@ void Settings::SetSingleSetting(std::string setting)
    pcrecpp::RE const toggleCheck("^.*!$");
    pcrecpp::RE const offCheck   ("^no.*");
 
+   // If the setting is followed by '!' toggle it's current value
    bool const toggle(toggleCheck.FullMatch(setting.c_str()));
+
+   // If the setting is prefixed "no" turn the setting off
    bool const off   (offCheck.FullMatch(setting.c_str()));
 
+   // Remove any extra characters from the settings name
    if (toggle == true)
    {
       setting = setting.substr(0, setting.length() - 1);
@@ -220,39 +269,31 @@ void Settings::SetSingleSetting(std::string setting)
    {
       SettingValue<bool> * const set = toggleTable_[setting];
 
+      bool newValue = (off == false);
+
       if (toggle == true)
       {
-         set->Set(!(set->Get()));
+         newValue = !(set->Get());
       }
-      else
+
+      if (newValue != set->Get())
       {
-         set->Set((off == false));
+         set->Set(newValue);
+
+         // Call any registered callbacks for this setting
+         std::vector<BoolCallback> Callbacks = tCallbackTable_[(Setting::ToggleSettings) set->Id()];
+
+         for (std::vector<BoolCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+         {
+            BoolCallback functor = (*it);
+            (*functor)(newValue);
+         }
       }
    }
    else
    {
       ErrorString(ErrorNumber::SettingNonexistant, setting);
    }
-}
-
-void Settings::SetSkipConfigConnects(bool val)
-{
-   skipConfigConnects_ = val;
-}
-
-bool Settings::SkipConfigConnects() const
-{
-   return skipConfigConnects_;
-}
-
-bool Settings::AddPositionFilter(std::string arguments) const
-{
-   return ((arguments == "end") || (arguments == "next"));
-}
-
-bool Settings::SortFilter(std::string arguments) const
-{
-   return ((arguments == "format") || (arguments == "library"));
 }
 
 /* vim: set sw=3 ts=3: */
