@@ -30,7 +30,7 @@
 // X(enum-entry, setting-name, default-value)
 #define TOGGLE_SETTINGS \
    X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
-   X(BrowseNumbers,    "browsenumbers",  true)  /* Show numbers in the browse window */ \
+   X(BrowseNumbers,    "browsenumbers",  false) /* Show numbers in the browse window */ \
    X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \
    X(ExpandArtists,    "expand-artists", false) /* Expand artists in the library window by default */ \
    X(HighlightSearch,  "hlsearch",       true)  /* Show search results in a different colour */ \
@@ -41,7 +41,7 @@
    X(Mouse,            "mouse",          true)  /* Handle mouse keys */ \
    X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
-   X(PlayOnAdd,        "playonadd",      false)  /* If mpd is stopped play after first add */ \
+   X(PlayOnAdd,        "playonadd",      false) /* If mpd is stopped play after first add */ \
    X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
    X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
    X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
