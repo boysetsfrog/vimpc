@@ -125,7 +125,6 @@ namespace Mpc
       void SetVolume(uint32_t volume);
 
       bool IsUpdating();
-      bool WasUpdated();
       void ClearUpdateFlag();
 
    public:
@@ -264,7 +263,6 @@ namespace Mpc
 
       uint32_t                volume_;
       bool                    updating_;
-      bool                    updated_;
       bool                    random_;
       bool                    repeat_;
       bool                    single_;
@@ -361,8 +359,6 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song * ))
    {
-      updated_ = false;
-
       for (std::vector<Mpc::Song *>::iterator it = songs_.begin(); it != songs_.end(); ++it)
       {
          (object.*callBack)(*it);

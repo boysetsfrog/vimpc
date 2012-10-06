@@ -583,6 +583,8 @@ void Screen::Update()
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
+      Initialise(window_);
+
       for (uint32_t i = 0; (i < visibleWindows_.size()); ++i)
       {
          if (mainWindows_[visibleWindows_.at(i)]->RequiresRedraw() == true)

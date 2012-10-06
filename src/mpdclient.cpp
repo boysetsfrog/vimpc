@@ -92,7 +92,6 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 
    volume_               (100),
    updating_             (false),
-   updated_              (false),
    random_               (false),
    repeat_               (false),
    single_               (false),
@@ -233,15 +232,6 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
       }
 
       GetAllMetaInformation();
-
-      screen_.InvalidateAll();
-      screen_.Redraw(Ui::Screen::Library);
-
-      if (screen_.GetActiveWindow() != Ui::Screen::Playlist)
-      {
-         screen_.Redraw(screen_.GetActiveWindow());
-      }
-
       UpdateStatus();
 		IdleMode();
    }
@@ -563,16 +553,6 @@ void Client::SetVolume(uint32_t volume)
 bool Client::IsUpdating()
 {
    return updating_;
-}
-
-bool Client::WasUpdated()
-{
-   return updated_;
-}
-
-void Client::ClearUpdateFlag()
-{
-   updated_ = false;
 }
 
 
@@ -1307,7 +1287,8 @@ void Client::GetAllMetaInformation()
          mpd_entity_free(nextEntity);
       }
 
-      updated_ = true;
+      screen_.InvalidateAll();
+      screen_.Redraw(Ui::Screen::Library);
    }
 }
 
