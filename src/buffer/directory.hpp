@@ -111,6 +111,7 @@ namespace Mpc
       static std::string FileFromURI(std::string const & URI);
       static std::string DirectoryFromURI(std::string const & URI);
       static bool IsChildPath(std::string const & Parent, std::string const & Child);
+      static std::string ParentPath(std::string const & Path);
 
    public:
       std::string CurrentDirectory();
@@ -183,19 +184,11 @@ namespace Mpc
          std::map<std::string, std::vector<Mpc::Song *> >::const_iterator it = songs_.find(Path);
          return (it != songs_.end()) ? it->second : empty;
       }
-
       std::vector<std::string> ChildPaths(std::string const & Path) const
       {
-         std::vector<std::string> Paths;
-
-         for (std::vector<std::string>::const_iterator it = paths_.begin(); it != paths_.end(); ++it)
-         {
-            if (IsChildPath(Path, *it))
-            {
-               Paths.push_back(*it);
-            }
-         }
-         return Paths;
+         static std::vector<std::string> empty;
+         std::map<std::string, std::vector<std::string> >::const_iterator it = children_.find(Path);
+         return (it != children_.end()) ? it->second : empty;
       }
 
       typedef Main::CallbackObject<Mpc::Directory, Directory::BufferType> CallbackObject;
@@ -206,6 +199,7 @@ namespace Mpc
       std::map<std::string, int >                      references_;
       std::map<std::string, std::vector<Mpc::Song *> > songs_;
       std::map<std::string, std::vector<std::string> > playlists_;
+      std::map<std::string, std::vector<std::string> > children_;
       std::string directory_;
    };
 }

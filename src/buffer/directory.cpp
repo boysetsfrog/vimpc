@@ -109,6 +109,7 @@ void Directory::Clear(bool fullClear)
    {
       paths_.clear();
       songs_.clear();
+      children_.clear();
    }
 
    while (Size() > 0)
@@ -123,6 +124,7 @@ void Directory::Add(std::string directory)
 {
    AddEntry(directory);
    paths_.push_back(directory);
+   children_[ParentPath(directory)].push_back(directory);
 }
 
 void Directory::Add(Mpc::Song * song)
@@ -346,6 +348,18 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
 /* static */ bool Directory::IsChildPath(std::string const & Parent, std::string const & Child)
 {
    return ((Parent == "") || (Child.find(Parent + "/") != std::string::npos));
+}
+
+/* static */ std::string Directory::ParentPath(std::string const & Path)
+{
+   std::string Parent = "";
+
+   if (Path.find("/") != std::string::npos)
+   {
+      Parent = Path.substr(0, Path.find_last_of("/"));
+   }
+
+   return Parent;
 }
 
 /* static */ std::string Directory::FileFromURI(std::string const & URI)
