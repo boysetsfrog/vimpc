@@ -120,6 +120,7 @@ namespace Mpc
 
       void Clear(bool fullClear = false);
       void Add(std::string directory);
+      void AddChild(std::string directory);
       void Add(Mpc::Song * song);
       void AddPlaylist(Mpc::List playlist);
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);

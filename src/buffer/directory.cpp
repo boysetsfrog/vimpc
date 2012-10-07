@@ -124,7 +124,27 @@ void Directory::Add(std::string directory)
 {
    AddEntry(directory);
    paths_.push_back(directory);
-   children_[ParentPath(directory)].push_back(directory);
+   AddChild(directory);
+}
+
+void Directory::AddChild(std::string directory)
+{
+   std::string Parent = "";
+   std::string Path = directory;
+
+   int Index = 0;
+
+   while (Index != std::string::npos)
+   {
+      Index = Path.find("/", Index);
+
+      if (Index != std::string::npos)
+      {
+         Parent = Path.substr(0, Index);
+         children_[Parent].push_back(directory);
+         ++Index;
+      }
+   }
 }
 
 void Directory::Add(Mpc::Song * song)
