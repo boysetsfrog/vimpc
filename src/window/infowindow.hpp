@@ -52,7 +52,6 @@ namespace Ui
       void Save(std::string const & name) {}
 
    private:
-      int const   m_ActiveWindow; 
       std::string m_URI;
    };
 }

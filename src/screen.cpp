@@ -63,6 +63,7 @@ extern "C" void ResizeHandler(int);
 
 Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
+   previous_        (Playlist),
    statusWindow_    (NULL),
    tabWindow_       (NULL),
    commandWindow_   (NULL),
@@ -908,7 +909,8 @@ Ui::ScrollWindow & Screen::Window(uint32_t window) const
 
 void Screen::SetActiveWindowType(MainWindow window)
 {
-   window_ = window;
+   previous_ = window_;
+   window_   = window;
 
    if (drawn_[window_] == false)
    {
@@ -922,7 +924,8 @@ void Screen::SetActiveWindow(uint32_t window)
 {
    if ((window < visibleWindows_.size()))
    {
-      window_ = visibleWindows_.at(window);
+      previous_ = window_;
+      window_   = visibleWindows_.at(window);
    }
 
    if (drawn_[window_] == false)
@@ -980,13 +983,32 @@ void Screen::SetVisible(int32_t window, bool visible)
       //! \todo Handle the case when there is no visible tabs left and clear the mainwindow
       bool found = false;
 
-      if ((window == window_) && (visible == false) && (visibleWindows_.back() == window))
+      if ((window == window_) && (visible == false))
       {
-         SetActiveWindow(Ui::Screen::Previous);
-      }
-      else if ((window == window_) && (visible == false))
-      {
-         SetActiveWindow(Ui::Screen::Next);
+         bool previous = false;
+         int32_t index = -1;
+
+         for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (previous == false)); ++it)
+         {
+            if (((*it) == previous_) && ((*it) != window))
+            {
+               previous = true;
+            }
+
+            index++;
+         }
+         if (previous == true)
+         {
+            SetActiveWindow(index);
+         }
+         else if (visibleWindows_.back() == window)
+         {
+            SetActiveWindow(Ui::Screen::Previous);
+         }
+         else
+         {
+            SetActiveWindow(Ui::Screen::Next);
+         }
       }
 
       for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)

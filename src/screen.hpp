@@ -227,6 +227,7 @@ namespace Ui
 
    private:
       int32_t    window_;
+      int32_t    previous_;
       WindowMap  mainWindows_;
       WINDOW *   statusWindow_;
       WINDOW *   tabWindow_;

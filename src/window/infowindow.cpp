@@ -29,7 +29,6 @@ using namespace Ui;
 
 InfoWindow::InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
    SongWindow    (settings, screen, client, search, name),
-   m_ActiveWindow(screen_.GetActiveWindow()),
    m_URI         (URI)
 {
    Redraw();
@@ -110,12 +109,6 @@ void InfoWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 void InfoWindow::Edit()
 {
    int const InfoWindowId = screen_.GetActiveWindow();
-
-   if (screen_.IsVisible(m_ActiveWindow) == true)
-   {
-      screen_.SetActiveAndVisible(m_ActiveWindow);
-   }
-
    screen_.SetVisible(InfoWindowId, false);
 }
 
