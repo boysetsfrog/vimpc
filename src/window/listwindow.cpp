@@ -160,7 +160,7 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (i < Main::Lists().Size())
       {
-         client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i).path_, Main::PlaylistTmp(),
+         client_.ForEachPlaylistSong(Main::Lists().Get(line +  i).path_, Main::PlaylistTmp(),
                                     static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
       }
    }
@@ -197,7 +197,7 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (i < Main::Lists().Size())
       {
-         client_.ForEachPlaylistSong(Main::Lists().Get(screen_.ActiveWindow().CurrentLine() +  i).path_, Main::PlaylistTmp(),
+         client_.ForEachPlaylistSong(Main::Lists().Get(line +  i).path_, Main::PlaylistTmp(),
                                     static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
       }
    }
