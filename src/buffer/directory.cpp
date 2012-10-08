@@ -32,7 +32,8 @@ const std::string VariousArtist = "Various Artists";
 
 using namespace Mpc;
 
-Directory::Directory()
+Directory::Directory() :
+   directory_("")
 {
 }
 
@@ -49,6 +50,21 @@ std::string Directory::CurrentDirectory()
 void Directory::ChangeDirectory(std::string New)
 {
    Clear();
+
+   bool found = false;
+
+   for(std::vector<std::string>::iterator it = paths_.begin(); (it != paths_.end()); ++it)
+   {
+      if (*it == New)
+      {
+         found = true;
+      }
+   }
+
+   if (found == false)
+   {
+      New = "";
+   }
 
    if (New != "")
    {

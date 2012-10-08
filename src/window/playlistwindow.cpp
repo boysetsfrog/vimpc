@@ -32,6 +32,7 @@
 #include "buffer/list.hpp"
 #include "mode/search.hpp"
 #include "window/console.hpp"
+#include "window/debug.hpp"
 
 using namespace Ui;
 
@@ -58,16 +59,7 @@ PlaylistWindow::~PlaylistWindow()
 
 void PlaylistWindow::Redraw()
 {
-   uint16_t currentLine = CurrentLine();
-   uint16_t scrollLine  = ScrollLine();
-
-   // If we are redrawing and can keep the same scroll point do so
-   // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
-   if (currentLine < playlist_.Size())
-   {
-      SetScrollLine(scrollLine);
-      ScrollTo(currentLine);
-   }
+   ScrollTo(CurrentLine());
 }
 
 void PlaylistWindow::Left(Ui::Player & player, uint32_t count)

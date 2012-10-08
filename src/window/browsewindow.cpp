@@ -53,10 +53,21 @@ BrowseWindow::~BrowseWindow()
 
 void BrowseWindow::Redraw()
 {
+   uint16_t currentLine = CurrentLine();
+   uint16_t scrollLine  = ScrollLine();
+
    Clear();
    Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
    Main::Library().ForEachSong(&callback);
    SoftRedraw();
+
+   // If we are redrawing and can keep the same scroll point do so
+   // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
+   if (currentLine < browse_.Size())
+   {
+      SetScrollLine(scrollLine);
+      ScrollTo(currentLine);
+   }
 }
 
 void BrowseWindow::SoftRedraw()

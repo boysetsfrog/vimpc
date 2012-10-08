@@ -62,8 +62,7 @@ void DirectoryWindow::Redraw()
    client_.ForEachDirectory(directory_, &Mpc::Directory::Add);
    client_.ForEachLibrarySong(directory_, &Mpc::Directory::Add);
    client_.ForEachPlaylistEntity(directory_, &Mpc::Directory::AddPlaylist);
-
-   directory_.ChangeDirectory("");
+   directory_.ChangeDirectory(directory_.CurrentDirectory());
    SoftRedraw();
 }
 

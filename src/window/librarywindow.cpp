@@ -92,7 +92,7 @@ void LibraryWindow::SoftRedraw()
       }
    }
 
-   ScrollTo(0);
+   ScrollTo(CurrentLine());
 }
 
 
