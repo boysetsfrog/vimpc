@@ -232,7 +232,7 @@ bool Command::ExecuteCommand(std::string const & input)
    }
    else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
    {
-      uint32_t line = atoi(command.c_str());
+      int32_t line = atoi(command.c_str());
 
       if (line >= 1)
       {
