@@ -1,3 +1,10 @@
+Version 0.07.1
+-------------
+- Bug Fix: fixed crash when using 'A' and 'D' on lists window
+- Bug Fix: fixed scroll to crashes on empty windows
+- Bug Fix: go to large line number using :<number> fix
+- Bug Fix: go to mark on closed window opens the window
+
 Version 0.07
 -------------
 - Added directory window (:directory)
