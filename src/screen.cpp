@@ -133,9 +133,9 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[DebugConsole]->SetAutoScroll(true);
 
    // Register settings callbacks
-   settings_.RegisterCallback(Setting::TabBar, 
+   settings_.RegisterCallback(Setting::TabBar,
       new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnTabSettingChange));
-   settings_.RegisterCallback(Setting::Mouse, 
+   settings_.RegisterCallback(Setting::Mouse,
       new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnMouseSettingChange));
 
    // If mouse support is turned on set it up
@@ -524,8 +524,16 @@ void Screen::ScrollTo(Location location, uint32_t line)
    scroll[Current]      = ActiveWindow().Current() + line;
    scroll[PlaylistNext] = ActiveWindow().Playlist(1);
    scroll[PlaylistPrev] = ActiveWindow().Playlist(-1);
-   scroll[Random]       = rand() % (ActiveWindow().ContentSize() + 1);
    scroll[Specific]     = line - 1;
+
+   if (ActiveWindow().ContentSize() >= 0)
+   {
+      scroll[Random]    = rand() % (ActiveWindow().ContentSize() + 1);
+   }
+   else
+   {
+      scroll[Random]    = 0;
+   }
 
    ScrollTo(scroll[location]);
 }
