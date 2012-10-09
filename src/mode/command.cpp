@@ -139,6 +139,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("debug",         &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
    AddCommand("debug-getmeta", &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
    AddCommand("debug-idle",    &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
+   AddCommand("test-screen",   &Command::TestScreen,                                       false);
 #endif
 
    // Add all settings to command table to provide tab completion
@@ -938,6 +939,14 @@ void Command::DebugClient(std::string const & arguments)
 {
    Ui::Command::ClientFunction func = FUNCTION;
    (client_.*func)();
+}
+
+void Command::TestScreen(std::string const & arguments)
+{
+   screen_.ActiveWindow().ScrollTo(999999);
+   screen_.ScrollTo(screen_.ActiveWindow().Playlist(0));
+   screen_.ActiveWindow().ScrollTo(0);
+   screen_.Invalidate(screen_.GetActiveWindow());
 }
 
 

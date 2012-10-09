@@ -177,6 +177,8 @@ namespace Ui
       template <ClientFunction FUNCTION>
       void DebugClient(std::string const & arguments);
 
+      void TestScreen(std::string const & arguments);
+
    private:
       // Executes \p command using \p arguments
       //
