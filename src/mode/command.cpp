@@ -945,6 +945,7 @@ void Command::TestScreen(std::string const & arguments)
 {
    screen_.ActiveWindow().ScrollTo(999999);
    screen_.ScrollTo(screen_.ActiveWindow().Playlist(0));
+   screen_.ScrollTo(screen_.ActiveWindow().Current());
    screen_.ActiveWindow().ScrollTo(0);
    screen_.Invalidate(screen_.GetActiveWindow());
 }
