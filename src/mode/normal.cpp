@@ -919,7 +919,7 @@ void Normal::GotoMark(std::string const & input)
    else if (markTable_.find(input) != markTable_.end())
    {
       MarkTable::const_iterator it = markTable_.find(input);
-      screen_.SetActiveWindowType(static_cast<Screen::MainWindow>(it->second.first));
+      screen_.SetActiveAndVisible(static_cast<Screen::MainWindow>(it->second.first));
       screen_.ScrollTo(it->second.second);
    }
    else
