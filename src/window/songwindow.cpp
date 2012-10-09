@@ -195,35 +195,38 @@ uint32_t SongWindow::Playlist(int count) const
    //! \todo could use some tidying up
    int32_t line = CurrentLine();
 
-   if (count > 0)
+   if ((line >= 0) && (Buffer().Size() > 0))
    {
-      for (int32_t i = CurrentLine() + 1; i <= ContentSize(); ++i)
+      if ((count > 0) && (line >= 0) && (Buffer().Size() > 0))
       {
-         if (Buffer().Get(i)->Reference() > 0)
+         for (int32_t i = CurrentLine() + 1; i <= ContentSize(); ++i)
          {
-            --count;
-            line = i;
-         }
+            if (Buffer().Get(i)->Reference() > 0)
+            {
+               --count;
+               line = i;
+            }
 
-         if (count == 0)
-         {
-            break;
+            if (count == 0)
+            {
+               break;
+            }
          }
       }
-   }
-   else
-   {
-      for (int32_t i = CurrentLine() - 1; i >= 0; --i)
+      else
       {
-         if (Buffer().Get(i)->Reference() > 0)
+         for (int32_t i = CurrentLine() - 1; i >= 0; --i)
          {
-            ++count;
-            line = i;
-         }
+            if (Buffer().Get(i)->Reference() > 0)
+            {
+               ++count;
+               line = i;
+            }
 
-         if (count == 0)
-         {
-            break;
+            if (count == 0)
+            {
+               break;
+            }
          }
       }
    }
