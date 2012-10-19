@@ -1,3 +1,7 @@
+Version 0.07.2
+-------------
+- Bug Fix: fix issue when scrolling from last line
+
 Version 0.07.1
 -------------
 - Bug Fix: fixed crash when using 'A' and 'D' on lists window
