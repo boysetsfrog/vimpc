@@ -89,7 +89,7 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
    {
       ScrollWindow::ScrollTo(scrollLine);
    }
-   else if (scrollLine > BufferSize())
+   else if ((scrollLine > BufferSize()) || (scrollLine_ > BufferSize()))
    {
       ScrollWindow::ScrollTo(BufferSize());
    }
