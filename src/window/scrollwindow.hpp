@@ -30,8 +30,6 @@ namespace Ui
 
    class ScrollWindow : public Window
    {
-      friend class Ui::Screen;
-
    public:
       ScrollWindow(Ui::Screen & screen, std::string name = "Unknown");
       virtual ~ScrollWindow();

@@ -635,7 +635,7 @@ void Screen::InvalidateAll()
 
    for (; (it != mainWindows_.end()); ++it)
    {
-      if (it->first < (int) Dynamic)
+      if (it->first < static_cast<int>(Dynamic))
       {
          Invalidate(it->first);
       }
@@ -826,7 +826,7 @@ void Screen::HandleMouseEvent()
       if (getmouse(&event) == OK)
       {
          char buffer[64];
-         sprintf(buffer, "%u\n", event.bstate);
+         sprintf(buffer, "%u\n", static_cast<uint32_t>(event.bstate));
          Debug(buffer);
 
          if (event.bstate & BUTTON4_PRESSED)
@@ -854,7 +854,6 @@ void Screen::HandleMouseEvent()
 
                   if (settings_.Get(Setting::WindowNumbers) == true)
                   {
-                     char buffer[32];
                      sprintf(buffer, "[%d]", i);
                      x += strlen(buffer);
                   }

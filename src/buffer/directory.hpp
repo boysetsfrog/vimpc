@@ -44,8 +44,6 @@ namespace Mpc
    class DirectoryEntry
    {
    public:
-      friend class Directory;
-
       DirectoryEntry(EntryType Type, std::string Name, std::string Path, Mpc::Song * Song = NULL) :
          type_    (Type),
          name_    (Name),
@@ -181,15 +179,15 @@ namespace Mpc
       }
       std::vector<Mpc::Song *> Songs(std::string const & Path) const
       {
-         static std::vector<Mpc::Song *> empty;
+         static std::vector<Mpc::Song *> emptyvector;
          std::map<std::string, std::vector<Mpc::Song *> >::const_iterator it = songs_.find(Path);
-         return (it != songs_.end()) ? it->second : empty;
+         return (it != songs_.end()) ? it->second : emptyvector;
       }
       std::vector<std::string> ChildPaths(std::string const & Path) const
       {
-         static std::vector<std::string> empty;
+         static std::vector<std::string> emptyvector;
          std::map<std::string, std::vector<std::string> >::const_iterator it = children_.find(Path);
-         return (it != children_.end()) ? it->second : empty;
+         return (it != children_.end()) ? it->second : emptyvector;
       }
 
       typedef Main::CallbackObject<Mpc::Directory, Directory::BufferType> CallbackObject;

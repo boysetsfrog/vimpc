@@ -53,12 +53,12 @@ Settings::Settings() :
    toggleTable_  (),
    stringTable_  ()
 {
-#define X(a, b, c) toggleTable_[b] = new SettingValue<bool>((int32_t) Setting::a, c); \
+#define X(a, b, c) toggleTable_[b] = new SettingValue<bool>(Setting::a, c); \
                    settingName_[Setting::a] = b;
    TOGGLE_SETTINGS
 #undef X
 
-#define X(a, b, c,d) stringTable_[b] = new SettingValue<std::string>((int32_t) Setting::a, c); \
+#define X(a, b, c,d) stringTable_[b] = new SettingValue<std::string>(Setting::a, c); \
                      settingName_[Setting::a] = b; \
                      filterTable_[b] = d;
    STRING_SETTINGS
@@ -219,7 +219,8 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
             set->Set(arguments);
 
             // Call any registered callbacks for this setting
-            std::vector<StringCallback> Callbacks = sCallbackTable_[(Setting::StringSettings) set->Id()];
+            std::vector<StringCallback> Callbacks = 
+               sCallbackTable_[static_cast<Setting::StringSettings>(set->Id())];
 
             for (std::vector<StringCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
             {
@@ -281,7 +282,8 @@ void Settings::SetSingleSetting(std::string setting)
          set->Set(newValue);
 
          // Call any registered callbacks for this setting
-         std::vector<BoolCallback> Callbacks = tCallbackTable_[(Setting::ToggleSettings) set->Id()];
+         std::vector<BoolCallback> Callbacks = 
+            tCallbackTable_[static_cast<Setting::ToggleSettings>(set->Id())];
 
          for (std::vector<BoolCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
          {

@@ -148,17 +148,17 @@ void Directory::AddChild(std::string directory)
    std::string Parent = "";
    std::string Path = directory;
 
-   int Index = 0;
+   uint32_t i = 0;
 
-   while (Index != std::string::npos)
+   while (i != std::string::npos)
    {
-      Index = Path.find("/", Index);
+      i = Path.find("/", i);
 
-      if (Index != std::string::npos)
+      if (i != std::string::npos)
       {
-         Parent = Path.substr(0, Index);
+         Parent = Path.substr(0, i);
          children_[Parent].push_back(directory);
-         ++Index;
+         ++i;
       }
    }
 }
@@ -377,15 +377,15 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
    }
    else if (entry->type_ == Mpc::PathType)
    {
-      std::vector<Mpc::Song *> Songs = AllChildSongs(entry->path_);
+      std::vector<Mpc::Song *> const ChildSongs = AllChildSongs(entry->path_);
 
-      if (Songs.size() > 0)
+      if (ChildSongs.size() > 0)
       {
-         Mpc::CommandList list(client, (Songs.size() > 1));
+         Mpc::CommandList list(client, (ChildSongs.size() > 1));
 
-         for (uint32_t i = 0; i < Songs.size(); ++i)
+         for (uint32_t i = 0; i < ChildSongs.size(); ++i)
          {
-            int32_t PlaylistIndex = Main::Playlist().Index(Songs[i]);
+            int32_t PlaylistIndex = Main::Playlist().Index(ChildSongs[i]);
 
             if (PlaylistIndex >= 0)
             {
