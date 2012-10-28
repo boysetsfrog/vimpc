@@ -260,7 +260,7 @@ void ListWindow::Edit()
       SongWindow * window = screen_.CreateSongWindow("P:" + playlist.name_);
       client_.ForEachPlaylistSong(playlist.path_, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
-      if (window->ContentSize() > -1)
+      if (window->BufferSize() > 0)
       {
          screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
       }

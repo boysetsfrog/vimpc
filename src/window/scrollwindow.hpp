@@ -71,7 +71,6 @@ namespace Ui
 
    public:
       size_t BufferSize() const { return WindowBuffer().Size(); }
-      int32_t ContentSize() const { return WindowBuffer().Size() - 1; }
 
    public:
       std::string const & Name();

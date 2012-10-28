@@ -40,7 +40,7 @@ ConsoleWindow::~ConsoleWindow()
 
 void ConsoleWindow::PerformAutoScroll(Console::BufferType line)
 {
-   if ((AutoScroll() == true) && (ContentSize() <= ScrollLine()))
+   if ((AutoScroll() == true) && (BufferSize() - 1 <= ScrollLine()))
    {
       ScrollTo(console_.Size());
    }

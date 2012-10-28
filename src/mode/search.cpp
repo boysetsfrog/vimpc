@@ -180,7 +180,7 @@ bool Search::SearchWindow(Direction direction, std::string search, int32_t start
       }
       else
       {
-         found = SearchForResult(direction, search, count, screen_.ActiveWindow().ContentSize() + 1);
+         found = SearchForResult(direction, search, count, screen_.ActiveWindow().BufferSize());
       }
    }
 
@@ -194,7 +194,7 @@ bool Search::SearchForResult(Direction direction, std::string search, uint32_t c
 
    if (direction == Forwards)
    {
-      for (int32_t i = startLine + 1; ((i <= static_cast<int32_t>(screen_.ActiveWindow().ContentSize())) && (found == false)); ++i)
+      for (int32_t i = startLine + 1; ((i < static_cast<int32_t>(screen_.ActiveWindow().BufferSize())) && (found == false)); ++i)
       {
          found = CheckForMatch(search, i, count);
       }

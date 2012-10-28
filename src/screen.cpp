@@ -439,9 +439,9 @@ void Screen::Align(Direction direction, uint32_t count)
          selection = min + count;
       }
 
-      if (selection > static_cast<int32_t>(ActiveWindow().ContentSize() - (max - 1)))
+      if (selection > static_cast<int32_t>(ActiveWindow().BufferSize() - max))
       {
-         selection = ActiveWindow().ContentSize() - (max - 1);
+         selection = ActiveWindow().BufferSize() - max;
       }
 
       ActiveWindow().ScrollWindow::Scroll(count);
@@ -525,15 +525,7 @@ void Screen::ScrollTo(Location location, uint32_t line)
    scroll[PlaylistNext] = ActiveWindow().Playlist(1);
    scroll[PlaylistPrev] = ActiveWindow().Playlist(-1);
    scroll[Specific]     = line - 1;
-
-   if (ActiveWindow().ContentSize() >= 0)
-   {
-      scroll[Random]    = rand() % (ActiveWindow().ContentSize() + 1);
-   }
-   else
-   {
-      scroll[Random]    = 0;
-   }
+   scroll[Random]       = (ActiveWindow().BufferSize() > 0) ? (rand() % ActiveWindow().BufferSize()) : 0;
 
    ScrollTo(scroll[location]);
 }

@@ -199,7 +199,7 @@ uint32_t SongWindow::Playlist(int count) const
    {
       if ((count > 0) && (line >= 0) && (Buffer().Size() > 0))
       {
-         for (int32_t i = CurrentLine() + 1; i <= ContentSize(); ++i)
+         for (int32_t i = CurrentLine() + 1; i < BufferSize(); ++i)
          {
             if (Buffer().Get(i)->Reference() > 0)
             {

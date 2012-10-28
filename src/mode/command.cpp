@@ -611,7 +611,7 @@ void Command::Find(std::string const & arguments)
       SongWindow * window = screen_.CreateSongWindow(arguments);
       client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
-      if (window->ContentSize() >= 0)
+      if (window->BufferSize() > 0)
       {
          screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
       }
@@ -770,7 +770,7 @@ void Command::Move(std::string const & arguments)
       int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
       int32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
 
-      if (position1 >= screen_.ActiveWindow().ContentSize())
+      if (position1 >= screen_.ActiveWindow().BufferSize() - 1)
       {
          position1 = Main::Playlist().Size();
       }
@@ -779,7 +779,7 @@ void Command::Move(std::string const & arguments)
          position1 = 1;
       }
 
-      if (position2 >= screen_.ActiveWindow().ContentSize())
+      if (position2 >= screen_.ActiveWindow().BufferSize() - 1)
       {
          position2 = Main::Playlist().Size();
       }

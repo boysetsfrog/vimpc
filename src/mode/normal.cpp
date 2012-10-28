@@ -1004,9 +1004,9 @@ void Normal::Move(uint32_t count)
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
       int32_t position = currentLine + (count * OFFSET);
 
-      if (position >= static_cast<int32_t>(screen_.ActiveWindow().ContentSize()))
+      if (position >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize()))
       {
-         position = screen_.ActiveWindow().ContentSize();
+         position = screen_.ActiveWindow().BufferSize() - 1;
       }
       else if (position <= 0)
       {
@@ -1053,13 +1053,13 @@ std::string Normal::ScrollString()
    float currentScroll = 0.0;
    std::ostringstream scrollStream;
 
-   if (screen_.ActiveWindow().ContentSize() > -1)
+   if (screen_.ActiveWindow().BufferSize() > 0)
    {
-      currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().ContentSize()) - 1));
+      currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().BufferSize()) - 2));
       currentScroll += .005;
-      scrollStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << (screen_.ActiveWindow().ContentSize() + 1) << " -- ";
+      scrollStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << screen_.ActiveWindow().BufferSize() << " -- ";
 
-      if (screen_.ActiveWindow().ContentSize() > static_cast<int32_t>(screen_.MaxRows()) - 1)
+      if (screen_.ActiveWindow().BufferSize() > static_cast<int32_t>(screen_.MaxRows()))
       {
          if (currentScroll <= .010)
          {
