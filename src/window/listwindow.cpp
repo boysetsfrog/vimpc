@@ -37,12 +37,12 @@
 
 using namespace Ui;
 
-ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Lists & lists, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (settings, screen, "lists"),
    settings_        (settings),
    client_          (client),
    search_          (search),
-   lists_           (Main::Lists())
+   lists_           (lists)
 {
    typedef Main::CallbackObject<Ui::ListWindow , Mpc::Lists::BufferType> WindowCallbackObject;
    typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;

@@ -33,6 +33,9 @@ Window::Window(int h, int w, int x, int y) :
    x = (x < 0) ? 0 : x;
    y = (y < 0) ? 0 : y;
 
+   rows_ = h;
+   cols_ = w;
+
    window_ = newwin(h, w, x, y);
 }
 
@@ -71,6 +74,8 @@ void Window::Move(int row, int column)
 
 void Window::Resize(int rows, int columns)
 {
+   rows_ = rows;
+   cols_ = columns;
    wresize(N_WINDOW(), rows, columns);
 }
 

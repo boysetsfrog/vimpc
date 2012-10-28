@@ -40,7 +40,7 @@ namespace Ui
       typedef void (Mpc::Library::*LibraryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
    public:
-      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Ui::Search const & search);
       ~LibraryWindow();
 
    private:
@@ -69,6 +69,9 @@ namespace Ui
       void DeleteAllLines();
       void Edit();
       void ScrollToFirstMatch(std::string const & input);
+
+   protected:
+      Main::WindowBuffer const & WindowBuffer() const { return library_; }
 
    private:
       std::vector<uint32_t> PositionVector(uint32_t & line, uint32_t count, bool visual);

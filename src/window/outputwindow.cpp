@@ -33,12 +33,12 @@
 
 using namespace Ui;
 
-OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Outputs & outputs, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (settings, screen, "outputs"),
    settings_        (settings),
    client_          (client),
    search_          (search),
-   outputs_         (Main::Outputs())
+   outputs_         (outputs)
 {
    typedef Main::CallbackObject<Ui::OutputWindow , Mpc::Outputs::BufferType> WindowCallbackObject;
    typedef Main::CallbackObject<Mpc::Outputs,      Mpc::Outputs::BufferType> OutputCallbackObject;

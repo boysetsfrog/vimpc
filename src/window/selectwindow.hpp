@@ -37,6 +37,7 @@ namespace Ui
       ~SelectWindow();
 
    public:
+      void Print(uint32_t line) const;
       void Resize(int rows, int columns);
       void Scroll(int32_t scrollCount);
       void ScrollTo(uint16_t scrollLine);

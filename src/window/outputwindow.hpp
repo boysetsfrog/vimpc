@@ -44,7 +44,7 @@ namespace Ui
    class OutputWindow : public Ui::SelectWindow
    {
    public:
-      OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      OutputWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Outputs & outputs, Mpc::Client & client, Ui::Search const & search);
       ~OutputWindow();
 
    private:
@@ -66,6 +66,9 @@ namespace Ui
       void AddAllLines();
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
+
+   protected:
+      Main::WindowBuffer const & WindowBuffer() const { return outputs_; }
 
    private:
       void SetOutput(uint32_t line, bool enable, uint32_t count = 1, bool scroll = true);

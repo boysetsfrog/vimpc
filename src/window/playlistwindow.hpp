@@ -39,7 +39,7 @@ namespace Ui
    class PlaylistWindow : public Ui::SongWindow
    {
    public:
-      PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Playlist & playlist, Mpc::Client & client, Ui::Search const & search);
       ~PlaylistWindow();
 
    private:
@@ -69,6 +69,7 @@ namespace Ui
 
    protected:
       void PrintId(uint32_t Id) const;
+      Main::WindowBuffer const & WindowBuffer() const { return playlist_; }
 
    private:
       void    Clear();

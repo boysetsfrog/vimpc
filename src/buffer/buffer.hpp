@@ -38,11 +38,19 @@ namespace Main
       Buffer_Remove
    } BufferCallbackEvent;
 
+
+   class WindowBuffer
+   {
+   public:
+      virtual size_t Size() const = 0;
+      virtual std::string String(uint32_t position) const { return ""; }
+   };
+
    //
    //! \todo delete callbacks on destruction
    //! Window buffer
    template <typename T>
-   class Buffer : private std::vector<T>
+   class Buffer : public WindowBuffer, private std::vector<T>
    {
    private:
       typedef std::vector<Main::CallbackInterface<T> *> CallbackList;

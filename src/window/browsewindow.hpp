@@ -40,7 +40,7 @@ namespace Ui
    class BrowseWindow : public Ui::SongWindow
    {
    public:
-      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Ui::Search const & search);
       ~BrowseWindow();
 
    private:
@@ -52,6 +52,7 @@ namespace Ui
 
    protected:
       void PrintId(uint32_t Id) const;
+      Main::WindowBuffer const & WindowBuffer() const { return browse_; }
 
    private:
       void    SoftRedraw();

@@ -82,12 +82,11 @@ namespace Ui
    protected:
       virtual void PrintBlankId() const;
       virtual void PrintId(uint32_t Id) const;
+      Main::WindowBuffer const & WindowBuffer() const { return browse_; }
       void Clear();
 
    private:
       virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const song) const;
-
-      size_t   BufferSize() const { return Buffer().Size(); }
       uint32_t GetPositions(int64_t & pos1, int64_t & pos2) const;
 
    private:

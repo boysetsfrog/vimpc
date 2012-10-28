@@ -39,12 +39,12 @@
 
 using namespace Ui;
 
-DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (settings, screen, "directory"),
    settings_        (settings),
    client_          (client),
    search_          (search),
-   directory_       (Main::Directory())
+   directory_       (directory)
 {
    SoftRedrawOnSetting(Setting::ShowPath);
    SoftRedrawOnSetting(Setting::ShowLists);
@@ -147,7 +147,7 @@ void DirectoryWindow::ScrollTo(uint16_t scrollLine)
 
    if (settings_.Get(Setting::ShowPath) == true)
    {
-      if ((currentLine_ >= scrollLine_ - 1) || (currentLine_ < (scrollLine_ - screen_.MaxRows())))
+      if ((currentLine_ >= scrollLine_ - 1) || (currentLine_ < (scrollLine_ - Rows())))
       {
          ScrollWindow::ScrollTo(scrollLine);
       }
@@ -207,7 +207,7 @@ void DirectoryWindow::Clear()
 
 void DirectoryWindow::Print(uint32_t line) const
 {
-   std::string const BlankLine(screen_.MaxColumns(), ' ');
+   std::string const BlankLine(Columns(), ' ');
 
    uint32_t printLine = (line + FirstLine());
    WINDOW * window    = N_WINDOW();

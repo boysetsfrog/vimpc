@@ -55,16 +55,16 @@ namespace Ui
       void Erase();
       void Refresh();
 
-   public:
-      int32_t ContentSize() const { return BufferSize() - 1; }
+      int32_t Rows() const { return rows_; }
+      int32_t Columns() const { return cols_; }
 
    public:
       WINDOW * N_WINDOW() const { return window_; }
 
-      virtual size_t BufferSize() const = 0;
-
    private:
       WINDOW * window_;
+      int32_t  rows_;
+      int32_t  cols_;
    };
 }
 

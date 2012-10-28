@@ -21,6 +21,7 @@
 #ifndef __UI__SCROLLWINDOW
 #define __UI__SCROLLWINDOW
 
+#include "buffer/buffer.hpp"
 #include "settings.hpp"
 #include "window.hpp"
 
@@ -44,12 +45,13 @@ namespace Ui
       } Position;
 
    public:
-      virtual void Print(uint32_t line) const = 0;
+      virtual void Print(uint32_t line) const;
       virtual void Resize(int rows, int columns);
       virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint16_t scrollLine);
       virtual void ScrollToFirstMatch(std::string const & input) { }
       virtual void ScrollToCurrent() { }
+      virtual void ResetSelection() {}
 
       virtual uint32_t Current() const           { return CurrentLine(); };
       virtual uint32_t Playlist(int count) const { return Current(); };
@@ -68,19 +70,20 @@ namespace Ui
       virtual void Save(std::string const & name) {}
 
    public:
-      std::string Name();
+      size_t BufferSize() const { return WindowBuffer().Size(); }
+      int32_t ContentSize() const { return WindowBuffer().Size() - 1; }
+
+   public:
+      std::string const & Name();
       void SetName(std::string const &);
 
       bool Select(Position position, uint32_t count);
-      virtual void ResetSelection() {}
       void SetAutoScroll(bool autoScroll);
       bool AutoScroll() const;
 
    public:
       uint32_t FirstLine()   const;
       uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() : ScrollLine(); }
-      int32_t  ContentSize() const { return BufferSize() - 1; }
-
       virtual  uint16_t CurrentLine() const { return FirstLine(); }
 
    protected:
@@ -94,14 +97,15 @@ namespace Ui
       void OnSettingChanged(bool)        { SoftRedraw(); }
       void OnSettingChanged(std::string) { SoftRedraw(); }
 
-      virtual void   SoftRedraw() {}
-      virtual size_t BufferSize() const = 0;
+   protected:
+      virtual void SoftRedraw() {}
+      virtual Main::WindowBuffer const & WindowBuffer() const = 0;
 
    protected:
-      Ui::Screen & screen_;
-      std::string  name_;
-      uint16_t     scrollLine_;
-      bool         autoScroll_;
+      Ui::Screen &               screen_;
+      std::string                name_;
+      uint16_t                   scrollLine_;
+      bool                       autoScroll_;
    };
 }
 

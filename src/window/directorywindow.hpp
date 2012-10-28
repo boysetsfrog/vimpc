@@ -40,7 +40,7 @@ namespace Ui
       typedef void (Mpc::Directory::*DirectoryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
    public:
-      DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Ui::Search const & search);
       ~DirectoryWindow();
 
    private:
@@ -72,9 +72,11 @@ namespace Ui
       void ScrollToCurrent();
       void Scroll(int32_t scrollCount);
       void ScrollTo(uint16_t scrollLine);
+      size_t BufferSize() const;
 
    protected:
       void LimitCurrentSelection() const;
+      Main::WindowBuffer const & WindowBuffer() const { return directory_; }
 
    private:
       std::vector<uint32_t> PositionVector(uint32_t & line, uint32_t count, bool visual);
@@ -84,7 +86,6 @@ namespace Ui
 
    private:
       void    Clear();
-      size_t  BufferSize() const;
       int32_t DetermineSongColour(Mpc::DirectoryEntry const * const entry) const;
 
    private:

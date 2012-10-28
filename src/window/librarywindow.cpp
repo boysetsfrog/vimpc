@@ -37,12 +37,12 @@
 
 using namespace Ui;
 
-LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Ui::Search const & search) :
    SelectWindow     (settings, screen, "library"),
    settings_        (settings),
    client_          (client),
    search_          (search),
-   library_         (Main::Library())
+   library_         (library)
 {
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);

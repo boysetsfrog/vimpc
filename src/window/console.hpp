@@ -34,27 +34,30 @@ namespace Ui
    public:
       Console()  { }
       ~Console() { }
+
+   public:
+      std::string String(uint32_t position) const { return Get(position); }
    };
 
    //
    class ConsoleWindow : public Ui::ScrollWindow
    {
    public:
-      ConsoleWindow(Ui::Screen & screen, std::string name, Console & console);
+      ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen, 
+                    std::string name, Console & console);
       ~ConsoleWindow();
 
    public:
-      void Print(uint32_t line) const;
       void Clear();
       void PerformAutoScroll(Console::BufferType string);
 
       uint32_t Current() const { return ScrollLine(); }
 
+   protected:
+      Main::WindowBuffer const & WindowBuffer() const { return console_; }
+
    private:
       typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferType> CallbackObject;
-
-   private: //Ui::Window
-      size_t BufferSize() const { return console_.Size(); }
 
    private:
       Console & console_;

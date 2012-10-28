@@ -38,7 +38,7 @@ namespace Ui
    class ListWindow : public Ui::SelectWindow
    {
    public:
-      ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search);
+      ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Lists & lists, Mpc::Client & client, Ui::Search const & search);
       ~ListWindow();
 
    private:
@@ -67,6 +67,9 @@ namespace Ui
       void CropLine(uint32_t line, uint32_t count, bool scroll);
       void CropAllLines();
       void Edit();
+
+   protected:
+      Main::WindowBuffer const & WindowBuffer() const { return lists_; }
 
    private:
       void    SoftRedraw();

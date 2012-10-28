@@ -39,23 +39,17 @@ namespace Ui
       void Print(uint32_t line) const;
       void Confirm();
 
-      uint32_t Current() const { return ScrollLine(); }
-
-      //! \todo work out why this doesn't work properly
       std::string SearchPattern(int32_t id) const { return help_.Get(id); }
 
-      uint16_t CurrentLine() const { return 0; }
+   protected:
+      Main::WindowBuffer const & WindowBuffer() const { return help_; }
 
    private:
       void Clear();
       void LoadHelpFile();
 
    private:
-      size_t BufferSize() const { return help_.Size(); }
-
-   private:
       Main::Settings const & settings_;
-
       typedef Main::Buffer<std::string> HelpBuffer;
       HelpBuffer help_;
    };

@@ -40,6 +40,17 @@ ScrollWindow::~ScrollWindow()
 }
 
 
+void ScrollWindow::Print(uint32_t line) const
+{
+   uint32_t const currentLine(FirstLine() + line);
+
+   if (currentLine < BufferSize())
+   {
+      std::string const output = WindowBuffer().String(currentLine);
+      mvwprintw(N_WINDOW(), line, 0, "%s", output.c_str());
+   }
+}
+
 void ScrollWindow::Resize(int rows, int columns)
 {
    if ((scrollLine_ > rows) || (rows > scrollLine_))
@@ -59,11 +70,11 @@ void ScrollWindow::Scroll(int32_t scrollCount)
 {
    uint16_t const newLine = (scrollLine_ + scrollCount);
 
-   if (BufferSize() > screen_.MaxRows())
+   if (BufferSize() > Rows())
    {
-      if (newLine < screen_.MaxRows())
+      if (newLine < Rows())
       {
-         scrollLine_ = screen_.MaxRows();
+         scrollLine_ = Rows();
       }
       else if (newLine > BufferSize())
       {
@@ -82,13 +93,13 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
    {
       scrollLine_ = BufferSize();
    }
-   else if (BufferSize() >= screen_.MaxRows())
+   else if (BufferSize() >= Rows())
    {
-      scrollLine_ = scrollLine + (screen_.MaxRows() / 2);
+      scrollLine_ = scrollLine + (Rows() / 2);
 
-      if (scrollLine_ < screen_.MaxRows())
+      if (scrollLine_ < Rows())
       {
-         scrollLine_ = screen_.MaxRows();
+         scrollLine_ = Rows();
       }
       else if (scrollLine_ > BufferSize())
       {
@@ -97,11 +108,11 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
    }
    else
    {
-      scrollLine_ = screen_.MaxRows();
+      scrollLine_ = Rows();
    }
 }
 
-std::string ScrollWindow::Name()
+std::string const & ScrollWindow::Name()
 {
    return name_;
 }
@@ -158,9 +169,9 @@ uint32_t ScrollWindow::FirstLine() const
 {
    uint16_t result = 0;
 
-   if ((scrollLine_ - screen_.MaxRows()) > 0)
+   if ((scrollLine_ - Rows()) > 0)
    {
-      result = (scrollLine_ - screen_.MaxRows());
+      result = (scrollLine_ - Rows());
    }
 
    return result;
@@ -168,7 +179,7 @@ uint32_t ScrollWindow::FirstLine() const
 
 void ScrollWindow::ResetScroll()
 {
-   scrollLine_ = screen_.MaxRows();
+   scrollLine_ = Rows();
 }
 
 uint16_t ScrollWindow::ScrollLine() const

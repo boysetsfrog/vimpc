@@ -35,12 +35,12 @@
 
 using namespace Ui;
 
-BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Ui::Search const & search) :
    SongWindow       (settings, screen, client, search, "browse"),
    settings_        (settings),
    client_          (client),
    search_          (search),
-   browse_          (Main::Browse())
+   browse_          (browse)
 {
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);

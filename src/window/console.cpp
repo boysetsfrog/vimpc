@@ -25,7 +25,8 @@
 
 using namespace Ui;
 
-ConsoleWindow::ConsoleWindow(Ui::Screen & screen, std::string name, Console & console) :
+ConsoleWindow::ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen, 
+                             std::string name, Console & console) :
    ScrollWindow(screen, name),
    console_    (console)
 {
@@ -36,18 +37,6 @@ ConsoleWindow::~ConsoleWindow()
 {
 }
 
-
-void ConsoleWindow::Print(uint32_t line) const
-{
-   uint32_t const currentLine(FirstLine() + line);
-
-   if (currentLine < BufferSize())
-   {
-      std::string const output = console_.Get(currentLine);
-
-      mvwprintw(N_WINDOW(), line, 0, "%s", output.c_str());
-   }
-}
 
 void ConsoleWindow::PerformAutoScroll(Console::BufferType line)
 {

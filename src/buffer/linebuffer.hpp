@@ -44,11 +44,6 @@ namespace Main
          Buffer<LineBuffer::BufferType>::Clear();
          Buffer<LineBuffer::BufferType>::Add(entry);
       }
-
-      uint32_t Size() const
-      {
-         return 1;
-      }
    };
 }
 #endif

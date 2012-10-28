@@ -36,12 +36,12 @@
 
 using namespace Ui;
 
-PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search) :
+PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Playlist & playlist, Mpc::Client & client, Ui::Search const & search) :
    SongWindow       (settings, screen, client, search, "playlist"),
    settings_        (settings),
    client_          (client),
    search_          (search),
-   playlist_        (Main::Playlist()),
+   playlist_        (playlist),
    pasteBuffer_     (Main::PlaylistPasteBuffer())
 {
    typedef Main::CallbackObject<Ui::PlaylistWindow, Mpc::Playlist::BufferType> WindowCallbackObject;

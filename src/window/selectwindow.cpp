@@ -43,6 +43,26 @@ SelectWindow::~SelectWindow()
 }
 
 
+void SelectWindow::Print(uint32_t line) const
+{
+   uint32_t printLine = line + FirstLine();
+
+   if (printLine < BufferSize())
+   {
+      WINDOW * window = N_WINDOW();
+
+      if (printLine == CurrentLine())
+      {
+         wattron(window, A_REVERSE);
+      }
+
+      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
+      mvwaddstr(window, line, 1, WindowBuffer().String(printLine).c_str());
+
+      wattroff(window, A_REVERSE);
+   }
+}
+
 void SelectWindow::Resize(int rows, int columns)
 {
    ScrollWindow::Resize(rows, columns);

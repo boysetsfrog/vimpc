@@ -96,14 +96,14 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Create all the static windows
    mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this);
-   mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (*this, "debug",   Main::DebugConsole());
-   mainWindows_[Console]      = new Ui::ConsoleWindow  (*this, "console", Main::Console());
-   mainWindows_[Outputs]      = new Ui::OutputWindow   (settings, *this, client, search);
-   mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, client, search);
-   mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, client, search);
-   mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, client, search);
-   mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, client, search);
-   mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, client, search);
+   mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (settings, *this, "debug",   Main::DebugConsole());
+   mainWindows_[Console]      = new Ui::ConsoleWindow  (settings, *this, "console", Main::Console());
+   mainWindows_[Outputs]      = new Ui::OutputWindow   (settings, *this, Main::Outputs(),   client, search);
+   mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, Main::Library(),   client, search);
+   mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, Main::Browse(),    client, search);
+   mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, search);
+   mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::Lists(),     client, search);
+   mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, search);
 
    // Create paging window to print maps, settings, etc
    pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
@@ -280,7 +280,7 @@ void Screen::CreateSongInfoWindow(Mpc::Song * song)
    {
       InfoWindow * window = CreateInfoWindow(SongInfo, "info", song);
 
-      if (window->ContentSize() > -1)
+      if (window->BufferSize() > 0)
       {
          SetActiveAndVisible(GetWindowFromName(window->Name()));
       }
@@ -520,7 +520,7 @@ void Screen::ScrollTo(Location location, uint32_t line)
    }
 
    scroll[Top]          = 0;
-   scroll[Bottom]       = ActiveWindow().ContentSize();
+   scroll[Bottom]       = ActiveWindow().BufferSize();
    scroll[Current]      = ActiveWindow().Current() + line;
    scroll[PlaylistNext] = ActiveWindow().Playlist(1);
    scroll[PlaylistPrev] = ActiveWindow().Playlist(-1);
@@ -1217,7 +1217,6 @@ void Screen::OnTabSettingChange(bool Value)
 {
    // Force a resize of the windows if the tab bar was recently
    // hidden or shown
-   Debug("Test that shit");
    Resize(true);
 }
 
