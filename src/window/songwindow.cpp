@@ -90,11 +90,11 @@ std::string SongWindow::SearchPattern(int32_t id) const
 
 void SongWindow::Print(uint32_t line) const
 {
-#if 1
+#if 0
    uint32_t printLine = line + FirstLine();
    WINDOW * window    = N_WINDOW();
    Mpc::Song * song   = (printLine < BufferSize()) ? Buffer().Get(printLine) : NULL;
-   int32_t  colour    = DetermineSongColour(printLine, song);
+   int32_t  colour    = DetermineColour(printLine, song);
 
    // Reverse the colours to indicate the selected song
    if ((IsSelected(printLine) == true) && (song != NULL))
@@ -420,8 +420,11 @@ void SongWindow::PrintId(uint32_t Id) const
 }
 
 
-int32_t SongWindow::DetermineSongColour(uint32_t line, Mpc::Song const * const song) const
+int32_t SongWindow::DetermineColour(uint32_t line) const
 {
+   uint32_t printLine = line + FirstLine();
+   Mpc::Song * song   = (printLine < BufferSize()) ? Buffer().Get(printLine) : NULL;
+
    int32_t colour = Colour::Song;
 
    if (song != NULL)

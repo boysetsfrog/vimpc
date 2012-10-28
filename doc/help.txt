@@ -423,7 +423,7 @@
    [no]showlists[!]        | include playlists in the directory window
    [no]singlequit[!]       | :q and :quit will quit vimpc, not close active tab
    [no]smartcase[!]        | if capital in search pattern, enable case sensitivity
-   [no]songnumbers[!]      | display id numbers next to songs in any window
+   [no]songnumbers[!]      | display id numbers next to songs in other windows
    [no]sortignorecase[!]   | ignore case when sorting by artist/album
    [no]sortignorethe[!]    | ignore the prefix 'the' when sorting by artist/album
    [no]stoponquit[!]       | automatically stop playback when vimpc is quit

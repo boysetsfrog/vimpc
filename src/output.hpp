@@ -50,6 +50,8 @@ namespace Mpc
       void SetEnabled(bool enable);
       bool Enabled() const;
 
+      std::string PrintString() const;
+
    private:
       uint32_t    id_;
       std::string name_;

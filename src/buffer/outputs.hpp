@@ -42,6 +42,9 @@ namespace Mpc
       ~Outputs()
       {
       }
+
+      std::string String(uint32_t position) const      { return Get(position)->PrintString(); }
+      std::string PrintString(uint32_t position) const { return Get(position)->PrintString(); }
    };
 }
 #endif

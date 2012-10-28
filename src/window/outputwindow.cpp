@@ -69,55 +69,6 @@ void OutputWindow::SoftRedraw()
    ScrollTo(0);
 }
 
-void OutputWindow::Print(uint32_t line) const
-{
-   uint32_t printLine = line + FirstLine();
-
-   if (printLine < BufferSize())
-   {
-      WINDOW * window = N_WINDOW();
-      int32_t  colour = DetermineColour(printLine);
-
-      if (settings_.Get(Setting::ColourEnabled) == true)
-      {
-         wattron(window, COLOR_PAIR(colour));
-      }
-
-      if (printLine == CurrentLine())
-      {
-         wattron(window, A_REVERSE);
-      }
-
-      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-
-      waddstr(window, "[ ]");
-
-      if (outputs_.Get(printLine)->Enabled() == true)
-      {
-         if ((printLine != CurrentLine()) && (settings_.Get(Setting::ColourEnabled) == true))
-         {
-            wattron(window, COLOR_PAIR(Colour::SongId));
-         }
-
-         mvwaddstr(window, line, 1, "*");
-         
-         if ((printLine != CurrentLine()) && (settings_.Get(Setting::ColourEnabled) == true))
-         {
-            wattroff(window, COLOR_PAIR(Colour::SongId));
-         }
-      }
-
-      mvwaddstr(window, line, 4, outputs_.Get(printLine)->Name().c_str());
-
-      wattroff(window, A_REVERSE);
-
-      if (settings_.Get(Setting::ColourEnabled) == true)
-      {
-         wattroff(window, COLOR_PAIR(colour));
-      }
-   }
-}
-
 void OutputWindow::Confirm()
 {
    if (outputs_.Size() > CurrentLine())

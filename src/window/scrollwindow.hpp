@@ -81,6 +81,7 @@ namespace Ui
       bool AutoScroll() const;
 
    public:
+      virtual bool IsSelected(uint32_t line) const { return false; }
       uint32_t FirstLine()   const;
       uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() : ScrollLine(); }
       virtual  uint16_t CurrentLine() const { return FirstLine(); }
@@ -99,6 +100,7 @@ namespace Ui
    protected:
       virtual void SoftRedraw() {}
       virtual Main::WindowBuffer const & WindowBuffer() const = 0;
+      virtual int32_t DetermineColour(uint32_t line) const;
 
    protected:
       Main::Settings const &     settings_;

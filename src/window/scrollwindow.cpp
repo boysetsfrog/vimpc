@@ -22,6 +22,7 @@
 
 #include <iostream>
 
+#include "colour.hpp"
 #include "screen.hpp"
 
 using namespace Ui;
@@ -56,9 +57,6 @@ void ScrollWindow::Print(uint32_t line) const
    std::string output   = WindowBuffer().PrintString(currentLine);
    std::string stripped = output;
 
-   mvwprintw(window, line, 0, BlankLine.c_str());
-   wmove(window, line, 0);
-
    for (uint32_t i = 0; i < output.size(); )
    {
       if ((output[i] == '$') && ((i + 1) < output.size()))
@@ -91,8 +89,11 @@ void ScrollWindow::Print(uint32_t line) const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      //wattron(window, COLOR_PAIR(colour));
+      wattron(window, COLOR_PAIR(DetermineColour(line)));
    }
+
+   mvwprintw(window, line, 0, BlankLine.c_str());
+   wmove(window, line, 0);
 
    for (uint32_t i = 0; i < output.size(); )
    {
@@ -100,6 +101,24 @@ void ScrollWindow::Print(uint32_t line) const
       {
          switch (output[i + 1])
          {
+            case 'L':
+               wprintw(window, "%5d", FirstLine() + line + 1);
+               break;
+
+            case 'I':
+               if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
+               {
+                  wattron(window, COLOR_PAIR(Colour::SongId));
+               }
+               break;
+
+            case 'D':
+               if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
+               {
+                  wattron(window, COLOR_PAIR(Colour::Song));
+               }
+               break;
+
             case 'R':
                elided = false;
                wmove(window, line, (screen_.MaxColumns() - (stripped.size() - align)));
@@ -107,19 +126,19 @@ void ScrollWindow::Print(uint32_t line) const
 
             case 'H':
                {
-                  /*if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(Id) == false))
+                  if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
                   {
                      if (highlight == false)
                      {
-                        //wattron(window, COLOR_PAIR(colour));
+                        wattron(window, COLOR_PAIR(DetermineColour(line)));
                      }
                      else
                      {
-                        //wattroff(window, COLOR_PAIR(colour));
+                        wattroff(window, COLOR_PAIR(DetermineColour(line)));
                      }
 
                      highlight = !highlight;
-                  }*/
+                  }
                }
 
              default:
@@ -145,7 +164,7 @@ void ScrollWindow::Print(uint32_t line) const
    {
       if (highlight == true)
       {
-         //wattroff(window, COLOR_PAIR(colour));
+         wattroff(window, COLOR_PAIR(DetermineColour(line)));
       }
    }
 }
@@ -303,6 +322,11 @@ void ScrollWindow::SoftRedrawOnSetting(Setting::StringSettings setting)
 {
    settings_.RegisterCallback(setting,
       new Main::CallbackObject<Ui::ScrollWindow, std::string>(*this, &Ui::ScrollWindow::OnSettingChanged));
+}
+
+int32_t ScrollWindow::DetermineColour(uint32_t line) const
+{
+   return Colour::Song;
 }
 
 /* vim: set sw=3 ts=3: */

@@ -43,8 +43,8 @@ namespace Mpc
       Browse(bool IncrementReferences = false);
       ~Browse();
 
-      std::string String(uint32_t position) const      { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
-      std::string PrintString(uint32_t position) const { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
+      std::string String(uint32_t position) const;
+      std::string PrintString(uint32_t position) const;
 
    private:
       Main::Settings const & settings_;

@@ -40,4 +40,27 @@ Browse::~Browse()
 {
 }
 
+std::string Browse::String(uint32_t position) const
+{
+    return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); 
+}
+
+std::string Browse::PrintString(uint32_t position) const
+{
+   std::string out("");
+
+   if (settings_.Get(Setting::BrowseNumbers) == true)
+   {
+      out += "$H[$I$L$D]$H ";   
+   }
+   else
+   {
+      out = " ";
+   }
+
+   out += Get(position)->FormatString(settings_.Get(Setting::SongFormat)); 
+   return out;
+}
+
+
 /* vim: set sw=3 ts=3: */

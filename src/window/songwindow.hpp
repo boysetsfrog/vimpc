@@ -85,8 +85,9 @@ namespace Ui
       Main::WindowBuffer const & WindowBuffer() const { return browse_; }
       void Clear();
 
+      int32_t DetermineColour(uint32_t line) const;
+
    private:
-      virtual int32_t DetermineSongColour(uint32_t line, Mpc::Song const * const song) const;
       uint32_t GetPositions(int64_t & pos1, int64_t & pos2) const;
 
    private:
