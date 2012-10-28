@@ -38,7 +38,8 @@ namespace Mpc
       typedef Main::CallbackFunction<Playlist::BufferType> CallbackFunction;
 
    public:
-      Playlist(bool IncrementReferences = false)
+      Playlist(bool IncrementReferences = false) :
+         settings_(Main::Settings::Instance())
       {
          if (IncrementReferences == true)
          {
@@ -59,6 +60,12 @@ namespace Mpc
             delete song;
          }
       }
+
+      std::string String(uint32_t position) const      { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
+      std::string PrintString(uint32_t position) const { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
+
+   private:
+      Main::Settings const & settings_;
    };
 }
 #endif

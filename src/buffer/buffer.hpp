@@ -44,6 +44,7 @@ namespace Main
    public:
       virtual size_t Size() const = 0;
       virtual std::string String(uint32_t position) const { return ""; }
+      virtual std::string PrintString(uint32_t position) const { return ""; }
    };
 
    //

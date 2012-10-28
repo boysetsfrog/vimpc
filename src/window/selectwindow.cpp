@@ -29,7 +29,8 @@ SelectWindow::SelectWindow(Main::Settings const & settings, Ui::Screen & screen,
    ScrollWindow     (screen, name),
    currentLine_     (0),
    settings_        (settings),
-   visualMode_      (false)
+   visualMode_      (false),
+   supportsVisual_  (true)
 {
    currentSelection_.first  = 0;
    currentSelection_.second = 0;
@@ -51,14 +52,12 @@ void SelectWindow::Print(uint32_t line) const
    {
       WINDOW * window = N_WINDOW();
 
-      if (printLine == CurrentLine())
+      if (IsSelected(printLine) == true)
       {
          wattron(window, A_REVERSE);
       }
-
-      mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-      mvwaddstr(window, line, 1, WindowBuffer().String(printLine).c_str());
-
+      
+      ScrollWindow::Print(line);
       wattroff(window, A_REVERSE);
    }
 }
@@ -152,11 +151,13 @@ void SelectWindow::Escape()
 
 void SelectWindow::Visual()
 {
-   UpdateLastSelection();
-
-   hadSelection_ = true;
-   visualMode_   = !visualMode_;
-   currentSelection_.first = currentLine_;
+   if (supportsVisual_ == true)
+   {
+      UpdateLastSelection();
+      hadSelection_ = true;
+      visualMode_   = !visualMode_;
+      currentSelection_.first = currentLine_;
+   }
 }
 
 

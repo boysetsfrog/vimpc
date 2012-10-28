@@ -50,6 +50,7 @@ namespace Ui
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void Escape();
       void Visual();
+      void SetSupportsVisual(bool enable) { supportsVisual_ = enable; }
 
    public:
       bool IsSelected(uint32_t line) const;
@@ -69,6 +70,7 @@ namespace Ui
    private:
       Main::Settings const & settings_;
       bool              visualMode_;
+      bool              supportsVisual_;
       mutable Selection currentSelection_;
       Selection         lastSelection_;
       bool              hadSelection_;

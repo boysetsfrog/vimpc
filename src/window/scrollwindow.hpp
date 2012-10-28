@@ -101,6 +101,7 @@ namespace Ui
       virtual Main::WindowBuffer const & WindowBuffer() const = 0;
 
    protected:
+      Main::Settings const &     settings_;
       Ui::Screen &               screen_;
       std::string                name_;
       uint16_t                   scrollLine_;

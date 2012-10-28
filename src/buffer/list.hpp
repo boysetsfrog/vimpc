@@ -74,7 +74,8 @@ namespace Mpc
          Main::Buffer<List>::Sort(sorter);
       }
 
-      std::string String(uint32_t position) const { return Get(position).name_; }
+      std::string String(uint32_t position) const      { return Get(position).name_; }
+      std::string PrintString(uint32_t position) const { return " " + Get(position).name_; }
    };
 }
 #endif

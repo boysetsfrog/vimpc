@@ -28,6 +28,7 @@ using namespace Ui;
 
 ScrollWindow::ScrollWindow(Ui::Screen & screen, std::string name) :
    Window     (screen.MaxRows(), screen.MaxColumns(), 1, 0),
+   settings_  (Main::Settings::Instance()),
    screen_    (screen),
    name_      (name),
    scrollLine_(screen.MaxRows()),
@@ -42,14 +43,113 @@ ScrollWindow::~ScrollWindow()
 
 void ScrollWindow::Print(uint32_t line) const
 {
+   WINDOW * window = N_WINDOW();
+
+   std::string const BlankLine(Columns(), ' ');
    uint32_t const currentLine(FirstLine() + line);
 
-   if (currentLine < BufferSize())
+   int  j         = 0;
+   int  align     = -1;
+   bool highlight = true;
+   bool elided    = false;
+
+   std::string output   = WindowBuffer().PrintString(currentLine);
+   std::string stripped = output;
+
+   mvwprintw(window, line, 0, BlankLine.c_str());
+   wmove(window, line, 0);
+
+   for (uint32_t i = 0; i < output.size(); )
    {
-      std::string const output = WindowBuffer().String(currentLine);
-      mvwprintw(N_WINDOW(), line, 0, "%s", output.c_str());
+      if ((output[i] == '$') && ((i + 1) < output.size()))
+      {
+         if (output[i + 1] == 'E')
+         {
+            elided = true;
+         }
+         else if (output[i + 1] == 'R')
+         {
+            align = j;
+         }
+
+         std::string next = "";
+         stripped.replace(j, 2, next);
+         j += next.size();
+         i += 2;
+      }
+      else
+      {
+         ++j;
+         ++i;
+      }
+   }
+
+   if (align == -1)
+   {
+      align = stripped.size();
+   }
+
+   if (settings_.Get(Setting::ColourEnabled) == true)
+   {
+      //wattron(window, COLOR_PAIR(colour));
+   }
+
+   for (uint32_t i = 0; i < output.size(); )
+   {
+      if ((output[i] == '$') && ((i + 1) < output.size()))
+      {
+         switch (output[i + 1])
+         {
+            case 'R':
+               elided = false;
+               wmove(window, line, (screen_.MaxColumns() - (stripped.size() - align)));
+               break;
+
+            case 'H':
+               {
+                  /*if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(Id) == false))
+                  {
+                     if (highlight == false)
+                     {
+                        //wattron(window, COLOR_PAIR(colour));
+                     }
+                     else
+                     {
+                        //wattroff(window, COLOR_PAIR(colour));
+                     }
+
+                     highlight = !highlight;
+                  }*/
+               }
+
+             default:
+               break;
+         }
+
+         i += 2;
+      }
+      else if ((elided == false) || 
+               (getcurx(window) < static_cast<int32_t>(Columns() - 3 - (stripped.size() - align))))
+      {
+         wprintw(window, "%c", output[i]);
+         ++i;
+      }
+      else 
+      {
+         wprintw(window, "...");
+         ++i;
+      }
+   }
+
+   if (settings_.Get(Setting::ColourEnabled) == true)
+   {
+      if (highlight == true)
+      {
+         //wattroff(window, COLOR_PAIR(colour));
+      }
    }
 }
+
 
 void ScrollWindow::Resize(int rows, int columns)
 {
@@ -195,13 +295,13 @@ void ScrollWindow::SetScrollLine(uint16_t scrollLine)
 
 void ScrollWindow::SoftRedrawOnSetting(Setting::ToggleSettings setting)
 {
-   Main::Settings::Instance().RegisterCallback(setting,
+   settings_.RegisterCallback(setting,
       new Main::CallbackObject<Ui::ScrollWindow, bool>(*this, &Ui::ScrollWindow::OnSettingChanged));
 }
 
 void ScrollWindow::SoftRedrawOnSetting(Setting::StringSettings setting)
 {
-   Main::Settings::Instance().RegisterCallback(setting,
+   settings_.RegisterCallback(setting,
       new Main::CallbackObject<Ui::ScrollWindow, std::string>(*this, &Ui::ScrollWindow::OnSettingChanged));
 }
 

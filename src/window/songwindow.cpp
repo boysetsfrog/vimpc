@@ -90,6 +90,7 @@ std::string SongWindow::SearchPattern(int32_t id) const
 
 void SongWindow::Print(uint32_t line) const
 {
+#if 1
    uint32_t printLine = line + FirstLine();
    WINDOW * window    = N_WINDOW();
    Mpc::Song * song   = (printLine < BufferSize()) ? Buffer().Get(printLine) : NULL;
@@ -134,6 +135,9 @@ void SongWindow::Print(uint32_t line) const
 
       wattroff(window, A_REVERSE);
    }
+#else
+   SelectWindow::Print(line);
+#endif
 }
 
 

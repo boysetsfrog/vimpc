@@ -44,6 +44,8 @@ ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc
    search_          (search),
    lists_           (lists)
 {
+   SetSupportsVisual(false);
+
    typedef Main::CallbackObject<Ui::ListWindow , Mpc::Lists::BufferType> WindowCallbackObject;
    typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;
 
@@ -74,6 +76,7 @@ void ListWindow::SoftRedraw()
 
 void ListWindow::Print(uint32_t line) const
 {
+#if 1
    uint32_t printLine = line + FirstLine();
 
    if (printLine < BufferSize())
@@ -101,6 +104,9 @@ void ListWindow::Print(uint32_t line) const
          wattroff(window, COLOR_PAIR(colour));
       }
    }
+#else
+   SelectWindow::Print(line);
+#endif
 }
 
 void ListWindow::Left(Ui::Player & player, uint32_t count)

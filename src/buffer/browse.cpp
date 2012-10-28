@@ -26,7 +26,8 @@
 // Browse
 using namespace Mpc;
 
-Browse::Browse(bool IncrementReferences)
+Browse::Browse(bool IncrementReferences) :
+   settings_(Main::Settings::Instance())
 {
    if (IncrementReferences == true)
    {

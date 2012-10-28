@@ -23,6 +23,7 @@
 
 // Includes
 #include "callback.hpp"
+#include "settings.hpp"
 #include "song.hpp"
 
 #include "buffer/buffer.hpp"
@@ -41,6 +42,12 @@ namespace Mpc
    public:
       Browse(bool IncrementReferences = false);
       ~Browse();
+
+      std::string String(uint32_t position) const      { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
+      std::string PrintString(uint32_t position) const { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
+
+   private:
+      Main::Settings const & settings_;
    };
 }
 
