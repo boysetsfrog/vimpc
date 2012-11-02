@@ -236,6 +236,7 @@ namespace Mpc
       typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;
 
    private:
+      Main::Settings const & settings_;
       std::map<std::string, Mpc::Song *> uriMap_;
       Mpc::LibraryEntry * variousArtist_;
    };

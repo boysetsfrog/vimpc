@@ -240,7 +240,7 @@ void LibraryWindow::Print(uint32_t line) const
             wattroff(window, COLOR_PAIR(REDONDEFAULT));
          }
 
-         PrintSong(line, printLine, colour, settings_.Get(Setting::LibraryFormat), library_.Get(printLine)->song_);
+         waddstr(window, library_.Get(printLine)->song_->FormatString(settings_.Get(Setting::LibraryFormat)).c_str());
       }
 
       wattroff(window, A_BOLD | A_REVERSE);

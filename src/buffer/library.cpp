@@ -31,6 +31,7 @@ const std::string VariousArtist = "Various Artists";
 using namespace Mpc;
 
 Library::Library() :
+   settings_     (Main::Settings::Instance()),
    variousArtist_(NULL)
 {
    AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Library::CheckIfVariousRemoved));
@@ -443,11 +444,30 @@ void Library::Collapse(uint32_t line)
 
 std::string Library::String(uint32_t position) const
 {
-
+   if (Get(position)->type_ == Mpc::ArtistType)
+   {
+      return Get(position)->artist_;
+   }
+   else if (Get(position)->type_ == Mpc::AlbumType)
+   {
+      return Get(position)->album_;
+   }
 }
 
 std::string Library::PrintString(uint32_t position) const
 {
+   if (Get(position)->type_ == Mpc::ArtistType)
+   {
+      return " $B" + Get(position)->artist_ + "$B";
+   }
+   else if (Get(position)->type_ == Mpc::AlbumType)
+   {
+      return "    " + Get(position)->album_;
+   }
+   else if (Get(position)->type_ == Mpc::SongType)
+   {
+      return "       " + Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
+   }
 }
 
 

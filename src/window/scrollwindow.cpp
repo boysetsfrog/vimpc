@@ -116,6 +116,8 @@ void ScrollWindow::Print(uint32_t line) const
                {
                   wattroff(window, A_BOLD);
                }
+               bold = !bold;
+               break;
 
             case 'I':
                if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
