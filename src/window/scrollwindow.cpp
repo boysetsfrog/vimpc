@@ -44,6 +44,7 @@ ScrollWindow::~ScrollWindow()
 
 void ScrollWindow::Print(uint32_t line) const
 {
+   //! \TODO needs cleaning up
    WINDOW * window = N_WINDOW();
 
    std::string const BlankLine(Columns(), ' ');
@@ -53,6 +54,7 @@ void ScrollWindow::Print(uint32_t line) const
    int  align     = -1;
    bool highlight = true;
    bool elided    = false;
+   bool bold      = false;
 
    std::string output   = WindowBuffer().PrintString(currentLine);
    std::string stripped = output;
@@ -104,6 +106,16 @@ void ScrollWindow::Print(uint32_t line) const
             case 'L':
                wprintw(window, "%5d", FirstLine() + line + 1);
                break;
+
+            case 'B':
+               if (bold == false)
+               {
+                  wattron(window, A_BOLD);
+               }
+               else
+               {
+                  wattroff(window, A_BOLD);
+               }
 
             case 'I':
                if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
@@ -166,6 +178,11 @@ void ScrollWindow::Print(uint32_t line) const
       {
          wattroff(window, COLOR_PAIR(DetermineColour(line)));
       }
+   }
+
+   if (bold == true)
+   {
+      wattroff(window, A_BOLD);
    }
 }
 

@@ -59,7 +59,6 @@ namespace Ui
 
    protected:
       virtual void LimitCurrentSelection() const;
-      void PrintSong(int32_t line, int32_t Id, int32_t colour, std::string fmt, Mpc::Song * Song) const;
 
    private:
       void UpdateLastSelection();

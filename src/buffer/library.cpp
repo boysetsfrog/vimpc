@@ -440,6 +440,17 @@ void Library::Collapse(uint32_t line)
    }
 }
 
+
+std::string Library::String(uint32_t position) const
+{
+
+}
+
+std::string Library::PrintString(uint32_t position) const
+{
+}
+
+
 void Library::RemoveAndUnexpand(LibraryEntry * const entry)
 {
    if (Index(entry) != -1)

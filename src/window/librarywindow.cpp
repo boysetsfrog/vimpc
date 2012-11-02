@@ -166,6 +166,7 @@ void LibraryWindow::Clear()
 
 void LibraryWindow::Print(uint32_t line) const
 {
+#if 0
    std::string const BlankLine(screen_.MaxColumns(), ' ');
 
    uint32_t printLine = (line + FirstLine());
@@ -249,6 +250,9 @@ void LibraryWindow::Print(uint32_t line) const
          wattroff(window, COLOR_PAIR(colour));
       }
    }
+   #else
+   SelectWindow::Print(line);
+   #endif
 }
 
 void LibraryWindow::Left(Ui::Player & player, uint32_t count)

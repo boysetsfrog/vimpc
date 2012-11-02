@@ -222,6 +222,9 @@ namespace Mpc
       void Expand(uint32_t line);
       void Collapse(uint32_t line);
 
+      std::string String(uint32_t position) const;
+      std::string PrintString(uint32_t position) const;
+
    private:
       void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position = -1);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
