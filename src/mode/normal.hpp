@@ -229,6 +229,7 @@ namespace Ui
       };
 
       typedef std::map<std::string, std::vector<KeyMapItem> > MapTable;
+      typedef std::map<int, MapTable> WindowMapTable;
       typedef std::map<std::string, std::pair<uint32_t, uint32_t> > MarkTable;
 
    private:
@@ -248,6 +249,7 @@ namespace Ui
       ActionTable      actionTable_;
       MarkTable        markTable_;
       MapTable         mapTable_;
+      WindowMapTable   windowMap_;
       MapNameTable     mapNames_;
 
       Main::Vimpc *    vimpc_;

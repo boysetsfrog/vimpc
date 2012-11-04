@@ -207,6 +207,10 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<A-8>"]     = &Normal::SetActiveWindow<Screen::Absolute, 7>;
    actionTable_["<A-9>"]     = &Normal::SetActiveWindow<Screen::Absolute, 8>;
 
+   //std::vector<KeyMapItem> KeyMap;
+   //bool const valid = CreateKeyMap("gt", KeyMap);
+   //windowMap_[Ui::Screen::Library]["a"] = KeyMap;
+
    window_ = screen.CreateModeWindow();
 }
 
@@ -432,12 +436,24 @@ bool Normal::Handle(std::string input, int count)
    bool inMap    = false;
    bool complete = true;
 
-   for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
+   for (MapTable::const_iterator it = windowMap_[screen_.GetActiveWindow()].begin(); it != windowMap_[screen_.GetActiveWindow()].end(); ++it)
    {
       if (it->first.substr(0, input.size()) == input)
       {
          complete = (it->first == input) && complete;
          inMap    = true;
+      }
+   }
+
+   if (inMap == false)
+   {
+      for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
+      {
+         if (it->first.substr(0, input.size()) == input)
+         {
+            complete = (it->first == input) && complete;
+            inMap    = true;
+         }
       }
    }
 
@@ -473,7 +489,17 @@ void Normal::HandleMap(std::string input, int count)
 
    for (int i = 0; ((i < count) && (complete == false)); ++i)
    {
-      std::vector<KeyMapItem> KeyMap = mapTable_[input];
+      std::vector<KeyMapItem> KeyMap;
+      
+      if (windowMap_[screen_.GetActiveWindow()].find(input) != windowMap_[screen_.GetActiveWindow()].end())
+      {
+         KeyMap = windowMap_[screen_.GetActiveWindow()][input];
+      }
+      else
+      {
+         KeyMap = mapTable_[input];
+      }
+
       complete = RunKeyMap(KeyMap, count);
    }
 }
