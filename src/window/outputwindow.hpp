@@ -60,12 +60,6 @@ namespace Ui
    public:
       std::string SearchPattern(int32_t id) const { return outputs_.Get(id)->Name(); }
 
-   public:
-      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
-      void AddAllLines();
-      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
-      void DeleteAllLines();
-
    protected:
       Main::WindowBuffer const & WindowBuffer() const { return outputs_; }
 

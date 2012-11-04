@@ -506,7 +506,11 @@ void Command::Output(std::string const & arguments)
 
    screen_.Initialise(Ui::Screen::Outputs);
 
-   if (Algorithm::isNumeric(arguments.c_str()) == true)
+   if (arguments == "")
+   {
+      output = screen_.Window(Ui::Screen::Outputs).CurrentLine();
+   }
+   else if (Algorithm::isNumeric(arguments.c_str()) == true)
    {
       output = atoi(arguments.c_str());
    }

@@ -79,26 +79,6 @@ void OutputWindow::Confirm()
    }
 }
 
-void OutputWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
-{
-   SetOutput(line, true, count, scroll);
-}
-
-void OutputWindow::AddAllLines()
-{
-   AddLine(0, BufferSize(), false);
-}
-
-void OutputWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
-{
-   SetOutput(line, false, count, scroll);
-}
-
-void OutputWindow::DeleteAllLines()
-{
-   DeleteLine(0, BufferSize(), false);
-}
-
 
 void OutputWindow::SetOutput(uint32_t line, bool enable, uint32_t count, bool scroll)
 {

@@ -51,6 +51,8 @@ namespace Ui
       Normal(Normal & normal);
       Normal & operator=(Normal & normal);
 
+      void CreateWindowMaps();
+
    public: // Ui::Mode
       void Initialise(int input);
       void Finalise(int input);
@@ -245,6 +247,7 @@ namespace Ui
       bool             wasSpecificCount_;
       bool             addMark_;
       bool             gotoMark_;
+      bool             mapsCreated_;
 
       ActionTable      actionTable_;
       MarkTable        markTable_;

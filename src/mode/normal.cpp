@@ -49,6 +49,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    wasSpecificCount_(false),
    addMark_         (false),
    gotoMark_        (false),
+   mapsCreated_     (false),
    actionTable_     (),
    vimpc_           (vimpc),
    search_          (search),
@@ -207,10 +208,6 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<A-8>"]     = &Normal::SetActiveWindow<Screen::Absolute, 7>;
    actionTable_["<A-9>"]     = &Normal::SetActiveWindow<Screen::Absolute, 8>;
 
-   //std::vector<KeyMapItem> KeyMap;
-   //bool const valid = CreateKeyMap("gt", KeyMap);
-   //windowMap_[Ui::Screen::Library]["a"] = KeyMap;
-
    window_ = screen.CreateModeWindow();
 }
 
@@ -220,8 +217,25 @@ Normal::~Normal()
    window_ = NULL;
 }
 
+void Normal::CreateWindowMaps()
+{
+   mapsCreated_ = true;
+   std::vector<KeyMapItem> KeyMap;
+
+   bool valid = CreateKeyMap(":enable<CR>", KeyMap);
+   windowMap_[Ui::Screen::Outputs]["a"] = KeyMap;
+
+   valid = CreateKeyMap(":disable<CR>", KeyMap);
+   windowMap_[Ui::Screen::Outputs]["d"] = KeyMap;
+}
+
 void Normal::Initialise(int input)
 {
+   if (mapsCreated_ == false)
+   {
+      CreateWindowMaps();
+   }
+
    actionCount_ = 0;
    Refresh();
 }
