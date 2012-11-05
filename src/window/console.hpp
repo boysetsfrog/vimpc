@@ -37,6 +37,7 @@ namespace Ui
 
    public:
       std::string String(uint32_t position) const { return Get(position); }
+      std::string PrintString(uint32_t position) const { return Get(position); }
    };
 
    //

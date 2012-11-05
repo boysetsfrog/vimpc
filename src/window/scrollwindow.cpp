@@ -56,7 +56,13 @@ void ScrollWindow::Print(uint32_t line) const
    bool elided    = false;
    bool bold      = false;
 
-   std::string output   = WindowBuffer().PrintString(currentLine);
+   std::string output   = "";
+   
+   if (currentLine < WindowBuffer().Size())
+   {
+      output = WindowBuffer().PrintString(currentLine);
+   }
+
    std::string stripped = output;
 
    for (uint32_t i = 0; i < output.size(); )

@@ -220,13 +220,9 @@ Normal::~Normal()
 void Normal::CreateWindowMaps()
 {
    mapsCreated_ = true;
-   std::vector<KeyMapItem> KeyMap;
 
-   bool valid = CreateKeyMap(":enable<CR>", KeyMap);
-   windowMap_[Ui::Screen::Outputs]["a"] = KeyMap;
-
-   valid = CreateKeyMap(":disable<CR>", KeyMap);
-   windowMap_[Ui::Screen::Outputs]["d"] = KeyMap;
+   windowMap_[Ui::Screen::Outputs]["a"] = CreateKeyMap(":enable<CR>");
+   windowMap_[Ui::Screen::Outputs]["d"] = CreateKeyMap(":disable<CR>");
 }
 
 void Normal::Initialise(int input)
@@ -344,6 +340,13 @@ void Normal::Map(std::string key, std::string mapping)
    {
       ErrorString(ErrorNumber::CouldNotMapKeys);
    }
+}
+
+std::vector<Normal::KeyMapItem> Normal::CreateKeyMap(std::string const & mapping)
+{
+   std::vector<KeyMapItem> KeyMap;
+   CreateKeyMap(mapping, KeyMap);
+   return KeyMap;
 }
 
 bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap)

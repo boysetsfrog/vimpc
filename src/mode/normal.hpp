@@ -235,6 +235,7 @@ namespace Ui
       typedef std::map<std::string, std::pair<uint32_t, uint32_t> > MarkTable;
 
    private:
+      std::vector<KeyMapItem> CreateKeyMap(std::string const & mapping);
       bool CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap);
       bool RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count);
 
