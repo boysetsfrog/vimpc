@@ -84,7 +84,7 @@ void InputMode::Initialise(int input)
    window_->ShowCursor();
    window_->SetCursorPosition(cursor_.Position());
    window_->SetLine(Prompt());
-   Refresh();
+   //Refresh();
 
    ENSURE(inputString_.empty() == true);
 }
@@ -97,7 +97,7 @@ void InputMode::Finalise(int input)
    }
 
    window_->HideCursor();
-   Refresh();
+   //Refresh();
 }
 
 void InputMode::Refresh()

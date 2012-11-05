@@ -40,7 +40,6 @@ ModeWindow::~ModeWindow()
 void ModeWindow::SetLine(std::string const & line)
 {
    buffer_.Add(line);
-   Print(0);
 }
 
 void ModeWindow::SetLine(char const * const fmt, ...)
@@ -54,8 +53,6 @@ void ModeWindow::SetLine(char const * const fmt, ...)
    va_end(args);
 
    buffer_.Add(buf);
-
-   Print(0);
 }
 
 void ModeWindow::Print(uint32_t line) const

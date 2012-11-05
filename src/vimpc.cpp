@@ -244,6 +244,11 @@ void Vimpc::ChangeMode(char input, std::string initial)
          // The string input complete, change the mode as if
          // a return key was pressed
          ChangeMode('\n');
+         normalMode_.Refresh();
+      }
+      else
+      {
+         mode->Refresh();
       }
    }
 }
@@ -287,6 +292,7 @@ void Vimpc::Handle(int input)
           (RequiresModeChange(currentMode_, input) == true))
       {
          ChangeMode(input);
+         mode.Refresh();
       }
 #ifdef HAVE_MOUSE_SUPPORT
    }
