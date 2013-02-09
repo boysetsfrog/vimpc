@@ -69,16 +69,6 @@ void OutputWindow::SoftRedraw()
    ScrollTo(0);
 }
 
-void OutputWindow::Confirm()
-{
-   if (outputs_.Size() > CurrentLine())
-   {
-      bool const enabled = !(outputs_.Get(CurrentLine())->Enabled());
-      client_.SetOutput(outputs_.Get(CurrentLine()), enabled);
-      outputs_.Get(CurrentLine())->SetEnabled(enabled);
-   }
-}
-
 
 void OutputWindow::SetOutput(uint32_t line, bool enable, uint32_t count, bool scroll)
 {

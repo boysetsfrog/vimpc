@@ -221,8 +221,10 @@ void Normal::CreateWindowMaps()
 {
    mapsCreated_ = true;
 
-   windowMap_[Ui::Screen::Outputs]["a"] = CreateKeyMap(":enable<CR>");
-   windowMap_[Ui::Screen::Outputs]["d"] = CreateKeyMap(":disable<CR>");
+   windowMap_[Ui::Screen::Outputs]["a"]       = CreateKeyMap(":enable<CR>");
+   windowMap_[Ui::Screen::Outputs]["d"]       = CreateKeyMap(":disable<CR>");
+   windowMap_[Ui::Screen::Outputs]["<Enter>"] = CreateKeyMap(":toggle<CR>");
+   windowMap_[Ui::Screen::Outputs]["<Return>"] = CreateKeyMap(":toggle<CR>");
 }
 
 void Normal::Initialise(int input)

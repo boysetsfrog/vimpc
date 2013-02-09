@@ -102,6 +102,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("sleep",      &Command::Sleep,        false);
    AddCommand("swap",       &Command::Swap,         true);
    AddCommand("stop",       &Command::Stop,         true);
+   AddCommand("toggle",     &Command::ToggleOutput, true);
    AddCommand("volume",     &Command::Volume,       true);
 
    AddCommand("map",        &Command::Map,   false);
@@ -545,6 +546,44 @@ void Command::Output(std::string const & arguments)
    }
 }
 
+void Command::ToggleOutput(std::string const & arguments)
+{
+   int32_t output = -1;
+
+   screen_.Initialise(Ui::Screen::Outputs);
+
+   if (arguments == "")
+   {
+      output = screen_.Window(Ui::Screen::Outputs).CurrentLine();
+   }
+   else if (Algorithm::isNumeric(arguments.c_str()) == true)
+   {
+      output = atoi(arguments.c_str());
+   }
+   else
+   {
+      for(unsigned int i = 0; i < Main::Outputs().Size(); ++i)
+      {
+         if (Algorithm::iequals(Main::Outputs().Get(i)->Name(), arguments) == true)
+         {
+            output = i;
+            break;
+         }
+      }
+   }
+
+   if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
+   {
+      bool enable = !Main::Outputs().Get(output)->Enabled();
+
+      client_.SetOutput(Main::Outputs().Get(output), enable);
+      Main::Outputs().Get(output)->SetEnabled(enable);
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoOutput);
+   }
+}
 
 void Command::LoadPlaylist(std::string const & arguments)
 {

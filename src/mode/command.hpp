@@ -137,6 +137,7 @@ namespace Ui
    private:
       template <bool ON>
       void Output(std::string const & arguments);
+      void ToggleOutput(std::string const & arguments);
 
    private:
       void LoadPlaylist(std::string const & arguments);

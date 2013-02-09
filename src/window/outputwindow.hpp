@@ -54,7 +54,6 @@ namespace Ui
    public:
       void Left(Ui::Player & player, uint32_t count)  { }
       void Right(Ui::Player & player, uint32_t count) { }
-      void Confirm();
       void Redraw();
 
    public:
