@@ -90,7 +90,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("quit",       &Command::Quit,         false);
    AddCommand("quitall",    &Command::QuitAll,      false);
    AddCommand("random",     &Command::Random,       true);
-   AddCommand("reconnect",  &Command::Reconnect,    true);
+   AddCommand("reconnect",  &Command::Reconnect,    false);
    AddCommand("redraw",     &Command::Redraw,       false);
    AddCommand("repeat",     &Command::Repeat,       true);
    AddCommand("set",        &Command::Set,          false);
