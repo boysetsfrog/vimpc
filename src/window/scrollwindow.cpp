@@ -141,7 +141,9 @@ void ScrollWindow::Print(uint32_t line) const
 
             case 'R':
                elided = false;
-               wmove(window, line, (screen_.MaxColumns() - (stripped.size() - align)));
+               int y, x;
+               getyx(window, y, x);
+               wprintw(window, "%s", std::string((screen_.MaxColumns() - (stripped.size() - align)) - x, ' ').c_str());
                break;
 
             case 'H':

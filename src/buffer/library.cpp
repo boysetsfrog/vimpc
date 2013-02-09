@@ -458,7 +458,7 @@ std::string Library::PrintString(uint32_t position) const
 {
    if (Get(position)->type_ == Mpc::ArtistType)
    {
-      return " $B" + Get(position)->artist_ + "$B";
+      return "$B " + Get(position)->artist_ + "$R$B";
    }
    else if (Get(position)->type_ == Mpc::AlbumType)
    {
