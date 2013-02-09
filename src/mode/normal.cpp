@@ -221,10 +221,10 @@ void Normal::CreateWindowMaps()
 {
    mapsCreated_ = true;
 
-   windowMap_[Ui::Screen::Outputs]["a"]       = CreateKeyMap(":enable<CR>");
-   windowMap_[Ui::Screen::Outputs]["d"]       = CreateKeyMap(":disable<CR>");
-   windowMap_[Ui::Screen::Outputs]["<Enter>"] = CreateKeyMap(":toggle<CR>");
-   windowMap_[Ui::Screen::Outputs]["<Return>"] = CreateKeyMap(":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs, "a",        ":enable<CR>");
+   WindowMap(Ui::Screen::Outputs, "d",        ":disable<CR>");
+   WindowMap(Ui::Screen::Outputs, "<Enter>",  ":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs, "<Return>", ":toggle<CR>");
 }
 
 void Normal::Initialise(int input)
@@ -337,6 +337,23 @@ void Normal::Map(std::string key, std::string mapping)
    {
       mapTable_[key] = KeyMap;
       mapNames_[key] = mapping;
+   }
+   else
+   {
+      ErrorString(ErrorNumber::CouldNotMapKeys);
+   }
+}
+
+void Normal::WindowMap(int window, std::string key, std::string mapping)
+{
+   std::vector<KeyMapItem> KeyMap;
+
+   bool const valid = CreateKeyMap(mapping, KeyMap);
+
+   if (valid == true)
+   {
+      windowMap_[window][key] = KeyMap;
+      //mapNames_[key] = mapping;
    }
    else
    {

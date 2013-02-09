@@ -153,6 +153,7 @@ namespace Ui
 
       void Map(std::string const & arguments);
       void Unmap(std::string const & arguments);
+      void WindowMap(std::string const & arguments);
 
       void Rescan(std::string const & arguments);
       void Update(std::string const & arguments);

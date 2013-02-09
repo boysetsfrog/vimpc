@@ -68,6 +68,7 @@ namespace Ui
    public:
       // Map a key combination to any other key combination
       void Map(std::string key, std::string mapping);
+      void WindowMap(int window, std::string key, std::string mapping);
 
       // Remove a key mapping
       void Unmap(std::string key);

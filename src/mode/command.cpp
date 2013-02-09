@@ -105,8 +105,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("toggle",     &Command::ToggleOutput, true);
    AddCommand("volume",     &Command::Volume,       true);
 
-   AddCommand("map",        &Command::Map,   false);
-   AddCommand("unmap",      &Command::Unmap, false);
+   AddCommand("map",        &Command::Map,          false);
+   AddCommand("unmap",      &Command::Unmap,        false);
+   AddCommand("wmap",       &Command::WindowMap,    false);
 
    AddCommand("tabfirst",   &Command::ChangeToWindow<First>, false);
    AddCommand("tablast",    &Command::ChangeToWindow<Last>,  false);
@@ -728,6 +729,42 @@ void Command::Map(std::string const & arguments)
          ErrorString(ErrorNumber::NoSuchMapping);
       }
    }
+}
+
+void Command::WindowMap(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string key     = arguments.substr(0, arguments.find(" "));
+      std::string mapping = arguments.substr(arguments.find(" ") + 1);
+
+      normalMode_.WindowMap(screen_.GetActiveWindow(), key, mapping);
+   }
+   #if 0
+   else if (arguments == "")
+   {
+      Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+
+      if (mappings.size() > 0)
+      {
+         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
+
+         PagerWindow * pager = screen_.GetPagerWindow();
+         pager->Clear();
+
+         for (; it != mappings.end(); ++it)
+         {
+            pager->AddLine(it->first + "   " + it->second);
+         }
+
+         screen_.ShowPagerWindow();
+      }
+      else
+      {
+         ErrorString(ErrorNumber::NoSuchMapping);
+      }
+   }
+   #endif
 }
 
 void Command::Unmap(std::string const & arguments)
