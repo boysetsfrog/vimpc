@@ -523,8 +523,10 @@ void LibraryWindow::ForPositions(T start, T end, LibraryFunction function)
 }
 
 
-int32_t LibraryWindow::DetermineSongColour(Mpc::LibraryEntry const * const entry) const
+int32_t LibraryWindow::DetermineColour(uint32_t line) const
 {
+   Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
+
    int32_t colour = Colour::Song;
 
    if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))

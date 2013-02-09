@@ -101,7 +101,7 @@ int32_t PlaylistWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = Colour::Song;
 
-   Mpc::Song * song = Buffer().Get(line);
+   Mpc::Song const * const song = Buffer().Get(line + FirstLine());
 
    if (song != NULL)
    {
