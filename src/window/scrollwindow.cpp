@@ -55,6 +55,7 @@ void ScrollWindow::Print(uint32_t line) const
    bool highlight = true;
    bool elided    = false;
    bool bold      = false;
+   bool escape    = false;
 
    std::string output   = "";
    
@@ -67,7 +68,12 @@ void ScrollWindow::Print(uint32_t line) const
 
    for (uint32_t i = 0; i < output.size(); )
    {
-      if ((output[i] == '$') && ((i + 1) < output.size()))
+      if (output[i] == '\\')
+      {
+         stripped.replace(j, 1, "");
+         ++i;
+      }
+      else if ((output[i] == '$') && ((i + 1) < output.size()))
       {
          if (output[i + 1] == 'E')
          {
@@ -105,7 +111,12 @@ void ScrollWindow::Print(uint32_t line) const
 
    for (uint32_t i = 0; i < output.size(); )
    {
-      if ((output[i] == '$') && ((i + 1) < output.size()))
+      if (output[i] == '\\')
+      {
+         escape = true;
+         ++i;
+      }
+      else if ((output[i] == '$') && ((i + 1) < output.size()) && (escape == false))
       {
          switch (output[i + 1])
          {
@@ -166,12 +177,14 @@ void ScrollWindow::Print(uint32_t line) const
              default:
                break;
          }
-
+            
          i += 2;
+
       }
       else if ((elided == false) || 
                (getcurx(window) < static_cast<int32_t>(Columns() - 3 - (stripped.size() - align))))
       {
+         escape = false;
          wprintw(window, "%c", output[i]);
          ++i;
       }

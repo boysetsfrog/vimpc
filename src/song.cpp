@@ -243,18 +243,34 @@ std::string Song::FormatString(std::string fmt) const
 
    lastFormat_ = fmt;
 
-   int  j     = 0;
-   int  right = -1;
-   int  start = -1;
-   bool valid = true;
-   bool skip  = false;
+   int  j      = 0;
+   int  right  = -1;
+   int  start  = -1;
+   bool valid  = true;
+   bool skip   = false;
+   bool escape = false;
 
    //! \TODO this really needs cleaning up, it is a disgrace
 
    for (int32_t i = 0; i < static_cast<int32_t>(fmt.size()); )
    {
+      if (escape == true)
+      {
+         escape = false;   
+         ++i;
+         ++j;
+         continue;
+      }
+
       switch (fmt[i])
       {
+         case '\\':
+         {
+            escape = true;
+            ++i;
+            ++j;
+            break;
+         }
          case '{':
          {
             start = j;

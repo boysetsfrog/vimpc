@@ -65,7 +65,7 @@
    /* Library format string */ \
    X(ArtistFormat,     "artistformat", "%A",  ".*") \
    /* Library format string */ \
-   X(LibraryFormat,    "libraryformat", "%n | $H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
+   X(LibraryFormat,    "libraryformat", "$I%n \\| $D$H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
    /* Lists to show in the lists window */ \
    X(Playlists,        "playlists", "mpd", "all|mpd|files") \
    /* Song format string */ \
