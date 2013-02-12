@@ -740,10 +740,9 @@ void Command::WindowMap(std::string const & arguments)
 
       normalMode_.WindowMap(screen_.GetActiveWindow(), key, mapping);
    }
-   #if 0
    else if (arguments == "")
    {
-      Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+      Ui::Normal::MapNameTable mappings = normalMode_.WindowMappings(screen_.GetActiveWindow());
 
       if (mappings.size() > 0)
       {
@@ -764,7 +763,6 @@ void Command::WindowMap(std::string const & arguments)
          ErrorString(ErrorNumber::NoSuchMapping);
       }
    }
-   #endif
 }
 
 void Command::Unmap(std::string const & arguments)

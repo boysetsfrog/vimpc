@@ -352,8 +352,8 @@ void Normal::WindowMap(int window, std::string key, std::string mapping)
 
    if (valid == true)
    {
-      windowMap_[window][key] = KeyMap;
-      //mapNames_[key] = mapping;
+      windowMap_[window][key]      = KeyMap;
+      windowMapNames_[window][key] = mapping;
    }
    else
    {
@@ -445,6 +445,11 @@ void Normal::Unmap(std::string key)
 Ui::Normal::MapNameTable Normal::Mappings()
 {
    return mapNames_;
+}
+
+Ui::Normal::MapNameTable Normal::WindowMappings(int window)
+{
+   return windowMapNames_[window];
 }
 
 template <typename T>

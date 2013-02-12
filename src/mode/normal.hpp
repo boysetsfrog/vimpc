@@ -77,6 +77,10 @@ namespace Ui
       typedef std::map<std::string, std::string> MapNameTable;
       MapNameTable Mappings();
 
+      // Get the current window mappings
+      typedef std::map<int, MapNameTable> WindowMapNameTable;
+      MapNameTable WindowMappings(int window);
+
    private:
       // Handle the execution of a complete input command
       bool Handle(std::string input, int count);
@@ -251,11 +255,12 @@ namespace Ui
       bool             gotoMark_;
       bool             mapsCreated_;
 
-      ActionTable      actionTable_;
-      MarkTable        markTable_;
-      MapTable         mapTable_;
-      WindowMapTable   windowMap_;
-      MapNameTable     mapNames_;
+      ActionTable        actionTable_;
+      MarkTable          markTable_;
+      MapTable           mapTable_;
+      WindowMapTable     windowMap_;
+      MapNameTable       mapNames_;
+      WindowMapNameTable windowMapNames_;
 
       Main::Vimpc *    vimpc_;
       Ui::Search     & search_;
