@@ -234,11 +234,15 @@ void Normal::CreateWindowMaps()
 {
    mapsCreated_ = true;
 
-   WindowMap(Ui::Screen::Outputs, "a",             ":enable<CR>");
-   WindowMap(Ui::Screen::Outputs, "d",             ":disable<CR>");
-   WindowMap(Ui::Screen::Outputs, "<Enter>",       ":toggle<CR>");
-   WindowMap(Ui::Screen::Outputs, "<Return>",      ":toggle<CR>");
-   WindowMap(Ui::Screen::Outputs, "<2-LeftMouse>", ":toggle<CR>");
+   WindowMap(Ui::Screen::Playlist, "<Enter>",       ":play<CR>");
+   WindowMap(Ui::Screen::Playlist, "<Return>",      ":play<CR>");
+   WindowMap(Ui::Screen::Playlist, "<2-LeftMouse>", ":play<CR>");
+
+   WindowMap(Ui::Screen::Outputs,  "a",             ":enable<CR>");
+   WindowMap(Ui::Screen::Outputs,  "d",             ":disable<CR>");
+   WindowMap(Ui::Screen::Outputs,  "<Enter>",       ":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs,  "<Return>",      ":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs,  "<2-LeftMouse>", ":toggle<CR>");
 }
 
 void Normal::Initialise(int input)

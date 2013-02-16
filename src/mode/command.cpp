@@ -307,15 +307,32 @@ void Command::Pause(std::string const & arguments)
 
 void Command::Play(std::string const & arguments)
 {
-   int32_t SongId = atoi(arguments.c_str()) - 1;
+   std::vector<std::string> args = SplitArguments(arguments);
 
-   if (SongId >= 0)
+   if (args.size() == 0)
    {
+      if (screen_.GetActiveWindow() == Ui::Screen::Playlist)
+      {
+         int32_t line = screen_.Window(Ui::Screen::Playlist).CurrentLine();
+
+         if (line >= 0)
+         {
+            Player::Play(line);
+         }
+      }
+      else
+      {
+         Player::Play(0);
+      }
+   }
+   else if (args.size() == 1)
+   {
+      int32_t const SongId = atoi(args[0].c_str()) - 1;
       Player::Play(SongId);
    }
    else
    {
-      ErrorString(ErrorNumber::InvalidParameter, "song id");
+      ErrorString(ErrorNumber::InvalidParameter, "too many parameters");
    }
 }
 

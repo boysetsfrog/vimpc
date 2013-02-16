@@ -72,19 +72,6 @@ void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
    client_.Seek(count);
 }
 
-void PlaylistWindow::Confirm()
-{
-   if (playlist_.Size() > CurrentLine())
-   {
-      Mpc::Song const * const song = playlist_.Get(CurrentLine());
-
-      if (song != NULL)
-      {
-         client_.Play(static_cast<uint32_t>(CurrentLine()));
-      }
-   }
-}
-
 uint32_t PlaylistWindow::Current() const
 {
    int32_t current = client_.GetCurrentSong();
