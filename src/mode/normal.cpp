@@ -133,6 +133,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<C-J>"]   = &Normal::Confirm;
    actionTable_["<Enter>"] = &Normal::Confirm;
    actionTable_["<CR>"]    = &Normal::Confirm;
+   actionTable_["<2-LeftMouse>"] = &Normal::Confirm;
 
    // Searching
    actionTable_["N"]       = &Normal::SearchResult<Search::Previous>;
