@@ -819,8 +819,6 @@ bool Screen::HandleMouseEvent()
       //! \TODO this seems to scroll quite slowly and not properly at all
       if (getmouse(&event) == OK)
       {
-         ungetmouse(&event);
-
          if ((event.y == 0) && (settings_.Get(Setting::TabBar) == true))
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
@@ -867,6 +865,8 @@ bool Screen::HandleMouseEvent()
                ActiveWindow().ScrollTo(scroll);
             }
          }
+
+         ungetmouse(&event);
       }
    }
    return false;
