@@ -26,7 +26,7 @@
 #define ERRORCODES \
    X(Invalid, "") \
    X(CommandAmbiguous,      "Command is ambigous, please be more specific") \
-   X(ClientError,           "Client Error") \
+   X(ClientError,           "MPD Error") \
    X(ClientNoConnection,    "Not Connected") \
    X(CommandNonexistant,    "Command not found") \
    X(CouldNotMapKeys,       "Failed to map the specified keys") \
