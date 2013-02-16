@@ -807,9 +807,11 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
 }
 
 
-void Screen::HandleMouseEvent()
+bool Screen::HandleMouseEvent()
 {
 #ifdef HAVE_MOUSE_SUPPORT
+   char buffer[64];
+
    if (settings_.Get(Setting::Mouse) == true)
    {
       MEVENT event;
@@ -817,22 +819,9 @@ void Screen::HandleMouseEvent()
       //! \TODO this seems to scroll quite slowly and not properly at all
       if (getmouse(&event) == OK)
       {
-         char buffer[64];
-         sprintf(buffer, "%u\n", static_cast<uint32_t>(event.bstate));
-         Debug(buffer);
+         ungetmouse(&event);
 
-         if (event.bstate & BUTTON4_PRESSED)
-         {
-            Scroll(-6);
-         }
-         else if ((event.bstate & BUTTON2_PRESSED)
-#if (NCURSES_MOUSE_VERSION <= 1)
-               || (event.bstate & BUTTON5_PRESSED))
-#endif
-         {
-            Scroll(6);
-         }
-         else if ((event.y == 0) && (settings_.Get(Setting::TabBar) == true))
+         if ((event.y == 0) && (settings_.Get(Setting::TabBar) == true))
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
@@ -859,6 +848,7 @@ void Screen::HandleMouseEvent()
                   ++i;
                }
             }
+            return true;
          }
          else if ((event.y >= 0) && (event.y <= static_cast<int32_t>(MaxRows())))
          {
@@ -875,16 +865,13 @@ void Screen::HandleMouseEvent()
                }
 
                ActiveWindow().ScrollTo(scroll);
-               ActiveWindow().Click();
-            }
-
-            if ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED)
-            {
-               ActiveWindow().Confirm();
             }
          }
       }
    }
+   return false;
+#else
+   return false;
 #endif
 }
 

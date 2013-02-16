@@ -78,7 +78,7 @@ namespace Main
       void Handle(int input);
 
       //! Handle a mouse event
-      void HandleMouse();
+      bool HandleMouse();
 
       //! Checks that each mode is valid
       //! \todo Possibly template this kind of check?

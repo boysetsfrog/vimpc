@@ -188,7 +188,7 @@ namespace Ui
       uint32_t TotalRows()    const;
       uint32_t WaitForInput(bool HandleEscape = true) const;
 
-      void HandleMouseEvent();
+      bool HandleMouseEvent();
 
    public:
       // Access the active window

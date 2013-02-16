@@ -277,26 +277,29 @@ void Vimpc::Handle(int input)
 #ifdef HAVE_MOUSE_SUPPORT
    if ((input == KEY_MOUSE) && (settings_.Get(::Setting::Mouse) == true))
    {
-      HandleMouse();
-   }
-   else
-   {
-#endif
-      // Only change modes explicitly when Handle didn't
-      ModeName const currentMode = currentMode_;
+      mode = assert_reference(modeTable_[Vimpc::Normal]);
+      bool const Finished = HandleMouse();
 
-      // Input must be handled before mode is changed
-      mode.Handle(input);
-
-      if ((currentMode == currentMode_) &&
-          (RequiresModeChange(currentMode_, input) == true))
+      if (Finished)
       {
-         ChangeMode(input);
-         mode.Refresh();
+         return;
       }
-#ifdef HAVE_MOUSE_SUPPORT
    }
+
 #endif
+
+   // Only change modes explicitly when Handle didn't
+   ModeName const currentMode = currentMode_;
+
+   // Input must be handled before mode is changed
+   mode.Handle(input);
+
+   if ((currentMode == currentMode_) &&
+       (RequiresModeChange(currentMode_, input) == true))
+   {
+      ChangeMode(input);
+      mode.Refresh();
+   }
 }
 
 void Vimpc::OnConnected()
@@ -307,9 +310,9 @@ void Vimpc::OnConnected()
    CurrentMode().Refresh();
 }
 
-void Vimpc::HandleMouse()
+bool Vimpc::HandleMouse()
 {
-   screen_.HandleMouseEvent();
+   return screen_.HandleMouseEvent();
 }
 
 bool Vimpc::ModesAreInitialised()

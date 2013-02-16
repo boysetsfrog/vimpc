@@ -23,6 +23,7 @@
 #include "mpdclient.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 #include "mode/command.hpp"
@@ -37,6 +38,14 @@
 #include <unistd.h>
 
 #define ESCAPE_KEY 27
+
+#if (NCURSES_MOUSE_VERSION <= 1)
+#ifndef BUTTON5_PRESSED
+#define BUTTON5_PRESSED BUTTON4_PRESSED << 8
+#endif
+#endif
+
+
 
 using namespace Ui;
 
@@ -147,6 +156,9 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["G"]       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
    actionTable_["%"]       = &Normal::ScrollTo<Screen::Random>;
 
+   actionTable_["<ScrollWheelUp>"]   = &Normal::Scroll<6>;
+   actionTable_["<ScrollWheelDown>"] = &Normal::Scroll<-6>;
+
    actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
    actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
@@ -221,10 +233,11 @@ void Normal::CreateWindowMaps()
 {
    mapsCreated_ = true;
 
-   WindowMap(Ui::Screen::Outputs, "a",        ":enable<CR>");
-   WindowMap(Ui::Screen::Outputs, "d",        ":disable<CR>");
-   WindowMap(Ui::Screen::Outputs, "<Enter>",  ":toggle<CR>");
-   WindowMap(Ui::Screen::Outputs, "<Return>", ":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs, "a",             ":enable<CR>");
+   WindowMap(Ui::Screen::Outputs, "d",             ":disable<CR>");
+   WindowMap(Ui::Screen::Outputs, "<Enter>",       ":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs, "<Return>",      ":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs, "<2-LeftMouse>", ":toggle<CR>");
 }
 
 void Normal::Initialise(int input)
@@ -618,37 +631,55 @@ std::string Normal::InputCharToString(int input) const
 
    std::map<int, std::string>::const_iterator it = conversionTable.find(input);
 
-   if ((it == conversionTable.end()) && ((input & (1 << 31)) != 0))
+#ifdef HAVE_MOUSE_SUPPORT
+   if (input == KEY_MOUSE)
    {
-      input     = (input & 0x7FFFFFFF);
-      converted = true;
-      result    = "A-";
-   }
-
-   if ((it == conversionTable.end()) && ((input <= 27) && (input >= 1)))
-   {
-      input     = 'A' + input - 1;
-      converted = true;
-      result    = "C-";
-   }
-
-
-   if ((input >= KEY_F(0)) && (input <= KEY_F(12)))
-   {
-      char key[8];
-      converted = true;
-      sprintf(key, "%d", (input - KEY_F(0)));
-      result += "F" + std::string(key);
-   }
-   else if (it != conversionTable.end())
-   {
-      converted = true;
-      result += it->second;
+      if (settings_.Get(::Setting::Mouse) == true)
+      {
+         result    = MouseInputToString();
+         converted = true;
+      }
+      else
+      {
+         return "";
+      }
    }
    else
    {
-      result += char (input);
+#endif
+      if ((it == conversionTable.end()) && ((input & (1 << 31)) != 0))
+      {
+         input     = (input & 0x7FFFFFFF);
+         converted = true;
+         result    = "A-";
+      }
+
+      if ((it == conversionTable.end()) && ((input <= 27) && (input >= 1)))
+      {
+         input     = 'A' + input - 1;
+         converted = true;
+         result    = "C-";
+      }
+
+      if ((input >= KEY_F(0)) && (input <= KEY_F(12)))
+      {
+         char key[8];
+         converted = true;
+         sprintf(key, "%d", (input - KEY_F(0)));
+         result += "F" + std::string(key);
+      }
+      else if (it != conversionTable.end())
+      {
+         converted = true;
+         result += it->second;
+      }
+      else
+      {
+         result += char (input);
+      }
+#ifdef HAVE_MOUSE_SUPPORT
    }
+#endif
 
    if (converted == true)
    {
@@ -657,6 +688,53 @@ std::string Normal::InputCharToString(int input) const
    }
 
    return result;
+}
+
+std::string Normal::MouseInputToString() const
+{
+#ifdef HAVE_MOUSE_SUPPORT
+   static std::map<int, std::string> conversionTable;
+
+   if (conversionTable.size() == 0)
+   {
+      conversionTable[BUTTON4_PRESSED]        = "ScrollWheelUp";
+      conversionTable[BUTTON2_PRESSED]        = "ScrollWheelDown";
+#if (NCURSES_MOUSE_VERSION <= 1)              
+      conversionTable[BUTTON5_PRESSED]        = "ScrollWheelDown";
+#endif                                        
+      conversionTable[BUTTON1_CLICKED]        = "LeftMouse";
+      conversionTable[BUTTON1_DOUBLE_CLICKED] = "2-LeftMouse";
+      conversionTable[BUTTON3_CLICKED]        = "RightMouse";
+      conversionTable[BUTTON3_DOUBLE_CLICKED] = "2-RightMouse";
+   }
+
+   if (settings_.Get(Setting::Mouse) == true)
+   {
+      MEVENT event;
+
+      //! \TODO this seems to scroll quite slowly and not properly at all
+      if (getmouse(&event) == OK)
+      {
+         char buffer[64];
+         sprintf(buffer, "%u\n", static_cast<uint32_t>(event.bstate));
+         Debug(buffer);
+
+         std::map<int, std::string>::const_iterator it = conversionTable.begin();
+         
+         for (; it != conversionTable.end(); ++it)
+         {
+            if ((it->first & event.bstate) == it->first)
+            {
+               return it->second;
+            }
+         }
+      }
+
+      return "";
+   }
+#else
+   return "";
+#endif
 }
 
 
@@ -915,6 +993,12 @@ template <int8_t OFFSET>
 void Normal::ScrollToCurrent(uint32_t line)
 {
    screen_.ScrollTo(Screen::Current, (wasSpecificCount_ == true) ? line * OFFSET : 0);
+}
+
+template <int8_t OFFSET>
+void Normal::Scroll(uint32_t count)
+{
+   screen_.Scroll(OFFSET * count);
 }
 
 template <Screen::Size SIZE, Screen::Direction DIRECTION>

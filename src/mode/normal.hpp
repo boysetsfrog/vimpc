@@ -96,6 +96,9 @@ namespace Ui
       // Convert an input character into it's escaped string name
       std::string InputCharToString(int input) const;
 
+      // Convery mouse event to input string
+      std::string MouseInputToString() const;
+
    private: // Ui::Player wrapper functions
       void ClearScreen(uint32_t count);
       void Pause(uint32_t count);
@@ -164,6 +167,9 @@ namespace Ui
    private: //Scrolling
       template <int8_t OFFSET>
       void ScrollToCurrent(uint32_t line);
+
+      template <int8_t Offset>
+      void Scroll(uint32_t count);
 
       template <Screen::Size SIZE, Screen::Direction DIRECTION>
       void Scroll(uint32_t count);
