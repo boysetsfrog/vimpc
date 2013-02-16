@@ -195,6 +195,11 @@ namespace Ui
       // \param[out] arguments The arguments from the string
       void SplitCommand(std::string const & input, std::string & command, std::string & arguments);
 
+      // Splits the arguments based on the given delimeter
+      // \param[in]  input     The string to split
+      // \param[in]  delim     The delimiting character
+      std::vector<std::string> SplitArguments(std::string const & input, char delimeter = ' ');
+
       // Handle the settings
       void Set(std::string const & arguments);
 

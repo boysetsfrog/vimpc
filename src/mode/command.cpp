@@ -353,20 +353,24 @@ void Command::Delete(std::string const & arguments)
    {
       screen_.Initialise(Ui::Screen::Playlist);
 
-      size_t pos = arguments.find_first_of(" ");
+      std::vector<std::string> args = SplitArguments(arguments);
 
-      if (pos != std::string::npos)
+      if (args.size() == 2)
       {
-         uint32_t pos1 = atoi(arguments.substr(0, pos).c_str()) - 1;
-         uint32_t pos2 = atoi(arguments.substr(pos + 1).c_str()) - 1;
+         uint32_t pos1 = atoi(args[0].c_str()) - 1;
+         uint32_t pos2 = atoi(args[1].c_str()) - 1;
 
          client_.Delete(pos1, pos2 + 1);
          Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
       }
+      else if (args.size() == 1)
+      {
+         client_.Delete(atoi(args[0].c_str()) - 1);
+         Main::Playlist().Remove(atoi(args[0].c_str()) - 1, 1);
+      }
       else
       {
-         client_.Delete(atoi(arguments.c_str()) - 1);
-         Main::Playlist().Remove(atoi(arguments.c_str()) - 1, 1);
+         //\TODO delete selected song
       }
    }
 }
@@ -733,16 +737,26 @@ void Command::Map(std::string const & arguments)
 
 void Command::WindowMap(std::string const & arguments)
 {
-   if ((arguments.find(" ") != string::npos))
-   {
-      std::string key     = arguments.substr(0, arguments.find(" "));
-      std::string mapping = arguments.substr(arguments.find(" ") + 1);
+   std::vector<std::string> args = SplitArguments(arguments);
 
+   if (args.size() == 2)
+   {
+      std::string const key     = args[0];
+      std::string const mapping = args[1];
       normalMode_.WindowMap(screen_.GetActiveWindow(), key, mapping);
    }
-   else if (arguments == "")
+   else if ((args.size() == 1) || (args.size() == 0))
    {
-      Ui::Normal::MapNameTable mappings = normalMode_.WindowMappings(screen_.GetActiveWindow());
+      Ui::Normal::MapNameTable mappings;
+      
+      if (args.size() == 0)
+      {
+         mappings = normalMode_.WindowMappings(screen_.GetActiveWindow());
+      }
+      else
+      {
+         mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(args[0]));
+      }
 
       if (mappings.size() > 0)
       {
@@ -762,6 +776,10 @@ void Command::WindowMap(std::string const & arguments)
       {
          ErrorString(ErrorNumber::NoSuchMapping);
       }
+   }
+   else
+   {
+      Error(ErrorNumber::InvalidParameter, "Unexpected Arguments");
    }
 }
 
@@ -1096,6 +1114,26 @@ void Command::SplitCommand(std::string const & input, std::string & command, std
    std::stringstream commandStream(input);
    std::getline(commandStream, command,   ' ');
    std::getline(commandStream, arguments, '\n');
+}
+
+std::vector<std::string> Command::SplitArguments(std::string const & input, char delimeter)
+{
+   std::vector<std::string> arguments;
+   std::string argument;
+
+   std::stringstream stream(input);
+
+   while (stream.eof() == false)
+   {
+      std::getline(stream, argument, delimeter);
+
+      if (argument != "")
+      {
+         arguments.push_back(argument);
+      }
+   }
+
+   return arguments;
 }
 
 void Command::Set(std::string const & arguments)
