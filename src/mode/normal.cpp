@@ -157,8 +157,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["G"]       = &Normal::ScrollTo<Screen::Specific, Screen::Bottom>;
    actionTable_["%"]       = &Normal::ScrollTo<Screen::Random>;
 
-   actionTable_["<ScrollWheelUp>"]   = &Normal::Scroll<6>;
-   actionTable_["<ScrollWheelDown>"] = &Normal::Scroll<-6>;
+   actionTable_["<ScrollWheelUp>"]   = &Normal::Scroll<-6>;
+   actionTable_["<ScrollWheelDown>"] = &Normal::Scroll<6>;
 
    actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
    actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
