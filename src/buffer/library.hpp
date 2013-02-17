@@ -223,6 +223,10 @@ namespace Mpc
       void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
       void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
+      void CreateVariousArtist();
+      Mpc::LibraryEntry * CreateArtistEntry(std::string artist);
+      Mpc::LibraryEntry * CreateAlbumEntry(Mpc::Song * song);
+
       void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
       void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
       void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
@@ -249,6 +253,8 @@ namespace Mpc
       Main::Settings const & settings_;
       std::map<std::string, Mpc::Song *> uriMap_;
       Mpc::LibraryEntry * variousArtist_;
+      Mpc::LibraryEntry * lastAlbumEntry_;
+      Mpc::LibraryEntry * lastArtistEntry_;
    };
 
    //Flag a library entry as not expanded, this does not actually collapse it however

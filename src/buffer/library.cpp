@@ -31,8 +31,10 @@ const std::string VariousArtist = "Various Artists";
 using namespace Mpc;
 
 Library::Library() :
-   settings_     (Main::Settings::Instance()),
-   variousArtist_(NULL)
+   settings_       (Main::Settings::Instance()),
+   variousArtist_  (NULL),
+   lastAlbumEntry_ (NULL),
+   lastArtistEntry_(NULL)
 {
    AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Library::CheckIfVariousRemoved));
 }
@@ -63,130 +65,123 @@ void Library::Clear(bool Delete)
 
 void Library::Add(Mpc::Song * song)
 {
-   static Mpc::LibraryEntry * LastArtistEntry    = NULL;
-   static Mpc::LibraryEntry * LastAlbumEntry     = NULL;
-   static std::string         LastArtist         = "";
-   static std::string         LastAlbum          = "";
+   std::string const artist = song->Artist();
+   std::string const album  = song->Album();
 
-   std::string artist = song->Artist();
-   std::string album  = song->Album();
+   CreateVariousArtist();
 
-   if ((LastArtistEntry == NULL) ||
-       (((Algorithm::iequals(LastArtist, artist) == false)) &&
-         ((LastAlbumEntry == NULL) || (Algorithm::iequals(LastAlbum, album) == false))))
+   if ((lastAlbumEntry_ == NULL) || (Algorithm::iequals(lastAlbumEntry_->album_, album) == false))
    {
-      Mpc::LibraryEntry * entry = NULL;
+      lastAlbumEntry_  = NULL;
 
-      LastAlbumEntry  = NULL;
-      LastAlbum       = "";
-
-      uint32_t i = 0;
-
-      for (i = 0; ((i < Size()) && 
-                   ((Algorithm::iequals(Get(i)->artist_, artist) == false) ||
-                   (Get(i)->type_ != Mpc::ArtistType))); ++i);
-
-      if (i < Size())
+      if ((lastArtistEntry_ == NULL) || (Algorithm::iequals(lastArtistEntry_->artist_, artist) == false))
       {
-         entry = Get(i);
-      }
+         lastArtistEntry_ = NULL;
 
-      if (entry == NULL)
-      {
-         entry            = new Mpc::LibraryEntry();
-         entry->expanded_ = false;
-         entry->artist_   = artist;
-         entry->type_     = Mpc::ArtistType;
+         uint32_t i = 0;
+         for (i = 0; ((i < Size()) && 
+                      ((Algorithm::iequals(Get(i)->artist_, artist) == false) ||
+                      (Get(i)->type_ != Mpc::ArtistType))); ++i);
 
-         Add(entry);
-      }
-
-      LastArtistEntry = entry;
-      LastArtist      = artist;
-   }
-
-   if ((LastAlbumEntry == NULL) || (Algorithm::iequals(LastAlbum, album) == false))
-   {
-      Mpc::LibraryEntry * entry = NULL;
-
-      for (Mpc::LibraryEntryVector::iterator it = LastArtistEntry->children_.begin(); ((it != LastArtistEntry->children_.end()) && (entry == NULL)); ++it)
-      {
-         if ((Algorithm::iequals((*it)->album_, album) == true) &&
-             ((*it)->type_ == Mpc::AlbumType))
+         if (i < Size())
          {
-            entry           = (*it);
-            LastAlbumEntry  = entry;
-            LastAlbum       = album;
+            lastArtistEntry_ = Get(i);
+
+            for (Mpc::LibraryEntryVector::iterator it = lastArtistEntry_->children_.begin(); ((it != lastArtistEntry_->children_.end()) && (lastAlbumEntry_ == NULL)); ++it)
+            {
+               if ((Algorithm::iequals((*it)->album_, album) == true) &&
+                   ((*it)->type_ == Mpc::AlbumType))
+               {
+                  lastAlbumEntry_ = (*it);
+               }
+            }
+         }
+         else
+         {
+            lastArtistEntry_ = CreateArtistEntry(artist);
+            lastAlbumEntry_  = NULL;
          }
       }
 
-      if (entry == NULL)
+      if (lastAlbumEntry_ == NULL)
       {
-         entry = new Mpc::LibraryEntry();
-
-         entry->expanded_ = false;
-         entry->artist_   = song->Artist();
-         entry->album_    = song->Album();
-         entry->type_     = Mpc::AlbumType;
-         entry->parent_   = LastArtistEntry;
-
-         LastArtistEntry->children_.push_back(entry);
-
-         LastAlbumEntry = entry;
-         LastAlbum      = album;
+         lastAlbumEntry_ = CreateAlbumEntry(song);
+         lastAlbumEntry_->parent_ = lastArtistEntry_;
+         lastArtistEntry_->children_.push_back(lastAlbumEntry_);
       }
    }
-
-   if ((LastAlbumEntry != NULL) && (LastArtistEntry != NULL) &&
-       //(Algorithm::iequals(LastArtist, artist) == true) &&
-       (Algorithm::iequals(LastAlbum, album) == true))
+   else if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
+           (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
+           (Algorithm::iequals(lastArtistEntry_->artist_, artist) == false) &&
+           (lastArtistEntry_ != variousArtist_) && 
+           (lastArtistEntry_->children_.back() == lastAlbumEntry_))
    {
-      Mpc::LibraryEntry * const entry   = new Mpc::LibraryEntry();
+      lastArtistEntry_->children_.pop_back();
 
-      if ((Algorithm::iequals(LastArtist, artist) == false) &&
-          (LastArtist != VariousArtist))
+      if (lastArtistEntry_->children_.size() == 0)
       {
-         LastArtist = VariousArtist;
-
-         if (variousArtist_ == NULL)
-         {
-            variousArtist_ = new Mpc::LibraryEntry();
-            variousArtist_->expanded_ = false;
-            variousArtist_->artist_   = VariousArtist;
-            variousArtist_->type_     = Mpc::ArtistType;
-            Add(variousArtist_);
-         }
-
-         LastArtistEntry->children_.pop_back();
-
-         if (LastArtistEntry->children_.size() == 0)
-         {
-            Remove(Index(LastArtistEntry), 1);
-            delete LastArtistEntry;
-         }
-
-         if (LastAlbumEntry->parent_ != variousArtist_)
-         {
-            variousArtist_->children_.push_back(LastAlbumEntry);
-            LastAlbumEntry->parent_ = variousArtist_;
-         }
-
-         LastArtistEntry = variousArtist_;
+         Remove(Index(lastArtistEntry_), 1);
+         delete lastArtistEntry_;
       }
 
-      entry->expanded_ = true;
-      entry->artist_   = artist;
-      entry->album_    = album;
-      entry->song_     = song;
-      entry->type_     = Mpc::SongType;
-      entry->parent_   = LastAlbumEntry;
+      if (lastAlbumEntry_->parent_ != variousArtist_)
+      {
+         variousArtist_->children_.push_back(lastAlbumEntry_);
+      }
 
-      song->SetEntry(entry);
-
-      uriMap_[song->URI()] = song;
-
-      LastAlbumEntry->children_.push_back(entry);
+      lastAlbumEntry_->parent_ = variousArtist_;
+      lastArtistEntry_ = variousArtist_;
    }
+
+   Mpc::LibraryEntry * const entry = new Mpc::LibraryEntry();
+   entry->expanded_ = true;
+   entry->artist_   = artist;
+   entry->album_    = album;
+   entry->song_     = song;
+   entry->type_     = Mpc::SongType;
+   entry->parent_   = lastAlbumEntry_;
+   song->SetEntry(entry);
+
+   uriMap_[song->URI()] = song;
+
+   if (lastAlbumEntry_ != NULL)
+   {
+      lastAlbumEntry_->children_.push_back(entry);
+   }
+}
+
+void Library::CreateVariousArtist()
+{
+   if (variousArtist_ == NULL)
+   {
+      variousArtist_ = new Mpc::LibraryEntry();
+      variousArtist_->expanded_ = false;
+      variousArtist_->artist_   = VariousArtist;
+      variousArtist_->type_     = Mpc::ArtistType;
+      Add(variousArtist_);
+   }
+}
+
+Mpc::LibraryEntry * Library::CreateArtistEntry(std::string artist)
+{
+   Mpc::LibraryEntry * const entry = new Mpc::LibraryEntry();
+
+   entry->expanded_ = false;
+   entry->artist_   = artist;
+   entry->type_     = Mpc::ArtistType;
+
+   Add(entry);
+   return entry;
+}
+
+Mpc::LibraryEntry * Library::CreateAlbumEntry(Mpc::Song * song)
+{
+   Mpc::LibraryEntry * const entry = new Mpc::LibraryEntry();
+   entry->expanded_ = false;
+   entry->artist_   = song->Artist();
+   entry->album_    = song->Album();
+   entry->type_     = Mpc::AlbumType;
+   return entry;
 }
 
 Mpc::Song * Library::Song(std::string uri) const
@@ -492,6 +487,17 @@ void Library::CheckIfVariousRemoved(LibraryEntry * const entry)
    if (entry == variousArtist_)
    {
       variousArtist_ = NULL;
+   }
+
+   if (entry == lastArtistEntry_)
+   {
+      lastArtistEntry_ = NULL;
+   }
+
+   if (entry == lastAlbumEntry_)
+   {
+      lastAlbumEntry_  = NULL;
+      lastArtistEntry_ = NULL;
    }
 }
 
