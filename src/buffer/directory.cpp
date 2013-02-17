@@ -148,7 +148,7 @@ void Directory::AddChild(std::string directory)
    std::string Parent = "";
    std::string Path = directory;
 
-   uint32_t i = 0;
+   size_t i = 0;
 
    while (i != std::string::npos)
    {
