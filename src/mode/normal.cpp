@@ -234,15 +234,15 @@ void Normal::CreateWindowMaps()
 {
    mapsCreated_ = true;
 
-   WindowMap(Ui::Screen::Playlist, "<Enter>",       ":play<CR>");
-   WindowMap(Ui::Screen::Playlist, "<Return>",      ":play<CR>");
-   WindowMap(Ui::Screen::Playlist, "<2-LeftMouse>", ":play<CR>");
+   WindowMap(Ui::Screen::Playlist, "<Enter>",       ":play<CR>",    false);
+   WindowMap(Ui::Screen::Playlist, "<Return>",      ":play<CR>",    false);
+   WindowMap(Ui::Screen::Playlist, "<2-LeftMouse>", ":play<CR>",    false);
 
-   WindowMap(Ui::Screen::Outputs,  "a",             ":enable<CR>");
-   WindowMap(Ui::Screen::Outputs,  "d",             ":disable<CR>");
-   WindowMap(Ui::Screen::Outputs,  "<Enter>",       ":toggle<CR>");
-   WindowMap(Ui::Screen::Outputs,  "<Return>",      ":toggle<CR>");
-   WindowMap(Ui::Screen::Outputs,  "<2-LeftMouse>", ":toggle<CR>");
+   WindowMap(Ui::Screen::Outputs,  "a",             ":enable<CR>",  false);
+   WindowMap(Ui::Screen::Outputs,  "d",             ":disable<CR>", false);
+   WindowMap(Ui::Screen::Outputs,  "<Enter>",       ":toggle<CR>",  false);
+   WindowMap(Ui::Screen::Outputs,  "<Return>",      ":toggle<CR>",  false);
+   WindowMap(Ui::Screen::Outputs,  "<2-LeftMouse>", ":toggle<CR>",  false);
 }
 
 void Normal::Initialise(int input)
@@ -362,7 +362,7 @@ void Normal::Map(std::string key, std::string mapping)
    }
 }
 
-void Normal::WindowMap(int window, std::string key, std::string mapping)
+void Normal::WindowMap(int window, std::string key, std::string mapping, bool store)
 {
    std::vector<KeyMapItem> KeyMap;
 
@@ -371,7 +371,11 @@ void Normal::WindowMap(int window, std::string key, std::string mapping)
    if (valid == true)
    {
       windowMap_[window][key]      = KeyMap;
-      windowMapNames_[window][key] = mapping;
+
+      if (store == true)
+      {
+         windowMapNames_[window][key] = mapping;
+      }
    }
    else
    {
