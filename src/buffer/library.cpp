@@ -57,6 +57,8 @@ void Library::Clear(bool Delete)
          delete entry;
       }
    }
+
+   Main::Buffer<LibraryEntry *>::Clear();
 }
 
 void Library::Add(Mpc::Song * song)

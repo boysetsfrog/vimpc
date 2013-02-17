@@ -93,6 +93,10 @@ namespace Mpc
    public:
       ~LibraryEntry()
       {
+         song_->SetEntry(NULL);
+         delete song_;
+         song_ = NULL;
+
          for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
          {
             if ((*it) && ((*it)->Parent() == this))
@@ -102,7 +106,6 @@ namespace Mpc
          }
 
          children_.clear();
-         delete song_;
       }
 
       void AddedToPlaylist()

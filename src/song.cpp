@@ -61,7 +61,14 @@ Song::Song(Song const & song) :
 }
 
 Song::~Song()
-{ }
+{
+   reference_ = 0;
+
+   if (entry_ != NULL)
+   {
+      entry_->song_ = NULL;
+   }
+}
 
 
 int32_t Song::Reference() const
