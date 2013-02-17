@@ -165,8 +165,12 @@ void Library::Add(Mpc::Song * song)
             delete LastArtistEntry;
          }
 
-         variousArtist_->children_.push_back(LastAlbumEntry);
-         LastAlbumEntry->parent_ = variousArtist_;
+         if (LastAlbumEntry->parent_ != variousArtist_)
+         {
+            variousArtist_->children_.push_back(LastAlbumEntry);
+            LastAlbumEntry->parent_ = variousArtist_;
+         }
+
          LastArtistEntry = variousArtist_;
       }
 
