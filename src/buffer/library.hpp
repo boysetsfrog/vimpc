@@ -95,7 +95,10 @@ namespace Mpc
       {
          for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
          {
-            delete *it;
+            if ((*it) && ((*it)->Parent() == this))
+            {
+               delete *it;
+            }
          }
 
          children_.clear();
