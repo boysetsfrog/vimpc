@@ -93,8 +93,12 @@ namespace Mpc
    public:
       ~LibraryEntry()
       {
-         song_->SetEntry(NULL);
-         delete song_;
+         if (song_ != NULL)
+         {
+            song_->SetEntry(NULL);
+            delete song_;
+         }
+
          song_ = NULL;
 
          for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
