@@ -23,6 +23,7 @@
 
 // Includes
 #include "assert.hpp"
+#include "config.h"
 #include "buffer/linebuffer.hpp"
 #include "window/modewindow.hpp"
 #include "window/pagerwindow.hpp"
@@ -190,6 +191,10 @@ namespace Ui
 
       bool HandleMouseEvent();
 
+#ifdef HAVE_MOUSE_SUPPORT
+      MEVENT LastMouseEvent() { return event_; }
+#endif
+
    public:
       // Access the active window
       int32_t GetActiveWindow() const;
@@ -243,6 +248,10 @@ namespace Ui
       int32_t   maxRows_;
       int32_t   mainRows_;
       int32_t   maxColumns_;
+
+#ifdef HAVE_MOUSE_SUPPORT
+      MEVENT    event_;
+#endif
 
       Main::Settings &   settings_;
       Mpc::Client &      client_;

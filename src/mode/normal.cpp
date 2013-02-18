@@ -553,7 +553,7 @@ void Normal::HandleMap(std::string input, int count)
    for (int i = 0; ((i < count) && (complete == false)); ++i)
    {
       std::vector<KeyMapItem> KeyMap;
-      
+
       if (windowMap_[screen_.GetActiveWindow()].find(input) != windowMap_[screen_.GetActiveWindow()].end())
       {
          KeyMap = windowMap_[screen_.GetActiveWindow()][input];
@@ -708,9 +708,9 @@ std::string Normal::MouseInputToString() const
    {
       conversionTable[BUTTON4_PRESSED]        = "ScrollWheelUp";
       conversionTable[BUTTON2_PRESSED]        = "ScrollWheelDown";
-#if (NCURSES_MOUSE_VERSION <= 1)              
+#if (NCURSES_MOUSE_VERSION <= 1)
       conversionTable[BUTTON5_PRESSED]        = "ScrollWheelDown";
-#endif                                        
+#endif
       conversionTable[BUTTON1_CLICKED]        = "LeftMouse";
       conversionTable[BUTTON1_DOUBLE_CLICKED] = "2-LeftMouse";
       conversionTable[BUTTON3_CLICKED]        = "RightMouse";
@@ -719,23 +719,16 @@ std::string Normal::MouseInputToString() const
 
    if (settings_.Get(Setting::Mouse) == true)
    {
-      MEVENT event;
+      MEVENT event = screen_.LastMouseEvent();
 
       //! \TODO this seems to scroll quite slowly and not properly at all
-      if (getmouse(&event) == OK)
-      {
-         char buffer[64];
-         sprintf(buffer, "%u\n", static_cast<uint32_t>(event.bstate));
-         Debug(buffer);
+      std::map<int, std::string>::const_iterator it = conversionTable.begin();
 
-         std::map<int, std::string>::const_iterator it = conversionTable.begin();
-         
-         for (; it != conversionTable.end(); ++it)
+      for (; it != conversionTable.end(); ++it)
+      {
+         if ((it->first & event.bstate) == it->first)
          {
-            if ((it->first & event.bstate) == it->first)
-            {
-               return it->second;
-            }
+            return it->second;
          }
       }
 

@@ -20,8 +20,6 @@
 
 #include "screen.hpp"
 
-#include "config.h"
-
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -866,7 +864,7 @@ bool Screen::HandleMouseEvent()
             }
          }
 
-         ungetmouse(&event);
+         event_ = event;
       }
    }
    return false;
