@@ -151,11 +151,17 @@ void ScrollWindow::Print(uint32_t line) const
                break;
 
             case 'R':
-               elided = false;
-               int y, x;
-               getyx(window, y, x);
-               wprintw(window, "%s", std::string((screen_.MaxColumns() - (stripped.size() - align)) - x, ' ').c_str());
-               break;
+               {
+                  elided = false;
+                  int y, x;
+                  getyx(window, y, x);
+
+                  if ((screen_.MaxColumns() - (stripped.size() - align) > x) && (x >= 0))
+                  {
+                     wprintw(window, "%s", std::string((screen_.MaxColumns() - (stripped.size() - align)) - x, ' ').c_str());
+                  }
+                  break;
+               }
 
             case 'H':
                {
