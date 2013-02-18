@@ -1465,7 +1465,7 @@ bool Client::CheckError()
       if (mpd_connection_get_error(connection_) != MPD_ERROR_SUCCESS)
       {
          char error[255];
-         snprintf(error, 255, "Client Error: %s",  mpd_connection_get_error_message(connection_));
+         snprintf(error, 255, "MPD Error: %s",  mpd_connection_get_error_message(connection_));
          Error(ErrorNumber::ClientError, error);
 
 #ifdef _DEBUG_ASSERT_ON_ERROR
