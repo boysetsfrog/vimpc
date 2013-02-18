@@ -156,10 +156,12 @@ void ScrollWindow::Print(uint32_t line) const
                   int y, x;
                   getyx(window, y, x);
 
-                  if ((screen_.MaxColumns() - (stripped.size() - align) > x) && (x >= 0))
+                  if ((Columns() - (stripped.size() - align) > x) && (x >= 0))
                   {
                      wprintw(window, "%s", std::string((screen_.MaxColumns() - (stripped.size() - align)) - x, ' ').c_str());
                   }
+                  
+                  wmove(window, line, screen_.MaxColumns() - (stripped.size() - align));
                   break;
                }
 
@@ -194,7 +196,7 @@ void ScrollWindow::Print(uint32_t line) const
          wprintw(window, "%c", output[i]);
          ++i;
       }
-      else 
+      else
       {
          wprintw(window, "...");
          ++i;
