@@ -46,6 +46,9 @@ Library::~Library()
 
 void Library::Clear(bool Delete)
 {
+   lastAlbumEntry_   = NULL;
+   lastArtistEntry_  = NULL;
+
    Main::Playlist().Clear();
 
    while (Size() > 0)
@@ -59,8 +62,6 @@ void Library::Clear(bool Delete)
          delete entry;
       }
    }
-
-   Main::Buffer<LibraryEntry *>::Clear();
 }
 
 void Library::Add(Mpc::Song * song)
@@ -79,7 +80,7 @@ void Library::Add(Mpc::Song * song)
          lastArtistEntry_ = NULL;
 
          uint32_t i = 0;
-         for (i = 0; ((i < Size()) && 
+         for (i = 0; ((i < Size()) &&
                       ((Algorithm::iequals(Get(i)->artist_, artist) == false) ||
                       (Get(i)->type_ != Mpc::ArtistType))); ++i);
 
@@ -113,7 +114,7 @@ void Library::Add(Mpc::Song * song)
    else if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
            (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
            (Algorithm::iequals(lastArtistEntry_->artist_, artist) == false) &&
-           (lastArtistEntry_ != variousArtist_) && 
+           (lastArtistEntry_ != variousArtist_) &&
            (lastArtistEntry_->children_.back() == lastAlbumEntry_))
    {
       lastArtistEntry_->children_.pop_back();
