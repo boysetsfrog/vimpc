@@ -133,6 +133,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<C-J>"]   = &Normal::Confirm;
    actionTable_["<Enter>"] = &Normal::Confirm;
    actionTable_["<CR>"]    = &Normal::Confirm;
+   actionTable_["<LeftMouse>"] = &Normal::Click;
    actionTable_["<2-LeftMouse>"] = &Normal::Confirm;
 
    // Searching
@@ -820,6 +821,11 @@ void Normal::Left(uint32_t count)
 void Normal::Right(uint32_t count)
 {
    screen_.ActiveWindow().Right(*this, count);
+}
+
+void Normal::Click(uint32_t count)
+{
+   screen_.ActiveWindow().Click();
 }
 
 void Normal::Confirm(uint32_t count)

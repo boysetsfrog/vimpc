@@ -120,6 +120,7 @@ namespace Ui
       void Left(uint32_t count);
       void Right(uint32_t count);
       void Confirm(uint32_t count);
+      void Click(uint32_t count);
       void Escape(uint32_t count);
 
       // Execute the last action again
