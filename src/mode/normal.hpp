@@ -136,6 +136,9 @@ namespace Ui
       void Visual(uint32_t count);
 
    private:
+      void ToggleSelectedOutput(uint32_t count);
+
+   private:
       template <Mpc::Song::SongCollection COLLECTION>
       void AddSong(uint32_t count);
 
@@ -225,6 +228,7 @@ namespace Ui
    private:
       typedef void (Ui::Normal::*ptrToMember)(uint32_t);
       typedef std::map<std::string, ptrToMember> ActionTable;
+      typedef std::map<Ui::Screen::MainWindow, ptrToMember> WindowActionTable;
 
       struct KeyMapItem
       {
@@ -241,6 +245,7 @@ namespace Ui
          ptrToMember           action_;
          uint32_t              count_;
       };
+
 
       typedef std::map<std::string, std::vector<KeyMapItem> > MapTable;
       typedef std::map<int, MapTable> WindowMapTable;

@@ -25,6 +25,7 @@
 #include "settings.hpp"
 #include "vimpc.hpp"
 
+#include "buffer/outputs.hpp"
 #include "buffer/playlist.hpp"
 #include "window/console.hpp"
 
@@ -133,6 +134,30 @@ void Player::SetCrossfade(bool crossfade)
 void Player::SetCrossfade(uint32_t crossfade)
 {
    client_.SetCrossfade(crossfade);
+}
+
+int32_t Player::FindOutput(std::string const & outputName)
+{
+   // \todo move to output buffeR?
+   int32_t output = -1;
+
+   for(unsigned int i = 0; i < Main::Outputs().Size(); ++i)
+   {
+      if (Algorithm::iequals(Main::Outputs().Get(i)->Name(), outputName) == true)
+      {
+         output = i;
+         break;
+      }
+   }
+   
+   return output;
+}
+
+void Player::ToggleOutput(uint32_t output)
+{
+   bool enable = !Main::Outputs().Get(output)->Enabled();
+   client_.SetOutput(Main::Outputs().Get(output), enable);
+   Main::Outputs().Get(output)->SetEnabled(enable);
 }
 
 void Player::Shuffle()

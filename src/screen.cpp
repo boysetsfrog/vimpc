@@ -891,6 +891,11 @@ Ui::ScrollWindow & Screen::Window(uint32_t window) const
    return assert_reference(it->second);
 }
 
+int32_t Screen::GetSelected(uint32_t window) const
+{
+   return Window(window).CurrentLine();
+}
+
 void Screen::SetActiveWindowType(MainWindow window)
 {
    previous_ = window_;

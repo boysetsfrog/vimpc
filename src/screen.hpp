@@ -201,6 +201,9 @@ namespace Ui
       Ui::ScrollWindow & ActiveWindow() const;
       Ui::ScrollWindow & Window(uint32_t window) const;
 
+      // Access the selected item in a particular window
+      int32_t GetSelected(uint32_t window) const;
+
       // Changes the currently active window by setting it explicitly
       void SetActiveWindowType(MainWindow window);
       void SetActiveWindow(uint32_t window);

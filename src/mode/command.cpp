@@ -576,7 +576,7 @@ void Command::ToggleOutput(std::string const & arguments)
 
    if (arguments == "")
    {
-      output = screen_.Window(Ui::Screen::Outputs).CurrentLine();
+      output = screen_.GetSelected(Ui::Screen::Outputs);
    }
    else if (Algorithm::isNumeric(arguments.c_str()) == true)
    {
@@ -584,22 +584,12 @@ void Command::ToggleOutput(std::string const & arguments)
    }
    else
    {
-      for(unsigned int i = 0; i < Main::Outputs().Size(); ++i)
-      {
-         if (Algorithm::iequals(Main::Outputs().Get(i)->Name(), arguments) == true)
-         {
-            output = i;
-            break;
-         }
-      }
+      output = Player::FindOutput(arguments);
    }
 
    if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
    {
-      bool enable = !Main::Outputs().Get(output)->Enabled();
-
-      client_.SetOutput(Main::Outputs().Get(output), enable);
-      Main::Outputs().Get(output)->SetEnabled(enable);
+      Player::ToggleOutput(output);
    }
    else
    {

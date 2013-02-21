@@ -241,9 +241,6 @@ void Normal::CreateWindowMaps()
 
    WindowMap(Ui::Screen::Outputs,  "a",             ":enable<CR>",  false);
    WindowMap(Ui::Screen::Outputs,  "d",             ":disable<CR>", false);
-   WindowMap(Ui::Screen::Outputs,  "<Enter>",       ":toggle<CR>",  false);
-   WindowMap(Ui::Screen::Outputs,  "<Return>",      ":toggle<CR>",  false);
-   WindowMap(Ui::Screen::Outputs,  "<2-LeftMouse>", ":toggle<CR>",  false);
 }
 
 void Normal::Initialise(int input)
@@ -830,7 +827,27 @@ void Normal::Click(uint32_t count)
 
 void Normal::Confirm(uint32_t count)
 {
-   screen_.ActiveWindow().Confirm();
+   static WindowActionTable confirmTable;
+
+   if (confirmTable.size() == 0)
+   {
+      // \todo move lots of common functions into the "player"
+      // so that i can share stuff from command
+      confirmTable[Ui::Screen::Outputs] = &Normal::ToggleSelectedOutput;
+      //confirmTable[Ui::Screen::Playlist] = &Normal::PlaySelected; 
+   }
+
+   WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+
+   if (it != confirmTable.end())
+   {
+      ptrToMember actionFunc = it->second;
+      (*this.*actionFunc)(count);
+   }
+   else
+   {
+      screen_.ActiveWindow().Confirm();
+   }
 }
 
 void Normal::Escape(uint32_t count)
@@ -888,6 +905,17 @@ void Normal::Edit(uint32_t count)
 void Normal::Visual(uint32_t count)
 {
    screen_.ActiveWindow().Visual();
+}
+
+
+void Normal::ToggleSelectedOutput(uint32_t count)
+{
+   int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
+
+   if (output >= 0)
+   {
+      Player::ToggleOutput(output);
+   }
 }
 
 

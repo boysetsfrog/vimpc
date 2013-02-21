@@ -56,10 +56,8 @@ namespace Ui
       virtual ~Player() = 0;
 
    protected: //Commands which may be called by the mode
-      //! Clears the current window
       void ClearScreen();
 
-      //! Pauses the current playback
       void Pause();
 
       //! Plays the song with the given \p id
@@ -72,60 +70,35 @@ namespace Ui
       //! Quits the program
       void Quit();
 
-      //! Toggles consume on or off
       void ToggleConsume();
-
-      //! Toggles crossfade on or off
       void ToggleCrossfade();
-
-      //! Toggles repeat on or off
       void ToggleRepeat();
-
-      //! Toggles random on or off
       void ToggleRandom();
-
-      //! Toggles single on or off
       void ToggleSingle();
 
-      //! Disables/Enables random functionality
       void SetRandom(bool random);
-
-      //! Disables/Enables single functionality
       void SetSingle(bool single);
-
-      //! Disables/Enables repeat functionality
       void SetRepeat(bool repeat);
-
-      //! Disables/Enables consume functionality
       void SetConsume(bool consume);
 
-      //! Disables/Enables consume functionality
       void SetCrossfade(bool crossfade);
       void SetCrossfade(uint32_t crossfade);
 
-      //! Shuffle the playlist
+      int32_t FindOutput(std::string const & outputName);
+      void ToggleOutput(uint32_t output);
+
       void Shuffle();
 
-      //! Redraws the current window
       void Redraw();
 
-      //! Stops playback
       void Stop();
-
-      //! Set the current volume
       void Volume(uint32_t volume);
 
-      //! Load the playlist
       void LoadPlaylist(std::string const & name);
-
-      //!
       void SavePlaylist(std::string const & name);
 
    public:
-      //! Rescan the library
       void Rescan();
-
-      //! Update the library
       void Update();
 
       typedef enum
