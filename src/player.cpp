@@ -153,11 +153,48 @@ int32_t Player::FindOutput(std::string const & outputName)
    return output;
 }
 
+void Player::SetOutput(Item::Collection collection, bool enable)
+{
+   if (collection == Item::Single)
+   {
+      int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
+      Player::SetOutput(output, enable);
+   }
+   else if (collection == Item::All)
+   {
+      for (int i = 0; i < Main::Outputs().Size(); ++i)
+      {
+         Player::SetOutput(i, enable);
+      }
+   }
+}
+
+void Player::SetOutput(uint32_t output, bool enable)
+{
+   client_.SetOutput(Main::Outputs().Get(output), enable);
+   Main::Outputs().Get(output)->SetEnabled(enable);
+}
+
+void Player::ToggleOutput(Item::Collection collection)
+{
+   if (collection == Item::Single)
+   {
+      int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
+      Player::ToggleOutput(output);
+   }
+   else if (collection == Item::All)
+   {
+      for (int i = 0; i < Main::Outputs().Size(); ++i)
+      {
+         Player::ToggleOutput(i);
+      }
+   }
+}
+
 void Player::ToggleOutput(uint32_t output)
 {
    bool enable = !Main::Outputs().Get(output)->Enabled();
-   client_.SetOutput(Main::Outputs().Get(output), enable);
-   Main::Outputs().Get(output)->SetEnabled(enable);
+   SetOutput(output, enable);
 }
 
 void Player::Shuffle()

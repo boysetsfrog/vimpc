@@ -58,7 +58,6 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    wasSpecificCount_(false),
    addMark_         (false),
    gotoMark_        (false),
-   mapsCreated_     (false),
    actionTable_     (),
    vimpc_           (vimpc),
    search_          (search),
@@ -111,14 +110,13 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["L"]       = &Normal::Select<ScrollWindow::Last>;
 
    // Playlist
-   actionTable_["d"]       = &Normal::DeleteSong<Mpc::Song::Single>;
-   actionTable_["D"]       = &Normal::DeleteSong<Mpc::Song::All>;
-   actionTable_["a"]       = &Normal::AddSong<Mpc::Song::Single>;
-   actionTable_["A"]       = &Normal::AddSong<Mpc::Song::All>;
-   actionTable_["x"]       = &Normal::CropSong<Mpc::Song::Single>;
-   actionTable_["X"]       = &Normal::CropSong<Mpc::Song::All>;
-
-   actionTable_["<Del>"]   = &Normal::DeleteSong<Mpc::Song::Single>;
+   actionTable_["d"]       = &Normal::Delete<Item::Single>;
+   actionTable_["D"]       = &Normal::Delete<Item::All>;
+   actionTable_["a"]       = &Normal::Add<Item::Single>;
+   actionTable_["A"]       = &Normal::Add<Item::All>;
+   actionTable_["x"]       = &Normal::Crop<Mpc::Song::Single>;
+   actionTable_["X"]       = &Normal::Crop<Mpc::Song::All>;
+   actionTable_["<Del>"]   = &Normal::Delete<Item::Single>;
 
    // ! \todo this is a bit dodgy, is there a better key for this?
    //         we need a paste above and paste below
@@ -231,25 +229,8 @@ Normal::~Normal()
    window_ = NULL;
 }
 
-void Normal::CreateWindowMaps()
-{
-   mapsCreated_ = true;
-
-   WindowMap(Ui::Screen::Playlist, "<Enter>",       ":play<CR>",    false);
-   WindowMap(Ui::Screen::Playlist, "<Return>",      ":play<CR>",    false);
-   WindowMap(Ui::Screen::Playlist, "<2-LeftMouse>", ":play<CR>",    false);
-
-   WindowMap(Ui::Screen::Outputs,  "a",             ":enable<CR>",  false);
-   WindowMap(Ui::Screen::Outputs,  "d",             ":disable<CR>", false);
-}
-
 void Normal::Initialise(int input)
 {
-   if (mapsCreated_ == false)
-   {
-      CreateWindowMaps();
-   }
-
    actionCount_ = 0;
    Refresh();
 }
@@ -700,7 +681,7 @@ std::string Normal::InputCharToString(int input) const
 std::string Normal::MouseInputToString() const
 {
 #ifdef HAVE_MOUSE_SUPPORT
-   static std::map<int, std::string> conversionTable;
+   static std::map<uint32_t, std::string> conversionTable;
 
    if (conversionTable.size() == 0)
    {
@@ -720,7 +701,7 @@ std::string Normal::MouseInputToString() const
       MEVENT event = screen_.LastMouseEvent();
 
       //! \TODO this seems to scroll quite slowly and not properly at all
-      std::map<int, std::string>::const_iterator it = conversionTable.begin();
+      std::map<uint32_t, std::string>::const_iterator it = conversionTable.begin();
 
       for (; it != conversionTable.end(); ++it)
       {
@@ -833,8 +814,8 @@ void Normal::Confirm(uint32_t count)
    {
       // \todo move lots of common functions into the "player"
       // so that i can share stuff from command
-      confirmTable[Ui::Screen::Outputs] = &Normal::ToggleSelectedOutput;
-      //confirmTable[Ui::Screen::Playlist] = &Normal::PlaySelected; 
+      confirmTable[Ui::Screen::Outputs]  = &Normal::ToggleOutput<Item::Single>;
+      confirmTable[Ui::Screen::Playlist] = &Normal::PlaySelected; 
    }
 
    WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
@@ -908,56 +889,123 @@ void Normal::Visual(uint32_t count)
 }
 
 
-void Normal::ToggleSelectedOutput(uint32_t count)
+void Normal::PlaySelected(uint32_t count)
 {
-   int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
+   int32_t song = screen_.GetSelected(Ui::Screen::Playlist);
 
-   if (output >= 0)
+   if (song >= 0)
    {
-      Player::ToggleOutput(output);
+      Player::Play(song);
+   }
+}
+
+template <Item::Collection COLLECTION>
+void Normal::ToggleOutput(uint32_t count)
+{
+   if (COLLECTION == Item::Single)
+   {
+      int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
+
+      for (int i = 0; i < count; ++i)
+      {
+         Player::ToggleOutput(output + i);
+      }  
+   }
+   else
+   {
+      Player::ToggleOutput(COLLECTION);
+   }
+}
+
+template <Item::Collection COLLECTION, bool ENABLE>
+void Normal::SetOutput(uint32_t count)
+{
+   if (COLLECTION == Item::Single)
+   {
+      int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
+
+      for (uint32_t i = 0; i < count; ++i)
+      {
+         Player::SetOutput(output + i, ENABLE);
+      }  
+   }
+   else
+   {
+      Player::SetOutput(COLLECTION, ENABLE);
    }
 }
 
 
-template <Mpc::Song::SongCollection COLLECTION>
-void Normal::AddSong(uint32_t count)
+template <Item::Collection COLLECTION>
+void Normal::Add(uint32_t count)
 {
+   static WindowActionTable confirmTable;
+
    if (client_.Connected())
    {
-      if (COLLECTION == Mpc::Song::All)
+      if (confirmTable.size() == 0)
       {
-         screen_.ActiveWindow().AddAllLines();
-      }
-      else if (COLLECTION == Mpc::Song::Single)
-      {
-         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count, settings_.Get(Setting::ScrollOnAdd));
+         confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, true>;
       }
 
-      client_.AddComplete();
+      WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+
+      if (it != confirmTable.end())
+      {
+         ptrToMember actionFunc = it->second;
+         (*this.*actionFunc)(count);
+      }
+      else
+      {
+         if (COLLECTION == Item::All)
+         {
+            screen_.ActiveWindow().AddAllLines();
+         }
+         else if (COLLECTION == Item::Single)
+         {
+            screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count, settings_.Get(Setting::ScrollOnAdd));
+         }
+
+         client_.AddComplete();
+      }
    }
 }
 
-template <Mpc::Song::SongCollection COLLECTION>
-void Normal::DeleteSong(uint32_t count)
+template <Item::Collection COLLECTION>
+void Normal::Delete(uint32_t count)
 {
+   static WindowActionTable confirmTable;
+
    if (client_.Connected())
    {
-      //! \todo Make delete and add take a movement operation?
-      //!       ie to do stuff like dG, this may require making some kind of movement
-      //!          table or something rather than the way it currently works
-      if (COLLECTION == Mpc::Song::All)
+      if (confirmTable.size() == 0)
       {
-         screen_.ActiveWindow().DeleteAllLines();
+         confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, false>;
       }
-      else if (COLLECTION == Mpc::Song::Single)
+
+      WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+
+      if (it != confirmTable.end())
       {
-         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count, settings_.Get(Setting::ScrollOnDelete));
+         ptrToMember actionFunc = it->second;
+         (*this.*actionFunc)(count);
+      }
+      else
+      {
+         if (COLLECTION == Item::All)
+         {
+            screen_.ActiveWindow().DeleteAllLines();
+         }
+         else if (COLLECTION == Item::Single)
+         {
+            screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count, settings_.Get(Setting::ScrollOnDelete));
+         }
       }
    }
 }
 
 template <Mpc::Song::SongCollection COLLECTION>
-void Normal::CropSong(uint32_t count)
+void Normal::Crop(uint32_t count)
 {
    if (COLLECTION == Mpc::Song::All)
    {

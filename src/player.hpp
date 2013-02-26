@@ -25,6 +25,7 @@
 #include <string>
 #include <stdint.h>
 
+#include "output.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "song.hpp"
@@ -85,6 +86,10 @@ namespace Ui
       void SetCrossfade(uint32_t crossfade);
 
       int32_t FindOutput(std::string const & outputName);
+
+      void SetOutput(Item::Collection collection, bool enable);
+      void SetOutput(uint32_t output, bool enable);
+      void ToggleOutput(Item::Collection collection);
       void ToggleOutput(uint32_t output);
 
       void Shuffle();

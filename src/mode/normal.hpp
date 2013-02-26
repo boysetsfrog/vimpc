@@ -51,8 +51,6 @@ namespace Ui
       Normal(Normal & normal);
       Normal & operator=(Normal & normal);
 
-      void CreateWindowMaps();
-
    public: // Ui::Mode
       void Initialise(int input);
       void Finalise(int input);
@@ -136,17 +134,23 @@ namespace Ui
       void Visual(uint32_t count);
 
    private:
-      void ToggleSelectedOutput(uint32_t count);
+      void PlaySelected(uint32_t count);
 
    private:
-      template <Mpc::Song::SongCollection COLLECTION>
-      void AddSong(uint32_t count);
+      template <Item::Collection COLLECTION>
+      void ToggleOutput(uint32_t count);
+
+      template <Item::Collection COLLECTION, bool ENABLE>
+      void SetOutput(uint32_t count);
+
+      template <Item::Collection COLLECTION>
+      void Add(uint32_t count);
+
+      template <Item::Collection COLLECTION>
+      void Delete(uint32_t count);
 
       template <Mpc::Song::SongCollection COLLECTION>
-      void DeleteSong(uint32_t count);
-
-      template <Mpc::Song::SongCollection COLLECTION>
-      void CropSong(uint32_t count);
+      void Crop(uint32_t count);
 
       void PasteBuffer(uint32_t count);
 
@@ -265,7 +269,6 @@ namespace Ui
       bool             wasSpecificCount_;
       bool             addMark_;
       bool             gotoMark_;
-      bool             mapsCreated_;
 
       ActionTable        actionTable_;
       MarkTable          markTable_;

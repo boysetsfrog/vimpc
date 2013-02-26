@@ -29,6 +29,15 @@
 #include "callback.hpp"
 #include "window/window.hpp"
 
+namespace Item
+{
+   typedef enum
+   {
+      Single,
+      All
+   } Collection;
+}
+
 namespace Main
 {
    //! Events that will trigger a registered callback
