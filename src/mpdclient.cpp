@@ -1072,25 +1072,30 @@ void Client::Update(std::string const & Path)
 
 void Client::IncrementTime(long time)
 {
-   REQUIRE(time >= 0);
-
-   timeSinceUpdate_ += time;
-   timeSinceSong_   += time;
-
-   if (state_ == MPD_STATE_PLAY)
+   if (time >= 0)
    {
-      elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
-   }
+      timeSinceUpdate_ += time;
+      timeSinceSong_   += time;
 
-   if ((currentSong_ != NULL) &&
-       (elapsed_ >= mpd_song_get_duration(currentSong_)))
-   {
-      elapsed_ = 0;
-
-      if (timeSinceUpdate_ >= 1000)
+      if (state_ == MPD_STATE_PLAY)
       {
-         UpdateStatus();
+         elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
       }
+
+      if ((currentSong_ != NULL) &&
+          (elapsed_ >= mpd_song_get_duration(currentSong_)))
+      {
+         elapsed_ = 0;
+
+         if (timeSinceUpdate_ >= 1000)
+         {
+            UpdateStatus();
+         }
+      }
+   }
+   else
+   {
+      UpdateStatus();
    }
 }
 
