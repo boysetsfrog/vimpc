@@ -108,6 +108,8 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("map",        &Command::Map,          false);
    AddCommand("unmap",      &Command::Unmap,        false);
    AddCommand("wmap",       &Command::WindowMap,    false);
+   AddCommand("tabmap",     &Command::TabMap,       false);
+   AddCommand("tmap",       &Command::TabMap,       false);
 
    AddCommand("tabfirst",   &Command::ChangeToWindow<First>, false);
    AddCommand("tablast",    &Command::ChangeToWindow<Last>,  false);
@@ -742,7 +744,15 @@ void Command::Map(std::string const & arguments)
    }
 }
 
-void Command::WindowMap(std::string const & arguments)
+void Command::TabMap(std::string const & arguments)
+{
+   std::string tabname, args;
+   SplitCommand(arguments, tabname, args);
+
+   TabMap(tabname, args);
+}
+
+void Command::TabMap(std::string const & tabname, std::string const & arguments)
 {
    std::vector<std::string> args = SplitArguments(arguments);
 
@@ -750,19 +760,15 @@ void Command::WindowMap(std::string const & arguments)
    {
       std::string const key     = args[0];
       std::string const mapping = args[1];
-      normalMode_.WindowMap(screen_.GetActiveWindow(), key, mapping);
+      normalMode_.WindowMap(screen_.GetWindowFromName(tabname), key, mapping);
    }
-   else if ((args.size() == 1) || (args.size() == 0))
+   else if (args.size() == 0)
    {
       Ui::Normal::MapNameTable mappings;
       
       if (args.size() == 0)
       {
-         mappings = normalMode_.WindowMappings(screen_.GetActiveWindow());
-      }
-      else
-      {
-         mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(args[0]));
+         mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
       }
 
       if (mappings.size() > 0)
@@ -788,6 +794,11 @@ void Command::WindowMap(std::string const & arguments)
    {
       Error(ErrorNumber::InvalidParameter, "Unexpected Arguments");
    }
+}
+
+void Command::WindowMap(std::string const & arguments)
+{
+   TabMap(screen_.GetNameFromWindow(screen_.GetActiveWindow()), arguments);
 }
 
 void Command::Unmap(std::string const & arguments)
