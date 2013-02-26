@@ -345,11 +345,11 @@ void Normal::WindowMap(int window, std::string key, std::string mapping, bool st
 {
    std::vector<KeyMapItem> KeyMap;
 
-   bool const valid = CreateKeyMap(mapping, KeyMap);
+   bool const valid = CreateKeyMap(mapping, KeyMap, true);
 
    if (valid == true)
    {
-      windowMap_[window][key]      = KeyMap;
+      windowMap_[window][key] = KeyMap;
 
       if (store == true)
       {
@@ -369,7 +369,7 @@ std::vector<Normal::KeyMapItem> Normal::CreateKeyMap(std::string const & mapping
    return KeyMap;
 }
 
-bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap)
+bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap, bool checkWindowMap)
 {
    bool error = false;
    int  count = 0;
@@ -390,9 +390,16 @@ bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> &
          std::string const toMap = mapping.substr(i);
          std::string input;
 
+         bool window = false;
+
+         if (checkWindowMap == true)
+         {
+            window = CheckTableForInput(windowMap_[screen_.GetActiveWindow()], toMap, input);
+         }
+
          bool const found = CheckTableForInput(mapTable_, toMap, input);
 
-         if (found == false)
+         if ((found == false) && (window == false))
          {
             error = !(CheckTableForInput(actionTable_, toMap, input));
 
@@ -415,7 +422,16 @@ bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> &
          }
          else
          {
-            std::vector<KeyMapItem> KeyMapVector = mapTable_[input];
+            std::vector<KeyMapItem> KeyMapVector;
+
+            if (window == true)
+            {
+               KeyMapVector = windowMap_[screen_.GetActiveWindow()][input];
+            }
+            else
+            {
+               KeyMapVector = mapTable_[input];
+            }
 
             for (std::vector<KeyMapItem>::iterator it = KeyMapVector.begin(); it != KeyMapVector.end(); ++it)
             {

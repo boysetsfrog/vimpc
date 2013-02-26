@@ -257,7 +257,7 @@ namespace Ui
 
    private:
       std::vector<KeyMapItem> CreateKeyMap(std::string const & mapping);
-      bool CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap);
+      bool CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> & KeyMap, bool checkWindowMap = false);
       bool RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count);
 
    private:
