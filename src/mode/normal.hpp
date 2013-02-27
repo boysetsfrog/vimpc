@@ -70,6 +70,7 @@ namespace Ui
 
       // Remove a key mapping
       void Unmap(std::string key);
+      void WindowUnmap(int window, std::string key);
 
       // Get the current mappings
       typedef std::map<std::string, std::string> MapNameTable;

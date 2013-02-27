@@ -108,8 +108,11 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("map",        &Command::Map,          false);
    AddCommand("unmap",      &Command::Unmap,        false);
    AddCommand("wmap",       &Command::WindowMap,    false);
-   AddCommand("tabmap",     &Command::TabMap,       false);
+   AddCommand("wunmap",     &Command::WindowUnmap,  false);
    AddCommand("tmap",       &Command::TabMap,       false);
+   AddCommand("tunmap",     &Command::TabUnmap,     false);
+   AddCommand("tabmap",     &Command::TabMap,       false);
+   AddCommand("tabunmap",   &Command::TabUnmap,     false);
 
    AddCommand("tabfirst",   &Command::ChangeToWindow<First>, false);
    AddCommand("tablast",    &Command::ChangeToWindow<Last>,  false);
@@ -744,6 +747,11 @@ void Command::Map(std::string const & arguments)
    }
 }
 
+void Command::Unmap(std::string const & arguments)
+{
+   normalMode_.Unmap(arguments);
+}
+
 void Command::TabMap(std::string const & arguments)
 {
    std::string tabname, args;
@@ -796,14 +804,27 @@ void Command::TabMap(std::string const & tabname, std::string const & arguments)
    }
 }
 
+
+void Command::TabUnmap(std::string const & arguments)
+{
+   std::vector<std::string> args = SplitArguments(arguments);
+
+   if (args.size() == 2)
+   {
+      std::string const window = args[0];
+      std::string const key    = args[1];
+      normalMode_.WindowUnmap(screen_.GetWindowFromName(window), key);
+   }
+}
+
 void Command::WindowMap(std::string const & arguments)
 {
    TabMap(screen_.GetNameFromWindow(screen_.GetActiveWindow()), arguments);
 }
 
-void Command::Unmap(std::string const & arguments)
+void Command::WindowUnmap(std::string const & arguments)
 {
-   normalMode_.Unmap(arguments);
+   normalMode_.WindowUnmap(screen_.GetActiveWindow(), arguments);
 }
 
 void Command::Random(std::string const & arguments)

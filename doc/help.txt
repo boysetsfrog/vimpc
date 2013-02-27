@@ -292,8 +292,9 @@
                            | each command may be seperated by ;
                            | i.e alias hello echo "hello"; echo "world";
    map                     | show the current mappings
-   map <keys> <otherkeys>  | create a mapping from <keys> to <otherkeys>
+   map <newkeys> <keys>    | create a mapping from <keys> to <otherkeys>
                            | see later section "MAPPING KEYS"
+   wmap <newkeys> <keys>   | create a mapping for the current window only
    set                     | show the currently enabled settings and their values
    set <setting>           | sets a configurable setting, see SETTINGS section
    unmap <keys>            | remove the mapping of <keys>

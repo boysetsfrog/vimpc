@@ -155,7 +155,9 @@ namespace Ui
       void Unmap(std::string const & arguments);
       void TabMap(std::string const & arguments);
       void TabMap(std::string const & tabname, std::string const & arguments);
+      void TabUnmap(std::string const & arguments);
       void WindowMap(std::string const & arguments);
+      void WindowUnmap(std::string const & arguments);
 
       void Rescan(std::string const & arguments);
       void Update(std::string const & arguments);

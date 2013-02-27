@@ -459,6 +459,12 @@ void Normal::Unmap(std::string key)
    mapNames_.erase(key);
 }
 
+void Normal::WindowUnmap(int window, std::string key)
+{
+   windowMap_[window].erase(key);
+   windowMapNames_[window].erase(key);
+}
+
 Ui::Normal::MapNameTable Normal::Mappings()
 {
    return mapNames_;
