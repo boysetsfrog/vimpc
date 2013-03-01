@@ -348,8 +348,8 @@
  
  KEYS:
  
- As well as regular ascii keys other keyboard keys can be
- mapped and are described below.
+ As well as regular ascii keys other keyboard keys and 
+ the mouse can be mapped and are described below.
     
     <Down>, <Left>, <Right>, <Up> | Directional keys
     <Space>                       | Spacebar
@@ -362,6 +362,12 @@
     <Del>                         | Delete key
     <lt>                          | Less than symbol 
     <F1>, <F2>, etc               | Function keys
+    <ScrollWheelUp>               | Scroll Wheel up
+    <ScrollWheelDown>             | Scroll Wheel down
+    <LeftMouse>                   | Since left mouse click
+    <2-LeftMouse>                 | Double left mouse click
+    <RightMouse>                  | Single right mouse click
+    <2-RightMouse>                | Double right mouse click
  
  
  PRINT FORMATS
@@ -409,10 +415,8 @@
  by clicking on it. Double clicking an item will generally
  do whatever <Enter> would do by default on that item.
 
- NOTE: The behaviour of the mouse cannot currently be mapped or 
- altered in anyway.
-
- 
+ The behaviour of the mouse can also be modified using
+ the :map command. See section (MAPPING KEYS).
  
  SETTINGS
  --------------------------------------------------
