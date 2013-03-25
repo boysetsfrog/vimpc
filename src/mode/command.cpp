@@ -137,8 +137,8 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("lists",      &Command::SetActiveAndVisible<Ui::Screen::Lists>,     true);
 
    AddCommand("load",       &Command::LoadPlaylist, true);
-   AddCommand("save",       &Command::SavePlaylist, true);
    AddCommand("edit",       &Command::LoadPlaylist, true);
+   AddCommand("save",       &Command::SavePlaylist, true);
    AddCommand("write",      &Command::SavePlaylist, true);
    AddCommand("toplaylist", &Command::ToPlaylist,   true);
 
@@ -624,6 +624,7 @@ void Command::SavePlaylist(std::string const & arguments)
          Main::Lists().Sort();
       }
 
+      client_.RemovePlaylist(arguments);
       client_.SavePlaylist(arguments);
    }
    else
