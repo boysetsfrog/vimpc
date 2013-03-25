@@ -623,6 +623,10 @@ void Command::SavePlaylist(std::string const & arguments)
          Main::Lists().Add(arguments);
          Main::Lists().Sort();
       }
+      else
+      {
+         client_.RemovePlaylist(arguments);
+      }
 
       client_.SavePlaylist(arguments);
    }
