@@ -223,8 +223,22 @@ std::string const & Song::DurationString() const
    return durationString_;
 }
 
+bool valid;
 
 std::string Song::FormatString(std::string fmt) const
+{
+   if (lastFormat_ == fmt)
+   {
+      return formatted_;
+   }
+
+   lastFormat_ = fmt;
+   std::string::const_iterator it = fmt.begin();
+   valid = true;
+   return ParseString(it);
+}
+
+std::string Song::ParseString(std::string::const_iterator & it) const
 {
    typedef std::string const & (Mpc::Song::*SongFunction)() const;
    static std::map<char, SongFunction> songInfo;
@@ -241,116 +255,62 @@ std::string Song::FormatString(std::string fmt) const
       songInfo['f'] = &Mpc::Song::URI;
    }
 
-   std::string result = fmt;
+   std::string result;
 
-   if (lastFormat_ == fmt)
+   do
    {
-      return formatted_;
-   }
-
-   lastFormat_ = fmt;
-
-   int  j      = 0;
-   int  right  = -1;
-   int  start  = -1;
-   bool valid  = true;
-   bool skip   = false;
-   bool escape = false;
-
-   //! \TODO this really needs cleaning up, it is a disgrace
-
-   for (int32_t i = 0; i < static_cast<int32_t>(fmt.size()); )
-   {
-      if (escape == true)
+      if (*it == '{')
       {
-         escape = false;   
-         ++i;
-         ++j;
-         continue;
+         *++it;
+         result += ParseString(it);
       }
-
-      switch (fmt[i])
+      else if (*it == '}')
       {
-         case '\\':
+         if (valid) break;
+         else return "";
+      }
+      else if (*it == '|')
+      {
+         valid = !valid;
+      }
+      else if (*it == '%')
+      {
+         *++it;
+         if (*it == '%')
          {
-            escape = true;
-            ++i;
-            ++j;
-            break;
+            result += *it;
          }
-         case '{':
+         else if ((*it == 'a') || (*it == 'A') ||
+                  (*it == 'b') || (*it == 'B') ||
+                  (*it == 'l') || (*it == 't') ||
+                  (*it == 'n') || (*it == 'f'))
          {
-            start = j;
-            valid = true;
-            ++i;
-            result.erase(j, 1);
-            break;
-         }
-         case '}':
-         {
-            if (valid == false)
+            SongFunction Function = songInfo[*it];
+            std::string val = (*this.*Function)();
+            if ((*it == 'B') || (*it == 'A'))
             {
-               result.erase(start, j - start);
-               j = start;
-            }
-            result.erase(j, 1);
-            ++i;
-            start = -1;
-            break;
-         }
-         case '|':
-         {
-            if (valid == true)
-            {
-               skip = true; 
-            }
-            result.erase(j, 1);
-            ++i;
-            break;
-         }
-         case '%':
-         {
-            if (start == -1)
-            {
-               skip = false;
+               SwapThe(val);
             }
 
-            if ((i + 1) < static_cast<int32_t>(fmt.size()))
+            if ((val == "") || (val.substr(0, strlen("Unknown")) == "Unknown"))
             {
-               std::string next = "";
-
-               if ((songInfo.find(fmt[i + 1]) != songInfo.end()) &&
-                   (skip == false))
-               {
-                  SongFunction Function = songInfo[fmt[i + 1]];
-                  next = (*this.*Function)();
-
-                  if ((fmt[i + 1] == 'B') || (fmt[i + 1] == 'A'))
-                  {
-                     SwapThe(next);
-                  }
-               }
-
-               if ((next == "") || (next.substr(0, strlen("Unknown")) == "Unknown"))
-               {
-                  valid = false;
-               }
-
-               result.replace(j, 2, next);
-               j += next.size();
-               i += 2;
+               valid = false;
             }
             else
             {
-               ++i, ++j;
+               result += val;
             }
-            break;
          }
-         default:
-            ++i, ++j;
-            break;
+         else
+         {
+            valid = false;
+         }
       }
-   }
+      else
+      {
+         result += *it;
+      }
+   } while (*++it);
 
    formatted_ = result;
    return result;
