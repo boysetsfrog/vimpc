@@ -21,7 +21,6 @@
 #ifndef __UI__ERROR
 #define __UI__ERROR
 
-#include "colour.hpp"
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
@@ -60,14 +59,14 @@ namespace Ui
       {
          if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
          {
-            wattron(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
+            wattron(N_WINDOW(), COLOR_PAIR(Main::Settings::Instance().colours.Error) | A_BOLD);
          }
 
          ModeWindow::Print(line);
 
          if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
          {
-            wattroff(N_WINDOW(), COLOR_PAIR(Colour::Error) | A_BOLD);
+            wattroff(N_WINDOW(), COLOR_PAIR(Main::Settings::Instance().colours.Error) | A_BOLD);
          }
       }
 

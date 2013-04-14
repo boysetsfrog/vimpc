@@ -22,6 +22,7 @@
 #define __MAIN__SETTINGS
 
 #include "callback.hpp"
+#include "colours.hpp"
 
 #include <string>
 #include <map>
@@ -79,6 +80,24 @@
    /* Startup windows */ \
    X(Windows,          "windows", "help,lists,library,browse,playlist", ".*")
 
+#define COLOUR_SETTINGS \
+   X(colours.DEFAULT_ON_BLACK, "blackbg" ) \
+   X(colours.DEFAULT_ON_WHITE, "whitebg" ) \
+   X(colours.DEFAULT_ON_RED, "redbg" ) \
+   X(colours.DEFAULT_ON_GREEN, "greenbg" ) \
+   X(colours.DEFAULT_ON_YELLOW, "yellowbg" ) \
+   X(colours.DEFAULT_ON_BLUE, "bluebg" ) \
+   X(colours.DEFAULT_ON_MAGENTA, "magentabg" ) \
+   X(colours.DEFAULT_ON_CYAN, "cyanbg" ) \
+   X(colours.BLACK_ON_DEFAULT, "blackfg" ) \
+   X(colours.WHITE_ON_DEFAULT, "whitefg" ) \
+   X(colours.RED_ON_DEFAULT, "redfg" ) \
+   X(colours.GREEN_ON_DEFAULT, "greenfg" ) \
+   X(colours.YELLOW_ON_DEFAULT, "yellowfg" ) \
+   X(colours.BLUE_ON_DEFAULT, "bluefg" ) \
+   X(colours.MAGENTA_ON_DEFAULT, "magentafg" ) \
+   X(colours.CYAN_ON_DEFAULT, "cyanfg" ) \
+   X(colours.DEFAULT, "default" )
 
 class Setting
 {
@@ -136,6 +155,7 @@ namespace Main
       public:
          typedef Main::CallbackInterface<bool> *          BoolCallback;
          typedef Main::CallbackInterface<std::string> *   StringCallback;
+         Colours colours;
 
       public:
          static Settings & Instance();
@@ -155,6 +175,9 @@ namespace Main
          bool Get(Setting::ToggleSettings setting) const;
          std::string Get(Setting::StringSettings setting) const;
 
+         //! Handles settings which are treated as an on/off setting
+         void SetSingleSetting(std::string setting);
+
          //! Register a callback to be called when a setting is changed
          void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback) const;
          void RegisterCallback(Setting::StringSettings setting, StringCallback callback) const;
@@ -164,12 +187,12 @@ namespace Main
          void SetSkipConfigConnects(bool val);
          bool SkipConfigConnects() const;
 
+      public:
+         void SetColour(std::string property, std::string colour);
+
       private:
          //! Used to handle settings that require very specific paramters
          void SetSpecificSetting(std::string setting, std::string arguments);
-
-         //! Handles settings which are treated as an on/off setting
-         void SetSingleSetting(std::string setting);
 
       public:
          //! Get the value for the given \p setting
@@ -212,6 +235,9 @@ namespace Main
          // Callbacks for string style settings
          typedef std::map<Setting::StringSettings, std::vector<StringCallback> > StringCallbackTable;
          mutable StringCallbackTable  sCallbackTable_;
+
+         typedef std::map<std::string, int> ColorNameTable;
+         ColorNameTable     colourTable_;
    };
 }
 

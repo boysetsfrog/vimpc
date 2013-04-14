@@ -197,7 +197,7 @@
                            | but :conn will call the :connect command
 
 
-   
+
  EDITTING:
    A number of keyboard shortcuts are available when typing in
    command mode.
@@ -206,8 +206,8 @@
    Ctrl+e, End              | go to end of the line
    Ctrl+h, Backspace        | delete previous character
    Ctrl+u                   | clear from cursor position to start
-                            
-                            
+
+
  CONNECTING:                
    connect [host] [port]    | connects to [host] [port] or to the default
    disconnect               | disconnect from host
@@ -316,7 +316,27 @@
    set                      | show the currently enabled settings and their values
    set <setting>            | sets a configurable setting, see SETTINGS section
    unmap <keys>             | remove the mapping of <keys>
-                            
+
+ HIGHLIGHTING:
+   hi <property> <color>    | highlight a property with a color
+                            | standard term colors are available
+                            | and specified as greenfg or redbg, etc.
+                            | Ex: hi status blackbg
+
+    Properties:
+    -----------------------------------------------------------
+    song    - Songs
+    id      - Song IDs
+    dir     - The directory string in :directory mode
+    current - The current song
+    tab     - Tabs
+    match   - Songs matched by a search string
+    partial - Artists/albums that are partially in the playlist
+    full    - Artists/albums that are fully in the playlist
+    pager   - The top song when paging down the playlist
+    status  - The statusline
+    error   - Errors
+
  MISC:                      
    normal <input>           | execute <input> as if it were entered in normal mode
    sleep <seconds>          | do nothing for <seconds> seconds

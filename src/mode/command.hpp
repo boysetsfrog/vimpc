@@ -179,6 +179,9 @@ namespace Ui
       void MoveWindow(std::string const & arguments);
       void RenameWindow(std::string const & arguments);
 
+   private: // Colour configuration
+      void SetColour(std::string const & arguments);
+
    private: // Debug only commands
       template <ClientFunction FUNCTION>
       void DebugClient(std::string const & arguments);
