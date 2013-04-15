@@ -121,6 +121,8 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("tabmove",    &Command::MoveWindow,            false);
    AddCommand("tabrename",  &Command::RenameWindow,          false);
 
+   AddCommand("highlight",  &Command::SetColour,             false);
+
    AddCommand("rescan",     &Command::Rescan, true);
    AddCommand("update",     &Command::Update, true);
 
@@ -1066,6 +1068,21 @@ void Command::RenameWindow(std::string const & arguments)
    else
    {
       screen_.ActiveWindow().SetName(arguments);
+   }
+}
+
+void Command::SetColour(std::string const & arguments)
+{
+   if ((arguments.find(" ") != string::npos))
+   {
+      std::string oldname = arguments.substr(0, arguments.find(" "));
+      std::string newname = arguments.substr(arguments.find(" ") + 1);
+
+      settings_.SetColour(oldname, newname);
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoParameter, arguments);
    }
 }
 

@@ -22,7 +22,6 @@
 
 #include <iostream>
 
-#include "colour.hpp"
 #include "screen.hpp"
 
 using namespace Ui;
@@ -139,14 +138,14 @@ void ScrollWindow::Print(uint32_t line) const
             case 'I':
                if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
                {
-                  wattron(window, COLOR_PAIR(Colour::SongId));
+                  wattron(window, COLOR_PAIR(settings_.colours.SongId));
                }
                break;
 
             case 'D':
                if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
                {
-                  wattron(window, COLOR_PAIR(Colour::Song));
+                  wattron(window, COLOR_PAIR(settings_.colours.Song));
                }
                break;
 
@@ -374,7 +373,7 @@ void ScrollWindow::SoftRedrawOnSetting(Setting::StringSettings setting)
 
 int32_t ScrollWindow::DetermineColour(uint32_t line) const
 {
-   return Colour::Song;
+   return settings_.colours.Song;
 }
 
 /* vim: set sw=3 ts=3: */

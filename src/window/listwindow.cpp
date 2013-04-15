@@ -24,7 +24,6 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
-#include "colour.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -135,7 +134,7 @@ uint32_t ListWindow::Current() const
 
 int32_t ListWindow::DetermineColour(uint32_t line) const
 {
-   int32_t colour = Colour::Song;
+   int32_t colour = settings_.colours.Song;
 
    if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
        (search_.HighlightSearch() == true))
@@ -144,7 +143,7 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 
       if (expression.FullMatch(lists_.Get(line).name_) == true)
       {
-         colour = Colour::SongMatch;
+         colour = settings_.colours.SongMatch;
       }
    }
 

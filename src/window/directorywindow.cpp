@@ -23,7 +23,6 @@
 #include "buffers.hpp"
 #include "buffers.hpp"
 #include "callback.hpp"
-#include "colour.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
@@ -214,7 +213,7 @@ void DirectoryWindow::Print(uint32_t line) const
 
    if ((line == 0) && (settings_.Get(Setting::ShowPath) == true))
    {
-      int32_t colour = Colour::Directory;
+      int32_t colour = settings_.colours.Directory;
 
       if (settings_.Get(Setting::ColourEnabled) == true)
       {
@@ -531,11 +530,11 @@ size_t DirectoryWindow::BufferSize() const
 
 int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const entry) const
 {
-   int32_t colour = Colour::Song;
+   int32_t colour = settings_.colours.Song;
 
    if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
    {
-      colour = Colour::CurrentSong;
+      colour = settings_.colours.CurrentSong;
    }
    else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
             (search_.HighlightSearch() == true))
@@ -544,15 +543,15 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
 
       if (expression.FullMatch(entry->name_) == true)
       {
-         colour = Colour::SongMatch;
+         colour = settings_.colours.SongMatch;
       }
    }
 
-   if (colour == Colour::Song)
+   if (colour == settings_.colours.Song)
    {
       if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
       {
-         colour = Colour::FullAdd;
+         colour = settings_.colours.FullAdd;
       }
       else if (entry->type_ == Mpc::PathType)
       {
@@ -560,11 +559,11 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
          
          if ((entry->type_ == Mpc::PathType) && (TotalReferences > 0))
          {
-            colour = Colour::PartialAdd;
+            colour = settings_.colours.PartialAdd;
 
             if (TotalReferences == directory_.AllChildSongs(entry->path_).size())
             {
-               colour = Colour::FullAdd;
+               colour = settings_.colours.FullAdd;
             }
          }
       }

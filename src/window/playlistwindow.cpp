@@ -24,7 +24,6 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
-#include "colour.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -86,7 +85,7 @@ uint32_t PlaylistWindow::Current() const
 
 int32_t PlaylistWindow::DetermineColour(uint32_t line) const
 {
-   int32_t colour = Colour::Song;
+   int32_t colour = settings_.colours.Song;
 
    Mpc::Song const * const song = Buffer().Get(line + FirstLine());
 
@@ -94,7 +93,7 @@ int32_t PlaylistWindow::DetermineColour(uint32_t line) const
    {
       if ((client_.GetCurrentSong() > -1) && (line == static_cast<uint32_t>(client_.GetCurrentSong())))
       {
-         colour = Colour::CurrentSong;
+         colour = settings_.colours.CurrentSong;
       }
       else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
                (search_.HighlightSearch() == true))
@@ -103,7 +102,7 @@ int32_t PlaylistWindow::DetermineColour(uint32_t line) const
 
          if (expression.FullMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
          {
-            colour = Colour::SongMatch;
+            colour = settings_.colours.SongMatch;
          }
       }
    }

@@ -24,7 +24,6 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
-#include "colour.hpp"
 #include "errorcodes.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
@@ -406,14 +405,14 @@ void SongWindow::PrintId(uint32_t Id) const
 
    if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(Id) == false))
    {
-      wattron(window, COLOR_PAIR(Colour::SongId));
+      wattron(window, COLOR_PAIR(settings_.colours.SongId));
    }
 
    wprintw(window, "%5d", Id + 1);
 
    if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(Id) == false))
    {
-      wattroff(window, COLOR_PAIR(Colour::SongId));
+      wattroff(window, COLOR_PAIR(settings_.colours.SongId));
    }
 
    waddstr(window, "] ");
@@ -425,17 +424,17 @@ int32_t SongWindow::DetermineColour(uint32_t line) const
    uint32_t printLine = line + FirstLine();
    Mpc::Song * song   = (printLine < BufferSize()) ? Buffer().Get(printLine) : NULL;
 
-   int32_t colour = Colour::Song;
+   int32_t colour = settings_.colours.Song;
 
    if (song != NULL)
    {
       if ((song->URI() == client_.GetCurrentSongURI()))
       {
-         colour = Colour::CurrentSong;
+         colour = settings_.colours.CurrentSong;
       }
       else if (client_.SongIsInQueue(*song))
       {
-         colour = Colour::FullAdd;
+         colour = settings_.colours.FullAdd;
       }
       else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
                (search_.HighlightSearch() == true))
@@ -444,7 +443,7 @@ int32_t SongWindow::DetermineColour(uint32_t line) const
 
          if (expression.FullMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
          {
-            colour = Colour::SongMatch;
+            colour = settings_.colours.SongMatch;
          }
       }
    }

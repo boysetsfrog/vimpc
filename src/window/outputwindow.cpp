@@ -24,7 +24,6 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
-#include "colour.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -85,7 +84,7 @@ void OutputWindow::SetOutput(uint32_t line, bool enable, uint32_t count, bool sc
 
 int32_t OutputWindow::DetermineColour(uint32_t line) const
 {
-   int32_t colour = Colour::Song;
+   int32_t colour = settings_.colours.Song;
 
    if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
        (search_.HighlightSearch() == true))
@@ -94,7 +93,7 @@ int32_t OutputWindow::DetermineColour(uint32_t line) const
 
       if (expression.FullMatch(outputs_.Get(line)->Name()) == true)
       {
-         colour = Colour::SongMatch;
+         colour = settings_.colours.SongMatch;
       }
    }
 
