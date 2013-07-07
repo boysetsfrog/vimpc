@@ -43,4 +43,8 @@ set windows help,library,browse,playlist
 "shuffle
 "play 1
 
+" Color the statusline and tabs
+" highlight status blackbg
+" highlight tab blackbg
+
 echo Config File Complete

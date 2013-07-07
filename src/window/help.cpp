@@ -69,7 +69,7 @@ void HelpWindow::Print(uint32_t line) const
       {
          if (settings_.Get(Setting::ColourEnabled) == true)
          {
-            wattron(window, COLOR_PAIR(BLUEONDEFAULT));
+            wattron(window, COLOR_PAIR(settings_.colours.CurrentSong));
          }
 
          wattron(window, A_BOLD);
@@ -78,7 +78,7 @@ void HelpWindow::Print(uint32_t line) const
       {
          if (settings_.Get(Setting::ColourEnabled) == true)
          {
-            wattron(window, COLOR_PAIR(REDONDEFAULT));
+            wattron(window, COLOR_PAIR(settings_.colours.Directory));
          }
       }
 
@@ -107,7 +107,7 @@ void HelpWindow::Print(uint32_t line) const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattroff(window, COLOR_PAIR(REDONDEFAULT) | COLOR_PAIR(BLUEONDEFAULT));
+      wattroff(window, COLOR_PAIR(settings_.colours.Directory) | COLOR_PAIR(settings_.colours.TabWindow));
    }
 
    if ((FirstLine() == 0) && (line == 0))

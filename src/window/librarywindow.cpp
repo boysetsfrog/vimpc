@@ -22,7 +22,6 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
-#include "colour.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
@@ -527,11 +526,11 @@ int32_t LibraryWindow::DetermineColour(uint32_t line) const
 {
    Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
 
-   int32_t colour = Colour::Song;
+   int32_t colour = settings_.colours.Song;
 
    if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
    {
-      colour = Colour::CurrentSong;
+      colour = settings_.colours.CurrentSong;
    }
    else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
             (search_.HighlightSearch() == true))
@@ -542,25 +541,25 @@ int32_t LibraryWindow::DetermineColour(uint32_t line) const
           ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
           ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
       {
-         colour = Colour::SongMatch;
+         colour = settings_.colours.SongMatch;
       }
    }
 
-   if (colour == Colour::Song)
+   if (colour == settings_.colours.Song)
    {
       if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
       {
-         colour = Colour::FullAdd;
+         colour = settings_.colours.FullAdd;
       }
       else if (entry->type_ != Mpc::SongType)
       {
          if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == static_cast<int32_t>(entry->children_.size())))
          {
-            colour = Colour::FullAdd;
+            colour = settings_.colours.FullAdd;
          }
          else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
          {
-            colour = Colour::PartialAdd;
+            colour = settings_.colours.PartialAdd;
          }
       }
    }

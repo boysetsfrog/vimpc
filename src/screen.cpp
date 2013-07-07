@@ -28,7 +28,6 @@
 
 #include "algorithm.hpp"
 #include "buffers.hpp"
-#include "colour.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "song.hpp"
@@ -79,10 +78,9 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    raw();
    noecho();
 
-   if ((has_colors() == false) || (Ui::Colour::InitialiseColours() == false))
+   if ((has_colors() == false) || (settings_.colours.InitialiseColours() == false))
    {
-      // \todo This should really use the enum entries
-      settings.Set("nocolour");
+      settings_.SetSingleSetting("nocolour");
    }
 
    maxRows_    = LINES;
@@ -352,7 +350,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+      wattron(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
    }
    else
    {
@@ -369,7 +367,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+      wattroff(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
    }
    else
    {
@@ -383,7 +381,7 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+      wattron(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
    }
    else
    {
@@ -400,7 +398,7 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+      wattroff(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
    }
    else
    {
@@ -1104,7 +1102,7 @@ void Screen::ClearStatus() const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattron(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+      wattron(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
    }
    else
    {
@@ -1115,7 +1113,7 @@ void Screen::ClearStatus() const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattroff(statusWindow_, COLOR_PAIR(Colour::StatusLine));
+      wattroff(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
    }
    else
    {
@@ -1131,7 +1129,7 @@ void Screen::UpdateTabWindow() const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+      wattron(tabWindow_, COLOR_PAIR(settings_.colours.TabWindow));
    }
 
    mvwprintw(tabWindow_, 0, 0, BlankLine.c_str());
@@ -1144,7 +1142,7 @@ void Screen::UpdateTabWindow() const
    {
       if (settings_.Get(Setting::ColourEnabled) == true)
       {
-         wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+         wattron(tabWindow_, COLOR_PAIR(settings_.colours.TabWindow));
       }
 
       wattron(tabWindow_, A_UNDERLINE);
@@ -1154,7 +1152,7 @@ void Screen::UpdateTabWindow() const
       {
          if (settings_.Get(Setting::ColourEnabled) == true)
          {
-            wattron(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+            wattron(tabWindow_, COLOR_PAIR(settings_.colours.TabWindow));
          }
 
          wattron(tabWindow_, A_REVERSE | A_BOLD);
@@ -1188,7 +1186,7 @@ void Screen::UpdateTabWindow() const
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
-      wattroff(tabWindow_, COLOR_PAIR(DEFAULTONBLUE));
+      wattroff(tabWindow_, COLOR_PAIR(settings_.colours.TabWindow));
    }
 
    wattroff(tabWindow_, A_UNDERLINE);

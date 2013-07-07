@@ -58,10 +58,14 @@ Settings::Settings() :
    TOGGLE_SETTINGS
 #undef X
 
-#define X(a, b, c,d) stringTable_[b] = new SettingValue<std::string>(Setting::a, c); \
-                     settingName_[Setting::a] = b; \
-                     filterTable_[b] = d;
+#define X(a, b, c, d) stringTable_[b] = new SettingValue<std::string>(Setting::a, c); \
+                      settingName_[Setting::a] = b; \
+                      filterTable_[b] = d;
    STRING_SETTINGS
+#undef X
+
+#define X(a, b) colourTable_[b] = a;
+   COLOUR_SETTINGS
 #undef X
 
 }
@@ -195,6 +199,52 @@ bool Settings::SkipConfigConnects() const
    return skipConfigConnects_;
 }
 
+void Settings::SetColour(std::string property, std::string colour)
+{
+   if (colourTable_.find(colour) != colourTable_.end())
+   {
+      if (property == "song") {
+         colours.Song = colourTable_[colour];
+      }
+      else if (property == "id") {
+         colours.SongId = colourTable_[colour];
+      }
+      else if (property == "dir") {
+         colours.Directory = colourTable_[colour];
+      }
+      else if (property == "current") {
+         colours.CurrentSong = colourTable_[colour];
+      }
+      else if (property == "match") {
+         colours.SongMatch = colourTable_[colour];
+      }
+      else if (property == "partial") {
+         colours.PartialAdd = colourTable_[colour];
+      }
+      else if (property == "full") {
+         colours.FullAdd = colourTable_[colour];
+      }
+      else if (property == "pager") {
+         colours.PagerStatus = colourTable_[colour];
+      }
+      else if (property == "error") {
+         colours.Error = colourTable_[colour];
+      }
+      else if (property == "status") {
+         colours.StatusLine = colourTable_[colour];
+      }
+      else if (property == "tab") {
+         colours.TabWindow = colourTable_[colour];
+      }
+      else {
+         ErrorString(ErrorNumber::UnknownOption, property);
+      }
+   }
+   else
+   {
+         ErrorString(ErrorNumber::UnknownOption, colour);
+   }
+}
 
 void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 {

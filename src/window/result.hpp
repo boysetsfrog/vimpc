@@ -21,7 +21,6 @@
 #ifndef __UI__RESULT
 #define __UI__RESULT
 
-#include "colour.hpp"
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"

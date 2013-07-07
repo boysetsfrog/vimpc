@@ -24,7 +24,6 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
-#include "colour.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
