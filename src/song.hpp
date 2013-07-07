@@ -115,7 +115,7 @@ namespace Mpc
       LibraryEntry * Entry() const;
 
       std::string FormatString(std::string fmt) const;
-      std::string ParseString(std::string::const_iterator &it) const;
+      std::string ParseString(std::string::const_iterator &it, bool &valid) const;
 
    private:
       int32_t     reference_;

@@ -223,10 +223,10 @@ std::string const & Song::DurationString() const
    return durationString_;
 }
 
-bool valid;
-
 std::string Song::FormatString(std::string fmt) const
 {
+   bool valid;
+
    if (lastFormat_ == fmt)
    {
       return formatted_;
@@ -235,10 +235,10 @@ std::string Song::FormatString(std::string fmt) const
    lastFormat_ = fmt;
    std::string::const_iterator it = fmt.begin();
    valid = true;
-   return ParseString(it);
+   return ParseString(it, valid);
 }
 
-std::string Song::ParseString(std::string::const_iterator & it) const
+std::string Song::ParseString(std::string::const_iterator & it, bool & valid) const
 {
    typedef std::string const & (Mpc::Song::*SongFunction)() const;
    static std::map<char, SongFunction> songInfo;
@@ -262,7 +262,7 @@ std::string Song::ParseString(std::string::const_iterator & it) const
       if (*it == '{')
       {
          *++it;
-         result += ParseString(it);
+         result += ParseString(it, valid);
       }
       else if (*it == '}')
       {
