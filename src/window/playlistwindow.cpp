@@ -91,7 +91,7 @@ int32_t PlaylistWindow::DetermineColour(uint32_t line) const
 
    if (song != NULL)
    {
-      if ((client_.GetCurrentSong() > -1) && (line == static_cast<uint32_t>(client_.GetCurrentSong())))
+      if ((client_.GetCurrentSong() > -1) && ((line + FirstLine()) == static_cast<uint32_t>(client_.GetCurrentSong())))
       {
          colour = settings_.colours.CurrentSong;
       }
