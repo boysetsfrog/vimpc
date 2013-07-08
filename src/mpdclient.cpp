@@ -383,7 +383,10 @@ void Client::Seek(int32_t Offset)
 
    if (Connected() == true)
    {
-      mpd_send_seek_pos(connection_, currentSongId_, elapsed_ + Offset);
+      if (currentSongId_ >= 0)
+      {
+         mpd_send_seek_pos(connection_, currentSongId_, elapsed_ + Offset);
+      }
    }
    else
    {
