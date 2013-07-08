@@ -2,7 +2,7 @@ AC_INIT([vimpc], [0.07.2], [http://sourceforge.net/apps/trac/vimpc], [vimpc], [h
 AC_LANG_PUSH([C++])
 
 AC_PREREQ([2.59])
-AM_INIT_AUTOMAKE([1.10 no-define])
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CXX
 
