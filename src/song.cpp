@@ -259,7 +259,13 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
 
    do
    {
-      if (*it == '{')
+      if (*it == '\\')
+      {
+         *++it;
+         result += *it;
+         continue;
+      }
+      else if (*it == '{')
       {
          *++it;
          result += ParseString(it, valid);
