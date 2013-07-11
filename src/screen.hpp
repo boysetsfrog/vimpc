@@ -85,6 +85,7 @@ namespace Ui
          Browse,
          Directory,
          Playlist,
+         Stats,
          MainWindowCount,
 
          Unknown,

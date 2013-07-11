@@ -84,6 +84,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/selectwindow.cpp \
                    src/window/songwindow.hpp \
                    src/window/songwindow.cpp \
+                   src/window/statswindow.hpp \
+                   src/window/statswindow.cpp \
                    src/window/window.cpp \
                    src/window/window.hpp
 

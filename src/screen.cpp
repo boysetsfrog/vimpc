@@ -45,6 +45,7 @@
 #include "window/playlistwindow.hpp"
 #include "window/result.hpp"
 #include "window/songwindow.hpp"
+#include "window/statswindow.hpp"
 
 #if (NCURSES_MOUSE_VERSION <= 1)
 #ifndef BUTTON5_PRESSED
@@ -100,6 +101,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, search);
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::Lists(),     client, search);
    mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, search);
+   mainWindows_[Stats]        = new Ui::StatsWindow    (settings, *this);
 
    // Create paging window to print maps, settings, etc
    pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);

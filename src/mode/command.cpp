@@ -137,6 +137,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("playlist",   &Command::SetActiveAndVisible<Ui::Screen::Playlist>,  true);
    AddCommand("outputs",    &Command::SetActiveAndVisible<Ui::Screen::Outputs>,   true);
    AddCommand("lists",      &Command::SetActiveAndVisible<Ui::Screen::Lists>,     true);
+   AddCommand("stats",      &Command::SetActiveAndVisible<Ui::Screen::Stats>,     true);
 
    AddCommand("load",       &Command::LoadPlaylist, true);
    AddCommand("save",       &Command::SavePlaylist, true);
@@ -775,7 +776,7 @@ void Command::TabMap(std::string const & tabname, std::string const & arguments)
    else if (args.size() == 0)
    {
       Ui::Normal::MapNameTable mappings;
-      
+
       if (args.size() == 0)
       {
          mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
@@ -1142,7 +1143,7 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
       {
          CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
          CommandFunction const commandFunction = it->second;
-   
+
          (*this.*commandFunction)(arguments);
       }
       else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
@@ -1208,7 +1209,7 @@ void Command::Set(std::string const & arguments)
 
       for (; it != settings.end(); ++it)
       {
-         if ((((*it).size() < 2) || ((*it).substr(0, 2) != "no")) && 
+         if ((((*it).size() < 2) || ((*it).substr(0, 2) != "no")) &&
              (settings_.GetBool(*it) == true))
          {
             pager->AddLine(*it);
