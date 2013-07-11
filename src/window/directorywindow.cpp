@@ -427,7 +427,11 @@ void DirectoryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
 void DirectoryWindow::DeleteAllLines()
 {
-   Main::PlaylistPasteBuffer().Clear();
+   if (Main::Playlist().Size() > 0)
+   {
+      Main::PlaylistPasteBuffer().Clear();
+   }
+
    client_.Clear();
    Main::Playlist().Clear();
 }
@@ -556,7 +560,7 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
       else if (entry->type_ == Mpc::PathType)
       {
          int const TotalReferences = directory_.TotalReferences(entry->path_);
-         
+
          if ((entry->type_ == Mpc::PathType) && (TotalReferences > 0))
          {
             colour = settings_.colours.PartialAdd;
