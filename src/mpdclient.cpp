@@ -1398,8 +1398,25 @@ void Client::UpdateStatus(bool ExpectUpdate)
          if ((queueVersion_ > -1) &&
              ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
          {
+            Main::PlaylistTmp().Clear();
+
+            for (int i = 0; i < Main::PlaylistPasteBuffer().Size(); ++i)
+            {
+               Main::PlaylistTmp().Add(Main::PlaylistPasteBuffer().Get(i));
+            }
+
             ForEachQueuedSongChanges(qVersion, Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
             Main::Playlist().Crop(TotalNumberOfSongs());
+
+            // Ensure that the queue related updates don't break our paste buffer
+            Main::PlaylistPasteBuffer().Clear();
+
+            for (int i = 0; i < Main::PlaylistTmp().Size(); ++i)
+            {
+               Main::PlaylistPasteBuffer().Add(Main::PlaylistTmp().Get(i));
+            }
+
+            Main::PlaylistTmp().Clear();
          }
 
          if ((wasUpdating == true) && (updating_ == false))
