@@ -837,7 +837,7 @@ void Normal::Confirm(uint32_t count)
       // \todo move lots of common functions into the "player"
       // so that i can share stuff from command
       confirmTable[Ui::Screen::Outputs]  = &Normal::ToggleOutput<Item::Single>;
-      confirmTable[Ui::Screen::Playlist] = &Normal::PlaySelected; 
+      confirmTable[Ui::Screen::Playlist] = &Normal::PlaySelected;
    }
 
    WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
@@ -931,7 +931,7 @@ void Normal::ToggleOutput(uint32_t count)
       for (int i = 0; i < count; ++i)
       {
          Player::ToggleOutput(output + i);
-      }  
+      }
    }
    else
    {
@@ -949,7 +949,7 @@ void Normal::SetOutput(uint32_t count)
       for (uint32_t i = 0; i < count; ++i)
       {
          Player::SetOutput(output + i, ENABLE);
-      }  
+      }
    }
    else
    {
@@ -1045,14 +1045,17 @@ void Normal::PasteBuffer(uint32_t count)
 
    Mpc::CommandList list(client_);
 
-   for (uint32_t i = 0; i < count; ++i)
+   if (screen_.GetActiveWindow() == Screen::Playlist)
    {
-      for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
+      for (uint32_t i = 0; i < count; ++i)
       {
-         client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
-         Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
+         for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
+         {
+            client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
+            Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
 
-         position++;
+            position++;
+         }
       }
    }
 }

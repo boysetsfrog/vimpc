@@ -424,7 +424,11 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
 void LibraryWindow::DeleteAllLines()
 {
-   Main::PlaylistPasteBuffer().Clear();
+   if (Main::Playlist().Size() > 0)
+   {
+      Main::PlaylistPasteBuffer().Clear();
+   }
+
    client_.Clear();
    Main::Playlist().Clear();
 }
