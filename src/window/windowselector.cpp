@@ -47,11 +47,9 @@ void WindowSelector::Clear()
 
 void WindowSelector::Confirm()
 {
-   Debug("Window Selected:" + windows_.Get(CurrentLine()));
-
-   if (windows_.Get(CurrentLine()) != Name())
+   if (windows_.Get(CurrentLine()) != (uint32_t) screen_.GetWindowFromName(Name()))
    {
-      screen_.SetActiveAndVisible(screen_.GetWindowFromName(windows_.Get(CurrentLine())));
+      screen_.SetActiveAndVisible(windows_.Get(CurrentLine()));
       screen_.SetVisible(screen_.GetWindowFromName(Name()), false);
    }
 }
@@ -59,11 +57,9 @@ void WindowSelector::Confirm()
 
 void WindowSelector::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
-Debug("ADD LINE");
    for (int i = 0; i < count; ++i)
    {
-      Debug("WINDOW ADD:" + windows_.Get(line + i));
-      screen_.SetVisible(screen_.GetWindowFromName(windows_.Get(line + i)), true);
+      screen_.SetVisible((Ui::Screen::MainWindow) windows_.Get(line + i), true);
    }
 }
 
@@ -76,7 +72,7 @@ void WindowSelector::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
    for (int i = 0; i < count; ++i)
    {
-      screen_.SetVisible(screen_.GetWindowFromName(windows_.Get(line + i)), false);
+      screen_.SetVisible((Ui::Screen::MainWindow) windows_.Get(line + i), false);
    }
 }
 
@@ -89,7 +85,7 @@ int32_t WindowSelector::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
 
-   if (screen_.IsVisible(screen_.GetWindowFromName(windows_.Get(line + FirstLine()))) == true)
+   if (screen_.IsVisible((Ui::Screen::MainWindow) windows_.Get(line + FirstLine())) == true)
    {
       colour = settings_.colours.FullAdd;
    }

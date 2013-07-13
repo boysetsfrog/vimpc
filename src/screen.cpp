@@ -60,6 +60,18 @@ bool WindowResized = false;
 
 extern "C" void ResizeHandler(int);
 
+std::string Windows::String(uint32_t position) const
+{
+   return screen_->GetNameFromWindow(Get(position));
+}
+
+std::string Windows::PrintString(uint32_t position) const
+{
+   std::string const Result = " " + String(position);
+   return Result; 
+}
+
+
 Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
    previous_        (Playlist),
@@ -71,6 +83,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    pager_           (false),
    maxRows_         (0),
    maxColumns_      (0),
+   windows_         (this),
    settings_        (settings),
    client_          (client),
    search_          (search)
@@ -102,7 +115,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, search);
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::Lists(),     client, search);
    mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, search);
-   mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, GetAllWindowNames(), search);
+   mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, windows_, search);
 
    // Create paging window to print maps, settings, etc
    pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
@@ -122,7 +135,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
       if (mainWindows_[i] != NULL)
       {
          visibleWindows_.push_back(i);
-         windows_.Add(mainWindows_[i]->Name());
+         windows_.Add(i);
       }
    }
 
@@ -193,11 +206,6 @@ std::string Screen::GetNameFromWindow(int32_t window) const
    }
 
    return name;
-}
-
-Ui::Windows const & Screen::GetAllWindowNames() const
-{
-   return windows_;
 }
 
 

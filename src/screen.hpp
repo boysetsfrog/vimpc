@@ -57,19 +57,24 @@ namespace Ui
    class PlaylistWindow;
    class Search;
    class SongWindow;
+   class Screen;
 }
 
 // Screen management class
 namespace Ui
 {
-   class Windows : public Main::Buffer<std::string>
+   class Windows : public Main::Buffer<uint32_t>
    {
       public:
-         std::string PrintString(uint32_t position) const
-         {
-            std::string const Result = " " + String(position);
-            return Result; 
-         }
+         Windows(Ui::Screen * screen) :
+            screen_(screen) { }
+
+      public:
+         std::string String(uint32_t position) const;
+         std::string PrintString(uint32_t position) const;
+
+      private:
+         Ui::Screen * const screen_;
    };
 
    class Screen
@@ -134,9 +139,6 @@ namespace Ui
 
       // Get the window name given the value
       std::string GetNameFromWindow(int32_t window) const;
-
-      // Return the names of all possible windows
-      Ui::Windows const & GetAllWindowNames() const;
 
    public:
       // Set the correct window to be active, flag screen as started
