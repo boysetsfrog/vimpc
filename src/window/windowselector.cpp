@@ -59,8 +59,10 @@ void WindowSelector::Confirm()
 
 void WindowSelector::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
+Debug("ADD LINE");
    for (int i = 0; i < count; ++i)
    {
+      Debug("WINDOW ADD:" + windows_.Get(line + i));
       screen_.SetVisible(screen_.GetWindowFromName(windows_.Get(line + i)), true);
    }
 }

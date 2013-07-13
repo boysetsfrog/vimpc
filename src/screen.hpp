@@ -25,6 +25,7 @@
 #include "assert.hpp"
 #include "config.h"
 #include "buffers.hpp"
+#include "buffer/buffer.hpp"
 #include "buffer/linebuffer.hpp"
 #include "window/modewindow.hpp"
 #include "window/pagerwindow.hpp"
@@ -61,6 +62,16 @@ namespace Ui
 // Screen management class
 namespace Ui
 {
+   class Windows : public Main::Buffer<std::string>
+   {
+      public:
+         std::string PrintString(uint32_t position) const
+         {
+            std::string const Result = " " + String(position);
+            return Result; 
+         }
+   };
+
    class Screen
    {
    public:

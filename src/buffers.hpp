@@ -37,7 +37,6 @@ namespace Mpc
 namespace Ui
 {
    typedef Main::Buffer<std::string> Console;
-   typedef Main::Buffer<std::string> Windows;
 }
 
 namespace Main

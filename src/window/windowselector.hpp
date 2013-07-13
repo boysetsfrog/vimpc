@@ -30,6 +30,7 @@
 
 namespace Ui
 {
+
    //
    class WindowSelector : public Ui::SelectWindow
    {
