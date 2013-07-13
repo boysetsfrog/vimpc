@@ -836,8 +836,8 @@ void Normal::Confirm(uint32_t count)
    {
       // \todo move lots of common functions into the "player"
       // so that i can share stuff from command
-      confirmTable[Ui::Screen::Outputs]  = &Normal::ToggleOutput<Item::Single>;
-      confirmTable[Ui::Screen::Playlist] = &Normal::PlaySelected;
+      confirmTable[Ui::Screen::Outputs]      = &Normal::ToggleOutput<Item::Single>;
+      confirmTable[Ui::Screen::Playlist]     = &Normal::PlaySelected;
    }
 
    WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
