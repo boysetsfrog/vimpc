@@ -24,6 +24,7 @@
 // Includes
 #include "assert.hpp"
 #include "config.h"
+#include "buffers.hpp"
 #include "buffer/linebuffer.hpp"
 #include "window/modewindow.hpp"
 #include "window/pagerwindow.hpp"
@@ -122,6 +123,9 @@ namespace Ui
 
       // Get the window name given the value
       std::string GetNameFromWindow(int32_t window) const;
+
+      // Return the names of all possible windows
+      Ui::Windows const & GetAllWindowNames() const;
 
    public:
       // Set the correct window to be active, flag screen as started
@@ -257,6 +261,7 @@ namespace Ui
       MEVENT    event_;
 #endif
 
+      Ui::Windows        windows_;
       Main::Settings &   settings_;
       Mpc::Client &      client_;
       Ui::Search const & search_;
