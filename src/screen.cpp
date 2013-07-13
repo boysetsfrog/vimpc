@@ -846,6 +846,8 @@ bool Screen::HandleMouseEvent()
 
                if ((i > visibleWindows_.size()) && ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
                {
+                  // If a user double clicks an empty spot in the tab bar open the
+                  // window selection window
                   SetActiveAndVisible(WindowSelect);
                }
             }

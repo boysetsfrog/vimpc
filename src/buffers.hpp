@@ -21,6 +21,7 @@
 #ifndef __MAIN__BUFFERS
 #define __MAIN__BUFFERS
 
+#include "buffer/buffer.hpp"
 #include <iostream>
 
 namespace Mpc
@@ -35,7 +36,8 @@ namespace Mpc
 
 namespace Ui
 {
-   class Console;
+   typedef Main::Buffer<std::string> Console;
+   typedef Main::Buffer<std::string> Windows;
 }
 
 namespace Main
