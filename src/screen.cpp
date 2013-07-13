@@ -135,7 +135,14 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
       if (mainWindows_[i] != NULL)
       {
          visibleWindows_.push_back(i);
+#ifdef __DEBUG_PRINTS
          windows_.Add(i);
+#else
+         if (i != (int) DebugConsole)
+         {
+            windows_.Add(i);
+         }
+#endif
       }
    }
 
