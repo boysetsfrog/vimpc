@@ -45,9 +45,7 @@ namespace Ui
       uint32_t Current() const { return ScrollLine(); }
 
    protected:
-#if 0
       int32_t DetermineColour(uint32_t line) const;
-#endif
 
       Main::WindowBuffer const & WindowBuffer() const { return windows_; }
 
@@ -56,6 +54,7 @@ namespace Ui
 
    private:
       Ui::Windows const & windows_;
+      Main::Settings const & settings_;
    };
 }
 

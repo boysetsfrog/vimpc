@@ -28,7 +28,8 @@ using namespace Ui;
 WindowSelector::WindowSelector(Main::Settings const & settings, Ui::Screen & screen, 
                                Ui::Windows const & windows, Ui::Search const & search) :
    SelectWindow(settings, screen, "windows"),
-   windows_    (windows)
+   windows_    (windows),
+   settings_   (settings)
 {
 }
 
@@ -56,10 +57,16 @@ void WindowSelector::Confirm()
 }
 
 
-#if 0
 int32_t WindowSelector::DetermineColour(uint32_t line) const
 {
+   int32_t colour = settings_.colours.Song;
+
+   if (screen_.IsVisible(screen_.GetWindowFromName(windows_.Get(line + FirstLine()))) == true)
+   {
+      colour = settings_.colours.FullAdd;
+   }
+
+   return colour;
 }
-#endif
 
 /* vim: set sw=3 ts=3: */
