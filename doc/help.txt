@@ -333,7 +333,7 @@
     match   - Songs matched by a search string
     partial - Artists/albums that are partially in the playlist
     full    - Artists/albums that are fully in the playlist
-    pager   - The top song when paging down the playlist
+    pager   - The color of the text in the settings pager window
     status  - The statusline
     error   - Errors
 
