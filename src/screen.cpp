@@ -31,6 +31,7 @@
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "song.hpp"
+#include "vimpc.hpp"
 
 #include "window/browsewindow.hpp"
 #include "window/console.hpp"
@@ -1037,6 +1038,11 @@ void Screen::SetVisible(int32_t window, bool visible)
       {
          visibleWindows_.push_back(window);
       }
+   }
+
+   if (visibleWindows_.size() == 0)
+   {
+      Main::Vimpc::SetRunning(false);
    }
 }
 

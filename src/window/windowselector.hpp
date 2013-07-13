@@ -44,6 +44,12 @@ namespace Ui
 
       uint32_t Current() const { return ScrollLine(); }
 
+ public:
+      void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void AddAllLines();
+      void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
+      void DeleteAllLines();
+
    protected:
       int32_t DetermineColour(uint32_t line) const;
 

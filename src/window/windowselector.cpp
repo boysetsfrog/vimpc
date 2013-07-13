@@ -57,6 +57,32 @@ void WindowSelector::Confirm()
 }
 
 
+void WindowSelector::AddLine(uint32_t line, uint32_t count, bool scroll)
+{
+   for (int i = 0; i < count; ++i)
+   {
+      screen_.SetVisible(screen_.GetWindowFromName(windows_.Get(line + i)), true);
+   }
+}
+
+void WindowSelector::AddAllLines()
+{
+   AddLine(0, windows_.Size());
+}
+
+void WindowSelector::DeleteLine(uint32_t line, uint32_t count, bool scroll)
+{
+   for (int i = 0; i < count; ++i)
+   {
+      screen_.SetVisible(screen_.GetWindowFromName(windows_.Get(line + i)), false);
+   }
+}
+
+void WindowSelector::DeleteAllLines()
+{
+   DeleteLine(0, windows_.Size());
+}
+
 int32_t WindowSelector::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
