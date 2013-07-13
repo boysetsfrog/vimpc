@@ -85,6 +85,7 @@ namespace Ui
          Browse,
          Directory,
          Playlist,
+         WindowSelect,
          MainWindowCount,
 
          Unknown,

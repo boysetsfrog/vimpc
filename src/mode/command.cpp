@@ -129,14 +129,15 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("next",       &Command::SkipSong<Player::Next>,     true);
    AddCommand("previous",   &Command::SkipSong<Player::Previous>, true);
 
-   AddCommand("browse",     &Command::SetActiveAndVisible<Ui::Screen::Browse>,    false);
-   AddCommand("console",    &Command::SetActiveAndVisible<Ui::Screen::Console>,   false);
-   AddCommand("help",       &Command::SetActiveAndVisible<Ui::Screen::Help>,      true);
-   AddCommand("library",    &Command::SetActiveAndVisible<Ui::Screen::Library>,   true);
-   AddCommand("directory",  &Command::SetActiveAndVisible<Ui::Screen::Directory>, true);
-   AddCommand("playlist",   &Command::SetActiveAndVisible<Ui::Screen::Playlist>,  true);
-   AddCommand("outputs",    &Command::SetActiveAndVisible<Ui::Screen::Outputs>,   true);
-   AddCommand("lists",      &Command::SetActiveAndVisible<Ui::Screen::Lists>,     true);
+   AddCommand("browse",      &Command::SetActiveAndVisible<Ui::Screen::Browse>,       false);
+   AddCommand("console",     &Command::SetActiveAndVisible<Ui::Screen::Console>,      false);
+   AddCommand("help",        &Command::SetActiveAndVisible<Ui::Screen::Help>,         true);
+   AddCommand("library",     &Command::SetActiveAndVisible<Ui::Screen::Library>,      true);
+   AddCommand("directory",   &Command::SetActiveAndVisible<Ui::Screen::Directory>,    true);
+   AddCommand("playlist",    &Command::SetActiveAndVisible<Ui::Screen::Playlist>,     true);
+   AddCommand("outputs",     &Command::SetActiveAndVisible<Ui::Screen::Outputs>,      true);
+   AddCommand("lists",       &Command::SetActiveAndVisible<Ui::Screen::Lists>,        true);
+   AddCommand("windowselect",&Command::SetActiveAndVisible<Ui::Screen::WindowSelect>, true);
 
    AddCommand("load",       &Command::LoadPlaylist, true);
    AddCommand("save",       &Command::SavePlaylist, true);
