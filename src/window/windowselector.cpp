@@ -57,6 +57,22 @@ void WindowSelector::Confirm()
 
 void WindowSelector::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
+   int64_t pos1 = CurrentSelection().first;
+   int64_t pos2 = CurrentSelection().second;
+
+   if (pos2 < pos1)
+   {
+      pos2 = pos1;
+      pos1 = CurrentSelection().second;
+   }
+
+   if (pos1 != pos2)
+   {
+      count  = pos2 - pos1 + 1;
+      line   = pos1;
+      scroll = false;
+   }
+
    for (int i = 0; i < count; ++i)
    {
       screen_.SetVisible((Ui::Screen::MainWindow) windows_.Get(line + i), true);
@@ -70,6 +86,22 @@ void WindowSelector::AddAllLines()
 
 void WindowSelector::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
+   int64_t pos1 = CurrentSelection().first;
+   int64_t pos2 = CurrentSelection().second;
+
+   if (pos2 < pos1)
+   {
+      pos2 = pos1;
+      pos1 = CurrentSelection().second;
+   }
+
+   if (pos1 != pos2)
+   {
+      count  = pos2 - pos1 + 1;
+      line   = pos1;
+      scroll = false;
+   }
+
    for (int i = 0; i < count; ++i)
    {
       screen_.SetVisible((Ui::Screen::MainWindow) windows_.Get(line + i), false);
