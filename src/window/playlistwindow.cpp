@@ -129,7 +129,10 @@ void PlaylistWindow::AddAllLines()
 
 void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
-   Main::PlaylistPasteBuffer().Clear();
+   if (Buffer().Size() > 0)
+   {
+      Main::PlaylistPasteBuffer().Clear();
+   }
 
    int64_t pos1 = CurrentSelection().first;
    int64_t pos2 = CurrentSelection().second;
@@ -156,7 +159,11 @@ void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
 void PlaylistWindow::DeleteAllLines()
 {
-   Main::PlaylistPasteBuffer().Clear();
+   if (Buffer().Size() > 0)
+   {
+      Main::PlaylistPasteBuffer().Clear();
+   }
+
    playlist_.Clear();
    client_.Clear();
 }

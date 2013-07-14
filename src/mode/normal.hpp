@@ -211,6 +211,8 @@ namespace Ui
       void QuitAll(uint32_t count);
 
    private: //Windows
+      template <Ui::Screen::MainWindow MAINWINDOW>
+      void SetActiveAndVisible(uint32_t count);
       template <Screen::Skip SKIP, uint32_t OFFSET>
       void SetActiveWindow(uint32_t count);
       void ResetSelection(uint32_t count);

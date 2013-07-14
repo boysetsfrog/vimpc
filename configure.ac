@@ -1,4 +1,4 @@
-AC_INIT([vimpc], [0.07.2], [http://sourceforge.net/apps/trac/vimpc], [vimpc], [http://vimpc.sourceforge.net/])
+AC_INIT([vimpc], [0.07.2], [https://github.com/boysetsfrog/vimpc], [vimpc], [https://github.com/boysetsfrog/vimpc])
 AC_LANG_PUSH([C++])
 
 AC_PREREQ([2.59])

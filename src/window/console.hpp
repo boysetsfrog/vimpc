@@ -23,23 +23,12 @@
 
 #include <string>
 
-#include "buffer/buffer.hpp"
+#include "buffers.hpp"
 #include "window/scrollwindow.hpp"
 
 //! \todo seperate console from console window
 namespace Ui
 {
-   class Console : public Main::Buffer<std::string>
-   {
-   public:
-      Console()  { }
-      ~Console() { }
-
-   public:
-      std::string String(uint32_t position) const { return Get(position); }
-      std::string PrintString(uint32_t position) const { return Get(position); }
-   };
-
    //
    class ConsoleWindow : public Ui::ScrollWindow
    {

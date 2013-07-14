@@ -133,6 +133,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<CR>"]    = &Normal::Confirm;
    actionTable_["<LeftMouse>"] = &Normal::Click;
    actionTable_["<2-LeftMouse>"] = &Normal::Confirm;
+   actionTable_["W"]     = &Normal::SetActiveAndVisible<Ui::Screen::WindowSelect>;
 
    // Searching
    actionTable_["N"]       = &Normal::SearchResult<Search::Previous>;
@@ -836,8 +837,8 @@ void Normal::Confirm(uint32_t count)
    {
       // \todo move lots of common functions into the "player"
       // so that i can share stuff from command
-      confirmTable[Ui::Screen::Outputs]  = &Normal::ToggleOutput<Item::Single>;
-      confirmTable[Ui::Screen::Playlist] = &Normal::PlaySelected; 
+      confirmTable[Ui::Screen::Outputs]      = &Normal::ToggleOutput<Item::Single>;
+      confirmTable[Ui::Screen::Playlist]     = &Normal::PlaySelected;
    }
 
    WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
@@ -893,11 +894,6 @@ void Normal::Collapse(uint32_t count)
 void Normal::Close(uint32_t count)
 {
    screen_.SetVisible(screen_.GetActiveWindow(), false);
-
-   if (screen_.VisibleWindows() == 0)
-   {
-      QuitAll(0);
-   }
 }
 
 void Normal::Edit(uint32_t count)
@@ -931,7 +927,7 @@ void Normal::ToggleOutput(uint32_t count)
       for (int i = 0; i < count; ++i)
       {
          Player::ToggleOutput(output + i);
-      }  
+      }
    }
    else
    {
@@ -949,7 +945,7 @@ void Normal::SetOutput(uint32_t count)
       for (uint32_t i = 0; i < count; ++i)
       {
          Player::SetOutput(output + i, ENABLE);
-      }  
+      }
    }
    else
    {
@@ -1045,14 +1041,17 @@ void Normal::PasteBuffer(uint32_t count)
 
    Mpc::CommandList list(client_);
 
-   for (uint32_t i = 0; i < count; ++i)
+   if (screen_.GetActiveWindow() == Screen::Playlist)
    {
-      for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
+      for (uint32_t i = 0; i < count; ++i)
       {
-         client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
-         Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
+         for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
+         {
+            client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
+            Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
 
-         position++;
+            position++;
+         }
       }
    }
 }
@@ -1203,6 +1202,12 @@ void Normal::AlignTo(uint32_t line)
    screen_.AlignTo(LOCATION, line);
 }
 
+//Implementation of window change function
+template <Ui::Screen::MainWindow MAINWINDOW>
+void Normal::SetActiveAndVisible(uint32_t count)
+{
+   screen_.SetActiveAndVisible(static_cast<int32_t>(MAINWINDOW));
+}
 
 // Implementation of window functions
 template <Screen::Skip SKIP, uint32_t OFFSET>

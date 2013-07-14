@@ -60,7 +60,7 @@ namespace Main
    //! \todo delete callbacks on destruction
    //! Window buffer
    template <typename T>
-   class Buffer : public WindowBuffer, private std::vector<T>
+   class BufferImpl : public WindowBuffer, private std::vector<T>
    {
    private:
       typedef std::vector<Main::CallbackInterface<T> *> CallbackList;
@@ -70,8 +70,8 @@ namespace Main
       typedef T BufferType;
 
    public:
-      Buffer<T>() { }
-      ~Buffer<T>()
+      BufferImpl<T>() { }
+      ~BufferImpl<T>()
       {
          for (typename CallbackMap::iterator it = callback_.begin(); (it != callback_.end()); ++it)
          {
@@ -83,18 +83,18 @@ namespace Main
       }
 
    private:
-      Buffer<T>(Buffer<T> const & buffer);
-      Buffer<T> & operator=(Buffer<T> const & buffer);
+      BufferImpl<T>(BufferImpl<T> const & buffer);
+      BufferImpl<T> & operator=(BufferImpl<T> const & buffer);
 
    public:
       T const & Get(uint32_t position) const
       {
-         return Buffer<T>::at(position);
+         return BufferImpl<T>::at(position);
       }
 
       void Add(T entry)
       {
-         Buffer<T>::push_back(entry);
+         BufferImpl<T>::push_back(entry);
          Callback(Buffer_Add, entry);
       }
 
@@ -102,8 +102,8 @@ namespace Main
       {
          if (index < Size())
          {
-            Callback(Buffer_Remove, Buffer<T>::at(index));
-            Buffer<T>::at(index) = entry;
+            Callback(Buffer_Remove, BufferImpl<T>::at(index));
+            BufferImpl<T>::at(index) = entry;
             Callback(Buffer_Add, entry);
          }
          else
@@ -116,11 +116,11 @@ namespace Main
       {
          int32_t pos = 0;
 
-         typename Buffer<T>::const_iterator it;
+         typename BufferImpl<T>::const_iterator it;
 
-         for (it = Buffer<T>::begin(); ((it != Buffer<T>::end()) && (*it != entry)); ++pos, ++it) { }
+         for (it = BufferImpl<T>::begin(); ((it != BufferImpl<T>::end()) && (*it != entry)); ++pos, ++it) { }
 
-         if (it == Buffer<T>::end())
+         if (it == BufferImpl<T>::end())
          {
             pos = -1;
          }
@@ -138,11 +138,11 @@ namespace Main
          if (position <= Size())
          {
             uint32_t pos = 0;
-            typename Buffer<T>::iterator it;
+            typename BufferImpl<T>::iterator it;
 
-            for (it = Buffer<T>::begin(); ((pos != position) && (it != Buffer<T>::end())); ++it, ++pos) { }
+            for (it = BufferImpl<T>::begin(); ((pos != position) && (it != BufferImpl<T>::end())); ++it, ++pos) { }
 
-            Buffer<T>::insert(it, entry);
+            BufferImpl<T>::insert(it, entry);
 
             Callback(Buffer_Add, entry);
          }
@@ -152,8 +152,8 @@ namespace Main
       {
          while (newSize < Size())
          {
-            T entry = Buffer<T>::back();
-            Buffer<T>::pop_back();
+            T entry = BufferImpl<T>::back();
+            BufferImpl<T>::pop_back();
             Callback(Buffer_Remove, entry);
          }
       }
@@ -161,11 +161,11 @@ namespace Main
       void ForEach(uint32_t position, uint32_t count, CallbackInterface<T> * callback) const
       {
          uint32_t pos = 0;
-         typename Buffer<T>::const_iterator it;
+         typename BufferImpl<T>::const_iterator it;
 
-         for (it = Buffer<T>::begin(); ((pos != position) && (it != Buffer<T>::end())); ++it, ++pos) { }
+         for (it = BufferImpl<T>::begin(); ((pos != position) && (it != BufferImpl<T>::end())); ++it, ++pos) { }
 
-         for (uint32_t c = 0; ((c < count) && (it != Buffer<T>::end())); ++c, ++it)
+         for (uint32_t c = 0; ((c < count) && (it != BufferImpl<T>::end())); ++c, ++it)
          {
             (*callback)(*it);
          }
@@ -174,14 +174,14 @@ namespace Main
       void Remove(uint32_t position, uint32_t count)
       {
          uint32_t pos = 0;
-         typename Buffer<T>::iterator it;
+         typename BufferImpl<T>::iterator it;
 
-         for (it = Buffer<T>::begin(); ((pos < position) && (it != Buffer<T>::end())); ++it, ++pos) { }
+         for (it = BufferImpl<T>::begin(); ((pos < position) && (it != BufferImpl<T>::end())); ++it, ++pos) { }
 
-         for (uint32_t c = 0; ((c < count) && (it != Buffer<T>::end())); ++c)
+         for (uint32_t c = 0; ((c < count) && (it != BufferImpl<T>::end())); ++c)
          {
             T entry = *it;
-            it = Buffer<T>::erase(it);
+            it = BufferImpl<T>::erase(it);
             Callback(Buffer_Remove, entry);
          }
       }
@@ -189,7 +189,7 @@ namespace Main
       template <class V>
       void Sort(V comparator)
       {
-         std::sort(Buffer<T>::begin(), Buffer<T>::end(), comparator);
+         std::sort(BufferImpl<T>::begin(), BufferImpl<T>::end(), comparator);
       }
 
       void Clear()
@@ -202,7 +202,7 @@ namespace Main
 
       size_t Size() const
       {
-         return Buffer<T>::size();
+         return BufferImpl<T>::size();
       }
 
    public:
@@ -228,6 +228,19 @@ namespace Main
    private:
       CallbackMap callback_;
    };
+
+   template <typename T>
+   class Buffer : public BufferImpl<T> { };
+
+   template <>
+   class Buffer<std::string> : public BufferImpl<std::string>
+   {
+   public:
+      std::string PrintString(uint32_t position) const { return Get(position); }
+      std::string String(uint32_t position) const { return Get(position); }
+   };
 }
+
+
 #endif
 /* vim: set sw=3 ts=3: */

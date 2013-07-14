@@ -295,7 +295,10 @@ void SongWindow::CropAllLines()
 
 void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 {
-   Main::PlaylistPasteBuffer().Clear();
+   if (Main::Playlist().Size() > 0)
+   {
+      Main::PlaylistPasteBuffer().Clear();
+   }
 
    if (client_.Connected() == true)
    {

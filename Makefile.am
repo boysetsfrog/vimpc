@@ -87,6 +87,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/statswindow.hpp \
                    src/window/statswindow.cpp \
                    src/window/window.cpp \
-                   src/window/window.hpp
+                   src/window/window.hpp \
+                   src/window/windowselector.cpp \
+                   src/window/windowselector.hpp
 
 dist_noinst_SCRIPTS = autogen.sh

@@ -31,6 +31,7 @@
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "song.hpp"
+#include "vimpc.hpp"
 
 #include "window/browsewindow.hpp"
 #include "window/console.hpp"
@@ -46,6 +47,7 @@
 #include "window/result.hpp"
 #include "window/songwindow.hpp"
 #include "window/statswindow.hpp"
+#include "window/windowselector.hpp"
 
 #if (NCURSES_MOUSE_VERSION <= 1)
 #ifndef BUTTON5_PRESSED
@@ -59,6 +61,18 @@ bool WindowResized = false;
 
 extern "C" void ResizeHandler(int);
 
+std::string Windows::String(uint32_t position) const
+{
+   return screen_->GetNameFromWindow(Get(position));
+}
+
+std::string Windows::PrintString(uint32_t position) const
+{
+   std::string const Result = " " + String(position);
+   return Result; 
+}
+
+
 Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
    previous_        (Playlist),
@@ -70,6 +84,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    pager_           (false),
    maxRows_         (0),
    maxColumns_      (0),
+   windows_         (this),
    settings_        (settings),
    client_          (client),
    search_          (search)
@@ -102,6 +117,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::Lists(),     client, search);
    mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, search);
    mainWindows_[Stats]        = new Ui::StatsWindow    (settings, *this);
+   mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, windows_, search);
 
    // Create paging window to print maps, settings, etc
    pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
@@ -121,6 +137,14 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
       if (mainWindows_[i] != NULL)
       {
          visibleWindows_.push_back(i);
+#ifdef __DEBUG_PRINTS
+         windows_.Add(i);
+#else
+         if (i != (int) DebugConsole)
+         {
+            windows_.Add(i);
+         }
+#endif
       }
    }
 
@@ -843,6 +867,13 @@ bool Screen::HandleMouseEvent()
 
                   ++i;
                }
+
+               if ((i > visibleWindows_.size()) && ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
+               {
+                  // If a user double clicks an empty spot in the tab bar open the
+                  // window selection window
+                  SetActiveAndVisible(WindowSelect);
+               }
             }
             return true;
          }
@@ -1024,6 +1055,11 @@ void Screen::SetVisible(int32_t window, bool visible)
       {
          visibleWindows_.push_back(window);
       }
+   }
+
+   if (visibleWindows_.size() == 0)
+   {
+      Main::Vimpc::SetRunning(false);
    }
 }
 

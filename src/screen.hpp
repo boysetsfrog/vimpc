@@ -24,6 +24,8 @@
 // Includes
 #include "assert.hpp"
 #include "config.h"
+#include "buffers.hpp"
+#include "buffer/buffer.hpp"
 #include "buffer/linebuffer.hpp"
 #include "window/modewindow.hpp"
 #include "window/pagerwindow.hpp"
@@ -55,11 +57,26 @@ namespace Ui
    class PlaylistWindow;
    class Search;
    class SongWindow;
+   class Screen;
 }
 
 // Screen management class
 namespace Ui
 {
+   class Windows : public Main::Buffer<uint32_t>
+   {
+      public:
+         Windows(Ui::Screen * screen) :
+            screen_(screen) { }
+
+      public:
+         std::string String(uint32_t position) const;
+         std::string PrintString(uint32_t position) const;
+
+      private:
+         Ui::Screen * const screen_;
+   };
+
    class Screen
    {
    public:
@@ -86,6 +103,7 @@ namespace Ui
          Directory,
          Playlist,
          Stats,
+         WindowSelect,
          MainWindowCount,
 
          Unknown,
@@ -257,6 +275,7 @@ namespace Ui
       MEVENT    event_;
 #endif
 
+      Ui::Windows        windows_;
       Main::Settings &   settings_;
       Mpc::Client &      client_;
       Ui::Search const & search_;
