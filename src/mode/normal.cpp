@@ -133,6 +133,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<CR>"]    = &Normal::Confirm;
    actionTable_["<LeftMouse>"] = &Normal::Click;
    actionTable_["<2-LeftMouse>"] = &Normal::Confirm;
+   actionTable_["W"]     = &Normal::SetActiveAndVisible<Ui::Screen::WindowSelect>;
 
    // Searching
    actionTable_["N"]       = &Normal::SearchResult<Search::Previous>;
@@ -1201,6 +1202,12 @@ void Normal::AlignTo(uint32_t line)
    screen_.AlignTo(LOCATION, line);
 }
 
+//Implementation of window change function
+template <Ui::Screen::MainWindow MAINWINDOW>
+void Normal::SetActiveAndVisible(uint32_t count)
+{
+   screen_.SetActiveAndVisible(static_cast<int32_t>(MAINWINDOW));
+}
 
 // Implementation of window functions
 template <Screen::Skip SKIP, uint32_t OFFSET>
