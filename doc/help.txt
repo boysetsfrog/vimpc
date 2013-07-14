@@ -39,6 +39,8 @@
  
  
  WINDOWS/TABS:
+           W               | open a window selection window
+           q               | closes the current window
    [count] gt              | next window/tab, or to window/tab number [count]
    [count] gT              | previous window/tab, or back [count] windows/tabs
            Alt+<number>    | change to the given window/tab number
@@ -104,7 +106,6 @@
            gv              | reselect the last visual selected songs
            gp              | scroll forward to a song that is in the playlist
            gP              | scroll backward to a song that is in the playlist
-           q               | closes the current window
 
   In addition to these keys some windows have window specific bindings as below.
  
@@ -282,6 +283,7 @@
    lists                    | open the lists window
    outputs                  | open outputs window
    playlist                 | open playlist window
+   windowselect             | open window selection window
                             
    tabfirst                 | navigate to the first window/tab
    tablast                  | navigate to the last window/tab
@@ -434,6 +436,8 @@
  on the name of the tab. Or to select an item within a window
  by clicking on it. Double clicking an item will generally
  do whatever <Enter> would do by default on that item.
+ Double clicking on a blank part of the tab bar will
+ open the window selection window.
 
  The behaviour of the mouse can also be modified using
  the :map command. See section (MAPPING KEYS).
