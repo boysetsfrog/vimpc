@@ -209,12 +209,12 @@ void Directory::AddEntry(std::string fullPath)
       directory = fullPath.substr(fullPath.find_last_of("/") + 1);
    }
 
-   if (((directory.size() >= 1) && (directory[0] != '.')) || 
+   if (((directory.size() >= 1) && (directory[0] != '.')) ||
        ((directory.size() >= 2) && directory[1] == '.'))
    {
-      if (((directory_ != "") && 
-           (fullPath.find(directory_ + "/") != std::string::npos) && 
-           (fullPath.find(directory_ + "/") + directory_.size() == fullPath.find_last_of("/"))) || 
+      if (((directory_ != "") &&
+           (fullPath.find(directory_ + "/") != std::string::npos) &&
+           (fullPath.find(directory_ + "/") + directory_.size() == fullPath.find_last_of("/"))) ||
           ((directory_ == "") && (fullPath.find('/') == std::string::npos)) ||
           (directory == ".."))
       {
@@ -229,14 +229,14 @@ void Directory::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client 
 {
    if (position < Size())
    {
-      Mpc::CommandList list(client);
-
       if (Collection == Mpc::Song::Single)
       {
          AddToPlaylist(client, Get(position));
       }
       else
       {
+         Mpc::CommandList list(client);
+
          for (uint32_t i = 0; i < Size(); ++i)
          {
             AddToPlaylist(client, Get(i));
@@ -249,14 +249,14 @@ void Directory::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Cl
 {
    if (position < Size())
    {
-      Mpc::CommandList list(client);
-
       if (Collection == Mpc::Song::Single)
       {
          RemoveFromPlaylist(client, Get(position));
       }
       else
       {
+         Mpc::CommandList list(client);
+
          for (uint32_t i = 0; i < Size(); ++i)
          {
             RemoveFromPlaylist(client, Get(i));
@@ -435,7 +435,7 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
       Directory = URI.substr(0, URI.find_last_of("/"));
    }
 
-   return Directory; 
+   return Directory;
 }
 
 /* vim: set sw=3 ts=3: */
