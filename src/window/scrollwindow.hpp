@@ -70,7 +70,7 @@ namespace Ui
       virtual void Save(std::string const & name) {}
 
    public:
-      size_t BufferSize() const { return WindowBuffer().Size(); }
+      virtual size_t BufferSize() const { return WindowBuffer().Size(); }
 
    public:
       std::string const & Name();

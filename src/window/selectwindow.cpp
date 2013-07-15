@@ -56,7 +56,7 @@ void SelectWindow::Print(uint32_t line) const
       {
          wattron(window, A_REVERSE);
       }
-      
+
       ScrollWindow::Print(line);
       wattroff(window, A_REVERSE);
    }
