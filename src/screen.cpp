@@ -68,7 +68,7 @@ std::string Windows::String(uint32_t position) const
 std::string Windows::PrintString(uint32_t position) const
 {
    std::string const Result = " " + String(position);
-   return Result; 
+   return Result;
 }
 
 

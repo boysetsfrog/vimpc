@@ -142,7 +142,6 @@ void DirectoryWindow::ScrollTo(uint16_t scrollLine)
 {
    int64_t oldSelection = currentLine_;
    currentLine_    = (static_cast<int64_t>(scrollLine));
-   LimitCurrentSelection();
 
    if (settings_.Get(Setting::ShowPath) == true)
    {
@@ -151,6 +150,8 @@ void DirectoryWindow::ScrollTo(uint16_t scrollLine)
          ScrollWindow::ScrollTo(scrollLine);
       }
    }
+
+   LimitCurrentSelection();
 
    SelectWindow::ScrollTo(scrollLine);
 }
