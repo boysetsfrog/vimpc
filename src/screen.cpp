@@ -160,8 +160,6 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // If mouse support is turned on set it up
    SetupMouse(settings_.Get(Setting::Mouse));
-
-   ClearStatus();
 }
 
 Screen::~Screen()
@@ -223,6 +221,8 @@ void Screen::Start()
    if (started_ == false)
    {
       started_ = true;
+
+      ClearStatus();
 
       // Mark the default windows as visible
       pcrecpp::StringPiece visible = settings_.Get(Setting::Windows);
