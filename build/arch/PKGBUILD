@@ -1,0 +1,39 @@
+# Maintainer: Nathan Sweetman <nathan.sweetman@gmail.com>
+
+pkgname=vimpc-git
+pkgver=20130708
+pkgrel=1
+pkgdesc="ncurses based MPD client with vi-like key bindings"
+arch=('i686' 'x86_64')
+url="https://github.com/boysetsfrog/vimpc.git"
+license=('GPL3')
+depends=('libmpdclient' 'ncurses' 'pcre')
+optdepends=()
+makedepends=('git')
+provides=('vimpc')
+conflicts=('vimpc')
+
+_gitroot="https://github.com/boysetsfrog/vimpc.git"
+_gitname="vimpc-git"
+
+build() {
+    cd ${srcdir}
+
+    msg "Connecting to github..."
+    if [[ -d ${_gitname} ]]; then
+        (cd ${_gitname} && git pull origin)
+    else
+        git clone ${_gitroot} ${_gitname}
+    fi
+    msg "Checkout done or server timeout."
+    msg "Starting build..."
+    cd ${_gitname}
+    ./autogen.sh
+    ./configure --prefix=/usr
+    make
+}
+
+package() {
+    cd ${srcdir}/${pkgname}
+    make DESTDIR="$pkgdir/" install
+}
