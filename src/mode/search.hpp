@@ -94,6 +94,7 @@ namespace Ui
       Direction           direction_;
       int32_t             currentLine_;
       std::string         lastSearch_;
+      std::string         currentSearch_;
       bool                hasSearched_;
       bool                highlight_;
       char                prompt_[DirectionCount];

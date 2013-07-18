@@ -53,7 +53,7 @@ Search::~Search()
 
 void Search::Initialise(int input)
 {
-   highlight_   = false;
+   hasSearched_ = false;
    direction_   = GetDirectionForInput(input);
    currentLine_ = screen_.ActiveWindow().CurrentLine();
 
@@ -108,7 +108,7 @@ bool Search::Handle(int input)
                Match = inputString_;
             }
          }
-         else 
+         else
          {
             LastIncFound = false;
          }
