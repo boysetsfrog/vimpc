@@ -580,13 +580,10 @@ void Screen::Update()
       }
 
       // Paint the main window
-      if (MaxRows() >= 0)
-      {
-         for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
-         {
-            ActiveWindow().Print(i);
-         }
-      }
+		for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
+		{
+			ActiveWindow().Print(i);
+		}
 
       ActiveWindow().Refresh();
 

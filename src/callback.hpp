@@ -34,6 +34,7 @@ namespace Main
    class CallbackInterface
    {
       public:
+		virtual ~CallbackInterface() { }
       virtual void operator() (Parameter) = 0;
    };
 

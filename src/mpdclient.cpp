@@ -143,7 +143,6 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
    uint16_t    connect_port     = port;
    uint32_t    connect_timeout  = timeout_ms;
    std::string connect_password = "";
-   size_t      pos;
 
    DeleteConnection();
 
@@ -155,8 +154,9 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
       {
          connect_hostname = host_env;
 
-         pos = connect_hostname.find_last_of("@");
-         if ( pos != connect_hostname.npos )
+         size_t const pos = connect_hostname.find_last_of("@");
+
+         if (pos != connect_hostname.npos)
          {
             connect_password = connect_hostname.substr(0, pos);
             connect_hostname = connect_hostname.substr(pos + 1);

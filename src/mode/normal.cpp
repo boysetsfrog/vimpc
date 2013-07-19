@@ -620,7 +620,7 @@ std::string Normal::InputCharToString(int input) const
    std::string result    = "";
    bool        converted = false;
 
-   if (conversionTable.size() == 0)
+   if (conversionTable.empty() == true)
    {
       conversionTable[ESCAPE_KEY]    = "Esc";
       conversionTable[KEY_PPAGE]     = "PageUp";
@@ -706,7 +706,7 @@ std::string Normal::MouseInputToString() const
 #ifdef HAVE_MOUSE_SUPPORT
    static std::map<uint32_t, std::string> conversionTable;
 
-   if (conversionTable.size() == 0)
+   if (conversionTable.empty() == true)
    {
       conversionTable[BUTTON4_PRESSED]        = "ScrollWheelUp";
       conversionTable[BUTTON2_PRESSED]        = "ScrollWheelDown";
@@ -736,9 +736,8 @@ std::string Normal::MouseInputToString() const
 
       return "";
    }
-#else
-   return "";
 #endif
+   return "";
 }
 
 
@@ -1312,12 +1311,11 @@ void Normal::DisplayModeLine()
 
 std::string Normal::ScrollString()
 {
-   float currentScroll = 0.0;
    std::ostringstream scrollStream;
 
    if (screen_.ActiveWindow().BufferSize() > 0)
    {
-      currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().BufferSize()) - 2));
+      float currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().BufferSize()) - 2));
       currentScroll += .005;
       scrollStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << screen_.ActiveWindow().BufferSize() << " -- ";
 

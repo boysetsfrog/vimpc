@@ -469,9 +469,9 @@ void Command::QuitAll(std::string const & arguments)
 
 void Command::Volume(std::string const & arguments)
 {
-   uint32_t Vol = atoi(arguments.c_str());
+   uint32_t Vol = (uint32_t) atoi(arguments.c_str());
 
-   if ((Vol <= 100) && (Vol >= 0))
+   if (Vol <= 100)
    {
       Player::Volume(Vol);
    }
@@ -1096,7 +1096,7 @@ void Command::DebugClient(std::string const & arguments)
 
 void Command::TestScreen(std::string const & arguments)
 {
-   screen_.ActiveWindow().ScrollTo(999999);
+   screen_.ActiveWindow().ScrollTo(65535);
    screen_.ScrollTo(screen_.ActiveWindow().Playlist(0));
    screen_.ScrollTo(screen_.ActiveWindow().Current());
    screen_.ActiveWindow().ScrollTo(0);
