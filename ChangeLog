@@ -1,3 +1,10 @@
+Version 0.08
+-------------
+- Support for :highlight color changing commands
+- Tab specific key mappings with tmap
+- Allow mapping of basic mouse input
+- Window selection tab
+
 Version 0.07.2
 -------------
 - Bug Fix: fix issue when scrolling from last line
