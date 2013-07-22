@@ -75,7 +75,10 @@ void WindowSelector::AddLine(uint32_t line, uint32_t count, bool scroll)
 
    for (int i = 0; i < count; ++i)
    {
-      screen_.SetVisible((Ui::Screen::MainWindow) windows_.Get(line + i), true);
+      if ((line + i) < windows_.Size())
+      {
+         screen_.SetVisible((Ui::Screen::MainWindow) windows_.Get(line + i), true);
+      }
    }
 }
 
