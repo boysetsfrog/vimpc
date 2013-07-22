@@ -290,7 +290,10 @@ void SongWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
 
 void SongWindow::CropAllLines()
 {
-   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+   if (BufferSize() > 0)
+   {
+      DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+   }
 }
 
 void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
