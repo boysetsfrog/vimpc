@@ -131,27 +131,30 @@ std::string LibraryWindow::SearchPattern(int32_t id) const
    //! expands things as necessary
    std::string pattern("");
 
-   Mpc::LibraryEntry const * const entry = library_.Get(id);
-
-   switch (entry->type_)
+   if (id < library_.Size())
    {
-      case Mpc::ArtistType:
-         pattern = entry->artist_;
-         break;
+      Mpc::LibraryEntry const * const entry = library_.Get(id);
 
-      case Mpc::AlbumType:
-         pattern = entry->album_;
-         break;
+      switch (entry->type_)
+      {
+         case Mpc::ArtistType:
+            pattern = entry->artist_;
+            break;
 
-      case Mpc::SongType:
-         pattern = entry->song_->FormatString(settings_.Get(Setting::LibraryFormat));
-         break;
+         case Mpc::AlbumType:
+            pattern = entry->album_;
+            break;
 
-      case Mpc::PathType:
-      case Mpc::PlaylistType:
-      default:
-         ASSERT(false);
-         break;
+         case Mpc::SongType:
+            pattern = entry->song_->FormatString(settings_.Get(Setting::LibraryFormat));
+            break;
+
+         case Mpc::PathType:
+         case Mpc::PlaylistType:
+         default:
+            ASSERT(false);
+            break;
+      }
    }
 
    return pattern;
