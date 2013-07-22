@@ -928,12 +928,19 @@ void Command::Move(std::string const & arguments)
          position2 = 1;
       }
 
-      client_.Move(position1 - 1, position2 - 1);
+      if ((position1 < Main::Playlist().Size()) && (position2 <= Main::Playlist().Size()))
+      {
+         client_.Move(position1 - 1, position2 - 1);
 
-      Mpc::Song * song = Main::Playlist().Get(position1 - 1);
-      Main::Playlist().Remove(position1 - 1, 1);
-      Main::Playlist().Add(song, position2 - 1);
-      screen_.Update();
+         Mpc::Song * song = Main::Playlist().Get(position1 - 1);
+         Main::Playlist().Remove(position1 - 1, 1);
+         Main::Playlist().Add(song, position2 - 1);
+         screen_.Update();
+      }
+      else
+      {
+         // \TODO error here!
+      }
    }
    else
    {
