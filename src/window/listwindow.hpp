@@ -63,6 +63,8 @@ namespace Ui
          {
             return lists_.Get(id).name_;
          }
+
+         return "";
       }
 
    public:
