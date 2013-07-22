@@ -439,28 +439,31 @@ void DirectoryWindow::DeleteAllLines()
 
 void DirectoryWindow::Edit()
 {
-   Mpc::DirectoryEntry * entry = directory_.Get(CurrentLine());
-
-   if (entry->type_ == Mpc::SongType)
+   if (CurrentLine() < directory_.Size())
    {
-      screen_.CreateSongInfoWindow(entry->song_);
-   }
-   else if (entry->type_ == Mpc::PlaylistType)
-   {
-      std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
-      std::string const playlist(path + entry->name_);
+      Mpc::DirectoryEntry * entry = directory_.Get(CurrentLine());
 
-      SongWindow * window = screen_.CreateSongWindow("P:" + entry->name_);
-      client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-
-      if (window->BufferSize() > 0)
+      if (entry->type_ == Mpc::SongType)
       {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         screen_.CreateSongInfoWindow(entry->song_);
       }
-      else
+      else if (entry->type_ == Mpc::PlaylistType)
       {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         ErrorString(ErrorNumber::PlaylistEmpty);
+         std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
+         std::string const playlist(path + entry->name_);
+
+         SongWindow * window = screen_.CreateSongWindow("P:" + entry->name_);
+         client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+         if (window->BufferSize() > 0)
+         {
+            screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         }
+         else
+         {
+            screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+            ErrorString(ErrorNumber::PlaylistEmpty);
+         }
       }
    }
 }
