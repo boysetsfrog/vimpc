@@ -185,6 +185,8 @@ namespace Ui
    private: // Debug only commands
       template <ClientFunction FUNCTION>
       void DebugClient(std::string const & arguments);
+      void DebugInputRandom(std::string const & arguments);
+      void DebugInputSequence(std::string const & arguments);
 
       void TestScreen(std::string const & arguments);
 

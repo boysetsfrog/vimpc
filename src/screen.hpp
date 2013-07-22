@@ -209,6 +209,8 @@ namespace Ui
 
       bool HandleMouseEvent();
 
+      void EnableRandomInput(int count);
+
 #ifdef HAVE_MOUSE_SUPPORT
       MEVENT LastMouseEvent() { return event_; }
 #endif
@@ -269,6 +271,7 @@ namespace Ui
       int32_t   maxRows_;
       int32_t   mainRows_;
       int32_t   maxColumns_;
+      mutable int32_t   rndCount_;
 
 #ifdef HAVE_MOUSE_SUPPORT
       MEVENT    event_;

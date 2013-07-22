@@ -146,10 +146,12 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("toplaylist", &Command::ToPlaylist,   true);
 
 #ifdef __DEBUG_PRINTS
-   AddCommand("debug",         &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
-   AddCommand("debug-getmeta", &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
-   AddCommand("debug-idle",    &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
-   AddCommand("test-screen",   &Command::TestScreen,                                       false);
+   AddCommand("debug",               &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
+   AddCommand("debug-client-getmeta",&Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
+   AddCommand("debug-client-idle",   &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
+   AddCommand("debug-input-random",  &Command::DebugInputRandom,                                 true);
+   AddCommand("debug-input-seq",     &Command::DebugInputSequence,                               true);
+   AddCommand("debug-test-screen",   &Command::TestScreen,                                       false);
 #endif
 
    // Add all settings to command table to provide tab completion
@@ -776,7 +778,7 @@ void Command::TabMap(std::string const & tabname, std::string const & arguments)
    else if (args.size() == 0)
    {
       Ui::Normal::MapNameTable mappings;
-      
+
       if (args.size() == 0)
       {
          mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
@@ -1094,6 +1096,20 @@ void Command::DebugClient(std::string const & arguments)
    (client_.*func)();
 }
 
+void Command::DebugInputRandom(std::string const & arguments)
+{
+   int count = atoi(arguments.c_str());
+   screen_.EnableRandomInput(count);
+}
+
+void Command::DebugInputSequence(std::string const & arguments)
+{
+   for (int i = arguments.size() - 1; i >= 0; --i)
+   {
+      ungetch(arguments[i]);
+   }
+}
+
 void Command::TestScreen(std::string const & arguments)
 {
    screen_.ActiveWindow().ScrollTo(65535);
@@ -1143,7 +1159,7 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
       {
          CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
          CommandFunction const commandFunction = it->second;
-   
+
          (*this.*commandFunction)(arguments);
       }
       else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
@@ -1209,7 +1225,7 @@ void Command::Set(std::string const & arguments)
 
       for (; it != settings.end(); ++it)
       {
-         if ((((*it).size() < 2) || ((*it).substr(0, 2) != "no")) && 
+         if ((((*it).size() < 2) || ((*it).substr(0, 2) != "no")) &&
              (settings_.GetBool(*it) == true))
          {
             pager->AddLine(*it);

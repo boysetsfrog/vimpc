@@ -83,6 +83,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    pager_           (false),
    maxRows_         (0),
    maxColumns_      (0),
+   rndCount_        (0),
    windows_         (this),
    settings_        (settings),
    client_          (client),
@@ -797,6 +798,24 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
       resultWindow.Print(0);
    }
 
+#ifdef __DEBUG_PRINTS
+   if (rndCount_ > 0)
+   {
+      int rndInput = 26;
+
+      while ((rndInput == 26) || (rndInput == 3)) //<C-Z> || <C-C>
+      {
+         rndInput = (rand() % 256);
+
+         if ((rndInput != 26) && (rndInput != 3))
+         {
+            --rndCount_;
+            ungetch(rndInput);
+         }
+      }
+   }
+#endif
+
    int32_t input = wgetch(commandWindow_);
 
    if ((input == 27) && (HandleEscape == true))
@@ -897,6 +916,11 @@ bool Screen::HandleMouseEvent()
 #else
    return false;
 #endif
+}
+
+void Screen::EnableRandomInput(int count)
+{
+   rndCount_ = count;
 }
 
 
