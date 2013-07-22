@@ -171,8 +171,11 @@ void Player::SetOutput(Item::Collection collection, bool enable)
 
 void Player::SetOutput(uint32_t output, bool enable)
 {
-   client_.SetOutput(Main::Outputs().Get(output), enable);
-   Main::Outputs().Get(output)->SetEnabled(enable);
+   if (output < Main::Outputs().Size())
+   {
+      client_.SetOutput(Main::Outputs().Get(output), enable);
+      Main::Outputs().Get(output)->SetEnabled(enable);
+   }
 }
 
 void Player::ToggleOutput(Item::Collection collection)
