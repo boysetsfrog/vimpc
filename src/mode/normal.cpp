@@ -1274,13 +1274,16 @@ void Normal::Move(uint32_t count)
          position = 0;
       }
 
-      client_.Move(currentLine, position);
+      if (currentLine < Main::Playlist().Size())
+      {
+         client_.Move(currentLine, position);
 
-      Mpc::Song * song = Main::Playlist().Get(currentLine);
-      Main::Playlist().Remove(currentLine, 1);
-      Main::Playlist().Add(song, position);
-      screen_.ActiveWindow().ScrollTo(position);
-      screen_.Update();
+         Mpc::Song * song = Main::Playlist().Get(currentLine);
+         Main::Playlist().Remove(currentLine, 1);
+         Main::Playlist().Add(song, position);
+         screen_.ActiveWindow().ScrollTo(position);
+         screen_.Update();
+      }
    }
 }
 
