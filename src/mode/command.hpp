@@ -187,8 +187,7 @@ namespace Ui
       void DebugClient(std::string const & arguments);
       void DebugInputRandom(std::string const & arguments);
       void DebugInputSequence(std::string const & arguments);
-
-      void TestScreen(std::string const & arguments);
+      void DebugTestScreen(std::string const & arguments);
 
    private:
       // Executes \p command using \p arguments

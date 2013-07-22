@@ -151,7 +151,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("debug-client-idle",   &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
    AddCommand("debug-input-random",  &Command::DebugInputRandom,                                 true);
    AddCommand("debug-input-seq",     &Command::DebugInputSequence,                               true);
-   AddCommand("debug-test-screen",   &Command::TestScreen,                                       false);
+   AddCommand("debug-test-screen",   &Command::DebugTestScreen,                                  false);
 #endif
 
    // Add all settings to command table to provide tab completion
@@ -1110,7 +1110,7 @@ void Command::DebugInputSequence(std::string const & arguments)
    }
 }
 
-void Command::TestScreen(std::string const & arguments)
+void Command::DebugTestScreen(std::string const & arguments)
 {
    screen_.ActiveWindow().ScrollTo(65535);
    screen_.ScrollTo(screen_.ActiveWindow().Playlist(0));
