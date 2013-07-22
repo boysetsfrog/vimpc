@@ -1058,6 +1058,9 @@ void Screen::SetVisible(int32_t window, bool visible)
 
             if (visible == false)
             {
+#ifdef __DEBUG_PRINTS
+               break;
+#else
                visibleWindows_.erase(it);
 
                if (window >= Dynamic)
@@ -1066,6 +1069,7 @@ void Screen::SetVisible(int32_t window, bool visible)
                   delete jt->second;
                   mainWindows_.erase(jt);
                }
+#endif
             }
          }
       }
