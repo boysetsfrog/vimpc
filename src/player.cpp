@@ -149,7 +149,7 @@ int32_t Player::FindOutput(std::string const & outputName)
          break;
       }
    }
-   
+
    return output;
 }
 
@@ -321,47 +321,54 @@ void Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInf
 
 uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction)
 {
-   Mpc::Song const * const song         = playlist_.Get(startSong);
-   Mpc::Song const *       newSong      = NULL;
-   uint32_t                skipCount    = 0;
-   int64_t                 direction    = (skip == Previous) ? -1 : 1;
-
-   if ((song != NULL) && (skip == Previous))
+   if (startSong < playlist_.Size())
    {
-      skipCount = First(song, startSong, songFunction);
-   }
+      Mpc::Song const * const song         = playlist_.Get(startSong);
+      Mpc::Song const *       newSong      = NULL;
+      uint32_t                skipCount    = 0;
+      int64_t                 direction    = (skip == Previous) ? -1 : 1;
 
-   if ((song != NULL) && (skipCount == 0))
+      if ((song != NULL) && (skip == Previous))
+      {
+         skipCount = First(song, startSong, songFunction);
+      }
+
+      if ((song != NULL) && (skipCount == 0))
+      {
+         do
+         {
+            ++skipCount;
+
+            if (((skip == Previous) && (startSong >= skipCount)) ||
+               ((skip == Next) && (playlist_.Size() > (startSong + skipCount))))
+            {
+               newSong = playlist_.Get(startSong + (skipCount * direction));
+            }
+            else
+            {
+               newSong = NULL;
+            }
+         }
+         while ((newSong != NULL) && ((newSong->*songFunction)().compare((song->*songFunction)()) == 0));
+
+         if (newSong == NULL)
+         {
+            skipCount = 0;
+            newSong   = playlist_.Get(startSong);
+         }
+
+         if (skip == Previous)
+         {
+            skipCount += First(newSong, startSong + (skipCount * direction), songFunction);
+         }
+      }
+
+      return (startSong + (skipCount * direction));
+   }
+   else
    {
-      do
-      {
-         ++skipCount;
-
-         if (((skip == Previous) && (startSong >= skipCount)) ||
-            ((skip == Next) && (playlist_.Size() > (startSong + skipCount))))
-         {
-            newSong = playlist_.Get(startSong + (skipCount * direction));
-         }
-         else
-         {
-            newSong = NULL;
-         }
-      }
-      while ((newSong != NULL) && ((newSong->*songFunction)().compare((song->*songFunction)()) == 0));
-
-      if (newSong == NULL)
-      {
-         skipCount = 0;
-         newSong   = playlist_.Get(startSong);
-      }
-
-      if (skip == Previous)
-      {
-         skipCount += First(newSong, startSong + (skipCount * direction), songFunction);
-      }
+      return 0;
    }
-
-   return (startSong + (skipCount * direction));
 }
 
 
