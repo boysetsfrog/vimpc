@@ -253,7 +253,10 @@ void ListWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
 
 void ListWindow::CropAllLines()
 {
-   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+   if (BufferSize() > 0)
+   {
+      DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+   }
 }
 
 void ListWindow::Edit()
