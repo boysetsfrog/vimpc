@@ -1059,8 +1059,12 @@ void Screen::SetVisible(int32_t window, bool visible)
             if (visible == false)
             {
 #ifdef __DEBUG_PRINTS
-               break;
-#else
+               // Disable window close if in random input mode
+               if (rndCount_ > 0)
+               {
+                  break;
+               }
+#endif
                visibleWindows_.erase(it);
 
                if (window >= Dynamic)
@@ -1069,7 +1073,6 @@ void Screen::SetVisible(int32_t window, bool visible)
                   delete jt->second;
                   mainWindows_.erase(jt);
                }
-#endif
             }
          }
       }
