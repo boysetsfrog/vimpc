@@ -805,7 +805,7 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
 
       while ((rndInput == 26) || (rndInput == 3)) //<C-Z> || <C-C>
       {
-         rndInput = (rand() % 256);
+         rndInput = (rand() % 128);
 
          if ((rndInput != 26) && (rndInput != 3))
          {
