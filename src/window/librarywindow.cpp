@@ -435,32 +435,35 @@ void LibraryWindow::DeleteAllLines()
 
 void LibraryWindow::Edit()
 {
-   Mpc::LibraryEntry * entry = library_.Get(CurrentLine());
-
-   if (entry->type_ != Mpc::SongType)
+   if (CurrentLine() < library_.Size())
    {
-      std::string title = library_.Get(CurrentLine())->album_;
-      title = (title != "") ? title : library_.Get(CurrentLine())->artist_;
+      Mpc::LibraryEntry * entry = library_.Get(CurrentLine());
 
-      SongWindow * window = screen_.CreateSongWindow("L:" + title);
-
-      Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
-
-      // Do not need to sort as this ensures it will be sorted in the same order as the library
-      Main::Library().ForEachChild(CurrentLine(), &callback);
-
-      if (window->BufferSize() > 0)
+      if (entry->type_ != Mpc::SongType)
       {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         std::string title = library_.Get(CurrentLine())->album_;
+         title = (title != "") ? title : library_.Get(CurrentLine())->artist_;
+
+         SongWindow * window = screen_.CreateSongWindow("L:" + title);
+
+         Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
+
+         // Do not need to sort as this ensures it will be sorted in the same order as the library
+         Main::Library().ForEachChild(CurrentLine(), &callback);
+
+         if (window->BufferSize() > 0)
+         {
+            screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         }
+         else
+         {
+            screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         }
       }
       else
       {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         screen_.CreateSongInfoWindow(entry->song_);
       }
-   }
-   else
-   {
-      screen_.CreateSongInfoWindow(entry->song_);
    }
 }
 
