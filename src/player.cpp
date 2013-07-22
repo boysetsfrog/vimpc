@@ -196,8 +196,11 @@ void Player::ToggleOutput(Item::Collection collection)
 
 void Player::ToggleOutput(uint32_t output)
 {
-   bool enable = !Main::Outputs().Get(output)->Enabled();
-   SetOutput(output, enable);
+   if (output < Main::Outputs().Size())
+   {
+      bool enable = !Main::Outputs().Get(output)->Enabled();
+      SetOutput(output, enable);
+   }
 }
 
 void Player::Shuffle()
