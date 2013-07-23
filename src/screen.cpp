@@ -1056,6 +1056,13 @@ void Screen::SetVisible(int32_t window, bool visible)
          {
             found = true;
 
+#ifdef __DEBUG_PRINTS
+            if ((rndCount_ > 0) && (window < MainWindowCount))
+            {
+               break;
+            }
+#endif
+
             if (visible == false)
             {
                visibleWindows_.erase(it);
