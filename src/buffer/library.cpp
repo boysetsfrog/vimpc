@@ -21,6 +21,8 @@
 #include "library.hpp"
 
 #include "algorithm.hpp"
+#include "browse.hpp"
+#include "directory.hpp"
 #include "mpdclient.hpp"
 #include "playlist.hpp"
 
@@ -49,7 +51,13 @@ void Library::Clear(bool Delete)
    lastAlbumEntry_   = NULL;
    lastArtistEntry_  = NULL;
 
+   uriMap_.clear();
+
    Main::Playlist().Clear();
+   Main::PlaylistPasteBuffer().Clear();
+   Main::PlaylistTmp().Clear();
+   Main::Browse().Clear();
+   Main::Directory().Clear();
 
    while (Size() > 0)
    {
