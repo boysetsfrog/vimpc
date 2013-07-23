@@ -54,9 +54,6 @@ void Library::Clear(bool Delete)
    uriMap_.clear();
 
    Main::Playlist().Clear();
-   Main::PlaylistPasteBuffer().Clear();
-   Main::PlaylistTmp().Clear();
-   Main::Browse().Clear();
    Main::Directory().Clear();
 
    while (Size() > 0)
