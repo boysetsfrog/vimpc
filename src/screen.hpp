@@ -233,7 +233,7 @@ namespace Ui
 
       // Show or hide the given window
       bool IsVisible(int32_t window);
-      void SetVisible(int32_t window, bool visible);
+      void SetVisible(int32_t window, bool visible, bool removeWindow = true);
       uint32_t VisibleWindows() { return visibleWindows_.size(); }
 
       // Show a given window and make it active

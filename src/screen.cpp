@@ -641,7 +641,7 @@ void Screen::Invalidate(int32_t window)
 
 void Screen::InvalidateAll()
 {
-   WindowMap::const_iterator it = mainWindows_.begin();
+   WindowMap::iterator it = mainWindows_.begin();
 
    for (; (it != mainWindows_.end()); ++it)
    {
@@ -651,7 +651,9 @@ void Screen::InvalidateAll()
       }
       else
       {
-         SetVisible(it->first, false);
+         SetVisible(it->first, false, false);
+			delete it->second;
+			mainWindows_.erase(it++);
       }
    }
 }
@@ -1015,7 +1017,7 @@ bool Screen::IsVisible(int32_t window)
    return false;
 }
 
-void Screen::SetVisible(int32_t window, bool visible)
+void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
 {
    if (mainWindows_[window] != NULL)
    {
@@ -1067,7 +1069,7 @@ void Screen::SetVisible(int32_t window, bool visible)
             {
                visibleWindows_.erase(it);
 
-               if (window >= Dynamic)
+               if ((window >= Dynamic) && (removeWindow == true))
                {
                   WindowMap::iterator jt = mainWindows_.find(window);
                   delete jt->second;
