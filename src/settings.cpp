@@ -265,11 +265,11 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 
          if (set != NULL)
          {
-            Debug("Setting " + setting + " to " + arguments); 
+            Debug("Setting %s to %s", setting.c_str(), arguments.c_str());
             set->Set(arguments);
 
             // Call any registered callbacks for this setting
-            std::vector<StringCallback> Callbacks = 
+            std::vector<StringCallback> Callbacks =
                sCallbackTable_[static_cast<Setting::StringSettings>(set->Id())];
 
             for (std::vector<StringCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
@@ -332,7 +332,7 @@ void Settings::SetSingleSetting(std::string setting)
          set->Set(newValue);
 
          // Call any registered callbacks for this setting
-         std::vector<BoolCallback> Callbacks = 
+         std::vector<BoolCallback> Callbacks =
             tCallbackTable_[static_cast<Setting::ToggleSettings>(set->Id())];
 
          for (std::vector<BoolCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
