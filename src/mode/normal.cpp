@@ -858,6 +858,7 @@ void Normal::RepeatLastAction(uint32_t count)
 
 void Normal::Expand(uint32_t count)
 {
+	// \TODO this is pretty dodgy is doesn't check the proper windows
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Expand(screen_.ActiveWindow().CurrentLine());
@@ -866,6 +867,7 @@ void Normal::Expand(uint32_t count)
 
 void Normal::Collapse(uint32_t count)
 {
+	// \TODO this is pretty dodgy is doesn't check the proper windows
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Collapse(screen_.ActiveWindow().CurrentLine());
