@@ -950,8 +950,8 @@ void Command::Swap(std::string const & arguments)
 
    if ((arguments.find(" ") != string::npos))
    {
-      std::string position1 = arguments.substr(0, arguments.find(" "));
-      std::string position2 = arguments.substr(arguments.find(" ") + 1);
+      std::string const position1 = arguments.substr(0, arguments.find(" "));
+      std::string const position2 = arguments.substr(arguments.find(" ") + 1);
       client_.Swap(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
    }
    else
@@ -1116,12 +1116,11 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 {
    pcrecpp::RE const forceCheck("^.*!$");
 
-   forceCommand_   = false;
+   forceCommand_ = (forceCheck.FullMatch(command));
 
-   if (forceCheck.FullMatch(command))
+   if (forceCommand_ == true)
    {
-      forceCommand_  = true;
-      command        = command.substr(0, command.length() - 1);
+      command = command.substr(0, command.length() - 1);
    }
 
    // If we can't find the exact command, look for a unique command that starts
