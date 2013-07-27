@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2013 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -245,24 +245,13 @@ bool Command::ExecuteCommand(std::string const & input)
    }
    else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
    {
+		// Commands for the form :<number> go to that line instead
       int32_t line = atoi(command.c_str());
-
-      if (line >= 1)
-      {
-         --line;
-      }
-
+      line = (line >= 1) ? (line - 1) : 0;
       screen_.ScrollTo(line);
    }
    else
    {
-      // Ignore the connect command when starting up if -h/-p used
-      // on the command line
-      if (command == "connect" && settings_.SkipConfigConnects())
-      {
-         return true;
-      }
-
       // Just a normal command
       ExecuteCommand(command, arguments);
    }
@@ -486,17 +475,22 @@ void Command::Volume(std::string const & arguments)
 
 void Command::Connect(std::string const & arguments)
 {
-   size_t   pos  = arguments.find_first_of(" ");
-   uint32_t port = 0;
+	// Ignore the connect command when starting up if -h/-p used
+	// on the command line
+	if (settings_.SkipConfigConnects() == false)
+	{
+		size_t   pos  = arguments.find_first_of(" ");
+		uint32_t port = 0;
 
-   std::string hostname = arguments.substr(0, pos);
+		std::string hostname = arguments.substr(0, pos);
 
-   if (pos != std::string::npos)
-   {
-      port = atoi(arguments.substr(pos + 1).c_str());
-   }
+		if (pos != std::string::npos)
+		{
+			port = atoi(arguments.substr(pos + 1).c_str());
+		}
 
-   client_.Connect(hostname, port);
+		client_.Connect(hostname, port);
+	}
 }
 
 void Command::Disconnect(std::string const & arguments)
