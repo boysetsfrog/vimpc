@@ -166,10 +166,7 @@ void SongWindow::Confirm()
          AddLine(pos1, count, false);
       }
 
-      if (Buffer().Get(CurrentLine()) != NULL)
-      {
-         client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - (pos2 - pos1 + 1)));
-      }
+      client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - (pos2 - pos1 + 1)));
    }
 
    SelectWindow::Confirm();
