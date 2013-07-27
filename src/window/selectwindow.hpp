@@ -64,7 +64,7 @@ namespace Ui
       void UpdateLastSelection();
 
    protected:
-      mutable int64_t   currentLine_;
+      int64_t   			currentLine_;
 
    private:
       bool              visualMode_;
