@@ -51,9 +51,9 @@ void Library::Clear(bool Delete)
    lastAlbumEntry_   = NULL;
    lastArtistEntry_  = NULL;
 
-   uriMap_.clear();
-
    Main::Playlist().Clear();
+
+   uriMap_.clear();
 
    while (Size() > 0)
    {
