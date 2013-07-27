@@ -152,6 +152,7 @@ namespace Ui
       void FindGenre(std::string const & arguments);
       void FindSong(std::string const & arguments);
 
+		void PrintMappings();
       void Map(std::string const & arguments);
       void Unmap(std::string const & arguments);
       void TabMap(std::string const & arguments);

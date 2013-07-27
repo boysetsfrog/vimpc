@@ -717,37 +717,42 @@ void Command::FindSong(std::string const & arguments)
    Find("F:" + arguments);
 }
 
+void Command::PrintMappings()
+{
+	Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+
+	if (mappings.size() > 0)
+	{
+		Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
+
+		PagerWindow * const pager = screen_.GetPagerWindow();
+		pager->Clear();
+
+		for (; it != mappings.end(); ++it)
+		{
+			pager->AddLine(it->first + "   " + it->second);
+		}
+
+		screen_.ShowPagerWindow();
+	}
+	else
+	{
+		ErrorString(ErrorNumber::NoSuchMapping);
+	}
+}
+
+
 void Command::Map(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
-      std::string key     = arguments.substr(0, arguments.find(" "));
-      std::string mapping = arguments.substr(arguments.find(" ") + 1);
-
+      std::string const key     = arguments.substr(0, arguments.find(" "));
+      std::string const mapping = arguments.substr(arguments.find(" ") + 1);
       normalMode_.Map(key, mapping);
    }
    else if (arguments == "")
    {
-      Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
-
-      if (mappings.size() > 0)
-      {
-         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
-         PagerWindow * pager = screen_.GetPagerWindow();
-         pager->Clear();
-
-         for (; it != mappings.end(); ++it)
-         {
-            pager->AddLine(it->first + "   " + it->second);
-         }
-
-         screen_.ShowPagerWindow();
-      }
-      else
-      {
-         ErrorString(ErrorNumber::NoSuchMapping);
-      }
+		PrintMappings();
    }
 }
 
