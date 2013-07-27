@@ -717,9 +717,14 @@ void Command::FindSong(std::string const & arguments)
    Find("F:" + arguments);
 }
 
-void Command::PrintMappings()
+void Command::PrintMappings(std::string tabname)
 {
 	Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+
+	if (tabname != "")
+	{
+		mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
+	}
 
 	if (mappings.size() > 0)
 	{
@@ -781,31 +786,7 @@ void Command::TabMap(std::string const & tabname, std::string const & arguments)
    }
    else if (args.size() == 0)
    {
-      Ui::Normal::MapNameTable mappings;
-
-      if (args.size() == 0)
-      {
-         mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
-      }
-
-      if (mappings.size() > 0)
-      {
-         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
-         PagerWindow * pager = screen_.GetPagerWindow();
-         pager->Clear();
-
-         for (; it != mappings.end(); ++it)
-         {
-            pager->AddLine(it->first + "   " + it->second);
-         }
-
-         screen_.ShowPagerWindow();
-      }
-      else
-      {
-         ErrorString(ErrorNumber::NoSuchMapping);
-      }
+		PrintMappings(tabname);
    }
    else
    {
