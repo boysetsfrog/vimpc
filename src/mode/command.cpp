@@ -219,7 +219,7 @@ bool Command::ExecuteCommand(std::string const & input)
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
        (command != "alias")) // In the case of alias we don't actually want to run the commands
    {
-      // There are multiple commands seperated gy ';' we have to handle each one
+      // There are multiple commands seperated by ';' we have to handle each one
       while (multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true)
       {
          fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
@@ -306,7 +306,7 @@ void Command::Pause(std::string const & arguments)
 
 void Command::Play(std::string const & arguments)
 {
-   std::vector<std::string> args = SplitArguments(arguments);
+   std::vector<std::string> const args = SplitArguments(arguments);
 
    if (args.size() == 0)
    {
@@ -335,41 +335,44 @@ void Command::Play(std::string const & arguments)
    }
 }
 
+bool Command::CheckConnected()
+{
+	if (client_.Connected() == false)
+	{
+      ErrorString(ErrorNumber::ClientNoConnection);
+		return false;
+	}
+
+	return true;
+}
+
 void Command::Add(std::string const & arguments)
 {
-   if (client_.Connected() == true)
-   {
+	if (CheckConnected() == true)
+	{
       screen_.Initialise(Ui::Screen::Playlist);
       client_.Add(arguments);
       client_.AddComplete();
-   }
-   else
-   {
-      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
 void Command::AddAll(std::string const & arguments)
 {
-   if (client_.Connected() == true)
+	if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.AddAllSongs();
       client_.AddComplete();
    }
-   else
-   {
-      ErrorString(ErrorNumber::ClientNoConnection);
-   }
 }
 
 void Command::Delete(std::string const & arguments)
 {
-   if (client_.Connected() == true)
+	if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
 
-      std::vector<std::string> args = SplitArguments(arguments);
+      std::vector<std::string> const args = SplitArguments(arguments);
 
       if (args.size() == 2)
       {
@@ -386,7 +389,8 @@ void Command::Delete(std::string const & arguments)
       }
       else
       {
-         //\TODO delete selected song
+         //\TODO delete selected song ?
+      	ErrorString(ErrorNumber::InvalidParameter, "too many parameters");
       }
    }
 }
@@ -401,7 +405,7 @@ template <int Delta>
 void Command::Seek(std::string const & arguments)
 {
    uint32_t time = 0;
-   size_t pos    = arguments.find_first_of(":");
+   size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
@@ -420,7 +424,7 @@ void Command::Seek(std::string const & arguments)
 void Command::SeekTo(std::string const & arguments)
 {
    uint32_t time = 0;
-   size_t pos    = arguments.find_first_of(":");
+   size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
@@ -450,7 +454,8 @@ void Command::Quit(std::string const & arguments)
 
 void Command::QuitAll(std::string const & arguments)
 {
-   if ((forceCommand_ == true) || (settings_.Get(Setting::StopOnQuit) == true))
+   if ((forceCommand_ == true) || 
+		 (settings_.Get(Setting::StopOnQuit) == true))
    {
       Player::Stop();
    }
@@ -460,7 +465,7 @@ void Command::QuitAll(std::string const & arguments)
 
 void Command::Volume(std::string const & arguments)
 {
-   uint32_t Vol = (uint32_t) atoi(arguments.c_str());
+   uint32_t const Vol = (uint32_t) atoi(arguments.c_str());
 
    if (Vol <= 100)
    {
@@ -667,7 +672,7 @@ void Command::Find(std::string const & arguments)
    }
    else
    {
-      SongWindow * window = screen_.CreateSongWindow(arguments);
+      SongWindow * const window = screen_.CreateSongWindow(arguments);
       client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
       if (window->BufferSize() > 0)

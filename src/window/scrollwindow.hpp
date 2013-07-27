@@ -73,7 +73,7 @@ namespace Ui
       virtual size_t BufferSize() const { return WindowBuffer().Size(); }
 
    public:
-      std::string const & Name();
+      std::string const & Name() const;
       void SetName(std::string const &);
 
       bool Select(Position position, uint32_t count);

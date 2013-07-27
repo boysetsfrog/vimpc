@@ -77,6 +77,7 @@ namespace Ui
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
       char const * Prompt() const;
+		bool CheckConnected();
 
    private: //Ui::Player wrapper functions
       void ClearScreen(std::string const & arguments);
