@@ -28,7 +28,6 @@ using namespace Ui;
 SelectWindow::SelectWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name) :
    ScrollWindow     (screen, name),
    currentLine_     (0),
-   settings_        (settings),
    visualMode_      (false),
    supportsVisual_  (true)
 {
@@ -116,7 +115,6 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
 
 uint16_t SelectWindow::CurrentLine() const
 {
-   LimitCurrentSelection();
    return currentLine_;
 }
 
@@ -188,7 +186,7 @@ void SelectWindow::ResetSelection()
 }
 
 
-void SelectWindow::LimitCurrentSelection() const
+void SelectWindow::LimitCurrentSelection()
 {
    if (currentLine_ < 0)
    {

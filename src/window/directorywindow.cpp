@@ -156,7 +156,7 @@ void DirectoryWindow::ScrollTo(uint16_t scrollLine)
    SelectWindow::ScrollTo(scrollLine);
 }
 
-void DirectoryWindow::LimitCurrentSelection() const
+void DirectoryWindow::LimitCurrentSelection()
 {
    if (settings_.Get(Setting::ShowPath) == true)
    {

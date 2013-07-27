@@ -58,7 +58,7 @@ namespace Ui
       void ResetSelection();
 
    protected:
-      virtual void LimitCurrentSelection() const;
+      virtual void LimitCurrentSelection();
 
    private:
       void UpdateLastSelection();
@@ -67,10 +67,9 @@ namespace Ui
       mutable int64_t   currentLine_;
 
    private:
-      Main::Settings const & settings_;
       bool              visualMode_;
       bool              supportsVisual_;
-      mutable Selection currentSelection_;
+      Selection 			currentSelection_;
       Selection         lastSelection_;
       bool              hadSelection_;
    };
