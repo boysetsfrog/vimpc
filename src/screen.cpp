@@ -26,6 +26,8 @@
 
 #include <list>
 #include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "algorithm.hpp"
 #include "buffers.hpp"
@@ -55,14 +57,18 @@
 #endif
 #endif
 
-#define INPUT_QUIT 3
-#define INPUT_ESCAPE 27
+#define INPUT_SIGINT  3
+#define INPUT_SIGTSTP 26
+#define INPUT_ESCAPE  27
 
 using namespace Ui;
 
 
 bool WindowResized = false;
 int32_t RndCount   = 0;
+
+// \TODO use a condition variable?
+bool Running		 = true;
 std::list<int32_t> Queue;
 
 
@@ -81,17 +87,15 @@ std::string Windows::PrintString(uint32_t position) const
 
 void RandomCharacterInput()
 {
-	int rndInput = 26;
+	int rndInput = INPUT_SIGTSTP;
 
-	while ((rndInput == 26) || (rndInput == 3)) //<C-Z> || <C-C>
+	while ((rndInput == INPUT_SIGTSTP) || //<C-Z>
+			 (rndInput == INPUT_SIGINT)) 	  //<C-C>
 	{
-		rndInput = (rand() % 128);
-
-		if ((rndInput != 26) && (rndInput != 3))
-		{
-			ungetch(rndInput);
-		}
+		rndInput = (rand() % (KEY_MAX + 1));
 	}
+
+	ungetch(rndInput);
 }
 
 void QueueInput(WINDOW * inputWindow)
@@ -107,29 +111,41 @@ void QueueInput(WINDOW * inputWindow)
 
 		int32_t input = wgetch(inputWindow);
 
+		// \TODO use a condition variable?
+		if (Running == false)
+		{
+			break;
+		}
+
 		if (input != ERR)
 		{
-			if (input == INPUT_QUIT)
-			{
-				break;
+			if (input == INPUT_SIGINT) //<C-C>
+			{ 
+				kill(getpid(), SIGINT);
 			}
-
-			//if ((input == INPUT_ESCAPE) && (HandleEscape == true))
-			if (input == INPUT_ESCAPE)
+			else if (input == INPUT_SIGTSTP) //<C-Z>
+			{ 
+				kill(getpid(), SIGTSTP);
+			}
+			else
 			{
-				wtimeout(inputWindow, 0);
-
-				int escapeChar = wgetch(inputWindow);
-
-				if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
+				//if ((input == INPUT_ESCAPE) && (HandleEscape == true))
+				if (input == INPUT_ESCAPE)
 				{
-					input = escapeChar | (1 << 31);
+					wtimeout(inputWindow, 0);
+
+					int escapeChar = wgetch(inputWindow);
+
+					if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
+					{
+						input = escapeChar | (1 << 31);
+					}
+
+					wtimeout(inputWindow, 100);
 				}
 
-				wtimeout(inputWindow, 100);
+				Queue.push_back(input);
 			}
-
-			Queue.push_back(input);
 		}
 	}
 }
@@ -227,7 +243,8 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
 Screen::~Screen()
 {
-	ungetch(INPUT_QUIT);
+	// \TODO use a condition variable?
+	Running = false;
 	inputThread_.join();
 
    delete pagerWindow_;

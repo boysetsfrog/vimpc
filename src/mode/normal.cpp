@@ -160,8 +160,9 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<ScrollWheelUp>"]   = &Normal::Scroll<-6>;
    actionTable_["<ScrollWheelDown>"] = &Normal::Scroll<6>;
 
-   actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
-   actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
+	// Handled by queue input handler now
+   //actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
+   //actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
    // Editting
    actionTable_["<C-A>"]   = &Normal::Move<1>;
