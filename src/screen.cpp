@@ -69,6 +69,8 @@ int32_t RndCount   = 0;
 
 // \TODO use a condition variable?
 bool Running		 = true;
+
+// \TODO needs thread protection?
 std::list<int32_t> Queue;
 
 
@@ -894,6 +896,8 @@ void Screen::ClearErrorDisplay() const
 
 uint32_t Screen::WaitForInput(bool HandleEscape) const
 {
+	// \TODO use condition variable to wait for a specific timeout?
+	// otherwise currently this uses 100% cpu
 	uint32_t input = ERR;
 
 	if (Queue.size() > 0)
