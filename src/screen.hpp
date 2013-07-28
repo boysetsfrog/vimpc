@@ -32,6 +32,7 @@
 #include "window/scrollwindow.hpp"
 
 #include <string>
+#include <thread>
 
 // Changed to being on by default
 // will need to check ncurses properly
@@ -207,6 +208,8 @@ namespace Ui
       uint32_t TotalRows()    const;
       uint32_t WaitForInput(bool HandleEscape = true) const;
 
+		void UpdateErrorDisplay() const;
+		void ClearErrorDisplay() const;
       bool HandleMouseEvent();
 
       void EnableRandomInput(int count);
@@ -262,6 +265,8 @@ namespace Ui
       WINDOW *   commandWindow_;
       PagerWindow * pagerWindow_;
 
+		std::thread	inputThread_;
+
       std::vector<int32_t>      visibleWindows_;
       std::vector<ModeWindow *> modeWindows_;
       mutable std::map<int32_t, bool> drawn_;
@@ -271,7 +276,6 @@ namespace Ui
       int32_t   maxRows_;
       int32_t   mainRows_;
       int32_t   maxColumns_;
-      mutable int32_t   rndCount_;
 
 #ifdef HAVE_MOUSE_SUPPORT
       MEVENT    event_;

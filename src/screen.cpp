@@ -24,6 +24,7 @@
 #include <sys/ioctl.h>
 #endif
 
+#include <list>
 #include <signal.h>
 
 #include "algorithm.hpp"
@@ -54,9 +55,16 @@
 #endif
 #endif
 
+#define INPUT_QUIT 3
+#define INPUT_ESCAPE 27
+
 using namespace Ui;
 
+
 bool WindowResized = false;
+int32_t RndCount   = 0;
+std::list<int32_t> Queue;
+
 
 extern "C" void ResizeHandler(int);
 
@@ -71,6 +79,61 @@ std::string Windows::PrintString(uint32_t position) const
    return Result;
 }
 
+void RandomCharacterInput()
+{
+	int rndInput = 26;
+
+	while ((rndInput == 26) || (rndInput == 3)) //<C-Z> || <C-C>
+	{
+		rndInput = (rand() % 128);
+
+		if ((rndInput != 26) && (rndInput != 3))
+		{
+			ungetch(rndInput);
+		}
+	}
+}
+
+void QueueInput(WINDOW * inputWindow)
+{
+   keypad(inputWindow, true);
+   wtimeout(inputWindow, 100);
+
+	while (true)
+	{
+	#ifdef __DEBUG_PRINTS
+		if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
+	#endif
+
+		int32_t input = wgetch(inputWindow);
+
+		if (input != ERR)
+		{
+			if (input == INPUT_QUIT)
+			{
+				break;
+			}
+
+			//if ((input == INPUT_ESCAPE) && (HandleEscape == true))
+			if (input == INPUT_ESCAPE)
+			{
+				wtimeout(inputWindow, 0);
+
+				int escapeChar = wgetch(inputWindow);
+
+				if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
+				{
+					input = escapeChar | (1 << 31);
+				}
+
+				wtimeout(inputWindow, 100);
+			}
+
+			Queue.push_back(input);
+		}
+	}
+}
+
 
 Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const & search) :
    window_          (Playlist),
@@ -83,7 +146,6 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    pager_           (false),
    maxRows_         (0),
    maxColumns_      (0),
-   rndCount_        (0),
    windows_         (this),
    settings_        (settings),
    client_          (client),
@@ -125,8 +187,6 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Commands must be read through a window that is always visible
    commandWindow_             = statusWindow_;
-   keypad(commandWindow_, true);
-   wtimeout(commandWindow_, 100);
 
    // Mark every tab as visible initially
    // This means that commands such as tabhide in the config file
@@ -161,10 +221,15 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // If mouse support is turned on set it up
    SetupMouse(settings_.Get(Setting::Mouse));
+
+	inputThread_ = std::thread(QueueInput, commandWindow_);
 }
 
 Screen::~Screen()
 {
+	ungetch(INPUT_QUIT);
+	inputThread_.join();
+
    delete pagerWindow_;
 
    delwin(tabWindow_);
@@ -784,7 +849,7 @@ uint32_t Screen::MaxColumns() const
    return maxColumns_;
 }
 
-uint32_t Screen::WaitForInput(bool HandleEscape) const
+void Screen::UpdateErrorDisplay() const
 {
    // \todo this doesn't seem to work if constructed
    // when the screen is constructed, find out why
@@ -799,47 +864,26 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
    {
       resultWindow.Print(0);
    }
+}
 
-#ifdef __DEBUG_PRINTS
-   if (rndCount_ > 0)
-   {
-      int rndInput = 26;
+void Screen::ClearErrorDisplay() const
+{
+	Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
+	Ui::ResultWindow & resultWindow(Ui::ResultWindow::Instance());
+	errorWindow.ClearError();
+	resultWindow.ClearResult();
+}
 
-      while ((rndInput == 26) || (rndInput == 3)) //<C-Z> || <C-C>
-      {
-         rndInput = (rand() % 128);
 
-         if ((rndInput != 26) && (rndInput != 3))
-         {
-            --rndCount_;
-            ungetch(rndInput);
-         }
-      }
-   }
-#endif
+uint32_t Screen::WaitForInput(bool HandleEscape) const
+{
+	uint32_t input = ERR;
 
-   int32_t input = wgetch(commandWindow_);
-
-   if ((input == 27) && (HandleEscape == true))
-   {
-      wtimeout(commandWindow_, 0);
-
-      int escapeChar = wgetch(commandWindow_);
-
-      if ((escapeChar != ERR) && (escapeChar != 27))
-      {
-         input = escapeChar | (1 << 31);
-      }
-
-      wtimeout(commandWindow_, 100);
-   }
-
-   if (input != ERR)
-   {
-      // \todo make own function
-      errorWindow.ClearError();
-      resultWindow.ClearResult();
-   }
+	if (Queue.size() > 0)
+	{
+		input = Queue.front();
+		Queue.pop_front();
+	}
 
    return input;
 }
@@ -922,7 +966,7 @@ bool Screen::HandleMouseEvent()
 
 void Screen::EnableRandomInput(int count)
 {
-   rndCount_ = count;
+   RndCount = count;
 }
 
 
@@ -1059,7 +1103,7 @@ void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
             found = true;
 
 #ifdef __DEBUG_PRINTS
-            if ((rndCount_ > 0) && (window < MainWindowCount))
+            if ((RndCount > 0) && (window < MainWindowCount))
             {
                break;
             }

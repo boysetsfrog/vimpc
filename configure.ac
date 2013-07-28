@@ -85,7 +85,7 @@ else
 fi
 
 
-CPPFLAGS="$CPPFLAGS -DHELP_DIRECTORY='\"$docdir\"'"
+CPPFLAGS="$CPPFLAGS -std=c++11 -DHELP_DIRECTORY='\"$docdir\"'"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -120,27 +120,34 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          static long updateTime = 0;
          bool clientUpdate = false;
 
+			screen_.UpdateErrorDisplay();
+
          int input = Input();
 
-         if ((input != ERR) && (screen_.PagerIsVisible() == true)
+         if (input != ERR)
+			{
+				screen_.ClearErrorDisplay();
+
+				if ((screen_.PagerIsVisible() == true)
 #ifdef HAVE_MOUSE_SUPPORT
-            && (input != KEY_MOUSE)
+					&& (input != KEY_MOUSE)
 #endif
             )
-         {
-            if (screen_.PagerIsFinished() == true)
-            {
-               screen_.HidePagerWindow();
-            }
-            else
-            {
-               screen_.PagerWindowNext();
-            }
-         }
-         else if (input != ERR)
-         {
-            Handle(input);
-         }
+				{
+					if (screen_.PagerIsFinished() == true)
+					{
+						screen_.HidePagerWindow();
+					}
+					else
+					{
+						screen_.PagerWindowNext();
+					}
+				}
+				else
+				{
+					Handle(input);
+				}
+			}
 
          gettimeofday(&end,   NULL);
 
