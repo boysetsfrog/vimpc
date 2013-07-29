@@ -206,7 +206,7 @@ namespace Ui
       uint32_t MaxRows()      const;
       uint32_t MaxColumns()   const;
       uint32_t TotalRows()    const;
-      uint32_t WaitForInput(bool HandleEscape = true) const;
+      uint32_t WaitForInput(uint32_t TimeoutMs, bool HandleEscape = true) const;
 
 		void UpdateErrorDisplay() const;
 		void ClearErrorDisplay() const;

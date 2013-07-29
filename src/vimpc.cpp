@@ -271,10 +271,10 @@ int Vimpc::Input() const
 {
    if (currentMode_ == Normal)
    {
-      return screen_.WaitForInput(!normalMode_.WaitingForMoreInput());
+      return screen_.WaitForInput(200, !normalMode_.WaitingForMoreInput());
    }
 
-   return screen_.WaitForInput();
+   return screen_.WaitForInput(200);
 }
 
 void Vimpc::Handle(int input)

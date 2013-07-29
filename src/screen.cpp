@@ -25,6 +25,8 @@
 #endif
 
 #include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <list>
 #include <mutex>
 #include <signal.h>
@@ -69,9 +71,10 @@ using namespace Ui;
 bool WindowResized = false;
 int32_t RndCount   = 0;
 
-std::atomic<bool>  Running(true);
-std::list<int32_t> Queue;
-std::mutex			 QueueMutex;
+std::atomic<bool>       Running(true);
+std::list<int32_t>      Queue;
+std::mutex			      QueueMutex;
+std::condition_variable Condition;
 
 
 extern "C" void ResizeHandler(int);
@@ -145,9 +148,11 @@ void QueueInput(WINDOW * inputWindow)
 					wtimeout(inputWindow, 100);
 				}
 
-				QueueMutex.lock();
-				Queue.push_back(input);
-				QueueMutex.unlock();
+				{
+					std::unique_lock<std::mutex> Lock(QueueMutex);
+					Queue.push_back(input);
+					Condition.notify_all();
+				}
 			}
 		}
 	}
@@ -894,21 +899,25 @@ void Screen::ClearErrorDisplay() const
 }
 
 
-uint32_t Screen::WaitForInput(bool HandleEscape) const
+uint32_t Screen::WaitForInput(uint32_t TimeoutMs, bool HandleEscape) const
 {
 	// \TODO use condition variable to wait for a specific timeout?
 	// otherwise currently this uses 100% cpu
 	uint32_t input = ERR;
 
-	QueueMutex.lock();
+	std::unique_lock<std::mutex> Lock(QueueMutex);
+
+	if ((Queue.size() == 0) &&
+		 (Condition.wait_for(Lock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout))
+	{
+		return ERR;
+	}
 
 	if (Queue.size() > 0)
 	{
 		input = Queue.front();
 		Queue.pop_front();
 	}
-
-	QueueMutex.unlock();
 
    return input;
 }
