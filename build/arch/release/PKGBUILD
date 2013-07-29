@@ -1,6 +1,6 @@
 # Maintainer: Nathan Sweetman <nathan.sweetman@gmail.com>
 pkgname=vimpc
-pkgver=0.08.0
+pkgver=0.08.1
 pkgrel=1
 epoch=
 pkgdesc="ncurses based MPD client with vi-like key bindings"
