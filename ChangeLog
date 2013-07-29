@@ -1,3 +1,9 @@
+Version 0.08.1
+-------------
+- Fixed bounds check crashes on some empty window key presses
+- Fixed crashes when using larger counts in normal mode
+- Fix invalid iterator accesses
+
 Version 0.08
 -------------
 - Support for :highlight color changing commands
