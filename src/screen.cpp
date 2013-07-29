@@ -901,8 +901,6 @@ void Screen::ClearErrorDisplay() const
 
 uint32_t Screen::WaitForInput(uint32_t TimeoutMs, bool HandleEscape) const
 {
-	// \TODO use condition variable to wait for a specific timeout?
-	// otherwise currently this uses 100% cpu
 	uint32_t input = ERR;
 
 	std::unique_lock<std::mutex> Lock(QueueMutex);
