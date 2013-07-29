@@ -24,7 +24,9 @@
 #include <sys/ioctl.h>
 #endif
 
+#include <atomic>
 #include <list>
+#include <mutex>
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -67,11 +69,9 @@ using namespace Ui;
 bool WindowResized = false;
 int32_t RndCount   = 0;
 
-// \TODO use a condition variable?
-bool Running		 = true;
-
-// \TODO needs thread protection?
+std::atomic<bool>  Running(true);
 std::list<int32_t> Queue;
+std::mutex			 QueueMutex;
 
 
 extern "C" void ResizeHandler(int);
@@ -113,8 +113,7 @@ void QueueInput(WINDOW * inputWindow)
 
 		int32_t input = wgetch(inputWindow);
 
-		// \TODO use a condition variable?
-		if (Running == false)
+		if (Running.load() == false)
 		{
 			break;
 		}
@@ -146,7 +145,9 @@ void QueueInput(WINDOW * inputWindow)
 					wtimeout(inputWindow, 100);
 				}
 
+				QueueMutex.lock();
 				Queue.push_back(input);
+				QueueMutex.unlock();
 			}
 		}
 	}
@@ -245,8 +246,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
 Screen::~Screen()
 {
-	// \TODO use a condition variable?
-	Running = false;
+	Running.store(false);
 	inputThread_.join();
 
    delete pagerWindow_;
@@ -900,11 +900,15 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
 	// otherwise currently this uses 100% cpu
 	uint32_t input = ERR;
 
+	QueueMutex.lock();
+
 	if (Queue.size() > 0)
 	{
 		input = Queue.front();
 		Queue.pop_front();
 	}
+
+	QueueMutex.unlock();
 
    return input;
 }
