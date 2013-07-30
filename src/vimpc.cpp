@@ -47,10 +47,11 @@ Vimpc::Vimpc() :
    screen_      (settings_, client_, search_),
    client_      (this, settings_, screen_),
    modeTable_   (),
-   normalMode_  (*(new Ui::Normal (this, screen_, client_, settings_, search_)))
+   normalMode_  (*(new Ui::Normal (this, screen_, client_, settings_, search_))),
+   commandMode_ (*(new Ui::Command(this, screen_, client_, settings_, search_, normalMode_)))
 {
 
-   modeTable_[Command] = new Ui::Command(this, screen_, client_, settings_, search_, normalMode_);
+   modeTable_[Command] = &commandMode_;
    modeTable_[Normal]  = &normalMode_;
    modeTable_[Search]  = &search_;
 
@@ -78,10 +79,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    SetSkipConfigConnects((hostname != "") || (port != 0));
 
    // Parse the config file
-   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
-
-   commandMode.SetQueueCommands(true);
-   bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode);
+   commandMode_.SetQueueCommands(true);
+   bool const configExecutionResult = Config::ExecuteConfigCommands(commandMode_);
 
    SetSkipConfigConnects(false);
 
@@ -109,7 +108,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          mode.Refresh();
       }
 
-      commandMode.SetQueueCommands(false);
+      commandMode_.SetQueueCommands(false);
 
       struct timeval start, end;
       gettimeofday(&start, NULL);
@@ -304,9 +303,7 @@ void Vimpc::Handle(int input)
 
 void Vimpc::OnConnected()
 {
-   Ui::Command & commandMode = assert_reference(dynamic_cast<Ui::Command *>(modeTable_[Command]));
-   commandMode.ExecuteQueuedCommands();
-
+   commandMode_.ExecuteQueuedCommands();
    CurrentMode().Refresh();
 }
 
