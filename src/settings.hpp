@@ -179,8 +179,8 @@ namespace Main
          void SetSingleSetting(std::string setting);
 
          //! Register a callback to be called when a setting is changed
-         void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback) const;
-         void RegisterCallback(Setting::StringSettings setting, StringCallback callback) const;
+         void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback);
+         void RegisterCallback(Setting::StringSettings setting, StringCallback callback);
 
       public:
          //! Set/Get whether or not to connect if asked to in config
@@ -222,7 +222,7 @@ namespace Main
 
          // Callbacks for on/off settings
          typedef std::map<Setting::ToggleSettings, std::vector<BoolCallback> > BoolCallbackTable;
-         mutable BoolCallbackTable  tCallbackTable_;
+         BoolCallbackTable    tCallbackTable_;
 
          // Used to validate string settings against a regex pattern
          typedef std::map<std::string, std::string> SettingsFilterTable;
@@ -234,7 +234,7 @@ namespace Main
 
          // Callbacks for string style settings
          typedef std::map<Setting::StringSettings, std::vector<StringCallback> > StringCallbackTable;
-         mutable StringCallbackTable  sCallbackTable_;
+         StringCallbackTable  sCallbackTable_;
 
          typedef std::map<std::string, int> ColorNameTable;
          ColorNameTable     colourTable_;

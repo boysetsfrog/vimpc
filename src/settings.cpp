@@ -178,12 +178,12 @@ std::string Settings::Get(::Setting::StringSettings setting) const
 }
 
 
-void Settings::RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback) const
+void Settings::RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback)
 {
    tCallbackTable_[setting].push_back(callback);
 }
 
-void Settings::RegisterCallback(Setting::StringSettings setting, StringCallback callback) const
+void Settings::RegisterCallback(Setting::StringSettings setting, StringCallback callback)
 {
    sCallbackTable_[setting].push_back(callback);
 }
