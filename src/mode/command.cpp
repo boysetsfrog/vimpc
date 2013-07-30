@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2013 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -219,7 +219,7 @@ bool Command::ExecuteCommand(std::string const & input)
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
        (command != "alias")) // In the case of alias we don't actually want to run the commands
    {
-      // There are multiple commands seperated gy ';' we have to handle each one
+      // There are multiple commands seperated by ';' we have to handle each one
       while (multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true)
       {
          fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
@@ -245,24 +245,13 @@ bool Command::ExecuteCommand(std::string const & input)
    }
    else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
    {
+		// Commands for the form :<number> go to that line instead
       int32_t line = atoi(command.c_str());
-
-      if (line >= 1)
-      {
-         --line;
-      }
-
+      line = (line >= 1) ? (line - 1) : 0;
       screen_.ScrollTo(line);
    }
    else
    {
-      // Ignore the connect command when starting up if -h/-p used
-      // on the command line
-      if (command == "connect" && settings_.SkipConfigConnects())
-      {
-         return true;
-      }
-
       // Just a normal command
       ExecuteCommand(command, arguments);
    }
@@ -317,7 +306,7 @@ void Command::Pause(std::string const & arguments)
 
 void Command::Play(std::string const & arguments)
 {
-   std::vector<std::string> args = SplitArguments(arguments);
+   std::vector<std::string> const args = SplitArguments(arguments);
 
    if (args.size() == 0)
    {
@@ -346,41 +335,44 @@ void Command::Play(std::string const & arguments)
    }
 }
 
+bool Command::CheckConnected()
+{
+	if (client_.Connected() == false)
+	{
+      ErrorString(ErrorNumber::ClientNoConnection);
+		return false;
+	}
+
+	return true;
+}
+
 void Command::Add(std::string const & arguments)
 {
-   if (client_.Connected() == true)
-   {
+	if (CheckConnected() == true)
+	{
       screen_.Initialise(Ui::Screen::Playlist);
       client_.Add(arguments);
       client_.AddComplete();
-   }
-   else
-   {
-      ErrorString(ErrorNumber::ClientNoConnection);
    }
 }
 
 void Command::AddAll(std::string const & arguments)
 {
-   if (client_.Connected() == true)
+	if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.AddAllSongs();
       client_.AddComplete();
    }
-   else
-   {
-      ErrorString(ErrorNumber::ClientNoConnection);
-   }
 }
 
 void Command::Delete(std::string const & arguments)
 {
-   if (client_.Connected() == true)
+	if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
 
-      std::vector<std::string> args = SplitArguments(arguments);
+      std::vector<std::string> const args = SplitArguments(arguments);
 
       if (args.size() == 2)
       {
@@ -397,7 +389,8 @@ void Command::Delete(std::string const & arguments)
       }
       else
       {
-         //\TODO delete selected song
+         //\TODO delete selected song ?
+      	ErrorString(ErrorNumber::InvalidParameter, "too many parameters");
       }
    }
 }
@@ -412,7 +405,7 @@ template <int Delta>
 void Command::Seek(std::string const & arguments)
 {
    uint32_t time = 0;
-   size_t pos    = arguments.find_first_of(":");
+   size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
@@ -431,7 +424,7 @@ void Command::Seek(std::string const & arguments)
 void Command::SeekTo(std::string const & arguments)
 {
    uint32_t time = 0;
-   size_t pos    = arguments.find_first_of(":");
+   size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
@@ -461,7 +454,8 @@ void Command::Quit(std::string const & arguments)
 
 void Command::QuitAll(std::string const & arguments)
 {
-   if ((forceCommand_ == true) || (settings_.Get(Setting::StopOnQuit) == true))
+   if ((forceCommand_ == true) || 
+		 (settings_.Get(Setting::StopOnQuit) == true))
    {
       Player::Stop();
    }
@@ -471,7 +465,7 @@ void Command::QuitAll(std::string const & arguments)
 
 void Command::Volume(std::string const & arguments)
 {
-   uint32_t Vol = (uint32_t) atoi(arguments.c_str());
+   uint32_t const Vol = (uint32_t) atoi(arguments.c_str());
 
    if (Vol <= 100)
    {
@@ -486,17 +480,22 @@ void Command::Volume(std::string const & arguments)
 
 void Command::Connect(std::string const & arguments)
 {
-   size_t   pos  = arguments.find_first_of(" ");
-   uint32_t port = 0;
+	// Ignore the connect command when starting up if -h/-p used
+	// on the command line
+	if (settings_.SkipConfigConnects() == false)
+	{
+		size_t   pos  = arguments.find_first_of(" ");
+		uint32_t port = 0;
 
-   std::string hostname = arguments.substr(0, pos);
+		std::string hostname = arguments.substr(0, pos);
 
-   if (pos != std::string::npos)
-   {
-      port = atoi(arguments.substr(pos + 1).c_str());
-   }
+		if (pos != std::string::npos)
+		{
+			port = atoi(arguments.substr(pos + 1).c_str());
+		}
 
-   client_.Connect(hostname, port);
+		client_.Connect(hostname, port);
+	}
 }
 
 void Command::Disconnect(std::string const & arguments)
@@ -673,7 +672,7 @@ void Command::Find(std::string const & arguments)
    }
    else
    {
-      SongWindow * window = screen_.CreateSongWindow(arguments);
+      SongWindow * const window = screen_.CreateSongWindow(arguments);
       client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
       if (window->BufferSize() > 0)
@@ -718,37 +717,47 @@ void Command::FindSong(std::string const & arguments)
    Find("F:" + arguments);
 }
 
+void Command::PrintMappings(std::string tabname)
+{
+	Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+
+	if (tabname != "")
+	{
+		mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
+	}
+
+	if (mappings.size() > 0)
+	{
+		Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
+
+		PagerWindow * const pager = screen_.GetPagerWindow();
+		pager->Clear();
+
+		for (; it != mappings.end(); ++it)
+		{
+			pager->AddLine(it->first + "   " + it->second);
+		}
+
+		screen_.ShowPagerWindow();
+	}
+	else
+	{
+		ErrorString(ErrorNumber::NoSuchMapping);
+	}
+}
+
+
 void Command::Map(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
-      std::string key     = arguments.substr(0, arguments.find(" "));
-      std::string mapping = arguments.substr(arguments.find(" ") + 1);
-
+      std::string const key     = arguments.substr(0, arguments.find(" "));
+      std::string const mapping = arguments.substr(arguments.find(" ") + 1);
       normalMode_.Map(key, mapping);
    }
    else if (arguments == "")
    {
-      Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
-
-      if (mappings.size() > 0)
-      {
-         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
-         PagerWindow * pager = screen_.GetPagerWindow();
-         pager->Clear();
-
-         for (; it != mappings.end(); ++it)
-         {
-            pager->AddLine(it->first + "   " + it->second);
-         }
-
-         screen_.ShowPagerWindow();
-      }
-      else
-      {
-         ErrorString(ErrorNumber::NoSuchMapping);
-      }
+		PrintMappings();
    }
 }
 
@@ -777,31 +786,7 @@ void Command::TabMap(std::string const & tabname, std::string const & arguments)
    }
    else if (args.size() == 0)
    {
-      Ui::Normal::MapNameTable mappings;
-
-      if (args.size() == 0)
-      {
-         mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
-      }
-
-      if (mappings.size() > 0)
-      {
-         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
-         PagerWindow * pager = screen_.GetPagerWindow();
-         pager->Clear();
-
-         for (; it != mappings.end(); ++it)
-         {
-            pager->AddLine(it->first + "   " + it->second);
-         }
-
-         screen_.ShowPagerWindow();
-      }
-      else
-      {
-         ErrorString(ErrorNumber::NoSuchMapping);
-      }
+		PrintMappings(tabname);
    }
    else
    {
@@ -965,8 +950,8 @@ void Command::Swap(std::string const & arguments)
 
    if ((arguments.find(" ") != string::npos))
    {
-      std::string position1 = arguments.substr(0, arguments.find(" "));
-      std::string position2 = arguments.substr(arguments.find(" ") + 1);
+      std::string const position1 = arguments.substr(0, arguments.find(" "));
+      std::string const position2 = arguments.substr(arguments.find(" ") + 1);
       client_.Swap(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
    }
    else
@@ -1131,12 +1116,11 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 {
    pcrecpp::RE const forceCheck("^.*!$");
 
-   forceCommand_   = false;
+   forceCommand_ = (forceCheck.FullMatch(command));
 
-   if (forceCheck.FullMatch(command))
+   if (forceCommand_ == true)
    {
-      forceCommand_  = true;
-      command        = command.substr(0, command.length() - 1);
+      command = command.substr(0, command.length() - 1);
    }
 
    // If we can't find the exact command, look for a unique command that starts

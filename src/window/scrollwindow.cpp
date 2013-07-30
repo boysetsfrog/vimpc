@@ -278,7 +278,7 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
    }
 }
 
-std::string const & ScrollWindow::Name()
+std::string const & ScrollWindow::Name() const
 {
    return name_;
 }

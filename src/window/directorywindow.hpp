@@ -75,7 +75,7 @@ namespace Ui
       size_t BufferSize() const;
 
    protected:
-      void LimitCurrentSelection() const;
+      void LimitCurrentSelection();
       Main::WindowBuffer const & WindowBuffer() const { return directory_; }
 
    private:
