@@ -904,13 +904,13 @@ uint32_t Screen::WaitForInput(uint32_t TimeoutMs, bool HandleEscape) const
 
 	std::unique_lock<std::mutex> Lock(QueueMutex);
 
-	if ((Queue.size() == 0) &&
+	if ((Queue.empty() == true) &&
 		 (Condition.wait_for(Lock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout))
 	{
 		return ERR;
 	}
 
-	if (Queue.size() > 0)
+	if (Queue.empty() == false)
 	{
 		input = Queue.front();
 		Queue.pop_front();
