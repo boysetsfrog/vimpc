@@ -636,6 +636,7 @@ std::string Normal::InputCharToString(int input) const
       conversionTable[KEY_ENTER]     = "<Enter>";
       conversionTable['\n']          = "<Return>";
       conversionTable['<']           = "<lt>";
+      conversionTable['\t']          = "<Tab>";
 
 		// Add F1 - F12  into the converstion table
 		for (int i = 0; i <= 12; ++i)

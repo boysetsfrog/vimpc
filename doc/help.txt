@@ -376,11 +376,13 @@
     <Down>, <Left>, <Right>, <Up> | Directional keys
     <Space>                       | Spacebar
     <PageUp>, <PageDown>          | Page up and down
+	 <Home>, <End>						 | Home and End
     <C-x>                         | Ctrl+x
     <A-x>                         | Alt+x
     <Enter>                       | Enter key
     <Return>                      | Return key
     <BS>                          | Backspace key
+	 <Tab>								 | Tab key
     <Del>                         | Delete key
     <lt>                          | Less than symbol 
     <F1>, <F2>, etc               | Function keys
