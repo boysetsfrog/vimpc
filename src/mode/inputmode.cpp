@@ -141,13 +141,16 @@ bool InputMode::CausesModeToEnd(int input) const
 
 /* static */ std::string InputMode::SplitStringAtTerminator(std::string input, bool keepTerminator)
 {
-   std::vector<std::string> terminators;
+   static std::vector<std::string> terminators;
 
-   terminators.push_back("\n");
-   terminators.push_back("<C-M>");
-   terminators.push_back("<Enter>");
-   terminators.push_back("<Return>");
-   terminators.push_back("<CR>");
+	if (terminators.empty() == true)
+	{
+		terminators.push_back("\n");
+		terminators.push_back("<C-M>");
+		terminators.push_back("<Enter>");
+		terminators.push_back("<Return>");
+		terminators.push_back("<CR>");
+	}
 
    for (uint32_t i = 0; i < input.length(); ++i)
    {

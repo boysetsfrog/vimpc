@@ -898,7 +898,6 @@ void Screen::ClearErrorDisplay() const
 	resultWindow.ClearResult();
 }
 
-
 uint32_t Screen::WaitForInput(uint32_t TimeoutMs, bool HandleEscape) const
 {
 	uint32_t input = ERR;
