@@ -178,6 +178,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["e"]       = &Normal::Edit;
    actionTable_["v"]       = &Normal::Visual;
    actionTable_["V"]       = &Normal::Visual;
+   actionTable_["<C-V>"]   = &Normal::Visual;
 
    // Library
    actionTable_["o"]       = &Normal::Expand;
