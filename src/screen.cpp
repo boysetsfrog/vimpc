@@ -905,7 +905,7 @@ bool Screen::HandleMouseEvent()
 
                   if (event.x < x)
                   {
-                     SetActiveAndVisible(GetWindowFromName(name));
+                     SetActiveAndVisible((static_cast<int32_t>(*it)));
                      break;
                   }
 
