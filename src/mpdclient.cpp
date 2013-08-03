@@ -217,6 +217,7 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
    {
       fd_      = mpd_connection_get_fd(connection_);
       retried_ = false;
+
       screen_.Update();
       DisplaySongInformation();
       vimpc_->OnConnected();
@@ -225,6 +226,8 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
 
       GetVersion();
       UpdateStatus();
+
+      elapsed_ = mpdelapsed_;
 
       if (connect_password != "")
       {
