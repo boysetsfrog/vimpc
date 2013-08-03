@@ -470,6 +470,7 @@
    [no]reconnect[!]         | automatically reconnect if the connection drops
    [no]scrollonadd[!]       | scroll down one line after adding a song
    [no]scrollondelete[!]    | scroll down one line after deleting a song
+   [no]seekbar[!]           | mouse click on progress bar causes a seek
    [no]searchwrap[!]        | wrap search results when using n/N
    [no]showlists[!]         | include playlists in the directory window
    [no]showpath[!]          | show the current path in the directory window

@@ -115,6 +115,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    idleMode_             (false),
    hadEvents_            (false)
 {
+   screen_.RegisterProgressCallback(
+      new Main::CallbackObject<Mpc::Client, double>(*this, &Mpc::Client::SeekToPercent));
 }
 
 Client::~Client()
@@ -408,6 +410,15 @@ void Client::SeekTo(uint32_t Time)
    else
    {
       ErrorString(ErrorNumber::ClientNoConnection);
+   }
+}
+
+void Client::SeekToPercent(double Percent)
+{
+   if (currentSong_)
+   {
+      uint32_t const duration = mpd_song_get_duration(currentSong_);
+      SeekTo((uint32_t) (Percent * duration));
    }
 }
 

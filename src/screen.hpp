@@ -80,6 +80,9 @@ namespace Ui
    class Screen
    {
    public:
+      typedef Main::CallbackInterface<double> * ProgressCallback;
+
+   public:
       Screen(Main::Settings & settings, Mpc::Client & client, Search const & search);
       ~Screen();
 
@@ -246,6 +249,9 @@ namespace Ui
       void MoveWindow(uint32_t position);
       void MoveWindow(int32_t window, uint32_t position);
 
+      // Register a callback to occur when progress bar is clicked
+      void RegisterProgressCallback(ProgressCallback callback);
+
    private:
       void SetupMouse(bool on) const;
       void ClearStatus() const;
@@ -253,6 +259,8 @@ namespace Ui
 		void UpdateProgressWindow() const;
 
    private:
+      void OnProgressClicked(int32_t);
+
       // Settings callbacks
       void OnTabSettingChange(bool);
       void OnProgressSettingChange(bool);
@@ -271,6 +279,8 @@ namespace Ui
       std::vector<int32_t>      visibleWindows_;
       std::vector<ModeWindow *> modeWindows_;
       mutable std::map<int32_t, bool> drawn_;
+
+      std::vector<ProgressCallback> pCallbacks_;
 
       bool      started_;
       bool      pager_;

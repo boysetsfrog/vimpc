@@ -938,6 +938,10 @@ bool Screen::HandleMouseEvent()
                ActiveWindow().ScrollTo(scroll);
             }
          }
+         else if ((event.y == static_cast<int32_t>(MaxRows()) + 1) && (settings_.Get(Setting::ProgressBar) == true))
+         {
+            OnProgressClicked(event.x); 
+         }
 
          event_ = event;
       }
@@ -1315,7 +1319,7 @@ void Screen::UpdateProgressWindow() const
 
 	if (settings_.Get(Setting::ShowPercent) == true)
 	{
-		int32_t start = (MaxColumns() / 2) - 6;
+		int32_t start = (MaxColumns() / 2) - 3;
 
 		if (start + 6 < MaxColumns())
 		{
@@ -1333,6 +1337,27 @@ void Screen::UpdateProgressWindow() const
 
    wattroff(progressWindow_, A_UNDERLINE);
    wrefresh(progressWindow_);
+}
+
+
+void Screen::RegisterProgressCallback(ProgressCallback callback)
+{
+   pCallbacks_.push_back(callback);
+}
+
+void Screen::OnProgressClicked(int32_t x)
+{
+   if (settings_.Get(Setting::SeekBar) == true)
+   {
+      // Call any registered callbacks for a progress click
+      std::vector<ProgressCallback>::iterator it = pCallbacks_.begin();
+
+      for (; it != pCallbacks_.end(); ++it)
+      {
+         ProgressCallback functor = (*it);
+         (*functor)(((double) x / MaxColumns()));
+      }
+   }
 }
 
 void Screen::OnTabSettingChange(bool Value)
