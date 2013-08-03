@@ -1481,7 +1481,7 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInL
 
    if (settings_.Get(Setting::AlbumArtist) == true)
    {
-      artist = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+      artist = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0);
    }
 
    newSong->SetArtist   ((artist == NULL) ? mpd_song_get_tag(song, MPD_TAG_ARTIST, 0) : artist);
