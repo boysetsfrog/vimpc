@@ -47,7 +47,7 @@ void SelectWindow::Print(uint32_t line) const
 {
    uint32_t printLine = line + FirstLine();
 
-   //if (printLine < BufferSize())
+   if (printLine < BufferSize())
    {
       WINDOW * window = N_WINDOW();
 
@@ -58,6 +58,10 @@ void SelectWindow::Print(uint32_t line) const
 
       ScrollWindow::Print(line);
       wattroff(window, A_REVERSE);
+   }
+   else
+   {
+      ScrollWindow::Print(line);
    }
 }
 
