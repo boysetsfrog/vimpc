@@ -45,6 +45,7 @@
    X(PlaylistExists,        "Playlist with that name already exists") \
    X(NoSuchMark,            "Mark not set") \
    X(NoSuchMapping,         "No mapping found") \
+   X(NameInUse,             "Name already in use") \
    X(Unknown,               "Unknown")
 
 namespace ErrorNumber

@@ -1053,7 +1053,14 @@ void Command::RenameWindow(std::string const & arguments)
 
       if (id != Ui::Screen::Unknown)
       {
-         screen_.Window(id).SetName(newname);
+         if (screen_.GetWindowFromName(newname) == Ui::Screen::Unknown)
+         {
+            screen_.Window(id).SetName(newname);
+         }
+         else
+         {
+            ErrorString(ErrorNumber::NameInUse, newname);
+         }
       }
       else
       {
@@ -1062,7 +1069,14 @@ void Command::RenameWindow(std::string const & arguments)
    }
    else
    {
-      screen_.ActiveWindow().SetName(arguments);
+      if (screen_.GetWindowFromName(arguments) == Ui::Screen::Unknown)
+      {
+         screen_.ActiveWindow().SetName(arguments);
+      }
+      else
+      {
+         ErrorString(ErrorNumber::NameInUse, arguments);
+      }
    }
 }
 
