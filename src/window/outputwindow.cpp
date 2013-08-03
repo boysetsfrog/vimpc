@@ -86,14 +86,17 @@ int32_t OutputWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
 
-   if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
-       (search_.HighlightSearch() == true))
+   if (line < outputs_.Size())
    {
-      pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
-
-      if (expression.FullMatch(outputs_.Get(line)->Name()) == true)
+      if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+          (search_.HighlightSearch() == true))
       {
-         colour = settings_.colours.SongMatch;
+         pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+         if (expression.FullMatch(outputs_.Get(line)->Name()) == true)
+         {
+            colour = settings_.colours.SongMatch;
+         }
       }
    }
 
