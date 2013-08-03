@@ -119,8 +119,9 @@
    [count] l, Right        | seek forward [count] seconds
            P               | re-insert songs that were just deleted
            e               | information about selected song
-           Ctrl+a          | move song down
-           Ctrl+x          | move song up
+   [count] Ctrl+a          | move song down [count]
+   [count] Ctrl+x          | move song up [count]
+   [count] gm              | move song to position [count]
            <Enter>         | play the selected song
  
  BROWSE:
