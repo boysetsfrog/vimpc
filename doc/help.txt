@@ -471,8 +471,9 @@
    [no]scrollonadd[!]       | scroll down one line after adding a song
    [no]scrollondelete[!]    | scroll down one line after deleting a song
    [no]searchwrap[!]        | wrap search results when using n/N
-   [no]showpath[!]          | show the current path in the directory window
    [no]showlists[!]         | include playlists in the directory window
+   [no]showpath[!]          | show the current path in the directory window
+   [no]showpercent[!]       | show the current percentage in the progress bar
    [no]singlequit[!]        | :q and :quit will quit vimpc, not close active tab
    [no]smartcase[!]         | if capital in search pattern, enable case sensitivity
    [no]songnumbers[!]       | display id numbers next to songs in other windows

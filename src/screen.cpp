@@ -1312,6 +1312,18 @@ void Screen::UpdateProgressWindow() const
 		waddch(progressWindow_, '>');
 	}
 
+
+	if (settings_.Get(Setting::ShowPercent) == true)
+	{
+		int32_t start = (MaxColumns() / 2) - 6;
+
+		if (start + 6 < MaxColumns())
+		{
+			wmove(progressWindow_, 0, start);
+			wprintw(progressWindow_, "[%3d%%]", (int) (progress_ * 100));
+		}
+	}
+
 	wattroff(progressWindow_, A_BOLD);
 
    if (settings_.Get(Setting::ColourEnabled) == true)
