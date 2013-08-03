@@ -141,14 +141,17 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
 
-   if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
-       (search_.HighlightSearch() == true))
+   if (line < lists_.Size())
    {
-      pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
-
-      if (expression.FullMatch(lists_.Get(line).name_) == true)
+      if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+          (search_.HighlightSearch() == true))
       {
-         colour = settings_.colours.SongMatch;
+         pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+         if (expression.FullMatch(lists_.Get(line).name_) == true)
+         {
+            colour = settings_.colours.SongMatch;
+         }
       }
    }
 
