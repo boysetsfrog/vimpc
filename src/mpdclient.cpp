@@ -1477,7 +1477,14 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInL
 {
    Song * const newSong = new Song();
 
-   newSong->SetArtist   (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
+   char const * artist = NULL;
+
+   if (settings_.Get(Setting::AlbumArtist) == true)
+   {
+      artist = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+   }
+
+   newSong->SetArtist   ((artist == NULL) ? mpd_song_get_tag(song, MPD_TAG_ARTIST, 0) : artist);
    newSong->SetAlbum    (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
    newSong->SetTitle    (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
    newSong->SetTrack    (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
