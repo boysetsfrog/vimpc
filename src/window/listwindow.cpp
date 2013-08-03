@@ -77,10 +77,10 @@ void ListWindow::Print(uint32_t line) const
 {
 #if 1
    uint32_t printLine = line + FirstLine();
+   WINDOW * window = N_WINDOW();
 
    if (printLine < BufferSize())
    {
-      WINDOW * window = N_WINDOW();
       int32_t  colour = DetermineColour(printLine);
 
       if (settings_.Get(Setting::ColourEnabled) == true)
@@ -102,6 +102,11 @@ void ListWindow::Print(uint32_t line) const
       {
          wattroff(window, COLOR_PAIR(colour));
       }
+   }
+   else
+   {
+      std::string const BlankLine(Columns(), ' ');
+      mvwprintw(window, line, 0, BlankLine.c_str());
    }
 #else
    SelectWindow::Print(line);

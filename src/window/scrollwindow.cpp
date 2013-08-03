@@ -62,6 +62,10 @@ void ScrollWindow::Print(uint32_t line) const
    {
       output = WindowBuffer().PrintString(currentLine);
    }
+   else
+   {
+      mvwprintw(window, line, 0, BlankLine.c_str());
+   }
 
    std::string stripped = output;
 

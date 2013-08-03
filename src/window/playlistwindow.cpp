@@ -87,22 +87,25 @@ int32_t PlaylistWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
 
-   Mpc::Song const * const song = Buffer().Get(line + FirstLine());
-
-   if (song != NULL)
+   if (line + FirstLine() < Buffer().Size())
    {
-      if ((client_.GetCurrentSong() > -1) && ((line + FirstLine()) == static_cast<uint32_t>(client_.GetCurrentSong())))
-      {
-         colour = settings_.colours.CurrentSong;
-      }
-      else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
-               (search_.HighlightSearch() == true))
-      {
-         pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+      Mpc::Song const * const song = Buffer().Get(line + FirstLine());
 
-         if (expression.FullMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
+      if (song != NULL)
+      {
+         if ((client_.GetCurrentSong() > -1) && ((line + FirstLine()) == static_cast<uint32_t>(client_.GetCurrentSong())))
          {
-            colour = settings_.colours.SongMatch;
+            colour = settings_.colours.CurrentSong;
+         }
+         else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+                  (search_.HighlightSearch() == true))
+         {
+            pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+            if (expression.FullMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
+            {
+               colour = settings_.colours.SongMatch;
+            }
          }
       }
    }

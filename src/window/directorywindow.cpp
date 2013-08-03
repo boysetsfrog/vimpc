@@ -277,6 +277,10 @@ void DirectoryWindow::Print(uint32_t line) const
             wattroff(window, COLOR_PAIR(colour));
          }
       }
+      else
+      {
+         mvwprintw(window, line, 0, BlankLine.c_str());
+      }
    }
 }
 

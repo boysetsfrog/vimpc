@@ -104,6 +104,11 @@ void HelpWindow::Print(uint32_t line) const
          mvwaddstr(window, line, 0, currentLine.c_str());
       }
    }
+   else
+   {
+      std::string const BlankLine(Columns(), ' ');
+      mvwprintw(window, line, 0, BlankLine.c_str());
+   }
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
