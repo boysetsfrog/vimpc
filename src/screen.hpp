@@ -166,6 +166,9 @@ namespace Ui
       void SetStatusLine(char const * const fmt, ... ) const;
       void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;
 
+		// Set the window's progress bar location
+		void SetProgress(double percent);
+
    public:
       // Align the current window up or down( ^E, ^Y )
       void Align(Direction direction, uint32_t count = 0);
@@ -247,10 +250,12 @@ namespace Ui
       void SetupMouse(bool on) const;
       void ClearStatus() const;
       void UpdateTabWindow() const;
+		void UpdateProgressWindow() const;
 
    private:
       // Settings callbacks
       void OnTabSettingChange(bool);
+      void OnProgressSettingChange(bool);
       void OnMouseSettingChange(bool);
 
    private:
@@ -259,6 +264,7 @@ namespace Ui
       WindowMap  mainWindows_;
       WINDOW *   statusWindow_;
       WINDOW *   tabWindow_;
+      WINDOW *   progressWindow_;
       WINDOW *   commandWindow_;
       PagerWindow * pagerWindow_;
 
@@ -268,6 +274,7 @@ namespace Ui
 
       bool      started_;
       bool      pager_;
+		double    progress_;
       int32_t   maxRows_;
       int32_t   mainRows_;
       int32_t   maxColumns_;

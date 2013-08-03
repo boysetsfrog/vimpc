@@ -328,17 +328,18 @@
 
     Properties:
     -----------------------------------------------------------
-    song    - Songs
-    id      - Song IDs
-    dir     - The directory string in :directory mode
-    current - The current song
-    tab     - Tabs
-    match   - Songs matched by a search string
-    partial - Artists/albums that are partially in the playlist
-    full    - Artists/albums that are fully in the playlist
-    pager   - The color of the text in the settings pager window
-    status  - The statusline
-    error   - Errors
+    song     - Songs
+    id       - Song IDs
+    dir      - The directory string in :directory mode
+    current  - The current song
+    tab      - Tabs
+	 progress - Progress bar window
+    match    - Songs matched by a search string
+    partial  - Artists/albums that are partially in the playlist
+    full     - Artists/albums that are fully in the playlist
+    pager    - The color of the text in the settings pager window
+    status   - The statusline
+    error    - Errors
 
  MISC:                      
    normal <input>           | execute <input> as if it were entered in normal mode
@@ -465,6 +466,7 @@
    [no]polling[!]           | poll mpd for status updates rather than using idle mode
    [no]playlistnumbers[!]   | display id numbers next to songs in the playlist
    [no]playonadd[!]         | if mpd is stopped start playing when a song is added
+   [no]progressbar[!]       | whether or not to show the progress bar
    [no]reconnect[!]         | automatically reconnect if the connection drops
    [no]scrollonadd[!]       | scroll down one line after adding a song
    [no]scrollondelete[!]    | scroll down one line after deleting a song

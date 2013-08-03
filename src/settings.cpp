@@ -236,6 +236,9 @@ void Settings::SetColour(std::string property, std::string colour)
       else if (property == "tab") {
          colours.TabWindow = colourTable_[colour];
       }
+      else if (property == "progress") {
+         colours.ProgressWindow = colourTable_[colour];
+      }
       else {
          ErrorString(ErrorNumber::UnknownOption, property);
       }

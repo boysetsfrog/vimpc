@@ -1036,11 +1036,18 @@ void Client::DisplaySongInformation()
                                   SecondsToMinutes(remain),  RemainingSeconds(remain),
                                   SecondsToMinutes(duration), RemainingSeconds(duration));
          }
+
+			screen_.SetProgress((double) elapsed / duration);
       }
+		else
+		{
+			screen_.SetProgress(0);
+		}
    }
    else
    {
       screen_.SetStatusLine("%s","");
+		screen_.SetProgress(0);
    }
 }
 
