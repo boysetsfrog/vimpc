@@ -24,7 +24,7 @@ Type `:help` in the client or see `doc/help.txt` for more details.
 > dependencies can be installed with the following command:
 
     sudo apt-get install build-essential autoconf \
-    libmpdclient2 libmpdclient-dev libpcre3 libpcre3-dev \
+        libmpdclient2 libmpdclient-dev libpcre3 libpcre3-dev \
         libncursesw5 libncursesw5-dev libncurses5-dev
 
 ## License
