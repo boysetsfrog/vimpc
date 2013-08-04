@@ -253,6 +253,11 @@ bool Command::ExecuteCommand(std::string const & input)
          screen_.ScrollTo(line);
       }
    }
+   else if ((command.size() > 1) && (command[0] == '!'))
+   {
+      command = command.substr(1) + " " + arguments;
+      External(command);
+   }
    else
    {
       // Just a normal command
@@ -1249,7 +1254,7 @@ void Command::Set(std::string const & arguments)
    }
 }
 
-void Command::Mpc(std::string const & arguments)
+void Command::External(std::string const & input)
 {
    static uint32_t const bufferSize = 512;
    char   buffer[bufferSize];
@@ -1258,29 +1263,35 @@ void Command::Mpc(std::string const & arguments)
    // \todo redirect stderr results into the console window too
    snprintf(port, 8, "%u", client_.Port());
 
-   // Ensure that we use the same mpd_host and port for mpc that
+   // Ensure that we use the same mpd_host and port for commands that
    // we are using but still allow the person running the command
-   // to do -h and -p flags
+   // to do -h and -p flags 
    std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) +
-                             " mpc " + arguments + " 2>&1");
+                             " " + input + " 2>&1");
 
-   Main::Console().Add("> mpc " + arguments);
+   Main::Console().Add("> " + input);
 
-   FILE * const mpcOutput = popen(command.c_str(), "r");
+   FILE * const output = popen(command.c_str(), "r");
 
-   if (mpcOutput != NULL)
+   if (output != NULL)
    {
-      while (fgets(buffer, bufferSize - 1, mpcOutput) != NULL)
+      while (fgets(buffer, bufferSize - 1, output) != NULL)
       {
          Main::Console().Add(buffer);
       }
 
-      pclose(mpcOutput);
+      pclose(output);
    }
    else
    {
-      ErrorString(ErrorNumber::ExternalProgramError, "mpc");
+      ErrorString(ErrorNumber::ExternalProgramError, input);
    }
+}
+
+void Command::Mpc(std::string const & arguments)
+{
+   std::string const command = "mpc " + arguments;
+   External(command);
 }
 
 void Command::Alias(std::string const & input)

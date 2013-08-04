@@ -213,7 +213,8 @@ namespace Ui
       // Handle the settings
       void Set(std::string const & arguments);
 
-      // Call the cli mpc client
+      // External commands/applications
+      void External(std::string const & input);
       void Mpc(std::string const & arguments);
 
       // Alias a command to a given string
