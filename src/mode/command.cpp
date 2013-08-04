@@ -245,10 +245,13 @@ bool Command::ExecuteCommand(std::string const & input)
    }
    else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
    {
-		// Commands for the form :<number> go to that line instead
-      int32_t line = atoi(command.c_str());
-      line = (line >= 1) ? (line - 1) : 0;
-      screen_.ScrollTo(line);
+      if (command != "")
+      {
+         // Commands for the form :<number> go to that line instead
+         int32_t line = atoi(command.c_str());
+         line = (line >= 1) ? (line - 1) : 0;
+         screen_.ScrollTo(line);
+      }
    }
    else
    {
