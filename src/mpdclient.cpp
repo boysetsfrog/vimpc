@@ -847,7 +847,7 @@ void Client::Delete(uint32_t position1, uint32_t position2)
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
       // Only use range if MPD is >= 0.16
-      if (versionMinor_ < 16)
+      if ((versionMajor_ == 0) && (versionMinor_ < 16))
       {
          CommandList list(*this);
 
@@ -1511,6 +1511,9 @@ void Client::GetVersion()
          versionMajor_ = version[0];
          versionMinor_ = version[1];
          versionPatch_ = version[2];
+
+         Debug("libmpdclient: %d.%d.%d", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+         Debug("MPD Server  : %d.%d.%d", versionMajor_, versionMinor_, versionPatch_);
       }
    }
 }

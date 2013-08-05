@@ -942,7 +942,7 @@ bool Screen::HandleMouseEvent()
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
-               OnProgressClicked(event.x); 
+               OnProgressClicked(event.x);
             }
             return true;
          }
