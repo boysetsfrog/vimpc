@@ -32,6 +32,7 @@
 #include "settings.hpp"
 #include "vimpc.hpp"
 
+#include "buffer/directory.hpp"
 #include "buffer/list.hpp"
 #include "buffer/outputs.hpp"
 #include "buffer/playlist.hpp"
@@ -1308,14 +1309,23 @@ std::string Command::TabComplete(std::string const & command)
    if (initTabCompletion_ == true)
    {
       tabStart = command;
+      addTable_.clear();
       loadTable_.clear();
 
+      screen_.Initialise(Ui::Screen::Directory);
       screen_.Initialise(Ui::Screen::Lists);
 
       for (uint32_t i = 0; i < Main::Lists().Size(); ++i)
       {
          loadTable_.push_back("load " + Main::Lists().Get(i).name_);
          loadTable_.push_back("edit " + Main::Lists().Get(i).name_);
+      }
+
+      std::vector<std::string> const & paths = Main::Directory().Paths();
+
+      for (uint32_t i = 0; i < paths.size(); ++i)
+      {
+         addTable_.push_back("add " + paths[i]);
       }
    }
 
@@ -1325,7 +1335,11 @@ std::string Command::TabComplete(std::string const & command)
    }
    else if ((tabStart.find("load ") == 0) || (tabStart.find("edit ") == 0))
    {
-      return TabComplete(tabStart, loadTable_,  TabCompletionMatch<std::string>(tabStart));
+      return TabComplete(tabStart, loadTable_, TabCompletionMatch<std::string>(tabStart));
+   }
+   else if (tabStart.find("add ") == 0)
+   {
+      return TabComplete(tabStart, addTable_, TabCompletionMatch<std::string>(tabStart));
    }
    else
    {

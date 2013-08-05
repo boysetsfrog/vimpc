@@ -198,6 +198,8 @@
                            | as it could be :console or :connect
                            | but :conn will call the :connect command
 
+   NOTE: Any commands prefixed with a '*' in the help support 
+   tab completion. Currently load, edit and add commands.
 
 
  EDITTING:
@@ -241,7 +243,7 @@
    single [on/off]          | toggles single, or sets on/off
                             
  PLAYLIST:                  
-   add <uri>                | add a song/strem using the given <uri>
+ * add <uri>                | add a song/directory/stream using the given <uri>
    addall                   | add all songs to the playlist
    delete <pos1> [pos2]     | delete the song at <pos1>, or from <pos1> to [pos2]
    deleteall                | delete all songs in the playlist
@@ -249,12 +251,12 @@
    shuffle                  | shuffle the playlist
    swap <pos1> <pos2>       | swap songs in <pos1> and <pos2>
                             
-   edit <name>              | load the playlist <name>
-   load <name>              | load the playlist <name>
+ * edit <name>              | load the playlist <name>
+ * load <name>              | load the playlist <name>
    save <name>              | save the current playlist <name>
    toplaylist <name>        | save contents of window/tab to playlist <name>
    write <name>             | save the current playlist <name>
-                            
+
  FIND:                      
    find[!] <search>         | search in database and display results in new window
    findartist[!] <search>   | search in database in artist tag only
@@ -317,7 +319,7 @@
    wmap <newkeys> <keys>    | create a mapping for the current window only
    wunmap <keys>            | unmap keys for the current window 
    set                      | show the currently enabled settings and their values
-   set <setting>            | sets a configurable setting, see SETTINGS section
+ * set <setting>            | sets a configurable setting, see SETTINGS section
    unmap <keys>             | remove the mapping of <keys>
 
  HIGHLIGHTING:
@@ -454,6 +456,8 @@
 
  To print a setting you can specify :set with no arguments to see all
  current values or :set <setting>? to look at a specific setting.
+
+ The settings support tab completion.
  
    [no]autoscroll[!]        | automatically scroll when skipping songs
    [no]browsenumbers[!]     | display id numbers next to songs in the browse window
