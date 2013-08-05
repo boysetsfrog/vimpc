@@ -80,7 +80,7 @@ void InfoWindow::Print(uint32_t line) const
          wattron(window, A_BOLD);
          mvwaddstr(window, 7, 0, " Duration : ");
          wattroff(window, A_BOLD);
-         mvwprintw(window, 7, 12, "%d:%d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
+         mvwprintw(window, 7, 12, "%d:%.2d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
 
 
          wattron(window, A_BOLD);

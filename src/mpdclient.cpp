@@ -238,7 +238,7 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
 
       GetAllMetaInformation();
       UpdateStatus();
-		IdleMode();
+      IdleMode();
    }
 }
 
@@ -1023,6 +1023,8 @@ bool Client::SongIsInQueue(Mpc::Song const & song) const
 
 void Client::DisplaySongInformation()
 {
+   static char durationStr[128];
+
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       if ((currentSong_ != NULL) && (currentStatus_ != NULL))
@@ -1038,30 +1040,32 @@ void Client::DisplaySongInformation()
 
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
 
+
          if (settings_.Get(Setting::TimeRemaining) == false)
          {
-            screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
-                                  SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
-                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+            snprintf(durationStr, 127, "[%d:%.2d/%d:%.2d]",
+                     SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
+                     SecondsToMinutes(duration), RemainingSeconds(duration));
          }
          else
          {
-            screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
-                                  SecondsToMinutes(remain),  RemainingSeconds(remain),
-                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+            snprintf(durationStr, 127, "[-%d:%.2d/%d:%.2d]",
+                     SecondsToMinutes(remain),  RemainingSeconds(remain),
+                     SecondsToMinutes(duration), RemainingSeconds(duration));
          }
 
-			screen_.SetProgress((double) elapsed / duration);
+         screen_.MoveSetStatus(screen_.MaxColumns() - strlen(durationStr), "%s", durationStr);
+         screen_.SetProgress((double) elapsed / duration);
       }
-		else
-		{
-			screen_.SetProgress(0);
-		}
+      else
+      {
+         screen_.SetProgress(0);
+      }
    }
    else
    {
       screen_.SetStatusLine("%s","");
-		screen_.SetProgress(0);
+      screen_.SetProgress(0);
    }
 }
 
@@ -1162,7 +1166,7 @@ bool Client::HadEvents()
          mpd_send_noidle(connection_);
          mpd_recv_idle(connection_, false);
          Debug("Left idle mode");
-			CheckError();
+         CheckError();
          idleMode_ = false;
       }
 
@@ -1190,7 +1194,7 @@ bool Client::HadEvents()
                Debug("Had an event");
             }
 
-			   CheckError();
+            CheckError();
             return result;
          }
       }
