@@ -77,10 +77,10 @@ void ListWindow::Print(uint32_t line) const
 {
 #if 1
    uint32_t printLine = line + FirstLine();
+   WINDOW * window = N_WINDOW();
 
    if (printLine < BufferSize())
    {
-      WINDOW * window = N_WINDOW();
       int32_t  colour = DetermineColour(printLine);
 
       if (settings_.Get(Setting::ColourEnabled) == true)
@@ -102,6 +102,11 @@ void ListWindow::Print(uint32_t line) const
       {
          wattroff(window, COLOR_PAIR(colour));
       }
+   }
+   else
+   {
+      std::string const BlankLine(Columns(), ' ');
+      mvwprintw(window, line, 0, BlankLine.c_str());
    }
 #else
    SelectWindow::Print(line);
@@ -136,14 +141,17 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
 
-   if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
-       (search_.HighlightSearch() == true))
+   if (line < lists_.Size())
    {
-      pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
-
-      if (expression.FullMatch(lists_.Get(line).name_) == true)
+      if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+          (search_.HighlightSearch() == true))
       {
-         colour = settings_.colours.SongMatch;
+         pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+         if (expression.FullMatch(lists_.Get(line).name_) == true)
+         {
+            colour = settings_.colours.SongMatch;
+         }
       }
    }
 

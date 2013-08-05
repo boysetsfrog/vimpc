@@ -77,10 +77,12 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    previous_        (Playlist),
    statusWindow_    (NULL),
    tabWindow_       (NULL),
+	progressWindow_  (NULL),
    commandWindow_   (NULL),
    pagerWindow_     (NULL),
    started_         (false),
    pager_           (false),
+	progress_		  (0),
    maxRows_         (0),
    maxColumns_      (0),
    rndCount_        (0),
@@ -101,7 +103,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    maxRows_    = LINES;
    maxColumns_ = COLS;
-   mainRows_   = ((maxRows_ - 3) > 0) ? (maxRows_ - 3) : 0;
+   mainRows_   = ((maxRows_ - 4) > 0) ? (maxRows_ - 4) : 0;
 
    // Handler for the resize signal
    signal(SIGWINCH, ResizeHandler);
@@ -120,8 +122,9 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Create paging window to print maps, settings, etc
    pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
-   statusWindow_              = newwin(1, maxColumns_, mainRows_ + 1, 0);
+   statusWindow_              = newwin(1, maxColumns_, mainRows_ + 2, 0);
    tabWindow_                 = newwin(1, maxColumns_, 0, 0);
+   progressWindow_            = newwin(1, maxColumns_, mainRows_ + 1, 0);
 
    // Commands must be read through a window that is always visible
    commandWindow_             = statusWindow_;
@@ -156,6 +159,8 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // Register settings callbacks
    settings_.RegisterCallback(Setting::TabBar,
       new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnTabSettingChange));
+   settings_.RegisterCallback(Setting::ProgressBar,
+      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnProgressSettingChange));
    settings_.RegisterCallback(Setting::Mouse,
       new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnMouseSettingChange));
 
@@ -168,6 +173,7 @@ Screen::~Screen()
    delete pagerWindow_;
 
    delwin(tabWindow_);
+   delwin(progressWindow_);
    delwin(statusWindow_);
 
    for (WindowMap::iterator it = mainWindows_.begin(); it != mainWindows_.end(); ++it)
@@ -433,6 +439,14 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
    wrefresh(statusWindow_);
 }
 
+void Screen::SetProgress(double percent)
+{
+	if ((percent <= 1) && (percent >= 0))
+	{
+		progress_ = percent;
+	}
+}
+
 
 void Screen::Align(Direction direction, uint32_t count)
 {
@@ -580,6 +594,11 @@ void Screen::Update()
          UpdateTabWindow();
       }
 
+		if (settings_.Get(Setting::ProgressBar) == true)
+		{
+			UpdateProgressWindow();
+		}
+
       // Paint the main window
 		for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
 		{
@@ -686,7 +705,8 @@ bool Screen::Resize(bool forceResize)
 
       if (maxRows_ >= 0)
       {
-         int32_t topline = 0;
+         int32_t topline    = 0;
+         int32_t statusline = 0;
 
          resizeterm(maxRows_, maxColumns_);
          wresize(stdscr, maxRows_, maxColumns_);
@@ -715,14 +735,22 @@ bool Screen::Resize(bool forceResize)
             mainRows_--;
          }
 
+         if (settings_.Get(Setting::ProgressBar) == true)
+         {
+				statusline = 1;
+            mainRows_--;
+         }
+
          if (mainRows_ < 0)
          {
             mainRows_ = 0;
          }
 
-         wresize(statusWindow_, 1, maxColumns_);
-         wresize(tabWindow_,    1, maxColumns_);
-         mvwin(statusWindow_, maxRows_ - 2, 0);
+         wresize(statusWindow_,   1, maxColumns_);
+         wresize(tabWindow_,      1, maxColumns_);
+         wresize(progressWindow_, 1, maxColumns_);
+         mvwin(statusWindow_,   maxRows_ - 2, 0);
+         mvwin(progressWindow_, maxRows_ - 2 - statusline, 0);
 
          for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
          {
@@ -807,7 +835,7 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
 
       while ((rndInput == 26) || (rndInput == 3)) //<C-Z> || <C-C>
       {
-         rndInput = (rand() % 128);
+         rndInput = (rand() % (KEY_MAX + 1));
 
          if ((rndInput != 26) && (rndInput != 3))
          {
@@ -877,7 +905,7 @@ bool Screen::HandleMouseEvent()
 
                   if (event.x < x)
                   {
-                     SetActiveAndVisible(GetWindowFromName(name));
+                     SetActiveAndVisible((static_cast<int32_t>(*it)));
                      break;
                   }
 
@@ -909,6 +937,14 @@ bool Screen::HandleMouseEvent()
 
                ActiveWindow().ScrollTo(scroll);
             }
+         }
+         else if ((event.y == static_cast<int32_t>(MaxRows()) + 1) && (settings_.Get(Setting::ProgressBar) == true))
+         {
+            if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
+            {
+               OnProgressClicked(event.x); 
+            }
+            return true;
          }
 
          event_ = event;
@@ -1259,9 +1295,85 @@ void Screen::UpdateTabWindow() const
    wrefresh(tabWindow_);
 }
 
+void Screen::UpdateProgressWindow() const
+{
+   werase(progressWindow_);
+
+   if (settings_.Get(Setting::ColourEnabled) == true)
+   {
+      wattron(progressWindow_, COLOR_PAIR(settings_.colours.ProgressWindow));
+   }
+
+	wmove(progressWindow_, 0, 0);
+   whline(progressWindow_, 0, MaxColumns());
+	wmove(progressWindow_, 0, 0);
+
+	wattron(progressWindow_, A_BOLD);
+
+	if ((progress_ * MaxColumns() - 1) > 0)
+	{
+		whline(progressWindow_, '=', (int) (progress_ * MaxColumns() - 1));
+		wmove(progressWindow_, 0, (int) (progress_ * MaxColumns() - 1));
+	}
+	if (progress_ > 0)
+	{
+		waddch(progressWindow_, '>');
+	}
+
+
+	if (settings_.Get(Setting::ShowPercent) == true)
+	{
+		int32_t start = (MaxColumns() / 2) - 3;
+
+		if (start + 6 < MaxColumns())
+		{
+			wmove(progressWindow_, 0, start);
+			wprintw(progressWindow_, "[%3d%%]", (int) (progress_ * 100));
+		}
+	}
+
+	wattroff(progressWindow_, A_BOLD);
+
+   if (settings_.Get(Setting::ColourEnabled) == true)
+   {
+      wattroff(progressWindow_, COLOR_PAIR(settings_.colours.ProgressWindow));
+   }
+
+   wattroff(progressWindow_, A_UNDERLINE);
+   wrefresh(progressWindow_);
+}
+
+
+void Screen::RegisterProgressCallback(ProgressCallback callback)
+{
+   pCallbacks_.push_back(callback);
+}
+
+void Screen::OnProgressClicked(int32_t x)
+{
+   if (settings_.Get(Setting::SeekBar) == true)
+   {
+      // Call any registered callbacks for a progress click
+      std::vector<ProgressCallback>::iterator it = pCallbacks_.begin();
+
+      for (; it != pCallbacks_.end(); ++it)
+      {
+         ProgressCallback functor = (*it);
+         (*functor)(((double) x / MaxColumns()));
+      }
+   }
+}
+
 void Screen::OnTabSettingChange(bool Value)
 {
    // Force a resize of the windows if the tab bar was recently
+   // hidden or shown
+   Resize(true);
+}
+
+void Screen::OnProgressSettingChange(bool Value)
+{
+   // Force a resize of the windows if the progress bar was recently
    // hidden or shown
    Resize(true);
 }

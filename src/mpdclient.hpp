@@ -102,6 +102,7 @@ namespace Mpc
       void Previous();
       void Seek(int32_t Offset);
       void SeekTo(uint32_t Time);
+      void SeekToPercent(double Percent);
 
    public:
       // Toggle settings

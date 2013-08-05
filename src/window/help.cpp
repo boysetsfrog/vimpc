@@ -61,6 +61,10 @@ void HelpWindow::Print(uint32_t line) const
 {
    WINDOW * window = N_WINDOW();
 
+   std::string const BlankLine(Columns(), ' ');
+   mvwprintw(window, line, 0, BlankLine.c_str());
+   wmove(window, line, 0);
+
    if ((FirstLine() + line) < help_.Size())
    {
       std::string currentLine = help_.Get(FirstLine() + line);

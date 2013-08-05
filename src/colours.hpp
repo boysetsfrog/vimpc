@@ -56,6 +56,7 @@ namespace Main
       int Directory;
       int CurrentSong;
       int TabWindow;
+      int ProgressWindow;
       int SongMatch;
       int PartialAdd;
       int FullAdd;

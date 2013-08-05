@@ -115,6 +115,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    idleMode_             (false),
    hadEvents_            (false)
 {
+   screen_.RegisterProgressCallback(
+      new Main::CallbackObject<Mpc::Client, double>(*this, &Mpc::Client::SeekToPercent));
 }
 
 Client::~Client()
@@ -217,6 +219,7 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
    {
       fd_      = mpd_connection_get_fd(connection_);
       retried_ = false;
+
       screen_.Update();
       DisplaySongInformation();
       vimpc_->OnConnected();
@@ -225,6 +228,8 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
 
       GetVersion();
       UpdateStatus();
+
+      elapsed_ = mpdelapsed_;
 
       if (connect_password != "")
       {
@@ -405,6 +410,15 @@ void Client::SeekTo(uint32_t Time)
    else
    {
       ErrorString(ErrorNumber::ClientNoConnection);
+   }
+}
+
+void Client::SeekToPercent(double Percent)
+{
+   if (currentSong_)
+   {
+      uint32_t const duration = mpd_song_get_duration(currentSong_);
+      SeekTo((uint32_t) (Percent * duration));
    }
 }
 
@@ -1036,11 +1050,18 @@ void Client::DisplaySongInformation()
                                   SecondsToMinutes(remain),  RemainingSeconds(remain),
                                   SecondsToMinutes(duration), RemainingSeconds(duration));
          }
+
+			screen_.SetProgress((double) elapsed / duration);
       }
+		else
+		{
+			screen_.SetProgress(0);
+		}
    }
    else
    {
       screen_.SetStatusLine("%s","");
+		screen_.SetProgress(0);
    }
 }
 
@@ -1456,7 +1477,14 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInL
 {
    Song * const newSong = new Song();
 
-   newSong->SetArtist   (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
+   char const * artist = NULL;
+
+   if (settings_.Get(Setting::AlbumArtist) == true)
+   {
+      artist = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0);
+   }
+
+   newSong->SetArtist   ((artist == NULL) ? mpd_song_get_tag(song, MPD_TAG_ARTIST, 0) : artist);
    newSong->SetAlbum    (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
    newSong->SetTitle    (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
    newSong->SetTrack    (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));

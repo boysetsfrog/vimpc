@@ -59,6 +59,10 @@ void SelectWindow::Print(uint32_t line) const
       ScrollWindow::Print(line);
       wattroff(window, A_REVERSE);
    }
+   else
+   {
+      ScrollWindow::Print(line);
+   }
 }
 
 void SelectWindow::Resize(int rows, int columns)

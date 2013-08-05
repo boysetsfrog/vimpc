@@ -218,7 +218,9 @@ namespace Ui
       void ResetSelection(uint32_t count);
 
    private: //Editting
-      template <int8_t OFFSET>
+		typedef enum { Absolute, Relative } move_t;
+	
+      template <move_t MOVE, int8_t OFFSET>
       void Move(uint32_t count);
 
    private:

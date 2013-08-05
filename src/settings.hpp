@@ -31,6 +31,7 @@
 // X(enum-entry, setting-name, default-value)
 #define TOGGLE_SETTINGS \
    X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
+   X(AlbumArtist,      "albumartist",    true)  /* Use the album artist tag if there is one */ \
    X(BrowseNumbers,    "browsenumbers",  false) /* Show numbers in the browse window */ \
    X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \
    X(ExpandArtists,    "expand-artists", false) /* Expand artists in the library window by default */ \
@@ -43,11 +44,14 @@
    X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
    X(PlayOnAdd,        "playonadd",      false) /* If mpd is stopped play after first add */ \
+   X(ProgressBar,      "progressbar",    true)  /* Show the progress bar */ \
    X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
    X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
    X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
    X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \
+   X(SeekBar,          "seekbar",        true)  /* Mouse click on progress bar causes a seek */ \
    X(ShowPath,         "showpath",       true)  /* Show current path in directory window */ \
+   X(ShowPercent,      "showpercent",    true)  /* Show percentage on the progress bar */ \
    X(ShowLists,        "showlists",      true)  /* Show playlists in directory window */ \
    X(SingleQuit,       "singlequit",     false) /* Quit the entire application not just close a tab */ \
    X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \

@@ -164,8 +164,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
    // Editting
-   actionTable_["<C-A>"]   = &Normal::Move<1>;
-   actionTable_["<C-X>"]   = &Normal::Move<-1>;
+   actionTable_["<C-A>"]   = &Normal::Move<Relative, 1>;
+   actionTable_["<C-X>"]   = &Normal::Move<Relative, -1>;
 
    //
    actionTable_["<Left>"]  = actionTable_["h"];
@@ -178,6 +178,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["e"]       = &Normal::Edit;
    actionTable_["v"]       = &Normal::Visual;
    actionTable_["V"]       = &Normal::Visual;
+   actionTable_["<C-V>"]   = &Normal::Visual;
 
    // Library
    actionTable_["o"]       = &Normal::Expand;
@@ -192,6 +193,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["gt"]      = &Normal::SetActiveWindow<Screen::Next, 0>;
    actionTable_["gT"]      = &Normal::SetActiveWindow<Screen::Previous, 0>;
    actionTable_["gv"]      = &Normal::ResetSelection;
+   actionTable_["gm"]      = &Normal::Move<Absolute, 0>;
 
    // Marks
    actionTable_["m"]       = &Normal::NextAddMark;
@@ -636,6 +638,7 @@ std::string Normal::InputCharToString(int input) const
       conversionTable[KEY_ENTER]     = "<Enter>";
       conversionTable['\n']          = "<Return>";
       conversionTable['<']           = "<lt>";
+      conversionTable['\t']          = "<Tab>";
 
 		// Add F1 - F12  into the converstion table
 		for (int i = 0; i <= 12; ++i)
@@ -1242,13 +1245,22 @@ void Normal::QuitAll(uint32_t count)
 }
 
 // Implementation of editting functions
-template <int8_t OFFSET>
+template <Normal::move_t MOVE, int8_t OFFSET>
 void Normal::Move(uint32_t count)
 {
    if (screen_.GetActiveWindow() == Screen::Playlist)
    {
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
-      int32_t position = currentLine + (count * OFFSET);
+		int32_t position = 0;
+
+		if (MOVE == Relative)
+		{
+			position = currentLine + (count * OFFSET);
+		}
+		else
+		{
+			position = count - 1;
+		}
 
       if (position >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize()))
       {
