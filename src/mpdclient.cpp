@@ -237,9 +237,6 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
       }
 
       GetAllMetaInformation();
-#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-      GetAllMetaFromRoot();
-#endif
       UpdateStatus();
       IdleMode();
    }
@@ -1332,13 +1329,17 @@ void Client::GetAllMetaInformation()
       ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
       ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
    }
+
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+   GetAllMetaFromRoot();
+#endif
 }
 
 void Client::GetAllMetaFromRoot()
 {
    // This is a hack to get playlists when using older libmpdclients, it should
    // not be used unless absolutely necessary
-   playlists_.clear();
+   playlistsOld_.clear();
 
    ClearCommand();
 
@@ -1365,7 +1366,7 @@ void Client::GetAllMetaFromRoot()
                }
 
                Mpc::List const list(path, name);
-               playlists_.push_back(list);
+               playlistsOld_.push_back(list);
             }
          }
 
@@ -1492,9 +1493,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
          if ((wasUpdating == true) && (updating_ == false))
          {
             GetAllMetaInformation();
-#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-            GetAllMetaFromRoot();
-#endif
          }
 
          queueVersion_ = version;

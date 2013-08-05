@@ -306,6 +306,7 @@ namespace Mpc
       std::vector<Mpc::Song *> songs_;
       std::vector<std::string> paths_;
       std::vector<Mpc::List>   playlists_;
+      std::vector<Mpc::List>   playlistsOld_;
    };
 
    //
@@ -443,12 +444,19 @@ namespace Mpc
       }
 #endif
 
-      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles)
 #if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-         || (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd)
+      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
+         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
+      {
+         for (std::vector<Mpc::List>::iterator it = playlistsOld_.begin(); it != playlistsOld_.end(); ++it)
+         {
+            (object.*callBack)(*it);
+         }
+      }
 #endif
-         )
+
+      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
+         (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles))
       {
          for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
          {
