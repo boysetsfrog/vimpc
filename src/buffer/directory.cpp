@@ -126,6 +126,7 @@ void Directory::Clear(bool fullClear)
       paths_.clear();
       songs_.clear();
       children_.clear();
+      playlists_.clear();
    }
 
    while (Size() > 0)
