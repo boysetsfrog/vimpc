@@ -237,6 +237,9 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
       }
 
       GetAllMetaInformation();
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      GetAllMetaFromRoot();
+#endif
       UpdateStatus();
       IdleMode();
    }
@@ -1331,6 +1334,48 @@ void Client::GetAllMetaInformation()
    }
 }
 
+void Client::GetAllMetaFromRoot()
+{
+   // This is a hack to get playlists when using older libmpdclients, it should
+   // not be used unless absolutely necessary
+   playlists_.clear();
+
+   ClearCommand();
+
+   if (Connected() == true)
+   {
+      mpd_send_list_meta(connection_, "/");
+
+      mpd_entity * nextEntity = mpd_recv_entity(connection_);
+
+      for(; nextEntity != NULL; nextEntity = mpd_recv_entity(connection_))
+      {
+         if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_PLAYLIST)
+         {
+            mpd_playlist const * const nextPlaylist = mpd_entity_get_playlist(nextEntity);
+
+            if (nextPlaylist != NULL)
+            {
+               std::string const path = mpd_playlist_get_path(nextPlaylist);
+               std::string name = path;
+
+               if (name.find("/") != std::string::npos)
+               {
+                  name = name.substr(name.find_last_of("/") + 1);
+               }
+
+               Mpc::List const list(path, name);
+               playlists_.push_back(list);
+            }
+         }
+
+         mpd_entity_free(nextEntity);
+      }
+
+      screen_.Invalidate(Ui::Screen::Lists);
+   }
+}
+
 
 void Client::StartCommandList()
 {
@@ -1447,6 +1492,9 @@ void Client::UpdateStatus(bool ExpectUpdate)
          if ((wasUpdating == true) && (updating_ == false))
          {
             GetAllMetaInformation();
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+            GetAllMetaFromRoot();
+#endif
          }
 
          queueVersion_ = version;

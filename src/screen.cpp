@@ -249,14 +249,6 @@ void Screen::Start()
              (addedWindows.find(id) == addedWindows.end()))
          {
             addedWindows[id] = true;
-
-#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-            if ((id == (int) Lists) && (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
-            {
-               continue;
-            }
-#endif
-
             visibleWindows.push_back(id);
          }
       }

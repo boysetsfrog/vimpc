@@ -246,6 +246,7 @@ namespace Mpc
       void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
 
       void GetAllMetaInformation();
+      void GetAllMetaFromRoot();
 
    private:
       void ClearCommand();
@@ -443,7 +444,11 @@ namespace Mpc
 #endif
 
       if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles))
+         (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles)
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+         || (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd)
+#endif
+         )
       {
          for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
          {
