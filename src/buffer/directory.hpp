@@ -111,6 +111,7 @@ namespace Mpc
       static bool IsChildPath(std::string const & Parent, std::string const & Child);
       static std::string ParentPath(std::string const & Path);
 
+
    public:
       std::string CurrentDirectory();
       void ChangeDirectory(std::string New);
@@ -157,6 +158,8 @@ namespace Mpc
          DirectoryComparator sorter;
          Main::Buffer<DirectoryEntry *>::Sort(sorter);
       }
+
+      std::vector<std::string> const & Paths() { return paths_; }
 
    private:
       void AddEntry(std::string fullPath);

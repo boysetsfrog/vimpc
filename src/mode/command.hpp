@@ -245,6 +245,7 @@ namespace Ui
       CommandTable         commandTable_;
       TabCompTable         settingsTable_;
       TabCompTable         loadTable_;
+      TabCompTable         addTable_;
       CommandQueue         commandQueue_;
       ConnectionMap        requiresConnection_;
       Main::Vimpc *        vimpc_;
