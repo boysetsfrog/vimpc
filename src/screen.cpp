@@ -249,14 +249,6 @@ void Screen::Start()
              (addedWindows.find(id) == addedWindows.end()))
          {
             addedWindows[id] = true;
-
-#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-            if ((id == (int) Lists) && (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
-            {
-               continue;
-            }
-#endif
-
             visibleWindows.push_back(id);
          }
       }
@@ -942,7 +934,7 @@ bool Screen::HandleMouseEvent()
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
-               OnProgressClicked(event.x); 
+               OnProgressClicked(event.x);
             }
             return true;
          }

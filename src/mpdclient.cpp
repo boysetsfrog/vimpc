@@ -238,7 +238,7 @@ void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeo
 
       GetAllMetaInformation();
       UpdateStatus();
-		IdleMode();
+      IdleMode();
    }
 }
 
@@ -847,7 +847,7 @@ void Client::Delete(uint32_t position1, uint32_t position2)
    if ((Connected() == true) && (TotalNumberOfSongs() > 0))
    {
       // Only use range if MPD is >= 0.16
-      if (versionMinor_ < 16)
+      if ((versionMajor_ == 0) && (versionMinor_ < 16))
       {
          CommandList list(*this);
 
@@ -1023,6 +1023,8 @@ bool Client::SongIsInQueue(Mpc::Song const & song) const
 
 void Client::DisplaySongInformation()
 {
+   static char durationStr[128];
+
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       if ((currentSong_ != NULL) && (currentStatus_ != NULL))
@@ -1038,30 +1040,32 @@ void Client::DisplaySongInformation()
 
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
 
+
          if (settings_.Get(Setting::TimeRemaining) == false)
          {
-            screen_.MoveSetStatus(screen_.MaxColumns() - 14, "[%2d:%.2d |%2d:%.2d]",
-                                  SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
-                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+            snprintf(durationStr, 127, "[%d:%.2d/%d:%.2d]",
+                     SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
+                     SecondsToMinutes(duration), RemainingSeconds(duration));
          }
          else
          {
-            screen_.MoveSetStatus(screen_.MaxColumns() - 15, "[-%2d:%.2d |%2d:%.2d]",
-                                  SecondsToMinutes(remain),  RemainingSeconds(remain),
-                                  SecondsToMinutes(duration), RemainingSeconds(duration));
+            snprintf(durationStr, 127, "[-%d:%.2d/%d:%.2d]",
+                     SecondsToMinutes(remain),  RemainingSeconds(remain),
+                     SecondsToMinutes(duration), RemainingSeconds(duration));
          }
 
-			screen_.SetProgress((double) elapsed / duration);
+         screen_.MoveSetStatus(screen_.MaxColumns() - strlen(durationStr), "%s", durationStr);
+         screen_.SetProgress((double) elapsed / duration);
       }
-		else
-		{
-			screen_.SetProgress(0);
-		}
+      else
+      {
+         screen_.SetProgress(0);
+      }
    }
    else
    {
       screen_.SetStatusLine("%s","");
-		screen_.SetProgress(0);
+      screen_.SetProgress(0);
    }
 }
 
@@ -1162,7 +1166,7 @@ bool Client::HadEvents()
          mpd_send_noidle(connection_);
          mpd_recv_idle(connection_, false);
          Debug("Left idle mode");
-			CheckError();
+         CheckError();
          idleMode_ = false;
       }
 
@@ -1190,7 +1194,7 @@ bool Client::HadEvents()
                Debug("Had an event");
             }
 
-			   CheckError();
+            CheckError();
             return result;
          }
       }
@@ -1324,6 +1328,52 @@ void Client::GetAllMetaInformation()
 
       ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
       ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+   }
+
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+   GetAllMetaFromRoot();
+#endif
+}
+
+void Client::GetAllMetaFromRoot()
+{
+   // This is a hack to get playlists when using older libmpdclients, it should
+   // not be used unless absolutely necessary
+   playlistsOld_.clear();
+
+   ClearCommand();
+
+   if (Connected() == true)
+   {
+      mpd_send_list_meta(connection_, "/");
+
+      mpd_entity * nextEntity = mpd_recv_entity(connection_);
+
+      for(; nextEntity != NULL; nextEntity = mpd_recv_entity(connection_))
+      {
+         if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_PLAYLIST)
+         {
+            mpd_playlist const * const nextPlaylist = mpd_entity_get_playlist(nextEntity);
+
+            if (nextPlaylist != NULL)
+            {
+               std::string const path = mpd_playlist_get_path(nextPlaylist);
+               std::string name = path;
+
+               if (name.find("/") != std::string::npos)
+               {
+                  name = name.substr(name.find_last_of("/") + 1);
+               }
+
+               Mpc::List const list(path, name);
+               playlistsOld_.push_back(list);
+            }
+         }
+
+         mpd_entity_free(nextEntity);
+      }
+
+      screen_.Invalidate(Ui::Screen::Lists);
    }
 }
 
@@ -1507,6 +1557,9 @@ void Client::GetVersion()
          versionMajor_ = version[0];
          versionMinor_ = version[1];
          versionPatch_ = version[2];
+
+         Debug("libmpdclient: %d.%d.%d", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+         Debug("MPD Server  : %d.%d.%d", versionMajor_, versionMinor_, versionPatch_);
       }
    }
 }

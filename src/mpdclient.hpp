@@ -32,9 +32,24 @@
 // The library check in 2.1.0 doesn't seem to work
 // since we don't support versions older than that anyway, just return false
 // instead of using the check macro
-#if ((LIBMPDCLIENT_MAJOR_VERSION == 2) && (LIBMPDCLIENT_MINOR_VERSION == 1))
+#if ((LIBMPDCLIENT_MAJOR_VERSION <= 2) && (LIBMPDCLIENT_MINOR_VERSION <= 1))
 #undef LIBMPDCLIENT_CHECK_VERSION
-#define LIBMPDCLIENT_CHECK_VERSION(major, minor, patch) 0
+#define LIBMPDCLIENT_CHECK_VERSION(major, minor, patch) \
+    ((major) < LIBMPDCLIENT_MAJOR_VERSION || \
+     ((major) == LIBMPDCLIENT_MAJOR_VERSION && \
+      ((minor) < LIBMPDCLIENT_MINOR_VERSION || \
+       ((minor) == LIBMPDCLIENT_MINOR_VERSION && \
+        (patch) <= LIBMPDCLIENT_PATCH_VERSION))))
+#endif
+
+#ifndef LIBMPDCLIENT_MAJOR_VERSION
+#define LIBMPDCLIENT_MAJOR_VERSION 0
+#endif
+#ifndef LIBMPDCLIENT_MINOR_VERSION
+#define LIBMPDCLIENT_MINOR_VERSION 0
+#endif
+#ifndef LIBMPDCLIENT_PATCH_VERSION
+#define LIBMPDCLIENT_PATCH_VERSION 0
 #endif
 
 namespace Main
@@ -231,6 +246,7 @@ namespace Mpc
       void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
 
       void GetAllMetaInformation();
+      void GetAllMetaFromRoot();
 
    private:
       void ClearCommand();
@@ -290,6 +306,7 @@ namespace Mpc
       std::vector<Mpc::Song *> songs_;
       std::vector<std::string> paths_;
       std::vector<Mpc::List>   playlists_;
+      std::vector<Mpc::List>   playlistsOld_;
    };
 
    //
@@ -423,6 +440,17 @@ namespace Mpc
                (object.*callBack)(Mpc::List(playlist));
                mpd_playlist_free(nextPlaylist);
             }
+         }
+      }
+#endif
+
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
+         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
+      {
+         for (std::vector<Mpc::List>::iterator it = playlistsOld_.begin(); it != playlistsOld_.end(); ++it)
+         {
+            (object.*callBack)(*it);
          }
       }
 #endif
