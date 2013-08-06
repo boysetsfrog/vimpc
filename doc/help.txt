@@ -482,8 +482,8 @@
    [no]singlequit[!]        | :q and :quit will quit vimpc, not close active tab
    [no]smartcase[!]         | if capital in search pattern, enable case sensitivity
    [no]songnumbers[!]       | display id numbers next to songs in other windows
-   [no]sortignorecase[!]    | ignore case when sorting by artist/album
-   [no]sortignorethe[!]     | ignore the prefix 'the' when sorting by artist/album
+   [no]sortignorecase[!]    | ignore case when sorting
+   [no]sortignorethe[!]     | ignore the prefix 'the' when sorting
    [no]stoponquit[!]        | automatically stop playback when vimpc is quit
    [no]tabbar[!]            | whether or not to show the tab bar
    [no]timeremaining[!]     | display the time remaining rather than elapsed

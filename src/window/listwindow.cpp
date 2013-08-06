@@ -48,6 +48,8 @@ ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc
    typedef Main::CallbackObject<Ui::ListWindow , Mpc::Lists::BufferType> WindowCallbackObject;
    typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;
 
+   SoftRedrawOnSetting(Setting::IgnoreCaseSort);
+   SoftRedrawOnSetting(Setting::IgnoreTheSort);
    SoftRedrawOnSetting(Setting::Playlists);
 
    lists_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::ListWindow::AdjustScroll));
