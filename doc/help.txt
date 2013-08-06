@@ -199,7 +199,7 @@
                            | but :conn will call the :connect command
 
    NOTE: Any commands prefixed with a '*' in the help support 
-   tab completion. Currently load, edit and add commands.
+   tab completion. Currently add, edit, load, and set commands.
 
 
  EDITTING:
