@@ -20,7 +20,12 @@ Type `:help` in the client or see `doc/help.txt` for more details.
     * pcre
     * libncursesw
 
-> NOTE: On debian you will also require the *-dev packages
+> NOTE: On debian you will also require the *-dev packages. All Debian
+> dependencies can be installed with the following command:
+
+    sudo apt-get install build-essential autoconf \
+        libmpdclient2 libmpdclient-dev libpcre3 libpcre3-dev \
+        libncursesw5 libncursesw5-dev libncurses5-dev
 
 ## License
 
