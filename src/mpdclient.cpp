@@ -1466,6 +1466,11 @@ void Client::UpdateStatus(bool ExpectUpdate)
             currentSongURI_ = "";
          }
 
+         if (mpdstate_ != MPD_STATE_PLAY)
+         {
+            elapsed_ = mpdelapsed_;
+         }
+
          if ((queueVersion_ > -1) &&
              ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
          {
