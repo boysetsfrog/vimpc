@@ -24,6 +24,7 @@
 #include "settings.hpp"
 #include "vimpc.hpp"
 #include "buffer/playlist.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 
 #include <iostream>

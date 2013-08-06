@@ -22,22 +22,25 @@
 #define __UI__HELP
 
 #include "buffer/buffer.hpp"
-#include "window/scrollwindow.hpp"
+#include "window/selectwindow.hpp"
 
 namespace Main { class Settings; }
+namespace Ui   { class Search; }
 
 namespace Ui
 {
-   class HelpWindow : public Ui::ScrollWindow
+   class HelpWindow : public Ui::SelectWindow
    {
    public:
-      HelpWindow(Main::Settings const & settings, Ui::Screen & screen);
+      HelpWindow(Main::Settings const & settings, Ui::Screen & screen, Ui::Search const & search);
       ~HelpWindow();
 
    public:
       void Redraw();
       void Print(uint32_t line) const;
       void Confirm();
+      void Scroll(int32_t scrollCount);
+      void ScrollTo(uint16_t scrollLine);
 
       std::string SearchPattern(int32_t id) const { return help_.Get(id); }
 
@@ -50,6 +53,7 @@ namespace Ui
 
    private:
       Main::Settings const & settings_;
+      Ui::Search     const & search_;
       typedef Main::Buffer<std::string> HelpBuffer;
       HelpBuffer help_;
    };
