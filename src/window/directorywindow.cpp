@@ -479,7 +479,7 @@ void DirectoryWindow::ScrollToFirstMatch(std::string const & input)
    {
       Mpc::DirectoryEntry * entry = directory_.Get(i);
 
-      if ((entry->type_ == Mpc::ArtistType) &&
+      if ((entry->type_ == Mpc::PathType) &&
           (Algorithm::imatch(entry->name_, input, settings_.Get(Setting::IgnoreTheSort), settings_.Get(Setting::IgnoreCaseSort)) == true))
       {
          ScrollTo(i);
