@@ -290,6 +290,20 @@ void ListWindow::Edit()
    }
 }
 
+void ListWindow::ScrollToFirstMatch(std::string const & input)
+{
+   for (uint32_t i = 0; i < lists_.Size(); ++i)
+   {
+      Mpc::List const entry = lists_.Get(i);
+
+      if ((Algorithm::imatch(entry.name_, input, settings_.Get(Setting::IgnoreTheSort), settings_.Get(Setting::IgnoreCaseSort)) == true))
+      {
+         ScrollTo(i);
+         break;
+      }
+   }
+}
+
 
 void ListWindow::Clear()
 {
