@@ -54,9 +54,9 @@
            g`<Key>         | as above
 
    Default marks are created for A - Z. These marks will allow you to
-   instantly jump to the first artist in the current window that begins
-   with the corresponding letter. ie. 'A will jump to the first artist
-   starting with A. (Only for browse and library windows)
+   instantly jump to the first entry in the current window that begins
+   with the corresponding letter. ie. 'A will jump to the first entry
+   starting with A. (browse, directory, library and list windows only)
 
  
  PLAYING (ALSO SEE PLAYLIST):
