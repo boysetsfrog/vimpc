@@ -274,6 +274,8 @@ pcrecpp::RE_Options Search::GetOptions(const std::string & search) const
       opt.set_caseless(false);
    }
 
+   opt.set_utf8(true);
+
    return opt;
 }
 
