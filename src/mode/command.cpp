@@ -401,7 +401,16 @@ void Command::Add(std::string const & arguments)
 	if (CheckConnected() == true)
 	{
       screen_.Initialise(Ui::Screen::Playlist);
-      client_.Add(arguments);
+      
+      if (arguments != "")
+      {
+         client_.Add(arguments);
+      }
+      else
+      {
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count_, false);
+      }
+
       client_.AddComplete();
    }
 }
