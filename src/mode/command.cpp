@@ -35,6 +35,7 @@
 #include "assert.hpp"
 #include "buffers.hpp"
 #include "settings.hpp"
+#include "tag.hpp"
 #include "vimpc.hpp"
 
 #include "buffer/directory.hpp"
@@ -547,15 +548,15 @@ void Command::Sleep(std::string const & seconds)
 void Command::Substitute(std::string const & expression)
 {
 #ifdef TAG_SUPPORT
-   typedef void (TagLib::Tag::*TagFunction)(TagLib::String const &);
+   typedef void (*TagFunction)(std::string const &, char const *);
    typedef std::map<std::string, TagFunction> OptionsMap;
-   static OptionsMap ModifyFunctions;
+   static OptionsMap modifyFunctions;
 
-   if (ModifyFunctions.size() == 0)
+   if (modifyFunctions.size() == 0)
    {
-      ModifyFunctions["a"] = &TagLib::Tag::setArtist;
-      ModifyFunctions["b"] = &TagLib::Tag::setAlbum;
-      ModifyFunctions["t"] = &TagLib::Tag::setTitle;
+      modifyFunctions["a"] = &Mpc::Tag::SetArtist;
+      modifyFunctions["b"] = &Mpc::Tag::SetAlbum;
+      modifyFunctions["t"] = &Mpc::Tag::SetTitle;
    }
 
    std::string match, substitution, options;
@@ -569,18 +570,12 @@ void Command::Substitute(std::string const & expression)
 
       if (options.empty() == false)
       {
-         TagLib::FileRef file(path.c_str());
+         OptionsMap::iterator it = modifyFunctions.find(options);
 
-         if ((file.isNull() == false) && (file.tag() != NULL))
+         if (it != modifyFunctions.end())
          {
-            OptionsMap::iterator it = ModifyFunctions.find(options);
-
-            if (it != ModifyFunctions.end())
-            {
-               TagFunction tagFunction = it->second;
-               (*(file.tag()).*tagFunction)(substitution);
-               file.save();
-            }
+            TagFunction tagFunction = it->second;
+            (*tagFunction)(path, substitution.c_str());
          }
       }
    }
