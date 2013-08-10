@@ -42,6 +42,10 @@ PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
 AC_SUBST(pcrecpp_LIBS)
 AC_SUBST(pcrecpp_CFLAGS)
 
+AC_CHECK_HEADER(pcrecpp.h,
+                [],
+                [AC_MSG_ERROR(libpcre-dev library is required)])
+
 taglib_default="yes"
 AC_ARG_ENABLE(taglib, [ --enable-taglib=[no/yes] turn on/off taglib support [default=$taglib_default]],, enable_taglib=$taglib_default)
 if test "x$enable_taglib" = "xyes"; then
@@ -50,9 +54,13 @@ PKG_CHECK_MODULES(taglib, taglib)
 
 AC_SUBST(taglib_LIBS)
 AC_SUBST(taglib_CFLAGS)
+
+AC_CHECK_HEADER(taglib/taglib.h,
+                [],
+                [AC_MSG_ERROR(taglib-dev library is required)])
 fi
 
-AC_CHECK_HEADER(mpd/connection.h,
+AC_CHECK_HEADER(mpd/client.h,
                 [],
                 [AC_MSG_ERROR(mpdclient-dev library is required)])
 
