@@ -547,13 +547,39 @@ void Command::Sleep(std::string const & seconds)
 void Command::Substitute(std::string const & expression)
 {
 #ifdef TAG_SUPPORT
+   typedef void (TagLib::Tag::*TagFunction)(TagLib::String const &);
+   typedef std::map<std::string, TagFunction> OptionsMap;
+   static OptionsMap ModifyFunctions;
+
+   if (ModifyFunctions.size() == 0)
+   {
+      ModifyFunctions["a"] = &TagLib::Tag::setArtist;
+      ModifyFunctions["b"] = &TagLib::Tag::setAlbum;
+      ModifyFunctions["t"] = &TagLib::Tag::setTitle;
+   }
+
    std::string match, substitution, options;
    std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + client_.GetCurrentSongURI();
 
-   pcrecpp::RE const split("^/([^/]*)/([^/]*)/?([^/]*)\n?$");
+   pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
    split.FullMatch(expression.c_str(), &match, &substitution, &options);
 
-   TagLib::FileRef file(path.c_str());
+   if (options.empty() == false)
+   {
+      TagLib::FileRef file(path.c_str());
+
+      if ((file.isNull() == false) && (file.tag() != NULL))
+      {
+         OptionsMap::iterator it = ModifyFunctions.find(options);
+
+         if (it != ModifyFunctions.end())
+         {
+            TagFunction tagFunction = it->second;
+            (*(file.tag()).*tagFunction)(substitution);
+            file.save();
+         }
+      }
+   }
 #endif
 }
 
