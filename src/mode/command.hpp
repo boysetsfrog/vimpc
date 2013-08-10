@@ -123,7 +123,9 @@ namespace Ui
       //! Similar to echo but in the errror window
       void EchoError(std::string const & echo);
 
-      void Sleep(std::string const & seconds);
+      void Sleep(std::string const & expression);
+
+      void Substitute(std::string const & seconds);
 
    private:
       void Add(std::string const & arguments);

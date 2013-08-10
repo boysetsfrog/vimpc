@@ -26,6 +26,11 @@
 #include <pcrecpp.h>
 #include <sstream>
 
+#ifdef HAVE_TAGLIB_H
+#include <taglib/taglib.h>
+#include <taglib/fileref.h>
+#endif
+
 #include "algorithm.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
@@ -100,6 +105,11 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("seek-",      &Command::Seek<-1>,     true);
    AddCommand("single",     &Command::Single,       true);
    AddCommand("shuffle",    &Command::Shuffle,      true);
+   AddCommand("sleep",      &Command::Sleep,        false);
+#ifdef TAG_SUPPORT
+   AddCommand("substitute", &Command::Substitute,   false);
+   AddCommand("s",          &Command::Substitute,   false);
+#endif
    AddCommand("sleep",      &Command::Sleep,        false);
    AddCommand("swap",       &Command::Swap,         true);
    AddCommand("stop",       &Command::Stop,         true);
@@ -532,6 +542,19 @@ void Command::Sleep(std::string const & seconds)
 {
    vimpc_->ChangeMode('\n', "");
    usleep(1000 * 1000 * atoi(seconds.c_str()));
+}
+
+void Command::Substitute(std::string const & expression)
+{
+#ifdef TAG_SUPPORT
+   std::string match, substitution, options;
+
+   pcrecpp::RE const split("^/([^/]*)/([^/]*)/?([^/]*)\n?$");
+   split.FullMatch(expression.c_str(), &match, &substitution, &options);
+
+   //TagLib::FileRef file(settings_.Get(LocalMusicDir) + "");
+   //Echo(file.tag()->artist());
+#endif
 }
 
 
@@ -1193,9 +1216,8 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 
 void Command::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
 {
-   std::stringstream commandStream(input);
-   std::getline(commandStream, command,   ' ');
-   std::getline(commandStream, arguments, '\n');
+   pcrecpp::RE const split("^([^ /]*) ?(/?[^\n]*)\n?$");
+   split.FullMatch(input.c_str(), &command, &arguments);
 }
 
 std::vector<std::string> Command::SplitArguments(std::string const & input, char delimeter)
