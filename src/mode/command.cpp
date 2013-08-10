@@ -448,8 +448,7 @@ void Command::Delete(std::string const & arguments)
       }
       else
       {
-         //\TODO delete selected song ?
-      	ErrorString(ErrorNumber::InvalidParameter, "too many parameters");
+         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
    }
 }
