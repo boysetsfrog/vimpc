@@ -49,6 +49,7 @@ AC_CHECK_HEADER(pcrecpp.h,
 taglib_default="yes"
 AC_ARG_ENABLE(taglib, [ --enable-taglib=[no/yes] turn on/off taglib support [default=$taglib_default]],, enable_taglib=$taglib_default)
 if test "x$enable_taglib" = "xyes"; then
+AC_DEFINE_UNQUOTED(TAG_SUPPORT, "1", "Define to 1 if tag support enabled")
 
 PKG_CHECK_MODULES(taglib, taglib)
 
@@ -56,7 +57,7 @@ AC_SUBST(taglib_LIBS)
 AC_SUBST(taglib_CFLAGS)
 
 AC_CHECK_HEADER(taglib/taglib.h,
-                [],
+                [AC_DEFINE_UNQUOTED(HAVE_TAGLIB_H,1,Define to 1 if <taglib.h> header file)],
                 [AC_MSG_ERROR(taglib-dev library is required)])
 fi
 
