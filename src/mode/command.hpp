@@ -198,7 +198,7 @@ namespace Ui
       //
       // \param[in] command   The command to execute
       // \param[in] arguments The arguments to pass to the command
-      bool ExecuteCommand(std::string command, std::string const & arguments);
+      bool ExecuteCommand(int32_t count, std::string command, std::string const & arguments);
 
       // Splits the input into command and argument parts
       //

@@ -215,9 +215,11 @@ bool Command::ExecuteCommand(std::string const & input)
 {
    pcrecpp::RE const blankCommand("^\\s*$");
    pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
+   pcrecpp::RE const rangeSplit("(^\\d)*,?(\\d*)$");
 
    std::string matchString, commandString;
    std::string range, command, arguments;
+   int32_t     count = 1;
 
    SplitCommand(input, range, command, arguments);
 
@@ -228,12 +230,24 @@ bool Command::ExecuteCommand(std::string const & input)
       fullCommand = aliasTable_[command] + " " + arguments;
    }
 
-   if ((Algorithm::isNumeric(range) == true) && (range != ""))
+   if (range != "")
    {
-      // Commands for the form :<number> go to that line instead
-      int32_t line = atoi(range.c_str());
-      line = (line >= 1) ? (line - 1) : 0;
-      screen_.ScrollTo(line);
+      std::string rangeLine, rangeCount;
+      rangeSplit.FullMatch(range.c_str(), &rangeLine, &rangeCount);
+
+      if ((Algorithm::isNumeric(rangeLine) == true) && (rangeLine != ""))
+      {
+         // Commands of the form :<number> go to that line instead
+         int32_t line = atoi(rangeLine.c_str());
+         line = (line >= 1) ? (line - 1) : 0;
+         screen_.ScrollTo(line);
+      }
+
+      if ((Algorithm::isNumeric(rangeCount) == true) && (rangeCount != ""))
+      {
+         count = atoi(rangeCount.c_str());
+         count = (count <= 0) ? 1 : count; 
+      }
    }
 
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
@@ -266,7 +280,12 @@ bool Command::ExecuteCommand(std::string const & input)
    else if (command != "")
    {
       // Just a normal command
-      ExecuteCommand(command, arguments);
+      ExecuteCommand(count, command, arguments);
+      
+      if (count > 0)
+      {
+         screen_.Scroll(count - 1);
+      }
    }
 
    return true;
@@ -282,7 +301,7 @@ void Command::ExecuteQueuedCommands()
 {
    for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
    {
-      ExecuteCommand((*it).first, (*it).second);
+      ExecuteCommand(1, (*it).first, (*it).second);
    }
 
    commandQueue_.clear();
@@ -1186,7 +1205,7 @@ void Command::DebugTestScreen(std::string const & arguments)
 }
 
 
-bool Command::ExecuteCommand(std::string command, std::string const & arguments)
+bool Command::ExecuteCommand(int32_t count, std::string command, std::string const & arguments)
 {
    pcrecpp::RE const forceCheck("^.*!$");
 
