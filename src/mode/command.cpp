@@ -548,11 +548,12 @@ void Command::Substitute(std::string const & expression)
 {
 #ifdef TAG_SUPPORT
    std::string match, substitution, options;
+   std::string path = settings_.Get(Setting::LocalMusicDir) + "";
 
    pcrecpp::RE const split("^/([^/]*)/([^/]*)/?([^/]*)\n?$");
    split.FullMatch(expression.c_str(), &match, &substitution, &options);
 
-   //TagLib::FileRef file(settings_.Get(LocalMusicDir) + "");
+   TagLib::FileRef file(path.c_str());
    //Echo(file.tag()->artist());
 #endif
 }
