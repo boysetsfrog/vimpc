@@ -555,6 +555,7 @@ void Command::Substitute(std::string const & expression)
       modifyFunctions["a"] = &Mpc::Tag::SetArtist;
       modifyFunctions["b"] = &Mpc::Tag::SetAlbum;
       modifyFunctions["t"] = &Mpc::Tag::SetTitle;
+      modifyFunctions["n"] = &Mpc::Tag::SetTrack;
    }
 
    std::string match, substitution, options;

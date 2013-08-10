@@ -73,7 +73,7 @@ namespace Mpc
 
          if ((file.isNull() == false) && (file.tag() != NULL))
          {
-            //file.tag()->setArtist(artist);
+            file.tag()->setTrack(atoi(track));
             file.save();
          }
       }
