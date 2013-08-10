@@ -19,6 +19,7 @@ Type `:help` in the client or see `doc/help.txt` for more details.
     * libmpdclient
     * pcre
     * libncursesw
+    * taglib (can be disabled with ./configure --enable-taglib=no)
 
 > NOTE: On debian you will also require the *-dev packages. All Debian
 > dependencies can be installed with the following command:
