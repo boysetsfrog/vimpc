@@ -561,19 +561,24 @@ void Command::Substitute(std::string const & expression)
 
    if (settings_.Get(Setting::LocalMusicDir) != "")
    {
-      std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + client_.GetCurrentSongURI();
+      Mpc::Song const * const song = screen_.GetActiveSelectedSong();
 
-      pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
-      split.FullMatch(expression.c_str(), &match, &substitution, &options);
-
-      if (options.empty() == false)
+      if (song != NULL)
       {
-         OptionsMap::iterator it = modifyFunctions.find(options);
+         std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + song->URI();
 
-         if (it != modifyFunctions.end())
+         pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
+         split.FullMatch(expression.c_str(), &match, &substitution, &options);
+
+         if (options.empty() == false)
          {
-            TagFunction tagFunction = it->second;
-            (*tagFunction)(path, substitution.c_str());
+            OptionsMap::iterator it = modifyFunctions.find(options);
+
+            if (it != modifyFunctions.end())
+            {
+               TagFunction tagFunction = it->second;
+               (*tagFunction)(path, substitution.c_str());
+            }
          }
       }
    }
