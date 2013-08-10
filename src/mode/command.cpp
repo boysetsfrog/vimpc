@@ -217,15 +217,23 @@ bool Command::ExecuteCommand(std::string const & input)
    pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
 
    std::string matchString, commandString;
-   std::string command, arguments;
+   std::string range, command, arguments;
 
-   SplitCommand(input, command, arguments);
+   SplitCommand(input, range, command, arguments);
 
    std::string fullCommand(command + " " + arguments);
 
    if (aliasTable_.find(command) != aliasTable_.end())
    {
       fullCommand = aliasTable_[command] + " " + arguments;
+   }
+
+   if ((Algorithm::isNumeric(range) == true) && (range != ""))
+   {
+      // Commands for the form :<number> go to that line instead
+      int32_t line = atoi(range.c_str());
+      line = (line >= 1) ? (line - 1) : 0;
+      screen_.ScrollTo(line);
    }
 
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
@@ -255,17 +263,7 @@ bool Command::ExecuteCommand(std::string const & input)
       // by calling this fucking again
       ExecuteCommand(fullCommand);
    }
-   else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
-   {
-      if (command != "")
-      {
-         // Commands for the form :<number> go to that line instead
-         int32_t line = atoi(command.c_str());
-         line = (line >= 1) ? (line - 1) : 0;
-         screen_.ScrollTo(line);
-      }
-   }
-   else
+   else if (command != "")
    {
       // Just a normal command
       ExecuteCommand(command, arguments);
@@ -824,8 +822,8 @@ void Command::Unmap(std::string const & arguments)
 
 void Command::TabMap(std::string const & arguments)
 {
-   std::string tabname, args;
-   SplitCommand(arguments, tabname, args);
+   std::string range, tabname, args;
+   SplitCommand(arguments, range, tabname, args);
 
    TabMap(tabname, args);
 }
@@ -1243,10 +1241,10 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    return true;
 }
 
-void Command::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
+void Command::SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments)
 {
-   pcrecpp::RE const split("^([^ /]*) ?(/?[^\n]*)\n?$");
-   split.FullMatch(input.c_str(), &command, &arguments);
+   pcrecpp::RE const split("^([\\d,]*)?([^ /]*) ?(/?[^\n]*)\n?$");
+   split.FullMatch(input.c_str(), &range, &command, &arguments);
 }
 
 std::vector<std::string> Command::SplitArguments(std::string const & input, char delimeter)
@@ -1337,9 +1335,9 @@ void Command::Mpc(std::string const & arguments)
 
 void Command::Alias(std::string const & input)
 {
-   std::string command, arguments;
+   std::string range, command, arguments;
 
-   SplitCommand(input, command, arguments);
+   SplitCommand(input, range, command, arguments);
 
    aliasTable_[command] = arguments;
 }

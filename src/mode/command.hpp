@@ -203,9 +203,10 @@ namespace Ui
       // Splits the input into command and argument parts
       //
       // \param[in]  input     The string to split
+      // \param[out] range     The range to run commands over
       // \param[out] command   The command part of the string
       // \param[out] arguments The arguments from the string
-      void SplitCommand(std::string const & input, std::string & command, std::string & arguments);
+      void SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments);
 
       // Splits the arguments based on the given delimeter
       // \param[in]  input     The string to split
