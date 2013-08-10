@@ -42,6 +42,16 @@ PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
 AC_SUBST(pcrecpp_LIBS)
 AC_SUBST(pcrecpp_CFLAGS)
 
+taglib_default="yes"
+AC_ARG_ENABLE(taglib, [ --enable-taglib=[no/yes] turn on/off taglib support [default=$taglib_default]],, enable_taglib=$taglib_default)
+if test "x$enable_taglib" = "xyes"; then
+
+PKG_CHECK_MODULES(taglib, taglib)
+
+AC_SUBST(taglib_LIBS)
+AC_SUBST(taglib_CFLAGS)
+fi
+
 AC_CHECK_HEADER(mpd/connection.h,
                 [],
                 [AC_MSG_ERROR(mpdclient-dev library is required)])
