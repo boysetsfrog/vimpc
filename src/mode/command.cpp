@@ -559,26 +559,34 @@ void Command::Substitute(std::string const & expression)
    }
 
    std::string match, substitution, options;
-   std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + client_.GetCurrentSongURI();
 
-   pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
-   split.FullMatch(expression.c_str(), &match, &substitution, &options);
-
-   if (options.empty() == false)
+   if (settings_.Get(Setting::LocalMusicDir) != "")
    {
-      TagLib::FileRef file(path.c_str());
+      std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + client_.GetCurrentSongURI();
 
-      if ((file.isNull() == false) && (file.tag() != NULL))
+      pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
+      split.FullMatch(expression.c_str(), &match, &substitution, &options);
+
+      if (options.empty() == false)
       {
-         OptionsMap::iterator it = ModifyFunctions.find(options);
+         TagLib::FileRef file(path.c_str());
 
-         if (it != ModifyFunctions.end())
+         if ((file.isNull() == false) && (file.tag() != NULL))
          {
-            TagFunction tagFunction = it->second;
-            (*(file.tag()).*tagFunction)(substitution);
-            file.save();
+            OptionsMap::iterator it = ModifyFunctions.find(options);
+
+            if (it != ModifyFunctions.end())
+            {
+               TagFunction tagFunction = it->second;
+               (*(file.tag()).*tagFunction)(substitution);
+               file.save();
+            }
          }
       }
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NotSet, "local-music-dir");
    }
 #endif
 }
