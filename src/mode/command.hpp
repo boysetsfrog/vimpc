@@ -198,7 +198,7 @@ namespace Ui
       //
       // \param[in] command   The command to execute
       // \param[in] arguments The arguments to pass to the command
-      bool ExecuteCommand(int32_t count, std::string command, std::string const & arguments);
+      bool ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments);
 
       // Splits the input into command and argument parts
       //
@@ -230,11 +230,19 @@ namespace Ui
       std::string TabComplete(std::string const & command);
 
    private:
+      typedef struct
+      {
+         uint32_t    line;
+         uint32_t    count;
+         std::string command;
+         std::string arguments;
+      } CommandArgs;
+
+   private:
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
 
-      typedef std::pair<std::string, std::string>    CommandArgPair;
-      typedef std::vector<CommandArgPair>            CommandQueue;
+      typedef std::vector<CommandArgs>               CommandQueue;
 
       typedef std::map<std::string, bool>            ConnectionMap;
 
@@ -244,6 +252,7 @@ namespace Ui
       bool                 initTabCompletion_;
       bool                 forceCommand_;
       bool                 queueCommands_;
+      uint32_t             count_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       TabCompTable         settingsTable_;

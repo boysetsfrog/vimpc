@@ -215,21 +215,26 @@ bool Command::ExecuteCommand(std::string const & input)
 {
    pcrecpp::RE const blankCommand("^\\s*$");
    pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
-   pcrecpp::RE const rangeSplit("(^\\d)*,?(\\d*)$");
+   pcrecpp::RE const rangeSplit("(^\\d*),?(\\d*)$");
 
    std::string matchString, commandString;
    std::string range, command, arguments;
-   int32_t     count = 1;
+   uint32_t    count = 0;
+   uint32_t    line  = 0; //Actually stores line + 1, as 0 represents invalid
 
    SplitCommand(input, range, command, arguments);
 
    std::string fullCommand(command + " " + arguments);
 
+   // Resolve a command from an alias
    if (aliasTable_.find(command) != aliasTable_.end())
    {
       fullCommand = aliasTable_[command] + " " + arguments;
    }
 
+   // Determine whether a range or a line number was used of the form
+   // :x or :x,y this determines where the command should start
+   // and how many times it should run
    if (range != "")
    {
       std::string rangeLine, rangeCount;
@@ -238,18 +243,27 @@ bool Command::ExecuteCommand(std::string const & input)
       if ((Algorithm::isNumeric(rangeLine) == true) && (rangeLine != ""))
       {
          // Commands of the form :<number> go to that line instead
-         int32_t line = atoi(rangeLine.c_str());
-         line = (line >= 1) ? (line - 1) : 0;
-         screen_.ScrollTo(line);
-      }
+         int32_t lineint = atoi(rangeLine.c_str());
+         line = (lineint > 1) ? lineint : 1;
 
-      if ((Algorithm::isNumeric(rangeCount) == true) && (rangeCount != ""))
-      {
-         count = atoi(rangeCount.c_str());
-         count = (count <= 0) ? 1 : count; 
+         if ((Algorithm::isNumeric(rangeCount) == true) && (rangeCount != ""))
+         {
+            int32_t intcount = atoi(rangeCount.c_str());
+
+            if (intcount >= lineint)
+            {
+               count = (intcount <= 0) ? 0 : (uint32_t) (intcount - lineint) + 1; 
+            }
+            else
+            {
+               count = (intcount <= 0) ? 0 : (uint32_t) (lineint - intcount) + 1; 
+               line = (intcount > 1) ? intcount : 1;
+            }
+         }
       }
    }
 
+   // If there are multiple commands we need to run them all
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
        (command != "alias")) // In the case of alias we don't actually want to run the commands
    {
@@ -280,11 +294,15 @@ bool Command::ExecuteCommand(std::string const & input)
    else if (command != "")
    {
       // Just a normal command
-      ExecuteCommand(count, command, arguments);
-      
+      ExecuteCommand(line, count, command, arguments);
+   }
+   else if (line > 0)
+   {
+      screen_.ScrollTo(line - 1);
+
       if (count > 0)
       {
-         screen_.Scroll(count - 1);
+         screen_.ScrollTo(line + count - 2);
       }
    }
 
@@ -301,7 +319,7 @@ void Command::ExecuteQueuedCommands()
 {
    for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
    {
-      ExecuteCommand(1, (*it).first, (*it).second);
+      ExecuteCommand((*it).line, (*it).count, (*it).command, (*it).arguments);
    }
 
    commandQueue_.clear();
@@ -581,25 +599,29 @@ void Command::Substitute(std::string const & expression)
 
    if (settings_.Get(Setting::LocalMusicDir) != "")
    {
-      Mpc::Song const * const song = screen_.GetActiveSelectedSong();
-
-      if (song != NULL)
+      for (int i = 0; i < count_; ++i)
       {
-         std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + song->URI();
+         Mpc::Song const * const song = screen_.GetActiveSelectedSong();
 
-         pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
-         split.FullMatch(expression.c_str(), &match, &substitution, &options);
-
-         if (options.empty() == false)
+         if (song != NULL)
          {
-            OptionsMap::iterator it = modifyFunctions.find(options);
+            std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + song->URI();
 
-            if (it != modifyFunctions.end())
+            pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
+            split.FullMatch(expression.c_str(), &match, &substitution, &options);
+
+            if (options.empty() == false)
             {
-               TagFunction tagFunction = it->second;
-               (*tagFunction)(path, substitution.c_str());
+               OptionsMap::iterator it = modifyFunctions.find(options);
+
+               if (it != modifyFunctions.end())
+               {
+                  TagFunction tagFunction = it->second;
+                  (*tagFunction)(path, substitution.c_str());
+               }
             }
          }
+         screen_.Scroll(1);
       }
    }
    else
@@ -1205,11 +1227,16 @@ void Command::DebugTestScreen(std::string const & arguments)
 }
 
 
-bool Command::ExecuteCommand(int32_t count, std::string command, std::string const & arguments)
+bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments)
 {
    pcrecpp::RE const forceCheck("^.*!$");
 
    forceCommand_ = (forceCheck.FullMatch(command));
+
+   if (line > 0)
+   {
+      screen_.ScrollTo(line - 1);
+   }
 
    if (forceCommand_ == true)
    {
@@ -1241,15 +1268,19 @@ bool Command::ExecuteCommand(int32_t count, std::string command, std::string con
    {
       if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (client_.Connected() == true))
       {
+         count_ = (count <= 0) ? 1 : count;
          CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
          CommandFunction const commandFunction = it->second;
-
          (*this.*commandFunction)(arguments);
       }
       else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
       {
-         CommandArgPair pair(commandToExecute, arguments);
-         commandQueue_.push_back(pair);
+         CommandArgs commandArgs;
+         commandArgs.line      = line;
+         commandArgs.count     = count;
+         commandArgs.command   = commandToExecute;
+         commandArgs.arguments = arguments;
+         commandQueue_.push_back(commandArgs);
       }
    }
    else if (validCommandCount > 1)
@@ -1262,6 +1293,11 @@ bool Command::ExecuteCommand(int32_t count, std::string command, std::string con
    }
 
    forceCommand_ = false;
+
+   if ((count > 0) && (line > 0))
+   {
+      screen_.ScrollTo(line + count - 2);
+   }
 
    return true;
 }
