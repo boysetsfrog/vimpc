@@ -595,9 +595,14 @@ void Command::Sleep(std::string const & seconds)
 void Command::Substitute(std::string const & expression)
 {
 #ifdef TAG_SUPPORT
-   typedef void (*TagFunction)(Mpc::Song *, std::string const &, char const *);
-   typedef std::map<std::string, TagFunction> OptionsMap;
+   typedef void (*EditFunction)(Mpc::Song *, std::string const &, char const *);
+   typedef std::map<std::string, EditFunction> OptionsMap;
+
+   typedef std::string const & (Mpc::Song::*ReadFunction)() const;
+   typedef std::map<std::string, ReadFunction> InfoMap;
+
    static OptionsMap modifyFunctions;
+   static InfoMap    readFunctions;
 
    if (modifyFunctions.size() == 0)
    {
@@ -605,6 +610,11 @@ void Command::Substitute(std::string const & expression)
       modifyFunctions["b"] = &Mpc::Tag::SetAlbum;
       modifyFunctions["t"] = &Mpc::Tag::SetTitle;
       modifyFunctions["n"] = &Mpc::Tag::SetTrack;
+
+      readFunctions["a"] = &Mpc::Song::Artist;
+      readFunctions["b"] = &Mpc::Song::Album;
+      readFunctions["t"] = &Mpc::Song::Title;
+      readFunctions["n"] = &Mpc::Song::Track;
    }
 
    std::string match, substitution, options;
@@ -624,20 +634,37 @@ void Command::Substitute(std::string const & expression)
 
             if (options.empty() == false)
             {
-               OptionsMap::iterator it = modifyFunctions.find(options);
+               InfoMap::iterator    it = readFunctions.find(options);
+               OptionsMap::iterator jt = modifyFunctions.find(options);
 
-               if (it != modifyFunctions.end())
+               if (it != readFunctions.end())
                {
-                  TagFunction tagFunction = it->second;
-                  (*tagFunction)(song, path, substitution.c_str());
+                  ReadFunction readFunction = it->second;
+
+                  if (match == "")
+                  {
+                     match = ".*";
+                  }
+
+                  pcrecpp::RE const check(match);
+                  std::string value = ((*song).*readFunction)();
+         
+                  if (check.PartialMatch(value) == true)
+                  {
+                     if (jt != modifyFunctions.end())
+                     {
+                        check.Replace(substitution, &value);
+                        EditFunction editFunction = jt->second;
+                        (*editFunction)(song, path, value.c_str());
+
+                        if (settings_.Get(Setting::AutoUpdate) == true)
+                        {
+                           client_.Update(song->URI());
+                        }
+                     }
+                  }
                }
             }
-
-            if (settings_.Get(Setting::AutoUpdate) == true)
-            {
-               client_.Update(song->URI());
-            }
-
          }
          screen_.Scroll(1);
       }
