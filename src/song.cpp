@@ -30,6 +30,8 @@ const std::string UnknownArtist = "Unknown Artist";
 const std::string UnknownAlbum  = "Unknown Album";
 const std::string UnknownTitle  = "Unknown";
 const std::string UnknownURI    = "Unknown";
+const std::string UnknownGenre  = "Unknown";
+const std::string UnknownDate   = "Unknown";
 
 using namespace Mpc;
 
@@ -40,6 +42,8 @@ Song::Song() :
    title_     (""),
    track_     (""),
    uri_       (""),
+   genre_     (""),
+   date_      (""),
    duration_  (0),
    lastFormat_(""),
    formatted_ (""),
@@ -53,6 +57,8 @@ Song::Song(Song const & song) :
    title_     (song.Title()),
    track_     (song.Track()),
    uri_       (song.URI()),
+   genre_     (song.Genre()),
+   date_      (song.Date()),
    duration_  (song.Duration()),
    lastFormat_(song.lastFormat_),
    formatted_ (song.formatted_)
@@ -199,6 +205,40 @@ void Song::SetURI(const char * uri)
 std::string const & Song::URI() const
 {
    return uri_;
+}
+
+void Song::SetGenre(const char * genre)
+{
+   if (genre != NULL)
+   {
+      genre_ = genre;
+   }
+   else
+   {
+      genre_ = UnknownGenre;
+   }
+}
+
+std::string const & Song::Genre() const
+{
+   return genre_;
+}
+
+void Song::SetDate(const char * date)
+{
+   if (date != NULL)
+   {
+      date_ = date;
+   }
+   else
+   {
+      date_ = UnknownDate;
+   }
+}
+
+std::string const & Song::Date() const
+{
+   return date_;
 }
 
 void Song::SetDuration(int32_t duration)

@@ -227,6 +227,9 @@ namespace Ui
       Ui::ScrollWindow & ActiveWindow() const;
       Ui::ScrollWindow & Window(uint32_t window) const;
 
+      // Access the previous window
+      int32_t GetPreviousWindow() const;
+
       // Access the selected item in a particular window
       int32_t GetSelected(uint32_t window) const;
       int32_t GetActiveSelected() const { return GetSelected(GetActiveWindow()); }

@@ -1598,6 +1598,8 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInL
    newSong->SetTitle    (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
    newSong->SetTrack    (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
    newSong->SetURI      (mpd_song_get_uri(song));
+   newSong->SetGenre    (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
+   newSong->SetDate     (mpd_song_get_tag(song, MPD_TAG_DATE, 0));
    newSong->SetDuration (mpd_song_get_duration(song));
 
    return newSong;
