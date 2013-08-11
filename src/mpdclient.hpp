@@ -435,16 +435,20 @@ namespace Mpc
          if (Connected() == true)
          {
             Debug("Client::Request playlists");
-            mpd_send_list_playlists(connection_);
-
-            mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
-
-            for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+            
+            if (mpd_send_list_playlists(connection_))
             {
-               std::string const playlist = mpd_playlist_get_path(nextPlaylist);
-               (object.*callBack)(Mpc::List(playlist));
-               mpd_playlist_free(nextPlaylist);
+               mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
+
+               for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+               {
+                  std::string const playlist = mpd_playlist_get_path(nextPlaylist);
+                  (object.*callBack)(Mpc::List(playlist));
+                  mpd_playlist_free(nextPlaylist);
+               }
             }
+
+            mpd_connection_clear_error(connection_);
          }
       }
 #endif
