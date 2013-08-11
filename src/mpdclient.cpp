@@ -27,7 +27,6 @@
 
 #include "buffer/playlist.hpp"
 #include "mode/mode.hpp"
-#include "window/debug.hpp"
 #include "window/error.hpp"
 
 #include <mpd/tag.h>

@@ -28,6 +28,7 @@
 #include "buffers.hpp"
 #include "buffer/library.hpp"
 #include "buffer/list.hpp"
+#include "window/debug.hpp"
 
 // The library check in 2.1.0 doesn't seem to work
 // since we don't support versions older than that anyway, just return false
@@ -317,6 +318,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::List queue meta data");
          mpd_send_list_queue_meta(connection_);
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -348,6 +350,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::List queue meta data changes");
          mpd_send_queue_changes_meta(connection_, oldVersion);
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -400,6 +403,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::List songs in playlist %s", playlist.c_str());
          mpd_send_list_playlist(connection_, playlist.c_str());
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -430,6 +434,7 @@ namespace Mpc
 
          if (Connected() == true)
          {
+            Debug("Client::Request playlists");
             mpd_send_list_playlists(connection_);
 
             mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
@@ -482,6 +487,7 @@ namespace Mpc
       if (Connected())
       {
          // Start the search
+         Debug("Client::Commit search");
          mpd_search_commit(connection_);
 
          // Recv the songs and do some callbacks
@@ -508,6 +514,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::Get outputs");
          mpd_send_outputs(connection_);
 
          mpd_output * next = mpd_recv_output(connection_);
