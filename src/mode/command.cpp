@@ -27,6 +27,7 @@
 #include <sstream>
 
 #ifdef HAVE_TAGLIB_H
+#include <taglib/tag.h>
 #include <taglib/taglib.h>
 #include <taglib/fileref.h>
 #endif
