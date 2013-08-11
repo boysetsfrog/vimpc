@@ -632,6 +632,12 @@ void Command::Substitute(std::string const & expression)
                   (*tagFunction)(song, path, substitution.c_str());
                }
             }
+
+            if (settings_.Get(Setting::AutoUpdate) == true)
+            {
+               client_.Update(song->URI());
+            }
+
          }
          screen_.Scroll(1);
       }

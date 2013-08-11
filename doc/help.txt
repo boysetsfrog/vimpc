@@ -463,6 +463,7 @@
  The settings support tab completion.
  
    [no]autoscroll[!]        | automatically scroll when skipping songs
+   [no]autoupdate[!]        | automatically update mpd after tag changes
    [no]browsenumbers[!]     | display id numbers next to songs in the browse window
    [no]colour[!]            | enable or disable colours
    [no]expand-artists[!]    | when enabled, expand to artist by default in library
