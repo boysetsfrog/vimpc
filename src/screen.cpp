@@ -976,7 +976,7 @@ int32_t Screen::GetSelected(uint32_t window) const
    return Window(window).CurrentLine();
 }
 
-Mpc::Song const * Screen::GetSelectedSong(uint32_t window) const
+Mpc::Song * Screen::GetSelectedSong(uint32_t window) const
 {
    Ui::ScrollWindow & scrollWindow = Window(window);
    Ui::SongWindow * songWindow = dynamic_cast<Ui::SongWindow *>(&scrollWindow);

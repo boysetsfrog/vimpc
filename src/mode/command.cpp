@@ -595,7 +595,7 @@ void Command::Sleep(std::string const & seconds)
 void Command::Substitute(std::string const & expression)
 {
 #ifdef TAG_SUPPORT
-   typedef void (*TagFunction)(std::string const &, char const *);
+   typedef void (*TagFunction)(Mpc::Song *, std::string const &, char const *);
    typedef std::map<std::string, TagFunction> OptionsMap;
    static OptionsMap modifyFunctions;
 
@@ -613,7 +613,7 @@ void Command::Substitute(std::string const & expression)
    {
       for (int i = 0; i < count_; ++i)
       {
-         Mpc::Song const * const song = screen_.GetActiveSelectedSong();
+         Mpc::Song * const song = screen_.GetActiveSelectedSong();
 
          if (song != NULL)
          {
@@ -629,7 +629,7 @@ void Command::Substitute(std::string const & expression)
                if (it != modifyFunctions.end())
                {
                   TagFunction tagFunction = it->second;
-                  (*tagFunction)(path, substitution.c_str());
+                  (*tagFunction)(song, path, substitution.c_str());
                }
             }
          }
