@@ -314,6 +314,7 @@ bool Search::InputStringHandler(std::string input)
 {
    lastSearch_  = input;
    hasSearched_ = true;
+   Debug("Search for: %s", input.c_str());
    return SearchResult(Next, 1);
 }
 /* vim: set sw=3 ts=3: */
