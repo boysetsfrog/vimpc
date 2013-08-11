@@ -45,6 +45,7 @@
 #include "buffer/playlist.hpp"
 #include "mode/normal.hpp"
 #include "window/console.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 
@@ -295,6 +296,7 @@ bool Command::ExecuteCommand(std::string const & input)
    else if (command != "")
    {
       // Just a normal command
+      Debug("Executing command :%u,%u %s %s", line, count, command.c_str(), arguments.c_str());
       ExecuteCommand(line, count, command, arguments);
    }
    else if (line > 0)
@@ -320,6 +322,7 @@ void Command::ExecuteQueuedCommands()
 {
    for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
    {
+      Debug("Executing queued command :%u,%u %s %s", __func__, (*it).line, (*it).count, (*it).command.c_str(), (*it).arguments.c_str());
       ExecuteCommand((*it).line, (*it).count, (*it).command, (*it).arguments);
    }
 

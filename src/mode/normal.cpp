@@ -543,6 +543,7 @@ bool Normal::Handle(std::string input, int count)
 
       if ((complete == true) && (actionFunc != NULL))
       {
+         Debug("Executing normal input %d%s", count, input.c_str());
          (*this.*actionFunc)(count);
       }
    }
