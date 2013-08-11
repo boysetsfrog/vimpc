@@ -1041,8 +1041,7 @@ std::string Client::GetCurrentSongURI()
    return currentSongURI_;
 }
 
-//! \todo rename to GetCurrentSongPos
-int32_t Client::GetCurrentSong()
+int32_t Client::GetCurrentSongPos()
 {
    return currentSongId_;
 }
@@ -1081,7 +1080,7 @@ void Client::DisplaySongInformation()
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
          std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
-         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
+         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSongPos() + 1, artist.c_str(), title.c_str());
 
 
          if (settings_.Get(Setting::TimeRemaining) == false)
