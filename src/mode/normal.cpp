@@ -123,6 +123,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["P"]       = &Normal::PasteBuffer;
 
    // Navigation
+   actionTable_["<Nop>"]   = &Normal::DoNothing;
    actionTable_["<Esc>"]   = &Normal::Escape;
    actionTable_["l"]       = &Normal::Right;
    actionTable_["h"]       = &Normal::Left;

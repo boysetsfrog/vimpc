@@ -370,6 +370,10 @@
  i.e <C-D> to map ctrl+d
  
  Alt key combinations work in the same way.
+
+ If you want to make a key do nothing map it to <Nop>
+
+ i.e map <Down> <Nop>
  
  
  KEYS:

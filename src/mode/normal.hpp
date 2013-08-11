@@ -121,6 +121,7 @@ namespace Ui
       void Confirm(uint32_t count);
       void Click(uint32_t count);
       void Escape(uint32_t count);
+      void DoNothing(uint32_t count) { }
 
       // Execute the last action again
       void RepeatLastAction(uint32_t count);
