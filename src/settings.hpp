@@ -31,6 +31,7 @@
 // X(enum-entry, setting-name, default-value)
 #define TOGGLE_SETTINGS \
    X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
+   X(AutoUpdate,       "autoupdate",     true)  /* Automatically update after file edits */ \
    X(AlbumArtist,      "albumartist",    true)  /* Use the album artist tag if there is one */ \
    X(BrowseNumbers,    "browsenumbers",  false) /* Show numbers in the browse window */ \
    X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \

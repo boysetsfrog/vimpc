@@ -197,6 +197,10 @@
                            | ie :con does not work
                            | as it could be :console or :connect
                            | but :conn will call the :connect command
+   :<number>[command]      | go to the given line number <number> before the
+                           | command is executed
+   :<no1>,<no2>[command]   | perform the command over range <no1> to <no2>
+ 
 
    NOTE: Any commands prefixed with a '*' in the help support 
    tab completion. Currently add, edit, load, and set commands.
@@ -243,6 +247,7 @@
    single [on/off]          | toggles single, or sets on/off
                             
  PLAYLIST:                  
+   add                      | add the selected songs to the playlist
  * add <uri>                | add a song/directory/stream using the given <uri>
    addall                   | add all songs to the playlist
    delete <pos1> [pos2]     | delete the song at <pos1>, or from <pos1> to [pos2]
@@ -270,14 +275,30 @@
  OUTPUTS:
    disable <id/name>        | enable output with id <id> or name <name>
    enable <id/name>         | disable output with id <id> or name <name>
+
+ TAG EDITTING:
+   s/<match>/<re>/<opt>     | replace tags in the selected or range of songs 
+                            | if they match "<match>", if so <match> 
+                            | is replaced with <re>, the replace is only
+                            | for the songs' tag based on option <opt>
+                            | where <opt> =
+                            |    a for artist tag
+                            |    b for album tag
+                            |    t for title tag
+                            |    n for track tag
+                            | Note: a blank <match> entry is treated the same
+                            | as a <match> entry of of ".*"
+   substitute               | same as above
+                            |
+                            | ie :1,6s//The Smiths/a
+                            | will set the artist tag to "The Smiths" for the
+                            | first 6 songs in the current window
                             
  SEARCHING:                 
    nohlsearch               | temporarily turn off search highlights
                             | until the next search is performed
                             
  WINDOWS/TABS:              
-   :<number>                | go to the given line number <number>
-                            
    browse                   | open browse window
    console                  | open console window (see CONSOLE section)
    directory                | open directory window
@@ -464,6 +485,7 @@
  The settings support tab completion.
  
    [no]autoscroll[!]        | automatically scroll when skipping songs
+   [no]autoupdate[!]        | automatically update mpd after tag changes
    [no]browsenumbers[!]     | display id numbers next to songs in the browse window
    [no]colour[!]            | enable or disable colours
    [no]expand-artists[!]    | when enabled, expand to artist by default in library

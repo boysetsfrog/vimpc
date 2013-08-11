@@ -123,7 +123,9 @@ namespace Ui
       //! Similar to echo but in the errror window
       void EchoError(std::string const & echo);
 
-      void Sleep(std::string const & seconds);
+      void Sleep(std::string const & expression);
+
+      void Substitute(std::string const & seconds);
 
    private:
       void Add(std::string const & arguments);
@@ -196,14 +198,15 @@ namespace Ui
       //
       // \param[in] command   The command to execute
       // \param[in] arguments The arguments to pass to the command
-      bool ExecuteCommand(std::string command, std::string const & arguments);
+      bool ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments);
 
       // Splits the input into command and argument parts
       //
       // \param[in]  input     The string to split
+      // \param[out] range     The range to run commands over
       // \param[out] command   The command part of the string
       // \param[out] arguments The arguments from the string
-      void SplitCommand(std::string const & input, std::string & command, std::string & arguments);
+      void SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments);
 
       // Splits the arguments based on the given delimeter
       // \param[in]  input     The string to split
@@ -227,11 +230,19 @@ namespace Ui
       std::string TabComplete(std::string const & command);
 
    private:
+      typedef struct
+      {
+         uint32_t    line;
+         uint32_t    count;
+         std::string command;
+         std::string arguments;
+      } CommandArgs;
+
+   private:
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
 
-      typedef std::pair<std::string, std::string>    CommandArgPair;
-      typedef std::vector<CommandArgPair>            CommandQueue;
+      typedef std::vector<CommandArgs>               CommandQueue;
 
       typedef std::map<std::string, bool>            ConnectionMap;
 
@@ -241,6 +252,7 @@ namespace Ui
       bool                 initTabCompletion_;
       bool                 forceCommand_;
       bool                 queueCommands_;
+      uint32_t             count_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       TabCompTable         settingsTable_;

@@ -108,6 +108,8 @@ int32_t Song::Reference() const
 
 void Song::SetArtist(const char * artist)
 {
+   lastFormat_ = "";
+
    if (artist != NULL)
    {
       artist_ = artist;
@@ -125,6 +127,8 @@ std::string const & Song::Artist() const
 
 void Song::SetAlbum(const char * album)
 {
+   lastFormat_ = "";
+
    if (album != NULL)
    {
       album_ = album;
@@ -142,6 +146,8 @@ std::string const & Song::Album() const
 
 void Song::SetTitle(const char * title)
 {
+   lastFormat_ = "";
+
    if (title != NULL)
    {
       title_ = title;
@@ -159,6 +165,8 @@ std::string const & Song::Title() const
 
 void Song::SetTrack(const char * track)
 {
+   lastFormat_ = "";
+
    if (track != NULL)
    {
       track_ = track;
@@ -176,6 +184,8 @@ std::string const & Song::Track() const
 
 void Song::SetURI(const char * uri)
 {
+   lastFormat_ = "";
+
    if (uri != NULL)
    {
       uri_ = uri;
@@ -193,6 +203,8 @@ std::string const & Song::URI() const
 
 void Song::SetDuration(int32_t duration)
 {
+   lastFormat_ = "";
+
    duration_ = duration;
 
    char cduration[32];

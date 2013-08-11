@@ -229,6 +229,11 @@ namespace Ui
 
       // Access the selected item in a particular window
       int32_t GetSelected(uint32_t window) const;
+      int32_t GetActiveSelected() const { return GetSelected(GetActiveWindow()); }
+
+      // Access the selected song in a particular window
+      Mpc::Song * GetSelectedSong(uint32_t window) const;
+      Mpc::Song * GetActiveSelectedSong() const { return GetSelectedSong(GetActiveWindow()); }
 
       // Changes the currently active window by setting it explicitly
       void SetActiveWindowType(MainWindow window);

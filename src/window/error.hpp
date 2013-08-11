@@ -24,6 +24,7 @@
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
+#include "window/debug.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -94,6 +95,7 @@ void ErrorString(uint32_t errorNumber)
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
       Error(errorNumber, ErrorStrings::Default[errorNumber]);
+      Debug("ERROR E%d: %s", errorNumber, ErrorStrings::Default[errorNumber].c_str());
    }
 }
 
@@ -102,6 +104,7 @@ void ErrorString(uint32_t errorNumber, std::string additional)
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
       Error(errorNumber, ErrorStrings::Default[errorNumber] + ": " + additional);
+      Debug("ERROR E%d: %s", errorNumber, std::string(ErrorStrings::Default[errorNumber] + ": " + additional).c_str());
    }
 }
 

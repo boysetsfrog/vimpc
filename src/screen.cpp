@@ -976,6 +976,18 @@ int32_t Screen::GetSelected(uint32_t window) const
    return Window(window).CurrentLine();
 }
 
+Mpc::Song * Screen::GetSelectedSong(uint32_t window) const
+{
+   Ui::ScrollWindow & scrollWindow = Window(window);
+   Ui::SongWindow * songWindow = dynamic_cast<Ui::SongWindow *>(&scrollWindow);
+
+   if (songWindow != NULL)
+   {
+      return songWindow->Buffer().Get(GetActiveSelected());
+   }
+   return NULL;
+}
+
 void Screen::SetActiveWindowType(MainWindow window)
 {
    previous_ = window_;

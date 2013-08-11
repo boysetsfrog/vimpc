@@ -26,10 +26,17 @@
 #include <pcrecpp.h>
 #include <sstream>
 
+#ifdef HAVE_TAGLIB_H
+#include <taglib/tag.h>
+#include <taglib/taglib.h>
+#include <taglib/fileref.h>
+#endif
+
 #include "algorithm.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
 #include "settings.hpp"
+#include "tag.hpp"
 #include "vimpc.hpp"
 
 #include "buffer/directory.hpp"
@@ -38,6 +45,7 @@
 #include "buffer/playlist.hpp"
 #include "mode/normal.hpp"
 #include "window/console.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 
@@ -100,6 +108,11 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("seek-",      &Command::Seek<-1>,     true);
    AddCommand("single",     &Command::Single,       true);
    AddCommand("shuffle",    &Command::Shuffle,      true);
+   AddCommand("sleep",      &Command::Sleep,        false);
+#ifdef TAG_SUPPORT
+   AddCommand("substitute", &Command::Substitute,   false);
+   AddCommand("s",          &Command::Substitute,   false);
+#endif
    AddCommand("sleep",      &Command::Sleep,        false);
    AddCommand("swap",       &Command::Swap,         true);
    AddCommand("stop",       &Command::Stop,         true);
@@ -204,19 +217,55 @@ bool Command::ExecuteCommand(std::string const & input)
 {
    pcrecpp::RE const blankCommand("^\\s*$");
    pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
+   pcrecpp::RE const rangeSplit("(^\\d*),?(\\d*)$");
 
    std::string matchString, commandString;
-   std::string command, arguments;
+   std::string range, command, arguments;
+   uint32_t    count = 0;
+   uint32_t    line  = 0; //Actually stores line + 1, as 0 represents invalid
 
-   SplitCommand(input, command, arguments);
+   SplitCommand(input, range, command, arguments);
 
    std::string fullCommand(command + " " + arguments);
 
+   // Resolve a command from an alias
    if (aliasTable_.find(command) != aliasTable_.end())
    {
       fullCommand = aliasTable_[command] + " " + arguments;
    }
 
+   // Determine whether a range or a line number was used of the form
+   // :x or :x,y this determines where the command should start
+   // and how many times it should run
+   if (range != "")
+   {
+      std::string rangeLine, rangeCount;
+      rangeSplit.FullMatch(range.c_str(), &rangeLine, &rangeCount);
+
+      if ((Algorithm::isNumeric(rangeLine) == true) && (rangeLine != ""))
+      {
+         // Commands of the form :<number> go to that line instead
+         int32_t lineint = atoi(rangeLine.c_str());
+         line = (lineint > 1) ? lineint : 1;
+
+         if ((Algorithm::isNumeric(rangeCount) == true) && (rangeCount != ""))
+         {
+            int32_t intcount = atoi(rangeCount.c_str());
+
+            if (intcount >= lineint)
+            {
+               count = (intcount <= 0) ? 0 : (uint32_t) (intcount - lineint) + 1; 
+            }
+            else
+            {
+               count = (intcount <= 0) ? 0 : (uint32_t) (lineint - intcount) + 1; 
+               line = (intcount > 1) ? intcount : 1;
+            }
+         }
+      }
+   }
+
+   // If there are multiple commands we need to run them all
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
        (command != "alias")) // In the case of alias we don't actually want to run the commands
    {
@@ -244,20 +293,20 @@ bool Command::ExecuteCommand(std::string const & input)
       // by calling this fucking again
       ExecuteCommand(fullCommand);
    }
-   else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
-   {
-      if (command != "")
-      {
-         // Commands for the form :<number> go to that line instead
-         int32_t line = atoi(command.c_str());
-         line = (line >= 1) ? (line - 1) : 0;
-         screen_.ScrollTo(line);
-      }
-   }
-   else
+   else if (command != "")
    {
       // Just a normal command
-      ExecuteCommand(command, arguments);
+      Debug("Executing command :%u,%u %s %s", line, count, command.c_str(), arguments.c_str());
+      ExecuteCommand(line, count, command, arguments);
+   }
+   else if (line > 0)
+   {
+      screen_.ScrollTo(line - 1);
+
+      if (count > 0)
+      {
+         screen_.ScrollTo(line + count - 2);
+      }
    }
 
    return true;
@@ -273,7 +322,8 @@ void Command::ExecuteQueuedCommands()
 {
    for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
    {
-      ExecuteCommand((*it).first, (*it).second);
+      Debug("Executing queued command :%u,%u %s %s", __func__, (*it).line, (*it).count, (*it).command.c_str(), (*it).arguments.c_str());
+      ExecuteCommand((*it).line, (*it).count, (*it).command, (*it).arguments);
    }
 
    commandQueue_.clear();
@@ -355,7 +405,16 @@ void Command::Add(std::string const & arguments)
 	if (CheckConnected() == true)
 	{
       screen_.Initialise(Ui::Screen::Playlist);
-      client_.Add(arguments);
+      
+      if (arguments != "")
+      {
+         client_.Add(arguments);
+      }
+      else
+      {
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count_, false);
+      }
+
       client_.AddComplete();
    }
 }
@@ -393,8 +452,7 @@ void Command::Delete(std::string const & arguments)
       }
       else
       {
-         //\TODO delete selected song ?
-      	ErrorString(ErrorNumber::InvalidParameter, "too many parameters");
+         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
    }
 }
@@ -532,6 +590,90 @@ void Command::Sleep(std::string const & seconds)
 {
    vimpc_->ChangeMode('\n', "");
    usleep(1000 * 1000 * atoi(seconds.c_str()));
+}
+
+void Command::Substitute(std::string const & expression)
+{
+#ifdef TAG_SUPPORT
+   typedef void (*EditFunction)(Mpc::Song *, std::string const &, char const *);
+   typedef std::map<std::string, EditFunction> OptionsMap;
+
+   typedef std::string const & (Mpc::Song::*ReadFunction)() const;
+   typedef std::map<std::string, ReadFunction> InfoMap;
+
+   static OptionsMap modifyFunctions;
+   static InfoMap    readFunctions;
+
+   if (modifyFunctions.size() == 0)
+   {
+      modifyFunctions["a"] = &Mpc::Tag::SetArtist;
+      modifyFunctions["b"] = &Mpc::Tag::SetAlbum;
+      modifyFunctions["t"] = &Mpc::Tag::SetTitle;
+      modifyFunctions["n"] = &Mpc::Tag::SetTrack;
+
+      readFunctions["a"] = &Mpc::Song::Artist;
+      readFunctions["b"] = &Mpc::Song::Album;
+      readFunctions["t"] = &Mpc::Song::Title;
+      readFunctions["n"] = &Mpc::Song::Track;
+   }
+
+   std::string match, substitution, options;
+
+   if (settings_.Get(Setting::LocalMusicDir) != "")
+   {
+      for (int i = 0; i < count_; ++i)
+      {
+         Mpc::Song * const song = screen_.GetActiveSelectedSong();
+
+         if (song != NULL)
+         {
+            std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + song->URI();
+
+            pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
+            split.FullMatch(expression.c_str(), &match, &substitution, &options);
+
+            if (options.empty() == false)
+            {
+               InfoMap::iterator    it = readFunctions.find(options);
+               OptionsMap::iterator jt = modifyFunctions.find(options);
+
+               if (it != readFunctions.end())
+               {
+                  ReadFunction readFunction = it->second;
+
+                  if (match == "")
+                  {
+                     match = ".*";
+                  }
+
+                  pcrecpp::RE const check(match);
+                  std::string value = ((*song).*readFunction)();
+         
+                  if (check.PartialMatch(value) == true)
+                  {
+                     if (jt != modifyFunctions.end())
+                     {
+                        check.Replace(substitution, &value);
+                        EditFunction editFunction = jt->second;
+                        (*editFunction)(song, path, value.c_str());
+
+                        if (settings_.Get(Setting::AutoUpdate) == true)
+                        {
+                           client_.Update(song->URI());
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         screen_.Scroll(1);
+      }
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NotSet, "local-music-dir");
+   }
+#endif
 }
 
 
@@ -772,8 +914,8 @@ void Command::Unmap(std::string const & arguments)
 
 void Command::TabMap(std::string const & arguments)
 {
-   std::string tabname, args;
-   SplitCommand(arguments, tabname, args);
+   std::string range, tabname, args;
+   SplitCommand(arguments, range, tabname, args);
 
    TabMap(tabname, args);
 }
@@ -1130,11 +1272,16 @@ void Command::DebugTestScreen(std::string const & arguments)
 }
 
 
-bool Command::ExecuteCommand(std::string command, std::string const & arguments)
+bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments)
 {
    pcrecpp::RE const forceCheck("^.*!$");
 
    forceCommand_ = (forceCheck.FullMatch(command));
+
+   if (line > 0)
+   {
+      screen_.ScrollTo(line - 1);
+   }
 
    if (forceCommand_ == true)
    {
@@ -1166,15 +1313,19 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    {
       if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (client_.Connected() == true))
       {
+         count_ = (count <= 0) ? 1 : count;
          CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
          CommandFunction const commandFunction = it->second;
-
          (*this.*commandFunction)(arguments);
       }
       else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
       {
-         CommandArgPair pair(commandToExecute, arguments);
-         commandQueue_.push_back(pair);
+         CommandArgs commandArgs;
+         commandArgs.line      = line;
+         commandArgs.count     = count;
+         commandArgs.command   = commandToExecute;
+         commandArgs.arguments = arguments;
+         commandQueue_.push_back(commandArgs);
       }
    }
    else if (validCommandCount > 1)
@@ -1188,14 +1339,18 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
 
    forceCommand_ = false;
 
+   if ((count > 0) && (line > 0))
+   {
+      screen_.ScrollTo(line + count - 2);
+   }
+
    return true;
 }
 
-void Command::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
+void Command::SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments)
 {
-   std::stringstream commandStream(input);
-   std::getline(commandStream, command,   ' ');
-   std::getline(commandStream, arguments, '\n');
+   pcrecpp::RE const split("^([\\d,]*)?([^ /]*) ?(/?[^\n]*)\n?$");
+   split.FullMatch(input.c_str(), &range, &command, &arguments);
 }
 
 std::vector<std::string> Command::SplitArguments(std::string const & input, char delimeter)
@@ -1286,9 +1441,9 @@ void Command::Mpc(std::string const & arguments)
 
 void Command::Alias(std::string const & input)
 {
-   std::string command, arguments;
+   std::string range, command, arguments;
 
-   SplitCommand(input, command, arguments);
+   SplitCommand(input, range, command, arguments);
 
    aliasTable_[command] = arguments;
 }

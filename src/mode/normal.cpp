@@ -544,6 +544,7 @@ bool Normal::Handle(std::string input, int count)
 
       if ((complete == true) && (actionFunc != NULL))
       {
+         Debug("Executing normal input %d%s", count, input.c_str());
          (*this.*actionFunc)(count);
       }
    }
@@ -951,7 +952,7 @@ void Normal::Add(uint32_t count)
    {
       if (confirmTable.size() == 0)
       {
-         confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, true>;
+         confirmTable[Ui::Screen::Outputs] = &Normal::SetOutput<COLLECTION, true>;
       }
 
       WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
