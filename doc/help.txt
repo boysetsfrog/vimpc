@@ -275,6 +275,24 @@
  OUTPUTS:
    disable <id/name>        | enable output with id <id> or name <name>
    enable <id/name>         | disable output with id <id> or name <name>
+
+ TAG EDITTING:
+   s/<match>/<re>/<opt>     | replace tags in the selected or range of songs 
+                            | if they match "<match>", if so <match> 
+                            | is replaced with <re>, the replace is only
+                            | for the songs' tag based on option <opt>
+                            | where <opt> =
+                            |    a for artist tag
+                            |    b for album tag
+                            |    t for title tag
+                            |    n for track tag
+                            | Note: a blank <match> entry is treated the same
+                            | as a <match> entry of of ".*"
+   substitute               | same as above
+                            |
+                            | ie :1,6s//The Smiths/a
+                            | will set the artist tag to "The Smiths" for the
+                            | first 6 songs in the current window
                             
  SEARCHING:                 
    nohlsearch               | temporarily turn off search highlights
