@@ -74,7 +74,7 @@ void DirectoryWindow::SoftRedraw()
 uint32_t DirectoryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -99,7 +99,7 @@ uint32_t DirectoryWindow::Current() const
 
 void DirectoryWindow::ScrollToCurrent()
 {
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))

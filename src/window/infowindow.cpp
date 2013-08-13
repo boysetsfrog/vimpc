@@ -24,11 +24,13 @@
 
 #include "mpdclient.hpp"
 #include "screen.hpp"
+#include "buffer/playlist.hpp"
 
 using namespace Ui;
 
 InfoWindow::InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
    SongWindow    (settings, screen, client, search, name),
+   screen        (screen),
    m_URI         (URI)
 {
    Redraw();
@@ -82,15 +84,27 @@ void InfoWindow::Print(uint32_t line) const
          wattroff(window, A_BOLD);
          mvwprintw(window, 7, 12, "%d:%.2d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
 
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 8, 0, " Genre    : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 8, 12, "%s", song->Genre().c_str());
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 9, 0, " Playlist : ");
+         mvwaddstr(window, 9, 0, " Date     : ");
          wattroff(window, A_BOLD);
-         mvwprintw(window, 9, 12, "%s", (song->Reference() > 0) ? "Yes" : "No");
+         mvwprintw(window, 9, 12, "%s", song->Date().c_str());
 
-         //mvwaddstr(window, 4, 0, song->Duration().c_str());
-         //
-         // \TODO playlist positions, rating, counter, other TAGS (genre, date)
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 11, 0, " Playlist : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 11, 12, "%s", (song->Reference() > 0) ? "Yes" : "No");
+
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 12, 0, " Position : ");
+         wattroff(window, A_BOLD);
+         mvwprintw(window, 12, 12, "%d", Main::Playlist().Index(song) + 1);
+
+         // \TODO rating, counter
       }
    }
 }

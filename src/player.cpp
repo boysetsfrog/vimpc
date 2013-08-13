@@ -269,13 +269,13 @@ void Player::SkipSong(Skip skip, uint32_t count)
          directionCount *= -1;
       }
 
-      int32_t song = GetCurrentSong() + directionCount;
+      int32_t song = GetCurrentSongPos() + directionCount;
 
-      if ((GetCurrentSong() + directionCount) < 0)
+      if ((GetCurrentSongPos() + directionCount) < 0)
       {
          song = 0;
       }
-      else if ((GetCurrentSong() + directionCount) >= client_.TotalNumberOfSongs())
+      else if ((GetCurrentSongPos() + directionCount) >= client_.TotalNumberOfSongs())
       {
          song = client_.TotalNumberOfSongs() - 1;
       }
@@ -299,15 +299,15 @@ void Player::SkipArtist(Skip skip, uint32_t count)
 }
 
 
-uint32_t Player::GetCurrentSong() const
+uint32_t Player::GetCurrentSongPos() const
 {
-   return client_.GetCurrentSong();
+   return client_.GetCurrentSongPos();
 }
 
 
 void Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction)
 {
-   int32_t skipResult = GetCurrentSong();
+   int32_t skipResult = GetCurrentSongPos();
 
    if (skipResult >= 0)
    {
