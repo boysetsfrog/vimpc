@@ -24,6 +24,7 @@
 
 #include "mpdclient.hpp"
 #include "screen.hpp"
+#include "buffer/playlist.hpp"
 
 using namespace Ui;
 
@@ -101,7 +102,7 @@ void InfoWindow::Print(uint32_t line) const
          wattron(window, A_BOLD);
          mvwaddstr(window, 12, 0, " Position : ");
          wattroff(window, A_BOLD);
-         mvwprintw(window, 12, 12, "%d", screen.GetSelected(screen.GetPreviousWindow()) + 1);
+         mvwprintw(window, 12, 12, "%d", Main::Playlist().Index(song) + 1);
 
          // \TODO rating, counter
       }
