@@ -959,6 +959,11 @@ int32_t Screen::GetActiveWindow() const
    return window_;
 }
 
+int32_t Screen::GetPreviousWindow() const
+{
+   return previous_;
+}
+
 Ui::ScrollWindow & Screen::ActiveWindow() const
 {
    WindowMap::const_iterator it = mainWindows_.find(window_);

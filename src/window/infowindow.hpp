@@ -53,6 +53,7 @@ namespace Ui
 
    private:
       std::string m_URI;
+      Ui::Screen & screen;
    };
 }
 

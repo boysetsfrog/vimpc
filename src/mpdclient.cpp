@@ -1041,8 +1041,7 @@ std::string Client::GetCurrentSongURI()
    return currentSongURI_;
 }
 
-//! \todo rename to GetCurrentSongPos
-int32_t Client::GetCurrentSong()
+int32_t Client::GetCurrentSongPos()
 {
    return currentSongId_;
 }
@@ -1081,7 +1080,7 @@ void Client::DisplaySongInformation()
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
          std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
-         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSong() + 1, artist.c_str(), title.c_str());
+         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSongPos() + 1, artist.c_str(), title.c_str());
 
 
          if (settings_.Get(Setting::TimeRemaining) == false)
@@ -1599,6 +1598,8 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInL
    newSong->SetTitle    (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
    newSong->SetTrack    (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
    newSong->SetURI      (mpd_song_get_uri(song));
+   newSong->SetGenre    (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
+   newSong->SetDate     (mpd_song_get_tag(song, MPD_TAG_DATE, 0));
    newSong->SetDuration (mpd_song_get_duration(song));
 
    return newSong;

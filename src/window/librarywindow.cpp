@@ -98,7 +98,7 @@ void LibraryWindow::SoftRedraw()
 uint32_t LibraryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))

@@ -107,6 +107,12 @@ namespace Mpc
       void SetURI(const char * uri);
       std::string const & URI() const;
 
+      void SetGenre(const char * genre);
+      std::string const & Genre() const;
+
+      void SetDate(const char * date);
+      std::string const & Date() const;
+
       void SetDuration(int32_t duration);
       int32_t Duration() const;
       std::string const & DurationString() const;
@@ -124,6 +130,8 @@ namespace Mpc
       std::string title_;
       std::string track_;
       std::string uri_;
+      std::string genre_;
+      std::string date_;
       std::string durationString_;
       int32_t     duration_;
 

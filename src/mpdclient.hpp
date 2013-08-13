@@ -195,7 +195,7 @@ namespace Mpc
       std::string CurrentState();
       std::string GetCurrentSongURI() ;
 
-      int32_t  GetCurrentSong();
+      int32_t  GetCurrentSongPos();
       uint32_t TotalNumberOfSongs();
 
       bool SongIsInQueue(Mpc::Song const & song) const;
