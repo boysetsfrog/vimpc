@@ -182,12 +182,24 @@ namespace Main
          bool Get(Setting::ToggleSettings setting) const;
          std::string Get(Setting::StringSettings setting) const;
 
+         //! Set the value of a particular setting
+         void Set(Setting::ToggleSettings setting, bool value);
+         void Set(Setting::StringSettings setting, std::string value);
+
+         //! Name of a particular setting
+         std::string Name(Setting::ToggleSettings setting) const;
+         std::string Name(Setting::StringSettings setting) const;
+
          //! Handles settings which are treated as an on/off setting
          void SetSingleSetting(std::string setting);
 
          //! Register a callback to be called when a setting is changed
          void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback);
          void RegisterCallback(Setting::StringSettings setting, StringCallback callback);
+
+         //! Turn the callbacks on and off
+         void EnableCallbacks();         
+         void DisableCallbacks();         
 
       public:
          //! Set/Get whether or not to connect if asked to in config
@@ -196,10 +208,6 @@ namespace Main
 
       public:
          void SetColour(std::string property, std::string colour);
-
-      private:
-         //! Used to handle settings that require very specific paramters
-         void SetSpecificSetting(std::string setting, std::string arguments);
 
       public:
          //! Get the value for the given \p setting
@@ -218,6 +226,26 @@ namespace Main
             }
             return "";
          }
+
+         //! Set the value for the given \p setting
+         void SetBool(std::string setting, bool value)
+         {
+            BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
+            if ((it != toggleTable_.end())) { it->second->Set(value); }
+         }
+
+         void SetString(std::string setting, std::string value)
+         {
+            StringSettingsTable::const_iterator it = stringTable_.find(setting);
+            if (it != stringTable_.end())
+            {
+               (it->second->Set(value));
+            }
+         }
+
+      private:
+         //! Used to handle settings that require very specific paramters
+         void SetSpecificSetting(std::string setting, std::string arguments);
 
       private:
          typedef std::map<int, std::string> SettingNameTable;
@@ -244,7 +272,9 @@ namespace Main
          StringCallbackTable  sCallbackTable_;
 
          typedef std::map<std::string, int> ColorNameTable;
-         ColorNameTable     colourTable_;
+         ColorNameTable       colourTable_;
+
+         bool                 enabled_;
    };
 }
 

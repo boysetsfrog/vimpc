@@ -68,6 +68,7 @@ Settings::Settings() :
    COLOUR_SETTINGS
 #undef X
 
+   enabled_ = true;
 }
 
 Settings::~Settings()
@@ -177,6 +178,54 @@ std::string Settings::Get(::Setting::StringSettings setting) const
    return "";
 }
 
+void Settings::Set(::Setting::ToggleSettings setting, bool value)
+{
+   SettingNameTable::const_iterator const it = settingName_.find(setting);
+
+   if (it != settingName_.end())
+   {
+      return SetBool(it->second, value);
+   }
+
+   ASSERT(false);
+}
+
+void Settings::Set(::Setting::StringSettings setting, std::string value)
+{
+   SettingNameTable::const_iterator const it = settingName_.find(setting);
+
+   if (it != settingName_.end())
+   {
+      return SetString(it->second, value);
+   }
+
+   ASSERT(false);
+}
+
+std::string Settings::Name(::Setting::ToggleSettings setting) const
+{
+   SettingNameTable::const_iterator const it = settingName_.find(setting);
+
+   if (it != settingName_.end())
+   {
+      return it->second;
+   }
+
+   return "";
+}
+
+std::string Settings::Name(::Setting::StringSettings setting) const
+{
+   SettingNameTable::const_iterator const it = settingName_.find(setting);
+
+   if (it != settingName_.end())
+   {
+      return it->second;
+   }
+
+   return "";
+}
+
 
 void Settings::RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback)
 {
@@ -186,6 +235,16 @@ void Settings::RegisterCallback(Setting::ToggleSettings setting, BoolCallback ca
 void Settings::RegisterCallback(Setting::StringSettings setting, StringCallback callback)
 {
    sCallbackTable_[setting].push_back(callback);
+}
+
+void Settings::EnableCallbacks()
+{
+   enabled_ = true;
+}
+
+void Settings::DisableCallbacks()
+{
+   enabled_ = false;
 }
 
 
@@ -271,14 +330,17 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
             Debug("Setting %s to %s", setting.c_str(), arguments.c_str());
             set->Set(arguments);
 
-            // Call any registered callbacks for this setting
-            std::vector<StringCallback> Callbacks =
-               sCallbackTable_[static_cast<Setting::StringSettings>(set->Id())];
-
-            for (std::vector<StringCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+            if (enabled_ == true)
             {
-               StringCallback functor = (*it);
-               (*functor)(arguments);
+               // Call any registered callbacks for this setting
+               std::vector<StringCallback> Callbacks =
+                  sCallbackTable_[static_cast<Setting::StringSettings>(set->Id())];
+
+               for (std::vector<StringCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+               {
+                  StringCallback functor = (*it);
+                  (*functor)(arguments);
+               }
             }
          }
          else
@@ -334,14 +396,17 @@ void Settings::SetSingleSetting(std::string setting)
       {
          set->Set(newValue);
 
-         // Call any registered callbacks for this setting
-         std::vector<BoolCallback> Callbacks =
-            tCallbackTable_[static_cast<Setting::ToggleSettings>(set->Id())];
-
-         for (std::vector<BoolCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+         if (enabled_ == true)
          {
-            BoolCallback functor = (*it);
-            (*functor)(newValue);
+            // Call any registered callbacks for this setting
+            std::vector<BoolCallback> Callbacks =
+               tCallbackTable_[static_cast<Setting::ToggleSettings>(set->Id())];
+
+            for (std::vector<BoolCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+            {
+               BoolCallback functor = (*it);
+               (*functor)(newValue);
+            }
          }
       }
    }

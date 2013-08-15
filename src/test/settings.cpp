@@ -1,13 +1,14 @@
 #include <cppunit/extensions/HelperMacros.h>
+
 #include "settings.hpp"
+#include "window/debug.hpp"
 
 class SettingsTester : public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(SettingsTester);
-   CPPUNIT_TEST(TestDefaults);
-   CPPUNIT_TEST(TestToggleSettings);
-   CPPUNIT_TEST(TestTurnOffSettings);
    CPPUNIT_TEST(TestTurnOnSettings);
+   CPPUNIT_TEST(TestTurnOffSettings);
+   CPPUNIT_TEST(TestToggleSettings);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -19,12 +20,14 @@ public:
    void tearDown();
 
 protected:
-   void TestDefaults();
    void TestToggleSettings();
    void TestTurnOffSettings();
    void TestTurnOnSettings();
 
 protected:
+   void TurnOnSettings();
+   void TurnOffSettings();
+
    bool IsToggleDefaultValues();
    bool IsNotToggleDefaultValues();
    bool IsToggleOn();
@@ -32,47 +35,73 @@ protected:
 
 private:
    Main::Settings & settings_; 
-
+   std::map<std::string, bool> boolvalues_;
 };
 
 void SettingsTester::setUp()
 {
+   settings_.DisableCallbacks();
+
+   for (int i = 0; i < (int) Setting::ToggleCount; ++i)
+   {
+      boolvalues_[settings_.Name((Setting::ToggleSettings) i)] 
+         = settings_.Get((Setting::ToggleSettings) i);
+   }
 }
 
 void SettingsTester::tearDown()
 {
-}
+   for (int i = 0; i < (int) Setting::ToggleCount; ++i)
+   {
+      settings_.Set((Setting::ToggleSettings) i, 
+         boolvalues_[settings_.Name((Setting::ToggleSettings) i)]);
+   }
 
-void SettingsTester::TestDefaults()
-{
-   CPPUNIT_ASSERT(IsToggleDefaultValues() == true);
+   settings_.EnableCallbacks();
 }
 
 void SettingsTester::TestToggleSettings()
 {
+   TurnOffSettings();
+
 #define X(a, b, c) settings_.SetSingleSetting(std::string(b) + "!");
    TOGGLE_SETTINGS
 #undef X
 
-   CPPUNIT_ASSERT(IsToggleDefaultValues() == false);
-   CPPUNIT_ASSERT(IsNotToggleDefaultValues() == true);
+   CPPUNIT_ASSERT(IsToggleOn() == true);
+   CPPUNIT_ASSERT(IsToggleOff() == false);
+
+#define X(a, b, c) settings_.SetSingleSetting(std::string(b) + "!");
+   TOGGLE_SETTINGS
+#undef X
+
+   CPPUNIT_ASSERT(IsToggleOn() == false);
+   CPPUNIT_ASSERT(IsToggleOff() == true);
 }
 
-void SettingsTester::TestTurnOffSettings()
+void SettingsTester::TurnOffSettings()
 {
 #define X(a, b, c) settings_.SetSingleSetting("no" + std::string(b));
    TOGGLE_SETTINGS
 #undef X
+}
 
+void SettingsTester::TurnOnSettings()
+{
+#define X(a, b, c) settings_.SetSingleSetting(std::string(b));
+   TOGGLE_SETTINGS
+#undef X
+}
+
+void SettingsTester::TestTurnOffSettings()
+{
+   TurnOffSettings();
    CPPUNIT_ASSERT(IsToggleOff() == true);
 }
 
 void SettingsTester::TestTurnOnSettings()
 {
-#define X(a, b, c) settings_.SetSingleSetting(std::string(b));
-   TOGGLE_SETTINGS
-#undef X
-
+   TurnOnSettings();
    CPPUNIT_ASSERT(IsToggleOn() == true);
 }
 
@@ -85,9 +114,6 @@ bool SettingsTester::IsToggleDefaultValues()
 #undef X
       true
    );
-
-   //CPPUNIT_ASSERT(true == false);
-   //CPPUNIT_FAIL("FAIL");
 }
 
 bool SettingsTester::IsNotToggleDefaultValues()
