@@ -151,3 +151,4 @@ bool SettingsTester::IsToggleOff()
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SettingsTester);
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(SettingsTester, "settings");

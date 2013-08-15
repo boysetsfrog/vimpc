@@ -175,10 +175,10 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 
 #ifdef TEST_ENABLED
    AddCommand("test-console",       &Command::SetActiveAndVisible<Ui::Screen::TestConsole>, false);
-   AddCommand("test",               &Command::Test, false);
-   AddCommand("test-screen",        &Command::TestScreen,                                  false);
-   AddCommand("test-input-random",  &Command::TestInputRandom,                                 true);
-   AddCommand("test-input-seq",     &Command::TestInputSequence,                               true);
+   AddCommand("test",               &Command::Test,                                         false);
+   AddCommand("test-screen",        &Command::TestScreen,                                   false);
+   AddCommand("test-input-random",  &Command::TestInputRandom,                              true);
+   AddCommand("test-input-seq",     &Command::TestInputSequence,                            true);
 #endif
 
    // Add all settings to command table to provide tab completion
@@ -1266,10 +1266,20 @@ void Command::Test(std::string const & arguments)
 #ifdef HAVE_TEST_H
    CPPUNIT_NS::TestResult testresult;
    CPPUNIT_NS::TestResultCollector collectedresults;
-   testresult.addListener (&collectedresults);
-
+   testresult.addListener(&collectedresults);
    CPPUNIT_NS::TestRunner testrunner;
-   testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
+
+   if ((arguments == "") || (arguments == "all"))
+   {
+      Main::TestConsole().Add("Running all tests...");
+      testrunner.addTest(CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest());
+   }
+   else
+   {
+      Main::TestConsole().Add("Running test " + arguments + "...");
+      CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry(arguments);
+      testrunner.addTest(registry.makeTest());
+   }
    testrunner.run(testresult);
 
    std::stringstream outStream; 
