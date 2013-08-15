@@ -77,7 +77,7 @@ namespace Ui
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
       char const * Prompt() const;
-		bool CheckConnected();
+      bool CheckConnected();
 
    private: //Ui::Player wrapper functions
       void ClearScreen(std::string const & arguments);
@@ -154,7 +154,7 @@ namespace Ui
       void FindGenre(std::string const & arguments);
       void FindSong(std::string const & arguments);
 
-		void PrintMappings(std::string tabname = "");
+      void PrintMappings(std::string tabname = "");
       void Map(std::string const & arguments);
       void Unmap(std::string const & arguments);
       void TabMap(std::string const & arguments);

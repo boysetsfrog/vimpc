@@ -150,7 +150,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          updateTime += mtime;
          client_.IncrementTime(mtime);
 
-         if ((input == ERR) && 
+         if ((input == ERR) &&
              (((client_.TimeSinceUpdate() > 900) && (settings_.Get(::Setting::Polling) == true)) ||
               ((settings_.Get(::Setting::Polling) == false) && (client_.HadEvents() == true))))
          {

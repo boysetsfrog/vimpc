@@ -267,11 +267,11 @@ bool Command::ExecuteCommand(std::string const & input)
 
             if (intcount >= lineint)
             {
-               count = (intcount <= 0) ? 0 : (uint32_t) (intcount - lineint) + 1; 
+               count = (intcount <= 0) ? 0 : (uint32_t) (intcount - lineint) + 1;
             }
             else
             {
-               count = (intcount <= 0) ? 0 : (uint32_t) (lineint - intcount) + 1; 
+               count = (intcount <= 0) ? 0 : (uint32_t) (lineint - intcount) + 1;
                line = (intcount > 1) ? intcount : 1;
             }
          }
@@ -404,21 +404,21 @@ void Command::Play(std::string const & arguments)
 
 bool Command::CheckConnected()
 {
-	if (client_.Connected() == false)
-	{
+   if (client_.Connected() == false)
+   {
       ErrorString(ErrorNumber::ClientNoConnection);
-		return false;
-	}
+      return false;
+   }
 
-	return true;
+   return true;
 }
 
 void Command::Add(std::string const & arguments)
 {
-	if (CheckConnected() == true)
-	{
+   if (CheckConnected() == true)
+   {
       screen_.Initialise(Ui::Screen::Playlist);
-      
+
       if (arguments != "")
       {
          client_.Add(arguments);
@@ -434,7 +434,7 @@ void Command::Add(std::string const & arguments)
 
 void Command::AddAll(std::string const & arguments)
 {
-	if (CheckConnected() == true)
+   if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.AddAllSongs();
@@ -444,7 +444,7 @@ void Command::AddAll(std::string const & arguments)
 
 void Command::Delete(std::string const & arguments)
 {
-	if (CheckConnected() == true)
+   if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
 
@@ -529,8 +529,8 @@ void Command::Quit(std::string const & arguments)
 
 void Command::QuitAll(std::string const & arguments)
 {
-   if ((forceCommand_ == true) || 
-		 (settings_.Get(Setting::StopOnQuit) == true))
+   if ((forceCommand_ == true) ||
+       (settings_.Get(Setting::StopOnQuit) == true))
    {
       Player::Stop();
    }
@@ -555,22 +555,22 @@ void Command::Volume(std::string const & arguments)
 
 void Command::Connect(std::string const & arguments)
 {
-	// Ignore the connect command when starting up if -h/-p used
-	// on the command line
-	if (settings_.SkipConfigConnects() == false)
-	{
-		size_t   pos  = arguments.find_first_of(" ");
-		uint32_t port = 0;
+   // Ignore the connect command when starting up if -h/-p used
+   // on the command line
+   if (settings_.SkipConfigConnects() == false)
+   {
+      size_t   pos  = arguments.find_first_of(" ");
+      uint32_t port = 0;
 
-		std::string hostname = arguments.substr(0, pos);
+      std::string hostname = arguments.substr(0, pos);
 
-		if (pos != std::string::npos)
-		{
-			port = atoi(arguments.substr(pos + 1).c_str());
-		}
+      if (pos != std::string::npos)
+      {
+         port = atoi(arguments.substr(pos + 1).c_str());
+      }
 
-		client_.Connect(hostname, port);
-	}
+      client_.Connect(hostname, port);
+   }
 }
 
 void Command::Disconnect(std::string const & arguments)
@@ -661,7 +661,7 @@ void Command::Substitute(std::string const & expression)
 
                   pcrecpp::RE const check(match);
                   std::string value = ((*song).*readFunction)();
-         
+
                   if (check.PartialMatch(value) == true)
                   {
                      if (jt != modifyFunctions.end())
@@ -878,31 +878,31 @@ void Command::FindSong(std::string const & arguments)
 
 void Command::PrintMappings(std::string tabname)
 {
-	Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+   Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
 
-	if (tabname != "")
-	{
-		mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
-	}
+   if (tabname != "")
+   {
+      mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
+   }
 
-	if (mappings.size() > 0)
-	{
-		Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
+   if (mappings.size() > 0)
+   {
+      Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
 
-		PagerWindow * const pager = screen_.GetPagerWindow();
-		pager->Clear();
+      PagerWindow * const pager = screen_.GetPagerWindow();
+      pager->Clear();
 
-		for (; it != mappings.end(); ++it)
-		{
-			pager->AddLine(it->first + "   " + it->second);
-		}
+      for (; it != mappings.end(); ++it)
+      {
+         pager->AddLine(it->first + "   " + it->second);
+      }
 
-		screen_.ShowPagerWindow();
-	}
-	else
-	{
-		ErrorString(ErrorNumber::NoSuchMapping);
-	}
+      screen_.ShowPagerWindow();
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoSuchMapping);
+   }
 }
 
 
@@ -916,7 +916,7 @@ void Command::Map(std::string const & arguments)
    }
    else if (arguments == "")
    {
-		PrintMappings();
+      PrintMappings();
    }
 }
 
@@ -945,7 +945,7 @@ void Command::TabMap(std::string const & tabname, std::string const & arguments)
    }
    else if (args.size() == 0)
    {
-		PrintMappings(tabname);
+      PrintMappings(tabname);
    }
    else
    {
