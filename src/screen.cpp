@@ -77,12 +77,12 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    previous_        (Playlist),
    statusWindow_    (NULL),
    tabWindow_       (NULL),
-	progressWindow_  (NULL),
+   progressWindow_  (NULL),
    commandWindow_   (NULL),
    pagerWindow_     (NULL),
    started_         (false),
    pager_           (false),
-	progress_		  (0),
+   progress_        (0),
    maxRows_         (0),
    maxColumns_      (0),
    rndCount_        (0),
@@ -433,10 +433,10 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 
 void Screen::SetProgress(double percent)
 {
-	if ((percent <= 1) && (percent >= 0))
-	{
-		progress_ = percent;
-	}
+   if ((percent <= 1) && (percent >= 0))
+   {
+      progress_ = percent;
+   }
 }
 
 
@@ -586,16 +586,16 @@ void Screen::Update()
          UpdateTabWindow();
       }
 
-		if (settings_.Get(Setting::ProgressBar) == true)
-		{
-			UpdateProgressWindow();
-		}
+      if (settings_.Get(Setting::ProgressBar) == true)
+      {
+         UpdateProgressWindow();
+      }
 
       // Paint the main window
-		for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
-		{
-			ActiveWindow().Print(i);
-		}
+      for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
+      {
+         ActiveWindow().Print(i);
+      }
 
       ActiveWindow().Refresh();
 
@@ -663,8 +663,8 @@ void Screen::InvalidateAll()
       else
       {
          SetVisible(it->first, false, false);
-			delete it->second;
-			mainWindows_.erase(it++);
+         delete it->second;
+         mainWindows_.erase(it++);
       }
    }
 }
@@ -729,7 +729,7 @@ bool Screen::Resize(bool forceResize)
 
          if (settings_.Get(Setting::ProgressBar) == true)
          {
-				statusline = 1;
+            statusline = 1;
             mainRows_--;
          }
 
@@ -1313,35 +1313,35 @@ void Screen::UpdateProgressWindow() const
       wattron(progressWindow_, COLOR_PAIR(settings_.colours.ProgressWindow));
    }
 
-	wmove(progressWindow_, 0, 0);
+   wmove(progressWindow_, 0, 0);
    whline(progressWindow_, 0, MaxColumns());
-	wmove(progressWindow_, 0, 0);
+   wmove(progressWindow_, 0, 0);
 
-	wattron(progressWindow_, A_BOLD);
+   wattron(progressWindow_, A_BOLD);
 
-	if ((progress_ * MaxColumns() - 1) > 0)
-	{
-		whline(progressWindow_, '=', (int) (progress_ * MaxColumns() - 1));
-		wmove(progressWindow_, 0, (int) (progress_ * MaxColumns() - 1));
-	}
-	if (progress_ > 0)
-	{
-		waddch(progressWindow_, '>');
-	}
+   if ((progress_ * MaxColumns() - 1) > 0)
+   {
+      whline(progressWindow_, '=', (int) (progress_ * MaxColumns() - 1));
+      wmove(progressWindow_, 0, (int) (progress_ * MaxColumns() - 1));
+   }
+   if (progress_ > 0)
+   {
+      waddch(progressWindow_, '>');
+   }
 
 
-	if (settings_.Get(Setting::ShowPercent) == true)
-	{
-		int32_t start = (MaxColumns() / 2) - 3;
+   if (settings_.Get(Setting::ShowPercent) == true)
+   {
+      int32_t start = (MaxColumns() / 2) - 3;
 
-		if (start + 6 < MaxColumns())
-		{
-			wmove(progressWindow_, 0, start);
-			wprintw(progressWindow_, "[%3d%%]", (int) (progress_ * 100));
-		}
-	}
+      if (start + 6 < MaxColumns())
+      {
+         wmove(progressWindow_, 0, start);
+         wprintw(progressWindow_, "[%3d%%]", (int) (progress_ * 100));
+      }
+   }
 
-	wattroff(progressWindow_, A_BOLD);
+   wattroff(progressWindow_, A_BOLD);
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {

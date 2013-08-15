@@ -64,12 +64,12 @@ namespace Ui
       void UpdateLastSelection();
 
    protected:
-      int64_t   			currentLine_;
+      int64_t           currentLine_;
 
    private:
       bool              visualMode_;
       bool              supportsVisual_;
-      Selection 			currentSelection_;
+      Selection         currentSelection_;
       Selection         lastSelection_;
       bool              hadSelection_;
    };

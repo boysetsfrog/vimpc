@@ -63,19 +63,19 @@ namespace Mpc
 
       std::string String(uint32_t position) const      { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
       std::string PrintString(uint32_t position) const
-      { 
+      {
          std::string out("");
 
          if (settings_.Get(Setting::PlaylistNumbers) == true)
          {
-            out += "$H[$I$L$D]$H ";   
+            out += "$H[$I$L$D]$H ";
          }
          else
          {
             out = " ";
          }
 
-         out += Get(position)->FormatString(settings_.Get(Setting::SongFormat)); 
+         out += Get(position)->FormatString(settings_.Get(Setting::SongFormat));
          return out;
       }
 

@@ -51,14 +51,12 @@ namespace Main
    class WindowBuffer
    {
    public:
-		virtual ~WindowBuffer() { }
+      virtual ~WindowBuffer() { }
       virtual size_t Size() const = 0;
       virtual std::string String(uint32_t position) const { return ""; }
       virtual std::string PrintString(uint32_t position) const { return ""; }
    };
 
-   //
-   //! \todo delete callbacks on destruction
    //! Window buffer
    template <typename T>
    class BufferImpl : public WindowBuffer, private std::vector<T>
