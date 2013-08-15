@@ -96,7 +96,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/main.cpp
 
 if BUILD_TEST
-vimpc_SOURCES     += src/test/settings.cpp
+vimpc_SOURCES     += src/test/settings.cpp \
+                     src/test/algorithms.cpp
 endif
 
 
