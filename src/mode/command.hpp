@@ -189,9 +189,12 @@ namespace Ui
    private: // Debug only commands
       template <ClientFunction FUNCTION>
       void DebugClient(std::string const & arguments);
-      void DebugInputRandom(std::string const & arguments);
-      void DebugInputSequence(std::string const & arguments);
-      void DebugTestScreen(std::string const & arguments);
+
+   private: // Test only commands
+      void Test(std::string const & arguments);
+      void TestInputRandom(std::string const & arguments);
+      void TestInputSequence(std::string const & arguments);
+      void TestScreen(std::string const & arguments);
 
    private:
       // Executes \p command using \p arguments

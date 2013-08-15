@@ -111,6 +111,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // Create all the static windows
    mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this, search);
    mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (settings, *this, "debug",   Main::DebugConsole());
+   mainWindows_[TestConsole]  = new Ui::ConsoleWindow  (settings, *this, "test",    Main::TestConsole());
    mainWindows_[Console]      = new Ui::ConsoleWindow  (settings, *this, "console", Main::Console());
    mainWindows_[Outputs]      = new Ui::OutputWindow   (settings, *this, Main::Outputs(),   client, search);
    mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, Main::Library(),   client, search);

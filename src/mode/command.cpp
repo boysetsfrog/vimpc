@@ -32,6 +32,14 @@
 #include <taglib/fileref.h>
 #endif
 
+#ifdef HAVE_TEST_H
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/TestRunner.h>
+#include <cppunit/TextOutputter.h>
+#endif
+
 #include "algorithm.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
@@ -160,12 +168,17 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("toplaylist", &Command::ToPlaylist,   true);
 
 #ifdef __DEBUG_PRINTS
-   AddCommand("debug",               &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
+   AddCommand("debug-console",       &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
    AddCommand("debug-client-getmeta",&Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
    AddCommand("debug-client-idle",   &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
-   AddCommand("debug-input-random",  &Command::DebugInputRandom,                                 true);
-   AddCommand("debug-input-seq",     &Command::DebugInputSequence,                               true);
-   AddCommand("debug-test-screen",   &Command::DebugTestScreen,                                  false);
+#endif
+
+#ifdef TEST_ENABLED
+   AddCommand("test-console",       &Command::SetActiveAndVisible<Ui::Screen::TestConsole>, false);
+   AddCommand("test",               &Command::Test, false);
+   AddCommand("test-screen",        &Command::TestScreen,                                  false);
+   AddCommand("test-input-random",  &Command::TestInputRandom,                                 true);
+   AddCommand("test-input-seq",     &Command::TestInputSequence,                               true);
 #endif
 
    // Add all settings to command table to provide tab completion
@@ -1248,13 +1261,42 @@ void Command::DebugClient(std::string const & arguments)
    (client_.*func)();
 }
 
-void Command::DebugInputRandom(std::string const & arguments)
+void Command::Test(std::string const & arguments)
+{
+#ifdef HAVE_TEST_H
+   CPPUNIT_NS::TestResult testresult;
+   CPPUNIT_NS::TestResultCollector collectedresults;
+   testresult.addListener (&collectedresults);
+
+   CPPUNIT_NS::TestRunner testrunner;
+   testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
+   testrunner.run(testresult);
+
+   std::stringstream outStream; 
+   CPPUNIT_NS::TextOutputter textoutput(&collectedresults, outStream);
+   textoutput.write();
+
+   std::string output;
+
+   while (!outStream.eof())
+   {
+      std::getline(outStream, output);
+
+      if (output != "")
+      {
+         Main::TestConsole().Add(output);
+      }
+   }
+#endif
+}
+
+void Command::TestInputRandom(std::string const & arguments)
 {
    int count = atoi(arguments.c_str());
    screen_.EnableRandomInput(count);
 }
 
-void Command::DebugInputSequence(std::string const & arguments)
+void Command::TestInputSequence(std::string const & arguments)
 {
    for (int i = arguments.size() - 1; i >= 0; --i)
    {
@@ -1262,7 +1304,7 @@ void Command::DebugInputSequence(std::string const & arguments)
    }
 }
 
-void Command::DebugTestScreen(std::string const & arguments)
+void Command::TestScreen(std::string const & arguments)
 {
    screen_.ActiveWindow().ScrollTo(65535);
    screen_.ScrollTo(screen_.ActiveWindow().Playlist(0));

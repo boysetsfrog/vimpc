@@ -98,6 +98,7 @@ namespace Ui
       {
          Help = 0,
          DebugConsole,
+         TestConsole,
          Console,
          Outputs,
          Library,
