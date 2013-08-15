@@ -463,7 +463,7 @@ std::string Library::String(uint32_t position) const
       return Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
 
-	return "";
+   return "";
 }
 
 std::string Library::PrintString(uint32_t position) const
@@ -481,7 +481,7 @@ std::string Library::PrintString(uint32_t position) const
       return "       " + Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
 
-	return "";
+   return "";
 }
 
 

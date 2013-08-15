@@ -33,7 +33,7 @@ namespace Ui
    class ConsoleWindow : public Ui::ScrollWindow
    {
    public:
-      ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen, 
+      ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen,
                     std::string name, Console & console);
       ~ConsoleWindow();
 

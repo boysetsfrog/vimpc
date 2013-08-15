@@ -57,7 +57,7 @@ void ScrollWindow::Print(uint32_t line) const
    bool escape    = false;
 
    std::string output   = "";
-   
+
    if (currentLine < WindowBuffer().Size())
    {
       output = WindowBuffer().PrintString(currentLine);
@@ -165,7 +165,7 @@ void ScrollWindow::Print(uint32_t line) const
                   {
                      wprintw(window, "%s", std::string(width, ' ').c_str());
                   }
-                  
+
                   wmove(window, line, Columns() - (stripped.size() - align));
                   break;
                }
@@ -190,11 +190,11 @@ void ScrollWindow::Print(uint32_t line) const
              default:
                break;
          }
-            
+
          i += 2;
 
       }
-      else if ((elided == false) || 
+      else if ((elided == false) ||
                (getcurx(window) < static_cast<int32_t>(Columns() - 3 - (stripped.size() - align))))
       {
          escape = false;

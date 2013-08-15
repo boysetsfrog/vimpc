@@ -25,7 +25,7 @@
 
 using namespace Ui;
 
-WindowSelector::WindowSelector(Main::Settings const & settings, Ui::Screen & screen, 
+WindowSelector::WindowSelector(Main::Settings const & settings, Ui::Screen & screen,
                                Ui::Windows const & windows, Ui::Search const & search) :
    SelectWindow(settings, screen, "windows"),
    windows_    (windows),
