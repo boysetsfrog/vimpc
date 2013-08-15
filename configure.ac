@@ -61,6 +61,24 @@ AC_CHECK_HEADER(taglib/taglib.h,
                 [AC_MSG_ERROR(taglib-dev library is required)])
 fi
 
+test_default="no"
+AC_ARG_ENABLE(test, [ --enable-test=[no/yes] turn on/off test support [default=$test_default]],, enable_test=$test_default)
+
+AM_CONDITIONAL([BUILD_TEST], [test x$enable_test = xyes])
+
+if test "x$enable_test" = "xyes"; then
+AC_DEFINE_UNQUOTED(TEST_ENABLED, "1", "Define to 1 if test support is enabled")
+
+PKG_CHECK_MODULES(cppunit, cppunit)
+
+AC_SUBST(cppunit_LIBS)
+AC_SUBST(cppunit_CFLAGS)
+
+AC_CHECK_HEADER(cppunit/Test.h,
+                [AC_DEFINE_UNQUOTED(HAVE_TEST_H,1,Define to 1 if <Test.h> header file)],
+                [AC_MSG_ERROR(libcppunit-dev library is required)])
+fi
+
 AC_CHECK_HEADER(mpd/client.h,
                 [],
                 [AC_MSG_ERROR(mpdclient-dev library is required)])
