@@ -65,8 +65,8 @@ namespace Mpc
    class DirectoryComparator
    {
       public:
-      bool operator() (DirectoryEntry * i, DirectoryEntry * j) 
-      { 
+      bool operator() (DirectoryEntry * i, DirectoryEntry * j)
+      {
          if (i->name_ == "..")
          {
             return true;
@@ -77,7 +77,7 @@ namespace Mpc
          }
          else if (i->type_ == j->type_)
          {
-            return (i->name_ < j->name_); 
+            return (i->name_ < j->name_);
          }
          else if (i->type_ == PathType)
          {
@@ -88,7 +88,7 @@ namespace Mpc
             return false;
          }
 
-         return (i->name_ < j->name_); 
+         return (i->name_ < j->name_);
       };
    };
 

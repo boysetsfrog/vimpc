@@ -134,7 +134,7 @@ bool InputMode::CausesModeToStart(int input) const
 bool InputMode::CausesModeToEnd(int input) const
 {
    return ((((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_ == "") && (backedOut_)) ||
-           (input == ESCAPE_KEY) || 
+           (input == ESCAPE_KEY) ||
            (HasCompleteInput(input)));
 }
 
@@ -143,14 +143,14 @@ bool InputMode::CausesModeToEnd(int input) const
 {
    static std::vector<std::string> terminators;
 
-	if (terminators.empty() == true)
-	{
-		terminators.push_back("\n");
-		terminators.push_back("<C-M>");
-		terminators.push_back("<Enter>");
-		terminators.push_back("<Return>");
-		terminators.push_back("<CR>");
-	}
+   if (terminators.empty() == true)
+   {
+      terminators.push_back("\n");
+      terminators.push_back("<C-M>");
+      terminators.push_back("<Enter>");
+      terminators.push_back("<Return>");
+      terminators.push_back("<CR>");
+   }
 
    for (uint32_t i = 0; i < input.length(); ++i)
    {
@@ -329,7 +329,7 @@ void InputMode::Deletion()
       {
          inputString_.erase((cursorPosition - cursorMovement), 1);
       }
-      
+
       cursor_.UpdatePosition(State);
 
       backedOut_ = false;

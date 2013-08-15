@@ -435,7 +435,7 @@ namespace Mpc
          if (Connected() == true)
          {
             Debug("Client::Request playlists");
-            
+
             if (mpd_send_list_playlists(connection_))
             {
                mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
