@@ -206,7 +206,7 @@
    tab completion. Currently add, edit, load, and set commands.
 
 
- EDITTING:
+ EDITING:
    A number of keyboard shortcuts are available when typing in
    command mode.
 
@@ -214,6 +214,9 @@
    Ctrl+e, End              | go to end of the line
    Ctrl+h, Backspace        | delete previous character
    Ctrl+u                   | clear from cursor position to start
+   Ctrl+w                   | clear from cursor position to start of previous word
+   Shift+Left               | move to previous word
+   Shift+Right              | move to next word
 
 
  CONNECTING:                

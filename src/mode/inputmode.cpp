@@ -44,7 +44,9 @@ InputMode::InputMode(Ui::Screen & screen) :
 {
    // Currently ctrl key combinations are 'X' - 'A' + 1 (for <C-X>)
    inputTable_[KEY_UP]        = &InputMode::SearchHistory<Up>;
+   inputTable_['P' - 'A' + 1] = &InputMode::SearchHistory<Up>;
    inputTable_[KEY_DOWN]      = &InputMode::SearchHistory<Down>;
+   inputTable_['N' - 'A' + 1] = &InputMode::SearchHistory<Down>;
    inputTable_[KEY_BACKSPACE] = &InputMode::Deletion<Cursor::CursorLeft>;
    inputTable_['H' - 'A' + 1] = &InputMode::Deletion<Cursor::CursorLeft>;
    inputTable_[0x7F]          = &InputMode::Deletion<Cursor::CursorLeft>;
@@ -53,10 +55,14 @@ InputMode::InputMode(Ui::Screen & screen) :
    inputTable_[KEY_LEFT]      = &InputMode::MoveCursor<Cursor::CursorLeft>;
    inputTable_[KEY_RIGHT]     = &InputMode::MoveCursor<Cursor::CursorRight>;
    inputTable_[KEY_HOME]      = &InputMode::MoveCursor<Cursor::CursorStart>;
+   inputTable_['A' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorStart>;
    inputTable_['B' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorStart>;
    inputTable_[KEY_END]       = &InputMode::MoveCursor<Cursor::CursorEnd>;
    inputTable_['E' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorEnd>;
+   inputTable_[KEY_SLEFT]     = &InputMode::MoveCursor<Cursor::CursorPreviousSpace>;
+   inputTable_[KEY_SRIGHT]    = &InputMode::MoveCursor<Cursor::CursorNextSpace>;
    inputTable_['U' - 'A' + 1] = &InputMode::ClearBeforeCursor;
+   inputTable_['W' - 'A' + 1] = &InputMode::ClearWordBeforeCursor;
 }
 
 InputMode::~InputMode()
@@ -294,7 +300,6 @@ std::string InputMode::SearchHistory(Direction direction, std::string const & in
    return result;
 }
 
-
 bool InputMode::InputIsValidCharacter(int input)
 {
    return (input < std::numeric_limits<char>::max())
@@ -346,6 +351,20 @@ void InputMode::ClearBeforeCursor()
    cursor_.UpdatePosition(Cursor::CursorStart);
 }
 
+void InputMode::ClearWordBeforeCursor()
+{
+   int previousSpace = inputString_.find_last_of(" ", cursor_.Position() - 2);
+
+   if (previousSpace != -1)
+   {
+      inputString_.erase(previousSpace, cursor_.Position() - (1 + previousSpace));
+      cursor_.SetPosition(1 + previousSpace);
+   }
+   else
+   {
+      ClearBeforeCursor();
+   }
+}
 
 // Helper Classes
 // CURSOR
@@ -370,6 +389,8 @@ uint16_t Cursor::UpdatePosition(CursorState newCursorState)
    uint16_t const minCursorPosition = PromptSize;
    uint16_t const maxCursorPosition = (inputString_.size() + PromptSize);
 
+   int previousSpace, nextSpace;
+
    //Determine where the cursor should move to
    switch (newCursorState)
    {
@@ -390,6 +411,16 @@ uint16_t Cursor::UpdatePosition(CursorState newCursorState)
          break;
 
       case CursorNoMovement:
+         break;
+
+      case CursorPreviousSpace:
+         previousSpace = inputString_.find_last_of(" ", position_ - 2);
+         position_ = previousSpace != -1 ? 1 + previousSpace : minCursorPosition;
+         break;
+
+      case CursorNextSpace:
+         nextSpace = inputString_.find_first_of(" ", position_);
+         position_ = nextSpace != -1 ? 1 + nextSpace : maxCursorPosition;
          break;
 
       default:
