@@ -49,7 +49,9 @@ namespace Ui
          CursorLeft,
          CursorRight,
          CursorStart,
-         CursorEnd
+         CursorEnd,
+         CursorPreviousSpace,
+         CursorNextSpace
       } CursorState;
 
       uint16_t Position() const;
@@ -133,6 +135,7 @@ namespace Ui
       void Deletion();
 
       void ClearBeforeCursor();
+      void ClearWordBeforeCursor();
 
    protected:
       std::string      inputString_;
