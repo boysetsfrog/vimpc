@@ -84,14 +84,14 @@ void SettingsTester::TestToggleSettings()
 {
    TurnOffSettings();
 
-#define X(a, b, c) settings_.SetSingleSetting(std::string(b) + "!");
+#define X(a, b, c) settings_.Set(std::string(b) + "!");
    TOGGLE_SETTINGS
 #undef X
 
    CPPUNIT_ASSERT(IsToggleOn() == true);
    CPPUNIT_ASSERT(IsToggleOff() == false);
 
-#define X(a, b, c) settings_.SetSingleSetting(std::string(b) + "!");
+#define X(a, b, c) settings_.Set(std::string(b) + "!");
    TOGGLE_SETTINGS
 #undef X
 
@@ -101,14 +101,14 @@ void SettingsTester::TestToggleSettings()
 
 void SettingsTester::TurnOffSettings()
 {
-#define X(a, b, c) settings_.SetSingleSetting("no" + std::string(b));
+#define X(a, b, c) settings_.Set("no" + std::string(b));
    TOGGLE_SETTINGS
 #undef X
 }
 
 void SettingsTester::TurnOnSettings()
 {
-#define X(a, b, c) settings_.SetSingleSetting(std::string(b));
+#define X(a, b, c) settings_.Set(std::string(b));
    TOGGLE_SETTINGS
 #undef X
 }
