@@ -45,7 +45,11 @@ namespace Ui
 
    // Everything is private to prevent errors being set on the window
    // directly without using the helper functions
+#ifdef TEST_ENABLED
+   public:
+#else
    private:
+#endif
       static ErrorWindow & Instance()
       {
          static ErrorWindow errorWindow;
@@ -55,7 +59,6 @@ namespace Ui
       ErrorWindow() : ModeWindow(COLS, LINES), hasError_(false) { }
       ~ErrorWindow() { }
 
-   private:
       void Print(uint32_t line) const
       {
          if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)

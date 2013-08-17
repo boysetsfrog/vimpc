@@ -22,6 +22,7 @@
 
 #include "settings.hpp"
 #include "window/debug.hpp"
+#include "window/error.hpp"
 
 class SettingsTester : public CppUnit::TestFixture
 {
@@ -29,6 +30,7 @@ class SettingsTester : public CppUnit::TestFixture
    CPPUNIT_TEST(TestTurnOnSettings);
    CPPUNIT_TEST(TestTurnOffSettings);
    CPPUNIT_TEST(TestToggleSettings);
+   CPPUNIT_TEST(TestStringSetting);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +45,7 @@ protected:
    void TestToggleSettings();
    void TestTurnOffSettings();
    void TestTurnOnSettings();
+   void TestStringSetting();
 
 protected:
    void TurnOnSettings();
@@ -60,6 +63,7 @@ private:
 
 void SettingsTester::setUp()
 {
+   Ui::ErrorWindow::Instance().ClearError();
    settings_.DisableCallbacks();
 
    for (int i = 0; i < (int) Setting::ToggleCount; ++i)
@@ -97,6 +101,10 @@ void SettingsTester::TestToggleSettings()
 
    CPPUNIT_ASSERT(IsToggleOn() == false);
    CPPUNIT_ASSERT(IsToggleOff() == true);
+
+   settings_.Set("noinvalidsetting!");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
 }
 
 void SettingsTester::TurnOffSettings()
@@ -117,12 +125,45 @@ void SettingsTester::TestTurnOffSettings()
 {
    TurnOffSettings();
    CPPUNIT_ASSERT(IsToggleOff() == true);
+
+   settings_.Set("noinvalidsetting");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
 }
 
 void SettingsTester::TestTurnOnSettings()
 {
    TurnOnSettings();
    CPPUNIT_ASSERT(IsToggleOn() == true);
+
+   settings_.Set("invalidsetting");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
+}
+
+void SettingsTester::TestStringSetting()
+{
+   std::string window = settings_.Get(Setting::Window);
+   settings_.Set("window test");
+   CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "test");
+   settings_.Set("window " + window);
+   CPPUNIT_ASSERT(settings_.Get(Setting::Window) == window);
+
+   std::string position = settings_.Get(Setting::AddPosition);
+   settings_.Set("add next");
+   CPPUNIT_ASSERT(settings_.Get(Setting::AddPosition) == "next");
+
+   settings_.Set("add invalid");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
+   CPPUNIT_ASSERT(settings_.Get(Setting::AddPosition) == "next");
+
+   settings_.Set("add " + position);
+   CPPUNIT_ASSERT(settings_.Get(Setting::AddPosition) == position);
+
+   settings_.Set("notarealsetting notarealvalue");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
 }
 
 bool SettingsTester::IsToggleDefaultValues()
