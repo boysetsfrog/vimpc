@@ -30,13 +30,16 @@ class CommandTester : public CppUnit::TestFixture
    CPPUNIT_TEST_SUITE(CommandTester);
    CPPUNIT_TEST(CommandSplit);
    CPPUNIT_TEST(Execution);
-   CPPUNIT_TEST(ChangeSetting);
+
+   CPPUNIT_TEST(SetCommand);
+   CPPUNIT_TEST(TabCommands);
    CPPUNIT_TEST_SUITE_END();
 
 public:
    CommandTester() :
       settings_(Main::Settings::Instance()),
-      commandMode_(*Main::Tester::Instance().Command) { }
+      commandMode_(*Main::Tester::Instance().Command),
+      screen_(*Main::Tester::Instance().Screen) { }
 
 public:
    void setUp();
@@ -45,20 +48,26 @@ public:
 protected:
    void CommandSplit();
    void Execution();
-   void ChangeSetting();
+
+   void SetCommand();
+   void TabCommands();
 
 private:
-   Main::Settings & settings_; 
+   Main::Settings & settings_;
    Ui::Command    & commandMode_;
+   Ui::Screen     & screen_;
+   int32_t          window_;
 };
 
 void CommandTester::setUp()
 {
    Ui::ErrorWindow::Instance().ClearError();
+   window_ = screen_.GetActiveWindow();
 }
 
 void CommandTester::tearDown()
 {
+   screen_.SetActiveAndVisible(window_);
    Ui::ErrorWindow::Instance().ClearError();
 }
 
@@ -87,19 +96,83 @@ void CommandTester::CommandSplit()
 
 void CommandTester::Execution()
 {
+   // Ensure that the error command is run and that an error is set
    Ui::ErrorWindow::Instance().ClearError();
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
    commandMode_.ExecuteCommand("error 1");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
 }
 
-void CommandTester::ChangeSetting()
+
+void CommandTester::SetCommand()
 {
+   // Test that calling the set command changes a setting
    std::string window = settings_.Get(Setting::Window);
    commandMode_.ExecuteCommand("set " + settings_.Name(Setting::Window) + " test");
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "test");
    commandMode_.ExecuteCommand("set " + settings_.Name(Setting::Window) + " " + window);
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == window);
+}
+
+void CommandTester::TabCommands()
+{
+   char Buffer[128];
+
+   commandMode_.ExecuteCommand("tabfirst");
+   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
+
+   commandMode_.ExecuteCommand("tablast");
+   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == (screen_.VisibleWindows() - 1));
+
+   screen_.SetActiveAndVisible(window_);
+   int32_t Index = screen_.GetActiveWindowIndex();
+   commandMode_.ExecuteCommand("tabmove 0");
+   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
+
+   snprintf(Buffer, 128, "%d", Index);
+   commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
+   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
+
+   std::string name = screen_.GetNameFromWindow(screen_.GetActiveWindow());
+   commandMode_.ExecuteCommand("tabrename aridiculoustestname");
+   CPPUNIT_ASSERT(screen_.GetNameFromWindow(screen_.GetActiveWindow()) == "aridiculoustestname");
+   commandMode_.ExecuteCommand("tabrename " + name);
+   CPPUNIT_ASSERT(screen_.GetNameFromWindow(screen_.GetActiveWindow()) == name);
+
+   if (window_ < (int32_t) Ui::Screen::MainWindowCount)
+   {
+      screen_.SetActiveAndVisible(window_);
+
+      CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
+      commandMode_.ExecuteCommand("tabclose");
+      CPPUNIT_ASSERT(screen_.IsVisible(window_) == false);
+
+      screen_.SetActiveAndVisible(window_);
+      CPPUNIT_ASSERT(screen_.GetActiveWindow() == window_);
+
+      snprintf(Buffer, 128, "%d", Index);
+      commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
+      CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
+      CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
+
+      screen_.SetActiveWindow(0);
+      CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
+      commandMode_.ExecuteCommand("tabhide " + name);
+      CPPUNIT_ASSERT(screen_.IsVisible(window_) == false);
+
+      if (Index != 0)
+      {
+         CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
+      }
+
+      screen_.SetActiveAndVisible(window_);
+      CPPUNIT_ASSERT(screen_.GetActiveWindow() == window_);
+
+      snprintf(Buffer, 128, "%d", Index);
+      commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
+      CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
+      CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
+   }
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);

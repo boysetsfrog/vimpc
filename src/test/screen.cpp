@@ -75,6 +75,8 @@ void ScreenTester::TestChangeWindow()
       CPPUNIT_ASSERT(screen_.GetPreviousWindow() == PreviousWindow);
    }
 
+   screen_.SetActiveAndVisible(StartWindow);
+
    for (int i = 0; i < WindowCount; ++i)
    {
       PreviousWindow = screen_.GetActiveWindow();
@@ -102,7 +104,7 @@ void ScreenTester::TestChangeWindow()
    CPPUNIT_ASSERT(screen_.GetActiveWindow() == StartWindow);
 
    // Check that going to absolute type works
-   screen_.SetActiveWindowType((Ui::Screen::MainWindow) StartWindow);
+   screen_.SetActiveAndVisible(StartWindow);
    CPPUNIT_ASSERT(screen_.GetActiveWindow() == StartWindow);
 }
 
