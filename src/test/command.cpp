@@ -30,6 +30,7 @@ class CommandTester : public CppUnit::TestFixture
    CPPUNIT_TEST_SUITE(CommandTester);
    CPPUNIT_TEST(CommandSplit);
    CPPUNIT_TEST(Execution);
+   CPPUNIT_TEST(ChangeSetting);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -44,6 +45,7 @@ public:
 protected:
    void CommandSplit();
    void Execution();
+   void ChangeSetting();
 
 private:
    Main::Settings & settings_; 
@@ -89,6 +91,15 @@ void CommandTester::Execution()
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
    commandMode_.ExecuteCommand("error 1");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+}
+
+void CommandTester::ChangeSetting()
+{
+   std::string window = settings_.Get(Setting::Window);
+   commandMode_.ExecuteCommand("set " + settings_.Name(Setting::Window) + " test");
+   CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "test");
+   commandMode_.ExecuteCommand("set " + settings_.Name(Setting::Window) + " " + window);
+   CPPUNIT_ASSERT(settings_.Get(Setting::Window) == window);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);
