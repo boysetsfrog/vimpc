@@ -58,6 +58,19 @@ namespace Ui
       // \param[in] input The command string to execute, including the arguments
       bool ExecuteCommand(std::string const & input);
 
+      // Splits the input into command and argument parts
+      //
+      // \param[in]  input     The string to split
+      // \param[out] range     The range to run commands over
+      // \param[out] command   The command part of the string
+      // \param[out] arguments The arguments from the string
+      void SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments);
+
+      // Splits the arguments based on the given delimeter
+      // \param[in]  input     The string to split
+      // \param[in]  delim     The delimiting character
+      std::vector<std::string> SplitArguments(std::string const & input, char delimeter = ' ');
+
       // If command queue'ing is enabled, commands that require an active mpd connection
       // will be queued up if a connection is not present, then when a connection becomes
       // active they will be handled
@@ -202,19 +215,6 @@ namespace Ui
       // \param[in] command   The command to execute
       // \param[in] arguments The arguments to pass to the command
       bool ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments);
-
-      // Splits the input into command and argument parts
-      //
-      // \param[in]  input     The string to split
-      // \param[out] range     The range to run commands over
-      // \param[out] command   The command part of the string
-      // \param[out] arguments The arguments from the string
-      void SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments);
-
-      // Splits the arguments based on the given delimeter
-      // \param[in]  input     The string to split
-      // \param[in]  delim     The delimiting character
-      std::vector<std::string> SplitArguments(std::string const & input, char delimeter = ' ');
 
       // Handle the settings
       void Set(std::string const & arguments);

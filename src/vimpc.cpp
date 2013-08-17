@@ -60,7 +60,8 @@ Vimpc::Vimpc() :
    ENSURE(ModesAreInitialised() == true);
 
 #ifdef TEST_ENABLED
-   Main::Tester::Instance().Screen = &screen_;
+   Main::Tester::Instance().Screen  = &screen_;
+   Main::Tester::Instance().Command = &commandMode_;
 #endif
 }
 

@@ -21,7 +21,13 @@
 #ifndef __MAIN__TEST
 #define __MAIN__TEST
 
-namespace Ui { class Screen; }
+#include "config.h"
+
+namespace Ui
+{ 
+   class Command;
+   class Screen;
+}
 
 namespace Main
 {
@@ -38,9 +44,10 @@ namespace Main
             return tester;
          }
 
-   #ifdef TEST_ENABLED
-         Ui::Screen * Screen;
-   #endif
+      #ifdef TEST_ENABLED
+         Ui::Screen *  Screen;
+         Ui::Command * Command;   
+      #endif
    };
 }
 
