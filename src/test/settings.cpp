@@ -144,9 +144,9 @@ void SettingsTester::TestTurnOnSettings()
 void SettingsTester::TestStringSetting()
 {
    std::string window = settings_.Get(Setting::Window);
-   settings_.Set("window test");
+   settings_.Set(settings_.Name(Setting::Window) + " test");
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "test");
-   settings_.Set("window " + window);
+   settings_.Set(settings_.Name(Setting::Window) + " " + window);
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == window);
 
    std::string position = settings_.Get(Setting::AddPosition);
