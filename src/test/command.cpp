@@ -20,6 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "algorithm.hpp"
 #include "test.hpp"
 #include "mode/command.hpp"
 #include "window/debug.hpp"
@@ -235,6 +236,7 @@ void CommandTester::StateCommands()
    bool    Repeat    = client_.Repeat();
    int32_t Crossfade = client_.Crossfade();
    int32_t Volume    = client_.Volume();
+   std::string State = client_.CurrentState();
 
    commandMode_.ExecuteCommand("random");
    CPPUNIT_ASSERT(Random != client_.Random());
@@ -267,6 +269,31 @@ void CommandTester::StateCommands()
    client_.SetRepeat((Repeat == true));
    client_.SetSingle((Single == true));
    client_.SetConsume((Consume == true));
+
+   if (Algorithm::iequals(State, "playing") == true)
+   {
+      client_.Pause(); 
+   }
+
+   Ui::ErrorWindow::Instance().ClearError();
+   commandMode_.ExecuteCommand("volume 0");
+   CPPUNIT_ASSERT(client_.Volume() == 0);
+   commandMode_.ExecuteCommand("volume 100");
+   CPPUNIT_ASSERT(client_.Volume() == 100);
+   commandMode_.ExecuteCommand("volume 50");
+   CPPUNIT_ASSERT(client_.Volume() == 50);
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+   commandMode_.ExecuteCommand("volume 500");
+   CPPUNIT_ASSERT(client_.Volume() == 50);
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
+
+   client_.SetVolume(Volume);
+
+   if (Algorithm::iequals(State, "playing") == true)
+   {
+      client_.Pause(); 
+   }
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);
