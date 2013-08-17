@@ -29,6 +29,7 @@ class CommandTester : public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(CommandTester);
    CPPUNIT_TEST(CommandSplit);
+   CPPUNIT_TEST(Execution);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -42,6 +43,7 @@ public:
 
 protected:
    void CommandSplit();
+   void Execution();
 
 private:
    Main::Settings & settings_; 
@@ -50,10 +52,12 @@ private:
 
 void CommandTester::setUp()
 {
+   Ui::ErrorWindow::Instance().ClearError();
 }
 
 void CommandTester::tearDown()
 {
+   Ui::ErrorWindow::Instance().ClearError();
 }
 
 void CommandTester::CommandSplit()
@@ -65,6 +69,9 @@ void CommandTester::CommandSplit()
    commandMode_.SplitCommand("echo test", range, command, arguments);
    CPPUNIT_ASSERT((range == "") && (command == "echo") && (arguments == "test"));
 
+   commandMode_.SplitCommand("1echo testing", range, command, arguments);
+   CPPUNIT_ASSERT((range == "1") && (command == "echo") && (arguments == "testing"));
+
    commandMode_.SplitCommand("1,2echo testing", range, command, arguments);
    CPPUNIT_ASSERT((range == "1,2") && (command == "echo") && (arguments == "testing"));
 
@@ -74,6 +81,14 @@ void CommandTester::CommandSplit()
    std::vector<std::string> args = commandMode_.SplitArguments(arguments);
    CPPUNIT_ASSERT(args.size() == 4);
    CPPUNIT_ASSERT((args[0] == "testing") && (args[1] == "a") && (args[2] == "longer") && (args[3] == "argument"));
+}
+
+void CommandTester::Execution()
+{
+   Ui::ErrorWindow::Instance().ClearError();
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+   commandMode_.ExecuteCommand("error 1");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);

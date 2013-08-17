@@ -82,6 +82,7 @@ void SettingsTester::tearDown()
    }
 
    settings_.EnableCallbacks();
+   Ui::ErrorWindow::Instance().ClearError();
 }
 
 void SettingsTester::TestToggleSettings()
