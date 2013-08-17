@@ -33,6 +33,7 @@ class CommandTester : public CppUnit::TestFixture
 
    CPPUNIT_TEST(SetCommand);
    CPPUNIT_TEST(TabCommands);
+   CPPUNIT_TEST(SetActiveWindowCommands);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -51,6 +52,7 @@ protected:
 
    void SetCommand();
    void TabCommands();
+   void SetActiveWindowCommands();
 
 private:
    Main::Settings & settings_;
@@ -173,6 +175,36 @@ void CommandTester::TabCommands()
       CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
    }
+}
+
+void CommandTester::SetActiveWindowCommands()
+{
+   commandMode_.ExecuteCommand("browse");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Browse);
+
+   commandMode_.ExecuteCommand("console");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Console);
+
+   commandMode_.ExecuteCommand("help");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Help);
+
+   commandMode_.ExecuteCommand("library");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Library);
+
+   commandMode_.ExecuteCommand("directory");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Directory);
+
+   commandMode_.ExecuteCommand("playlist");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Playlist);
+
+   commandMode_.ExecuteCommand("outputs");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Outputs);
+
+   commandMode_.ExecuteCommand("lists");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Lists);
+
+   commandMode_.ExecuteCommand("windowselect");
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::WindowSelect);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);
