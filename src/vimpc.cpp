@@ -29,6 +29,7 @@
 #include "buffers.hpp"
 #include "config.hpp"
 #include "settings.hpp"
+#include "test.hpp"
 #include "window/error.hpp"
 
 #include <sys/time.h>
@@ -57,6 +58,10 @@ Vimpc::Vimpc() :
 
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
+
+#ifdef TEST_ENABLED
+   Main::Tester::Instance().Screen = &screen_;
+#endif
 }
 
 Vimpc::~Vimpc()

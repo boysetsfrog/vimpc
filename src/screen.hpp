@@ -225,6 +225,8 @@ namespace Ui
    public:
       // Access the active window
       int32_t GetActiveWindow() const;
+      int32_t GetActiveWindowIndex() const;
+
       Ui::ScrollWindow & ActiveWindow() const;
       Ui::ScrollWindow & Window(uint32_t window) const;
 
@@ -249,8 +251,9 @@ namespace Ui
       // Show or hide the given window
       bool IsVisible(int32_t window);
       void SetVisible(int32_t window, bool visible, bool removeWindow = true);
-      uint32_t VisibleWindows() { return visibleWindows_.size(); }
 
+      uint32_t VisibleWindows() { return visibleWindows_.size(); }
+      
       // Show a given window and make it active
       void SetActiveAndVisible(int32_t window);
 

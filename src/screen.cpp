@@ -960,6 +960,21 @@ int32_t Screen::GetActiveWindow() const
    return window_;
 }
 
+int32_t Screen::GetActiveWindowIndex() const
+{
+   int32_t currentIndex = -1;
+
+   for (uint32_t i = 0; ((i < visibleWindows_.size()) && (currentIndex == -1)); ++i)
+   {
+      if (visibleWindows_.at(i) == window_)
+      {
+         currentIndex = i;
+      }
+   }
+
+   return currentIndex;
+}
+
 int32_t Screen::GetPreviousWindow() const
 {
    return previous_;
@@ -1025,16 +1040,7 @@ void Screen::SetActiveWindow(uint32_t window)
 
 void Screen::SetActiveWindow(Skip skip)
 {
-   int32_t currentIndex = -1;
-
-   for (uint32_t i = 0; ((i < visibleWindows_.size()) && (currentIndex == -1)); ++i)
-   {
-      if (visibleWindows_.at(i) == window_)
-      {
-         currentIndex = i;
-      }
-   }
-
+   int32_t const currentIndex = GetActiveWindowIndex();
    int32_t window = currentIndex + ((skip == Next) ? 1 : -1);
 
    if (window >= static_cast<int32_t>(visibleWindows_.size()))
