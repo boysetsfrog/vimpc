@@ -29,6 +29,11 @@ namespace Ui
    class Screen;
 }
 
+namespace Mpc
+{
+   class Client;
+}
+
 namespace Main
 {
    class Tester
@@ -47,6 +52,7 @@ namespace Main
       #ifdef TEST_ENABLED
          Ui::Screen *  Screen;
          Ui::Command * Command;   
+         Mpc::Client * Client;
       #endif
    };
 }

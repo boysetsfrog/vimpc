@@ -34,13 +34,16 @@ class CommandTester : public CppUnit::TestFixture
    CPPUNIT_TEST(SetCommand);
    CPPUNIT_TEST(TabCommands);
    CPPUNIT_TEST(SetActiveWindowCommands);
+   CPPUNIT_TEST(StateCommands);
    CPPUNIT_TEST_SUITE_END();
 
 public:
    CommandTester() :
       settings_(Main::Settings::Instance()),
       commandMode_(*Main::Tester::Instance().Command),
-      screen_(*Main::Tester::Instance().Screen) { }
+      screen_(*Main::Tester::Instance().Screen),
+      client_(*Main::Tester::Instance().Client) 
+      { }
 
 public:
    void setUp();
@@ -53,11 +56,13 @@ protected:
    void SetCommand();
    void TabCommands();
    void SetActiveWindowCommands();
+   void StateCommands();
 
 private:
    Main::Settings & settings_;
    Ui::Command    & commandMode_;
    Ui::Screen     & screen_;
+   Mpc::Client    & client_;
    int32_t          window_;
 };
 
@@ -220,6 +225,48 @@ void CommandTester::SetActiveWindowCommands()
 
    commandMode_.ExecuteCommand("windowselect");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::WindowSelect);
+}
+
+void CommandTester::StateCommands()
+{
+   bool    Random    = client_.Random();
+   bool    Single    = client_.Single();
+   bool    Consume   = client_.Consume();
+   bool    Repeat    = client_.Repeat();
+   int32_t Crossfade = client_.Crossfade();
+   int32_t Volume    = client_.Volume();
+
+   commandMode_.ExecuteCommand("random");
+   CPPUNIT_ASSERT(Random != client_.Random());
+   commandMode_.ExecuteCommand("repeat");
+   CPPUNIT_ASSERT(Repeat != client_.Repeat());
+   commandMode_.ExecuteCommand("single");
+   CPPUNIT_ASSERT(Single != client_.Single());
+   commandMode_.ExecuteCommand("consume");
+   CPPUNIT_ASSERT(Consume != client_.Consume());
+
+   commandMode_.ExecuteCommand("random on");
+   CPPUNIT_ASSERT(client_.Random() == true);
+   commandMode_.ExecuteCommand("repeat on");
+   CPPUNIT_ASSERT(client_.Repeat() == true);
+   commandMode_.ExecuteCommand("single on");
+   CPPUNIT_ASSERT(client_.Single() == true);
+   commandMode_.ExecuteCommand("consume on");
+   CPPUNIT_ASSERT(client_.Consume() == true);
+
+   commandMode_.ExecuteCommand("random off");
+   CPPUNIT_ASSERT(client_.Random() == false);
+   commandMode_.ExecuteCommand("repeat off");
+   CPPUNIT_ASSERT(client_.Repeat() == false);
+   commandMode_.ExecuteCommand("single off");
+   CPPUNIT_ASSERT(client_.Single() == false);
+   commandMode_.ExecuteCommand("consume off");
+   CPPUNIT_ASSERT(client_.Consume() == false);
+
+   client_.SetRandom((Random == true));
+   client_.SetRepeat((Repeat == true));
+   client_.SetSingle((Single == true));
+   client_.SetConsume((Consume == true));
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);
