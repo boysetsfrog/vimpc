@@ -125,6 +125,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("swap",       &Command::Swap,         true);
    AddCommand("stop",       &Command::Stop,         true);
    AddCommand("toggle",     &Command::ToggleOutput, true);
+   AddCommand("unalias",    &Command::Unalias,      false);
    AddCommand("volume",     &Command::Volume,       true);
 
    AddCommand("map",        &Command::Map,          false);
@@ -1498,6 +1499,18 @@ void Command::Alias(std::string const & input)
    SplitCommand(input, range, command, arguments);
 
    aliasTable_[command] = arguments;
+}
+
+void Command::Unalias(std::string const & input)
+{
+   std::string range, command, arguments;
+
+   SplitCommand(input, range, command, arguments);
+
+   if (aliasTable_.find(command) != aliasTable_.end())
+   {
+      aliasTable_.erase(command);
+   }
 }
 
 void Command::ResetTabCompletion(int input)

@@ -224,6 +224,7 @@ namespace Ui
 
       // Alias a command to a given string
       void Alias(std::string const & arguments);
+      void Unalias(std::string const & arguments);
 
       // Clears the current tab completion
       void ResetTabCompletion(int input);

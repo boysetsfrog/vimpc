@@ -103,6 +103,21 @@ void CommandTester::Execution()
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
    commandMode_.ExecuteCommand("error 1");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
+
+   // Test aliasing of commands to another name
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+   commandMode_.ExecuteCommand("thisisnotarealcommand");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+   commandMode_.ExecuteCommand("alias thisisnotarealcommand sleep 0");
+   commandMode_.ExecuteCommand("thisisnotarealcommand");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+   commandMode_.ExecuteCommand("unalias thisisnotarealcommand");
+   commandMode_.ExecuteCommand("thisisnotarealcommand");
+   CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
+   Ui::ErrorWindow::Instance().ClearError();
 }
 
 
