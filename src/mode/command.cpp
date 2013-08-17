@@ -97,6 +97,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("findgenre",  &Command::FindGenre,    true);
    AddCommand("findsong",   &Command::FindSong,     true);
    AddCommand("move",       &Command::Move,         true);
+   AddCommand("mute",       &Command::Mute,         true);
    AddCommand("nohlsearch", &Command::NoHighlightSearch, false);
    AddCommand("normal",     &Command::Normal,       true);
    AddCommand("password",   &Command::Password,     true);
@@ -537,6 +538,17 @@ void Command::QuitAll(std::string const & arguments)
    }
 
    Player::Quit();
+}
+
+void Command::Mute(std::string const & arguments)
+{
+   if (CheckConnected() == true)
+   {
+      if (arguments != "")
+      {
+         client_.SetMute((arguments.compare("on") == 0));
+      }
+   }
 }
 
 void Command::Volume(std::string const & arguments)

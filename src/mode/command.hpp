@@ -108,6 +108,7 @@ namespace Ui
       void Swap(std::string const & arguments);
       void Redraw(std::string const & arguments);
       void Stop(std::string const & arguments);
+      void Mute(std::string const & arguments);
       void Volume(std::string const & arguments);
 
    // Command only functions

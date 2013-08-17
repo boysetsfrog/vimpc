@@ -141,6 +141,9 @@ namespace Mpc
       int32_t Volume();
       void SetVolume(uint32_t volume);
 
+      void SetMute(bool mute);
+      bool Mute();
+
       bool IsUpdating();
 
    public:
@@ -279,6 +282,8 @@ namespace Mpc
       bool                    retried_;
 
       uint32_t                volume_;
+      uint32_t                mVolume_;
+      bool                    mute_;
       bool                    updating_;
       bool                    random_;
       bool                    repeat_;

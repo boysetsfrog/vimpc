@@ -90,6 +90,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    retried_              (true),
 
    volume_               (100),
+   mVolume_              (100),
+   mute_                 (false),
    updating_             (false),
    random_               (false),
    repeat_               (false),
@@ -583,6 +585,26 @@ void Client::SetVolume(uint32_t volume)
    {
       ErrorString(ErrorNumber::ClientNoConnection);
    }
+}
+
+void Client::SetMute(bool mute)
+{
+   if ((mute == true) && (mute_ == false))
+   {
+      mVolume_ = volume_;
+      SetVolume(0);
+   }
+   else if ((mute == false) && (mute_ == true))
+   {
+      SetVolume(mVolume_);
+   }
+
+   mute_ = mute;
+}
+
+bool Client::Mute()
+{
+   return mute_;
 }
 
 bool Client::IsUpdating()
