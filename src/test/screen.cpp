@@ -62,6 +62,7 @@ void ScreenTester::TestChangeWindow()
    int32_t StartWindow = screen_.GetActiveWindow();
    int32_t PreviousWindow = screen_.GetActiveWindow();
 
+   // Cycle through every window using the index in the tab bar
    for (uint32_t i = 0; i < WindowCount; ++i)
    {
       PreviousWindow = screen_.GetActiveWindow();
@@ -77,6 +78,7 @@ void ScreenTester::TestChangeWindow()
 
    screen_.SetActiveAndVisible(StartWindow);
 
+   // Cycle through all windows using :tabnext
    for (int i = 0; i < WindowCount; ++i)
    {
       PreviousWindow = screen_.GetActiveWindow();
@@ -90,6 +92,7 @@ void ScreenTester::TestChangeWindow()
    // Test that cycling through all windows returns to start 
    CPPUNIT_ASSERT(screen_.GetActiveWindow() == StartWindow);
 
+   // Cycle through all windows using :tabprevious
    for (int i = 0; i < WindowCount; ++i)
    {
       PreviousWindow = screen_.GetActiveWindow();
@@ -103,7 +106,7 @@ void ScreenTester::TestChangeWindow()
    // Test that cycling through all windows returns to start 
    CPPUNIT_ASSERT(screen_.GetActiveWindow() == StartWindow);
 
-   // Check that going to absolute type works
+   // Check that going to absolute window works
    screen_.SetActiveAndVisible(StartWindow);
    CPPUNIT_ASSERT(screen_.GetActiveWindow() == StartWindow);
 }
