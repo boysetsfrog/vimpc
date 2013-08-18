@@ -131,6 +131,8 @@ void CommandTester::SetCommand()
 {
    // Test that calling the set command changes a setting
    std::string window = settings_.Get(Setting::Window);
+   commandMode_.ExecuteCommand("set " + settings_.Name(Setting::Window) + " playlist");
+   CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "playlist");
    commandMode_.ExecuteCommand("set " + settings_.Name(Setting::Window) + " test");
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "test");
    commandMode_.ExecuteCommand("set " + settings_.Name(Setting::Window) + " " + window);
@@ -141,12 +143,15 @@ void CommandTester::TabCommands()
 {
    char Buffer[128];
 
+   // Ensure that we change to the first tab
    commandMode_.ExecuteCommand("tabfirst");
    CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
 
+   // Ensure that we change to the last tab
    commandMode_.ExecuteCommand("tablast");
    CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == (screen_.VisibleWindows() - 1));
 
+   // Ensure that we can move the current tab to position 0 and back
    screen_.SetActiveAndVisible(window_);
    int32_t Index = screen_.GetActiveWindowIndex();
    commandMode_.ExecuteCommand("tabmove 0");
@@ -156,6 +161,7 @@ void CommandTester::TabCommands()
    commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
    CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
 
+   // Try and rename a tab and ensure the name changes
    std::string name = screen_.GetNameFromWindow(screen_.GetActiveWindow());
    commandMode_.ExecuteCommand("tabrename aridiculoustestname");
    CPPUNIT_ASSERT(screen_.GetNameFromWindow(screen_.GetActiveWindow()) == "aridiculoustestname");
@@ -166,23 +172,27 @@ void CommandTester::TabCommands()
    {
       screen_.SetActiveAndVisible(window_);
 
+      // Test closing the current tab
       CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
       commandMode_.ExecuteCommand("tabclose");
       CPPUNIT_ASSERT(screen_.IsVisible(window_) == false);
-
       screen_.SetActiveAndVisible(window_);
       CPPUNIT_ASSERT(screen_.GetActiveWindow() == window_);
 
+      // Move the current tab back to the correct position
       snprintf(Buffer, 128, "%d", Index);
       commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
       CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
 
+      // Test hiding/closing a tab by name
       screen_.SetActiveWindow(0);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
       commandMode_.ExecuteCommand("tabhide " + name);
       CPPUNIT_ASSERT(screen_.IsVisible(window_) == false);
 
+      // If we didn't close the active tab we should not
+      // change which window is focused
       if (Index != 0)
       {
          CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
@@ -191,6 +201,7 @@ void CommandTester::TabCommands()
       screen_.SetActiveAndVisible(window_);
       CPPUNIT_ASSERT(screen_.GetActiveWindow() == window_);
 
+      // Move the tab back to where it started
       snprintf(Buffer, 128, "%d", Index);
       commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
       CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
@@ -200,30 +211,23 @@ void CommandTester::TabCommands()
 
 void CommandTester::SetActiveWindowCommands()
 {
+   // Make sure that the correct windows are opened
    commandMode_.ExecuteCommand("browse");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Browse);
-
    commandMode_.ExecuteCommand("console");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Console);
-
    commandMode_.ExecuteCommand("help");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Help);
-
    commandMode_.ExecuteCommand("library");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Library);
-
    commandMode_.ExecuteCommand("directory");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Directory);
-
    commandMode_.ExecuteCommand("playlist");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Playlist);
-
    commandMode_.ExecuteCommand("outputs");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Outputs);
-
    commandMode_.ExecuteCommand("lists");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Lists);
-
    commandMode_.ExecuteCommand("windowselect");
    CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::WindowSelect);
 }
@@ -238,6 +242,7 @@ void CommandTester::StateCommands()
    int32_t Volume    = client_.Volume();
    std::string State = client_.CurrentState();
 
+   // Test that all the states are toggled
    commandMode_.ExecuteCommand("random");
    CPPUNIT_ASSERT(Random != client_.Random());
    commandMode_.ExecuteCommand("repeat");
@@ -247,6 +252,7 @@ void CommandTester::StateCommands()
    commandMode_.ExecuteCommand("consume");
    CPPUNIT_ASSERT(Consume != client_.Consume());
 
+   // Test that all the states are turned on
    commandMode_.ExecuteCommand("random on");
    CPPUNIT_ASSERT(client_.Random() == true);
    commandMode_.ExecuteCommand("repeat on");
@@ -256,6 +262,7 @@ void CommandTester::StateCommands()
    commandMode_.ExecuteCommand("consume on");
    CPPUNIT_ASSERT(client_.Consume() == true);
 
+   // Test that all the states are turned off
    commandMode_.ExecuteCommand("random off");
    CPPUNIT_ASSERT(client_.Random() == false);
    commandMode_.ExecuteCommand("repeat off");
@@ -265,16 +272,20 @@ void CommandTester::StateCommands()
    commandMode_.ExecuteCommand("consume off");
    CPPUNIT_ASSERT(client_.Consume() == false);
 
+   // Restore their original values
    client_.SetRandom((Random == true));
    client_.SetRepeat((Repeat == true));
    client_.SetSingle((Single == true));
    client_.SetConsume((Consume == true));
 
+   // If we are currently playing, pause before we go
+   // messing about with the volume
    if (Algorithm::iequals(State, "playing") == true)
    {
       client_.Pause(); 
    }
 
+   // Try min, max, mid and invalid volumes
    Ui::ErrorWindow::Instance().ClearError();
    commandMode_.ExecuteCommand("volume 0");
    CPPUNIT_ASSERT(client_.Volume() == 0);
@@ -290,6 +301,7 @@ void CommandTester::StateCommands()
 
    client_.SetVolume(Volume);
 
+   // Set mpd to whatever state it was in before
    if (Algorithm::iequals(State, "playing") == true)
    {
       client_.Pause(); 
