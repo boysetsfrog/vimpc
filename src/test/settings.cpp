@@ -92,22 +92,28 @@ void SettingsTester::tearDown()
 
 void SettingsTester::TestToggleSettings()
 {
+   // Turn off all the settings
    TurnOffSettings();
 
+   // Toggle every single setting
 #define X(a, b, c) settings_.Set(std::string(b) + "!");
    TOGGLE_SETTINGS
 #undef X
 
+   // Ensure that all settings are now on
    CPPUNIT_ASSERT(IsToggleOn() == true);
    CPPUNIT_ASSERT(IsToggleOff() == false);
 
+   // Toggle every single setting
 #define X(a, b, c) settings_.Set(std::string(b) + "!");
    TOGGLE_SETTINGS
 #undef X
 
+   // Ensure that all settings are now off
    CPPUNIT_ASSERT(IsToggleOn() == false);
    CPPUNIT_ASSERT(IsToggleOff() == true);
 
+   // Try and toggle an invalid setting, ensure we error out
    settings_.Set("noinvalidsetting!");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
@@ -129,11 +135,14 @@ void SettingsTester::TurnOnSettings()
 
 void SettingsTester::TestTurnOffSettings()
 {
+   // Check that all settings can be turned off
    TurnOffSettings();
    CPPUNIT_ASSERT(IsToggleOff() == true);
 
+   // Ensure that :set <setting>? works properly
    CPPUNIT_ASSERT(AreToggleValuesDisplayedCorrectly() == true);
 
+   // Try and set an invalid setting off
    settings_.Set("noinvalidsetting");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
@@ -141,11 +150,14 @@ void SettingsTester::TestTurnOffSettings()
 
 void SettingsTester::TestTurnOnSettings()
 {
+   // Check that all settings can be turned on
    TurnOnSettings();
    CPPUNIT_ASSERT(IsToggleOn() == true);
 
+   // Ensure that :set <setting>? works properly
    CPPUNIT_ASSERT(AreToggleValuesDisplayedCorrectly() == true);
 
+   // Try and set an invalid setting on
    settings_.Set("invalidsetting");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
@@ -153,7 +165,7 @@ void SettingsTester::TestTurnOnSettings()
 
 void SettingsTester::TestStringSetting()
 {
-   // Cahgne the window setting use the name functions
+   // Change the window setting use the name functions
    std::string window = settings_.Get(Setting::Window);
    settings_.Set(settings_.Name(Setting::Window) + " test");
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "test");
@@ -250,9 +262,11 @@ bool SettingsTester::AreToggleValuesDisplayedCorrectly()
 {
    for (int i = 0; i < (int) Setting::ToggleCount; ++i)
    {
+      // Run :set <setting>? to have the setting printed
       Ui::ResultWindow::Instance().ClearResult();
       settings_.Set(settings_.Name((Setting::ToggleSettings) i) + "?");
 
+      // Ensure that there are no errors but that there is a printed result
       CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
       CPPUNIT_ASSERT(Ui::ResultWindow::Instance().HasResult() == true);
 
@@ -261,9 +275,10 @@ bool SettingsTester::AreToggleValuesDisplayedCorrectly()
       pcrecpp::RE const strip("^\\s*([^\\s]*)$");
       strip.FullMatch(Result.c_str(), &Result);
 
+      // Ensure settings turned on are printed as <setting> those off are
+      // printed as <nosetting>
       if (settings_.Get((Setting::ToggleSettings) i) == true)
       {
-         
          CPPUNIT_ASSERT(settings_.Name((Setting::ToggleSettings) i) == Result);
       }
       else
