@@ -24,6 +24,7 @@
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
+#include "test.hpp"
 #include "window/debug.hpp"
 
 #include <stdint.h>
@@ -43,13 +44,10 @@ namespace Ui
       friend class Ui::Screen;
       friend void ::Error(uint32_t errorNumber, std::string errorString);
 
-   // Everything is private to prevent errors being set on the window
-   // directly without using the helper functions
-#ifdef TEST_ENABLED
-   public:
-#else
-   private:
-#endif
+   // Everything is protected to prevent errors being set on the window
+   // directly without using the helper functions, but allow test
+   // functions access
+   protected:
       static ErrorWindow & Instance()
       {
          static ErrorWindow errorWindow;

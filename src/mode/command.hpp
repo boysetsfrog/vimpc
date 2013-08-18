@@ -26,6 +26,7 @@
 
 #include "inputmode.hpp"
 #include "player.hpp"
+#include "test.hpp"
 
 namespace Main
 {
@@ -57,19 +58,6 @@ namespace Ui
       //
       // \param[in] input The command string to execute, including the arguments
       bool ExecuteCommand(std::string const & input);
-
-      // Splits the input into command and argument parts
-      //
-      // \param[in]  input     The string to split
-      // \param[out] range     The range to run commands over
-      // \param[out] command   The command part of the string
-      // \param[out] arguments The arguments from the string
-      void SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments);
-
-      // Splits the arguments based on the given delimeter
-      // \param[in]  input     The string to split
-      // \param[in]  delim     The delimiting character
-      std::vector<std::string> SplitArguments(std::string const & input, char delimeter = ' ');
 
       // If command queue'ing is enabled, commands that require an active mpd connection
       // will be queued up if a connection is not present, then when a connection becomes
@@ -210,6 +198,20 @@ namespace Ui
       void TestInputSequence(std::string const & arguments);
       void TestScreen(std::string const & arguments);
 
+   protected:
+      // Splits the input into command and argument parts
+      //
+      // \param[in]  input     The string to split
+      // \param[out] range     The range to run commands over
+      // \param[out] command   The command part of the string
+      // \param[out] arguments The arguments from the string
+      void SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments);
+
+      // Splits the arguments based on the given delimeter
+      // \param[in]  input     The string to split
+      // \param[in]  delim     The delimiting character
+      std::vector<std::string> SplitArguments(std::string const & input, char delimeter = ' ');
+
    private:
       // Executes \p command using \p arguments
       //
@@ -272,7 +274,7 @@ namespace Ui
       Main::Settings     & settings_;
       Ui::Normal         & normalMode_;
 
-private:
+   private:
       // Tab completion searching class
       template <typename T>
       class TabCompletionMatch

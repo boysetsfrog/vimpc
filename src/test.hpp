@@ -23,6 +23,10 @@
 
 #include "config.h"
 
+#ifdef TEST_ENABLED
+#define protected public
+#endif
+
 namespace Ui
 { 
    class Command;

@@ -24,6 +24,7 @@
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
+#include "test.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -42,7 +43,7 @@ namespace Ui
 
    // Everything is private to prevent errors being set on the window
    // directly without using the helper functions
-   private:
+   protected:
       static ResultWindow & Instance()
       {
          static ResultWindow window;

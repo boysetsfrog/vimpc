@@ -23,6 +23,7 @@
 
 #include "callback.hpp"
 #include "colours.hpp"
+#include "test.hpp"
 
 #include <string>
 #include <map>
@@ -178,20 +179,16 @@ namespace Main
          //! Calls the correct setter function based upon the given input
          void Set(std::string const & input);
 
+         //! Handles settings which are treated as an on/off setting
+         void SetSingleSetting(std::string setting);
+
          //! Get the value of a particular setting
          bool Get(Setting::ToggleSettings setting) const;
          std::string Get(Setting::StringSettings setting) const;
 
-         //! Set the value of a particular setting
-         void Set(Setting::ToggleSettings setting, bool value);
-         void Set(Setting::StringSettings setting, std::string value);
-
          //! Name of a particular setting
          std::string Name(Setting::ToggleSettings setting) const;
          std::string Name(Setting::StringSettings setting) const;
-
-         //! Handles settings which are treated as an on/off setting
-         void SetSingleSetting(std::string setting);
 
          //! Register a callback to be called when a setting is changed
          void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback);
@@ -209,7 +206,6 @@ namespace Main
       public:
          void SetColour(std::string property, std::string colour);
 
-      public:
          //! Get the value for the given \p setting
          bool GetBool(std::string setting) const
          {
@@ -226,6 +222,11 @@ namespace Main
             }
             return "";
          }
+
+      protected:
+         //! Set the value of a particular setting
+         void Set(Setting::ToggleSettings setting, bool value);
+         void Set(Setting::StringSettings setting, std::string value);
 
          //! Set the value for the given \p setting
          void SetBool(std::string setting, bool value)
