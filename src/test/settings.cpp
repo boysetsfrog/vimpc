@@ -153,24 +153,48 @@ void SettingsTester::TestTurnOnSettings()
 
 void SettingsTester::TestStringSetting()
 {
+   // Cahgne the window setting use the name functions
    std::string window = settings_.Get(Setting::Window);
    settings_.Set(settings_.Name(Setting::Window) + " test");
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == "test");
    settings_.Set(settings_.Name(Setting::Window) + " " + window);
    CPPUNIT_ASSERT(settings_.Get(Setting::Window) == window);
 
+   // Set the add setting
    std::string position = settings_.Get(Setting::AddPosition);
    settings_.Set("add next");
    CPPUNIT_ASSERT(settings_.Get(Setting::AddPosition) == "next");
 
+   // Ensure the add setting is printed correctly
+   Ui::ResultWindow::Instance().ClearResult();
+   settings_.Set("add?");
+   CPPUNIT_ASSERT(Ui::ResultWindow::Instance().HasResult() == true);
+
+   std::string setting, value;
+   std::string result = Ui::ResultWindow::Instance().GetResult();
+
+   pcrecpp::RE const strip("^\\s*([^\\s=]*)=(.*)$");
+   strip.FullMatch(result.c_str(), &setting, &value);
+
+   CPPUNIT_ASSERT((setting == "add") && (value == "next"));
+
+   // Try and set the add setting to something invalid
    settings_.Set("add invalid");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
    CPPUNIT_ASSERT(settings_.Get(Setting::AddPosition) == "next");
 
+   // Ensure that the add setting is still printed the same as before
+   // i.e. that it has not changed
+   result = Ui::ResultWindow::Instance().GetResult();
+   strip.FullMatch(result.c_str(), &setting, &value);
+   CPPUNIT_ASSERT((setting == "add") && (value == "next"));
+
+   // Set the add setting back to normal
    settings_.Set("add " + position);
    CPPUNIT_ASSERT(settings_.Get(Setting::AddPosition) == position);
 
+   // Try and set a setting that does not exist
    settings_.Set("notarealsetting notarealvalue");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
