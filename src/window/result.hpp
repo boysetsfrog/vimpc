@@ -53,13 +53,14 @@ namespace Ui
       ResultWindow() : ModeWindow(COLS, LINES), hasResult_(false) { }
       ~ResultWindow() { }
 
-   private:
       void ClearResult()              { hasResult_ = false; }
       bool HasResult() const          { return hasResult_; }
       void SetResult(bool hasResult)  { hasResult_ = hasResult; }
+      std::string GetResult()         { return result_; }
 
    private:
-      bool hasResult_;
+      bool        hasResult_;
+      std::string result_;
    };
 }
 
@@ -68,6 +69,7 @@ void Result(std::string result)
    Ui::ResultWindow & window(Ui::ResultWindow::Instance());
    window.SetResult(true);
    window.SetLine("%s", result.c_str());
+   window.result_ = result;
 }
 
 #endif

@@ -18,11 +18,13 @@
    settings.cpp - tests for settings code
    */
 
+#include <pcrecpp.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "settings.hpp"
 #include "window/debug.hpp"
 #include "window/error.hpp"
+#include "window/result.hpp"
 
 class SettingsTester : public CppUnit::TestFixture
 {
@@ -55,6 +57,7 @@ protected:
    bool IsNotToggleDefaultValues();
    bool IsToggleOn();
    bool IsToggleOff();
+   bool AreToggleValuesDisplayedCorrectly();
 
 private:
    Main::Settings & settings_; 
@@ -64,6 +67,7 @@ private:
 void SettingsTester::setUp()
 {
    Ui::ErrorWindow::Instance().ClearError();
+   Ui::ResultWindow::Instance().ClearResult();
    settings_.DisableCallbacks();
 
    for (int i = 0; i < (int) Setting::ToggleCount; ++i)
@@ -83,6 +87,7 @@ void SettingsTester::tearDown()
 
    settings_.EnableCallbacks();
    Ui::ErrorWindow::Instance().ClearError();
+   Ui::ResultWindow::Instance().ClearResult();
 }
 
 void SettingsTester::TestToggleSettings()
@@ -127,6 +132,8 @@ void SettingsTester::TestTurnOffSettings()
    TurnOffSettings();
    CPPUNIT_ASSERT(IsToggleOff() == true);
 
+   CPPUNIT_ASSERT(AreToggleValuesDisplayedCorrectly() == true);
+
    settings_.Set("noinvalidsetting");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
@@ -136,6 +143,8 @@ void SettingsTester::TestTurnOnSettings()
 {
    TurnOnSettings();
    CPPUNIT_ASSERT(IsToggleOn() == true);
+
+   CPPUNIT_ASSERT(AreToggleValuesDisplayedCorrectly() == true);
 
    settings_.Set("invalidsetting");
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
@@ -210,6 +219,36 @@ bool SettingsTester::IsToggleOff()
 #undef X
       true
    );
+}
+
+
+bool SettingsTester::AreToggleValuesDisplayedCorrectly()
+{
+   for (int i = 0; i < (int) Setting::ToggleCount; ++i)
+   {
+      Ui::ResultWindow::Instance().ClearResult();
+      settings_.Set(settings_.Name((Setting::ToggleSettings) i) + "?");
+
+      CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+      CPPUNIT_ASSERT(Ui::ResultWindow::Instance().HasResult() == true);
+
+      std::string Result = Ui::ResultWindow::Instance().GetResult();
+
+      pcrecpp::RE const strip("^\\s*([^\\s]*)$");
+      strip.FullMatch(Result.c_str(), &Result);
+
+      if (settings_.Get((Setting::ToggleSettings) i) == true)
+      {
+         
+         CPPUNIT_ASSERT(settings_.Name((Setting::ToggleSettings) i) == Result);
+      }
+      else
+      {
+         CPPUNIT_ASSERT(("no" + settings_.Name((Setting::ToggleSettings) i)) == Result);
+      }
+   }
+
+   return true;
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SettingsTester);
