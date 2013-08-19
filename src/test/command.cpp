@@ -21,7 +21,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "algorithm.hpp"
+#include "buffers.hpp"
+#include "output.hpp"
 #include "test.hpp"
+#include "buffer/outputs.hpp"
 #include "mode/command.hpp"
 #include "window/debug.hpp"
 #include "window/error.hpp"
@@ -36,6 +39,7 @@ class CommandTester : public CppUnit::TestFixture
    CPPUNIT_TEST(TabCommands);
    CPPUNIT_TEST(SetActiveWindowCommands);
    CPPUNIT_TEST(StateCommands);
+   CPPUNIT_TEST(OutputCommands);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -58,6 +62,7 @@ protected:
    void TabCommands();
    void SetActiveWindowCommands();
    void StateCommands();
+   void OutputCommands();
 
 private:
    void ActiveWindow(std::string window, Ui::Screen::MainWindow);
@@ -330,6 +335,74 @@ void CommandTester::StateCommands()
    {
       client_.Pause(); 
    }
+}
+
+
+void CommandTester::OutputCommands()
+{
+   char Buffer[128];
+
+   bool visible = screen_.IsVisible(Ui::Screen::Outputs);
+   screen_.SetActiveAndVisible(Ui::Screen::Outputs);
+
+   int32_t outputCount = Main::Outputs().Size();
+   int32_t currentLine = screen_.ActiveWindow().CurrentLine();
+   
+   for (int i = 0; i < outputCount; ++i) 
+   {
+      // Ensure that the selected outputs are enabled/disabled
+      screen_.ScrollTo(i);
+      commandMode_.ExecuteCommand("enable");
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
+      commandMode_.ExecuteCommand("disable");
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
+
+      // Ensure that enable using the id works
+      screen_.ScrollTo(outputCount);
+      snprintf(Buffer, 128, "enable %d", i);
+      commandMode_.ExecuteCommand(Buffer);
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
+
+      // Ensure that disable using the id works
+      screen_.ScrollTo(outputCount);
+      snprintf(Buffer, 128, "disable %d", i);
+      commandMode_.ExecuteCommand(Buffer);
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
+
+      // Ensure that a line based command enables the correct output
+      screen_.ScrollTo(outputCount);
+      snprintf(Buffer, 128, "%denable", i+1);
+      commandMode_.ExecuteCommand(Buffer);
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
+
+      // Ensure that a line based command disables the correct output
+      screen_.ScrollTo(outputCount);
+      snprintf(Buffer, 128, "%ddisable", i+1);
+      commandMode_.ExecuteCommand(Buffer);
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
+   }
+
+   // Ensure that range based enables and disables work
+   snprintf(Buffer, 128, "%d,%denable", 1, outputCount);
+   commandMode_.ExecuteCommand(Buffer);
+
+   for (int i = 0; i < outputCount; ++i) 
+   {
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
+   }
+ 
+   snprintf(Buffer, 128, "%d,%ddisable", 1, outputCount);
+   commandMode_.ExecuteCommand(Buffer);
+
+   for (int i = 0; i < outputCount; ++i) 
+   {
+      CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
+   }
+
+   // Restore outputs to their initial state
+ 
+   screen_.ScrollTo(currentLine);
+   screen_.SetVisible(Ui::Screen::Outputs, visible);   
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);
