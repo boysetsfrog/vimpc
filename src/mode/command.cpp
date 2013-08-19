@@ -122,7 +122,6 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("substitute", &Command::Substitute,   false);
    AddCommand("s",          &Command::Substitute,   false);
 #endif
-   AddCommand("sleep",      &Command::Sleep,        false);
    AddCommand("swap",       &Command::Swap,         true);
    AddCommand("stop",       &Command::Stop,         true);
    AddCommand("toggle",     &Command::ToggleOutput, true);
