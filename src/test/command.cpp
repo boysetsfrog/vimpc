@@ -171,28 +171,39 @@ void CommandTester::TabCommands()
    commandMode_.ExecuteCommand("tabrename " + name);
    CPPUNIT_ASSERT(screen_.GetNameFromWindow(screen_.GetActiveWindow()) == name);
 
-   if (window_ < (int32_t) Ui::Screen::MainWindowCount)
+   bool     visible = true;
+   int32_t  window  = window_;
+
+   if (window_ >= (int32_t) Ui::Screen::MainWindowCount)
    {
-      screen_.SetActiveAndVisible(window_);
+      visible = screen_.IsVisible(Ui::Screen::TestConsole);
+      screen_.SetActiveAndVisible(Ui::Screen::TestConsole);
+      window = Ui::Screen::TestConsole;
+   }
+
+   if (screen_.GetActiveWindow() < (int32_t) Ui::Screen::MainWindowCount)
+   {
+      std::string name = screen_.GetNameFromWindow(screen_.GetActiveWindow());
+      screen_.SetActiveAndVisible(window);
 
       // Test closing the current tab
-      CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
+      CPPUNIT_ASSERT(screen_.IsVisible(window) == true);
       commandMode_.ExecuteCommand("tabclose");
-      CPPUNIT_ASSERT(screen_.IsVisible(window_) == false);
-      screen_.SetActiveAndVisible(window_);
-      CPPUNIT_ASSERT(screen_.GetActiveWindow() == window_);
+      CPPUNIT_ASSERT(screen_.IsVisible(window) == false);
+      screen_.SetActiveAndVisible(window);
+      CPPUNIT_ASSERT(screen_.GetActiveWindow() == window);
 
       // Move the current tab back to the correct position
       snprintf(Buffer, 128, "%d", Index);
       commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
-      CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
+      CPPUNIT_ASSERT(screen_.IsVisible(window) == true);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
 
       // Test hiding/closing a tab by name
       screen_.SetActiveWindow(0);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
       commandMode_.ExecuteCommand("tabhide " + name);
-      CPPUNIT_ASSERT(screen_.IsVisible(window_) == false);
+      CPPUNIT_ASSERT(screen_.IsVisible(window) == false);
 
       // If we didn't close the active tab we should not
       // change which window is focused
@@ -201,14 +212,23 @@ void CommandTester::TabCommands()
          CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
       }
 
-      screen_.SetActiveAndVisible(window_);
-      CPPUNIT_ASSERT(screen_.GetActiveWindow() == window_);
+      screen_.SetActiveAndVisible(window);
+      CPPUNIT_ASSERT(screen_.GetActiveWindow() == window);
 
       // Move the tab back to where it started
       snprintf(Buffer, 128, "%d", Index);
       commandMode_.ExecuteCommand("tabmove " + std::string(Buffer));
-      CPPUNIT_ASSERT(screen_.IsVisible(window_) == true);
+      CPPUNIT_ASSERT(screen_.IsVisible(window) == true);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == Index);
+   }
+   else
+   {
+      CPPUNIT_ASSERT(false);
+   }
+
+   if (visible == false)
+   {
+      screen_.SetVisible(Ui::Screen::TestConsole, false);
    }
 }
 
