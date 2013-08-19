@@ -60,6 +60,9 @@ protected:
    void StateCommands();
 
 private:
+   void ActiveWindow(std::string window, Ui::Screen::MainWindow);
+
+private:
    Main::Settings & settings_;
    Ui::Command    & commandMode_;
    Ui::Screen     & screen_;
@@ -212,24 +215,25 @@ void CommandTester::TabCommands()
 void CommandTester::SetActiveWindowCommands()
 {
    // Make sure that the correct windows are opened
-   commandMode_.ExecuteCommand("browse");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Browse);
-   commandMode_.ExecuteCommand("console");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Console);
-   commandMode_.ExecuteCommand("help");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Help);
-   commandMode_.ExecuteCommand("library");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Library);
-   commandMode_.ExecuteCommand("directory");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Directory);
-   commandMode_.ExecuteCommand("playlist");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Playlist);
-   commandMode_.ExecuteCommand("outputs");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Outputs);
-   commandMode_.ExecuteCommand("lists");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::Lists);
-   commandMode_.ExecuteCommand("windowselect");
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == Ui::Screen::WindowSelect);
+   ActiveWindow("browse",       Ui::Screen::Browse);
+   ActiveWindow("console",      Ui::Screen::Console);
+   ActiveWindow("help",         Ui::Screen::Help);
+   ActiveWindow("library",      Ui::Screen::Library);
+   ActiveWindow("directory",    Ui::Screen::Directory);
+   ActiveWindow("playlist",     Ui::Screen::Playlist);
+   ActiveWindow("outputs",      Ui::Screen::Outputs);
+   ActiveWindow("lists",        Ui::Screen::Lists);
+   ActiveWindow("windowselect", Ui::Screen::WindowSelect);
+}
+
+void CommandTester::ActiveWindow(std::string window, Ui::Screen::MainWindow main)
+{
+   // Make sure that the correct windows are opened
+   bool visible = screen_.IsVisible(main);
+   commandMode_.ExecuteCommand(window);
+   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == main);
+   CPPUNIT_ASSERT(screen_.IsVisible(main) == true);
+   screen_.SetVisible(main, visible);
 }
 
 void CommandTester::StateCommands()
