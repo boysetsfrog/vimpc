@@ -435,14 +435,7 @@ uint16_t Cursor::UpdatePosition(CursorState newCursorState)
 
 void Cursor::SetPosition(uint16_t position)
 {
-   if (position > inputString_.size() + PromptSize)
-   {
-      position = inputString_.size() + PromptSize;
-   }
-   else
-   {
-      position_ = position;
-   }
+   position_ = LimitCursorPosition(position);
 }
 
 void Cursor::ResetCursorPosition()
@@ -456,11 +449,11 @@ uint16_t Cursor::LimitCursorPosition(uint16_t position) const
    uint16_t const maxCursorPosition = (inputString_.size() + PromptSize);
 
    //Ensure that the cursor is in a valid range
-   if (position_ < minCursorPosition)
+   if (position < minCursorPosition)
    {
       position = minCursorPosition;
    }
-   else if (position_ > maxCursorPosition)
+   else if (position > maxCursorPosition)
    {
       position = maxCursorPosition;
    }
