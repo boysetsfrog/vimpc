@@ -1255,6 +1255,7 @@ void Screen::UpdateTabWindow() const
    }
 
    mvwprintw(tabWindow_, 0, 0, BlankLine.c_str());
+   wmove(tabWindow_, 0, 0);
 
    std::string name   = "";
    uint32_t    length = 0;
@@ -1280,8 +1281,6 @@ void Screen::UpdateTabWindow() const
          wattron(tabWindow_, A_REVERSE | A_BOLD);
       }
 
-      wmove(tabWindow_, 0, length);
-
       if (settings_.Get(Setting::WindowNumbers) == true)
       {
          waddstr(tabWindow_, "[");
@@ -1299,10 +1298,9 @@ void Screen::UpdateTabWindow() const
       }
 
       wprintw(tabWindow_, " %s ", name.c_str());
-
       wattroff(tabWindow_, A_REVERSE | A_BOLD);
 
-      length += name.size() + 2;
+      length += mbstowcs(NULL, name.c_str(),0) + 2;
       ++count;
    }
 
