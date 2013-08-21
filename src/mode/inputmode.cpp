@@ -435,14 +435,7 @@ uint16_t Cursor::UpdatePosition(CursorState newCursorState)
 
 void Cursor::SetPosition(uint16_t position)
 {
-   if (position > inputString_.size() + PromptSize)
-   {
-      position = inputString_.size() + PromptSize;
-   }
-   else
-   {
-      position_ = position;
-   }
+   position_ = LimitCursorPosition(position);
 }
 
 void Cursor::ResetCursorPosition()
