@@ -302,9 +302,9 @@ std::string InputMode::SearchHistory(Direction direction, std::string const & in
 
 bool InputMode::InputIsValidCharacter(int input)
 {
-   return (input < std::numeric_limits<char>::max())
-       && (input != ESCAPE_KEY)
-       && (input != '\n');
+   return //(input < std::numeric_limits<char>::max()) &&
+          (input != ESCAPE_KEY) &&
+          (input != '\n');
 }
 
 
