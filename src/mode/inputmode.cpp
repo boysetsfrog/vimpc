@@ -392,22 +392,30 @@ void InputMode::ClearWordBeforeCursor()
 
 std::wstring InputMode::stringtow(std::string & string)
 {
-   wchar_t * wbuffer = new wchar_t[string.length() + 1];
-   size_t const mblength = mbstowcs(wbuffer, string.c_str(), string.length());
-   std::wstring result = std::wstring(wbuffer, mblength);
-   delete[] wbuffer;
+   if (string.length() > 0)
+   {
+      wchar_t * wbuffer = new wchar_t[string.length() + 1];
+      size_t const mblength = mbstowcs(wbuffer, string.c_str(), string.length());
+      std::wstring result = std::wstring(wbuffer, mblength);
+      delete[] wbuffer;
+      return result;
+   }
 
-   return result;
+   return L"";
 }
 
 std::string InputMode::wtostring(std::wstring & string)
 {
-   char * buffer = new char[string.length() * sizeof(wchar_t) + 1];
-   wcstombs(buffer, string.c_str(), string.length() * sizeof(wchar_t));
-   std::string result = buffer;
-   delete[] buffer;
+   if (string.length() > 0)
+   {
+      char * buffer = new char[string.length() * sizeof(wchar_t) + 1];
+      wcstombs(buffer, string.c_str(), string.length() * sizeof(wchar_t));
+      std::string result = buffer;
+      delete[] buffer;
+      return result;
+   }
 
-   return result;
+   return "";
 }
 
 
