@@ -91,7 +91,7 @@ void InputMode::Initialise(int input)
 
    cursor_.ResetCursorPosition();
    window_->ShowCursor();
-   window_->SetCursorPosition(cursor_.Position());
+   window_->SetCursorPosition(cursor_.DisplayPosition());
    window_->SetLine(Prompt());
    //Refresh();
 
@@ -128,7 +128,7 @@ bool InputMode::Handle(int const input)
       saveToHistory_ = true;
       ResetHistory(input);
       GenerateInputString(input);
-      window_->SetCursorPosition(cursor_.Position());
+      window_->SetCursorPosition(cursor_.DisplayPosition());
       window_->SetLine("%s%s", Prompt(), inputString_.c_str());
    }
 
@@ -189,8 +189,8 @@ bool InputMode::SetInputString(std::string input)
    else
    {
       window_->SetLine(std::string(Prompt()) + inputString_);
-      window_->SetCursorPosition(inputWString_.length() + PromptSize);
       cursor_.SetPosition(inputWString_.length() + PromptSize);
+      window_->SetCursorPosition(cursor_.DisplayPosition());
    }
 
    return false;
@@ -425,6 +425,11 @@ Cursor::~Cursor()
 }
 
 uint16_t Cursor::Position() const
+{
+   return position_;
+}
+
+uint16_t Cursor::DisplayPosition() const
 {
    return position_;
 }

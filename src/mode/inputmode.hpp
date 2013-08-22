@@ -55,6 +55,7 @@ namespace Ui
       } CursorState;
 
       uint16_t Position() const;
+      uint16_t DisplayPosition() const;
       uint16_t UpdatePosition(CursorState newCursorState);
       void     SetPosition(uint16_t position);
       void     ResetCursorPosition();
