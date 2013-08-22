@@ -91,8 +91,8 @@ void InputMode::Initialise(int input)
 
    cursor_.ResetCursorPosition();
    window_->ShowCursor();
-   window_->SetCursorPosition(cursor_.DisplayPosition());
    window_->SetLine(Prompt());
+   window_->SetCursorPosition(cursor_.DisplayPosition());
    //Refresh();
 
    ENSURE(inputString_.empty() == true);
@@ -128,8 +128,8 @@ bool InputMode::Handle(int const input)
       saveToHistory_ = true;
       ResetHistory(input);
       GenerateInputString(input);
-      window_->SetCursorPosition(cursor_.DisplayPosition());
       window_->SetLine("%s%s", Prompt(), inputString_.c_str());
+      window_->SetCursorPosition(cursor_.DisplayPosition());
    }
 
    return result;
@@ -188,8 +188,8 @@ bool InputMode::SetInputString(std::string input)
    }
    else
    {
-      window_->SetLine(std::string(Prompt()) + inputString_);
       cursor_.SetPosition(inputWString_.length() + PromptSize);
+      window_->SetLine(std::string(Prompt()) + inputString_);
       window_->SetCursorPosition(cursor_.DisplayPosition());
    }
 
@@ -431,7 +431,14 @@ uint16_t Cursor::Position() const
 
 uint16_t Cursor::DisplayPosition() const
 {
-   return position_;
+   int pos = 0;
+
+   for (int i = 0; i < position_ - PromptSize; ++i)
+   {
+      pos += wcwidth(inputWString_[i]);
+   }
+
+   return pos + PromptSize;
 }
 
 uint16_t Cursor::UpdatePosition(CursorState newCursorState)
