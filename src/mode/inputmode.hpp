@@ -125,6 +125,10 @@ namespace Ui
    public:
       static bool InputIsValidCharacter(int input);
 
+   protected:
+      std::wstring stringtow(std::string & string);
+      std::string wtostring(std::wstring & string);
+
    private:
       template <Cursor::CursorState State>
       void MoveCursor();
@@ -137,9 +141,6 @@ namespace Ui
 
       void ClearBeforeCursor();
       void ClearWordBeforeCursor();
-
-      std::wstring stringtow(std::string & string);
-      std::string wtostring(std::wstring & string);
 
    protected:
       std::wstring     inputWString_;
