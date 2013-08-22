@@ -25,6 +25,7 @@
 #endif
 
 #include <signal.h>
+#include <wchar.h>
 
 #include "algorithm.hpp"
 #include "buffers.hpp"
@@ -873,7 +874,8 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
 bool Screen::HandleMouseEvent()
 {
 #ifdef HAVE_MOUSE_SUPPORT
-   char buffer[64];
+   char     buffer[64];
+   wchar_t wbuffer[256];
 
    if (settings_.Get(Setting::Mouse) == true)
    {
@@ -891,8 +893,11 @@ bool Screen::HandleMouseEvent()
 
                for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
                {
-                  std::string name = GetNameFromWindow(static_cast<int32_t>(*it));
-                  x += name.length() + 2;
+                  std::string const name = GetNameFromWindow(static_cast<int32_t>(*it));
+                  size_t const mblength = mbstowcs(wbuffer, name.c_str(), (name.length() < 256) ? name.length() : 255);
+                  std::wstring const wname(wbuffer, mblength);
+
+                  x += wcswidth(wname.c_str(), mblength) + 2;
 
                   if (settings_.Get(Setting::WindowNumbers) == true)
                   {
@@ -1258,7 +1263,6 @@ void Screen::UpdateTabWindow() const
    wmove(tabWindow_, 0, 0);
 
    std::string name   = "";
-   uint32_t    length = 0;
    uint32_t    count  = 0;
 
    for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
@@ -1293,14 +1297,10 @@ void Screen::UpdateTabWindow() const
          }
 
          waddstr(tabWindow_, "]");
-
-         length += 3;
       }
 
       wprintw(tabWindow_, " %s ", name.c_str());
       wattroff(tabWindow_, A_REVERSE | A_BOLD);
-
-      length += mbstowcs(NULL, name.c_str(),0) + 2;
       ++count;
    }
 

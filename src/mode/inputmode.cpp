@@ -302,7 +302,7 @@ std::string InputMode::SearchHistory(Direction direction, std::string const & in
 
 bool InputMode::InputIsValidCharacter(int input)
 {
-   return //(input < std::numeric_limits<char>::max()) &&
+   return (input < std::numeric_limits<unsigned char>::max()) &&
           (input != ESCAPE_KEY) &&
           (input != '\n');
 }
@@ -449,11 +449,11 @@ uint16_t Cursor::LimitCursorPosition(uint16_t position) const
    uint16_t const maxCursorPosition = (inputString_.size() + PromptSize);
 
    //Ensure that the cursor is in a valid range
-   if (position_ < minCursorPosition)
+   if (position < minCursorPosition)
    {
       position = minCursorPosition;
    }
-   else if (position_ > maxCursorPosition)
+   else if (position > maxCursorPosition)
    {
       position = maxCursorPosition;
    }
