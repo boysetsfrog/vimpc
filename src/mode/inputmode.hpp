@@ -39,7 +39,7 @@ namespace Ui
    class Cursor
    {
    public:
-      Cursor(std::string & inputString);
+      Cursor(std::wstring & inputWString);
       ~Cursor();
 
    public:
@@ -63,9 +63,9 @@ namespace Ui
       uint16_t LimitCursorPosition(uint16_t position) const;
 
    private:
-      int           input_;
-      uint16_t      position_;
-      std::string & inputString_;
+      int            input_;
+      uint16_t       position_;
+      std::wstring & inputWString_;
    };
 
 
@@ -137,8 +137,13 @@ namespace Ui
       void ClearBeforeCursor();
       void ClearWordBeforeCursor();
 
+      std::wstring stringtow(std::string & string);
+      std::string wtostring(std::wstring & string);
+
    protected:
+      std::wstring     inputWString_;
       std::string      inputString_;
+      std::string      currentInput_;
       bool             backedOut_;
 
    private:
