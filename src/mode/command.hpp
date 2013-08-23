@@ -176,7 +176,7 @@ namespace Ui
       template <Ui::Screen::MainWindow MAINWINDOW>
       void SetActiveAndVisible(std::string const & arguments);
 
-      typedef enum { First, Last, LocationCount } Location;
+      typedef enum { First, Last, Next, Previous, LocationCount } Location;
 
       template <Location LOCATION>
       void ChangeToWindow(std::string const & arguments);

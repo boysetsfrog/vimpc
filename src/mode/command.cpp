@@ -139,6 +139,8 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 
    AddCommand("tabfirst",   &Command::ChangeToWindow<First>, false);
    AddCommand("tablast",    &Command::ChangeToWindow<Last>,  false);
+   AddCommand("tabnext",    &Command::ChangeToWindow<Next>,  false);
+   AddCommand("tabprevious",&Command::ChangeToWindow<Previous>, false);
    AddCommand("tabclose",   &Command::HideWindow,            false);
    AddCommand("tabhide",    &Command::HideWindow,            false);
    AddCommand("tabmove",    &Command::MoveWindow,            false);
@@ -1173,13 +1175,29 @@ void Command::SetActiveAndVisible(std::string const & arguments)
 template <Command::Location LOCATION>
 void Command::ChangeToWindow(std::string const & arguments)
 {
-   uint32_t active = 0;
+   int32_t active = 0;
 
-   if (LOCATION == Last)
+   switch (LOCATION)
    {
-      active = screen_.VisibleWindows() - 1;
-   }
+      case First:
+         active = 0;
+         break;
 
+      case Next:
+         active = ((screen_.GetActiveWindowIndex() + 1) % 
+                   screen_.VisibleWindows());
+         break;
+
+      case Previous:
+         active = screen_.GetActiveWindowIndex() - 1;
+         active = (active < 0) ? screen_.VisibleWindows() - 1 : active;
+         break;
+
+      case Last:
+         active = screen_.VisibleWindows() - 1;
+         break;
+   }
+   
    screen_.SetActiveWindow(active);
 }
 

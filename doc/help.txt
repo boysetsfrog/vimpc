@@ -320,6 +320,8 @@
 
    tabfirst                 | navigate to the first window/tab
    tablast                  | navigate to the last window/tab
+   tabnext                  | navigate to the next window/tab
+   tabprevious              | navigate to the previous window/tab
    tabmove <location>       | move the current tab to <location> (first is 0)
    tabhide [tabname]        | hide the current tab (or [tabname]) from the tab bar
    tabrename <tabname>      | rename the current tab to <tabname>
