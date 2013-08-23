@@ -506,8 +506,9 @@
 
  All settings support tab completion.
 
- On/Off Settings:
- -----------------------
+   On/Off Settings:
+   -----------------------
+   albumartist          | use the albumartist in preference to artist
    autoscroll           | automatically scroll when skipping songs
    autoupdate           | automatically update mpd after tag changes
    browsenumbers        | display id numbers next to songs in the browse window
@@ -516,6 +517,7 @@
    hlsearch             | highlight search results
    ignorecase           | case insensitive searching
    incsearch            | search for results as you are typing
+   local-music-dir      | location on the client computer of music files
    mouse                | turn mouse support on
    polling              | poll mpd for status updates rather than using idle mode
    playlistnumbers      | display id numbers next to songs in the playlist
