@@ -214,7 +214,8 @@ void Command::GenerateInputString(int input)
 {
    if (input == '\t')
    {
-      inputString_ = TabComplete(inputString_);
+      inputString_  = TabComplete(inputString_);
+      inputWString_ = stringtow(inputString_);
    }
 
    InputMode::GenerateInputString(input);
