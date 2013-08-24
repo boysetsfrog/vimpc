@@ -76,112 +76,113 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    normalMode_         (normalMode)
 {
    // \todo find a away to add aliases to tab completion
-   AddCommand("!mpc",       &Command::Mpc,          true);
-   AddCommand("add",        &Command::Add,          true);
-   AddCommand("addall",     &Command::AddAll,       true);
-   AddCommand("alias",      &Command::Alias,        false);
-   AddCommand("clear",      &Command::ClearScreen,  false);
-   AddCommand("connect",    &Command::Connect,      false);
-   AddCommand("consume",    &Command::Consume,      true);
-   AddCommand("crossfade",  &Command::Crossfade,    true);
-   AddCommand("delete",     &Command::Delete,       true);
-   AddCommand("deleteall",  &Command::DeleteAll,    true);
-   AddCommand("disable",    &Command::Output<false>, true);
-   AddCommand("disconnect", &Command::Disconnect,   true);
-   AddCommand("echo",       &Command::Echo,         false);
-   AddCommand("enable",     &Command::Output<true>, true);
-   AddCommand("error",      &Command::EchoError,    false);
-   AddCommand("find",       &Command::FindAny,      true);
-   AddCommand("findalbum",  &Command::FindAlbum,    true);
-   AddCommand("findartist", &Command::FindArtist,   true);
-   AddCommand("findgenre",  &Command::FindGenre,    true);
-   AddCommand("findsong",   &Command::FindSong,     true);
-   AddCommand("move",       &Command::Move,         true);
-   AddCommand("mute",       &Command::Mute,         true);
-   AddCommand("nohlsearch", &Command::NoHighlightSearch, false);
-   AddCommand("normal",     &Command::Normal,       true);
-   AddCommand("password",   &Command::Password,     true);
-   AddCommand("pause",      &Command::Pause,        true);
-   AddCommand("play",       &Command::Play,         true);
-   AddCommand("q",          &Command::Quit,         false);
-   AddCommand("qall",       &Command::QuitAll,      false);
-   AddCommand("quit",       &Command::Quit,         false);
-   AddCommand("quitall",    &Command::QuitAll,      false);
-   AddCommand("random",     &Command::Random,       true);
-   AddCommand("reconnect",  &Command::Reconnect,    false);
-   AddCommand("redraw",     &Command::Redraw,       false);
-   AddCommand("repeat",     &Command::Repeat,       true);
-   AddCommand("set",        &Command::Set,          false);
-   AddCommand("seek",       &Command::SeekTo,       true);
-   AddCommand("seek+",      &Command::Seek<1>,      true);
-   AddCommand("seek-",      &Command::Seek<-1>,     true);
-   AddCommand("single",     &Command::Single,       true);
-   AddCommand("shuffle",    &Command::Shuffle,      true);
-   AddCommand("sleep",      &Command::Sleep,        false);
+   // Command, RequiresConnection, SupportsRange, Function
+   AddCommand("!mpc",       true,  false, &Command::Mpc);
+   AddCommand("add",        true,  true,  &Command::Add);
+   AddCommand("addall",     true,  false, &Command::AddAll);
+   AddCommand("alias",      false, false, &Command::Alias);
+   AddCommand("clear",      false, false, &Command::ClearScreen);
+   AddCommand("connect",    false, false, &Command::Connect);
+   AddCommand("consume",    true,  false, &Command::Consume);
+   AddCommand("crossfade",  true,  false, &Command::Crossfade);
+   AddCommand("delete",     true,  true,  &Command::Delete);
+   AddCommand("deleteall",  true,  false, &Command::DeleteAll);
+   AddCommand("disable",    true,  true,  &Command::Output<false>);
+   AddCommand("disconnect", true,  false, &Command::Disconnect);
+   AddCommand("echo",       false, false, &Command::Echo);
+   AddCommand("enable",     true,  true,  &Command::Output<true>);
+   AddCommand("error",      false, false, &Command::EchoError);
+   AddCommand("find",       true,  false, &Command::FindAny);
+   AddCommand("findalbum",  true,  false, &Command::FindAlbum);
+   AddCommand("findartist", true,  false, &Command::FindArtist);
+   AddCommand("findgenre",  true,  false, &Command::FindGenre);
+   AddCommand("findsong",   true,  false, &Command::FindSong);
+   AddCommand("move",       true,  true,  &Command::Move);
+   AddCommand("mute",       true,  false, &Command::Mute);
+   AddCommand("nohlsearch", false, false, &Command::NoHighlightSearch);
+   AddCommand("normal",     true,  false, &Command::Normal);
+   AddCommand("password",   true,  false, &Command::Password);
+   AddCommand("pause",      true,  false, &Command::Pause);
+   AddCommand("play",       true,  true,  &Command::Play);
+   AddCommand("q",          false, false, &Command::Quit);
+   AddCommand("qall",       false, false, &Command::QuitAll);
+   AddCommand("quit",       false, false, &Command::Quit);
+   AddCommand("quitall",    false, false, &Command::QuitAll);
+   AddCommand("random",     true,  false, &Command::Random);
+   AddCommand("reconnect",  false, false, &Command::Reconnect);
+   AddCommand("redraw",     false, false, &Command::Redraw);
+   AddCommand("repeat",     true,  false, &Command::Repeat);
+   AddCommand("set",        false, false, &Command::Set);
+   AddCommand("seek",       true,  false, &Command::SeekTo);
+   AddCommand("seek+",      true,  false, &Command::Seek<1>);
+   AddCommand("seek-",      true,  false, &Command::Seek<-1>);
+   AddCommand("single",     true,  false, &Command::Single);
+   AddCommand("shuffle",    true,  false, &Command::Shuffle);
+   AddCommand("sleep",      false, false, &Command::Sleep);
 #ifdef TAG_SUPPORT
-   AddCommand("substitute", &Command::Substitute,   false);
-   AddCommand("s",          &Command::Substitute,   false);
+   AddCommand("substitute", false, true,  &Command::Substitute);
+   AddCommand("s",          false, true,  &Command::Substitute);
 #endif
-   AddCommand("swap",       &Command::Swap,         true);
-   AddCommand("stop",       &Command::Stop,         true);
-   AddCommand("toggle",     &Command::ToggleOutput, true);
-   AddCommand("unalias",    &Command::Unalias,      false);
-   AddCommand("volume",     &Command::Volume,       true);
+   AddCommand("swap",       true,  true,  &Command::Swap);
+   AddCommand("stop",       true,  false, &Command::Stop);
+   AddCommand("toggle",     true,  true,  &Command::ToggleOutput);
+   AddCommand("unalias",    false, false, &Command::Unalias);
+   AddCommand("volume",     true,  true,  &Command::Volume);
 
-   AddCommand("map",        &Command::Map,          false);
-   AddCommand("unmap",      &Command::Unmap,        false);
-   AddCommand("wmap",       &Command::WindowMap,    false);
-   AddCommand("wunmap",     &Command::WindowUnmap,  false);
-   AddCommand("tmap",       &Command::TabMap,       false);
-   AddCommand("tunmap",     &Command::TabUnmap,     false);
-   AddCommand("tabmap",     &Command::TabMap,       false);
-   AddCommand("tabunmap",   &Command::TabUnmap,     false);
+   AddCommand("map",        false, false, &Command::Map);
+   AddCommand("unmap",      false, false, &Command::Unmap);
+   AddCommand("wmap",       false, false, &Command::WindowMap);
+   AddCommand("wunmap",     false, false, &Command::WindowUnmap);
+   AddCommand("tmap",       false, false, &Command::TabMap);
+   AddCommand("tunmap",     false, false, &Command::TabUnmap);
+   AddCommand("tabmap",     false, false, &Command::TabMap);
+   AddCommand("tabunmap",   false, false, &Command::TabUnmap);
 
-   AddCommand("tabfirst",   &Command::ChangeToWindow<First>, false);
-   AddCommand("tablast",    &Command::ChangeToWindow<Last>,  false);
-   AddCommand("tabnext",    &Command::ChangeToWindow<Next>,  false);
-   AddCommand("tabprevious",&Command::ChangeToWindow<Previous>, false);
-   AddCommand("tabclose",   &Command::HideWindow,            false);
-   AddCommand("tabhide",    &Command::HideWindow,            false);
-   AddCommand("tabmove",    &Command::MoveWindow,            false);
-   AddCommand("tabrename",  &Command::RenameWindow,          false);
+   AddCommand("tabfirst",   false, false, &Command::ChangeToWindow<First>);
+   AddCommand("tablast",    false, false, &Command::ChangeToWindow<Last>);
+   AddCommand("tabnext",    false, false, &Command::ChangeToWindow<Next>);
+   AddCommand("tabprevious",false, false, &Command::ChangeToWindow<Previous>);
+   AddCommand("tabclose",   false, false, &Command::HideWindow);
+   AddCommand("tabhide",    false, false, &Command::HideWindow);
+   AddCommand("tabmove",    false, false, &Command::MoveWindow);
+   AddCommand("tabrename",  false, false, &Command::RenameWindow);
 
-   AddCommand("highlight",  &Command::SetColour,             false);
+   AddCommand("highlight",  false, false, &Command::SetColour);
 
-   AddCommand("rescan",     &Command::Rescan, true);
-   AddCommand("update",     &Command::Update, true);
+   AddCommand("rescan",     true,  false, &Command::Rescan);
+   AddCommand("update",     true,  false, &Command::Update);
 
-   AddCommand("next",       &Command::SkipSong<Player::Next>,     true);
-   AddCommand("previous",   &Command::SkipSong<Player::Previous>, true);
+   AddCommand("next",       true,  false, &Command::SkipSong<Player::Next>);
+   AddCommand("previous",   true,  false, &Command::SkipSong<Player::Previous>);
 
-   AddCommand("browse",      &Command::SetActiveAndVisible<Ui::Screen::Browse>,       false);
-   AddCommand("console",     &Command::SetActiveAndVisible<Ui::Screen::Console>,      false);
-   AddCommand("help",        &Command::SetActiveAndVisible<Ui::Screen::Help>,         true);
-   AddCommand("library",     &Command::SetActiveAndVisible<Ui::Screen::Library>,      true);
-   AddCommand("directory",   &Command::SetActiveAndVisible<Ui::Screen::Directory>,    true);
-   AddCommand("playlist",    &Command::SetActiveAndVisible<Ui::Screen::Playlist>,     true);
-   AddCommand("outputs",     &Command::SetActiveAndVisible<Ui::Screen::Outputs>,      true);
-   AddCommand("lists",       &Command::SetActiveAndVisible<Ui::Screen::Lists>,        true);
-   AddCommand("windowselect",&Command::SetActiveAndVisible<Ui::Screen::WindowSelect>, true);
+   AddCommand("browse",      false, false, &Command::SetActiveAndVisible<Ui::Screen::Browse>);
+   AddCommand("console",     false, false, &Command::SetActiveAndVisible<Ui::Screen::Console>);
+   AddCommand("help",        true,  false, &Command::SetActiveAndVisible<Ui::Screen::Help>);
+   AddCommand("library",     true,  false, &Command::SetActiveAndVisible<Ui::Screen::Library>);
+   AddCommand("directory",   true,  false, &Command::SetActiveAndVisible<Ui::Screen::Directory>);
+   AddCommand("playlist",    true,  false, &Command::SetActiveAndVisible<Ui::Screen::Playlist>);
+   AddCommand("outputs",     true,  false, &Command::SetActiveAndVisible<Ui::Screen::Outputs>);
+   AddCommand("lists",       true,  false, &Command::SetActiveAndVisible<Ui::Screen::Lists>);
+   AddCommand("windowselect",false, false, &Command::SetActiveAndVisible<Ui::Screen::WindowSelect>);
 
-   AddCommand("load",       &Command::LoadPlaylist, true);
-   AddCommand("save",       &Command::SavePlaylist, true);
-   AddCommand("edit",       &Command::LoadPlaylist, true);
-   AddCommand("write",      &Command::SavePlaylist, true);
-   AddCommand("toplaylist", &Command::ToPlaylist,   true);
+   AddCommand("load",       true,  false, &Command::LoadPlaylist);
+   AddCommand("save",       true,  false, &Command::SavePlaylist);
+   AddCommand("edit",       true,  false, &Command::LoadPlaylist);
+   AddCommand("write",      true,  false, &Command::SavePlaylist);
+   AddCommand("toplaylist", true,  false, &Command::ToPlaylist);
 
 #ifdef __DEBUG_PRINTS
-   AddCommand("debug-console",       &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
-   AddCommand("debug-client-getmeta",&Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
-   AddCommand("debug-client-idle",   &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
+   AddCommand("debug-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>);
+   AddCommand("debug-client-getmeta",true,  false, &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>);
+   AddCommand("debug-client-idle",   true,  false, &Command::DebugClient<&Mpc::Client::IdleMode>);
 #endif
 
 #ifdef TEST_ENABLED
-   AddCommand("test-console",       &Command::SetActiveAndVisible<Ui::Screen::TestConsole>, false);
-   AddCommand("test",               &Command::Test,                                         false);
-   AddCommand("test-screen",        &Command::TestScreen,                                   false);
-   AddCommand("test-input-random",  &Command::TestInputRandom,                              true);
-   AddCommand("test-input-seq",     &Command::TestInputSequence,                            true);
+   AddCommand("test-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::TestConsole>);
+   AddCommand("test",               false, false, &Command::Test);
+   AddCommand("test-screen",        false, false, &Command::TestScreen);
+   AddCommand("test-input-random",  true,  false, &Command::TestInputRandom);
+   AddCommand("test-input-seq",     true,  false, &Command::TestInputSequence);
 #endif
 
    // Add all settings to command table to provide tab completion
@@ -224,10 +225,11 @@ void Command::GenerateInputString(int input)
 }
 
 
-void Command::AddCommand(std::string const & name, CommandFunction command, bool requiresConnection)
+void Command::AddCommand(std::string const & name, bool requiresConnection, bool hasRangeSupport, CommandFunction command)
 {
    commandTable_[name]       = command;
    requiresConnection_[name] = requiresConnection;
+   supportsRange_[name]      = hasRangeSupport;
 }
 
 bool Command::ExecuteCommand(std::string const & input)
@@ -349,7 +351,11 @@ void Command::ExecuteQueuedCommands()
 bool Command::RequiresConnection(std::string const & command)
 {
    return requiresConnection_[command];
+}
 
+bool Command::SupportsRange(std::string const & command)
+{
+   return supportsRange_[command];
 }
 
 
@@ -425,10 +431,12 @@ void Command::Add(std::string const & arguments)
 
       if (arguments != "")
       {
+         // Add based on a URI
          client_.Add(arguments);
       }
       else
       {
+         // Add according to current selection or range
          screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
 
@@ -456,6 +464,7 @@ void Command::Delete(std::string const & arguments)
 
       if (args.size() == 2)
       {
+         // Delete a range of songs from pos1 to pos2
          uint32_t pos1 = atoi(args[0].c_str()) - 1;
          uint32_t pos2 = atoi(args[1].c_str()) - 1;
 
@@ -464,11 +473,13 @@ void Command::Delete(std::string const & arguments)
       }
       else if (args.size() == 1)
       {
+         // Delete the song at given position
          client_.Delete(atoi(args[0].c_str()) - 1);
          Main::Playlist().Remove(atoi(args[0].c_str()) - 1, 1);
       }
       else
       {
+         // Delete selected or range
          screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
    }
@@ -651,7 +662,7 @@ void Command::Substitute(std::string const & expression)
    {
       for (int i = 0; i < count_; ++i)
       {
-         Mpc::Song * const song = screen_.GetActiveSelectedSong();
+         Mpc::Song * const song = screen_.GetSong(screen_.ActiveWindow().CurrentLine() + i);
 
          if (song != NULL)
          {
@@ -694,7 +705,6 @@ void Command::Substitute(std::string const & expression)
                }
             }
          }
-         screen_.Scroll(1);
       }
    }
    else
@@ -709,57 +719,14 @@ template <bool ON>
 void Command::Output(std::string const & arguments)
 {
    int32_t output = -1;
-
-   screen_.Initialise(Ui::Screen::Outputs);
-
-   if (arguments == "")
-   {
-      output = screen_.Window(Ui::Screen::Outputs).CurrentLine();
-   }
-   else if (Algorithm::isNumeric(arguments.c_str()) == true)
-   {
-      output = atoi(arguments.c_str());
-   }
-   else
-   {
-      for(unsigned int i = 0; i < Main::Outputs().Size(); ++i)
-      {
-         if (Algorithm::iequals(Main::Outputs().Get(i)->Name(), arguments) == true)
-         {
-            output = i;
-            break;
-         }
-      }
-   }
-
-   if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
-   {
-      if (ON == true)
-      {
-         client_.EnableOutput(Main::Outputs().Get(output));
-         Main::Outputs().Get(output)->SetEnabled(true);
-      }
-      else
-      {
-         client_.DisableOutput(Main::Outputs().Get(output));
-         Main::Outputs().Get(output)->SetEnabled(false);
-      }
-   }
-   else
-   {
-      ErrorString(ErrorNumber::NoOutput);
-   }
-}
-
-void Command::ToggleOutput(std::string const & arguments)
-{
-   int32_t output = -1;
+   bool    rangeAllowed = false;
 
    screen_.Initialise(Ui::Screen::Outputs);
 
    if (arguments == "")
    {
       output = screen_.GetSelected(Ui::Screen::Outputs);
+      rangeAllowed = true;
    }
    else if (Algorithm::isNumeric(arguments.c_str()) == true)
    {
@@ -772,7 +739,69 @@ void Command::ToggleOutput(std::string const & arguments)
 
    if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
    {
-      Player::ToggleOutput(output);
+      if (rangeAllowed == false)
+      {
+         client_.SetOutput(Main::Outputs().Get(output), (ON == true));
+         Main::Outputs().Get(output)->SetEnabled((ON == true));
+      }
+      else
+      {
+         for (int i = 0; (i < count_); ++i)
+         {
+            if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
+            {
+               client_.SetOutput(Main::Outputs().Get(output + i), (ON == true));
+               Main::Outputs().Get(output + i)->SetEnabled((ON == true));
+            }
+         }
+      }
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoOutput);
+   }
+}
+
+void Command::ToggleOutput(std::string const & arguments)
+{
+   int32_t output = -1;
+   bool    rangeAllowed = false;
+
+   screen_.Initialise(Ui::Screen::Outputs);
+
+   if (arguments == "")
+   {
+      // Toggle selected or range of outputs
+      output = screen_.GetSelected(Ui::Screen::Outputs);
+      rangeAllowed = true;
+   }
+   else if (Algorithm::isNumeric(arguments.c_str()) == true)
+   {
+      // Toggle a given output number
+      output = atoi(arguments.c_str());
+   }
+   else
+   {
+      // Toggle based on the output name
+      output = Player::FindOutput(arguments);
+   }
+
+   if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
+   {
+      if (rangeAllowed == false)
+      {
+         Player::ToggleOutput(output);
+      }
+      else
+      {
+         for (int i = 0; (i < count_); ++i)
+         {
+            if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
+            {
+               Player::ToggleOutput(output + i);
+            }
+         }
+      }
    }
    else
    {
@@ -1361,11 +1390,6 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
 
    forceCommand_ = (forceCheck.FullMatch(command));
 
-   if (line > 0)
-   {
-      screen_.ScrollTo(line - 1);
-   }
-
    if (forceCommand_ == true)
    {
       command = command.substr(0, command.length() - 1);
@@ -1394,6 +1418,19 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
    // If we have found a command execute it, with \p arguments
    if (matchingCommand == true)
    {
+      // If a range was specified and supported scroll to the line
+      // corresponding to the first part of the range
+      // \TODO this may break if it is done when we are in visual mode
+      if ((SupportsRange(commandToExecute) == true) && (line > 0))
+      {
+         screen_.ScrollTo(line - 1);
+      }
+      else if (line > 0)
+      {
+         ErrorString(ErrorNumber::NoRangeAllowed, command);
+         return true;
+      }
+
       if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (client_.Connected() == true))
       {
          count_ = (count <= 0) ? 1 : count;
@@ -1410,6 +1447,11 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
          commandArgs.arguments = arguments;
          commandQueue_.push_back(commandArgs);
       }
+
+      if ((SupportsRange(commandToExecute) == true) && (count > 0) && (line > 0))
+      {
+         screen_.ScrollTo(line + count - 2);
+      }
    }
    else if (validCommandCount > 1)
    {
@@ -1421,12 +1463,6 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
    }
 
    forceCommand_ = false;
-
-   if ((count > 0) && (line > 0))
-   {
-      screen_.ScrollTo(line + count - 2);
-   }
-
    return true;
 }
 

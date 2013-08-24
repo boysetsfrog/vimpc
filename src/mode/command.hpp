@@ -51,7 +51,7 @@ namespace Ui
 
    public:
       // Add a new command to the table
-      void AddCommand(std::string const & name, CommandFunction command, bool requiresConnection);
+      void AddCommand(std::string const & name, bool requiresConnection, bool hasRangeSupport, CommandFunction command);
 
       // Checks if there is any aliases defined for a command, recursively calling
       // until a proper command is found then executes that command
@@ -69,6 +69,9 @@ namespace Ui
 
       // Returns true if the given command requires an mpd connection
       bool RequiresConnection(std::string const & command);
+
+      // Returns true if the command can be used over a range
+      bool SupportsRange(std::string const & command);
 
    public: // Ui::InputMode
       void Initialise(int input);
@@ -248,11 +251,8 @@ namespace Ui
    private:
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
-
       typedef std::vector<CommandArgs>               CommandQueue;
-
-      typedef std::map<std::string, bool>            ConnectionMap;
-
+      typedef std::map<std::string, bool>            BoolMap;
       typedef std::vector<std::string>               TabCompTable;
 
    private:
@@ -266,7 +266,8 @@ namespace Ui
       TabCompTable         loadTable_;
       TabCompTable         addTable_;
       CommandQueue         commandQueue_;
-      ConnectionMap        requiresConnection_;
+      BoolMap              requiresConnection_;
+      BoolMap              supportsRange_;
       Main::Vimpc *        vimpc_;
       Ui::Search         & search_;
       Ui::Screen         & screen_;

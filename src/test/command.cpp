@@ -393,7 +393,7 @@ void CommandTester::OutputCommands()
    commandMode_.ExecuteCommand(Buffer);
 
    // \TODO TBD: range based enable, disable are not implemented
-   /* 
+    
    for (int i = 0; i < outputCount; ++i) 
    {
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
@@ -406,8 +406,7 @@ void CommandTester::OutputCommands()
    {
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
    }
-   */
-
+   
    // \TODO TBD: test visual selection enable/disable
 
    // Restore outputs to their initial state
