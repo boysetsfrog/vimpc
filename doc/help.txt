@@ -96,8 +96,8 @@
 
  ALL WINDOWS:
 
- Unless specified otherwise in the specific window sections,
- all windows will perform the following operations for the keys below.
+   Unless specified otherwise in the specific window sections,
+   all windows will perform the following operations for the keys below.
 
            A                | add all songs in window to the playlist
            D                | delete all songs in window from the playlist
@@ -107,7 +107,7 @@
            gp               | scroll forward to a song that is in the playlist
            gP               | scroll backward to a song that is in the playlist
 
-  In addition to these keys some windows have window specific bindings as below.
+   In addition to these keys some windows have window specific bindings as below.
 
  PLAYLIST:
    Window showing the songs currently in the mpd playlist. Songs will
@@ -196,19 +196,26 @@
  COMMAND/EX MODE
  --------------------------------------------------
 
+   Similar to command/ex mode in vi/vim.
+   Command mode is entered with the ':' key.
+
+   NOTE: Any commands prefixed in this help with:
+           '*' support tab completion
+           '@' support a line number, range or both
+
+
    :<command>               | executes the command <command>
                             | the full command does not need to be given
                             | provided it is a unique match
                             | ie :con does not work
                             | as it could be :console or :connect
                             | but :conn will call the :connect command
-   :<number>[command]       | go to the given line number <number> before the
-                            | command is executed
-   :<no1>,<no2>[command]    | perform the command over range <no1> to <no2>
+   :<number>                | go to line number <number>
 
 
-   NOTE: Any commands prefixed with a '*' in the help support
-   tab completion. Currently add, edit, load, and set commands.
+ RANGES:
+   :<number><command>       | go to the line number <number> then execute command
+   :<no1>,<no2><command>    | perform the command over range <no1> to <no2>
 
 
  EDITING:
@@ -236,7 +243,7 @@
 
  PLAYBACK:
    pause                    | toggle between pause/play
-   play <position>          | play the song at <position> in playlist
+ @ play <position>          | play the song at <position> in playlist
    stop                     | stop playback
 
    next [count]             | skip forward [count] songs
@@ -255,10 +262,10 @@
    single [on/off]          | toggles single, or sets on/off
 
  PLAYLIST:
-   add                      | add the selected songs to the playlist
+ @ add                      | add the selected songs to the playlist
  * add <uri>                | add a song/directory/stream using the given <uri>
    addall                   | add all songs to the playlist
-   delete <pos1> [pos2]     | delete the song at <pos1>, or from <pos1> to [pos2]
+ @ delete [pos1] [pos2]     | delete selected songs, songs at [pos1], or [pos1] to [pos2]
    deleteall                | delete all songs in the playlist
    move <pos1> <pos2>       | move song from <pos1> to <pos2>
    shuffle                  | shuffle the playlist
@@ -281,11 +288,12 @@
    the playlist rather than creating a new window.
 
  OUTPUTS:
-   disable <id/name>        | enable output with id <id> or name <name>
-   enable <id/name>         | disable output with id <id> or name <name>
+ @ disable [id/name]        | enable selected output or id <id> or name <name>
+ @ enable [id/name]         | disable selected output or id <id> or name <name>
+ @ toggle [id/name]         | disable selected output or id <id> or name <name>
 
  TAG EDITTING:
-   s/<match>/<re>/<opt>     | replace tags in the selected or range of songs
+ @ s/<match>/<re>/<opt>     | replace tags in the selected or range of songs
                             | if they match "<match>", if so <match>
                             | is replaced with <re>, the replace is only
                             | for the songs' tag based on option <opt>
@@ -301,22 +309,25 @@
                             | will set the artist tag to "The Smiths" for the
                             | first 6 songs in the current window
                             |
-   substitute               | same as above
+ @ substitute               | same as above
 
  SEARCHING:
    nohlsearch               | temporarily turn off search highlights
                             | until the next search is performed
 
  WINDOWS/TABS:
-   browse                   | open browse window
-   console                  | open console window (see CONSOLE section)
-   directory                | open directory window
-   help                     | open help window (this one)
-   library                  | open library window
-   lists                    | open the lists window
-   outputs                  | open outputs window
-   playlist                 | open playlist window
-   windowselect             | open window selection window
+   Note: Specifying a line number on the following commands will cause
+         the window to open on that line number
+
+ @ browse                   | open browse window
+ @ console                  | open console window (see CONSOLE section)
+ @ directory                | open directory window
+ @ help                     | open help window (this one)
+ @ library                  | open library window
+ @ lists                    | open the lists window
+ @ outputs                  | open outputs window
+ @ playlist                 | open playlist window
+ @ windowselect             | open window selection window
 
    tabfirst                 | navigate to the first window/tab
    tablast                  | navigate to the last window/tab

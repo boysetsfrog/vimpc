@@ -66,6 +66,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    initTabCompletion_  (true),
    forceCommand_       (false),
    queueCommands_      (false),
+   count_              (0),
+   line_               (-1),
+   currentLine_        (-1),
    aliasTable_         (),
    commandTable_       (),
    vimpc_              (vimpc),
@@ -155,15 +158,15 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("next",       true,  false, &Command::SkipSong<Player::Next>);
    AddCommand("previous",   true,  false, &Command::SkipSong<Player::Previous>);
 
-   AddCommand("browse",      false, false, &Command::SetActiveAndVisible<Ui::Screen::Browse>);
-   AddCommand("console",     false, false, &Command::SetActiveAndVisible<Ui::Screen::Console>);
-   AddCommand("help",        true,  false, &Command::SetActiveAndVisible<Ui::Screen::Help>);
-   AddCommand("library",     true,  false, &Command::SetActiveAndVisible<Ui::Screen::Library>);
-   AddCommand("directory",   true,  false, &Command::SetActiveAndVisible<Ui::Screen::Directory>);
-   AddCommand("playlist",    true,  false, &Command::SetActiveAndVisible<Ui::Screen::Playlist>);
-   AddCommand("outputs",     true,  false, &Command::SetActiveAndVisible<Ui::Screen::Outputs>);
-   AddCommand("lists",       true,  false, &Command::SetActiveAndVisible<Ui::Screen::Lists>);
-   AddCommand("windowselect",false, false, &Command::SetActiveAndVisible<Ui::Screen::WindowSelect>);
+   AddCommand("browse",      false, true, &Command::SetActiveAndVisible<Ui::Screen::Browse>);
+   AddCommand("console",     false, true, &Command::SetActiveAndVisible<Ui::Screen::Console>);
+   AddCommand("help",        true,  true, &Command::SetActiveAndVisible<Ui::Screen::Help>);
+   AddCommand("library",     true,  true, &Command::SetActiveAndVisible<Ui::Screen::Library>);
+   AddCommand("directory",   true,  true, &Command::SetActiveAndVisible<Ui::Screen::Directory>);
+   AddCommand("playlist",    true,  true, &Command::SetActiveAndVisible<Ui::Screen::Playlist>);
+   AddCommand("outputs",     true,  true, &Command::SetActiveAndVisible<Ui::Screen::Outputs>);
+   AddCommand("lists",       true,  true, &Command::SetActiveAndVisible<Ui::Screen::Lists>);
+   AddCommand("windowselect",false, true, &Command::SetActiveAndVisible<Ui::Screen::WindowSelect>);
 
    AddCommand("load",       true,  false, &Command::LoadPlaylist);
    AddCommand("save",       true,  false, &Command::SavePlaylist);
@@ -1198,7 +1201,17 @@ void Command::SkipSong(std::string const & arguments)
 template <Ui::Screen::MainWindow MAINWINDOW>
 void Command::SetActiveAndVisible(std::string const & arguments)
 {
+   if (currentLine_ != -1)
+   {
+      screen_.ScrollTo(currentLine_);
+   }
+
    screen_.SetActiveAndVisible(static_cast<int32_t>(MAINWINDOW));
+
+   if (line_ != -1)
+   {
+      screen_.ScrollTo(line_);
+   }
 }
 
 template <Command::Location LOCATION>
@@ -1418,11 +1431,19 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
    // If we have found a command execute it, with \p arguments
    if (matchingCommand == true)
    {
+      // This is a hack for ranges on the setactive command
+      // so that we return the scroll for the window before the command
+      // is executed and change it for the new one
+      currentLine_ = -1;
+      line_        = -1;
+
       // If a range was specified and supported scroll to the line
       // corresponding to the first part of the range
       // \TODO this may break if it is done when we are in visual mode
       if ((SupportsRange(commandToExecute) == true) && (line > 0))
       {
+         currentLine_ = screen_.GetActiveSelected();
+         line_        = line - 1;
          screen_.ScrollTo(line - 1);
       }
       else if (line > 0)
@@ -1447,6 +1468,9 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
          commandArgs.arguments = arguments;
          commandQueue_.push_back(commandArgs);
       }
+
+      currentLine_ = -1;
+      line_        = -1;
 
       if ((SupportsRange(commandToExecute) == true) && (count > 0) && (line > 0))
       {

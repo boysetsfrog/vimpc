@@ -260,6 +260,8 @@ namespace Ui
       bool                 forceCommand_;
       bool                 queueCommands_;
       uint32_t             count_;
+      int32_t              line_;
+      int32_t              currentLine_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       TabCompTable         settingsTable_;
