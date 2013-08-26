@@ -91,20 +91,19 @@ void Library::Add(Mpc::Song * song)
          if (i < Size())
          {
             lastArtistEntry_ = Get(i);
-
-            for (Mpc::LibraryEntryVector::iterator it = lastArtistEntry_->children_.begin(); ((it != lastArtistEntry_->children_.end()) && (lastAlbumEntry_ == NULL)); ++it)
-            {
-               if ((Algorithm::iequals((*it)->album_, album) == true) &&
-                   ((*it)->type_ == Mpc::AlbumType))
-               {
-                  lastAlbumEntry_ = (*it);
-               }
-            }
          }
          else
          {
             lastArtistEntry_ = CreateArtistEntry(artist);
-            lastAlbumEntry_  = NULL;
+         }
+      }
+
+      for (Mpc::LibraryEntryVector::iterator it = lastArtistEntry_->children_.begin(); ((it != lastArtistEntry_->children_.end()) && (lastAlbumEntry_ == NULL)); ++it)
+      {
+         if ((Algorithm::iequals((*it)->album_, album) == true) &&
+               ((*it)->type_ == Mpc::AlbumType))
+         {
+            lastAlbumEntry_ = (*it);
          }
       }
 
