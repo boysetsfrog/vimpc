@@ -51,7 +51,7 @@ namespace Ui
 
    public:
       // Add a new command to the table
-      void AddCommand(std::string const & name, CommandFunction command, bool requiresConnection);
+      void AddCommand(std::string const & name, bool requiresConnection, bool hasRangeSupport, CommandFunction command);
 
       // Checks if there is any aliases defined for a command, recursively calling
       // until a proper command is found then executes that command
@@ -69,6 +69,9 @@ namespace Ui
 
       // Returns true if the given command requires an mpd connection
       bool RequiresConnection(std::string const & command);
+
+      // Returns true if the command can be used over a range
+      bool SupportsRange(std::string const & command);
 
    public: // Ui::InputMode
       void Initialise(int input);
@@ -176,7 +179,7 @@ namespace Ui
       template <Ui::Screen::MainWindow MAINWINDOW>
       void SetActiveAndVisible(std::string const & arguments);
 
-      typedef enum { First, Last, LocationCount } Location;
+      typedef enum { First, Last, Next, Previous, LocationCount } Location;
 
       template <Location LOCATION>
       void ChangeToWindow(std::string const & arguments);
@@ -248,11 +251,8 @@ namespace Ui
    private:
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
-
       typedef std::vector<CommandArgs>               CommandQueue;
-
-      typedef std::map<std::string, bool>            ConnectionMap;
-
+      typedef std::map<std::string, bool>            BoolMap;
       typedef std::vector<std::string>               TabCompTable;
 
    private:
@@ -260,13 +260,16 @@ namespace Ui
       bool                 forceCommand_;
       bool                 queueCommands_;
       uint32_t             count_;
+      int32_t              line_;
+      int32_t              currentLine_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       TabCompTable         settingsTable_;
       TabCompTable         loadTable_;
       TabCompTable         addTable_;
       CommandQueue         commandQueue_;
-      ConnectionMap        requiresConnection_;
+      BoolMap              requiresConnection_;
+      BoolMap              supportsRange_;
       Main::Vimpc *        vimpc_;
       Ui::Search         & search_;
       Ui::Screen         & screen_;

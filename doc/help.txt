@@ -14,44 +14,44 @@
    Note: count is always an optional parameter.
 
  MOTION:
-   [count] k, Up           | scroll up [count]
-   [count] j, Down         | scroll down [count]
-   [count] Pg Up, Ctrl+u   | scroll up by [count] half pages
-   [count] Pg Dn, Ctrl+d   | scroll down by [count] half pages
-   [count] Ctrl+f          | scroll down by [count] pages
-   [count] Ctrl+b          | scroll up by [count] pages
-   [count] Ctrl+y          | scroll down a line, maintain selection
-   [count] Ctrl+e          | scroll up a line, maintain selection
-           Home            | scroll to the top
-           End             | scroll to the bottom
-           %               | scroll to a random line
-   [count] f               | scroll to the currently playing song + [count]
-   [count] F               | scroll to the currently playing song - [count]
-   [count] gg              | scroll to the top, or to the line [count]
-   [count] G               | scroll to the bottom, or the line [count]
-   [count] H               | select the top visible line + [count]
-   [count] M               | select the middle visible line
-   [count] L               | select the bottom visible line - [count]
-   [count] z<Enter>        | selected line (or [count]) to display at the top
-   [count] z.              | selected line (or [count]) to display in centres
-   [count] z-              | selected line (or [count]) to display at the bottom
-   [count] .               | repeat the last normal mode action [count] times
+   [count] k, Up            | scroll up [count]
+   [count] j, Down          | scroll down [count]
+   [count] Pg Up, Ctrl+u    | scroll up by [count] half pages
+   [count] Pg Dn, Ctrl+d    | scroll down by [count] half pages
+   [count] Ctrl+f           | scroll down by [count] pages
+   [count] Ctrl+b           | scroll up by [count] pages
+   [count] Ctrl+y           | scroll down a line, maintain selection
+   [count] Ctrl+e           | scroll up a line, maintain selection
+           Home             | scroll to the top
+           End              | scroll to the bottom
+           %                | scroll to a random line
+   [count] f                | scroll to the currently playing song + [count]
+   [count] F                | scroll to the currently playing song - [count]
+   [count] gg               | scroll to the top, or to the line [count]
+   [count] G                | scroll to the bottom, or the line [count]
+   [count] H                | select the top visible line + [count]
+   [count] M                | select the middle visible line
+   [count] L                | select the bottom visible line - [count]
+   [count] z<Enter>         | selected line (or [count]) to display at the top
+   [count] z.               | selected line (or [count]) to display in centres
+   [count] z-               | selected line (or [count]) to display at the bottom
+   [count] .                | repeat the last normal mode action [count] times
 
 
  WINDOWS/TABS:
-           W               | open a window selection window
-           q               | closes the current window
-   [count] gt              | next window/tab, or to window/tab number [count]
-   [count] gT              | previous window/tab, or back [count] windows/tabs
-           Alt+<number>    | change to the given window/tab number
+           W                | open a window selection window
+           q                | closes the current window
+   [count] gt               | next window/tab, or to window/tab number [count]
+   [count] gT               | previous window/tab, or back [count] windows/tabs
+           Alt+<number>     | change to the given window/tab number
 
  MARKS:
-           m<Key>          | set a mark called <Key>
-                           | this mark will hold the tab and line combination
-           '<Key>          | jump to mark named <Key>
-           `<Key>          | as above
-           g'<Key>         | as above
-           g`<Key>         | as above
+           m<Key>           | set a mark called <Key>
+                            | this mark will hold the tab and line combination
+           '<Key>           | jump to mark named <Key>
+           `<Key>           | as above
+           g'<Key>          | as above
+           g`<Key>          | as above
 
    Default marks are created for A - Z. These marks will allow you to
    instantly jump to the first entry in the current window that begins
@@ -60,35 +60,35 @@
 
 
  PLAYING (ALSO SEE PLAYLIST):
-   [count] ^, I            | skip to the start of the currently playing song
-   [count] <               | skip to the previous song
-   [count] >               | skip to the next song
-   [count] [               | skip to the previous artist
-   [count] ]               | skip to the next artist
-   [count] {               | skip to the previous album
-   [count] }               | skip to the next album
+   [count] ^, I             | skip to the start of the currently playing song
+   [count] <                | skip to the previous song
+   [count] >                | skip to the next song
+   [count] [                | skip to the previous artist
+   [count] ]                | skip to the next artist
+   [count] {                | skip to the previous album
+   [count] }                | skip to the next album
 
-   [count] +               | increase volume
-   [count] -               | decrease volume
+   [count] +                | increase volume
+   [count] -                | decrease volume
 
-           p               | toggle pause on/off
-           s, backspace    | stop playback
+           p                | toggle pause on/off
+           s, backspace     | stop playback
 
-           C               | toggle consume
-           T               | toggle crossfade
-           R               | toggle random
-           E               | toggle repeat
-           S               | toggle single
+           C                | toggle consume
+           T                | toggle crossfade
+           R                | toggle random
+           E                | toggle repeat
+           S                | toggle single
 
  SEARCHING:
-           /<exp>          | searches forward for <exp> (regular expression)
-           ?<exp>          | searches backward for <exp> (regular expression)
-   [count] n               | scroll to next result
-   [count] N               | scroll to previous result
+           /<exp>           | searches forward for <exp> (regular expression)
+           ?<exp>           | searches backward for <exp> (regular expression)
+   [count] n                | scroll to next result
+   [count] N                | scroll to previous result
 
  SEARCH FLAGS:
-           \c              | if in search expression, disables case sensitivity
-           \C              | if in search expression, enables case sensitivity
+           \c               | if in search expression, disables case sensitivity
+           \C               | if in search expression, enables case sensitivity
 
 
  WINDOWS/TABS
@@ -96,114 +96,126 @@
 
  ALL WINDOWS:
 
- Unless specified otherwise in the specific window sections,
- all windows will perform the following operations for the keys below.
+   Unless specified otherwise in the specific window sections,
+   all windows will perform the following operations for the keys below.
 
-           A               | add all songs in window to the playlist
-           D               | delete all songs in window from the playlist
-           X               | delete all songs from the selected line to the end
-           v, V            | enter visual selection mode
-           gv              | reselect the last visual selected songs
-           gp              | scroll forward to a song that is in the playlist
-           gP              | scroll backward to a song that is in the playlist
+           A                | add all songs in window to the playlist
+           D                | delete all songs in window from the playlist
+           X                | delete all songs from the selected line to the end
+           v, V             | enter visual selection mode
+           gv               | reselect the last visual selected songs
+           gp               | scroll forward to a song that is in the playlist
+           gP               | scroll backward to a song that is in the playlist
 
-  In addition to these keys some windows have window specific bindings as below.
+   In addition to these keys some windows have window specific bindings as below.
 
  PLAYLIST:
    Window showing the songs currently in the mpd playlist. Songs will
    be played in the order that they are listed on this window.
 
-           A               | add all songs to the playlist
-   [count] d, del          | delete songs
-   [count] h, Left         | seek back [count] seconds
-   [count] l, Right        | seek forward [count] seconds
-           P               | re-insert songs that were just deleted
-           e               | information about selected song
-   [count] Ctrl+a          | move song down [count]
-   [count] Ctrl+x          | move song up [count]
-   [count] gm              | move song to position [count]
-           <Enter>         | play the selected song
+           A                | add all songs to the playlist
+   [count] d, del           | delete songs
+   [count] h, Left          | seek back [count] seconds
+   [count] l, Right         | seek forward [count] seconds
+           P                | re-insert songs that were just deleted
+           e                | information about selected song
+   [count] Ctrl+a           | move song down [count]
+   [count] Ctrl+x           | move song up [count]
+   [count] gm               | move song to position [count]
+           <Enter>          | play the selected song
 
  BROWSE:
    The browse window shows every single song in the mpd database. It is
    default sorted according to the songformat
 
-   [count] a               | add songs to playlist
-   [count] d, del          | delete songs
-           e               | information about selected song
-           <Enter>         | append the song to the playlist and play it
+   [count] a                | add songs to playlist
+   [count] d, del           | delete songs
+           e                | information about selected song
+           <Enter>          | append the song to the playlist and play it
 
  LISTS:
    Shows the playlists that have been saved into mpd's playlist directory.
    As well as playlists in the mpd music directory (based on "playlists"
    setting).
 
-   [count] a               | add list contents to playlist
-   [count] d, del          | delete lists contents from playlist
-           x               | remove the playlist
-           e               | view lists contents
-           <Enter>         | play the currently selected list
+   [count] a                | add the list's contents to playlist
+   [count] d, del           | delete the list's contents from playlist
+           x                | delete the list itself
+           e                | view the list's contents
+           <Enter>          | play the currently selected list
 
  LIBRARY:
-   The library window is a heirachy of an artist/album/song form.
-   By default only the artists are shown but these can be expanded
-   or collapsed using left/right keys. Any file which does not have
-   an artist tag will show up under "Unknown Artist", likewise for
-   the album ("Unknown Album"). Any file which has multiple artists on
-   the same album will show up under "Various Artists"
+   The library window is a heirachy of artist/album/song form.
 
-   [count] a               | add song, album or artist to playlist
-   [count] d, del          | delete song, album, artist from playlist
-           h, Left         | collapse selection
-           l, Right        | expand selection
-           e               | view artist/album contents in songinfo window
-           <Enter>         | clear playlist, add song/album/artist and play it
+   By default only the artists are shown but these can be expanded
+   or collapsed using the left and right keys.
+
+   Any file which does not have an artist tag will show up under
+   "Unknown Artist", likewise no album tag causes "Unknown Album".
+   Albums with multiple artists will show up under "Various Artists"
+
+   Note: if you want to show the album by default as well, then
+         use the setting "expand-artists"
+
+   [count] a                | add song, album or artist to playlist
+   [count] d, del           | delete song, album, artist from playlist
+           h, Left          | collapse selection
+           l, Right         | expand selection
+           e                | view artist/album contents in songinfo window
+           <Enter>          | clear playlist, add song/album/artist and play it
 
  DIRECTORY:
-    Filesystem navigation of music.
+   Filesystem navigation of music.
 
-   [count] a               | add songs to playlist
-   [count] d, del          | delete songs from the playlist
-           h, Left         | go up one directory
-           l, Right        | change into selected directory
-           e               | information about selected song
-           <Enter>         | append the song to the playlist and play it
-                           | or navigate into the selected directory
+   [count] a                | add songs to playlist
+   [count] d, del           | delete songs from the playlist
+           h, Left          | go up one directory
+           l, Right         | change into selected directory
+           e                | information about selected song
+           <Enter>          | append the song to the playlist and play it
+                            | or navigate into the selected directory
 
  OUTPUTS:
-    Lists all the available mpd outputs.
+   Lists all the available mpd outputs.
 
-           a               | enable the selected output
-           A               | enable all outputs
-           d               | disable the selected output
-           D               | disable all outputs
-           <Enter>         | toggle the selected output
+           a                | enable the selected output
+           A                | enable all outputs
+           d                | disable the selected output
+           D                | disable all outputs
+           <Enter>          | toggle the selected output
 
  SONGINFO:
    More detailed information about a particular song,
    this window is opened by selecting a song and pressing 'e'.
 
-           a               | add song to the playlist
-           d               | delete song from playlist
-           <Enter>         | append the song to the playlist and play it
+           a                | add song to the playlist
+           d                | delete song from playlist
+           <Enter>          | append the song to the playlist and play it
 
 
  COMMAND/EX MODE
  --------------------------------------------------
 
-   :<command>              | executes the command <command>
-                           | the full command does not need to be given
-                           | provided it is a unique match
-                           | ie :con does not work
-                           | as it could be :console or :connect
-                           | but :conn will call the :connect command
-   :<number>[command]      | go to the given line number <number> before the
-                           | command is executed
-   :<no1>,<no2>[command]   | perform the command over range <no1> to <no2>
+   Similar to command/ex mode in vi/vim.
+   Command mode is entered with the ':' key.
+
+   NOTE: Any commands prefixed in this help with:
+           '*' support tab completion
+           '@' support a line number, range or both
 
 
-   NOTE: Any commands prefixed with a '*' in the help support
-   tab completion. Currently add, edit, load, and set commands.
+   :<command>               | executes the command <command>
+                            | the full command does not need to be given
+                            | provided it is a unique match
+                            | ie :con does not work
+                            | as it could be :console or :connect
+                            | but :conn will call the :connect command
+   :<number>                | go to line number <number>
+
+
+ RANGES:
+   :<number><command>       | go to the line number <number> then execute command
+   :<no1>,<no2><command>    | perform the command over range <no1> to <no2>
 
 
  EDITING:
@@ -231,7 +243,7 @@
 
  PLAYBACK:
    pause                    | toggle between pause/play
-   play <position>          | play the song at <position> in playlist
+ @ play <position>          | play the song at <position> in playlist
    stop                     | stop playback
 
    next [count]             | skip forward [count] songs
@@ -250,10 +262,10 @@
    single [on/off]          | toggles single, or sets on/off
 
  PLAYLIST:
-   add                      | add the selected songs to the playlist
+ @ add                      | add the selected songs to the playlist
  * add <uri>                | add a song/directory/stream using the given <uri>
    addall                   | add all songs to the playlist
-   delete <pos1> [pos2]     | delete the song at <pos1>, or from <pos1> to [pos2]
+ @ delete [pos1] [pos2]     | delete selected songs, songs at [pos1], or [pos1] to [pos2]
    deleteall                | delete all songs in the playlist
    move <pos1> <pos2>       | move song from <pos1> to <pos2>
    shuffle                  | shuffle the playlist
@@ -266,21 +278,22 @@
    write <name>             | save the current playlist <name>
 
  FIND:
-   find[!] <search>         | search in database and display results in new window
-   findartist[!] <search>   | search in database in artist tag only
-   findalbum[!] <search>    | search in database in album tag only
-   findgenre[!] <search>    | search in database in genre tag only
-   findsong[!] <search>     | search in database in title tag only
+   find[!] <search>         | search database and display results in new window
+   findartist[!] <search>   | search database in artist tag only
+   findalbum[!] <search>    | search database in album tag only
+   findgenre[!] <search>    | search database in genre tag only
+   findsong[!] <search>     | search database in title tag only
 
-   Note: Appending a ! to any search term will automatically add the songs to the
-   playlist rather than creating a new window.
+   Note: Appending a ! to any search term will automatically add the songs to
+   the playlist rather than creating a new window.
 
  OUTPUTS:
-   disable <id/name>        | enable output with id <id> or name <name>
-   enable <id/name>         | disable output with id <id> or name <name>
+ @ disable [id/name]        | enable selected output or id <id> or name <name>
+ @ enable [id/name]         | disable selected output or id <id> or name <name>
+ @ toggle [id/name]         | disable selected output or id <id> or name <name>
 
  TAG EDITTING:
-   s/<match>/<re>/<opt>     | replace tags in the selected or range of songs
+ @ s/<match>/<re>/<opt>     | replace tags in the selected or range of songs
                             | if they match "<match>", if so <match>
                             | is replaced with <re>, the replace is only
                             | for the songs' tag based on option <opt>
@@ -291,29 +304,35 @@
                             |    n for track tag
                             | Note: a blank <match> entry is treated the same
                             | as a <match> entry of of ".*"
-   substitute               | same as above
                             |
                             | ie :1,6s//The Smiths/a
                             | will set the artist tag to "The Smiths" for the
                             | first 6 songs in the current window
+                            |
+ @ substitute               | same as above
 
  SEARCHING:
    nohlsearch               | temporarily turn off search highlights
                             | until the next search is performed
 
  WINDOWS/TABS:
-   browse                   | open browse window
-   console                  | open console window (see CONSOLE section)
-   directory                | open directory window
-   help                     | open help window (this one)
-   library                  | open library window
-   lists                    | open the lists window
-   outputs                  | open outputs window
-   playlist                 | open playlist window
-   windowselect             | open window selection window
+   Note: Specifying a line number on the following commands will cause
+         the window to open on that line number
+
+ @ browse                   | open browse window
+ @ console                  | open console window (see CONSOLE section)
+ @ directory                | open directory window
+ @ help                     | open help window (this one)
+ @ library                  | open library window
+ @ lists                    | open the lists window
+ @ outputs                  | open outputs window
+ @ playlist                 | open playlist window
+ @ windowselect             | open window selection window
 
    tabfirst                 | navigate to the first window/tab
    tablast                  | navigate to the last window/tab
+   tabnext                  | navigate to the next window/tab
+   tabprevious              | navigate to the previous window/tab
    tabmove <location>       | move the current tab to <location> (first is 0)
    tabhide [tabname]        | hide the current tab (or [tabname]) from the tab bar
    tabrename <tabname>      | rename the current tab to <tabname>
@@ -333,18 +352,19 @@
  CONFIGURATION:
    alias <name> <commands>  | create an alias <name> which executes the commands
                             | each command may be seperated by ;
-                            | i.e alias hello echo "hello"; echo "world";
+                            | i.e :alias hello echo "hello"; echo "world";
    map                      | show the current mappings
    map <newkeys> <keys>     | create a mapping from <keys> to <otherkeys>
                             | see later section "MAPPING KEYS"
+   unmap <keys>             | remove the mapping of <keys>
 
    tmap <tab> <keys> <keys> | create a mapping for the tab named <tab> only
    tunmap <tab> <keys>      | unmap keys for the tab named <tab>
    wmap <newkeys> <keys>    | create a mapping for the current window only
    wunmap <keys>            | unmap keys for the current window
+
    set                      | show the currently enabled settings and their values
  * set <setting>            | sets a configurable setting, see SETTINGS section
-   unmap <keys>             | remove the mapping of <keys>
 
  HIGHLIGHTING:
    hi <property> <color>    | highlight a property with a color
@@ -352,22 +372,22 @@
                             | and specified as greenfg or redbg, etc.
                             | Ex: hi status blackbg
 
-    Properties:
-    -----------------------------------------------------------
-    song     - Songs
-    id       - Song IDs
-    dir      - The directory string in :directory mode
-    current  - The current song
-    tab      - Tabs
-    progress - Progress bar window
-    match    - Songs matched by a search string
-    partial  - Artists/albums that are partially in the playlist
-    full     - Artists/albums that are fully in the playlist
-    pager    - The color of the text in the settings pager window
-    status   - The statusline
-    error    - Errors
+   Properties:
+   --------------------------
+   song     - Songs
+   id       - Song IDs
+   dir      - The directory string in :directory mode
+   current  - The current song
+   tab      - Tabs
+   progress - Progress bar window
+   match    - Songs matched by a search string
+   partial  - Artists/albums that are partially in the playlist
+   full     - Artists/albums that are fully in the playlist
+   pager    - The color of the text in the settings pager window
+   status   - The statusline
+   error    - Errors
 
- MISC:
+ MISCELLANEOUS:
    normal <input>           | execute <input> as if it were entered in normal mode
    sleep <seconds>          | do nothing for <seconds> seconds
 
@@ -375,55 +395,54 @@
  MAPPING KEYS
  --------------------------------------------------
 
- Any key combination can be mapped to any other key combination including
- to ex mode commands.
+ Any key combination can be mapped to any other key combination
+ including to ex mode commands.
 
- To create a map, the command :map is used which will map the key
- combination provided as the first parameter to the second.
+ To create a map, the command :map is used which will map the
+ first key combination provided to the second one.
 
- i.e. map FF :browse<C-M>gg/
-      map @ :set add next<C-M>a:set add end<C-M>
+ i.e. :map FF :browse<C-M>gg/
+      :map @ :set add next<C-M>a:set add end<C-M>
 
- This will make the normal mode input FF change to the browse tab, go to the
- first line and then enter search mode. All ex mode or search commands
- you want to execute must be terminated by <C-M>, <Return> or <Enter>
- otherwise you will stay in that mode.
+ This will make the input "FF" change to the browse tab, go to the
+ first line and then enter search mode. And the input "@" will set the
+ add position to "next" then add the selected song then set the
+ add position to "end".
 
- Ctrl key combinations are mapped using <C-x> where x is the key
-
- i.e <C-D> to map ctrl+d
-
- Alt key combinations work in the same way.
+ All ex mode or search commands you want to execute must be
+ terminated with <C-M>, <Return> or <Enter> otherwise
+ you will stay in that mode, instead.
 
  If you want to make a key do nothing map it to <Nop>
 
- i.e map <Down> <Nop>
+ i.e :map <Down> <Nop>
 
-
- KEYS:
+ Mappable Keys:
+ ----------------------------
 
  As well as regular ascii keys other keyboard keys and
  the mouse can be mapped and are described below.
 
-    <Down>, <Left>, <Right>, <Up> | Directional keys
-    <Space>                       | Spacebar
-    <PageUp>, <PageDown>          | Page up and down
-    <Home>, <End>                 | Home and End
-    <C-x>                         | Ctrl+x
-    <A-x>                         | Alt+x
-    <Enter>                       | Enter key
-    <Return>                      | Return key
-    <BS>                          | Backspace key
-    <Tab>                         | Tab key
-    <Del>                         | Delete key
-    <lt>                          | Less than symbol
-    <F1>, <F2>, etc               | Function keys
-    <ScrollWheelUp>               | Scroll Wheel up
-    <ScrollWheelDown>             | Scroll Wheel down
-    <LeftMouse>                   | Since left mouse click
-    <2-LeftMouse>                 | Double left mouse click
-    <RightMouse>                  | Single right mouse click
-    <2-RightMouse>                | Double right mouse click
+    <Down>, <Left>          | Directional keys
+    <Right>, <Up>           | Directional keys
+    <Space>                 | Spacebar
+    <PageUp>, <PageDown>    | Page up and down
+    <Home>, <End>           | Home and End
+    <C-x>                   | Ctrl+x
+    <A-x>                   | Alt+x
+    <Enter>                 | Enter key
+    <Return>                | Return key
+    <BS>                    | Backspace key
+    <Tab>                   | Tab key
+    <Del>                   | Delete key
+    <lt>                    | Less than symbol
+    <F1>, <F2>, etc         | Function keys
+    <ScrollWheelUp>         | Scroll Wheel up
+    <ScrollWheelDown>       | Scroll Wheel down
+    <LeftMouse>             | Since left mouse click
+    <2-LeftMouse>           | Double left mouse click
+    <RightMouse>            | Single right mouse click
+    <2-RightMouse>          | Double right mouse click
 
 
  PRINT FORMATS
@@ -479,62 +498,80 @@
  SETTINGS
  --------------------------------------------------
 
- All settings can be prefixed with no, which will disable the setting,
- or postfixed with ! which will toggle the setting.
+ To print all settings values you can specify :set with no arguments.
+ Or to print a particular setting you can use :set <setting>?
 
- To print a setting you can specify :set with no arguments to see all
- current values or :set <setting>? to look at a specific setting.
+ i.e. :set
+         shows a window displaying all settings
+      :set colour?
+         will print either "colour" or "nocolour" to the screen
 
- The settings support tab completion.
+ All on/off settings can be prefixed with "no", to disable the setting,
+ or postfixed with "!" which will toggle the setting.
 
-   [no]autoscroll[!]        | automatically scroll when skipping songs
-   [no]autoupdate[!]        | automatically update mpd after tag changes
-   [no]browsenumbers[!]     | display id numbers next to songs in the browse window
-   [no]colour[!]            | enable or disable colours
-   [no]expand-artists[!]    | when enabled, expand to artist by default in library
-   [no]hlsearch[!]          | highlight search results
-   [no]ignorecase[!]        | case insensitive searching
-   [no]incsearch[!]         | search for results as you are typing
-   [no]mouse[!]             | turn mouse support on
-   [no]polling[!]           | poll mpd for status updates rather than using idle mode
-   [no]playlistnumbers[!]   | display id numbers next to songs in the playlist
-   [no]playonadd[!]         | if mpd is stopped start playing when a song is added
-   [no]progressbar[!]       | whether or not to show the progress bar
-   [no]reconnect[!]         | automatically reconnect if the connection drops
-   [no]scrollonadd[!]       | scroll down one line after adding a song
-   [no]scrollondelete[!]    | scroll down one line after deleting a song
-   [no]seekbar[!]           | mouse click on progress bar causes a seek
-   [no]searchwrap[!]        | wrap search results when using n/N
-   [no]showlists[!]         | include playlists in the directory window
-   [no]showpath[!]          | show the current path in the directory window
-   [no]showpercent[!]       | show the current percentage in the progress bar
-   [no]singlequit[!]        | :q and :quit will quit vimpc, not close active tab
-   [no]smartcase[!]         | if capital in search pattern, enable case sensitivity
-   [no]songnumbers[!]       | display id numbers next to songs in other windows
-   [no]sortignorecase[!]    | ignore case when sorting
-   [no]sortignorethe[!]     | ignore the prefix 'the' when sorting
-   [no]stoponquit[!]        | automatically stop playback when vimpc is quit
-   [no]tabbar[!]            | whether or not to show the tab bar
-   [no]timeremaining[!]     | display the time remaining rather than elapsed
-   [no]windownumbers[!]     | display the number next to the window in the tab bar
+ i.e. :set nocolour
+         turns colour support off
+      :set progressbar!
+         will toggle the progressbar on or off
 
+ Value settings are not toggled on and off but hold an actual
+ string/number value.
 
-   add <where>              | set where to add songs to the playlist
-                            | either "end" or "next" (defaults to end)
-   libraryformat <fmt>      | set the format to print songs in the library
-                            | set PRINT FORMATS section
-   playlists <option>       | set which playlists to include in the lists window
-                            | "mpd", "files" or "all" (defaults to mpd)
-   songformat <fmt>         | set the format to print songs
-                            | set PRINT FORMATS section
-   sort <option>            | sort the browse window based on the songformat or
-                            | the order of the library, options are either
-                            | "format" or "library" (defaults to format)
-   timeout <seconds>        | sets the timeout in seconds when connecting
-                            | to use the default MPD_TIMEOUT environment
-                            | variable, set this to 0 (defaults to 15)
-   window <window>          | sets the window that will start with focus
-   windows <windows>        | comma seperated list of windows to be shown at startup
+ All settings support tab completion.
+
+   On/Off Settings:
+   -----------------------
+   albumartist          | use the albumartist in preference to artist
+   autoscroll           | automatically scroll when skipping songs
+   autoupdate           | automatically update mpd after tag changes
+   browsenumbers        | display id numbers next to songs in the browse window
+   colour               | enable or disable colours
+   expand-artists       | when enabled, expand to artist by default in library
+   hlsearch             | highlight search results
+   ignorecase           | case insensitive searching
+   incsearch            | search for results as you are typing
+   local-music-dir      | location on the client computer of music files
+   mouse                | turn mouse support on
+   polling              | poll mpd for status updates rather than using idle mode
+   playlistnumbers      | display id numbers next to songs in the playlist
+   playonadd            | if mpd is stopped start playing when a song is added
+   progressbar          | whether or not to show the progress bar
+   reconnect            | automatically reconnect if the connection drops
+   scrollonadd          | scroll down one line after adding a song
+   scrollondelete       | scroll down one line after deleting a song
+   seekbar              | mouse click on progress bar causes a seek
+   searchwrap           | wrap search results when using n/N
+   showlists            | include playlists in the directory window
+   showpath             | show the current path in the directory window
+   showpercent          | show the current percentage in the progress bar
+   singlequit           | :q and :quit will quit vimpc, not close active tab
+   smartcase            | if capital in search pattern, enable case sensitivity
+   songnumbers          | display id numbers next to songs in other windows
+   sortignorecase       | ignore case when sorting
+   sortignorethe        | ignore the prefix 'the' when sorting
+   stoponquit           | automatically stop playback when vimpc is quit
+   tabbar               | whether or not to show the tab bar
+   timeremaining        | display the time remaining rather than elapsed
+   windownumbers        | display the number next to the window in the tab bar
+
+   Value Settings:
+   ----------------------
+   add <where>          | set where to add songs to the playlist
+                        | either "end" or "next" (defaults to end)
+   libraryformat <fmt>  | set the format to print songs in the library
+                        | set PRINT FORMATS section
+   playlists <option>   | set which playlists to include in the lists window
+                        | "mpd", "files" or "all" (defaults to mpd)
+   songformat <fmt>     | set the format to print songs
+                        | set PRINT FORMATS section
+   sort <option>        | sort the browse window based on the songformat or
+                        | the order of the library, options are either
+                        | "format" or "library" (defaults to format)
+   timeout <seconds>    | sets the timeout in seconds when connecting
+                        | to use the default MPD_TIMEOUT environment
+                        | variable, set this to 0 (defaults to 15)
+   window <window>      | sets the window that will start with focus
+   windows <windows>    | comma seperated list of windows to be shown at startup
 
 
  CONFIGURATION FILE

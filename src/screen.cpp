@@ -1006,14 +1006,14 @@ int32_t Screen::GetSelected(uint32_t window) const
    return Window(window).CurrentLine();
 }
 
-Mpc::Song * Screen::GetSelectedSong(uint32_t window) const
+Mpc::Song * Screen::GetSong(uint32_t window, uint32_t pos) const
 {
    Ui::ScrollWindow & scrollWindow = Window(window);
    Ui::SongWindow * songWindow = dynamic_cast<Ui::SongWindow *>(&scrollWindow);
 
-   if (songWindow != NULL)
+   if ((songWindow != NULL) && (songWindow->Buffer().Size() > pos))
    {
-      return songWindow->Buffer().Get(GetActiveSelected());
+      return songWindow->Buffer().Get(pos);
    }
    return NULL;
 }
