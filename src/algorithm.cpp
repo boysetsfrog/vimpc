@@ -28,7 +28,8 @@ std::string PrepString(std::string const & s1, bool ignoreLeadingThe, bool caseI
 
 	if (ignoreLeadingThe == true)
 	{
-		pcrecpp::RE("\\s*[tT][hH][eE]\\s+").Replace("", &Result);
+      static const pcrecpp::RE exp = pcrecpp::RE("\\s*[tT][hH][eE]\\s+");
+      exp.Replace("", &Result);
 	}
 
 	if (caseInsensitive == true)

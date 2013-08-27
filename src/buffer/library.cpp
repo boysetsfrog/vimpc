@@ -75,22 +75,22 @@ void Library::Add(Mpc::Song * song)
 
    CreateVariousArtist();
 
-   if ((lastAlbumEntry_ == NULL) || 
-       (Algorithm::imatch(lastAlbumEntry_->album_, album, 
+   if ((lastAlbumEntry_ == NULL) ||
+       (Algorithm::imatch(lastAlbumEntry_->album_, album,
                           settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
       lastAlbumEntry_  = NULL;
 
-      if ((lastArtistEntry_ == NULL) || 
+      if ((lastArtistEntry_ == NULL) ||
           (Algorithm::iequals(lastArtistEntry_->artist_, artist) == false))
       {
          lastArtistEntry_ = NULL;
 
          uint32_t i = 0;
 
-         for (i = 0; 
+         for (i = 0;
               ((i < Size()) &&
-               ((Algorithm::imatch(Get(i)->artist_, artist, 
+               ((Algorithm::imatch(Get(i)->artist_, artist,
                                    settings_.Get(Setting::IgnoreTheGroup), true) == false) ||
                 (Get(i)->type_ != Mpc::ArtistType)));
                ++i);
@@ -123,7 +123,7 @@ void Library::Add(Mpc::Song * song)
    }
    else if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
            (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
-           (Algorithm::imatch(lastAlbumEntry_->album_, album, 
+           (Algorithm::imatch(lastAlbumEntry_->album_, album,
               settings_.Get(Setting::IgnoreTheGroup), true) == false) &&
            (lastArtistEntry_ != variousArtist_) &&
            (lastArtistEntry_->children_.back() == lastAlbumEntry_))
