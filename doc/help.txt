@@ -161,7 +161,7 @@
    [count] d, del           | delete song, album, artist from playlist
            h, Left          | collapse selection
            l, Right         | expand selection
-           e                | view artist/album contents in songinfo window
+           e                | view artist/album songs in a new window
            <Enter>          | clear playlist, add song/album/artist and play it
 
  DIRECTORY:
