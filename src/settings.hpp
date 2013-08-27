@@ -38,6 +38,7 @@
    X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \
    X(ExpandArtists,    "expand-artists", false) /* Expand artists in the library window by default */ \
    X(HighlightSearch,  "hlsearch",       true)  /* Show search results in a different colour */ \
+   X(IgnoreTheGroup,   "groupignorethe", false) /* Ignore 'the' when grouping the same artist into library */ \
    X(IgnoreCaseSearch, "ignorecase",     false) /* Turn off case sensitivity on searching */ \
    X(IgnoreCaseSort,   "sortignorecase", true)  /* Turn off case sensitivity on sorting */\
    X(IgnoreTheSort,    "sortignorethe",  false) /* Ignore 'the' when sorting */ \

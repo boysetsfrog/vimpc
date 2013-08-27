@@ -527,6 +527,7 @@
    browsenumbers        | display id numbers next to songs in the browse window
    colour               | enable or disable colours
    expand-artists       | when enabled, expand to artist by default in library
+   groupignorethe       | group artists like "xyz" and "the xyz" in the library
    hlsearch             | highlight search results
    ignorecase           | case insensitive searching
    incsearch            | search for results as you are typing
