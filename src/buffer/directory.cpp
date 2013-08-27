@@ -28,8 +28,6 @@
 
 #include <algorithm>
 
-const std::string VariousArtist = "Various Artists";
-
 using namespace Mpc;
 
 Directory::Directory() :
@@ -214,7 +212,7 @@ void Directory::AddEntry(std::string fullPath)
          ((directory.size() >= 2) && directory[1] == '.'))
    {
       if (((directory_ != "") &&
-               (fullPath.find(directory_ + "/") != std::string::npos) &&
+               (fullPath.find(directory_ + "/") == 0) &&
                (fullPath.find(directory_ + "/") + directory_.size() == fullPath.find_last_of("/"))) ||
             ((directory_ == "") && (fullPath.find('/') == std::string::npos)) ||
             (directory == ".."))
