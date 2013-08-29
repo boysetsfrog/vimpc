@@ -81,6 +81,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    // \todo find a away to add aliases to tab completion
    // Command, RequiresConnection, SupportsRange, Function
    AddCommand("!mpc",       true,  false, &Command::Mpc);
+   AddCommand("a",          true,  true,  &Command::Add);
    AddCommand("add",        true,  true,  &Command::Add);
    AddCommand("addall",     true,  false, &Command::AddAll);
    AddCommand("alias",      false, false, &Command::Alias);
@@ -88,6 +89,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("connect",    false, false, &Command::Connect);
    AddCommand("consume",    true,  false, &Command::Consume);
    AddCommand("crossfade",  true,  false, &Command::Crossfade);
+   AddCommand("d",          true,  true,  &Command::Delete);
    AddCommand("delete",     true,  true,  &Command::Delete);
    AddCommand("deleteall",  true,  false, &Command::DeleteAll);
    AddCommand("disable",    true,  true,  &Command::Output<false>);
@@ -170,7 +172,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 
    AddCommand("load",       true,  false, &Command::LoadPlaylist);
    AddCommand("save",       true,  false, &Command::SavePlaylist);
+   AddCommand("e",          true,  false, &Command::LoadPlaylist);
    AddCommand("edit",       true,  false, &Command::LoadPlaylist);
+   AddCommand("w",          true,  false, &Command::SavePlaylist);
    AddCommand("write",      true,  false, &Command::SavePlaylist);
    AddCommand("toplaylist", true,  false, &Command::ToPlaylist);
 
@@ -1226,7 +1230,7 @@ void Command::ChangeToWindow(std::string const & arguments)
          break;
 
       case Next:
-         active = ((screen_.GetActiveWindowIndex() + 1) % 
+         active = ((screen_.GetActiveWindowIndex() + 1) %
                    screen_.VisibleWindows());
          break;
 
@@ -1239,7 +1243,7 @@ void Command::ChangeToWindow(std::string const & arguments)
          active = screen_.VisibleWindows() - 1;
          break;
    }
-   
+
    screen_.SetActiveWindow(active);
 }
 
@@ -1355,7 +1359,7 @@ void Command::Test(std::string const & arguments)
    }
    testrunner.run(testresult);
 
-   std::stringstream outStream; 
+   std::stringstream outStream;
    CPPUNIT_NS::TextOutputter textoutput(&collectedresults, outStream);
    textoutput.write();
 
