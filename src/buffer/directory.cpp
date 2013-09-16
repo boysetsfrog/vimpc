@@ -28,8 +28,6 @@
 
 #include <algorithm>
 
-const std::string VariousArtist = "Various Artists";
-
 using namespace Mpc;
 
 Directory::Directory() :
@@ -95,7 +93,7 @@ void Directory::ChangeDirectory(std::string New)
    for (std::vector<Mpc::Song *>::iterator it = songs.begin(); (it != songs.end()); ++it)
    {
       Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::SongType, FileFromURI((*it)->URI()),
-                                                            directory_, *it);
+            directory_, *it);
       Add(entry);
    }
 
@@ -106,7 +104,7 @@ void Directory::ChangeDirectory(std::string New)
       for (std::vector<std::string>::iterator it = playlists.begin(); (it != playlists.end()); ++it)
       {
          Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::PlaylistType, FileFromURI(*it),
-                                                               directory_);
+               directory_);
          Add(entry);
       }
    }
@@ -126,6 +124,7 @@ void Directory::Clear(bool fullClear)
       paths_.clear();
       songs_.clear();
       children_.clear();
+      playlists_.clear();
    }
 
    while (Size() > 0)
@@ -209,14 +208,14 @@ void Directory::AddEntry(std::string fullPath)
       directory = fullPath.substr(fullPath.find_last_of("/") + 1);
    }
 
-   if (((directory.size() >= 1) && (directory[0] != '.')) || 
-       ((directory.size() >= 2) && directory[1] == '.'))
+   if (((directory.size() >= 1) && (directory[0] != '.')) ||
+         ((directory.size() >= 2) && directory[1] == '.'))
    {
-      if (((directory_ != "") && 
-           (fullPath.find(directory_ + "/") != std::string::npos) && 
-           (fullPath.find(directory_ + "/") + directory_.size() == fullPath.find_last_of("/"))) || 
-          ((directory_ == "") && (fullPath.find('/') == std::string::npos)) ||
-          (directory == ".."))
+      if (((directory_ != "") &&
+               (fullPath.find(directory_ + "/") == 0) &&
+               (fullPath.find(directory_ + "/") + directory_.size() == fullPath.find_last_of("/"))) ||
+            ((directory_ == "") && (fullPath.find('/') == std::string::npos)) ||
+            (directory == ".."))
       {
          Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::PathType, directory, fullPath);
          Add(entry);
@@ -229,14 +228,14 @@ void Directory::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client 
 {
    if (position < Size())
    {
-      Mpc::CommandList list(client);
-
       if (Collection == Mpc::Song::Single)
       {
          AddToPlaylist(client, Get(position));
       }
       else
       {
+         Mpc::CommandList list(client);
+
          for (uint32_t i = 0; i < Size(); ++i)
          {
             AddToPlaylist(client, Get(i));
@@ -249,14 +248,14 @@ void Directory::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Cl
 {
    if (position < Size())
    {
-      Mpc::CommandList list(client);
-
       if (Collection == Mpc::Song::Single)
       {
          RemoveFromPlaylist(client, Get(position));
       }
       else
       {
+         Mpc::CommandList list(client);
+
          for (uint32_t i = 0; i < Size(); ++i)
          {
             RemoveFromPlaylist(client, Get(i));
@@ -275,15 +274,15 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
          client.Add(*(entry->song_), position);
       }
       else if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
-          (client.GetCurrentSong() == -1))
+            (client.GetCurrentSongPos() == -1))
       {
          Main::Playlist().Add(entry->song_);
          client.Add(*(entry->song_));
       }
       else
       {
-         Main::Playlist().Add(entry->song_, client.GetCurrentSong() + 1);
-         client.Add(*(entry->song_), client.GetCurrentSong() + 1);
+         Main::Playlist().Add(entry->song_, client.GetCurrentSongPos() + 1);
+         client.Add(*(entry->song_), client.GetCurrentSongPos() + 1);
       }
    }
    else if (entry->type_ == Mpc::PlaylistType)
@@ -299,7 +298,7 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
       }
 
       client.ForEachPlaylistSong(path + entry->name_, Main::PlaylistTmp(),
-                                 static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+            static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 
       if (isList == true)
       {
@@ -350,7 +349,7 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
       }
 
       client.ForEachPlaylistSong(path + entry->name_, Main::PlaylistTmp(),
-                                 static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+            static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 
       if (isList == true)
       {
@@ -435,7 +434,7 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry con
       Directory = URI.substr(0, URI.find_last_of("/"));
    }
 
-   return Directory; 
+   return Directory;
 }
 
 /* vim: set sw=3 ts=3: */

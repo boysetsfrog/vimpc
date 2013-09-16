@@ -53,6 +53,7 @@ namespace Main
    Mpc::Outputs   & Outputs();
    Ui::Console    & Console();
    Ui::Console    & DebugConsole();
+   Ui::Console    & TestConsole();
 }
 
 #endif

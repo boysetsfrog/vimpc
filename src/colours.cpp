@@ -30,6 +30,7 @@ Colours::Colours()
    Directory    = RED_ON_DEFAULT;
    CurrentSong  = BLUE_ON_DEFAULT;
    TabWindow    = DEFAULT_ON_BLUE;
+   ProgressWindow = RED_ON_DEFAULT;
    SongMatch    = YELLOW_ON_DEFAULT;
    PartialAdd   = CYAN_ON_DEFAULT;
    FullAdd      = GREEN_ON_DEFAULT;

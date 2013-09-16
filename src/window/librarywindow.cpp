@@ -45,6 +45,7 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
 {
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
+   SoftRedrawOnSetting(Setting::IgnoreTheGroup);
    SoftRedrawOnSetting(Setting::ExpandArtists);
 }
 
@@ -98,7 +99,7 @@ void LibraryWindow::SoftRedraw()
 uint32_t LibraryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -131,27 +132,30 @@ std::string LibraryWindow::SearchPattern(int32_t id) const
    //! expands things as necessary
    std::string pattern("");
 
-   Mpc::LibraryEntry const * const entry = library_.Get(id);
-
-   switch (entry->type_)
+   if (id < library_.Size())
    {
-      case Mpc::ArtistType:
-         pattern = entry->artist_;
-         break;
+      Mpc::LibraryEntry const * const entry = library_.Get(id);
 
-      case Mpc::AlbumType:
-         pattern = entry->album_;
-         break;
+      switch (entry->type_)
+      {
+         case Mpc::ArtistType:
+            pattern = entry->artist_;
+            break;
 
-      case Mpc::SongType:
-         pattern = entry->song_->FormatString(settings_.Get(Setting::LibraryFormat));
-         break;
+         case Mpc::AlbumType:
+            pattern = entry->album_;
+            break;
 
-      case Mpc::PathType:
-      case Mpc::PlaylistType:
-      default:
-         ASSERT(false);
-         break;
+         case Mpc::SongType:
+            pattern = entry->song_->FormatString(settings_.Get(Setting::LibraryFormat));
+            break;
+
+         case Mpc::PathType:
+         case Mpc::PlaylistType:
+         default:
+            ASSERT(false);
+            break;
+      }
    }
 
    return pattern;
@@ -354,12 +358,12 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
       if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
       {
-         Mpc::CommandList list(client_, (count > 1));
+         Mpc::CommandList list(client_, (Positions.size() > 1));
          ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::AddToPlaylist);
       }
       else
       {
-         Mpc::CommandList list(client_, (count > 1));
+         Mpc::CommandList list(client_, (Positions.size() > 1));
          ForPositions(Positions.rbegin(), Positions.rend(), &Mpc::Library::AddToPlaylist);
       }
    }
@@ -415,7 +419,7 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
          ScrollTo(line);
       }
 
-      Mpc::CommandList list(client_, (count > 1));
+      Mpc::CommandList list(client_, (Positions.size() > 1));
       ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::RemoveFromPlaylist);
    }
 
@@ -435,32 +439,35 @@ void LibraryWindow::DeleteAllLines()
 
 void LibraryWindow::Edit()
 {
-   Mpc::LibraryEntry * entry = library_.Get(CurrentLine());
-
-   if (entry->type_ != Mpc::SongType)
+   if (CurrentLine() < library_.Size())
    {
-      std::string title = library_.Get(CurrentLine())->album_;
-      title = (title != "") ? title : library_.Get(CurrentLine())->artist_;
+      Mpc::LibraryEntry * entry = library_.Get(CurrentLine());
 
-      SongWindow * window = screen_.CreateSongWindow("L:" + title);
-
-      Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
-
-      // Do not need to sort as this ensures it will be sorted in the same order as the library
-      Main::Library().ForEachChild(CurrentLine(), &callback);
-
-      if (window->BufferSize() > 0)
+      if (entry->type_ != Mpc::SongType)
       {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         std::string title = library_.Get(CurrentLine())->album_;
+         title = (title != "") ? title : library_.Get(CurrentLine())->artist_;
+
+         SongWindow * window = screen_.CreateSongWindow("L:" + title);
+
+         Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
+
+         // Do not need to sort as this ensures it will be sorted in the same order as the library
+         Main::Library().ForEachChild(CurrentLine(), &callback);
+
+         if (window->BufferSize() > 0)
+         {
+            screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         }
+         else
+         {
+            screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         }
       }
       else
       {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+         screen_.CreateSongInfoWindow(entry->song_);
       }
-   }
-   else
-   {
-      screen_.CreateSongInfoWindow(entry->song_);
    }
 }
 
@@ -528,42 +535,45 @@ void LibraryWindow::ForPositions(T start, T end, LibraryFunction function)
 
 int32_t LibraryWindow::DetermineColour(uint32_t line) const
 {
-   Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
-
    int32_t colour = settings_.colours.Song;
 
-   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+   if (line + FirstLine() < library_.Size())
    {
-      colour = settings_.colours.CurrentSong;
-   }
-   else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
-            (search_.HighlightSearch() == true))
-   {
-      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+      Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
 
-      if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
-          ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
-          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
+      if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
       {
-         colour = settings_.colours.SongMatch;
+         colour = settings_.colours.CurrentSong;
       }
-   }
+      else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+               (search_.HighlightSearch() == true))
+      {
+         pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-   if (colour == settings_.colours.Song)
-   {
-      if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
-      {
-         colour = settings_.colours.FullAdd;
+         if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
+             ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
+             ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
+         {
+            colour = settings_.colours.SongMatch;
+         }
       }
-      else if (entry->type_ != Mpc::SongType)
+
+      if (colour == settings_.colours.Song)
       {
-         if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == static_cast<int32_t>(entry->children_.size())))
+         if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
          {
             colour = settings_.colours.FullAdd;
          }
-         else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
+         else if (entry->type_ != Mpc::SongType)
          {
-            colour = settings_.colours.PartialAdd;
+            if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == static_cast<int32_t>(entry->children_.size())))
+            {
+               colour = settings_.colours.FullAdd;
+            }
+            else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
+            {
+               colour = settings_.colours.PartialAdd;
+            }
          }
       }
    }

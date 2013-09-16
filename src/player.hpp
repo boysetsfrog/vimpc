@@ -133,10 +133,10 @@ namespace Ui
       void SkipArtist(Skip skip, uint32_t count);
 
    protected:
-      //! Returns the currently playling song
+      //! Returns the currently playing song's id
       //!
       //! \return Id of currently playing song
-      uint32_t GetCurrentSong() const;
+      uint32_t GetCurrentSongPos() const;
 
    private:
       void     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);

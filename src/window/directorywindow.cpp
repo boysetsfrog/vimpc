@@ -74,7 +74,7 @@ void DirectoryWindow::SoftRedraw()
 uint32_t DirectoryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -99,7 +99,7 @@ uint32_t DirectoryWindow::Current() const
 
 void DirectoryWindow::ScrollToCurrent()
 {
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -142,7 +142,6 @@ void DirectoryWindow::ScrollTo(uint16_t scrollLine)
 {
    int64_t oldSelection = currentLine_;
    currentLine_    = (static_cast<int64_t>(scrollLine));
-   LimitCurrentSelection();
 
    if (settings_.Get(Setting::ShowPath) == true)
    {
@@ -152,10 +151,12 @@ void DirectoryWindow::ScrollTo(uint16_t scrollLine)
       }
    }
 
+   LimitCurrentSelection();
+
    SelectWindow::ScrollTo(scrollLine);
 }
 
-void DirectoryWindow::LimitCurrentSelection() const
+void DirectoryWindow::LimitCurrentSelection()
 {
    if (settings_.Get(Setting::ShowPath) == true)
    {
@@ -276,6 +277,10 @@ void DirectoryWindow::Print(uint32_t line) const
             wattroff(window, COLOR_PAIR(colour));
          }
       }
+      else
+      {
+         mvwprintw(window, line, 0, BlankLine.c_str());
+      }
    }
 }
 
@@ -357,12 +362,12 @@ void DirectoryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
       if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
       {
-         Mpc::CommandList list(client_, (count > 1));
+         Mpc::CommandList list(client_, (Positions.size() > 1));
          ForPositions(Positions.begin(), Positions.end(), &Mpc::Directory::AddToPlaylist);
       }
       else
       {
-         Mpc::CommandList list(client_, (count > 1));
+         Mpc::CommandList list(client_, (Positions.size() > 1));
          ForPositions(Positions.rbegin(), Positions.rend(), &Mpc::Directory::AddToPlaylist);
       }
    }
@@ -418,7 +423,7 @@ void DirectoryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
          ScrollTo(line);
       }
 
-      Mpc::CommandList list(client_, (count > 1));
+      Mpc::CommandList list(client_, (Positions.size() > 1));
       ForPositions(Positions.begin(), Positions.end(), &Mpc::Directory::RemoveFromPlaylist);
    }
 
@@ -438,28 +443,31 @@ void DirectoryWindow::DeleteAllLines()
 
 void DirectoryWindow::Edit()
 {
-   Mpc::DirectoryEntry * entry = directory_.Get(CurrentLine());
-
-   if (entry->type_ == Mpc::SongType)
+   if (CurrentLine() < directory_.Size())
    {
-      screen_.CreateSongInfoWindow(entry->song_);
-   }
-   else if (entry->type_ == Mpc::PlaylistType)
-   {
-      std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
-      std::string const playlist(path + entry->name_);
+      Mpc::DirectoryEntry * entry = directory_.Get(CurrentLine());
 
-      SongWindow * window = screen_.CreateSongWindow("P:" + entry->name_);
-      client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-
-      if (window->BufferSize() > 0)
+      if (entry->type_ == Mpc::SongType)
       {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         screen_.CreateSongInfoWindow(entry->song_);
       }
-      else
+      else if (entry->type_ == Mpc::PlaylistType)
       {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         ErrorString(ErrorNumber::PlaylistEmpty);
+         std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
+         std::string const playlist(path + entry->name_);
+
+         SongWindow * window = screen_.CreateSongWindow("P:" + entry->name_);
+         client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+
+         if (window->BufferSize() > 0)
+         {
+            screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+         }
+         else
+         {
+            screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
+            ErrorString(ErrorNumber::PlaylistEmpty);
+         }
       }
    }
 }
@@ -471,7 +479,7 @@ void DirectoryWindow::ScrollToFirstMatch(std::string const & input)
    {
       Mpc::DirectoryEntry * entry = directory_.Get(i);
 
-      if ((entry->type_ == Mpc::ArtistType) &&
+      if ((entry->type_ == Mpc::PathType) &&
           (Algorithm::imatch(entry->name_, input, settings_.Get(Setting::IgnoreTheSort), settings_.Get(Setting::IgnoreCaseSort)) == true))
       {
          ScrollTo(i);

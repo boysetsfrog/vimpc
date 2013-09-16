@@ -57,10 +57,14 @@ void ScrollWindow::Print(uint32_t line) const
    bool escape    = false;
 
    std::string output   = "";
-   
+
    if (currentLine < WindowBuffer().Size())
    {
       output = WindowBuffer().PrintString(currentLine);
+   }
+   else
+   {
+      mvwprintw(window, line, 0, BlankLine.c_str());
    }
 
    std::string stripped = output;
@@ -155,12 +159,14 @@ void ScrollWindow::Print(uint32_t line) const
                   int y, x;
                   getyx(window, y, x);
 
-                  if ((Columns() - (stripped.size() - align) > x) && (x >= 0))
+                  int width = (Columns() - (stripped.size() - align)) - x;
+
+                  if (width > 0)
                   {
-                     wprintw(window, "%s", std::string((screen_.MaxColumns() - (stripped.size() - align)) - x, ' ').c_str());
+                     wprintw(window, "%s", std::string(width, ' ').c_str());
                   }
-                  
-                  wmove(window, line, screen_.MaxColumns() - (stripped.size() - align));
+
+                  wmove(window, line, Columns() - (stripped.size() - align));
                   break;
                }
 
@@ -184,11 +190,11 @@ void ScrollWindow::Print(uint32_t line) const
              default:
                break;
          }
-            
+
          i += 2;
 
       }
-      else if ((elided == false) || 
+      else if ((elided == false) ||
                (getcurx(window) < static_cast<int32_t>(Columns() - 3 - (stripped.size() - align))))
       {
          escape = false;
@@ -278,7 +284,7 @@ void ScrollWindow::ScrollTo(uint16_t scrollLine)
    }
 }
 
-std::string const & ScrollWindow::Name()
+std::string const & ScrollWindow::Name() const
 {
    return name_;
 }

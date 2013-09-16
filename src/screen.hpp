@@ -80,6 +80,9 @@ namespace Ui
    class Screen
    {
    public:
+      typedef Main::CallbackInterface<double> * ProgressCallback;
+
+   public:
       Screen(Main::Settings & settings, Mpc::Client & client, Search const & search);
       ~Screen();
 
@@ -95,6 +98,7 @@ namespace Ui
       {
          Help = 0,
          DebugConsole,
+         TestConsole,
          Console,
          Outputs,
          Library,
@@ -167,6 +171,9 @@ namespace Ui
       void SetStatusLine(char const * const fmt, ... ) const;
       void MoveSetStatus(uint16_t x, char const * const fmt, ... ) const;
 
+      // Set the window's progress bar location
+      void SetProgress(double percent);
+
    public:
       // Align the current window up or down( ^E, ^Y )
       void Align(Direction direction, uint32_t count = 0);
@@ -210,6 +217,8 @@ namespace Ui
 
       bool HandleMouseEvent();
 
+      void EnableRandomInput(int count);
+
 #ifdef HAVE_MOUSE_SUPPORT
       MEVENT LastMouseEvent() { return event_; }
 #endif
@@ -217,11 +226,21 @@ namespace Ui
    public:
       // Access the active window
       int32_t GetActiveWindow() const;
+      int32_t GetActiveWindowIndex() const;
+
       Ui::ScrollWindow & ActiveWindow() const;
       Ui::ScrollWindow & Window(uint32_t window) const;
 
+      // Access the previous window
+      int32_t GetPreviousWindow() const;
+
       // Access the selected item in a particular window
       int32_t GetSelected(uint32_t window) const;
+      int32_t GetActiveSelected() const { return GetSelected(GetActiveWindow()); }
+
+      // Access a song based on a particular window
+      Mpc::Song * GetSong(uint32_t window, uint32_t pos) const;
+      Mpc::Song * GetSong(uint32_t pos) const { return GetSong(GetActiveWindow(), pos); }
 
       // Changes the currently active window by setting it explicitly
       void SetActiveWindowType(MainWindow window);
@@ -232,9 +251,10 @@ namespace Ui
 
       // Show or hide the given window
       bool IsVisible(int32_t window);
-      void SetVisible(int32_t window, bool visible);
-      uint32_t VisibleWindows() { return visibleWindows_.size(); }
+      void SetVisible(int32_t window, bool visible, bool removeWindow = true);
 
+      uint32_t VisibleWindows() { return visibleWindows_.size(); }
+      
       // Show a given window and make it active
       void SetActiveAndVisible(int32_t window);
 
@@ -242,14 +262,21 @@ namespace Ui
       void MoveWindow(uint32_t position);
       void MoveWindow(int32_t window, uint32_t position);
 
+      // Register a callback to occur when progress bar is clicked
+      void RegisterProgressCallback(ProgressCallback callback);
+
    private:
       void SetupMouse(bool on) const;
       void ClearStatus() const;
       void UpdateTabWindow() const;
+      void UpdateProgressWindow() const;
 
    private:
+      void OnProgressClicked(int32_t);
+
       // Settings callbacks
       void OnTabSettingChange(bool);
+      void OnProgressSettingChange(bool);
       void OnMouseSettingChange(bool);
 
    private:
@@ -258,6 +285,7 @@ namespace Ui
       WindowMap  mainWindows_;
       WINDOW *   statusWindow_;
       WINDOW *   tabWindow_;
+      WINDOW *   progressWindow_;
       WINDOW *   commandWindow_;
       PagerWindow * pagerWindow_;
 
@@ -265,11 +293,15 @@ namespace Ui
       std::vector<ModeWindow *> modeWindows_;
       mutable std::map<int32_t, bool> drawn_;
 
+      std::vector<ProgressCallback> pCallbacks_;
+
       bool      started_;
       bool      pager_;
+      double    progress_;
       int32_t   maxRows_;
       int32_t   mainRows_;
       int32_t   maxColumns_;
+      mutable int32_t   rndCount_;
 
 #ifdef HAVE_MOUSE_SUPPORT
       MEVENT    event_;

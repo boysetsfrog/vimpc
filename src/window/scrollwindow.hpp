@@ -70,10 +70,10 @@ namespace Ui
       virtual void Save(std::string const & name) {}
 
    public:
-      size_t BufferSize() const { return WindowBuffer().Size(); }
+      virtual size_t BufferSize() const { return WindowBuffer().Size(); }
 
    public:
-      std::string const & Name();
+      std::string const & Name() const;
       void SetName(std::string const &);
 
       bool Select(Position position, uint32_t count);
@@ -103,7 +103,7 @@ namespace Ui
       virtual int32_t DetermineColour(uint32_t line) const;
 
    protected:
-      Main::Settings const &     settings_;
+      Main::Settings &           settings_;
       Ui::Screen &               screen_;
       std::string                name_;
       uint16_t                   scrollLine_;

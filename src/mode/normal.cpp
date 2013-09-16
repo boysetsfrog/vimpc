@@ -66,7 +66,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    playlist_        (Main::Playlist()),
    settings_        (settings)
 {
-   // \todo this key bindings are pretty bad
+   // \todo these key bindings are pretty bad
    //       i will probably need to make them more specific
    //       to the tab/window or more modal or something
 
@@ -90,9 +90,9 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["-"]       = &Normal::ChangeVolume<-1>;
 
    // Console
-   // \todo add an "insert" mode to console that just stays in command entry mode
+   // \todo add an ex mode to console that just stays in command entry mode
    // This should really be implemented as Q as per vim (:he Ex-mode)
-   //actionTable_['Q']       = &Normal::Insert;
+   //actionTable_['Q']       = &Normal::ExMode;
 
    // Skipping
    actionTable_["I"]       = &Normal::SeekTo<Player::Start>;
@@ -123,6 +123,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["P"]       = &Normal::PasteBuffer;
 
    // Navigation
+   actionTable_["<Nop>"]   = &Normal::DoNothing;
    actionTable_["<Esc>"]   = &Normal::Escape;
    actionTable_["l"]       = &Normal::Right;
    actionTable_["h"]       = &Normal::Left;
@@ -164,8 +165,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
    // Editting
-   actionTable_["<C-A>"]   = &Normal::Move<1>;
-   actionTable_["<C-X>"]   = &Normal::Move<-1>;
+   actionTable_["<C-A>"]   = &Normal::Move<Relative, 1>;
+   actionTable_["<C-X>"]   = &Normal::Move<Relative, -1>;
 
    //
    actionTable_["<Left>"]  = actionTable_["h"];
@@ -178,6 +179,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["e"]       = &Normal::Edit;
    actionTable_["v"]       = &Normal::Visual;
    actionTable_["V"]       = &Normal::Visual;
+   actionTable_["<C-V>"]   = &Normal::Visual;
 
    // Library
    actionTable_["o"]       = &Normal::Expand;
@@ -192,6 +194,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["gt"]      = &Normal::SetActiveWindow<Screen::Next, 0>;
    actionTable_["gT"]      = &Normal::SetActiveWindow<Screen::Previous, 0>;
    actionTable_["gv"]      = &Normal::ResetSelection;
+   actionTable_["gm"]      = &Normal::Move<Absolute, 0>;
 
    // Marks
    actionTable_["m"]       = &Normal::NextAddMark;
@@ -541,6 +544,7 @@ bool Normal::Handle(std::string input, int count)
 
       if ((complete == true) && (actionFunc != NULL))
       {
+         Debug("Executing normal input %d%s", count, input.c_str());
          (*this.*actionFunc)(count);
       }
    }
@@ -616,87 +620,75 @@ bool Normal::RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count)
 std::string Normal::InputCharToString(int input) const
 {
    static std::map<int, std::string> conversionTable;
+   static char key[32];
 
-   std::string result    = "";
-   bool        converted = false;
-
-   if (conversionTable.size() == 0)
+   if (conversionTable.empty() == true)
    {
-      conversionTable[ESCAPE_KEY]    = "Esc";
-      conversionTable[KEY_PPAGE]     = "PageUp";
-      conversionTable[KEY_NPAGE]     = "PageDown";
-      conversionTable[KEY_HOME]      = "Home";
-      conversionTable[KEY_END]       = "End";
-      conversionTable[KEY_LEFT]      = "Left";
-      conversionTable[KEY_RIGHT]     = "Right";
-      conversionTable[KEY_DOWN]      = "Down";
-      conversionTable[KEY_UP]        = "Up";
-      conversionTable[KEY_DC]        = "Del";
-      conversionTable[KEY_BACKSPACE] = "BS";
-      conversionTable[0x20]          = "Space";
-      conversionTable[0x7F]          = "BS";
-      conversionTable[KEY_ENTER]     = "Enter";
-      conversionTable['\n']          = "Return";
-      conversionTable['<']           = "lt";
+      conversionTable[ESCAPE_KEY]    = "<Esc>";
+      conversionTable[KEY_PPAGE]     = "<PageUp>";
+      conversionTable[KEY_NPAGE]     = "<PageDown>";
+      conversionTable[KEY_HOME]      = "<Home>";
+      conversionTable[KEY_END]       = "<End>";
+      conversionTable[KEY_LEFT]      = "<Left>";
+      conversionTable[KEY_RIGHT]     = "<Right>";
+      conversionTable[KEY_DOWN]      = "<Down>";
+      conversionTable[KEY_UP]        = "<Up>";
+      conversionTable[KEY_DC]        = "<Del>";
+      conversionTable[KEY_BACKSPACE] = "<BS>";
+      conversionTable[0x20]          = "<Space>";
+      conversionTable[0x7F]          = "<BS>";
+      conversionTable[KEY_ENTER]     = "<Enter>";
+      conversionTable['\n']          = "<Return>";
+      conversionTable['<']           = "<lt>";
+      conversionTable['\t']          = "<Tab>";
+
+      // Add F1 - F12  into the converstion table
+      for (int i = 0; i <= 12; ++i)
+      {
+         sprintf(key, "<F%d>", i);
+         conversionTable[KEY_F(i)] = std::string(key);
+      }
    }
 
-   std::map<int, std::string>::const_iterator it = conversionTable.find(input);
+   std::string result = "";
 
 #ifdef HAVE_MOUSE_SUPPORT
    if (input == KEY_MOUSE)
    {
       if (settings_.Get(::Setting::Mouse) == true)
       {
-         result    = MouseInputToString();
-         converted = true;
-      }
-      else
-      {
-         return "";
+         result = MouseInputToString();
       }
    }
    else
    {
 #endif
-      if ((it == conversionTable.end()) && ((input & (1 << 31)) != 0))
-      {
-         input     = (input & 0x7FFFFFFF);
-         converted = true;
-         result    = "A-";
-      }
+      std::map<int, std::string>::const_iterator it = conversionTable.find(input);
 
-      if ((it == conversionTable.end()) && ((input <= 27) && (input >= 1)))
+      if (it != conversionTable.end())
       {
-         input     = 'A' + input - 1;
-         converted = true;
-         result    = "C-";
-      }
-
-      if ((input >= KEY_F(0)) && (input <= KEY_F(12)))
-      {
-         char key[8];
-         converted = true;
-         sprintf(key, "%d", (input - KEY_F(0)));
-         result += "F" + std::string(key);
-      }
-      else if (it != conversionTable.end())
-      {
-         converted = true;
-         result += it->second;
+         result = it->second;
       }
       else
       {
-         result += char (input);
+         result += (char) input;
+
+         // Alt key combinations
+         if ((input & (1 << 31)) != 0)
+         {
+            sprintf(key, "<A-%c>", char (input & 0x7FFFFFFF));
+            result = std::string(key);
+         }
+         // Ctrl key combinations
+         else if ((input <= 27) && (input >= 1))
+         {
+            sprintf(key, "<C-%c>", char ('A' + input - 1));
+            result = std::string(key);
+         }
       }
 #ifdef HAVE_MOUSE_SUPPORT
    }
 #endif
-
-   if (converted == true)
-   {
-      result = "<" + result + ">";
-      //printf("The result %s\n", result.c_str());
-   }
 
    return result;
 }
@@ -706,39 +698,34 @@ std::string Normal::MouseInputToString() const
 #ifdef HAVE_MOUSE_SUPPORT
    static std::map<uint32_t, std::string> conversionTable;
 
-   if (conversionTable.size() == 0)
+   if (conversionTable.empty() == true)
    {
-      conversionTable[BUTTON4_PRESSED]        = "ScrollWheelUp";
-      conversionTable[BUTTON2_PRESSED]        = "ScrollWheelDown";
 #if (NCURSES_MOUSE_VERSION <= 1)
-      conversionTable[BUTTON5_PRESSED]        = "ScrollWheelDown";
+      conversionTable[BUTTON5_PRESSED]        = "<ScrollWheelDown>";
 #endif
-      conversionTable[BUTTON1_CLICKED]        = "LeftMouse";
-      conversionTable[BUTTON1_DOUBLE_CLICKED] = "2-LeftMouse";
-      conversionTable[BUTTON3_CLICKED]        = "RightMouse";
-      conversionTable[BUTTON3_DOUBLE_CLICKED] = "2-RightMouse";
+      conversionTable[BUTTON2_PRESSED]        = "<ScrollWheelDown>";
+      conversionTable[BUTTON4_PRESSED]        = "<ScrollWheelUp>";
+      conversionTable[BUTTON1_CLICKED]        = "<LeftMouse>";
+      conversionTable[BUTTON1_DOUBLE_CLICKED] = "<2-LeftMouse>";
+      conversionTable[BUTTON3_CLICKED]        = "<RightMouse>";
+      conversionTable[BUTTON3_DOUBLE_CLICKED] = "<2-RightMouse>";
    }
 
-   if (settings_.Get(Setting::Mouse) == true)
+   MEVENT event = screen_.LastMouseEvent();
+
+   //! \TODO this seems to scroll quite slowly and not properly at all
+   std::map<uint32_t, std::string>::const_iterator it = conversionTable.begin();
+
+   for (; it != conversionTable.end(); ++it)
    {
-      MEVENT event = screen_.LastMouseEvent();
-
-      //! \TODO this seems to scroll quite slowly and not properly at all
-      std::map<uint32_t, std::string>::const_iterator it = conversionTable.begin();
-
-      for (; it != conversionTable.end(); ++it)
+      if ((it->first & event.bstate) == it->first)
       {
-         if ((it->first & event.bstate) == it->first)
-         {
-            return it->second;
-         }
+         return it->second;
       }
-
-      return "";
    }
-#else
-   return "";
+
 #endif
+   return "";
 }
 
 
@@ -876,6 +863,7 @@ void Normal::RepeatLastAction(uint32_t count)
 
 void Normal::Expand(uint32_t count)
 {
+   // \TODO this is pretty dodgy is doesn't check the proper windows
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Expand(screen_.ActiveWindow().CurrentLine());
@@ -884,6 +872,7 @@ void Normal::Expand(uint32_t count)
 
 void Normal::Collapse(uint32_t count)
 {
+   // \TODO this is pretty dodgy is doesn't check the proper windows
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Collapse(screen_.ActiveWindow().CurrentLine());
@@ -963,7 +952,7 @@ void Normal::Add(uint32_t count)
    {
       if (confirmTable.size() == 0)
       {
-         confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, true>;
+         confirmTable[Ui::Screen::Outputs] = &Normal::SetOutput<COLLECTION, true>;
       }
 
       WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
@@ -1258,13 +1247,22 @@ void Normal::QuitAll(uint32_t count)
 }
 
 // Implementation of editting functions
-template <int8_t OFFSET>
+template <Normal::move_t MOVE, int8_t OFFSET>
 void Normal::Move(uint32_t count)
 {
    if (screen_.GetActiveWindow() == Screen::Playlist)
    {
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
-      int32_t position = currentLine + (count * OFFSET);
+      int32_t position = 0;
+
+      if (MOVE == Relative)
+      {
+         position = currentLine + (count * OFFSET);
+      }
+      else
+      {
+         position = count - 1;
+      }
 
       if (position >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize()))
       {
@@ -1275,13 +1273,16 @@ void Normal::Move(uint32_t count)
          position = 0;
       }
 
-      client_.Move(currentLine, position);
+      if (currentLine < Main::Playlist().Size())
+      {
+         client_.Move(currentLine, position);
 
-      Mpc::Song * song = Main::Playlist().Get(currentLine);
-      Main::Playlist().Remove(currentLine, 1);
-      Main::Playlist().Add(song, position);
-      screen_.ActiveWindow().ScrollTo(position);
-      screen_.Update();
+         Mpc::Song * song = Main::Playlist().Get(currentLine);
+         Main::Playlist().Remove(currentLine, 1);
+         Main::Playlist().Add(song, position);
+         screen_.ActiveWindow().ScrollTo(position);
+         screen_.Update();
+      }
    }
 }
 
@@ -1312,12 +1313,11 @@ void Normal::DisplayModeLine()
 
 std::string Normal::ScrollString()
 {
-   float currentScroll = 0.0;
    std::ostringstream scrollStream;
 
    if (screen_.ActiveWindow().BufferSize() > 0)
    {
-      currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().BufferSize()) - 2));
+      float currentScroll = ((screen_.ActiveWindow().CurrentLine())/(static_cast<float>(screen_.ActiveWindow().BufferSize()) - 2));
       currentScroll += .005;
       scrollStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << screen_.ActiveWindow().BufferSize() << " -- ";
 

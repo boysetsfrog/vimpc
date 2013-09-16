@@ -24,6 +24,8 @@
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
+#include "test.hpp"
+#include "window/debug.hpp"
 
 #include <stdint.h>
 #include <string>
@@ -42,9 +44,10 @@ namespace Ui
       friend class Ui::Screen;
       friend void ::Error(uint32_t errorNumber, std::string errorString);
 
-   // Everything is private to prevent errors being set on the window
-   // directly without using the helper functions
-   private:
+   // Everything is protected to prevent errors being set on the window
+   // directly without using the helper functions, but allow test
+   // functions access
+   protected:
       static ErrorWindow & Instance()
       {
          static ErrorWindow errorWindow;
@@ -54,7 +57,6 @@ namespace Ui
       ErrorWindow() : ModeWindow(COLS, LINES), hasError_(false) { }
       ~ErrorWindow() { }
 
-   private:
       void Print(uint32_t line) const
       {
          if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
@@ -94,6 +96,7 @@ void ErrorString(uint32_t errorNumber)
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
       Error(errorNumber, ErrorStrings::Default[errorNumber]);
+      Debug("ERROR E%d: %s", errorNumber, ErrorStrings::Default[errorNumber].c_str());
    }
 }
 
@@ -102,6 +105,7 @@ void ErrorString(uint32_t errorNumber, std::string additional)
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
       Error(errorNumber, ErrorStrings::Default[errorNumber] + ": " + additional);
+      Debug("ERROR E%d: %s", errorNumber, std::string(ErrorStrings::Default[errorNumber] + ": " + additional).c_str());
    }
 }
 

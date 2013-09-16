@@ -23,6 +23,7 @@
 
 #include "callback.hpp"
 #include "colours.hpp"
+#include "test.hpp"
 
 #include <string>
 #include <map>
@@ -31,10 +32,13 @@
 // X(enum-entry, setting-name, default-value)
 #define TOGGLE_SETTINGS \
    X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
+   X(AutoUpdate,       "autoupdate",     true)  /* Automatically update after file edits */ \
+   X(AlbumArtist,      "albumartist",    true)  /* Use the album artist tag if there is one */ \
    X(BrowseNumbers,    "browsenumbers",  false) /* Show numbers in the browse window */ \
    X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \
    X(ExpandArtists,    "expand-artists", false) /* Expand artists in the library window by default */ \
    X(HighlightSearch,  "hlsearch",       true)  /* Show search results in a different colour */ \
+   X(IgnoreTheGroup,   "groupignorethe", false) /* Ignore 'the' when grouping the same artist into library */ \
    X(IgnoreCaseSearch, "ignorecase",     false) /* Turn off case sensitivity on searching */ \
    X(IgnoreCaseSort,   "sortignorecase", true)  /* Turn off case sensitivity on sorting */\
    X(IgnoreTheSort,    "sortignorethe",  false) /* Ignore 'the' when sorting */ \
@@ -43,11 +47,14 @@
    X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
    X(PlayOnAdd,        "playonadd",      false) /* If mpd is stopped play after first add */ \
+   X(ProgressBar,      "progressbar",    true)  /* Show the progress bar */ \
    X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
    X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
    X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
    X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \
+   X(SeekBar,          "seekbar",        true)  /* Mouse click on progress bar causes a seek */ \
    X(ShowPath,         "showpath",       true)  /* Show current path in directory window */ \
+   X(ShowPercent,      "showpercent",    true)  /* Show percentage on the progress bar */ \
    X(ShowLists,        "showlists",      true)  /* Show playlists in directory window */ \
    X(SingleQuit,       "singlequit",     false) /* Quit the entire application not just close a tab */ \
    X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \
@@ -67,6 +74,8 @@
    X(ArtistFormat,     "artistformat", "%A",  ".*") \
    /* Library format string */ \
    X(LibraryFormat,    "libraryformat", "$I%n \\| $D$H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
+   /* Library format string */ \
+   X(LocalMusicDir,    "local-music-dir", "", ".*") \
    /* Lists to show in the lists window */ \
    X(Playlists,        "playlists", "mpd", "all|mpd|files") \
    /* Song format string */ \
@@ -171,16 +180,24 @@ namespace Main
          //! Calls the correct setter function based upon the given input
          void Set(std::string const & input);
 
+         //! Handles settings which are treated as an on/off setting
+         void SetSingleSetting(std::string setting);
+
          //! Get the value of a particular setting
          bool Get(Setting::ToggleSettings setting) const;
          std::string Get(Setting::StringSettings setting) const;
 
-         //! Handles settings which are treated as an on/off setting
-         void SetSingleSetting(std::string setting);
+         //! Name of a particular setting
+         std::string Name(Setting::ToggleSettings setting) const;
+         std::string Name(Setting::StringSettings setting) const;
 
          //! Register a callback to be called when a setting is changed
-         void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback) const;
-         void RegisterCallback(Setting::StringSettings setting, StringCallback callback) const;
+         void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback);
+         void RegisterCallback(Setting::StringSettings setting, StringCallback callback);
+
+         //! Turn the callbacks on and off
+         void EnableCallbacks();         
+         void DisableCallbacks();         
 
       public:
          //! Set/Get whether or not to connect if asked to in config
@@ -190,11 +207,6 @@ namespace Main
       public:
          void SetColour(std::string property, std::string colour);
 
-      private:
-         //! Used to handle settings that require very specific paramters
-         void SetSpecificSetting(std::string setting, std::string arguments);
-
-      public:
          //! Get the value for the given \p setting
          bool GetBool(std::string setting) const
          {
@@ -212,6 +224,31 @@ namespace Main
             return "";
          }
 
+      protected:
+         //! Set the value of a particular setting
+         void Set(Setting::ToggleSettings setting, bool value);
+         void Set(Setting::StringSettings setting, std::string value);
+
+         //! Set the value for the given \p setting
+         void SetBool(std::string setting, bool value)
+         {
+            BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
+            if ((it != toggleTable_.end())) { it->second->Set(value); }
+         }
+
+         void SetString(std::string setting, std::string value)
+         {
+            StringSettingsTable::const_iterator it = stringTable_.find(setting);
+            if (it != stringTable_.end())
+            {
+               (it->second->Set(value));
+            }
+         }
+
+      private:
+         //! Used to handle settings that require very specific paramters
+         void SetSpecificSetting(std::string setting, std::string arguments);
+
       private:
          typedef std::map<int, std::string> SettingNameTable;
          SettingNameTable     settingName_;
@@ -222,7 +259,7 @@ namespace Main
 
          // Callbacks for on/off settings
          typedef std::map<Setting::ToggleSettings, std::vector<BoolCallback> > BoolCallbackTable;
-         mutable BoolCallbackTable  tCallbackTable_;
+         BoolCallbackTable    tCallbackTable_;
 
          // Used to validate string settings against a regex pattern
          typedef std::map<std::string, std::string> SettingsFilterTable;
@@ -234,10 +271,12 @@ namespace Main
 
          // Callbacks for string style settings
          typedef std::map<Setting::StringSettings, std::vector<StringCallback> > StringCallbackTable;
-         mutable StringCallbackTable  sCallbackTable_;
+         StringCallbackTable  sCallbackTable_;
 
          typedef std::map<std::string, int> ColorNameTable;
-         ColorNameTable     colourTable_;
+         ColorNameTable       colourTable_;
+
+         bool                 enabled_;
    };
 }
 

@@ -57,7 +57,15 @@ namespace Ui
       void AdjustScroll(Mpc::List list);
 
    public:
-      std::string SearchPattern(int32_t id) const { return lists_.Get(id).name_; }
+      std::string SearchPattern(int32_t id) const
+      {
+         if (id < lists_.Size())
+         {
+            return lists_.Get(id).name_;
+         }
+
+         return "";
+      }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
@@ -67,6 +75,7 @@ namespace Ui
       void CropLine(uint32_t line, uint32_t count, bool scroll);
       void CropAllLines();
       void Edit();
+      void ScrollToFirstMatch(std::string const & input);
 
    protected:
       Main::WindowBuffer const & WindowBuffer() const { return lists_; }

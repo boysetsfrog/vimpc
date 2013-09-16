@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2013 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -26,17 +26,34 @@
 #include <pcrecpp.h>
 #include <sstream>
 
+#ifdef HAVE_TAGLIB_H
+#include <taglib/tag.h>
+#include <taglib/taglib.h>
+#include <taglib/fileref.h>
+#endif
+
+#ifdef HAVE_TEST_H
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/TestRunner.h>
+#include <cppunit/TextOutputter.h>
+#endif
+
 #include "algorithm.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
 #include "settings.hpp"
+#include "tag.hpp"
 #include "vimpc.hpp"
 
+#include "buffer/directory.hpp"
 #include "buffer/list.hpp"
 #include "buffer/outputs.hpp"
 #include "buffer/playlist.hpp"
 #include "mode/normal.hpp"
 #include "window/console.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 
@@ -49,6 +66,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    initTabCompletion_  (true),
    forceCommand_       (false),
    queueCommands_      (false),
+   count_              (0),
+   line_               (-1),
+   currentLine_        (-1),
    aliasTable_         (),
    commandTable_       (),
    vimpc_              (vimpc),
@@ -59,98 +79,118 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    normalMode_         (normalMode)
 {
    // \todo find a away to add aliases to tab completion
-   AddCommand("!mpc",       &Command::Mpc,          true);
-   AddCommand("add",        &Command::Add,          true);
-   AddCommand("addall",     &Command::AddAll,       true);
-   AddCommand("alias",      &Command::Alias,        false);
-   AddCommand("clear",      &Command::ClearScreen,  false);
-   AddCommand("connect",    &Command::Connect,      false);
-   AddCommand("consume",    &Command::Consume,      true);
-   AddCommand("crossfade",  &Command::Crossfade,    true);
-   AddCommand("delete",     &Command::Delete,       true);
-   AddCommand("deleteall",  &Command::DeleteAll,    true);
-   AddCommand("disable",    &Command::Output<false>, true);
-   AddCommand("disconnect", &Command::Disconnect,   true);
-   AddCommand("echo",       &Command::Echo,         false);
-   AddCommand("enable",     &Command::Output<true>, true);
-   AddCommand("error",      &Command::EchoError,    false);
-   AddCommand("find",       &Command::FindAny,      true);
-   AddCommand("findalbum",  &Command::FindAlbum,    true);
-   AddCommand("findartist", &Command::FindArtist,   true);
-   AddCommand("findgenre",  &Command::FindGenre,    true);
-   AddCommand("findsong",   &Command::FindSong,     true);
-   AddCommand("move",       &Command::Move,         true);
-   AddCommand("nohlsearch", &Command::NoHighlightSearch, false);
-   AddCommand("normal",     &Command::Normal,       true);
-   AddCommand("password",   &Command::Password,     true);
-   AddCommand("pause",      &Command::Pause,        true);
-   AddCommand("play",       &Command::Play,         true);
-   AddCommand("q",          &Command::Quit,         false);
-   AddCommand("qall",       &Command::QuitAll,      false);
-   AddCommand("quit",       &Command::Quit,         false);
-   AddCommand("quitall",    &Command::QuitAll,      false);
-   AddCommand("random",     &Command::Random,       true);
-   AddCommand("reconnect",  &Command::Reconnect,    false);
-   AddCommand("redraw",     &Command::Redraw,       false);
-   AddCommand("repeat",     &Command::Repeat,       true);
-   AddCommand("set",        &Command::Set,          false);
-   AddCommand("seek",       &Command::SeekTo,       true);
-   AddCommand("seek+",      &Command::Seek<1>,      true);
-   AddCommand("seek-",      &Command::Seek<-1>,     true);
-   AddCommand("single",     &Command::Single,       true);
-   AddCommand("shuffle",    &Command::Shuffle,      true);
-   AddCommand("sleep",      &Command::Sleep,        false);
-   AddCommand("swap",       &Command::Swap,         true);
-   AddCommand("stop",       &Command::Stop,         true);
-   AddCommand("toggle",     &Command::ToggleOutput, true);
-   AddCommand("volume",     &Command::Volume,       true);
+   // Command, RequiresConnection, SupportsRange, Function
+   AddCommand("!mpc",       true,  false, &Command::Mpc);
+   AddCommand("a",          true,  true,  &Command::Add);
+   AddCommand("add",        true,  true,  &Command::Add);
+   AddCommand("addall",     true,  false, &Command::AddAll);
+   AddCommand("alias",      false, false, &Command::Alias);
+   AddCommand("clear",      false, false, &Command::ClearScreen);
+   AddCommand("connect",    false, false, &Command::Connect);
+   AddCommand("consume",    true,  false, &Command::Consume);
+   AddCommand("crossfade",  true,  false, &Command::Crossfade);
+   AddCommand("d",          true,  true,  &Command::Delete);
+   AddCommand("delete",     true,  true,  &Command::Delete);
+   AddCommand("deleteall",  true,  false, &Command::DeleteAll);
+   AddCommand("disable",    true,  true,  &Command::Output<false>);
+   AddCommand("disconnect", true,  false, &Command::Disconnect);
+   AddCommand("echo",       false, false, &Command::Echo);
+   AddCommand("enable",     true,  true,  &Command::Output<true>);
+   AddCommand("error",      false, false, &Command::EchoError);
+   AddCommand("find",       true,  false, &Command::FindAny);
+   AddCommand("findalbum",  true,  false, &Command::FindAlbum);
+   AddCommand("findartist", true,  false, &Command::FindArtist);
+   AddCommand("findgenre",  true,  false, &Command::FindGenre);
+   AddCommand("findsong",   true,  false, &Command::FindSong);
+   AddCommand("move",       true,  true,  &Command::Move);
+   AddCommand("mute",       true,  false, &Command::Mute);
+   AddCommand("nohlsearch", false, false, &Command::NoHighlightSearch);
+   AddCommand("normal",     true,  false, &Command::Normal);
+   AddCommand("password",   true,  false, &Command::Password);
+   AddCommand("pause",      true,  false, &Command::Pause);
+   AddCommand("play",       true,  true,  &Command::Play);
+   AddCommand("q",          false, false, &Command::Quit);
+   AddCommand("qall",       false, false, &Command::QuitAll);
+   AddCommand("quit",       false, false, &Command::Quit);
+   AddCommand("quitall",    false, false, &Command::QuitAll);
+   AddCommand("random",     true,  false, &Command::Random);
+   AddCommand("reconnect",  false, false, &Command::Reconnect);
+   AddCommand("redraw",     false, false, &Command::Redraw);
+   AddCommand("repeat",     true,  false, &Command::Repeat);
+   AddCommand("set",        false, false, &Command::Set);
+   AddCommand("seek",       true,  false, &Command::SeekTo);
+   AddCommand("seek+",      true,  false, &Command::Seek<1>);
+   AddCommand("seek-",      true,  false, &Command::Seek<-1>);
+   AddCommand("single",     true,  false, &Command::Single);
+   AddCommand("shuffle",    true,  false, &Command::Shuffle);
+   AddCommand("sleep",      false, false, &Command::Sleep);
+#ifdef TAG_SUPPORT
+   AddCommand("substitute", false, true,  &Command::Substitute);
+   AddCommand("s",          false, true,  &Command::Substitute);
+#endif
+   AddCommand("swap",       true,  true,  &Command::Swap);
+   AddCommand("stop",       true,  false, &Command::Stop);
+   AddCommand("toggle",     true,  true,  &Command::ToggleOutput);
+   AddCommand("unalias",    false, false, &Command::Unalias);
+   AddCommand("volume",     true,  true,  &Command::Volume);
 
-   AddCommand("map",        &Command::Map,          false);
-   AddCommand("unmap",      &Command::Unmap,        false);
-   AddCommand("wmap",       &Command::WindowMap,    false);
-   AddCommand("wunmap",     &Command::WindowUnmap,  false);
-   AddCommand("tmap",       &Command::TabMap,       false);
-   AddCommand("tunmap",     &Command::TabUnmap,     false);
-   AddCommand("tabmap",     &Command::TabMap,       false);
-   AddCommand("tabunmap",   &Command::TabUnmap,     false);
+   AddCommand("map",        false, false, &Command::Map);
+   AddCommand("unmap",      false, false, &Command::Unmap);
+   AddCommand("wmap",       false, false, &Command::WindowMap);
+   AddCommand("wunmap",     false, false, &Command::WindowUnmap);
+   AddCommand("tmap",       false, false, &Command::TabMap);
+   AddCommand("tunmap",     false, false, &Command::TabUnmap);
+   AddCommand("tabmap",     false, false, &Command::TabMap);
+   AddCommand("tabunmap",   false, false, &Command::TabUnmap);
 
-   AddCommand("tabfirst",   &Command::ChangeToWindow<First>, false);
-   AddCommand("tablast",    &Command::ChangeToWindow<Last>,  false);
-   AddCommand("tabclose",   &Command::HideWindow,            false);
-   AddCommand("tabhide",    &Command::HideWindow,            false);
-   AddCommand("tabmove",    &Command::MoveWindow,            false);
-   AddCommand("tabrename",  &Command::RenameWindow,          false);
+   AddCommand("tabfirst",   false, false, &Command::ChangeToWindow<First>);
+   AddCommand("tablast",    false, false, &Command::ChangeToWindow<Last>);
+   AddCommand("tabnext",    false, false, &Command::ChangeToWindow<Next>);
+   AddCommand("tabprevious",false, false, &Command::ChangeToWindow<Previous>);
+   AddCommand("tabclose",   false, false, &Command::HideWindow);
+   AddCommand("tabhide",    false, false, &Command::HideWindow);
+   AddCommand("tabmove",    false, false, &Command::MoveWindow);
+   AddCommand("tabrename",  false, false, &Command::RenameWindow);
 
-   AddCommand("highlight",  &Command::SetColour,             false);
+   AddCommand("highlight",  false, false, &Command::SetColour);
 
-   AddCommand("rescan",     &Command::Rescan, true);
-   AddCommand("update",     &Command::Update, true);
+   AddCommand("rescan",     true,  false, &Command::Rescan);
+   AddCommand("update",     true,  false, &Command::Update);
 
-   AddCommand("next",       &Command::SkipSong<Player::Next>,     true);
-   AddCommand("previous",   &Command::SkipSong<Player::Previous>, true);
+   AddCommand("next",       true,  false, &Command::SkipSong<Player::Next>);
+   AddCommand("previous",   true,  false, &Command::SkipSong<Player::Previous>);
 
-   AddCommand("browse",      &Command::SetActiveAndVisible<Ui::Screen::Browse>,       false);
-   AddCommand("console",     &Command::SetActiveAndVisible<Ui::Screen::Console>,      false);
-   AddCommand("help",        &Command::SetActiveAndVisible<Ui::Screen::Help>,         true);
-   AddCommand("library",     &Command::SetActiveAndVisible<Ui::Screen::Library>,      true);
-   AddCommand("directory",   &Command::SetActiveAndVisible<Ui::Screen::Directory>,    true);
-   AddCommand("playlist",    &Command::SetActiveAndVisible<Ui::Screen::Playlist>,     true);
-   AddCommand("outputs",     &Command::SetActiveAndVisible<Ui::Screen::Outputs>,      true);
-   AddCommand("lists",       &Command::SetActiveAndVisible<Ui::Screen::Lists>,        true);
-   AddCommand("windowselect",&Command::SetActiveAndVisible<Ui::Screen::WindowSelect>, true);
-   AddCommand("stats",      &Command::SetActiveAndVisible<Ui::Screen::Stats>,     true);
+   AddCommand("browse",      false, true, &Command::SetActiveAndVisible<Ui::Screen::Browse>);
+   AddCommand("console",     false, true, &Command::SetActiveAndVisible<Ui::Screen::Console>);
+   AddCommand("help",        false, true, &Command::SetActiveAndVisible<Ui::Screen::Help>);
+   AddCommand("library",     false, true, &Command::SetActiveAndVisible<Ui::Screen::Library>);
+   AddCommand("directory",   false, true, &Command::SetActiveAndVisible<Ui::Screen::Directory>);
+   AddCommand("playlist",    false, true, &Command::SetActiveAndVisible<Ui::Screen::Playlist>);
+   AddCommand("outputs",     false, true, &Command::SetActiveAndVisible<Ui::Screen::Outputs>);
+   AddCommand("lists",       false, true, &Command::SetActiveAndVisible<Ui::Screen::Lists>);
+   AddCommand("windowselect",false, true, &Command::SetActiveAndVisible<Ui::Screen::WindowSelect>);
+   AddCommand("stats",       false, true, &Command::SetActiveAndVisible<Ui::Screen::Stats>);
 
-   AddCommand("load",       &Command::LoadPlaylist, true);
-   AddCommand("save",       &Command::SavePlaylist, true);
-   AddCommand("edit",       &Command::LoadPlaylist, true);
-   AddCommand("write",      &Command::SavePlaylist, true);
-   AddCommand("toplaylist", &Command::ToPlaylist,   true);
+   AddCommand("load",       true,  false, &Command::LoadPlaylist);
+   AddCommand("save",       true,  false, &Command::SavePlaylist);
+   AddCommand("e",          true,  false, &Command::LoadPlaylist);
+   AddCommand("edit",       true,  false, &Command::LoadPlaylist);
+   AddCommand("w",          true,  false, &Command::SavePlaylist);
+   AddCommand("write",      true,  false, &Command::SavePlaylist);
+   AddCommand("toplaylist", true,  false, &Command::ToPlaylist);
 
 #ifdef __DEBUG_PRINTS
-   AddCommand("debug",         &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>,    false);
-   AddCommand("debug-getmeta", &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>, true);
-   AddCommand("debug-idle",    &Command::DebugClient<&Mpc::Client::IdleMode>,              true);
-   AddCommand("test-screen",   &Command::TestScreen,                                       false);
+   AddCommand("debug-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>);
+   AddCommand("debug-client-getmeta",true,  false, &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>);
+   AddCommand("debug-client-idle",   true,  false, &Command::DebugClient<&Mpc::Client::IdleMode>);
+#endif
+
+#ifdef TEST_ENABLED
+   AddCommand("test-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::TestConsole>);
+   AddCommand("test",               false, false, &Command::Test);
+   AddCommand("test-screen",        false, false, &Command::TestScreen);
+   AddCommand("test-input-random",  true,  false, &Command::TestInputRandom);
+   AddCommand("test-input-seq",     true,  false, &Command::TestInputSequence);
 #endif
 
    // Add all settings to command table to provide tab completion
@@ -185,40 +225,78 @@ void Command::GenerateInputString(int input)
 {
    if (input == '\t')
    {
-      inputString_ = TabComplete(inputString_);
+      inputString_  = TabComplete(inputString_);
+      inputWString_ = stringtow(inputString_);
    }
 
    InputMode::GenerateInputString(input);
 }
 
 
-void Command::AddCommand(std::string const & name, CommandFunction command, bool requiresConnection)
+void Command::AddCommand(std::string const & name, bool requiresConnection, bool hasRangeSupport, CommandFunction command)
 {
    commandTable_[name]       = command;
    requiresConnection_[name] = requiresConnection;
+   supportsRange_[name]      = hasRangeSupport;
 }
 
 bool Command::ExecuteCommand(std::string const & input)
 {
    pcrecpp::RE const blankCommand("^\\s*$");
    pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
+   pcrecpp::RE const rangeSplit("(^\\d*),?(\\d*)$");
 
    std::string matchString, commandString;
-   std::string command, arguments;
+   std::string range, command, arguments;
+   uint32_t    count = 0;
+   uint32_t    line  = 0; //Actually stores line + 1, as 0 represents invalid
 
-   SplitCommand(input, command, arguments);
+   SplitCommand(input, range, command, arguments);
 
    std::string fullCommand(command + " " + arguments);
 
+   // Resolve a command from an alias
    if (aliasTable_.find(command) != aliasTable_.end())
    {
       fullCommand = aliasTable_[command] + " " + arguments;
    }
 
+   // Determine whether a range or a line number was used of the form
+   // :x or :x,y this determines where the command should start
+   // and how many times it should run
+   if (range != "")
+   {
+      std::string rangeLine, rangeCount;
+      rangeSplit.FullMatch(range.c_str(), &rangeLine, &rangeCount);
+
+      if ((Algorithm::isNumeric(rangeLine) == true) && (rangeLine != ""))
+      {
+         // Commands of the form :<number> go to that line instead
+         int32_t lineint = atoi(rangeLine.c_str());
+         line = (lineint > 1) ? lineint : 1;
+
+         if ((Algorithm::isNumeric(rangeCount) == true) && (rangeCount != ""))
+         {
+            int32_t intcount = atoi(rangeCount.c_str());
+
+            if (intcount >= lineint)
+            {
+               count = (intcount <= 0) ? 0 : (uint32_t) (intcount - lineint) + 1;
+            }
+            else
+            {
+               count = (intcount <= 0) ? 0 : (uint32_t) (lineint - intcount) + 1;
+               line = (intcount > 1) ? intcount : 1;
+            }
+         }
+      }
+   }
+
+   // If there are multiple commands we need to run them all
    if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
        (command != "alias")) // In the case of alias we don't actually want to run the commands
    {
-      // There are multiple commands seperated gy ';' we have to handle each one
+      // There are multiple commands seperated by ';' we have to handle each one
       while (multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true)
       {
          fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
@@ -242,28 +320,20 @@ bool Command::ExecuteCommand(std::string const & input)
       // by calling this fucking again
       ExecuteCommand(fullCommand);
    }
-   else if ((arguments == "") && (Algorithm::isNumeric(command) == true))
+   else if (command != "")
    {
-      int32_t line = atoi(command.c_str());
-
-      if (line >= 1)
-      {
-         --line;
-      }
-
-      screen_.ScrollTo(line);
-   }
-   else
-   {
-      // Ignore the connect command when starting up if -h/-p used
-      // on the command line
-      if (command == "connect" && settings_.SkipConfigConnects())
-      {
-         return true;
-      }
-
       // Just a normal command
-      ExecuteCommand(command, arguments);
+      Debug("Executing command :%u,%u %s %s", line, count, command.c_str(), arguments.c_str());
+      ExecuteCommand(line, count, command, arguments);
+   }
+   else if (line > 0)
+   {
+      screen_.ScrollTo(line - 1);
+
+      if (count > 0)
+      {
+         screen_.ScrollTo(line + count - 2);
+      }
    }
 
    return true;
@@ -279,7 +349,8 @@ void Command::ExecuteQueuedCommands()
 {
    for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
    {
-      ExecuteCommand((*it).first, (*it).second);
+      Debug("Executing queued command :%u,%u %s %s", __func__, (*it).line, (*it).count, (*it).command.c_str(), (*it).arguments.c_str());
+      ExecuteCommand((*it).line, (*it).count, (*it).command, (*it).arguments);
    }
 
    commandQueue_.clear();
@@ -288,7 +359,11 @@ void Command::ExecuteQueuedCommands()
 bool Command::RequiresConnection(std::string const & command)
 {
    return requiresConnection_[command];
+}
 
+bool Command::SupportsRange(std::string const & command)
+{
+   return supportsRange_[command];
 }
 
 
@@ -316,7 +391,7 @@ void Command::Pause(std::string const & arguments)
 
 void Command::Play(std::string const & arguments)
 {
-   std::vector<std::string> args = SplitArguments(arguments);
+   std::vector<std::string> const args = SplitArguments(arguments);
 
    if (args.size() == 0)
    {
@@ -345,44 +420,59 @@ void Command::Play(std::string const & arguments)
    }
 }
 
-void Command::Add(std::string const & arguments)
+bool Command::CheckConnected()
 {
-   if (client_.Connected() == true)
-   {
-      screen_.Initialise(Ui::Screen::Playlist);
-      client_.Add(arguments);
-      client_.AddComplete();
-   }
-   else
+   if (client_.Connected() == false)
    {
       ErrorString(ErrorNumber::ClientNoConnection);
+      return false;
+   }
+
+   return true;
+}
+
+void Command::Add(std::string const & arguments)
+{
+   if (CheckConnected() == true)
+   {
+      screen_.Initialise(Ui::Screen::Playlist);
+
+      if (arguments != "")
+      {
+         // Add based on a URI
+         client_.Add(arguments);
+      }
+      else
+      {
+         // Add according to current selection or range
+         screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count_, false);
+      }
+
+      client_.AddComplete();
    }
 }
 
 void Command::AddAll(std::string const & arguments)
 {
-   if (client_.Connected() == true)
+   if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.AddAllSongs();
       client_.AddComplete();
    }
-   else
-   {
-      ErrorString(ErrorNumber::ClientNoConnection);
-   }
 }
 
 void Command::Delete(std::string const & arguments)
 {
-   if (client_.Connected() == true)
+   if (CheckConnected() == true)
    {
       screen_.Initialise(Ui::Screen::Playlist);
 
-      std::vector<std::string> args = SplitArguments(arguments);
+      std::vector<std::string> const args = SplitArguments(arguments);
 
       if (args.size() == 2)
       {
+         // Delete a range of songs from pos1 to pos2
          uint32_t pos1 = atoi(args[0].c_str()) - 1;
          uint32_t pos2 = atoi(args[1].c_str()) - 1;
 
@@ -391,12 +481,14 @@ void Command::Delete(std::string const & arguments)
       }
       else if (args.size() == 1)
       {
+         // Delete the song at given position
          client_.Delete(atoi(args[0].c_str()) - 1);
          Main::Playlist().Remove(atoi(args[0].c_str()) - 1, 1);
       }
       else
       {
-         //\TODO delete selected song
+         // Delete selected or range
+         screen_.ActiveWindow().DeleteLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
    }
 }
@@ -411,7 +503,7 @@ template <int Delta>
 void Command::Seek(std::string const & arguments)
 {
    uint32_t time = 0;
-   size_t pos    = arguments.find_first_of(":");
+   size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
@@ -430,7 +522,7 @@ void Command::Seek(std::string const & arguments)
 void Command::SeekTo(std::string const & arguments)
 {
    uint32_t time = 0;
-   size_t pos    = arguments.find_first_of(":");
+   size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
@@ -460,7 +552,8 @@ void Command::Quit(std::string const & arguments)
 
 void Command::QuitAll(std::string const & arguments)
 {
-   if ((forceCommand_ == true) || (settings_.Get(Setting::StopOnQuit) == true))
+   if ((forceCommand_ == true) ||
+       (settings_.Get(Setting::StopOnQuit) == true))
    {
       Player::Stop();
    }
@@ -468,11 +561,22 @@ void Command::QuitAll(std::string const & arguments)
    Player::Quit();
 }
 
+void Command::Mute(std::string const & arguments)
+{
+   if (CheckConnected() == true)
+   {
+      if (arguments != "")
+      {
+         client_.SetMute((arguments.compare("on") == 0));
+      }
+   }
+}
+
 void Command::Volume(std::string const & arguments)
 {
-   uint32_t Vol = atoi(arguments.c_str());
+   uint32_t const Vol = (uint32_t) atoi(arguments.c_str());
 
-   if ((Vol <= 100) && (Vol >= 0))
+   if (Vol <= 100)
    {
       Player::Volume(Vol);
    }
@@ -485,17 +589,22 @@ void Command::Volume(std::string const & arguments)
 
 void Command::Connect(std::string const & arguments)
 {
-   size_t   pos  = arguments.find_first_of(" ");
-   uint32_t port = 0;
-
-   std::string hostname = arguments.substr(0, pos);
-
-   if (pos != std::string::npos)
+   // Ignore the connect command when starting up if -h/-p used
+   // on the command line
+   if (settings_.SkipConfigConnects() == false)
    {
-      port = atoi(arguments.substr(pos + 1).c_str());
-   }
+      size_t   pos  = arguments.find_first_of(" ");
+      uint32_t port = 0;
 
-   client_.Connect(hostname, port);
+      std::string hostname = arguments.substr(0, pos);
+
+      if (pos != std::string::npos)
+      {
+         port = atoi(arguments.substr(pos + 1).c_str());
+      }
+
+      client_.Connect(hostname, port);
+   }
 }
 
 void Command::Disconnect(std::string const & arguments)
@@ -530,62 +639,102 @@ void Command::Sleep(std::string const & seconds)
    usleep(1000 * 1000 * atoi(seconds.c_str()));
 }
 
+void Command::Substitute(std::string const & expression)
+{
+#ifdef TAG_SUPPORT
+   typedef void (*EditFunction)(Mpc::Song *, std::string const &, char const *);
+   typedef std::map<std::string, EditFunction> OptionsMap;
+
+   typedef std::string const & (Mpc::Song::*ReadFunction)() const;
+   typedef std::map<std::string, ReadFunction> InfoMap;
+
+   static OptionsMap modifyFunctions;
+   static InfoMap    readFunctions;
+
+   if (modifyFunctions.size() == 0)
+   {
+      modifyFunctions["a"] = &Mpc::Tag::SetArtist;
+      modifyFunctions["b"] = &Mpc::Tag::SetAlbum;
+      modifyFunctions["t"] = &Mpc::Tag::SetTitle;
+      modifyFunctions["n"] = &Mpc::Tag::SetTrack;
+
+      readFunctions["a"] = &Mpc::Song::Artist;
+      readFunctions["b"] = &Mpc::Song::Album;
+      readFunctions["t"] = &Mpc::Song::Title;
+      readFunctions["n"] = &Mpc::Song::Track;
+   }
+
+   std::string match, substitution, options;
+
+   if (settings_.Get(Setting::LocalMusicDir) != "")
+   {
+      for (int i = 0; i < count_; ++i)
+      {
+         Mpc::Song * const song = screen_.GetSong(screen_.ActiveWindow().CurrentLine() + i);
+
+         if (song != NULL)
+         {
+            std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + song->URI();
+
+            pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
+            split.FullMatch(expression.c_str(), &match, &substitution, &options);
+
+            if (options.empty() == false)
+            {
+               InfoMap::iterator    it = readFunctions.find(options);
+               OptionsMap::iterator jt = modifyFunctions.find(options);
+
+               if (it != readFunctions.end())
+               {
+                  ReadFunction readFunction = it->second;
+
+                  if (match == "")
+                  {
+                     match = ".*";
+                  }
+
+                  pcrecpp::RE const check(match);
+                  std::string value = ((*song).*readFunction)();
+
+                  if (check.PartialMatch(value) == true)
+                  {
+                     if (jt != modifyFunctions.end())
+                     {
+                        check.Replace(substitution, &value);
+                        EditFunction editFunction = jt->second;
+                        (*editFunction)(song, path, value.c_str());
+
+                        if (settings_.Get(Setting::AutoUpdate) == true)
+                        {
+                           client_.Update(song->URI());
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NotSet, "local-music-dir");
+   }
+#endif
+}
+
 
 template <bool ON>
 void Command::Output(std::string const & arguments)
 {
    int32_t output = -1;
-
-   screen_.Initialise(Ui::Screen::Outputs);
-
-   if (arguments == "")
-   {
-      output = screen_.Window(Ui::Screen::Outputs).CurrentLine();
-   }
-   else if (Algorithm::isNumeric(arguments.c_str()) == true)
-   {
-      output = atoi(arguments.c_str());
-   }
-   else
-   {
-      for(unsigned int i = 0; i < Main::Outputs().Size(); ++i)
-      {
-         if (Algorithm::iequals(Main::Outputs().Get(i)->Name(), arguments) == true)
-         {
-            output = i;
-            break;
-         }
-      }
-   }
-
-   if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
-   {
-      if (ON == true)
-      {
-         client_.EnableOutput(Main::Outputs().Get(output));
-         Main::Outputs().Get(output)->SetEnabled(true);
-      }
-      else
-      {
-         client_.DisableOutput(Main::Outputs().Get(output));
-         Main::Outputs().Get(output)->SetEnabled(false);
-      }
-   }
-   else
-   {
-      ErrorString(ErrorNumber::NoOutput);
-   }
-}
-
-void Command::ToggleOutput(std::string const & arguments)
-{
-   int32_t output = -1;
+   bool    rangeAllowed = false;
 
    screen_.Initialise(Ui::Screen::Outputs);
 
    if (arguments == "")
    {
       output = screen_.GetSelected(Ui::Screen::Outputs);
+      rangeAllowed = true;
    }
    else if (Algorithm::isNumeric(arguments.c_str()) == true)
    {
@@ -598,7 +747,69 @@ void Command::ToggleOutput(std::string const & arguments)
 
    if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
    {
-      Player::ToggleOutput(output);
+      if (rangeAllowed == false)
+      {
+         client_.SetOutput(Main::Outputs().Get(output), (ON == true));
+         Main::Outputs().Get(output)->SetEnabled((ON == true));
+      }
+      else
+      {
+         for (int i = 0; (i < count_); ++i)
+         {
+            if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
+            {
+               client_.SetOutput(Main::Outputs().Get(output + i), (ON == true));
+               Main::Outputs().Get(output + i)->SetEnabled((ON == true));
+            }
+         }
+      }
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoOutput);
+   }
+}
+
+void Command::ToggleOutput(std::string const & arguments)
+{
+   int32_t output = -1;
+   bool    rangeAllowed = false;
+
+   screen_.Initialise(Ui::Screen::Outputs);
+
+   if (arguments == "")
+   {
+      // Toggle selected or range of outputs
+      output = screen_.GetSelected(Ui::Screen::Outputs);
+      rangeAllowed = true;
+   }
+   else if (Algorithm::isNumeric(arguments.c_str()) == true)
+   {
+      // Toggle a given output number
+      output = atoi(arguments.c_str());
+   }
+   else
+   {
+      // Toggle based on the output name
+      output = Player::FindOutput(arguments);
+   }
+
+   if ((output < static_cast<int32_t>(Main::Outputs().Size())) && (output >= 0))
+   {
+      if (rangeAllowed == false)
+      {
+         Player::ToggleOutput(output);
+      }
+      else
+      {
+         for (int i = 0; (i < count_); ++i)
+         {
+            if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
+            {
+               Player::ToggleOutput(output + i);
+            }
+         }
+      }
    }
    else
    {
@@ -672,7 +883,7 @@ void Command::Find(std::string const & arguments)
    }
    else
    {
-      SongWindow * window = screen_.CreateSongWindow(arguments);
+      SongWindow * const window = screen_.CreateSongWindow(arguments);
       client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
 
       if (window->BufferSize() > 0)
@@ -717,37 +928,47 @@ void Command::FindSong(std::string const & arguments)
    Find("F:" + arguments);
 }
 
+void Command::PrintMappings(std::string tabname)
+{
+   Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
+
+   if (tabname != "")
+   {
+      mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
+   }
+
+   if (mappings.size() > 0)
+   {
+      Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
+
+      PagerWindow * const pager = screen_.GetPagerWindow();
+      pager->Clear();
+
+      for (; it != mappings.end(); ++it)
+      {
+         pager->AddLine(it->first + "   " + it->second);
+      }
+
+      screen_.ShowPagerWindow();
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoSuchMapping);
+   }
+}
+
+
 void Command::Map(std::string const & arguments)
 {
    if ((arguments.find(" ") != string::npos))
    {
-      std::string key     = arguments.substr(0, arguments.find(" "));
-      std::string mapping = arguments.substr(arguments.find(" ") + 1);
-
+      std::string const key     = arguments.substr(0, arguments.find(" "));
+      std::string const mapping = arguments.substr(arguments.find(" ") + 1);
       normalMode_.Map(key, mapping);
    }
    else if (arguments == "")
    {
-      Ui::Normal::MapNameTable mappings = normalMode_.Mappings();
-
-      if (mappings.size() > 0)
-      {
-         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
-         PagerWindow * pager = screen_.GetPagerWindow();
-         pager->Clear();
-
-         for (; it != mappings.end(); ++it)
-         {
-            pager->AddLine(it->first + "   " + it->second);
-         }
-
-         screen_.ShowPagerWindow();
-      }
-      else
-      {
-         ErrorString(ErrorNumber::NoSuchMapping);
-      }
+      PrintMappings();
    }
 }
 
@@ -758,8 +979,8 @@ void Command::Unmap(std::string const & arguments)
 
 void Command::TabMap(std::string const & arguments)
 {
-   std::string tabname, args;
-   SplitCommand(arguments, tabname, args);
+   std::string range, tabname, args;
+   SplitCommand(arguments, range, tabname, args);
 
    TabMap(tabname, args);
 }
@@ -776,31 +997,7 @@ void Command::TabMap(std::string const & tabname, std::string const & arguments)
    }
    else if (args.size() == 0)
    {
-      Ui::Normal::MapNameTable mappings;
-
-      if (args.size() == 0)
-      {
-         mappings = normalMode_.WindowMappings(screen_.GetWindowFromName(tabname));
-      }
-
-      if (mappings.size() > 0)
-      {
-         Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
-         PagerWindow * pager = screen_.GetPagerWindow();
-         pager->Clear();
-
-         for (; it != mappings.end(); ++it)
-         {
-            pager->AddLine(it->first + "   " + it->second);
-         }
-
-         screen_.ShowPagerWindow();
-      }
-      else
-      {
-         ErrorString(ErrorNumber::NoSuchMapping);
-      }
+      PrintMappings(tabname);
    }
    else
    {
@@ -927,12 +1124,19 @@ void Command::Move(std::string const & arguments)
          position2 = 1;
       }
 
-      client_.Move(position1 - 1, position2 - 1);
+      if ((position1 < Main::Playlist().Size()) && (position2 <= Main::Playlist().Size()))
+      {
+         client_.Move(position1 - 1, position2 - 1);
 
-      Mpc::Song * song = Main::Playlist().Get(position1 - 1);
-      Main::Playlist().Remove(position1 - 1, 1);
-      Main::Playlist().Add(song, position2 - 1);
-      screen_.Update();
+         Mpc::Song * song = Main::Playlist().Get(position1 - 1);
+         Main::Playlist().Remove(position1 - 1, 1);
+         Main::Playlist().Add(song, position2 - 1);
+         screen_.Update();
+      }
+      else
+      {
+         // \TODO error here!
+      }
    }
    else
    {
@@ -957,8 +1161,8 @@ void Command::Swap(std::string const & arguments)
 
    if ((arguments.find(" ") != string::npos))
    {
-      std::string position1 = arguments.substr(0, arguments.find(" "));
-      std::string position2 = arguments.substr(arguments.find(" ") + 1);
+      std::string const position1 = arguments.substr(0, arguments.find(" "));
+      std::string const position2 = arguments.substr(arguments.find(" ") + 1);
       client_.Swap(atoi(position1.c_str()) - 1, atoi(position2.c_str()) - 1);
    }
    else
@@ -1002,17 +1206,43 @@ void Command::SkipSong(std::string const & arguments)
 template <Ui::Screen::MainWindow MAINWINDOW>
 void Command::SetActiveAndVisible(std::string const & arguments)
 {
+   if (currentLine_ != -1)
+   {
+      screen_.ScrollTo(currentLine_);
+   }
+
    screen_.SetActiveAndVisible(static_cast<int32_t>(MAINWINDOW));
+
+   if (line_ != -1)
+   {
+      screen_.ScrollTo(line_);
+   }
 }
 
 template <Command::Location LOCATION>
 void Command::ChangeToWindow(std::string const & arguments)
 {
-   uint32_t active = 0;
+   int32_t active = 0;
 
-   if (LOCATION == Last)
+   switch (LOCATION)
    {
-      active = screen_.VisibleWindows() - 1;
+      case First:
+         active = 0;
+         break;
+
+      case Next:
+         active = ((screen_.GetActiveWindowIndex() + 1) %
+                   screen_.VisibleWindows());
+         break;
+
+      case Previous:
+         active = screen_.GetActiveWindowIndex() - 1;
+         active = (active < 0) ? screen_.VisibleWindows() - 1 : active;
+         break;
+
+      case Last:
+         active = screen_.VisibleWindows() - 1;
+         break;
    }
 
    screen_.SetActiveWindow(active);
@@ -1060,7 +1290,14 @@ void Command::RenameWindow(std::string const & arguments)
 
       if (id != Ui::Screen::Unknown)
       {
-         screen_.Window(id).SetName(newname);
+         if (screen_.GetWindowFromName(newname) == Ui::Screen::Unknown)
+         {
+            screen_.Window(id).SetName(newname);
+         }
+         else
+         {
+            ErrorString(ErrorNumber::NameInUse, newname);
+         }
       }
       else
       {
@@ -1069,7 +1306,14 @@ void Command::RenameWindow(std::string const & arguments)
    }
    else
    {
-      screen_.ActiveWindow().SetName(arguments);
+      if (screen_.GetWindowFromName(arguments) == Ui::Screen::Unknown)
+      {
+         screen_.ActiveWindow().SetName(arguments);
+      }
+      else
+      {
+         ErrorString(ErrorNumber::NameInUse, arguments);
+      }
    }
 }
 
@@ -1095,9 +1339,62 @@ void Command::DebugClient(std::string const & arguments)
    (client_.*func)();
 }
 
+void Command::Test(std::string const & arguments)
+{
+#ifdef HAVE_TEST_H
+   CPPUNIT_NS::TestResult testresult;
+   CPPUNIT_NS::TestResultCollector collectedresults;
+   testresult.addListener(&collectedresults);
+   CPPUNIT_NS::TestRunner testrunner;
+
+   if ((arguments == "") || (arguments == "all"))
+   {
+      Main::TestConsole().Add("Running all tests...");
+      testrunner.addTest(CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest());
+   }
+   else
+   {
+      Main::TestConsole().Add("Running test " + arguments + "...");
+      CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry(arguments);
+      testrunner.addTest(registry.makeTest());
+   }
+   testrunner.run(testresult);
+
+   std::stringstream outStream;
+   CPPUNIT_NS::TextOutputter textoutput(&collectedresults, outStream);
+   textoutput.write();
+
+   std::string output;
+
+   while (!outStream.eof())
+   {
+      std::getline(outStream, output);
+
+      if (output != "")
+      {
+         Main::TestConsole().Add(output);
+      }
+   }
+#endif
+}
+
+void Command::TestInputRandom(std::string const & arguments)
+{
+   int count = atoi(arguments.c_str());
+   screen_.EnableRandomInput(count);
+}
+
+void Command::TestInputSequence(std::string const & arguments)
+{
+   for (int i = arguments.size() - 1; i >= 0; --i)
+   {
+      ungetch(arguments[i]);
+   }
+}
+
 void Command::TestScreen(std::string const & arguments)
 {
-   screen_.ActiveWindow().ScrollTo(999999);
+   screen_.ActiveWindow().ScrollTo(65535);
    screen_.ScrollTo(screen_.ActiveWindow().Playlist(0));
    screen_.ScrollTo(screen_.ActiveWindow().Current());
    screen_.ActiveWindow().ScrollTo(0);
@@ -1105,16 +1402,15 @@ void Command::TestScreen(std::string const & arguments)
 }
 
 
-bool Command::ExecuteCommand(std::string command, std::string const & arguments)
+bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments)
 {
    pcrecpp::RE const forceCheck("^.*!$");
 
-   forceCommand_   = false;
+   forceCommand_ = (forceCheck.FullMatch(command));
 
-   if (forceCheck.FullMatch(command))
+   if (forceCommand_ == true)
    {
-      forceCommand_  = true;
-      command        = command.substr(0, command.length() - 1);
+      command = command.substr(0, command.length() - 1);
    }
 
    // If we can't find the exact command, look for a unique command that starts
@@ -1140,17 +1436,50 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    // If we have found a command execute it, with \p arguments
    if (matchingCommand == true)
    {
+      // This is a hack for ranges on the setactive command
+      // so that we return the scroll for the window before the command
+      // is executed and change it for the new one
+      currentLine_ = -1;
+      line_        = -1;
+
+      // If a range was specified and supported scroll to the line
+      // corresponding to the first part of the range
+      // \TODO this may break if it is done when we are in visual mode
+      if ((SupportsRange(commandToExecute) == true) && (line > 0))
+      {
+         currentLine_ = screen_.GetActiveSelected();
+         line_        = line - 1;
+         screen_.ScrollTo(line - 1);
+      }
+      else if (line > 0)
+      {
+         ErrorString(ErrorNumber::NoRangeAllowed, command);
+         return true;
+      }
+
       if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (client_.Connected() == true))
       {
+         count_ = (count <= 0) ? 1 : count;
          CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
          CommandFunction const commandFunction = it->second;
-
          (*this.*commandFunction)(arguments);
       }
       else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
       {
-         CommandArgPair pair(commandToExecute, arguments);
-         commandQueue_.push_back(pair);
+         CommandArgs commandArgs;
+         commandArgs.line      = line;
+         commandArgs.count     = count;
+         commandArgs.command   = commandToExecute;
+         commandArgs.arguments = arguments;
+         commandQueue_.push_back(commandArgs);
+      }
+
+      currentLine_ = -1;
+      line_        = -1;
+
+      if ((SupportsRange(commandToExecute) == true) && (count > 0) && (line > 0))
+      {
+         screen_.ScrollTo(line + count - 2);
       }
    }
    else if (validCommandCount > 1)
@@ -1163,15 +1492,13 @@ bool Command::ExecuteCommand(std::string command, std::string const & arguments)
    }
 
    forceCommand_ = false;
-
    return true;
 }
 
-void Command::SplitCommand(std::string const & input, std::string & command, std::string & arguments)
+void Command::SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments)
 {
-   std::stringstream commandStream(input);
-   std::getline(commandStream, command,   ' ');
-   std::getline(commandStream, arguments, '\n');
+   pcrecpp::RE const split("^([\\d,]*)?([^ /]*) ?(/?[^\n]*)\n?$");
+   split.FullMatch(input.c_str(), &range, &command, &arguments);
 }
 
 std::vector<std::string> Command::SplitArguments(std::string const & input, char delimeter)
@@ -1262,11 +1589,23 @@ void Command::Mpc(std::string const & arguments)
 
 void Command::Alias(std::string const & input)
 {
-   std::string command, arguments;
+   std::string range, command, arguments;
 
-   SplitCommand(input, command, arguments);
+   SplitCommand(input, range, command, arguments);
 
    aliasTable_[command] = arguments;
+}
+
+void Command::Unalias(std::string const & input)
+{
+   std::string range, command, arguments;
+
+   SplitCommand(input, range, command, arguments);
+
+   if (aliasTable_.find(command) != aliasTable_.end())
+   {
+      aliasTable_.erase(command);
+   }
 }
 
 void Command::ResetTabCompletion(int input)
@@ -1285,14 +1624,23 @@ std::string Command::TabComplete(std::string const & command)
    if (initTabCompletion_ == true)
    {
       tabStart = command;
+      addTable_.clear();
       loadTable_.clear();
 
+      screen_.Initialise(Ui::Screen::Directory);
       screen_.Initialise(Ui::Screen::Lists);
 
       for (uint32_t i = 0; i < Main::Lists().Size(); ++i)
       {
          loadTable_.push_back("load " + Main::Lists().Get(i).name_);
          loadTable_.push_back("edit " + Main::Lists().Get(i).name_);
+      }
+
+      std::vector<std::string> const & paths = Main::Directory().Paths();
+
+      for (uint32_t i = 0; i < paths.size(); ++i)
+      {
+         addTable_.push_back("add " + paths[i]);
       }
    }
 
@@ -1302,7 +1650,11 @@ std::string Command::TabComplete(std::string const & command)
    }
    else if ((tabStart.find("load ") == 0) || (tabStart.find("edit ") == 0))
    {
-      return TabComplete(tabStart, loadTable_,  TabCompletionMatch<std::string>(tabStart));
+      return TabComplete(tabStart, loadTable_, TabCompletionMatch<std::string>(tabStart));
+   }
+   else if (tabStart.find("add ") == 0)
+   {
+      return TabComplete(tabStart, addTable_, TabCompletionMatch<std::string>(tabStart));
    }
    else
    {

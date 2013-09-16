@@ -38,6 +38,7 @@ static Mpc::Lists *     i_buffer    = NULL;
 static Mpc::Outputs *   o_buffer    = NULL;
 static Ui::Console *    c_buffer    = NULL;
 static Ui::Console *    d_buffer    = NULL;
+static Ui::Console *    x_buffer    = NULL;
 
 void Main::Delete()
 {
@@ -51,6 +52,7 @@ void Main::Delete()
    delete o_buffer;
    delete c_buffer;
    delete d_buffer;
+   delete x_buffer;
 }
 
 Mpc::Playlist & Main::Playlist()
@@ -141,5 +143,14 @@ Ui::Console & Main::DebugConsole()
       d_buffer = new Ui::Console();
    }
    return *d_buffer;
+}
+
+Ui::Console & Main::TestConsole()
+{
+   if (x_buffer == NULL)
+   {
+      x_buffer = new Ui::Console();
+   }
+   return *x_buffer;
 }
 /* vim: set sw=3 ts=3: */

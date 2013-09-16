@@ -64,22 +64,22 @@ void SongWindow::AddToPlaylist(uint32_t position)
    if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
    {
       if ((settings_.Get(Setting::AddPosition) == Setting::AddEnd) ||
-          (client_.GetCurrentSong() == -1))
+          (client_.GetCurrentSongPos() == -1))
       {
          Main::Playlist().Add(Buffer().Get(position));
          client_.Add(*(Buffer().Get(position)));
       }
       else
       {
-         Main::Playlist().Add(Buffer().Get(position), client_.GetCurrentSong() + 1);
-         client_.Add(*(Buffer().Get(position)), client_.GetCurrentSong() + 1);
+         Main::Playlist().Add(Buffer().Get(position), client_.GetCurrentSongPos() + 1);
+         client_.Add(*(Buffer().Get(position)), client_.GetCurrentSongPos() + 1);
       }
    }
 }
 
 std::string SongWindow::SearchPattern(int32_t id) const
 {
-   if (id > 0)
+   if ((id >= 0) && (id < Buffer().Size()))
    {
       return Buffer().Get(id)->FormatString(settings_.Get(Setting::SongFormat));
    }
@@ -166,10 +166,7 @@ void SongWindow::Confirm()
          AddLine(pos1, count, false);
       }
 
-      if (Buffer().Get(CurrentLine()) != NULL)
-      {
-         client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - (pos2 - pos1 + 1)));
-      }
+      client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - (pos2 - pos1 + 1)));
    }
 
    SelectWindow::Confirm();
@@ -178,7 +175,7 @@ void SongWindow::Confirm()
 uint32_t SongWindow::Current() const
 {
    int32_t current       = CurrentLine();
-   int32_t currentSongId = client_.GetCurrentSong();
+   int32_t currentSongId = client_.GetCurrentSongPos();
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
    {
@@ -290,7 +287,10 @@ void SongWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
 
 void SongWindow::CropAllLines()
 {
-   DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+   if (BufferSize() > 0)
+   {
+      DeleteLine(CurrentLine(), BufferSize() - CurrentLine(), false);
+   }
 }
 
 void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)

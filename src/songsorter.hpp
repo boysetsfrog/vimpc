@@ -37,8 +37,8 @@ namespace Ui
       }
 
       public:
-      bool operator() (Mpc::Song * i, Mpc::Song * j) 
-      { 
+      bool operator() (Mpc::Song * i, Mpc::Song * j)
+      {
          // Sort based on print format
          if (format_ == "format")
          {

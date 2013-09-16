@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   callback.hpp - 
+   callback.hpp -
    */
 
 #ifndef __MAIN__CALLBACK
@@ -34,6 +34,7 @@ namespace Main
    class CallbackInterface
    {
       public:
+      virtual ~CallbackInterface() { }
       virtual void operator() (Parameter) = 0;
    };
 
@@ -41,7 +42,7 @@ namespace Main
    template <class Object, class Parameter>
    class CallbackObject : public CallbackInterface<Parameter>
    {
-      private: 
+      private:
          typedef void (Object::*Callback)(Parameter);
 
       public:
@@ -61,7 +62,7 @@ namespace Main
    template <class Parameter>
    class CallbackFunction : public CallbackInterface<Parameter>
    {
-      private: 
+      private:
          typedef void (*Callback)(Parameter);
 
       public:

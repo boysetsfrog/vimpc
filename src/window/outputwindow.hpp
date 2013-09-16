@@ -57,7 +57,14 @@ namespace Ui
       void Redraw();
 
    public:
-      std::string SearchPattern(int32_t id) const { return outputs_.Get(id)->Name(); }
+      std::string SearchPattern(int32_t id) const
+      {
+         if (id < outputs_.Size())
+         {
+            return outputs_.Get(id)->Name();
+         }
+         return "";
+      }
 
    protected:
       Main::WindowBuffer const & WindowBuffer() const { return outputs_; }

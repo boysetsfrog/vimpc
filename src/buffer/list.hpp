@@ -22,8 +22,10 @@
 #define __MPC__LISTS
 
 // Includes
+#include "algorithm.hpp"
 #include "buffer.hpp"
 #include "callback.hpp"
+#include "settings.hpp"
 
 // Lists
 namespace Mpc
@@ -31,8 +33,8 @@ namespace Mpc
    class List
    {
       public:
-         List(std::string const name) : path_(name), name_(name) { }
-         List(std::string const path, std::string const name) : path_(path), name_(name) { }
+         List(std::string const & name) : path_(name), name_(name) { }
+         List(std::string const & path, std::string const & name) : path_(path), name_(name) { }
 
          bool operator!=(Mpc::List const & rhs) const
          {
@@ -47,7 +49,12 @@ namespace Mpc
    class ListComparator
    {
       public:
-      bool operator() (List i, List j) { return (i.name_ < j.name_); };
+      bool operator() (List i, List j)
+      {
+         return Algorithm::icompare(i.name_, j.name_,
+                  Main::Settings::Instance().Get(Setting::IgnoreTheSort),
+                  Main::Settings::Instance().Get(Setting::IgnoreCaseSort));
+      }
    };
 
 
