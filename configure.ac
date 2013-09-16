@@ -86,6 +86,7 @@ fi
 
 
 CPPFLAGS="$CPPFLAGS -std=c++11 -DHELP_DIRECTORY='\"$docdir\"'"
+LIBS="$LIBS -lpthread"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
