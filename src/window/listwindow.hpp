@@ -75,6 +75,7 @@ namespace Ui
       void CropLine(uint32_t line, uint32_t count, bool scroll);
       void CropAllLines();
       void Edit();
+      void ScrollToFirstMatch(std::string const & input);
 
    protected:
       Main::WindowBuffer const & WindowBuffer() const { return lists_; }

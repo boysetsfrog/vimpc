@@ -75,36 +75,42 @@ void Library::Add(Mpc::Song * song)
 
    CreateVariousArtist();
 
-   if ((lastAlbumEntry_ == NULL) || (Algorithm::iequals(lastAlbumEntry_->album_, album) == false))
+   if ((lastAlbumEntry_ == NULL) ||
+       (Algorithm::imatch(lastAlbumEntry_->album_, album,
+                          settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
       lastAlbumEntry_  = NULL;
 
-      if ((lastArtistEntry_ == NULL) || (Algorithm::iequals(lastArtistEntry_->artist_, artist) == false))
+      if ((lastArtistEntry_ == NULL) ||
+          (Algorithm::iequals(lastArtistEntry_->artist_, artist) == false))
       {
          lastArtistEntry_ = NULL;
 
          uint32_t i = 0;
-         for (i = 0; ((i < Size()) &&
-                      ((Algorithm::iequals(Get(i)->artist_, artist) == false) ||
-                      (Get(i)->type_ != Mpc::ArtistType))); ++i);
+
+         for (i = 0;
+              ((i < Size()) &&
+               ((Algorithm::imatch(Get(i)->artist_, artist,
+                                   settings_.Get(Setting::IgnoreTheGroup), true) == false) ||
+                (Get(i)->type_ != Mpc::ArtistType)));
+               ++i);
 
          if (i < Size())
          {
             lastArtistEntry_ = Get(i);
-
-            for (Mpc::LibraryEntryVector::iterator it = lastArtistEntry_->children_.begin(); ((it != lastArtistEntry_->children_.end()) && (lastAlbumEntry_ == NULL)); ++it)
-            {
-               if ((Algorithm::iequals((*it)->album_, album) == true) &&
-                   ((*it)->type_ == Mpc::AlbumType))
-               {
-                  lastAlbumEntry_ = (*it);
-               }
-            }
          }
          else
          {
             lastArtistEntry_ = CreateArtistEntry(artist);
-            lastAlbumEntry_  = NULL;
+         }
+      }
+
+      for (Mpc::LibraryEntryVector::iterator it = lastArtistEntry_->children_.begin(); ((it != lastArtistEntry_->children_.end()) && (lastAlbumEntry_ == NULL)); ++it)
+      {
+         if ((Algorithm::iequals((*it)->album_, album) == true) &&
+               ((*it)->type_ == Mpc::AlbumType))
+         {
+            lastAlbumEntry_ = (*it);
          }
       }
 
@@ -117,7 +123,8 @@ void Library::Add(Mpc::Song * song)
    }
    else if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
            (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
-           (Algorithm::iequals(lastArtistEntry_->artist_, artist) == false) &&
+           (Algorithm::imatch(lastAlbumEntry_->album_, album,
+              settings_.Get(Setting::IgnoreTheGroup), true) == false) &&
            (lastArtistEntry_ != variousArtist_) &&
            (lastArtistEntry_->children_.back() == lastAlbumEntry_))
    {
@@ -282,15 +289,15 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
          client.Add(*(entry->song_), position);
       }
       else if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
-          (client.GetCurrentSong() == -1))
+          (client.GetCurrentSongPos() == -1))
       {
          Main::Playlist().Add(entry->song_);
          client.Add(*(entry->song_));
       }
       else
       {
-         Main::Playlist().Add(entry->song_, client.GetCurrentSong() + 1);
-         client.Add(*(entry->song_), client.GetCurrentSong() + 1);
+         Main::Playlist().Add(entry->song_, client.GetCurrentSongPos() + 1);
+         client.Add(*(entry->song_), client.GetCurrentSongPos() + 1);
       }
    }
    else
@@ -298,9 +305,9 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
       int current = -1;
 
       if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddNext) &&
-          (client.GetCurrentSong() != -1))
+          (client.GetCurrentSongPos() != -1))
       {
-         current = client.GetCurrentSong() + 1;
+         current = client.GetCurrentSongPos() + 1;
       }
 
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
@@ -463,7 +470,7 @@ std::string Library::String(uint32_t position) const
       return Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
 
-	return "";
+   return "";
 }
 
 std::string Library::PrintString(uint32_t position) const
@@ -481,7 +488,7 @@ std::string Library::PrintString(uint32_t position) const
       return "       " + Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
 
-	return "";
+   return "";
 }
 
 

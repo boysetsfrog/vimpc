@@ -70,21 +70,21 @@ namespace Mpc
       {
          bool comparison = false;
 
-			Main::Settings const & settings = Main::Settings::Instance();
+         Main::Settings const & settings = Main::Settings::Instance();
 
-			if (type_ == ArtistType)
-			{
+         if (type_ == ArtistType)
+         {
             comparison = Algorithm::icompare(artist_, rhs.artist_, settings.Get(Setting::IgnoreTheSort), settings.Get(Setting::IgnoreCaseSort));
-			}
-			else if (type_ == AlbumType)
-			{
+         }
+         else if (type_ == AlbumType)
+         {
             comparison = Algorithm::icompare(album_, rhs.album_, settings.Get(Setting::IgnoreTheSort), settings.Get(Setting::IgnoreCaseSort));
-			}
+         }
          else if ((song_ != NULL) && (rhs.song_ != NULL))
          {
             uint32_t track    = atoi(song_->Track().c_str());
             uint32_t rhsTrack = atoi(rhs.song_->Track().c_str());
-				comparison = (track < rhsTrack);
+            comparison = (track < rhsTrack);
          }
 
          return comparison;

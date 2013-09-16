@@ -35,7 +35,7 @@ namespace Ui
    class WindowSelector : public Ui::SelectWindow
    {
    public:
-      WindowSelector(Main::Settings const & settings, Ui::Screen & screen, 
+      WindowSelector(Main::Settings const & settings, Ui::Screen & screen,
                      Ui::Windows const & windows, Ui::Search const & search);
       ~WindowSelector();
 

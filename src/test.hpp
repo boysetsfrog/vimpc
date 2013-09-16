@@ -1,6 +1,6 @@
 /*
    Vimpc
-   Copyright (C) 2010 Nathan Sweetman
+   Copyright (C) 2010 - 2013 Nathan Sweetman
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,30 +15,50 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   debug.hpp - console used to display a debug print
+   vimpc.hpp - handles mode changes and input processing
    */
 
-#ifndef __UI__DEBUG
-#define __UI__DEBUG
+#ifndef __MAIN__TEST
+#define __MAIN__TEST
 
-#include "buffers.hpp"
-#include "window/console.hpp"
+#include "config.h"
 
-#include <string>
-
-//! Display an error window with the given error
-static void Debug(std::string format, ...);
-
-void Debug(std::string format, ...)
-{
-#ifdef __DEBUG_PRINTS
-   char buffer[1024];
-   va_list args;
-   va_start(args, format);
-   vsprintf(buffer, format.c_str(), args);
-   Main::DebugConsole().Add(buffer);
-   va_end(args);
+#ifdef TEST_ENABLED
+#define protected public
 #endif
+
+namespace Ui
+{ 
+   class Command;
+   class Screen;
+}
+
+namespace Mpc
+{
+   class Client;
+}
+
+namespace Main
+{
+   class Tester
+   {
+      protected:
+         Tester() { }
+         ~Tester() { }
+
+      public:
+         static Tester & Instance()
+         {
+            static Tester tester;
+            return tester;
+         }
+
+      #ifdef TEST_ENABLED
+         Ui::Screen *  Screen;
+         Ui::Command * Command;   
+         Mpc::Client * Client;
+      #endif
+   };
 }
 
 #endif

@@ -24,6 +24,7 @@
 #include "settings.hpp"
 #include "vimpc.hpp"
 #include "buffer/playlist.hpp"
+#include "window/debug.hpp"
 #include "window/error.hpp"
 
 #include <iostream>
@@ -273,6 +274,8 @@ pcrecpp::RE_Options Search::GetOptions(const std::string & search) const
       opt.set_caseless(false);
    }
 
+   opt.set_utf8(true);
+
    return opt;
 }
 
@@ -311,6 +314,7 @@ bool Search::InputStringHandler(std::string input)
 {
    lastSearch_  = input;
    hasSearched_ = true;
+   Debug("Search for: %s", input.c_str());
    return SearchResult(Next, 1);
 }
 /* vim: set sw=3 ts=3: */

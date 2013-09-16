@@ -1,3 +1,11 @@
+Version 0.09.0
+-------------
+- Added 'gm' to move a song to a given position
+- Added tab completion for :add command
+- Added progress/seek bar
+- Support for lists with older libmpdclient versions
+
+
 Version 0.08.1
 -------------
 - Fixed bounds check crashes on some empty window key presses

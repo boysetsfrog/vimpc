@@ -25,7 +25,7 @@
 
 using namespace Ui;
 
-WindowSelector::WindowSelector(Main::Settings const & settings, Ui::Screen & screen, 
+WindowSelector::WindowSelector(Main::Settings const & settings, Ui::Screen & screen,
                                Ui::Windows const & windows, Ui::Search const & search) :
    SelectWindow(settings, screen, "windows"),
    windows_    (windows),
@@ -123,9 +123,12 @@ int32_t WindowSelector::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
 
-   if (screen_.IsVisible((Ui::Screen::MainWindow) windows_.Get(line + FirstLine())) == true)
+   if (line + FirstLine() < windows_.Size())
    {
-      colour = settings_.colours.FullAdd;
+      if (screen_.IsVisible((Ui::Screen::MainWindow) windows_.Get(line + FirstLine())) == true)
+      {
+         colour = settings_.colours.FullAdd;
+      }
    }
 
    return colour;

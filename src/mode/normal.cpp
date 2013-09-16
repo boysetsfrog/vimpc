@@ -123,6 +123,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["P"]       = &Normal::PasteBuffer;
 
    // Navigation
+   actionTable_["<Nop>"]   = &Normal::DoNothing;
    actionTable_["<Esc>"]   = &Normal::Escape;
    actionTable_["l"]       = &Normal::Right;
    actionTable_["h"]       = &Normal::Left;
@@ -165,8 +166,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    //actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
    // Editting
-   actionTable_["<C-A>"]   = &Normal::Move<1>;
-   actionTable_["<C-X>"]   = &Normal::Move<-1>;
+   actionTable_["<C-A>"]   = &Normal::Move<Relative, 1>;
+   actionTable_["<C-X>"]   = &Normal::Move<Relative, -1>;
 
    //
    actionTable_["<Left>"]  = actionTable_["h"];
@@ -179,6 +180,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["e"]       = &Normal::Edit;
    actionTable_["v"]       = &Normal::Visual;
    actionTable_["V"]       = &Normal::Visual;
+   actionTable_["<C-V>"]   = &Normal::Visual;
 
    // Library
    actionTable_["o"]       = &Normal::Expand;
@@ -193,6 +195,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["gt"]      = &Normal::SetActiveWindow<Screen::Next, 0>;
    actionTable_["gT"]      = &Normal::SetActiveWindow<Screen::Previous, 0>;
    actionTable_["gv"]      = &Normal::ResetSelection;
+   actionTable_["gm"]      = &Normal::Move<Absolute, 0>;
 
    // Marks
    actionTable_["m"]       = &Normal::NextAddMark;
@@ -542,6 +545,7 @@ bool Normal::Handle(std::string input, int count)
 
       if ((complete == true) && (actionFunc != NULL))
       {
+         Debug("Executing normal input %d%s", count, input.c_str());
          (*this.*actionFunc)(count);
       }
    }
@@ -617,7 +621,7 @@ bool Normal::RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count)
 std::string Normal::InputCharToString(int input) const
 {
    static std::map<int, std::string> conversionTable;
-	static char key[32];
+   static char key[32];
 
    if (conversionTable.empty() == true)
    {
@@ -639,15 +643,15 @@ std::string Normal::InputCharToString(int input) const
       conversionTable['<']           = "<lt>";
       conversionTable['\t']          = "<Tab>";
 
-		// Add F1 - F12  into the converstion table
-		for (int i = 0; i <= 12; ++i)
-		{
-			sprintf(key, "<F%d>", i);
-			conversionTable[KEY_F(i)] = std::string(key);
-		}
+      // Add F1 - F12  into the converstion table
+      for (int i = 0; i <= 12; ++i)
+      {
+         sprintf(key, "<F%d>", i);
+         conversionTable[KEY_F(i)] = std::string(key);
+      }
    }
 
-	std::string result = "";
+   std::string result = "";
 
 #ifdef HAVE_MOUSE_SUPPORT
    if (input == KEY_MOUSE)
@@ -660,29 +664,29 @@ std::string Normal::InputCharToString(int input) const
    else
    {
 #endif
-   	std::map<int, std::string>::const_iterator it = conversionTable.find(input);
+      std::map<int, std::string>::const_iterator it = conversionTable.find(input);
 
       if (it != conversionTable.end())
       {
          result = it->second;
       }
-		else
-		{
-			result += (char) input;
+      else
+      {
+         result += (char) input;
 
-			// Alt key combinations
-			if ((input & (1 << 31)) != 0)
-			{
-				sprintf(key, "<A-%c>", char (input & 0x7FFFFFFF));
-				result = std::string(key);
-			}
-			// Ctrl key combinations
-			else if ((input <= 27) && (input >= 1))
-			{
-				sprintf(key, "<C-%c>", char ('A' + input - 1));
-				result = std::string(key);
-			}
-		}
+         // Alt key combinations
+         if ((input & (1 << 31)) != 0)
+         {
+            sprintf(key, "<A-%c>", char (input & 0x7FFFFFFF));
+            result = std::string(key);
+         }
+         // Ctrl key combinations
+         else if ((input <= 27) && (input >= 1))
+         {
+            sprintf(key, "<C-%c>", char ('A' + input - 1));
+            result = std::string(key);
+         }
+      }
 #ifdef HAVE_MOUSE_SUPPORT
    }
 #endif
@@ -708,18 +712,18 @@ std::string Normal::MouseInputToString() const
       conversionTable[BUTTON3_DOUBLE_CLICKED] = "<2-RightMouse>";
    }
 
-	MEVENT event = screen_.LastMouseEvent();
+   MEVENT event = screen_.LastMouseEvent();
 
-	//! \TODO this seems to scroll quite slowly and not properly at all
-	std::map<uint32_t, std::string>::const_iterator it = conversionTable.begin();
+   //! \TODO this seems to scroll quite slowly and not properly at all
+   std::map<uint32_t, std::string>::const_iterator it = conversionTable.begin();
 
-	for (; it != conversionTable.end(); ++it)
-	{
-		if ((it->first & event.bstate) == it->first)
-		{
-			return it->second;
-		}
-	}
+   for (; it != conversionTable.end(); ++it)
+   {
+      if ((it->first & event.bstate) == it->first)
+      {
+         return it->second;
+      }
+   }
 
 #endif
    return "";
@@ -860,7 +864,7 @@ void Normal::RepeatLastAction(uint32_t count)
 
 void Normal::Expand(uint32_t count)
 {
-	// \TODO this is pretty dodgy is doesn't check the proper windows
+   // \TODO this is pretty dodgy is doesn't check the proper windows
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Expand(screen_.ActiveWindow().CurrentLine());
@@ -869,7 +873,7 @@ void Normal::Expand(uint32_t count)
 
 void Normal::Collapse(uint32_t count)
 {
-	// \TODO this is pretty dodgy is doesn't check the proper windows
+   // \TODO this is pretty dodgy is doesn't check the proper windows
    if (screen_.ActiveWindow().CurrentLine() < Main::Library().Size())
    {
       Main::Library().Collapse(screen_.ActiveWindow().CurrentLine());
@@ -949,7 +953,7 @@ void Normal::Add(uint32_t count)
    {
       if (confirmTable.size() == 0)
       {
-         confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, true>;
+         confirmTable[Ui::Screen::Outputs] = &Normal::SetOutput<COLLECTION, true>;
       }
 
       WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
@@ -1244,13 +1248,22 @@ void Normal::QuitAll(uint32_t count)
 }
 
 // Implementation of editting functions
-template <int8_t OFFSET>
+template <Normal::move_t MOVE, int8_t OFFSET>
 void Normal::Move(uint32_t count)
 {
    if (screen_.GetActiveWindow() == Screen::Playlist)
    {
       uint32_t const currentLine = screen_.ActiveWindow().CurrentLine();
-      int32_t position = currentLine + (count * OFFSET);
+      int32_t position = 0;
+
+      if (MOVE == Relative)
+      {
+         position = currentLine + (count * OFFSET);
+      }
+      else
+      {
+         position = count - 1;
+      }
 
       if (position >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize()))
       {

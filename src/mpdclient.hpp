@@ -28,13 +28,29 @@
 #include "buffers.hpp"
 #include "buffer/library.hpp"
 #include "buffer/list.hpp"
+#include "window/debug.hpp"
 
 // The library check in 2.1.0 doesn't seem to work
 // since we don't support versions older than that anyway, just return false
 // instead of using the check macro
-#if ((LIBMPDCLIENT_MAJOR_VERSION == 2) && (LIBMPDCLIENT_MINOR_VERSION == 1))
+#if ((LIBMPDCLIENT_MAJOR_VERSION <= 2) && (LIBMPDCLIENT_MINOR_VERSION <= 1))
 #undef LIBMPDCLIENT_CHECK_VERSION
-#define LIBMPDCLIENT_CHECK_VERSION(major, minor, patch) 0
+#define LIBMPDCLIENT_CHECK_VERSION(major, minor, patch) \
+    ((major) < LIBMPDCLIENT_MAJOR_VERSION || \
+     ((major) == LIBMPDCLIENT_MAJOR_VERSION && \
+      ((minor) < LIBMPDCLIENT_MINOR_VERSION || \
+       ((minor) == LIBMPDCLIENT_MINOR_VERSION && \
+        (patch) <= LIBMPDCLIENT_PATCH_VERSION))))
+#endif
+
+#ifndef LIBMPDCLIENT_MAJOR_VERSION
+#define LIBMPDCLIENT_MAJOR_VERSION 0
+#endif
+#ifndef LIBMPDCLIENT_MINOR_VERSION
+#define LIBMPDCLIENT_MINOR_VERSION 0
+#endif
+#ifndef LIBMPDCLIENT_PATCH_VERSION
+#define LIBMPDCLIENT_PATCH_VERSION 0
 #endif
 
 namespace Main
@@ -102,6 +118,7 @@ namespace Mpc
       void Previous();
       void Seek(int32_t Offset);
       void SeekTo(uint32_t Time);
+      void SeekToPercent(double Percent);
 
    public:
       // Toggle settings
@@ -123,6 +140,9 @@ namespace Mpc
 
       int32_t Volume();
       void SetVolume(uint32_t volume);
+
+      void SetMute(bool mute);
+      bool Mute();
 
       bool IsUpdating();
 
@@ -178,7 +198,7 @@ namespace Mpc
       std::string CurrentState();
       std::string GetCurrentSongURI() ;
 
-      int32_t  GetCurrentSong();
+      int32_t  GetCurrentSongPos();
       uint32_t TotalNumberOfSongs();
 
       bool SongIsInQueue(Mpc::Song const & song) const;
@@ -230,6 +250,7 @@ namespace Mpc
       void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
 
       void GetAllMetaInformation();
+      void GetAllMetaFromRoot();
 
    private:
       void ClearCommand();
@@ -261,6 +282,8 @@ namespace Mpc
       bool                    retried_;
 
       uint32_t                volume_;
+      uint32_t                mVolume_;
+      bool                    mute_;
       bool                    updating_;
       bool                    random_;
       bool                    repeat_;
@@ -289,6 +312,7 @@ namespace Mpc
       std::vector<Mpc::Song *> songs_;
       std::vector<std::string> paths_;
       std::vector<Mpc::List>   playlists_;
+      std::vector<Mpc::List>   playlistsOld_;
    };
 
    //
@@ -299,6 +323,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::List queue meta data");
          mpd_send_list_queue_meta(connection_);
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -330,6 +355,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::List queue meta data changes");
          mpd_send_queue_changes_meta(connection_, oldVersion);
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -382,6 +408,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::List songs in playlist %s", playlist.c_str());
          mpd_send_list_playlist(connection_, playlist.c_str());
 
          mpd_song * nextSong = mpd_recv_song(connection_);
@@ -412,16 +439,32 @@ namespace Mpc
 
          if (Connected() == true)
          {
-            mpd_send_list_playlists(connection_);
+            Debug("Client::Request playlists");
 
-            mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
-
-            for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+            if (mpd_send_list_playlists(connection_))
             {
-               std::string const playlist = mpd_playlist_get_path(nextPlaylist);
-               (object.*callBack)(Mpc::List(playlist));
-               mpd_playlist_free(nextPlaylist);
+               mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
+
+               for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+               {
+                  std::string const playlist = mpd_playlist_get_path(nextPlaylist);
+                  (object.*callBack)(Mpc::List(playlist));
+                  mpd_playlist_free(nextPlaylist);
+               }
             }
+
+            mpd_connection_clear_error(connection_);
+         }
+      }
+#endif
+
+#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
+         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
+      {
+         for (std::vector<Mpc::List>::iterator it = playlistsOld_.begin(); it != playlistsOld_.end(); ++it)
+         {
+            (object.*callBack)(*it);
          }
       }
 #endif
@@ -453,6 +496,7 @@ namespace Mpc
       if (Connected())
       {
          // Start the search
+         Debug("Client::Commit search");
          mpd_search_commit(connection_);
 
          // Recv the songs and do some callbacks
@@ -479,6 +523,7 @@ namespace Mpc
 
       if (Connected() == true)
       {
+         Debug("Client::Get outputs");
          mpd_send_outputs(connection_);
 
          mpd_output * next = mpd_recv_output(connection_);

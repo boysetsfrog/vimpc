@@ -103,7 +103,7 @@ namespace Ui
       virtual int32_t DetermineColour(uint32_t line) const;
 
    protected:
-      Main::Settings const &     settings_;
+      Main::Settings &           settings_;
       Ui::Screen &               screen_;
       std::string                name_;
       uint16_t                   scrollLine_;

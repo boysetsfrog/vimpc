@@ -65,8 +65,8 @@ namespace Mpc
    class DirectoryComparator
    {
       public:
-      bool operator() (DirectoryEntry * i, DirectoryEntry * j) 
-      { 
+      bool operator() (DirectoryEntry * i, DirectoryEntry * j)
+      {
          if (i->name_ == "..")
          {
             return true;
@@ -77,7 +77,7 @@ namespace Mpc
          }
          else if (i->type_ == j->type_)
          {
-            return (i->name_ < j->name_); 
+            return (i->name_ < j->name_);
          }
          else if (i->type_ == PathType)
          {
@@ -88,7 +88,7 @@ namespace Mpc
             return false;
          }
 
-         return (i->name_ < j->name_); 
+         return (i->name_ < j->name_);
       };
    };
 
@@ -110,6 +110,7 @@ namespace Mpc
       static std::string DirectoryFromURI(std::string const & URI);
       static bool IsChildPath(std::string const & Parent, std::string const & Child);
       static std::string ParentPath(std::string const & Path);
+
 
    public:
       std::string CurrentDirectory();
@@ -157,6 +158,8 @@ namespace Mpc
          DirectoryComparator sorter;
          Main::Buffer<DirectoryEntry *>::Sort(sorter);
       }
+
+      std::vector<std::string> const & Paths() { return paths_; }
 
    private:
       void AddEntry(std::string fullPath);

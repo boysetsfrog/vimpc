@@ -26,7 +26,7 @@
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
-namespace Ui   { class Mode; class Normal; }
+namespace Ui   { class Mode; class Normal; class Command; }
 namespace Main { class Settings; }
 
 namespace Main
@@ -105,6 +105,7 @@ namespace Main
       Mpc::Client    client_;
       ModeTable      modeTable_;
       Ui::Normal   & normalMode_;
+      Ui::Command  & commandMode_;
    };
 }
 

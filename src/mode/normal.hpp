@@ -121,6 +121,7 @@ namespace Ui
       void Confirm(uint32_t count);
       void Click(uint32_t count);
       void Escape(uint32_t count);
+      void DoNothing(uint32_t count) { }
 
       // Execute the last action again
       void RepeatLastAction(uint32_t count);
@@ -218,7 +219,9 @@ namespace Ui
       void ResetSelection(uint32_t count);
 
    private: //Editting
-      template <int8_t OFFSET>
+      typedef enum { Absolute, Relative } move_t;
+
+      template <move_t MOVE, int8_t OFFSET>
       void Move(uint32_t count);
 
    private:

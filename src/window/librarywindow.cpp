@@ -45,6 +45,7 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
 {
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
+   SoftRedrawOnSetting(Setting::IgnoreTheGroup);
    SoftRedrawOnSetting(Setting::ExpandArtists);
 }
 
@@ -98,7 +99,7 @@ void LibraryWindow::SoftRedraw()
 uint32_t LibraryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -534,42 +535,45 @@ void LibraryWindow::ForPositions(T start, T end, LibraryFunction function)
 
 int32_t LibraryWindow::DetermineColour(uint32_t line) const
 {
-   Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
-
    int32_t colour = settings_.colours.Song;
 
-   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+   if (line + FirstLine() < library_.Size())
    {
-      colour = settings_.colours.CurrentSong;
-   }
-   else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
-            (search_.HighlightSearch() == true))
-   {
-      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+      Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
 
-      if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
-          ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
-          ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
+      if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
       {
-         colour = settings_.colours.SongMatch;
+         colour = settings_.colours.CurrentSong;
       }
-   }
+      else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+               (search_.HighlightSearch() == true))
+      {
+         pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-   if (colour == settings_.colours.Song)
-   {
-      if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
-      {
-         colour = settings_.colours.FullAdd;
+         if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
+             ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
+             ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
+         {
+            colour = settings_.colours.SongMatch;
+         }
       }
-      else if (entry->type_ != Mpc::SongType)
+
+      if (colour == settings_.colours.Song)
       {
-         if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == static_cast<int32_t>(entry->children_.size())))
+         if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL) && (entry->song_->Reference() > 0))
          {
             colour = settings_.colours.FullAdd;
          }
-         else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
+         else if (entry->type_ != Mpc::SongType)
          {
-            colour = settings_.colours.PartialAdd;
+            if ((entry->children_.size() >= 1) && (entry->childrenInPlaylist_ == static_cast<int32_t>(entry->children_.size())))
+            {
+               colour = settings_.colours.FullAdd;
+            }
+            else if ((entry->children_.size() >= 1) && (entry->partial_ > 0))
+            {
+               colour = settings_.colours.PartialAdd;
+            }
          }
       }
    }

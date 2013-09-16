@@ -74,7 +74,7 @@ void DirectoryWindow::SoftRedraw()
 uint32_t DirectoryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -99,7 +99,7 @@ uint32_t DirectoryWindow::Current() const
 
 void DirectoryWindow::ScrollToCurrent()
 {
-   int32_t currentSongId   = client_.GetCurrentSong();
+   int32_t currentSongId   = client_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -276,6 +276,10 @@ void DirectoryWindow::Print(uint32_t line) const
          {
             wattroff(window, COLOR_PAIR(colour));
          }
+      }
+      else
+      {
+         mvwprintw(window, line, 0, BlankLine.c_str());
       }
    }
 }
@@ -475,7 +479,7 @@ void DirectoryWindow::ScrollToFirstMatch(std::string const & input)
    {
       Mpc::DirectoryEntry * entry = directory_.Get(i);
 
-      if ((entry->type_ == Mpc::ArtistType) &&
+      if ((entry->type_ == Mpc::PathType) &&
           (Algorithm::imatch(entry->name_, input, settings_.Get(Setting::IgnoreTheSort), settings_.Get(Setting::IgnoreCaseSort)) == true))
       {
          ScrollTo(i);
