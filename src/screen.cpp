@@ -73,10 +73,10 @@ using namespace Ui;
 bool WindowResized = false;
 int32_t RndCount   = 0;
 
-std::atomic<bool>       Running(true);
-std::list<int32_t>      Queue;
-std::mutex			      QueueMutex;
-std::condition_variable Condition;
+static std::atomic<bool>       Running(true);
+static std::list<int32_t>      Queue;
+static std::mutex			       QueueMutex;
+static std::condition_variable Condition;
 
 
 extern "C" void ResizeHandler(int);

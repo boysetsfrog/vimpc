@@ -21,6 +21,9 @@
 #ifndef __MPC__CLIENT
 #define __MPC__CLIENT
 
+#include <thread>
+#include <functional>
+
 #include <mpd/client.h>
 
 #include "output.hpp"
@@ -93,6 +96,9 @@ namespace Mpc
    public:
       Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
+   
+   private:
+      void QueueCommand(std::function<void()> function);
 
    private:
       Client(Client & client);
@@ -253,6 +259,9 @@ namespace Mpc
       void GetAllMetaFromRoot();
 
    private:
+      void ClientQueueExecutor(Mpc::Client * client);
+
+   private:
       void ClearCommand();
       bool Command(bool InputCommand);
 
@@ -271,6 +280,8 @@ namespace Mpc
       Main::Settings &        settings_;
       struct mpd_connection * connection_;
       int                     fd_;
+
+		std::thread	            clientThread_;
 
       std::string             hostname_;
       uint16_t                port_;

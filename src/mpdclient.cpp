@@ -34,11 +34,25 @@
 #include <sys/time.h>
 #include <poll.h>
 
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <list>
+#include <mutex>
+#include <future>
+#include <signal.h>
+#include <sys/types.h>
+
 using namespace Mpc;
 
 #define MPDCOMMAND
 //#define _DEBUG_ASSERT_ON_ERROR
 //#define _DEBUG_BREAK_ON_ERROR
+
+static std::atomic<bool>                  Running(true);
+static std::list<std::function<void()> >  Queue;
+static std::mutex			                  QueueMutex;
+static std::condition_variable            Condition;
 
 // Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
@@ -116,12 +130,20 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    idleMode_             (false),
    hadEvents_            (false)
 {
+	clientThread_ = std::thread(&Client::ClientQueueExecutor, this, this);
+
+   QueueCommand([] () { Debug("Hello world"); }); 
+
    screen_.RegisterProgressCallback(
       new Main::CallbackObject<Mpc::Client, double>(*this, &Mpc::Client::SeekToPercent));
 }
 
 Client::~Client()
 {
+	Running.store(false);
+
+   clientThread_.join();
+
    songs_.clear();
 
    if (currentStatus_ != NULL)
@@ -137,6 +159,13 @@ Client::~Client()
    }
 
    DeleteConnection();
+}
+
+void Client::QueueCommand(std::function<void()> function)
+{
+   std::unique_lock<std::mutex> Lock(QueueMutex);
+   Queue.push_back(function);
+   Condition.notify_all();
 }
 
 
@@ -1311,6 +1340,35 @@ void Client::UpdateDisplay()
 {
    // Try and correct display without requesting status from mpd
    UpdateCurrentSongPosition();
+}
+
+
+void Client::ClientQueueExecutor(Mpc::Client * client)
+{
+	while (true)
+	{
+		if (Running.load() == false)
+		{
+			break;
+		}
+
+      {
+         std::unique_lock<std::mutex> Lock(QueueMutex);
+
+         if ((Queue.empty() == false) || 
+             (Condition.wait_for(Lock, std::chrono::milliseconds(50)) != std::cv_status::timeout))
+         {
+            if (Queue.empty() == false)
+            {
+               std::function<void()> function = Queue.front();
+               Queue.pop_front();
+
+               Debug("About to call the function");
+               function();
+            }
+         }
+      }
+   }
 }
 
 
