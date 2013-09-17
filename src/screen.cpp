@@ -29,6 +29,7 @@
 #include <condition_variable>
 #include <list>
 #include <mutex>
+#include <future>
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -672,7 +673,18 @@ void Screen::Update()
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
+      WindowMap::iterator it = mainWindows_.begin();
+
+      /*for (; (it != mainWindows_.end()); ++it)
+      {
+         if (it->first < static_cast<int>(Dynamic))
+         {
+            std::async(std::launch::async, &Screen::Initialise, this, it->first);
+         }
+      }*/
+
       Initialise(window_);
+
       ActiveWindow().Erase();
 
       // Only paint the tab bar if it is currently visible
