@@ -171,6 +171,11 @@ void Client::QueueCommand(std::function<void()> function)
 
 void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
 {
+   QueueCommand([this, hostname, port, timeout_ms] () { this->ConnectImpl(hostname, port, timeout_ms); }); 
+}
+
+void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
+{
    std::string connect_hostname = hostname;
    uint16_t    connect_port     = port;
    uint32_t    connect_timeout  = timeout_ms;
