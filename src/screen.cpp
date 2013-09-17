@@ -675,7 +675,7 @@ void Screen::Update()
    {
       WindowMap::iterator it = mainWindows_.begin();
 
-r     Initialise(window_);
+      Initialise(window_);
 
       ActiveWindow().Erase();
 
