@@ -675,15 +675,7 @@ void Screen::Update()
    {
       WindowMap::iterator it = mainWindows_.begin();
 
-      /*for (; (it != mainWindows_.end()); ++it)
-      {
-         if (it->first < static_cast<int>(Dynamic))
-         {
-            std::async(std::launch::async, &Screen::Initialise, this, it->first);
-         }
-      }*/
-
-      Initialise(window_);
+r     Initialise(window_);
 
       ActiveWindow().Erase();
 
