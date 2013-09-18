@@ -132,7 +132,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 {
 	clientThread_ = std::thread(&Client::ClientQueueExecutor, this, this);
 
-   QueueCommand([] () { Debug("Hello world"); }); 
+   QueueCommand([] () { Debug("Hello world"); });
 
    screen_.RegisterProgressCallback(
       new Main::CallbackObject<Mpc::Client, double>(*this, &Mpc::Client::SeekToPercent));
@@ -171,7 +171,7 @@ void Client::QueueCommand(std::function<void()> function)
 
 void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
 {
-   QueueCommand([this, hostname, port, timeout_ms] () { this->ConnectImpl(hostname, port, timeout_ms); }); 
+   QueueCommand([this, hostname, port, timeout_ms] () { this->ConnectImpl(hostname, port, timeout_ms); });
 }
 
 void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
@@ -254,7 +254,6 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
    if (Connected() == true)
    {
       fd_      = mpd_connection_get_fd(connection_);
-      retried_ = false;
 
       screen_.Update();
       DisplaySongInformation();
@@ -275,6 +274,11 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
       GetAllMetaInformation();
       UpdateStatus();
       IdleMode();
+
+      if (Connected() == true)
+      {
+         retried_ = false;
+      }
    }
 }
 
@@ -1360,7 +1364,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
       {
          std::unique_lock<std::mutex> Lock(QueueMutex);
 
-         if ((Queue.empty() == false) || 
+         if ((Queue.empty() == false) ||
              (Condition.wait_for(Lock, std::chrono::milliseconds(50)) != std::cv_status::timeout))
          {
             if (Queue.empty() == false)
