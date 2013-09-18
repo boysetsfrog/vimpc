@@ -219,7 +219,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    progressWindow_            = newwin(1, maxColumns_, mainRows_ + 1, 0);
 
    // Commands must be read through a window that is always visible
-   commandWindow_             = statusWindow_;
+   commandWindow_             = newwin(0, 0, 0, 0);
 
    // Mark every tab as visible initially
    // This means that commands such as tabhide in the config file
@@ -274,6 +274,7 @@ Screen::~Screen()
    delwin(tabWindow_);
    delwin(progressWindow_);
    delwin(statusWindow_);
+   delwin(commandWindow_);
 
    for (WindowMap::iterator it = mainWindows_.begin(); it != mainWindows_.end(); ++it)
    {
