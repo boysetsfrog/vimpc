@@ -81,6 +81,7 @@ static std::condition_variable Condition;
 
 
 extern "C" void ResizeHandler(int);
+extern "C" void ContinueHandler(int);
 
 std::string Windows::String(uint32_t position) const
 {
@@ -196,7 +197,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Handler for the resize signal
    signal(SIGWINCH, ResizeHandler);
-   signal(SIGCONT,  ResizeHandler);
+   signal(SIGCONT,  ContinueHandler);
 
    // Create all the static windows
    mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this, search);
@@ -1485,6 +1486,12 @@ void Screen::OnMouseSettingChange(bool Value)
 
 void ResizeHandler(int i)
 {
+   WindowResized = true;
+}
+
+void ContinueHandler(int i)
+{
+   raw();
    WindowResized = true;
 }
 /* vim: set sw=3 ts=3: */
