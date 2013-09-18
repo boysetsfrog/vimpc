@@ -197,6 +197,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Handler for the resize signal
    signal(SIGWINCH, ResizeHandler);
+   signal(SIGCONT,  ResizeHandler);
 
    // Create all the static windows
    mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this, search);
