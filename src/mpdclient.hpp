@@ -97,7 +97,7 @@ namespace Mpc
       Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
 
-   private:
+   public:
       void QueueCommand(std::function<void()> function);
 
    private:
