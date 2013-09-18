@@ -22,6 +22,7 @@
 #define __MAIN__BUFFER
 
 #include <map>
+#include <mutex>
 #include <stdint.h>
 #include <vector>
 
@@ -72,6 +73,8 @@ namespace Main
       BufferImpl<T>() { }
       ~BufferImpl<T>()
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+
          for (typename CallbackMap::iterator it = callback_.begin(); (it != callback_.end()); ++it)
          {
             for (typename CallbackList::const_iterator jt = it->second.begin(); (jt != it->second.end()); ++jt)
@@ -88,17 +91,22 @@ namespace Main
    public:
       T const & Get(uint32_t position) const
       {
-         return BufferImpl<T>::at(position);
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+         T const & Result = BufferImpl<T>::at(position);
+         return Result;
       }
 
       void Add(T entry)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
          BufferImpl<T>::push_back(entry);
          Callback(Buffer_Add, entry);
       }
 
       void Replace(uint32_t index, T entry)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+
          if (index < Size())
          {
             Callback(Buffer_Remove, BufferImpl<T>::at(index));
@@ -113,6 +121,7 @@ namespace Main
 
       int32_t Index(T entry) const
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
          int32_t pos = 0;
 
          typename BufferImpl<T>::const_iterator it;
@@ -134,6 +143,8 @@ namespace Main
 
       void Add(T entry, uint32_t position)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+
          if (position <= Size())
          {
             uint32_t pos = 0;
@@ -149,6 +160,8 @@ namespace Main
 
       void Crop(uint32_t newSize)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+
          while (newSize < Size())
          {
             T entry = BufferImpl<T>::back();
@@ -159,6 +172,8 @@ namespace Main
 
       void ForEach(uint32_t position, uint32_t count, CallbackInterface<T> * callback) const
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+
          uint32_t pos = 0;
          typename BufferImpl<T>::const_iterator it;
 
@@ -172,6 +187,8 @@ namespace Main
 
       void Remove(uint32_t position, uint32_t count)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+
          uint32_t pos = 0;
          typename BufferImpl<T>::iterator it;
 
@@ -188,11 +205,14 @@ namespace Main
       template <class V>
       void Sort(V comparator)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
          std::sort(BufferImpl<T>::begin(), BufferImpl<T>::end(), comparator);
       }
 
       void Clear()
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+
          // We need to remove one by one to ensure
          // that the callback is called at the right time
          Remove(0, Size());
@@ -201,18 +221,21 @@ namespace Main
 
       size_t Size() const
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
          return BufferImpl<T>::size();
       }
 
    public:
       void AddCallback(BufferCallbackEvent event, CallbackInterface<T> * callback)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
          callback_[event].push_back(callback);
       }
 
    private:
       void Callback(BufferCallbackEvent event, T & param) const
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
          typename CallbackMap::const_iterator entry = callback_.find(event);
 
          if (entry != callback_.end())
@@ -225,7 +248,8 @@ namespace Main
       }
 
    private:
-      CallbackMap callback_;
+      CallbackMap                   callback_;
+      mutable std::recursive_mutex	mutex_;
    };
 
    template <typename T>

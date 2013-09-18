@@ -65,7 +65,12 @@ void ModeWindow::Print(uint32_t line) const
    noecho();
 
    werase(window);
-   mvwprintw(window, line, 0, "%s", buffer_.Get(0).c_str());
+
+   if (buffer_.Size() > 0)
+   {
+      mvwprintw(window, line, 0, "%s", buffer_.Get(0).c_str());
+   }
+
    wmove(window, line, cursorPosition_);
    wrefresh(window);
 }

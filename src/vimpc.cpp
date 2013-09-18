@@ -101,7 +101,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          client_.Connect(hostname, port);
       }
 
-
       client_.DisplaySongInformation();
       screen_.Update();
       commandMode_.SetQueueCommands(false);
@@ -163,17 +162,19 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          gettimeofday(&start, NULL);
 
          // \TODO client needs to tell this to force an update somehow
-         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate == true) || ((updateTime >= 250) && (input == ERR)))
+         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate == true) || 
+             ((updateTime >= 250) && (input == ERR)))
          {
             clientUpdate = false;
-            updateTime = 0;
-            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+            updateTime   = 0;
+
             client_.DisplaySongInformation();
             client_.UpdateDisplay();
             screen_.Update();
 
             if (screen_.PagerIsVisible() == false)
             {
+               Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
                mode.Refresh();
             }
          }
