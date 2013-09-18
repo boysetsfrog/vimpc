@@ -1784,6 +1784,8 @@ void Client::DeleteConnection()
    versionPatch_ = -1;
    queueVersion_ = -1;
 
+   Queue.clear();
+
    if (connection_ != NULL)
    {
       mpd_connection_free(connection_);

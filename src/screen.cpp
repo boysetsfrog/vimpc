@@ -25,6 +25,7 @@
 #endif
 
 #include <atomic>
+#include <csignal>
 #include <chrono>
 #include <condition_variable>
 #include <list>
@@ -64,7 +65,7 @@
 #endif
 
 #define INPUT_SIGINT  3
-#define INPUT_SIGTSTP 26
+#define INPUT_SIGSTOP 26
 #define INPUT_ESCAPE  27
 
 using namespace Ui;
@@ -94,9 +95,9 @@ std::string Windows::PrintString(uint32_t position) const
 
 void RandomCharacterInput()
 {
-	int rndInput = INPUT_SIGTSTP;
+	int rndInput = INPUT_SIGSTOP;
 
-	while ((rndInput == INPUT_SIGTSTP) || //<C-Z>
+	while ((rndInput == INPUT_SIGSTOP) || //<C-Z>
 			 (rndInput == INPUT_SIGINT)) 	  //<C-C>
 	{
 		rndInput = (rand() % (KEY_MAX + 1));
@@ -127,11 +128,12 @@ void QueueInput(WINDOW * inputWindow)
 		{
 			if (input == INPUT_SIGINT) //<C-C>
 			{
-				kill(getpid(), SIGINT);
+				std::raise(SIGINT);
 			}
-			else if (input == INPUT_SIGTSTP) //<C-Z>
+			else if (input == INPUT_SIGSTOP) //<C-Z>
 			{
-				kill(getpid(), SIGTSTP);
+				std::raise(SIGSTOP);
+            Debug("raising sig stop");
 			}
 			else
 			{
