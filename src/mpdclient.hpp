@@ -96,7 +96,7 @@ namespace Mpc
    public:
       Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
-   
+
    private:
       void QueueCommand(std::function<void()> function);
 
@@ -115,6 +115,7 @@ namespace Mpc
       std::string Hostname();
       uint16_t Port();
       bool Connected() const;
+      bool Ready() const;
 
    public:
       // Playback functions
@@ -292,6 +293,7 @@ namespace Mpc
       long                    timeSinceUpdate_;
       long                    timeSinceSong_;
       bool                    retried_;
+      bool                    ready_;
 
       uint32_t                volume_;
       uint32_t                mVolume_;

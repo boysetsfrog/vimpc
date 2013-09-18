@@ -102,6 +102,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    timeSinceUpdate_      (0),
    timeSinceSong_        (0),
    retried_              (true),
+   ready_                (false),
 
    volume_               (100),
    mVolume_              (100),
@@ -172,6 +173,7 @@ void Client::QueueCommand(std::function<void()> function)
 void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
 {
    QueueCommand([this, hostname, port, timeout_ms] () { this->ConnectImpl(hostname, port, timeout_ms); });
+   //ConnectImpl(hostname, port, timeout_ms);
 }
 
 void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
@@ -277,6 +279,7 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
 
       if (Connected() == true)
       {
+         ready_   = true;
          retried_ = false;
       }
    }
@@ -326,6 +329,11 @@ uint16_t Client::Port()
 bool Client::Connected() const
 {
    return (connection_ != NULL);
+}
+
+bool Client::Ready() const
+{
+   return ready_;
 }
 
 
@@ -1760,6 +1768,7 @@ bool Client::CheckError()
 
 void Client::DeleteConnection()
 {
+   ready_        = false;
    listMode_     = false;
    currentState_ = "Disconnected";
    volume_       = -1;

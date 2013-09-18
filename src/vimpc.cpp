@@ -189,7 +189,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             }
          }
 
-         if ((input == ERR) && (client_.IsIdle() == false))
+         if ((input == ERR) && (client_.IsIdle() == false) && (client_.Ready() == true))
          {
             client_.IdleMode();
          }
