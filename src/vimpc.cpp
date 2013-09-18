@@ -101,20 +101,9 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          client_.Connect(hostname, port);
       }
 
+
       client_.DisplaySongInformation();
       screen_.Update();
-
-      // If we still have no connection, report an error
-      if (client_.Connected() == false)
-      {
-         Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server> [port]");
-      }
-      else
-      {
-         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-         mode.Refresh();
-      }
-
       commandMode_.SetQueueCommands(false);
 
       struct timeval start, end;
@@ -164,9 +153,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          updateTime += mtime;
          client_.IncrementTime(mtime);
 
-         if ((input == ERR) &&
-             (((client_.TimeSinceUpdate() > 900) && (settings_.Get(::Setting::Polling) == true)) ||
-              ((settings_.Get(::Setting::Polling) == false) && (client_.HadEvents() == true))))
+         if ((input == ERR) && ((client_.TimeSinceUpdate() > 900) && 
+             (settings_.Get(::Setting::Polling) == true)))
          {
             client_.UpdateStatus();
             clientUpdate = true;
@@ -174,6 +162,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          gettimeofday(&start, NULL);
 
+         // \TODO client needs to tell this to force an update somehow
          if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate == true) || ((updateTime >= 250) && (input == ERR)))
          {
             clientUpdate = false;
@@ -187,11 +176,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             {
                mode.Refresh();
             }
-         }
-
-         if ((input == ERR) && (client_.IsIdle() == false) && (client_.Ready() == true))
-         {
-            client_.IdleMode();
          }
       }
    }
@@ -318,6 +302,8 @@ void Vimpc::Handle(int input)
 void Vimpc::OnConnected()
 {
    commandMode_.ExecuteQueuedCommands();
+   client_.DisplaySongInformation();
+   screen_.Update();
    CurrentMode().Refresh();
 }
 

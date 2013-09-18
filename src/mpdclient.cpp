@@ -128,12 +128,9 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    queueVersion_         (-1),
    forceUpdate_          (true),
    listMode_             (false),
-   idleMode_             (false),
-   hadEvents_            (false)
+   idleMode_             (false)
 {
 	clientThread_ = std::thread(&Client::ClientQueueExecutor, this, this);
-
-   QueueCommand([] () { Debug("Hello world"); });
 
    screen_.RegisterProgressCallback(
       new Main::CallbackObject<Mpc::Client, double>(*this, &Mpc::Client::SeekToPercent));
@@ -257,8 +254,6 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
    {
       fd_      = mpd_connection_get_fd(connection_);
 
-      screen_.Update();
-      DisplaySongInformation();
       vimpc_->OnConnected();
 
       Debug("Client::Connected.");
@@ -281,6 +276,10 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
          ready_   = true;
          retried_ = false;
       }
+   }
+   else
+   {
+      Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server> [port]");
    }
 }
 
@@ -1389,20 +1388,36 @@ long Client::TimeSinceUpdate()
 
 void Client::IdleMode()
 {
-   QueueCommand([this] ()
-   {
-      ClearCommand();
+   ClearCommand();
 
-      if ((Connected() == true) && (settings_.Get(Setting::Polling) == false) &&
-         (idleMode_ == false))
+   if ((Connected() == true) && 
+       (idleMode_ == false) && 
+       (ready_ == true) &&
+       (settings_.Get(Setting::Polling) == false))
+   {
+      if (mpd_send_idle(connection_) == true)
       {
-         if (mpd_send_idle(connection_) == true)
-         {
-            Debug("Client::Enter idle mode");
-            idleMode_ = true;
-         }
+         Debug("Client::Enter idle mode");
+         idleMode_ = true;
       }
-   });
+   }
+}
+
+void Client::ExitIdleMode()
+{
+   if ((idleMode_ == true) && (Connected() == true))
+   {
+      mpd_send_noidle(connection_);
+
+      if (mpd_recv_idle(connection_, false) != 0)
+      {
+         UpdateStatus();
+      }
+
+      Debug("Client::Cancelled idle mode");
+      CheckError();
+      idleMode_ = false;
+   }
 }
 
 bool Client::IsIdle()
@@ -1415,51 +1430,32 @@ bool Client::IsCommandList()
    return listMode_;
 }
 
-bool Client::HadEvents()
+void Client::CheckForEvents()
 {
-   if (hadEvents_ == true)
+   if ((settings_.Get(Setting::Polling) == false) && 
+       (idleMode_ == true) && (Connected() == true) &&
+       (fd_ != -1))
    {
-      if (idleMode_ == true)
+      pollfd fds;
+
+      fds.fd = fd_;
+      fds.events = POLLIN;
+
+      if (poll(&fds, 1, 0) > 0)
       {
-         mpd_send_noidle(connection_);
-         mpd_recv_idle(connection_, false);
-         Debug("Client::Cancelled idle mode");
+         idleMode_ = false;
+
+         if (mpd_recv_idle(connection_, false) != 0)
+         {
+            UpdateStatus();
+            Debug("Client::Event occurred");
+         }
+
+         Debug("Client::Left idle mode");
 
          CheckError();
-         idleMode_ = false;
-      }
-
-      hadEvents_ = false;
-      return true;
-   }
-
-   if ((settings_.Get(Setting::Polling) == false) && (idleMode_ == true) && (Connected() == true))
-   {
-      if (fd_ != -1)
-      {
-         pollfd fds;
-
-         fds.fd = fd_;
-         fds.events = POLLIN;
-
-         if (poll(&fds, 1, 0) > 0)
-         {
-            idleMode_ = false;
-            bool result = (mpd_recv_idle(connection_, false) != 0);
-            Debug("Client::Left idle mode");
-
-            if (result == true)
-            {
-               Debug("Client::Event occurred");
-            }
-
-            CheckError();
-            return result;
-         }
       }
    }
-
-   return false;
 }
 
 void Client::UpdateCurrentSong()
@@ -1516,19 +1512,38 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
 		}
 
       {
-         std::unique_lock<std::mutex> Lock(QueueMutex);
-
-         if ((Queue.empty() == false) ||
-             (Condition.wait_for(Lock, std::chrono::milliseconds(50)) != std::cv_status::timeout))
          {
-            if (Queue.empty() == false)
-            {
-               std::function<void()> function = Queue.front();
-               Queue.pop_front();
-               Lock.unlock();
+            std::unique_lock<std::mutex> Lock(QueueMutex);
 
-               Debug("About to call the function");
-               function();
+            if ((Queue.empty() == false) ||
+                (Condition.wait_for(Lock, std::chrono::milliseconds(50)) != std::cv_status::timeout))
+            {
+               if (Queue.empty() == false)
+               {
+                  std::function<void()> function = Queue.front();
+                  Queue.pop_front();
+                  Lock.unlock();
+
+                  ExitIdleMode();
+                  function();
+               }
+            }
+         }
+
+         {
+            std::unique_lock<std::mutex> Lock(QueueMutex);
+
+            if ((Queue.empty() == true) && 
+                     (idleMode_ == false))
+            {
+               Lock.unlock();
+               IdleMode(); 
+            }
+            else if ((Queue.empty() == true) && 
+                     (idleMode_ == true))
+            {
+               Lock.unlock();
+               CheckForEvents();
             }
          }
       }
@@ -1538,15 +1553,6 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
 
 void Client::ClearCommand()
 {
-   if ((idleMode_ == true) && (Connected() == true))
-   {
-      mpd_send_noidle(connection_);
-      hadEvents_ = (mpd_recv_idle(connection_, false) != 0);
-      Debug("Client::Cancelled idle mode");
-      CheckError();
-      idleMode_ = false;
-   }
-
    if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
    {
       Debug("Client::Finish the response");

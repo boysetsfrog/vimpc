@@ -218,12 +218,10 @@ namespace Mpc
       void Update(std::string const & Path);
       void IncrementTime(long time);
       long TimeSinceUpdate();
-      void IdleMode();
       bool IsIdle();
       bool IsCommandList();
       void StartCommandList();
       void SendCommandList();
-      bool HadEvents();
       void UpdateCurrentSong();
       void UpdateStatus(bool ExpectUpdate = false);
       void UpdateDisplay();
@@ -261,6 +259,9 @@ namespace Mpc
       void GetAllMetaFromRoot();
 
    private:
+      void CheckForEvents();
+      void IdleMode();
+      void ExitIdleMode();
       void ClientQueueExecutor(Mpc::Client * client);
 
    private:
@@ -321,7 +322,6 @@ namespace Mpc
       bool                    forceUpdate_;
       bool                    listMode_;
       bool                    idleMode_;
-      bool                    hadEvents_;
 
       std::vector<Mpc::Song *> songs_;
       std::vector<std::string> paths_;

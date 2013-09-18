@@ -181,7 +181,6 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 #ifdef __DEBUG_PRINTS
    AddCommand("debug-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>);
    AddCommand("debug-client-getmeta",true,  false, &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>);
-   AddCommand("debug-client-idle",   true,  false, &Command::DebugClient<&Mpc::Client::IdleMode>);
 #endif
 
 #ifdef TEST_ENABLED
