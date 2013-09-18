@@ -133,7 +133,6 @@ void QueueInput(WINDOW * inputWindow)
 			else if (input == INPUT_SIGSTOP) //<C-Z>
 			{
 				std::raise(SIGSTOP);
-            Debug("raising sig stop");
 			}
 			else
 			{
