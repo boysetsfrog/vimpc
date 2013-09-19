@@ -369,6 +369,7 @@ void LibraryWindow::Edit()
          // Do not need to sort as this ensures it will be sorted in the same order as the library
          Main::Library().ForEachChild(CurrentLine(), &callback);
 
+
          if (window->BufferSize() > 0)
          {
             screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));

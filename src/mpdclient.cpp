@@ -947,17 +947,10 @@ void Client::DisableOutput(Mpc::Output * output)
 
 void Client::Add(Mpc::Song * song)
 {
-   QueueCommand([this, &song] ()
+   if (song != NULL)
    {
-      if ((Connected() == true) && (song != NULL))
-      {
-         (void) Add(*song);
-      }
-      else if (Connected() == false)
-      {
-         ErrorString(ErrorNumber::ClientNoConnection);
-      }
-   });
+      (void) Add(*song);
+   }
 }
 
 void Client::Add(Mpc::Song & song)

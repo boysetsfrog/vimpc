@@ -458,6 +458,7 @@ void DirectoryWindow::Edit()
 
          SongWindow * window = screen_.CreateSongWindow("P:" + entry->name_);
          client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+         client_.WaitForCompletion();
 
          if (window->BufferSize() > 0)
          {

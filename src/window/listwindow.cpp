@@ -190,7 +190,6 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
       for (uint32_t i = 0; i < total; ++i)
       {
-         Debug("Adding song from list %s", Main::PlaylistTmp().Get(i)->URI().c_str());
          client_.Add(Main::PlaylistTmp().Get(i));
       }
    }

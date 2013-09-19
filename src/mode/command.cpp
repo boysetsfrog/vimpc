@@ -878,6 +878,7 @@ void Command::Find(std::string const & arguments)
    {
       SongWindow * const window = screen_.CreateSongWindow(arguments);
       client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+      client_.WaitForCompletion();
 
       if (window->BufferSize() > 0)
       {
