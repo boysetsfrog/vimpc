@@ -33,6 +33,7 @@
 #include <mpd/status.h>
 #include <sys/time.h>
 #include <poll.h>
+#include <unistd.h>
 
 #include <atomic>
 #include <chrono>
@@ -50,6 +51,7 @@ using namespace Mpc;
 //#define _DEBUG_BREAK_ON_ERROR
 
 static std::atomic<bool>                  Running(true);
+static std::atomic<int>                   QueueCount(0);
 static std::list<std::function<void()> >  Queue;
 static std::mutex			                  QueueMutex;
 static std::condition_variable            Condition;
@@ -164,6 +166,18 @@ void Client::QueueCommand(std::function<void()> function)
    std::unique_lock<std::mutex> Lock(QueueMutex);
    Queue.push_back(function);
    Condition.notify_all();
+   QueueCount.store(Queue.size());
+}
+
+void Client::WaitForCompletion()
+{
+   int Count = QueueCount.load();
+
+   while (Count != 0)
+   {
+      usleep(10 * 1000);
+      Count = QueueCount.load();
+   }
 }
 
 
@@ -1523,6 +1537,10 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
 
                   ExitIdleMode();
                   function();
+
+                  Lock.lock();
+                  QueueCount.store(Queue.size());
+                  Lock.unlock();
                   continue;
                }
             }

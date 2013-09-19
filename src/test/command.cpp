@@ -263,6 +263,8 @@ void CommandTester::ActiveWindow(std::string window, Ui::Screen::MainWindow main
 
 void CommandTester::StateCommands()
 {
+   client_.WaitForCompletion();
+
    bool    Random    = client_.Random();
    bool    Single    = client_.Single();
    bool    Consume   = client_.Consume();
@@ -273,32 +275,44 @@ void CommandTester::StateCommands()
 
    // Test that all the states are toggled
    commandMode_.ExecuteCommand("random");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(Random != client_.Random());
    commandMode_.ExecuteCommand("repeat");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(Repeat != client_.Repeat());
    commandMode_.ExecuteCommand("single");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(Single != client_.Single());
    commandMode_.ExecuteCommand("consume");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(Consume != client_.Consume());
 
    // Test that all the states are turned on
    commandMode_.ExecuteCommand("random on");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Random() == true);
    commandMode_.ExecuteCommand("repeat on");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Repeat() == true);
    commandMode_.ExecuteCommand("single on");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Single() == true);
    commandMode_.ExecuteCommand("consume on");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Consume() == true);
 
    // Test that all the states are turned off
    commandMode_.ExecuteCommand("random off");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Random() == false);
    commandMode_.ExecuteCommand("repeat off");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Repeat() == false);
    commandMode_.ExecuteCommand("single off");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Single() == false);
    commandMode_.ExecuteCommand("consume off");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Consume() == false);
 
    // Restore their original values
@@ -306,6 +320,8 @@ void CommandTester::StateCommands()
    client_.SetRepeat((Repeat == true));
    client_.SetSingle((Single == true));
    client_.SetConsume((Consume == true));
+
+   client_.WaitForCompletion();
 
    // If we are currently playing, pause before we go
    // messing about with the volume
@@ -319,18 +335,23 @@ void CommandTester::StateCommands()
    // Try min, max, mid and invalid volumes
    Ui::ErrorWindow::Instance().ClearError();
    commandMode_.ExecuteCommand("volume 0");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Volume() == 0);
    commandMode_.ExecuteCommand("volume 100");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Volume() == 100);
    commandMode_.ExecuteCommand("volume 50");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
    commandMode_.ExecuteCommand("volume 500");
+   client_.WaitForCompletion();
    CPPUNIT_ASSERT(client_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
 
    client_.SetVolume(Volume);
+   client_.WaitForCompletion();
 
    // Set mpd to whatever state it was in before
    if (Algorithm::iequals(State, "playing") == true)

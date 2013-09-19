@@ -247,9 +247,11 @@ namespace Main
          }
       }
 
+   protected:
+      mutable std::recursive_mutex	mutex_;
+
    private:
       CallbackMap                   callback_;
-      mutable std::recursive_mutex	mutex_;
    };
 
    template <typename T>

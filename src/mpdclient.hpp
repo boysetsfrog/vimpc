@@ -99,6 +99,7 @@ namespace Mpc
 
    public:
       void QueueCommand(std::function<void()> function);
+      void WaitForCompletion();
 
    private:
       Client(Client & client);
