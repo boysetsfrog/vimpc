@@ -1532,17 +1532,18 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
          {
             std::unique_lock<std::mutex> Lock(QueueMutex);
 
-            if ((Queue.empty() == true) &&
-                     (idleMode_ == false))
+            if ((Queue.empty() == true) && (listMode_ == false))
             {
-               Lock.unlock();
-               IdleMode();
-            }
-            else if ((Queue.empty() == true) &&
-                     (idleMode_ == true))
-            {
-               Lock.unlock();
-               CheckForEvents();
+               if (idleMode_ == false)
+               {
+                  Lock.unlock();
+                  IdleMode();
+               }
+               else if (idleMode_ == true)
+               {
+                  Lock.unlock();
+                  CheckForEvents();
+               }
             }
          }
       }
