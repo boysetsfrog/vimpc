@@ -180,6 +180,8 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       }
    }
 
+   client_.WaitForCompletion();
+
    uint32_t total = Main::PlaylistTmp().Size();
 
    if (total > 0)
@@ -188,10 +190,12 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
       for (uint32_t i = 0; i < total; ++i)
       {
-         Main::Playlist().Add(Main::PlaylistTmp().Get(i));
+         Debug("Adding song from list %s", Main::PlaylistTmp().Get(i)->URI().c_str());
          client_.Add(Main::PlaylistTmp().Get(i));
       }
    }
+
+   client_.WaitForCompletion();
 
    if (scroll == true)
    {
@@ -216,6 +220,8 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
                                     static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
       }
    }
+
+   client_.WaitForCompletion();
 
    uint32_t total = Main::PlaylistTmp().Size();
 

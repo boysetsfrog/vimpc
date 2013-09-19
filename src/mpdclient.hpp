@@ -178,14 +178,14 @@ namespace Mpc
    public:
       // Queue manipulation
       void Add(Mpc::Song * song);
-      uint32_t Add(Mpc::Song & song);
-      uint32_t Add(Mpc::Song & song, uint32_t position);
-      uint32_t AddAllSongs();
+      void Add(Mpc::Song & song);
+      void Add(Mpc::Song & song, uint32_t position);
+      void AddAllSongs();
 
       //! This add is only used by a command when a full uri is specified
       //! it should not be used to add songs from the library, you should use the
       //! versions above for that purpose
-      uint32_t Add(std::string const & URI);
+      void Add(std::string const & URI);
 
       // Call after all songs have been added
       void AddComplete();

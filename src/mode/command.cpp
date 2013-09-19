@@ -445,7 +445,8 @@ void Command::Add(std::string const & arguments)
          // Add according to current selection or range
          screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
-
+      
+      client_.WaitForCompletion();
       client_.AddComplete();
    }
 }
@@ -456,6 +457,7 @@ void Command::AddAll(std::string const & arguments)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.AddAllSongs();
+      client_.WaitForCompletion();
       client_.AddComplete();
    }
 }
@@ -869,7 +871,6 @@ void Command::Find(std::string const & arguments)
          for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
          {
             client_.Add(Main::PlaylistTmp().Get(i));
-            Main::Playlist().Add(Main::PlaylistTmp().Get(i));
          }
       }
    }

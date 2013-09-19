@@ -68,6 +68,8 @@ Song::Song(Song const & song) :
 
 Song::~Song()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
+
    reference_ = 0;
 
    if (entry_ != NULL)
@@ -79,11 +81,13 @@ Song::~Song()
 
 int32_t Song::Reference() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return reference_;
 }
 
 /* static */ void Song::IncrementReference(Song * song)
 {
+   std::unique_lock<std::recursive_mutex> lock(song->mutex_);
    song->reference_ += 1;
 
    if ((song->entry_ != NULL) && (song->reference_ == 1))
@@ -95,6 +99,7 @@ int32_t Song::Reference() const
 
 /* static */ void Song::DecrementReference(Song * song)
 {
+   std::unique_lock<std::recursive_mutex> lock(song->mutex_);
    song->reference_ -= 1;
 
    if ((song->entry_ != NULL) && (song->reference_ == 0))
@@ -114,6 +119,7 @@ int32_t Song::Reference() const
 
 void Song::SetArtist(const char * artist)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    lastFormat_ = "";
 
    if (artist != NULL)
@@ -128,11 +134,13 @@ void Song::SetArtist(const char * artist)
 
 std::string const & Song::Artist() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return artist_;
 }
 
 void Song::SetAlbum(const char * album)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    lastFormat_ = "";
 
    if (album != NULL)
@@ -147,11 +155,13 @@ void Song::SetAlbum(const char * album)
 
 std::string const & Song::Album() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return album_;
 }
 
 void Song::SetTitle(const char * title)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    lastFormat_ = "";
 
    if (title != NULL)
@@ -166,11 +176,13 @@ void Song::SetTitle(const char * title)
 
 std::string const & Song::Title() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return title_;
 }
 
 void Song::SetTrack(const char * track)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    lastFormat_ = "";
 
    if (track != NULL)
@@ -185,11 +197,13 @@ void Song::SetTrack(const char * track)
 
 std::string const & Song::Track() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return track_;
 }
 
 void Song::SetURI(const char * uri)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    lastFormat_ = "";
 
    if (uri != NULL)
@@ -204,11 +218,13 @@ void Song::SetURI(const char * uri)
 
 std::string const & Song::URI() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return uri_;
 }
 
 void Song::SetGenre(const char * genre)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    if (genre != NULL)
    {
       genre_ = genre;
@@ -221,11 +237,13 @@ void Song::SetGenre(const char * genre)
 
 std::string const & Song::Genre() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return genre_;
 }
 
 void Song::SetDate(const char * date)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    if (date != NULL)
    {
       date_ = date;
@@ -238,11 +256,13 @@ void Song::SetDate(const char * date)
 
 std::string const & Song::Date() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return date_;
 }
 
 void Song::SetDuration(int32_t duration)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    lastFormat_ = "";
 
    duration_ = duration;
@@ -257,26 +277,31 @@ void Song::SetDuration(int32_t duration)
 
 int32_t Song::Duration() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return duration_;
 }
 
 void Song::SetEntry(LibraryEntry * entry)
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    entry_ = entry;
 }
 
 LibraryEntry * Song::Entry() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return entry_;
 }
 
 std::string const & Song::DurationString() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return durationString_;
 }
 
 std::string Song::FormatString(std::string fmt) const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    bool valid;
 
    if (lastFormat_ == fmt)
@@ -370,6 +395,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
       }
    } while (*++it);
 
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    formatted_ = result;
    return result;
 }

@@ -21,6 +21,7 @@
 #ifndef __MPC_SONG
 #define __MPC_SONG
 
+#include <mutex>
 #include <stdint.h>
 #include <string>
 #include <mpd/song.h>
@@ -134,6 +135,8 @@ namespace Mpc
       std::string date_;
       std::string durationString_;
       int32_t     duration_;
+
+      mutable std::recursive_mutex mutex_;
 
       mutable std::string lastFormat_;
       mutable std::string formatted_;

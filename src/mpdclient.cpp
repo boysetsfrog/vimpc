@@ -381,14 +381,14 @@ void Client::Play(uint32_t const playId)
 
 void Client::AddComplete()
 {
-   if ((state_ == MPD_STATE_STOP) && (settings_.Get(Setting::PlayOnAdd) == true))
+   QueueCommand([this] ()
    {
-      QueueCommand([this] ()
+      if ((state_ == MPD_STATE_STOP) && (settings_.Get(Setting::PlayOnAdd) == true))
       {
          Debug("Client::Playing start of playlist");
          Play(0);
-      });
-   }
+      }
+   });
 }
 
 void Client::Pause()
@@ -960,7 +960,7 @@ void Client::Add(Mpc::Song * song)
    });
 }
 
-uint32_t Client::Add(Mpc::Song & song)
+void Client::Add(Mpc::Song & song)
 {
    QueueCommand([this, &song] ()
    {
@@ -970,17 +970,16 @@ uint32_t Client::Add(Mpc::Song & song)
       {
          Debug("Client::Add song %s", song.URI().c_str());
          mpd_send_add(connection_, song.URI().c_str());
+         Main::Playlist().Add(&song);
       }
       else
       {
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-
-   return TotalNumberOfSongs() - 1;
 }
 
-uint32_t Client::Add(Mpc::Song & song, uint32_t position)
+void Client::Add(Mpc::Song & song, uint32_t position)
 {
    QueueCommand([this, &song, position] ()
    {
@@ -990,6 +989,7 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
       {
          Debug("Client::Add song %s at %u", song.URI().c_str(), position);
          mpd_send_add_id_to(connection_, song.URI().c_str(), position);
+         Main::Playlist().Add(&song, position);
 
          if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
          {
@@ -1001,11 +1001,9 @@ uint32_t Client::Add(Mpc::Song & song, uint32_t position)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-
-   return TotalNumberOfSongs() - 1;
 }
 
-uint32_t Client::AddAllSongs()
+void Client::AddAllSongs()
 {
    QueueCommand([this] ()
    {
@@ -1021,11 +1019,9 @@ uint32_t Client::AddAllSongs()
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-
-   return TotalNumberOfSongs() - 1;
 }
 
-uint32_t Client::Add(std::string const & URI)
+void Client::Add(std::string const & URI)
 {
    QueueCommand([this, URI] ()
    {
@@ -1041,8 +1037,6 @@ uint32_t Client::Add(std::string const & URI)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-
-   return TotalNumberOfSongs() - 1;
 }
 
 

@@ -974,6 +974,7 @@ void Normal::Add(uint32_t count)
             screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count, settings_.Get(Setting::ScrollOnAdd));
          }
 
+         client_.WaitForCompletion();
          client_.AddComplete();
       }
    }
@@ -1038,8 +1039,6 @@ void Normal::PasteBuffer(uint32_t count)
          for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
          {
             client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
-            Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
-
             position++;
          }
       }

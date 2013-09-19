@@ -270,18 +270,15 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
    {
       if (position != -1)
       {
-         Main::Playlist().Add(entry->song_, position);
          client.Add(*(entry->song_), position);
       }
       else if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
             (client.GetCurrentSongPos() == -1))
       {
-         Main::Playlist().Add(entry->song_);
          client.Add(*(entry->song_));
       }
       else
       {
-         Main::Playlist().Add(entry->song_, client.GetCurrentSongPos() + 1);
          client.Add(*(entry->song_), client.GetCurrentSongPos() + 1);
       }
    }
