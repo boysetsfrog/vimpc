@@ -1390,8 +1390,8 @@ void Client::IdleMode()
 {
    ClearCommand();
 
-   if ((Connected() == true) && 
-       (idleMode_ == false) && 
+   if ((Connected() == true) &&
+       (idleMode_ == false) &&
        (ready_ == true) &&
        (settings_.Get(Setting::Polling) == false))
    {
@@ -1432,7 +1432,7 @@ bool Client::IsCommandList()
 
 void Client::CheckForEvents()
 {
-   if ((settings_.Get(Setting::Polling) == false) && 
+   if ((settings_.Get(Setting::Polling) == false) &&
        (idleMode_ == true) && (Connected() == true) &&
        (fd_ != -1))
    {
@@ -1533,13 +1533,13 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
          {
             std::unique_lock<std::mutex> Lock(QueueMutex);
 
-            if ((Queue.empty() == true) && 
+            if ((Queue.empty() == true) &&
                      (idleMode_ == false))
             {
                Lock.unlock();
-               IdleMode(); 
+               IdleMode();
             }
-            else if ((Queue.empty() == true) && 
+            else if ((Queue.empty() == true) &&
                      (idleMode_ == true))
             {
                Lock.unlock();
@@ -1946,7 +1946,10 @@ void Client::DeleteConnection()
    versionPatch_ = -1;
    queueVersion_ = -1;
 
-   Queue.clear();
+   // \todo it would be nice to clear the queue here
+   // but currently it also removes queued up connect attempts
+   // to different hosts, etc, figure this out
+   //Queue.clear();
 
    if (connection_ != NULL)
    {
