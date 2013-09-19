@@ -831,12 +831,6 @@ void Command::SavePlaylist(std::string const & arguments)
 {
    if (arguments != "")
    {
-      if (Main::Lists().Index(Mpc::List(arguments)) == -1)
-      {
-         Main::Lists().Add(arguments);
-         Main::Lists().Sort();
-      }
-
       client_.SavePlaylist(arguments);
    }
    else

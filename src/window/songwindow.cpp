@@ -377,15 +377,14 @@ void SongWindow::Save(std::string const & name)
    {
       client_.CreatePlaylist(name);
 
-      Mpc::CommandList list(client_);
-
-      for (unsigned int i = 0; i < BufferSize(); ++i)
       {
-         client_.AddToNamedPlaylist(name, Buffer().Get(i));
-      }
+         Mpc::CommandList list(client_);
 
-      Main::Lists().Add(name);
-      Main::Lists().Sort();
+         for (unsigned int i = 0; i < BufferSize(); ++i)
+         {
+            client_.AddToNamedPlaylist(name, Buffer().Get(i));
+         }
+      }
    }
    else
    {

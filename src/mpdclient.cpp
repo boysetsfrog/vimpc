@@ -776,7 +776,15 @@ void Client::CreatePlaylist(std::string const & name)
       if (Connected() == true)
       {
          Debug("Client::Send save %s", name.c_str());
-         mpd_run_save(connection_, name.c_str());
+
+         if (mpd_run_save(connection_, name.c_str()) == true)
+         {
+            if (Main::Lists().Index(Mpc::List(name)) == -1)
+            {
+               Main::Lists().Add(name);
+               Main::Lists().Sort();
+            }
+         }
 
          Debug("Client::Send clear playlist %s", name.c_str());
          mpd_run_playlist_clear(connection_, name.c_str());
@@ -797,7 +805,15 @@ void Client::SavePlaylist(std::string const & name)
       if (Connected() == true)
       {
          Debug("Client::Send save %s", name.c_str());
-         mpd_run_save(connection_, name.c_str());
+
+         if (mpd_run_save(connection_, name.c_str()) == true)
+         {
+            if (Main::Lists().Index(Mpc::List(name)) == -1)
+            {
+               Main::Lists().Add(name);
+               Main::Lists().Sort();
+            }
+         }
       }
       else
       {
