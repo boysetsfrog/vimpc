@@ -419,7 +419,7 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachPlaylistSong(std::string playlist, Object & object, void (Object::*callBack)(Mpc::Song * ))
    {
-      QueueCommand([this, playlist, &object, &callBack] ()
+      QueueCommand([this, playlist, &object, callBack] ()
       {
          ClearCommand();
 
@@ -453,7 +453,7 @@ namespace Mpc
       if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
          (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
       {
-         QueueCommand([this, &object, &callBack] ()
+         QueueCommand([this, &object, callBack] ()
          {
             ClearCommand();
 
@@ -514,7 +514,7 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song * ))
    {
-      QueueCommand([this, &object, &callBack] ()
+      QueueCommand([this, &object, callBack] ()
       {
          if (Connected())
          {
@@ -543,7 +543,7 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *))
    {
-      QueueCommand([this, &object, &callBack] ()
+      QueueCommand([this, &object, callBack] ()
       {
          ClearCommand();
 
