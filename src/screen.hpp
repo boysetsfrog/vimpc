@@ -199,7 +199,7 @@ namespace Ui
       void Update();
 
       // Reinitialise the given main window, ie rebuild playlist, library, etc
-      void Redraw() const;
+      void Redraw();
       void Redraw(int32_t window) const;
       void Initialise(int32_t window) const;
       void Invalidate(int32_t window);
@@ -256,7 +256,7 @@ namespace Ui
       void SetVisible(int32_t window, bool visible, bool removeWindow = true);
 
       uint32_t VisibleWindows() { return visibleWindows_.size(); }
-      
+
       // Show a given window and make it active
       void SetActiveAndVisible(int32_t window);
 

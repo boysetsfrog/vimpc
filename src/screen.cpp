@@ -719,11 +719,12 @@ void Screen::Update()
    }
 }
 
-void Screen::Redraw() const
+void Screen::Redraw()
 {
    // Keep track of which windows have been drawn atleast once
    drawn_[window_] = true;
    Redraw(window_);
+   Resize(true);
 }
 
 void Screen::Redraw(int32_t window) const
