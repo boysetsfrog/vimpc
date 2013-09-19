@@ -1602,14 +1602,14 @@ void Client::GetAllMetaInformation()
          mpd_entity_free(nextEntity);
       }
 
-      screen_.InvalidateAll();
-
       Main::Playlist().Clear();
       Main::PlaylistPasteBuffer().Clear();
       Main::Library().Clear();
 
       ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
       ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+
+      screen_.InvalidateAll();
    }
 
 #if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
