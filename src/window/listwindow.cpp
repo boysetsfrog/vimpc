@@ -277,6 +277,7 @@ void ListWindow::Edit()
 
       SongWindow * window = screen_.CreateSongWindow("P:" + playlist.name_);
       client_.ForEachPlaylistSong(playlist.path_, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+      client_.WaitForCompletion();
 
       if (window->BufferSize() > 0)
       {

@@ -175,7 +175,7 @@ void Client::WaitForCompletion()
 
    while (Count != 0)
    {
-      usleep(10 * 1000);
+      usleep(20 * 1000);
       Count = QueueCount.load();
    }
 }
