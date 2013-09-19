@@ -949,7 +949,6 @@ uint32_t Client::Add(Mpc::Song & song)
       {
          Debug("Client::Add song %s", song.URI().c_str());
          mpd_send_add(connection_, song.URI().c_str());
-         UpdateStatus(true);
       }
       else
       {
