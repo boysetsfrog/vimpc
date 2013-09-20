@@ -409,8 +409,17 @@ void Command::Play(std::string const & arguments)
    }
    else if (args.size() == 1)
    {
-      int32_t const SongId = atoi(args[0].c_str()) - 1;
-      Player::Play(SongId);
+      int32_t SongId = atoi(args[0].c_str()) - 1;
+      SongId = (SongId == -1) ? 0 : SongId;
+
+      if (SongId >= 0)
+      {
+         Player::Play(SongId);
+      }
+      else
+      {
+         ErrorString(ErrorNumber::InvalidParameter, "invalid song id");
+      }
    }
    else
    {
@@ -445,7 +454,7 @@ void Command::Add(std::string const & arguments)
          // Add according to current selection or range
          screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
-      
+
       client_.WaitForCompletion();
       client_.AddComplete();
    }

@@ -365,10 +365,12 @@ void Client::Play(uint32_t const playId)
       if (Connected() == true)
       {
          Debug("Client::Play position %u", playId);
-         mpd_send_play_pos(connection_, playId);
 
-         currentSongId_ = playId;
-         state_ = MPD_STATE_PLAY;
+         if (mpd_run_play_pos(connection_, playId) == true)
+         {
+            currentSongId_ = playId;
+            state_ = MPD_STATE_PLAY;
+         }
       }
       else
       {
