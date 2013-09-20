@@ -23,6 +23,7 @@
 
 // Includes
 #include <iostream>
+#include <future>
 
 #include "song.hpp"
 #include "buffer/browse.hpp"
@@ -66,6 +67,8 @@ namespace Ui
       Mpc::Client          & client_;
       Ui::Search     const & search_;
       Mpc::Browse &          browse_;
+
+      std::future<void>      redrawFuture_;
    };
 }
 
