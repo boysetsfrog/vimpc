@@ -401,15 +401,17 @@ void Client::Pause()
       if (Connected() == true)
       {
          Debug("Client::Toggling pause state");
-         mpd_send_toggle_pause(connection_);
 
-         if (state_ == MPD_STATE_PLAY)
+         if (mpd_run_toggle_pause(connection_) == true)
          {
-            state_ = MPD_STATE_PAUSE;
-         }
-         else if (state_ == MPD_STATE_PAUSE)
-         {
-            state_ = MPD_STATE_PLAY;
+            if (state_ == MPD_STATE_PLAY)
+            {
+               state_ = MPD_STATE_PAUSE;
+            }
+            else if (state_ == MPD_STATE_PAUSE)
+            {
+               state_ = MPD_STATE_PLAY;
+            }
          }
       }
       else
@@ -428,8 +430,11 @@ void Client::Stop()
       if (Connected() == true)
       {
          Debug("Client::Stopping playback");
-         mpd_send_stop(connection_);
-         state_   = MPD_STATE_STOP;
+
+         if (mpd_run_stop(connection_) == true)
+         {
+            state_ = MPD_STATE_STOP;
+         }
       }
       else
       {
@@ -541,8 +546,11 @@ void Client::SetRandom(bool const random)
       if (Connected() == true)
       {
          Debug("Client::Set random state %d", (int32_t) random);
-         mpd_send_random(connection_, random);
-         random_ = random;
+
+         if (mpd_run_random(connection_, random) == true)
+         {
+            random_ = random;
+         }
       }
       else
       {
@@ -566,8 +574,11 @@ void Client::SetSingle(bool const single)
       if (Connected() == true)
       {
          Debug("Client::Set single state %d", (int32_t) single);
-         mpd_send_single(connection_, single);
-         single_ = single;
+
+         if (mpd_run_single(connection_, single) == true)
+         {
+            single_ = single;
+         }
       }
       else
       {
@@ -591,8 +602,11 @@ void Client::SetConsume(bool const consume)
       if (Connected() == true)
       {
          Debug("Client::Set consume state %d", (int32_t) consume);
-         mpd_send_consume(connection_, consume);
-         consume_ = consume;
+
+         if (mpd_run_consume(connection_, consume) == true)
+         {
+            consume_ = consume;
+         }
       }
       else
       {
@@ -615,8 +629,11 @@ void Client::SetRepeat(bool const repeat)
       if (Connected() == true)
       {
          Debug("Client::Set repeat state %d", (int32_t) repeat);
-         mpd_send_repeat(connection_, repeat);
-         repeat_ = repeat;
+
+         if (mpd_run_repeat(connection_, repeat) == true)
+         {
+            repeat_ = repeat;
+         }
       }
       else
       {
@@ -659,12 +676,15 @@ void Client::SetCrossfade(uint32_t crossfade)
       if (Connected() == true)
       {
          Debug("Client::Set crossfade time %u", crossfade);
-         mpd_send_crossfade(connection_, crossfade);
-         crossfade_     = (crossfade != 0);
 
-         if (crossfade_ == true)
+         if (mpd_run_crossfade(connection_, crossfade) == true)
          {
-            crossfadeTime_ = crossfade;
+            crossfade_ = (crossfade != 0);
+
+            if (crossfade_ == true)
+            {
+               crossfadeTime_ = crossfade;
+            }
          }
       }
       else
@@ -688,8 +708,11 @@ void Client::SetVolume(uint32_t volume)
       if (Connected() == true)
       {
          Debug("Client::Set volume %u", volume);
-         mpd_send_set_volume(connection_, volume);
-         volume_ = volume;
+
+         if (mpd_run_set_volume(connection_, volume) == true)
+         {
+            volume_ = volume;
+         }
       }
       else
       {
@@ -1322,7 +1345,11 @@ void Client::Rescan(std::string const & Path)
       if (Connected() == true)
       {
          Debug("Client::Rescan %s", (Path != "") ? Path.c_str() : "all");
-         mpd_send_rescan(connection_, (Path != "") ? Path.c_str() : NULL);
+
+         if (mpd_run_rescan(connection_, (Path != "") ? Path.c_str() : NULL) == true)
+         {
+            updating_ = true;
+         }
       }
       else
       {
@@ -1340,7 +1367,11 @@ void Client::Update(std::string const & Path)
       if (Connected() == true)
       {
          Debug("Client::Update %s", (Path != "") ? Path.c_str() : "all");
-         mpd_send_update(connection_, (Path != "") ? Path.c_str() : NULL);
+
+         if (mpd_run_update(connection_, (Path != "") ? Path.c_str() : NULL) == true)
+         {
+            updating_ = true;
+         }
       }
       else
       {
