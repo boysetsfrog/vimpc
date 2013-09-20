@@ -1360,7 +1360,7 @@ std::string Normal::StateString()
 
    std::string volume = "";
 
-   if (client_.Volume() != -1)
+   if ((client_.Volume() != -1) && (client_.Connected() == true))
    {
       char vol[8];
       snprintf(vol, 8, "%d", client_.Volume());
