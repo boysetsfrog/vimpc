@@ -106,6 +106,7 @@ namespace Main
       ModeTable      modeTable_;
       Ui::Normal   & normalMode_;
       Ui::Command  & commandMode_;
+      bool           clientUpdate_;
    };
 }
 

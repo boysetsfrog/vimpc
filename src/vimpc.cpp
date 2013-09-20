@@ -49,7 +49,8 @@ Vimpc::Vimpc() :
    client_      (this, settings_, screen_),
    modeTable_   (),
    normalMode_  (*(new Ui::Normal (this, screen_, client_, settings_, search_))),
-   commandMode_ (*(new Ui::Command(this, screen_, client_, settings_, search_, normalMode_)))
+   commandMode_ (*(new Ui::Command(this, screen_, client_, settings_, search_, normalMode_))),
+   clientUpdate_(false)
 {
 
    modeTable_[Command] = &commandMode_;
@@ -112,7 +113,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       while (Running == true)
       {
          static long updateTime = 0;
-         bool clientUpdate = false;
 
 			screen_.UpdateErrorDisplay();
 
@@ -152,20 +152,20 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          updateTime += mtime;
          client_.IncrementTime(mtime);
 
-         if ((input == ERR) && ((client_.TimeSinceUpdate() > 900) && 
+         if ((input == ERR) && ((client_.TimeSinceUpdate() > 900) &&
              (settings_.Get(::Setting::Polling) == true)))
          {
             client_.UpdateStatus();
-            clientUpdate = true;
+            clientUpdate_ = true;
          }
 
          gettimeofday(&start, NULL);
 
          // \TODO client needs to tell this to force an update somehow
-         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate == true) || 
+         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate_ == true) ||
              ((updateTime >= 250) && (input == ERR)))
          {
-            clientUpdate = false;
+            clientUpdate_ = false;
             updateTime   = 0;
 
             client_.DisplaySongInformation();
@@ -302,10 +302,12 @@ void Vimpc::Handle(int input)
 
 void Vimpc::OnConnected()
 {
+   // \TODO ideally this should be run out of the main thread
+   //       not in this callback might need to set a flag to indicate
+   //       that it needs to be run
    commandMode_.ExecuteQueuedCommands();
-   client_.DisplaySongInformation();
-   screen_.Update();
-   CurrentMode().Refresh();
+
+   clientUpdate_ = true;
 }
 
 bool Vimpc::HandleMouse()

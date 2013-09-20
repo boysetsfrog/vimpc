@@ -264,23 +264,21 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
 
    if (Connected() == true)
    {
-      fd_      = mpd_connection_get_fd(connection_);
-
-      vimpc_->OnConnected();
+      fd_ = mpd_connection_get_fd(connection_);
 
       Debug("Client::Connected.");
+      vimpc_->OnConnected();
 
       GetVersion();
-
-      elapsed_ = mpdelapsed_;
 
       if (connect_password != "")
       {
          Password(connect_password);
       }
 
-      GetAllMetaInformation();
+      elapsed_ = 0;
       UpdateStatus();
+      GetAllMetaInformation();
 
       if (Connected() == true)
       {
