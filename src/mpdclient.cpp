@@ -73,16 +73,15 @@ CommandList::CommandList(Mpc::Client & client, bool condition) :
    list_     (client.IsCommandList()),
    client_   (client)
 {
-   if ((condition_) && (list_ == false))
+   if (condition_)
    {
-      client_.ClearCommand();
       client_.StartCommandList();
    }
 }
 
 CommandList::~CommandList()
 {
-   if ((condition_) && (list_ == false))
+   if (condition_)
    {
       client_.SendCommandList();
    }
@@ -1687,8 +1686,10 @@ void Client::StartCommandList()
 {
    QueueCommand([this] ()
    {
-      if (Connected() == true)
+      if ((Connected() == true) && (listMode_ == false))
       {
+         ClearCommand();
+
          Debug("Client::Start command list");
          mpd_command_list_begin(connection_, false);
 
