@@ -843,8 +843,7 @@ void Client::LoadPlaylist(std::string const & name)
 
       if (Connected() == true)
       {
-         Clear();
-
+         mpd_run_clear(connection_);
          Debug("Client::Send load %s", name.c_str());
          mpd_run_load(connection_, name.c_str());
       }
