@@ -895,17 +895,14 @@ void Client::AddToNamedPlaylist(std::string const & name, Mpc::Song * song)
 
 void Client::SetOutput(Mpc::Output * output, bool enable)
 {
-   QueueCommand([this, output, enable] ()
+   if (enable == true)
    {
-      if (enable == true)
-      {
-         EnableOutput(output);
-      }
-      else
-      {
-         DisableOutput(output);
-      }
-   });
+      EnableOutput(output);
+   }
+   else
+   {
+      DisableOutput(output);
+   }
 }
 
 void Client::EnableOutput(Mpc::Output * output)
@@ -917,7 +914,11 @@ void Client::EnableOutput(Mpc::Output * output)
       if (Connected() == true)
       {
          Debug("Client::Enable output %d", output->Id());
-         mpd_send_enable_output(connection_, output->Id());
+
+         if (mpd_run_enable_output(connection_, output->Id()) == true)
+         {
+            output->SetEnabled(true);
+         }
       }
       else
       {
@@ -935,7 +936,11 @@ void Client::DisableOutput(Mpc::Output * output)
       if (Connected() == true)
       {
          Debug("Client::Disable output %d", output->Id());
-         mpd_send_disable_output(connection_, output->Id());
+
+         if (mpd_run_disable_output(connection_, output->Id()) == true)
+         {
+            output->SetEnabled(false);
+         }
       }
       else
       {

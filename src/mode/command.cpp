@@ -759,7 +759,6 @@ void Command::Output(std::string const & arguments)
       if (rangeAllowed == false)
       {
          client_.SetOutput(Main::Outputs().Get(output), (ON == true));
-         Main::Outputs().Get(output)->SetEnabled((ON == true));
       }
       else
       {
@@ -768,7 +767,6 @@ void Command::Output(std::string const & arguments)
             if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
             {
                client_.SetOutput(Main::Outputs().Get(output + i), (ON == true));
-               Main::Outputs().Get(output + i)->SetEnabled((ON == true));
             }
          }
       }

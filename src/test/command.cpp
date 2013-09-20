@@ -47,7 +47,7 @@ public:
       settings_(Main::Settings::Instance()),
       commandMode_(*Main::Tester::Instance().Command),
       screen_(*Main::Tester::Instance().Screen),
-      client_(*Main::Tester::Instance().Client) 
+      client_(*Main::Tester::Instance().Client)
       { }
 
 public:
@@ -327,7 +327,7 @@ void CommandTester::StateCommands()
    // messing about with the volume
    if (Algorithm::iequals(State, "playing") == true)
    {
-      client_.Pause(); 
+      client_.Pause();
    }
 
    // \TODO TBD: need to ensure that outputs are enabled
@@ -356,7 +356,7 @@ void CommandTester::StateCommands()
    // Set mpd to whatever state it was in before
    if (Algorithm::iequals(State, "playing") == true)
    {
-      client_.Pause(); 
+      client_.Pause();
    }
 }
 
@@ -373,71 +373,87 @@ void CommandTester::OutputCommands()
 
    std::map<int32_t, bool> outputs;
 
-   for (int i = 0; i < outputCount; ++i) 
+   for (int i = 0; i < outputCount; ++i)
    {
       outputs[i] = Main::Outputs().Get(i)->Enabled();
 
       // Ensure that the selected outputs are enabled/disabled
       screen_.ScrollTo(i);
       commandMode_.ExecuteCommand("enable");
+      client_.WaitForCompletion();
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
       commandMode_.ExecuteCommand("disable");
+      client_.WaitForCompletion();
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
 
       // Ensure that enable using the id works
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "enable %d", i);
       commandMode_.ExecuteCommand(Buffer);
+      client_.WaitForCompletion();
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
 
       // Ensure that disable using the id works
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "disable %d", i);
       commandMode_.ExecuteCommand(Buffer);
+      client_.WaitForCompletion();
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
 
       // Ensure that a line based command enables the correct output
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "%denable", i+1);
       commandMode_.ExecuteCommand(Buffer);
+      client_.WaitForCompletion();
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
 
       // Ensure that a line based command disables the correct output
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "%ddisable", i+1);
       commandMode_.ExecuteCommand(Buffer);
+      client_.WaitForCompletion();
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
    }
 
    // Ensure that range based enables and disables work
    snprintf(Buffer, 128, "%d,%denable", 1, outputCount);
    commandMode_.ExecuteCommand(Buffer);
+   client_.WaitForCompletion();
 
    // \TODO TBD: range based enable, disable are not implemented
-    
-   for (int i = 0; i < outputCount; ++i) 
+
+   for (int i = 0; i < outputCount; ++i)
    {
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
    }
- 
+
    snprintf(Buffer, 128, "%d,%ddisable", 1, outputCount);
    commandMode_.ExecuteCommand(Buffer);
+   client_.WaitForCompletion();
 
-   for (int i = 0; i < outputCount; ++i) 
+   for (int i = 0; i < outputCount; ++i)
    {
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
    }
-   
+
    // \TODO TBD: test visual selection enable/disable
 
    // Restore outputs to their initial state
-   for (int i = 0; i < outputCount; ++i) 
+   for (int i = 0; i < outputCount; ++i)
    {
-      Main::Outputs().Get(i)->SetEnabled(outputs[i]);
+      if (outputs[i] == true)
+      {
+         client_.EnableOutput(Main::Outputs().Get(i));
+      }
+      else
+      {
+         client_.DisableOutput(Main::Outputs().Get(i));
+      }
    }
- 
+
+   client_.WaitForCompletion();
    screen_.ScrollTo(currentLine);
-   screen_.SetVisible(Ui::Screen::Outputs, visible);   
+   screen_.SetVisible(Ui::Screen::Outputs, visible);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);

@@ -76,7 +76,6 @@ void OutputWindow::SetOutput(uint32_t line, bool enable, uint32_t count, bool sc
       if (line + i < BufferSize())
       {
          client_.SetOutput(outputs_.Get(line + i), enable);
-         outputs_.Get(line + i)->SetEnabled(enable);
       }
    }
 }

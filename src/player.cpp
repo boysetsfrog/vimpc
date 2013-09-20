@@ -174,7 +174,6 @@ void Player::SetOutput(uint32_t output, bool enable)
    if (output < Main::Outputs().Size())
    {
       client_.SetOutput(Main::Outputs().Get(output), enable);
-      Main::Outputs().Get(output)->SetEnabled(enable);
    }
 }
 
