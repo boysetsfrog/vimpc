@@ -252,7 +252,6 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
    // and the mpd connect is a blocking call, so be sure to update the screen
    // first to let the user know that something is happening
    currentState_ = "Connecting";
-   vimpc_->CurrentMode().Refresh();
 
    hostname_ = connect_hostname;
    port_     = connect_port;
