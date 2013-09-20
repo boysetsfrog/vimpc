@@ -310,7 +310,6 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
 
          for (uint32_t i = 0; i < total; ++i)
          {
-            Main::Playlist().Add(Main::PlaylistTmp().Get(i));
             client.Add(Main::PlaylistTmp().Get(i));
          }
       }
