@@ -1513,7 +1513,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
             std::unique_lock<std::mutex> Lock(QueueMutex);
 
             if ((Queue.empty() == false) ||
-                (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
+                (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
             {
                if (Queue.empty() == false)
                {
