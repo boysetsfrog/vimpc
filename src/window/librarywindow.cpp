@@ -272,12 +272,12 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
       if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
       {
-         Mpc::CommandList list(client_, (Positions.size() > 1));
+         Mpc::CommandList list(client_, true);
          ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::AddToPlaylist);
       }
       else
       {
-         Mpc::CommandList list(client_, (Positions.size() > 1));
+         Mpc::CommandList list(client_, true);
          ForPositions(Positions.rbegin(), Positions.rend(), &Mpc::Library::AddToPlaylist);
       }
    }
@@ -333,7 +333,7 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
          ScrollTo(line);
       }
 
-      Mpc::CommandList list(client_, (Positions.size() > 1));
+      Mpc::CommandList list(client_, true);
       ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::RemoveFromPlaylist);
    }
 
