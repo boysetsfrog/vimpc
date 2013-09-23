@@ -1,6 +1,8 @@
 AC_INIT([vimpc], [0.08.1], [https://github.com/boysetsfrog/vimpc], [vimpc], [https://github.com/boysetsfrog/vimpc])
 AC_LANG_PUSH([C++])
 
+AX_CXX_COMPILE_STDCXX_11
+
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS([src/config.h])
@@ -122,7 +124,7 @@ else
 fi
 
 
-CPPFLAGS="$CPPFLAGS -std=c++11 -DHELP_DIRECTORY='\"$docdir\"'"
+CPPFLAGS="$CPPFLAGS -DHELP_DIRECTORY='\"$docdir\"'"
 LIBS="$LIBS -lpthread"
 
 AC_CONFIG_FILES([Makefile])
