@@ -157,7 +157,7 @@ void CommandTester::TabCommands()
 
    // Ensure that we change to the last tab
    commandMode_.ExecuteCommand("tablast");
-   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == (screen_.VisibleWindows() - 1));
+   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == static_cast<int32_t>(screen_.VisibleWindows() - 1));
 
    // Ensure that we can move the current tab to position 0 and back
    screen_.SetActiveAndVisible(window_);
@@ -179,16 +179,16 @@ void CommandTester::TabCommands()
    bool     visible = true;
    int32_t  window  = window_;
 
-   if (window_ >= (int32_t) Ui::Screen::MainWindowCount)
+   if (window_ >= static_cast<int32_t>(Ui::Screen::MainWindowCount))
    {
       visible = screen_.IsVisible(Ui::Screen::TestConsole);
       screen_.SetActiveAndVisible(Ui::Screen::TestConsole);
       window = Ui::Screen::TestConsole;
    }
 
-   if (screen_.GetActiveWindow() < (int32_t) Ui::Screen::MainWindowCount)
+   if (screen_.GetActiveWindow() < static_cast<int32_t>(Ui::Screen::MainWindowCount))
    {
-      std::string name = screen_.GetNameFromWindow(screen_.GetActiveWindow());
+      std::string wname = screen_.GetNameFromWindow(screen_.GetActiveWindow());
       screen_.SetActiveAndVisible(window);
 
       // Test closing the current tab
@@ -207,7 +207,7 @@ void CommandTester::TabCommands()
       // Test hiding/closing a tab by name
       screen_.SetActiveWindow(0);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
-      commandMode_.ExecuteCommand("tabhide " + name);
+      commandMode_.ExecuteCommand("tabhide " + wname);
       CPPUNIT_ASSERT(screen_.IsVisible(window) == false);
 
       // If we didn't close the active tab we should not
@@ -256,7 +256,7 @@ void CommandTester::ActiveWindow(std::string window, Ui::Screen::MainWindow main
    // Make sure that the correct windows are opened
    bool visible = screen_.IsVisible(main);
    commandMode_.ExecuteCommand(window);
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == main);
+   CPPUNIT_ASSERT(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow() == main));
    CPPUNIT_ASSERT(screen_.IsVisible(main) == true);
    screen_.SetVisible(main, visible);
 }

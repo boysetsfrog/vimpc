@@ -65,7 +65,7 @@ void SelectWindow::Print(uint32_t line) const
    }
 }
 
-void SelectWindow::Resize(int rows, int columns)
+void SelectWindow::Resize(uint32_t rows, uint32_t columns)
 {
    ScrollWindow::Resize(rows, columns);
 

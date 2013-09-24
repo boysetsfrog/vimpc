@@ -521,9 +521,10 @@ void Client::SeekToPercent(double Percent)
    {
       if (currentSong_)
       {
-         Debug("Client::Seek to percent %d%%", (int32_t) (Percent * 100));
+         Debug("Client::Seek to percent %d%%", static_cast<int32_t>(Percent * 100));
+
          uint32_t const duration = mpd_song_get_duration(currentSong_);
-         SeekTo((uint32_t) (Percent * duration));
+         SeekTo(static_cast<uint32_t>(Percent * duration));
       }
    });
 }
@@ -542,7 +543,7 @@ void Client::SetRandom(bool const random)
 
       if (Connected() == true)
       {
-         Debug("Client::Set random state %d", (int32_t) random);
+         Debug("Client::Set random state %d", static_cast<int32_t>(random));
 
          if (mpd_run_random(connection_, random) == true)
          {
@@ -570,7 +571,7 @@ void Client::SetSingle(bool const single)
 
       if (Connected() == true)
       {
-         Debug("Client::Set single state %d", (int32_t) single);
+         Debug("Client::Set single state %d", static_cast<int32_t>(single));
 
          if (mpd_run_single(connection_, single) == true)
          {
@@ -598,7 +599,7 @@ void Client::SetConsume(bool const consume)
 
       if (Connected() == true)
       {
-         Debug("Client::Set consume state %d", (int32_t) consume);
+         Debug("Client::Set consume state %d", static_cast<int32_t>(consume));
 
          if (mpd_run_consume(connection_, consume) == true)
          {
@@ -625,7 +626,7 @@ void Client::SetRepeat(bool const repeat)
 
       if (Connected() == true)
       {
-         Debug("Client::Set repeat state %d", (int32_t) repeat);
+         Debug("Client::Set repeat state %d", static_cast<int32_t>(repeat));
 
          if (mpd_run_repeat(connection_, repeat) == true)
          {
@@ -1157,7 +1158,7 @@ void Client::SearchAny(std::string const & search, bool exact)
 
       if (Connected() == true)
       {
-         Debug("Client::Search any %s - exact %d", search.c_str(), (int32_t) exact);
+         Debug("Client::Search any %s - exact %d", search.c_str(), static_cast<int32_t>(exact));
          mpd_search_db_songs(connection_, exact);
          mpd_search_add_any_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, search.c_str());
       }
@@ -1172,7 +1173,7 @@ void Client::SearchArtist(std::string const & search, bool exact)
 
       if (Connected() == true)
       {
-         Debug("Client::Search artist %s - exact %d", search.c_str(), (int32_t) exact);
+         Debug("Client::Search artist %s - exact %d", search.c_str(), static_cast<int32_t>(exact));
          mpd_search_db_songs(connection_, exact);
          mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, search.c_str());
       }
@@ -1187,7 +1188,7 @@ void Client::SearchGenre(std::string const & search, bool exact)
 
       if (Connected() == true)
       {
-         Debug("Client::Search genre %s - exact %d", search.c_str(), (int32_t) exact);
+         Debug("Client::Search genre %s - exact %d", search.c_str(), static_cast<int32_t>(exact));
          mpd_search_db_songs(connection_, exact);
          mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_GENRE, search.c_str());
       }
@@ -1203,7 +1204,7 @@ void Client::SearchAlbum(std::string const & search, bool exact)
 
       if (Connected() == true)
       {
-         Debug("Client::Search album %s - exact %d", search.c_str(), (int32_t) exact);
+         Debug("Client::Search album %s - exact %d", search.c_str(), static_cast<int32_t>(exact));
          mpd_search_db_songs(connection_, exact);
          mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, search.c_str());
       }
@@ -1218,7 +1219,7 @@ void Client::SearchSong(std::string const & search, bool exact)
 
       if (Connected() == true)
       {
-         Debug("Client::Search title %s - exact %d", search.c_str(), (int32_t) exact);
+         Debug("Client::Search title %s - exact %d", search.c_str(), static_cast<int32_t>(exact));
          mpd_search_db_songs(connection_, exact);
          mpd_search_add_tag_constraint(connection_, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, search.c_str());
       }
@@ -1318,7 +1319,7 @@ void Client::DisplaySongInformation()
          }
 
          screen_.MoveSetStatus(screen_.MaxColumns() - strlen(durationStr), "%s", durationStr);
-         screen_.SetProgress((double) elapsed / duration);
+         screen_.SetProgress(static_cast<double>(elapsed) / duration);
       }
       else
       {
@@ -1838,7 +1839,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
             {
                Main::PlaylistTmp().Clear();
 
-               for (int i = 0; i < Main::PlaylistPasteBuffer().Size(); ++i)
+               for (uint32_t i = 0; i < Main::PlaylistPasteBuffer().Size(); ++i)
                {
                   Main::PlaylistTmp().Add(Main::PlaylistPasteBuffer().Get(i));
                }
@@ -1849,7 +1850,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
                // Ensure that the queue related updates don't break our paste buffer
                Main::PlaylistPasteBuffer().Clear();
 
-               for (int i = 0; i < Main::PlaylistTmp().Size(); ++i)
+               for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
                {
                   Main::PlaylistPasteBuffer().Add(Main::PlaylistTmp().Get(i));
                }

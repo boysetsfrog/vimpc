@@ -279,11 +279,11 @@ bool Command::ExecuteCommand(std::string const & input)
 
             if (intcount >= lineint)
             {
-               count = (intcount <= 0) ? 0 : (uint32_t) (intcount - lineint) + 1;
+               count = (intcount <= 0) ? 0 : static_cast<uint32_t>((intcount - lineint) + 1);
             }
             else
             {
-               count = (intcount <= 0) ? 0 : (uint32_t) (lineint - intcount) + 1;
+               count = (intcount <= 0) ? 0 : static_cast<uint32_t>((lineint - intcount) + 1);
                line = (intcount > 1) ? intcount : 1;
             }
          }
@@ -583,7 +583,7 @@ void Command::Mute(std::string const & arguments)
 
 void Command::Volume(std::string const & arguments)
 {
-   uint32_t const Vol = (uint32_t) atoi(arguments.c_str());
+   uint32_t const Vol = static_cast<uint32_t>(atoi(arguments.c_str()));
 
    if (Vol <= 100)
    {
@@ -677,7 +677,7 @@ void Command::Substitute(std::string const & expression)
 
    if (settings_.Get(Setting::LocalMusicDir) != "")
    {
-      for (int i = 0; i < count_; ++i)
+      for (uint32_t i = 0; i < count_; ++i)
       {
          Mpc::Song * const song = screen_.GetSong(screen_.ActiveWindow().CurrentLine() + i);
 
@@ -809,9 +809,9 @@ void Command::ToggleOutput(std::string const & arguments)
       }
       else
       {
-         for (int i = 0; (i < count_); ++i)
+         for (uint32_t i = 0; (i < count_); ++i)
          {
-            if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
+            if ((output + i < Main::Outputs().Size()) && (output + i >= 0))
             {
                Player::ToggleOutput(output + i);
             }
@@ -1107,7 +1107,7 @@ void Command::Move(std::string const & arguments)
       int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
       int32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
 
-      if (position1 >= screen_.ActiveWindow().BufferSize() - 1)
+      if (position1 >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
       {
          position1 = Main::Playlist().Size();
       }
@@ -1116,7 +1116,7 @@ void Command::Move(std::string const & arguments)
          position1 = 1;
       }
 
-      if (position2 >= screen_.ActiveWindow().BufferSize() - 1)
+      if (position2 >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
       {
          position2 = Main::Playlist().Size();
       }
@@ -1125,7 +1125,8 @@ void Command::Move(std::string const & arguments)
          position2 = 1;
       }
 
-      if ((position1 < Main::Playlist().Size()) && (position2 <= Main::Playlist().Size()))
+      if ((position1 <  static_cast<int32_t>(Main::Playlist().Size())) && 
+          (position2 <= static_cast<int32_t>(Main::Playlist().Size())))
       {
          client_.Move(position1 - 1, position2 - 1);
 
@@ -1243,6 +1244,9 @@ void Command::ChangeToWindow(std::string const & arguments)
 
       case Last:
          active = screen_.VisibleWindows() - 1;
+         break;
+
+      default:
          break;
    }
 

@@ -75,7 +75,7 @@ void SongWindow::AddToPlaylist(uint32_t position)
    }
 }
 
-std::string SongWindow::SearchPattern(int32_t id) const
+std::string SongWindow::SearchPattern(uint32_t id) const
 {
    if ((id >= 0) && (id < Buffer().Size()))
    {
@@ -198,7 +198,7 @@ uint32_t SongWindow::Playlist(int count) const
    {
       if ((count > 0) && (line >= 0) && (Buffer().Size() > 0))
       {
-         for (int32_t i = CurrentLine() + 1; i < BufferSize(); ++i)
+         for (uint32_t i = CurrentLine() + 1; i < BufferSize(); ++i)
          {
             if (Buffer().Get(i)->Reference() > 0)
             {

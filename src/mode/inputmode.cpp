@@ -212,7 +212,7 @@ void InputMode::GenerateInputString(int input)
    {
       int64_t const cursorPosition = (cursor_.Position() - PromptSize);
 
-      if (((char) input & 0xc0) != 0x80)
+      if ((static_cast<char>(input & 0xc0)) != 0x80)
       {
          currentInput_.clear();
       }

@@ -57,7 +57,7 @@ namespace Ui
       void Redraw();
 
    public:
-      std::string SearchPattern(int32_t id) const
+      std::string SearchPattern(uint32_t id) const
       {
          if (id < outputs_.Size())
          {

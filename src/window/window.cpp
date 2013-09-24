@@ -72,7 +72,7 @@ void Window::Move(int row, int column)
    mvwin(N_WINDOW(), row, column);
 }
 
-void Window::Resize(int rows, int columns)
+void Window::Resize(uint32_t rows, uint32_t columns)
 {
    rows_ = rows;
    cols_ = columns;

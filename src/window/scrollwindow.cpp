@@ -223,7 +223,7 @@ void ScrollWindow::Print(uint32_t line) const
 }
 
 
-void ScrollWindow::Resize(int rows, int columns)
+void ScrollWindow::Resize(uint32_t rows, uint32_t columns)
 {
    if ((scrollLine_ > rows) || (rows > scrollLine_))
    {
@@ -242,9 +242,9 @@ void ScrollWindow::Scroll(int64_t scrollCount)
 {
    uint32_t const newLine = (scrollLine_ + scrollCount);
 
-   if (BufferSize() > Rows())
+   if (BufferSize() > static_cast<uint32_t>(Rows()))
    {
-      if (newLine < Rows())
+      if (newLine < static_cast<uint32_t>(Rows()))
       {
          scrollLine_ = Rows();
       }
@@ -265,11 +265,11 @@ void ScrollWindow::ScrollTo(uint32_t scrollLine)
    {
       scrollLine_ = BufferSize();
    }
-   else if (BufferSize() >= Rows())
+   else if (BufferSize() >= static_cast<uint32_t>(Rows()))
    {
       scrollLine_ = scrollLine + (Rows() / 2);
 
-      if (scrollLine_ < Rows())
+      if (scrollLine_ < static_cast<uint32_t>(Rows()))
       {
          scrollLine_ = Rows();
       }

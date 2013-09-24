@@ -46,7 +46,7 @@ namespace Ui
 
    public:
       virtual void Print(uint32_t line) const;
-      virtual void Resize(int rows, int columns);
+      virtual void Resize(uint32_t rows, uint32_t columns);
       virtual void Scroll(int64_t scrollCount);
       virtual void ScrollTo(uint32_t scrollLine);
       virtual void ScrollToFirstMatch(std::string const & input) { }
@@ -55,7 +55,7 @@ namespace Ui
 
       virtual uint32_t Current() const           { return CurrentLine(); };
       virtual uint32_t Playlist(int count) const { return Current(); };
-      virtual std::string SearchPattern(int32_t id) const { return ""; }
+      virtual std::string SearchPattern(uint32_t id) const { return ""; }
 
    public:
       virtual void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}

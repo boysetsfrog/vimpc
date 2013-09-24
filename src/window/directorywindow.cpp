@@ -170,13 +170,13 @@ void DirectoryWindow::LimitCurrentSelection()
 }
 
 
-std::string DirectoryWindow::SearchPattern(int32_t id) const
+std::string DirectoryWindow::SearchPattern(uint32_t id) const
 {
    //! \todo add a search that searches in collapsed songs and
    //! expands things as necessary
    std::string pattern("");
 
-   if (id < static_cast<int32_t>(directory_.Size()))
+   if (id < directory_.Size())
    {
       Mpc::DirectoryEntry const * const entry = directory_.Get(id);
 
@@ -568,7 +568,7 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
       }
       else if (entry->type_ == Mpc::PathType)
       {
-         int const TotalReferences = directory_.TotalReferences(entry->path_);
+         uint32_t const TotalReferences = directory_.TotalReferences(entry->path_);
 
          if ((entry->type_ == Mpc::PathType) && (TotalReferences > 0))
          {

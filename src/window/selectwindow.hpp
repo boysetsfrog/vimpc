@@ -38,7 +38,7 @@ namespace Ui
 
    public:
       void Print(uint32_t line) const;
-      void Resize(int rows, int columns);
+      void Resize(uint32_t rows, uint32_t columns);
       void Scroll(int64_t scrollCount);
       void ScrollTo(uint32_t scrollLine);
 

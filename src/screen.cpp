@@ -83,6 +83,10 @@ static std::condition_variable Condition;
 extern "C" void ResizeHandler(int);
 extern "C" void ContinueHandler(int);
 
+void RandomCharacterInput();
+void QueueInput(WINDOW * inputWindow);
+
+
 std::string Windows::String(uint32_t position) const
 {
    return screen_->GetNameFromWindow(Get(position));
@@ -972,8 +976,8 @@ bool Screen::HandleMouseEvent()
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
-               int32_t x = 0;
-               int32_t i = 1;
+               int32_t  x = 0;
+               uint32_t i = 1;
 
                for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
                {
@@ -985,7 +989,7 @@ bool Screen::HandleMouseEvent()
 
                   if (settings_.Get(Setting::WindowNumbers) == true)
                   {
-                     sprintf(buffer, "[%d]", i);
+                     sprintf(buffer, "[%u]", i);
                      x += strlen(buffer);
                   }
 
@@ -1414,8 +1418,8 @@ void Screen::UpdateProgressWindow() const
 
    if ((progress_ * MaxColumns() - 1) > 0)
    {
-      whline(progressWindow_, '=', (int) (progress_ * MaxColumns() - 1));
-      wmove(progressWindow_, 0, (int) (progress_ * MaxColumns() - 1));
+      whline(progressWindow_, '=', static_cast<int>(progress_ * MaxColumns() - 1));
+      wmove(progressWindow_, 0, static_cast<int>(progress_ * MaxColumns() - 1));
    }
    if (progress_ > 0)
    {
@@ -1425,12 +1429,12 @@ void Screen::UpdateProgressWindow() const
 
    if (settings_.Get(Setting::ShowPercent) == true)
    {
-      int32_t start = (MaxColumns() / 2) - 3;
+      uint32_t start = (MaxColumns() / 2) - 3;
 
       if (start + 6 < MaxColumns())
       {
          wmove(progressWindow_, 0, start);
-         wprintw(progressWindow_, "[%3d%%]", (int) (progress_ * 100));
+         wprintw(progressWindow_, "[%3d%%]", static_cast<int>(progress_ * 100));
       }
    }
 
@@ -1461,7 +1465,7 @@ void Screen::OnProgressClicked(int32_t x)
       for (; it != pCallbacks_.end(); ++it)
       {
          ProgressCallback functor = (*it);
-         (*functor)(((double) x / MaxColumns()));
+         (*functor)((static_cast<double>(x) / MaxColumns()));
       }
    }
 }

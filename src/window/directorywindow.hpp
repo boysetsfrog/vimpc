@@ -58,7 +58,7 @@ namespace Ui
       uint32_t Current() const;
 
    public:
-      std::string SearchPattern(int32_t id) const;
+      std::string SearchPattern(uint32_t id) const;
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);

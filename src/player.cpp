@@ -162,7 +162,7 @@ void Player::SetOutput(Item::Collection collection, bool enable)
    }
    else if (collection == Item::All)
    {
-      for (int i = 0; i < Main::Outputs().Size(); ++i)
+      for (uint32_t i = 0; i < Main::Outputs().Size(); ++i)
       {
          Player::SetOutput(i, enable);
       }
@@ -186,7 +186,7 @@ void Player::ToggleOutput(Item::Collection collection)
    }
    else if (collection == Item::All)
    {
-      for (int i = 0; i < Main::Outputs().Size(); ++i)
+      for (uint32_t i = 0; i < Main::Outputs().Size(); ++i)
       {
          Player::ToggleOutput(i);
       }

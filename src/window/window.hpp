@@ -49,7 +49,7 @@ namespace Ui
       virtual void Confirm();
       virtual void Redraw();
       virtual void Move(int row, int column);
-      virtual void Resize(int rows, int columns);
+      virtual void Resize(uint32_t rows, uint32_t columns);
 
    public:
       void Erase();

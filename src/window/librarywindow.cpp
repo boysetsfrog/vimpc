@@ -126,7 +126,7 @@ uint32_t LibraryWindow::Current() const
    return current;
 }
 
-std::string LibraryWindow::SearchPattern(int32_t id) const
+std::string LibraryWindow::SearchPattern(uint32_t id) const
 {
    //! \todo add a search that searches in collapsed songs and
    //! expands things as necessary

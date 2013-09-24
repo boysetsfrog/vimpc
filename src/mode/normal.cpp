@@ -672,7 +672,7 @@ std::string Normal::InputCharToString(int input) const
       }
       else
       {
-         result += (char) input;
+         result += static_cast<char>(input);
 
          // Alt key combinations
          if ((input & (1 << 31)) != 0)
@@ -829,7 +829,8 @@ void Normal::Confirm(uint32_t count)
       confirmTable[Ui::Screen::Playlist]     = &Normal::PlaySelected;
    }
 
-   WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+   WindowActionTable::const_iterator it = 
+      confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
    if (it != confirmTable.end())
    {
@@ -956,7 +957,8 @@ void Normal::Add(uint32_t count)
          confirmTable[Ui::Screen::Outputs] = &Normal::SetOutput<COLLECTION, true>;
       }
 
-      WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+      WindowActionTable::const_iterator it = 
+         confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
       if (it != confirmTable.end())
       {
@@ -992,7 +994,8 @@ void Normal::Delete(uint32_t count)
          confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, false>;
       }
 
-      WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+      WindowActionTable::const_iterator it = 
+         confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
       if (it != confirmTable.end())
       {
@@ -1321,7 +1324,7 @@ std::string Normal::ScrollString()
       currentScroll += .005;
       scrollStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << screen_.ActiveWindow().BufferSize() << " -- ";
 
-      if (screen_.ActiveWindow().BufferSize() > static_cast<int32_t>(screen_.MaxRows()))
+      if (screen_.ActiveWindow().BufferSize() > screen_.MaxRows())
       {
          if (currentScroll <= .010)
          {
