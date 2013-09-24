@@ -267,11 +267,12 @@ namespace Ui
       // Register a callback to occur when progress bar is clicked
       void RegisterProgressCallback(ProgressCallback callback);
 
+      void UpdateProgressWindow() const;
+
    private:
       void SetupMouse(bool on) const;
       void ClearStatus() const;
       void UpdateTabWindow() const;
-      void UpdateProgressWindow() const;
 
    private:
       void OnProgressClicked(int32_t);

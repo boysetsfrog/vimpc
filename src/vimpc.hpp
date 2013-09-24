@@ -71,6 +71,7 @@ namespace Main
       //! Perform any required actions on a connect
       void OnConnected();
       void OnClientUpdate();
+      void OnClientQueueUpdate();
 
    private:
       //! Read input from the screen
@@ -109,6 +110,7 @@ namespace Main
       Ui::Normal   &    normalMode_;
       Ui::Command  &    commandMode_;
       std::atomic<bool> clientUpdate_;
+      std::atomic<bool> clientQueueUpdate_;
    };
 }
 

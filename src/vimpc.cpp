@@ -42,15 +42,16 @@ bool Vimpc::Running = true;
 // \todo the coupling and requirements on the way everything needs to be constructed is awful
 // this really needs to be fixed and the coupling removed
 Vimpc::Vimpc() :
-   currentMode_ (Normal),
-   settings_    (Main::Settings::Instance()),
-   search_      (*(new Ui::Search (screen_, client_, settings_))),
-   screen_      (settings_, client_, search_),
-   client_      (this, settings_, screen_),
-   modeTable_   (),
-   normalMode_  (*(new Ui::Normal (this, screen_, client_, settings_, search_))),
-   commandMode_ (*(new Ui::Command(this, screen_, client_, settings_, search_, normalMode_))),
-   clientUpdate_(false)
+   currentMode_      (Normal),
+   settings_         (Main::Settings::Instance()),
+   search_           (*(new Ui::Search (screen_, client_, settings_))),
+   screen_           (settings_, client_, search_),
+   client_           (this, settings_, screen_),
+   modeTable_        (),
+   normalMode_       (*(new Ui::Normal (this, screen_, client_, settings_, search_))),
+   commandMode_      (*(new Ui::Command(this, screen_, client_, settings_, search_, normalMode_))),
+   clientUpdate_     (false),
+   clientQueueUpdate_(false)
 {
 
    modeTable_[Command] = &commandMode_;
@@ -153,19 +154,28 @@ void Vimpc::Run(std::string hostname, uint16_t port)
              (settings_.Get(::Setting::Polling) == true)))
          {
             client_.UpdateStatus();
-            clientUpdate_.store(true);
          }
 
          gettimeofday(&start, NULL);
 
          // \TODO client needs to tell this to force an update somehow
-         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate_.load() == true))
+         if ((input != ERR) || (screen_.Resize() == true) ||
+             (clientUpdate_.load() == true) || (clientQueueUpdate_ == true))
          {
             clientUpdate_.store(false);
-
             client_.DisplaySongInformation();
             client_.UpdateDisplay();
-            screen_.Update();
+
+            if (settings_.Get(Setting::ProgressBar) == true)
+            {
+               screen_.UpdateProgressWindow();
+            }
+
+            if ((clientQueueUpdate_.load() == true) || (input != ERR) || (screen_.Resize() == true))
+            {
+               clientQueueUpdate_.store(false);
+               screen_.Update();
+            }
 
             if (screen_.PagerIsVisible() == false)
             {
@@ -307,6 +317,11 @@ void Vimpc::OnConnected()
 void Vimpc::OnClientUpdate()
 {
    clientUpdate_.store(true);
+}
+
+void Vimpc::OnClientQueueUpdate()
+{
+   clientQueueUpdate_.store(true);
 }
 
 bool Vimpc::HandleMouse()
