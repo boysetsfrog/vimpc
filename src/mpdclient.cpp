@@ -1464,9 +1464,7 @@ bool Client::IsCommandList()
 
 void Client::CheckForEvents()
 {
-   if ((settings_.Get(Setting::Polling) == false) &&
-       (idleMode_ == true) && (Connected() == true) &&
-       (fd_ != -1))
+   if ((idleMode_ == true) && (Connected() == true) && (fd_ != -1))
    {
       pollfd fds;
 
