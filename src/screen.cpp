@@ -542,7 +542,7 @@ void Screen::SetProgress(double percent)
 
 void Screen::Align(Direction direction, uint32_t count)
 {
-   int32_t  selection  = ActiveWindow().CurrentLine();
+   int64_t  selection  = ActiveWindow().CurrentLine();
    uint32_t min        = ActiveWindow().FirstLine();
    uint32_t max        = MaxRows();
    uint32_t scrollLine = ActiveWindow().CurrentLine();
@@ -551,7 +551,7 @@ void Screen::Align(Direction direction, uint32_t count)
    {
       count = (count > min) ? min : count;
 
-      if (selection >= static_cast<int32_t>(min + max - count - 1))
+      if (selection >= static_cast<int64_t>(min + max - count - 1))
       {
          selection = min + max - count - 1;
       }
@@ -561,12 +561,12 @@ void Screen::Align(Direction direction, uint32_t count)
    }
    else if (direction == Down)
    {
-      if (selection <= static_cast<int32_t>(min + count))
+      if (selection <= static_cast<int64_t>(min + count))
       {
          selection = min + count;
       }
 
-      if (selection > static_cast<int32_t>(ActiveWindow().BufferSize() - max))
+      if (selection > static_cast<int64_t>(ActiveWindow().BufferSize() - max))
       {
          selection = ActiveWindow().BufferSize() - max;
       }
@@ -580,8 +580,8 @@ void Screen::Align(Direction direction, uint32_t count)
 
 void Screen::AlignTo(Location location, uint32_t line)
 {
-   int scrollLine = (line != 0) ? (line - 1) : ActiveWindow().CurrentLine();
-   int selection  = scrollLine;
+   int64_t scrollLine = (line != 0) ? (line - 1) : ActiveWindow().CurrentLine();
+   int64_t selection  = scrollLine;
 
    if (location == Bottom)
    {
@@ -604,14 +604,14 @@ void Screen::Select(ScrollWindow::Position position, uint32_t count)
    ActiveWindow().Select(position, count);
 }
 
-void Screen::Scroll(int32_t count)
+void Screen::Scroll(int64_t count)
 {
    ActiveWindow().Scroll(count);
 }
 
 void Screen::Scroll(Size size, Direction direction, uint32_t count)
 {
-   int32_t scrollCount = count;
+   int64_t scrollCount = count;
 
    if (size == FullPage)
    {
@@ -866,7 +866,7 @@ bool Screen::Resize(bool forceResize)
          {
             if (mainWindows_[i] != NULL)
             {
-               uint16_t CurrentLine = mainWindows_[i]->CurrentLine();
+               uint32_t CurrentLine = mainWindows_[i]->CurrentLine();
                wclear(mainWindows_[i]->N_WINDOW());
                mainWindows_[i]->Resize(mainRows_, maxColumns_);
                mainWindows_[i]->Move(topline, 0);
@@ -1085,7 +1085,7 @@ Ui::ScrollWindow & Screen::Window(uint32_t window) const
    return assert_reference(it->second);
 }
 
-int32_t Screen::GetSelected(uint32_t window) const
+int64_t Screen::GetSelected(uint32_t window) const
 {
    return Window(window).CurrentLine();
 }

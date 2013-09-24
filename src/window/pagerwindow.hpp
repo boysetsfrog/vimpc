@@ -48,7 +48,7 @@ namespace Ui
       void Page();
       bool IsAtEnd();
 
-      size_t BufferSize() const;
+      uint32_t BufferSize() const;
 
    private:
       Main::Buffer<std::string> buffer_;

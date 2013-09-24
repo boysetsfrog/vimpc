@@ -148,14 +148,14 @@ void HelpWindow::Confirm()
 {
 }
 
-void HelpWindow::Scroll(int32_t scrollCount)
+void HelpWindow::Scroll(int64_t scrollCount)
 {
    currentLine_ += scrollCount;
    LimitCurrentSelection();
    ScrollWindow::Scroll(scrollCount);
 }
 
-void HelpWindow::ScrollTo(uint16_t scrollLine)
+void HelpWindow::ScrollTo(uint32_t scrollLine)
 {
    int64_t oldSelection = currentLine_;
    currentLine_    = (static_cast<int64_t>(scrollLine));

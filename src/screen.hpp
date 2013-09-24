@@ -185,7 +185,7 @@ namespace Ui
       void Select(ScrollWindow::Position position, uint32_t count);
 
       // Scroll the window to a location or by a given amount
-      void Scroll(int32_t count);
+      void Scroll(int64_t count);
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(uint32_t line);
       void ScrollTo(Location location, uint32_t line = 0);
@@ -237,8 +237,8 @@ namespace Ui
       int32_t GetPreviousWindow() const;
 
       // Access the selected item in a particular window
-      int32_t GetSelected(uint32_t window) const;
-      int32_t GetActiveSelected() const { return GetSelected(GetActiveWindow()); }
+      int64_t GetSelected(uint32_t window) const;
+      int64_t GetActiveSelected() const { return GetSelected(GetActiveWindow()); }
 
       // Access a song based on a particular window
       Mpc::Song * GetSong(uint32_t window, uint32_t pos) const;

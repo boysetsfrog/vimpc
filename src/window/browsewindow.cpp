@@ -55,8 +55,8 @@ void BrowseWindow::Redraw()
 {
    redrawFuture_ =
    std::async(std::launch::async, [this]{
-      uint16_t currentLine = CurrentLine();
-      uint16_t scrollLine  = ScrollLine();
+      uint32_t currentLine = CurrentLine();
+      uint32_t scrollLine  = ScrollLine();
 
       Clear();
       Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);

@@ -238,9 +238,9 @@ void ScrollWindow::Resize(int rows, int columns)
 }
 
 
-void ScrollWindow::Scroll(int32_t scrollCount)
+void ScrollWindow::Scroll(int64_t scrollCount)
 {
-   uint16_t const newLine = (scrollLine_ + scrollCount);
+   uint32_t const newLine = (scrollLine_ + scrollCount);
 
    if (BufferSize() > Rows())
    {
@@ -259,7 +259,7 @@ void ScrollWindow::Scroll(int32_t scrollCount)
    }
 }
 
-void ScrollWindow::ScrollTo(uint16_t scrollLine)
+void ScrollWindow::ScrollTo(uint32_t scrollLine)
 {
    if (scrollLine > BufferSize())
    {
@@ -298,9 +298,9 @@ bool ScrollWindow::Select(Position position, uint32_t count)
 {
    if (position == ScrollWindow::First)
    {
-      int32_t scroll = FirstLine() -1 + count;
+      int64_t scroll = FirstLine() -1 + count;
 
-      if (scroll > static_cast<int32_t>(LastLine()))
+      if (scroll > static_cast<int64_t>(LastLine()))
       {
          scroll = LastLine();
       }
@@ -309,9 +309,9 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    }
    else if (position == ScrollWindow::Last)
    {
-      int32_t scroll = LastLine() - count;
+      int64_t scroll = LastLine() - count;
 
-      if (scroll < static_cast<int32_t>(FirstLine() + 1))
+      if (scroll < static_cast<int64_t>(FirstLine() + 1))
       {
          scroll = FirstLine() + 1;
       }
@@ -339,7 +339,7 @@ bool ScrollWindow::AutoScroll() const
 
 uint32_t ScrollWindow::FirstLine() const
 {
-   uint16_t result = 0;
+   uint32_t result = 0;
 
    if ((scrollLine_ - Rows()) > 0)
    {
@@ -354,12 +354,12 @@ void ScrollWindow::ResetScroll()
    scrollLine_ = Rows();
 }
 
-uint16_t ScrollWindow::ScrollLine() const
+uint32_t ScrollWindow::ScrollLine() const
 {
    return scrollLine_;
 }
 
-void ScrollWindow::SetScrollLine(uint16_t scrollLine)
+void ScrollWindow::SetScrollLine(uint32_t scrollLine)
 {
    scrollLine_ = scrollLine;
 }

@@ -41,7 +41,7 @@ namespace Ui
       void SetLine(char const * const fmt, ... );
       virtual void Print(uint32_t line) const;
 
-      size_t BufferSize() const { return buffer_.Size(); }
+      uint32_t BufferSize() const { return buffer_.Size(); }
       void SetCursorPosition(uint32_t cursorPosition);
       void ShowCursor();
       void HideCursor();

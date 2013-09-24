@@ -70,9 +70,9 @@ namespace Ui
       void Edit();
       void ScrollToFirstMatch(std::string const & input);
       void ScrollToCurrent();
-      void Scroll(int32_t scrollCount);
-      void ScrollTo(uint16_t scrollLine);
-      size_t BufferSize() const;
+      void Scroll(int64_t scrollCount);
+      void ScrollTo(uint32_t scrollLine);
+      uint32_t BufferSize() const;
 
    protected:
       void LimitCurrentSelection();

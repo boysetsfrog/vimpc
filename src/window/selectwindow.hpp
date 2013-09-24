@@ -39,10 +39,10 @@ namespace Ui
    public:
       void Print(uint32_t line) const;
       void Resize(int rows, int columns);
-      void Scroll(int32_t scrollCount);
-      void ScrollTo(uint16_t scrollLine);
+      void Scroll(int64_t scrollCount);
+      void ScrollTo(uint32_t scrollLine);
 
-      uint16_t CurrentLine() const;
+      uint32_t CurrentLine() const;
       void Confirm();
 
    public: // Ui::ScrollWindow

@@ -125,7 +125,7 @@ void DirectoryWindow::ScrollToCurrent()
 }
 
 
-void DirectoryWindow::Scroll(int32_t scrollCount)
+void DirectoryWindow::Scroll(int64_t scrollCount)
 {
    SelectWindow::Scroll(scrollCount);
 
@@ -138,7 +138,7 @@ void DirectoryWindow::Scroll(int32_t scrollCount)
    }
 }
 
-void DirectoryWindow::ScrollTo(uint16_t scrollLine)
+void DirectoryWindow::ScrollTo(uint32_t scrollLine)
 {
    int64_t oldSelection = currentLine_;
    currentLine_    = (static_cast<int64_t>(scrollLine));
