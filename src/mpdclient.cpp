@@ -1420,13 +1420,13 @@ long Client::TimeSinceUpdate()
 
 void Client::IdleMode()
 {
-   ClearCommand();
-
    if ((Connected() == true) &&
        (idleMode_ == false) &&
        (ready_ == true) &&
        (settings_.Get(Setting::Polling) == false))
    {
+      ClearCommand();
+
       if (mpd_send_idle(connection_) == true)
       {
          Debug("Client::Enter idle mode");
