@@ -489,19 +489,19 @@ void Library::Collapse(uint32_t line)
 
 std::string Library::String(uint32_t position) const
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
+   Mpc::EntryType const type = Get(position)->type_;
 
    std::string Result = "";
 
-   if (Get(position)->type_ == Mpc::ArtistType)
+   if (type == Mpc::ArtistType)
    {
       Result = Get(position)->artist_;
    }
-   else if (Get(position)->type_ == Mpc::AlbumType)
+   else if (type == Mpc::AlbumType)
    {
       Result = Get(position)->album_;
    }
-   else if (Get(position)->type_ == Mpc::SongType)
+   else if (type == Mpc::SongType)
    {
       Result = Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
@@ -511,19 +511,19 @@ std::string Library::String(uint32_t position) const
 
 std::string Library::PrintString(uint32_t position) const
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
+   Mpc::EntryType const type = Get(position)->type_;
 
    std::string Result = "";
 
-   if (Get(position)->type_ == Mpc::ArtistType)
+   if (type == Mpc::ArtistType)
    {
       Result = "$B " + Get(position)->artist_ + "$R$B";
    }
-   else if (Get(position)->type_ == Mpc::AlbumType)
+   else if (type == Mpc::AlbumType)
    {
       Result = "    " + Get(position)->album_;
    }
-   else if (Get(position)->type_ == Mpc::SongType)
+   else if (type == Mpc::SongType)
    {
       Result = "       " + Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
