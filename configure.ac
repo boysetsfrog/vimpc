@@ -87,6 +87,18 @@ AC_CHECK_HEADER(cppunit/Test.h,
                 [AC_MSG_ERROR(libcppunit-dev library is required)])
 fi
 
+profiler_default="no"
+AC_ARG_ENABLE(profiler, [ --enable-profiler=[no/yes] turn on/off profiler support [default=$profiler_default]],, enable_profiler=$profiler_default)
+
+AM_CONDITIONAL([BUILD_PROFILER], [test x$enable_profiler = xyes])
+
+if test "x$enable_profiler" = "xyes"; then
+AC_DEFINE_UNQUOTED(PROFILER_ENABLED, "1", "Define to 1 if profiler support is enabled")
+
+LIBS="$LIBS -lprofiler"
+fi
+
+
 AC_CHECK_HEADER(mpd/client.h,
                 [],
                 [AC_MSG_ERROR(mpdclient-dev library is required)])
