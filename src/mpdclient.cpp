@@ -1725,11 +1725,15 @@ void Client::StartCommandList()
          ClearCommand();
 
          Debug("Client::Start command list");
-         mpd_command_list_begin(connection_, false);
 
-         if (CheckError() == false)
+         if (mpd_command_list_begin(connection_, false) == true)
          {
             listMode_ = true;
+         }
+         else
+         {
+            Debug("Client::Start command list failed");
+            CheckError();
          }
       }
    });
@@ -1742,9 +1746,16 @@ void Client::SendCommandList()
       if ((Connected() == true) && (listMode_ == true))
       {
          Debug("Client::End command list");
-         listMode_ = false;
-         mpd_command_list_end(connection_);
-         CheckError();
+
+         if (mpd_command_list_end(connection_) == true)
+         {
+            listMode_ = false;
+         }
+         else
+         {
+            Debug("Client::End command list failed");
+            CheckError();
+         }
       }
    });
 }

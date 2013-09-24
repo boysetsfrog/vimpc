@@ -255,6 +255,8 @@ namespace Mpc
       Mpc::LibraryEntry * variousArtist_;
       Mpc::LibraryEntry * lastAlbumEntry_;
       Mpc::LibraryEntry * lastArtistEntry_;
+
+      mutable std::recursive_mutex uriMutex_;
    };
 
    //Flag a library entry as not expanded, this does not actually collapse it however
