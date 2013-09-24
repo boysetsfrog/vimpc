@@ -80,10 +80,10 @@ namespace Ui
       void ForPositions(T start, T end, LibraryFunction function);
 
    private:
-      void    SoftRedraw();
-      void    Clear();
-      size_t  BufferSize() const { return library_.Size(); }
-      int32_t DetermineColour(uint32_t line) const;
+      void      SoftRedraw();
+      void      Clear();
+      uint32_t  BufferSize() const { return library_.Size(); }
+      int32_t   DetermineColour(uint32_t line) const;
 
    private:
       Main::Settings const & settings_;

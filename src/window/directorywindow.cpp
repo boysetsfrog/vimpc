@@ -528,9 +528,9 @@ void DirectoryWindow::ForPositions(T start, T end, DirectoryFunction function)
 }
 
 
-size_t DirectoryWindow::BufferSize() const
+uint32_t DirectoryWindow::BufferSize() const
 {
-   size_t size = directory_.Size();
+   uint32_t size = directory_.Size();
 
    if (settings_.Get(Setting::ShowPath) == true)
    {

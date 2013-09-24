@@ -71,9 +71,9 @@ namespace Ui
       Main::WindowBuffer const & WindowBuffer() const { return playlist_; }
 
    private:
-      void    Clear();
-      size_t  BufferSize() const { return playlist_.Size(); }
-      int32_t DetermineColour(uint32_t line) const;
+      void     Clear();
+      uint32_t BufferSize() const { return playlist_.Size(); }
+      int32_t  DetermineColour(uint32_t line) const;
 
    public:
       Main::Buffer<Mpc::Song *> & Buffer() { return playlist_; }

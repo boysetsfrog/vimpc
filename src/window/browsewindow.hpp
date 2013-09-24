@@ -56,9 +56,9 @@ namespace Ui
       Main::WindowBuffer const & WindowBuffer() const { return browse_; }
 
    private:
-      void    SoftRedraw();
-      void    Clear();
-      size_t  BufferSize() const   { return browse_.Size(); }
+      void      SoftRedraw();
+      void      Clear();
+      uint32_t  BufferSize() const   { return browse_.Size(); }
       Main::Buffer<Mpc::Song *> & Buffer() { return browse_; }
       Main::Buffer<Mpc::Song *> const & Buffer() const { return browse_; }
 
