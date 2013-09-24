@@ -110,7 +110,7 @@ void RandomCharacterInput()
 void QueueInput(WINDOW * inputWindow)
 {
    keypad(inputWindow, true);
-   wtimeout(inputWindow, 100);
+   wtimeout(inputWindow, 250);
 
 	while (true)
 	{
@@ -149,7 +149,7 @@ void QueueInput(WINDOW * inputWindow)
 						input = escapeChar | (1 << 31);
 					}
 
-					wtimeout(inputWindow, 100);
+					wtimeout(inputWindow, 250);
 				}
 
 				{
