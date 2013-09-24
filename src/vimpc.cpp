@@ -112,8 +112,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       // The main loop
       while (Running == true)
       {
-         static long updateTime = 0;
-
 			screen_.UpdateErrorDisplay();
 
          int input = Input();
@@ -149,24 +147,21 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          long const useconds = end.tv_usec - start.tv_usec;
          long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
 
-         updateTime += mtime;
          client_.IncrementTime(mtime);
 
          if ((input == ERR) && ((client_.TimeSinceUpdate() > 900) &&
              (settings_.Get(::Setting::Polling) == true)))
          {
             client_.UpdateStatus();
-            clientUpdate_ = true;
+            clientUpdate_.store(true);
          }
 
          gettimeofday(&start, NULL);
 
          // \TODO client needs to tell this to force an update somehow
-         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate_ == true) ||
-             ((updateTime >= 250) && (input == ERR)))
+         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate_.load() == true))
          {
-            clientUpdate_ = false;
-            updateTime   = 0;
+            clientUpdate_.store(false);
 
             client_.DisplaySongInformation();
             client_.UpdateDisplay();
@@ -262,10 +257,10 @@ int Vimpc::Input() const
 {
    if (currentMode_ == Normal)
    {
-      return screen_.WaitForInput(200, !normalMode_.WaitingForMoreInput());
+      return screen_.WaitForInput(250, !normalMode_.WaitingForMoreInput());
    }
 
-   return screen_.WaitForInput(200);
+   return screen_.WaitForInput(250);
 }
 
 void Vimpc::Handle(int input)
@@ -306,8 +301,12 @@ void Vimpc::OnConnected()
    //       not in this callback might need to set a flag to indicate
    //       that it needs to be run
    commandMode_.ExecuteQueuedCommands();
+   clientUpdate_.store(true);
+}
 
-   clientUpdate_ = true;
+void Vimpc::OnClientUpdate()
+{
+   clientUpdate_.store(true);
 }
 
 bool Vimpc::HandleMouse()

@@ -48,16 +48,15 @@ Library::~Library()
 
 void Library::Clear(bool Delete)
 {
-   uriMutex_.lock();
-   uriMap_.clear();
-   uriMutex_.unlock();
-
    std::unique_lock<std::recursive_mutex> lock(mutex_);
+   uriMutex_.lock();
 
    lastAlbumEntry_   = NULL;
    lastArtistEntry_  = NULL;
 
    Main::Playlist().Clear();
+
+   uriMap_.clear();
 
    while (Size() > 0)
    {
@@ -70,6 +69,8 @@ void Library::Clear(bool Delete)
          delete entry;
       }
    }
+
+   uriMutex_.unlock();
 }
 
 void Library::Add(Mpc::Song * song)

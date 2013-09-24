@@ -1387,6 +1387,7 @@ void Client::IncrementTime(long time)
       if (state_ == MPD_STATE_PLAY)
       {
          elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
+         vimpc_->OnClientUpdate();
       }
 
       if ((currentSong_ != NULL) &&
@@ -1665,6 +1666,7 @@ void Client::GetAllMetaInformation()
       ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 
       screen_.InvalidateAll();
+      vimpc_->OnClientUpdate();
    }
 
 #if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
@@ -1831,6 +1833,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
                elapsed_ = mpdelapsed_;
             }
 
+            vimpc_->OnClientUpdate();
+
             if ((queueVersion_ > -1) &&
                ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
             {
@@ -1853,7 +1857,9 @@ void Client::UpdateStatus(bool ExpectUpdate)
                }
 
                Main::PlaylistTmp().Clear();
+               vimpc_->OnClientUpdate();
             }
+
 
             if ((wasUpdating == true) && (updating_ == false))
             {
@@ -1861,6 +1867,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
             }
 
             queueVersion_ = version;
+
          }
       }
    });

@@ -21,6 +21,7 @@
 #ifndef __MAIN__VIMPC
 #define __MAIN__VIMPC
 
+#include <atomic>
 #include <map>
 
 #include "mpdclient.hpp"
@@ -69,6 +70,7 @@ namespace Main
 
       //! Perform any required actions on a connect
       void OnConnected();
+      void OnClientUpdate();
 
    private:
       //! Read input from the screen
@@ -98,15 +100,15 @@ namespace Main
       static bool Running;
 
    private:
-      ModeName       currentMode_;
-      Settings     & settings_;
-      Ui::Search   & search_;
-      Ui::Screen     screen_;
-      Mpc::Client    client_;
-      ModeTable      modeTable_;
-      Ui::Normal   & normalMode_;
-      Ui::Command  & commandMode_;
-      bool           clientUpdate_;
+      ModeName          currentMode_;
+      Settings     &    settings_;
+      Ui::Search   &    search_;
+      Ui::Screen        screen_;
+      Mpc::Client       client_;
+      ModeTable         modeTable_;
+      Ui::Normal   &    normalMode_;
+      Ui::Command  &    commandMode_;
+      std::atomic<bool> clientUpdate_;
    };
 }
 
