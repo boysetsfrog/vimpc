@@ -71,7 +71,7 @@ using namespace Ui;
 bool WindowResized = false;
 int32_t RndCount   = 0;
 
-static std::atomic<bool>       Running(true);
+static std::atomic<bool> Running(true);
 
 extern "C" void ResizeHandler(int);
 extern "C" void ContinueHandler(int);
@@ -149,10 +149,8 @@ void QueueInput(WINDOW * inputWindow)
                wtimeout(inputWindow, 250);
             }
 
-            {
-               EventData Data; Data.input = input;
-               Main::Vimpc::CreateEvent(Event::Input, Data);
-            }
+            EventData Data; Data.input = input;
+            Main::Vimpc::CreateEvent(Event::Input, Data);
          }
       }
    }

@@ -146,6 +146,11 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                   std::function<void(EventData const &)> func = Handler[Event.first];
                   func(Event.second);
                }
+
+               if (Event.first != Event::Input)
+               {
+                  screen_.Update();
+               }
             }
          }
 
