@@ -43,7 +43,7 @@ namespace Event
 
 struct EventData
 {
-   int input;
+   int32_t input;
    int id;
    int pos1;
    int pos2;

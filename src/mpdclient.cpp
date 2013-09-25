@@ -941,7 +941,6 @@ void Client::EnableOutput(Mpc::Output * output)
          {
             EventData Data; Data.id = output->Id();
             Main::Vimpc::CreateEvent(Event::OutputEnabled, Data);
-            output->SetEnabled(true);
          }
       }
       else
@@ -965,7 +964,6 @@ void Client::DisableOutput(Mpc::Output * output)
          {
             EventData Data; Data.id = output->Id();
             Main::Vimpc::CreateEvent(Event::OutputDisabled, Data);
-            output->SetEnabled(false);
          }
       }
       else

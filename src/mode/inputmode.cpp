@@ -212,7 +212,7 @@ void InputMode::GenerateInputString(int input)
    {
       int64_t const cursorPosition = (cursor_.Position() - PromptSize);
 
-      if ((static_cast<char>(input & 0xc0)) != 0x80)
+      if (((static_cast<char>(input) & 0xc0)) != 0x80)
       {
          currentInput_.clear();
       }
@@ -220,7 +220,7 @@ void InputMode::GenerateInputString(int input)
       wchar_t wide;
       currentInput_.append(1, static_cast<char>(input));
       mbtowc(NULL, NULL, 0);
-      int length = mbtowc(&wide, currentInput_.c_str(), currentInput_.length()); 
+      int length = mbtowc(&wide, currentInput_.c_str(), currentInput_.length());
 
       if (length > 0)
       {
