@@ -129,24 +129,24 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          screen_.UpdateErrorDisplay();
 
          //int input = Input();
-         std::unique_lock<std::mutex> Lock(QueueMutex);
-
-         if ((Queue.empty() == false) ||
-            (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
          {
-            EventPair const Event = Queue.front();
-            Queue.pop_front();
-            Lock.unlock();
+            std::unique_lock<std::mutex> Lock(QueueMutex);
 
-            Debug("HAD AN EVENT");
-
-            if (Handler.find(Event.first) != Handler.end())
+            if ((Queue.empty() == false) ||
+               (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
             {
-               std::function<void(EventData const &)> func = Handler[Event.first];
-               func(Event.second);
-            }
+               EventPair const Event = Queue.front();
+               Queue.pop_front();
+               Lock.unlock();
 
-            screen_.Update();
+               Debug("HAD AN EVENT");
+
+               if (Handler.find(Event.first) != Handler.end())
+               {
+                  std::function<void(EventData const &)> func = Handler[Event.first];
+                  func(Event.second);
+               }
+            }
          }
 
          if (input != ERR)
