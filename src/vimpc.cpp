@@ -31,6 +31,8 @@
 #include "events.hpp"
 #include "settings.hpp"
 #include "test.hpp"
+
+#include "buffer/playlist.hpp"
 #include "window/error.hpp"
 
 #include <list>
@@ -70,6 +72,27 @@ Vimpc::Vimpc() :
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
 
+   // 
+   Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
+   {
+      this->commandMode_.ExecuteQueuedCommands();
+      this->clientUpdate_.store(true);
+   });
+
+   // 
+   Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
+   {
+      if (Data.pos1 == -1)
+      {
+         Main::Playlist().Add(Main::Library().Song(Data.uri));
+      }
+      else
+      {
+         Main::Playlist().Add(Main::Library().Song(Data.uri), Data.pos1);
+      }
+   });
+
+
 #ifdef TEST_ENABLED
    Main::Tester::Instance().Screen  = &screen_;
    Main::Tester::Instance().Command = &commandMode_;
@@ -90,16 +113,10 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 {
    int input = ERR;
 
-   // Register the handler of events relevent to vimpc
+   // Keyboard input event handler
    Vimpc::EventHandler(Event::Input, [&input] (EventData const & Data)
    {
       input = Data.input;
-   });
-
-   Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
-   {
-      this->commandMode_.ExecuteQueuedCommands();
-      this->clientUpdate_.store(true);
    });
 
    // Set up the display
@@ -217,7 +234,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                screen_.UpdateProgressWindow();
             }
 
-            if ((clientQueueUpdate_.load() == true) || (input != ERR) || (screen_.Resize() == true))
+            /*if ((clientQueueUpdate_.load() == true) || (input != ERR) || (screen_.Resize() == true))
             {
                clientQueueUpdate_.store(false);
                screen_.Update();
@@ -227,7 +244,15 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             {
                Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
                mode.Refresh();
-            }
+            }*/
+         }
+
+         screen_.Update();
+
+         if (screen_.PagerIsVisible() == false)
+         {
+            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+            mode.Refresh();
          }
 
          input = ERR;

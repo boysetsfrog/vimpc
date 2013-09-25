@@ -27,10 +27,10 @@
 #define EVENTS \
    X(Input) \
    X(Connected) \
-   X(Disonnected) \
-   X(Reconnected) \
+   X(Disconnected) \
    X(StatusUpdate) \
    X(QueueUpdate) \
+   X(PlaylistAdd) \
    X(OutputEnabled) \
    X(OutputDisabled) \
    X(Unknown)
@@ -48,10 +48,10 @@ namespace Event
 
 struct EventData
 {
-   int32_t input;
-   int id;
-   int pos1;
-   int pos2;
+   int32_t  input;
+   int32_t  pos1;
+   int32_t  pos2;
+   uint32_t id;
    std::string uri;
 };
 

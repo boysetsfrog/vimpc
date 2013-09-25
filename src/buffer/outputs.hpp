@@ -47,7 +47,7 @@ namespace Mpc
       {
       }
 
-      void SetOutput(int32_t id, bool enabled)
+      void SetOutput(uint32_t id, bool enabled)
       {
          for (unsigned int i = 0; i < Size(); ++i)
          {

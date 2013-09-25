@@ -994,7 +994,9 @@ void Client::Add(Mpc::Song & song)
       {
          Debug("Client::Add song %s", song.URI().c_str());
          mpd_send_add(connection_, song.URI().c_str());
-         Main::Playlist().Add(&song);
+
+         EventData Data; Data.uri = song.URI(); Data.pos1 = -1;
+         Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
       }
       else
       {
@@ -1013,7 +1015,9 @@ void Client::Add(Mpc::Song & song, uint32_t position)
       {
          Debug("Client::Add song %s at %u", song.URI().c_str(), position);
          mpd_send_add_id_to(connection_, song.URI().c_str(), position);
-         Main::Playlist().Add(&song, position);
+
+         EventData Data; Data.uri = song.URI(); Data.pos1 = position;
+         Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
 
          if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
          {
@@ -2019,6 +2023,9 @@ void Client::DeleteConnection()
       connection_ = NULL;
       fd_         = -1;
    }
+
+   EventData Data;
+   Main::Vimpc::CreateEvent(Event::Disconnected, Data);
 
    ENSURE(connection_ == NULL);
 }
