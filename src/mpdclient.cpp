@@ -1767,6 +1767,9 @@ void Client::SendCommandList()
          if (mpd_command_list_end(connection_) == true)
          {
             listMode_ = false;
+
+            EventData Data;
+            Main::Vimpc::CreateEvent(Event::CommandListSend, Data);
          }
          else
          {

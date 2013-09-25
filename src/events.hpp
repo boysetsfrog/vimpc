@@ -33,6 +33,7 @@
    X(PlaylistAdd) \
    X(OutputEnabled) \
    X(OutputDisabled) \
+   X(CommandListSend) \
    X(Unknown)
 
 namespace Event

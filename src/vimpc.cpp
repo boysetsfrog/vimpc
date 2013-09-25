@@ -89,9 +89,17 @@ Vimpc::Vimpc() :
       this->clientQueueUpdate_.store(true);
    });
 
+   Vimpc::EventHandler(Event::CommandListSend, [this] (EventData const & Data)
+   {
+      Debug("Command list send bit");
+      this->clientQueueUpdate_.store(true);
+   });
+
+
    // 
    Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
    {
+      Debug("The playlist add bit");
       if (Data.pos1 == -1)
       {
          Main::Playlist().Add(Main::Library().Song(Data.uri));
@@ -180,11 +188,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                   std::function<void(EventData const &)> func = Handler[Event.first];
                   func(Event.second);
                }
-
-               if (Event.first != Event::Input)
-               {
-                  //screen_.Update();
-               }
             }
          }
 
@@ -234,6 +237,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          if ((input != ERR) || (screen_.Resize() == true) ||
              (clientUpdate_.load() == true) || (clientQueueUpdate_.load() == true))
          {
+            Debug("Doing the update");
             clientUpdate_.store(false);
             client_.DisplaySongInformation();
             client_.UpdateDisplay();
@@ -245,6 +249,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
             if ((clientQueueUpdate_.load() == true) || (input != ERR) || (screen_.Resize() == true))
             {
+            Debug("Doing the screen update");
                clientQueueUpdate_.store(false);
                screen_.Update();
             }
