@@ -194,8 +194,6 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       }
    }
 
-   client_.WaitForCompletion();
-
    if (scroll == true)
    {
       Scroll(count);
