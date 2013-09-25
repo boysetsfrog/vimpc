@@ -215,6 +215,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                mode.Refresh();
             }
          }
+
+         input = ERR;
       }
    }
 }
