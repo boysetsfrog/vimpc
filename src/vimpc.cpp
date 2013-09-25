@@ -175,8 +175,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                Queue.pop_front();
                Lock.unlock();
 
-               Debug("HAD AN EVENT");
-
                if (Handler.find(Event.first) != Handler.end())
                {
                   std::function<void(EventData const &)> func = Handler[Event.first];
@@ -185,7 +183,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
                if (Event.first != Event::Input)
                {
-                  screen_.Update();
+                  //screen_.Update();
                }
             }
          }
@@ -223,8 +221,9 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          client_.IncrementTime(mtime);
 
-         if ((input == ERR) && ((client_.TimeSinceUpdate() > 900) &&
-             (settings_.Get(::Setting::Polling) == true)))
+         if ((input == ERR) && 
+             (client_.TimeSinceUpdate() > 900) &&
+             (settings_.Get(::Setting::Polling) == true))
          {
             client_.UpdateStatus();
          }
@@ -233,7 +232,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          // \TODO client needs to tell this to force an update somehow
          if ((input != ERR) || (screen_.Resize() == true) ||
-             (clientUpdate_.load() == true) || (clientQueueUpdate_ == true))
+             (clientUpdate_.load() == true) || (clientQueueUpdate_.load() == true))
          {
             clientUpdate_.store(false);
             client_.DisplaySongInformation();
@@ -244,7 +243,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                screen_.UpdateProgressWindow();
             }
 
-            /*if ((clientQueueUpdate_.load() == true) || (input != ERR) || (screen_.Resize() == true))
+            if ((clientQueueUpdate_.load() == true) || (input != ERR) || (screen_.Resize() == true))
             {
                clientQueueUpdate_.store(false);
                screen_.Update();
@@ -254,15 +253,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             {
                Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
                mode.Refresh();
-            }*/
-         }
-
-         screen_.Update();
-
-         if (screen_.PagerIsVisible() == false)
-         {
-            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-            mode.Refresh();
+            }
          }
 
          input = ERR;
