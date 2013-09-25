@@ -25,6 +25,7 @@
 #include <string>
 
 #define EVENTS \
+   X(Input) \
    X(OutputEnabled) \
    X(OutputDisabled) \
    X(Unknown)

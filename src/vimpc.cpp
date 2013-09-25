@@ -280,8 +280,6 @@ void Vimpc::ChangeMode(char input, std::string initial)
 }
 
 
-
-
 int Vimpc::Input() const
 {
    if (currentMode_ == Normal)

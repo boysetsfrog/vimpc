@@ -160,6 +160,8 @@ void QueueInput(WINDOW * inputWindow)
                std::unique_lock<std::mutex> Lock(QueueMutex);
                Queue.push_back(input);
                Condition.notify_all();
+
+               Main::Vimpc::CreateEvent(Event::Input, input);
             }
          }
       }
