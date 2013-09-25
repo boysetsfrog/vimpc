@@ -28,6 +28,7 @@
 #include "assert.hpp"
 #include "buffers.hpp"
 #include "config.hpp"
+#include "events.hpp"
 #include "settings.hpp"
 #include "test.hpp"
 #include "window/error.hpp"
@@ -39,9 +40,10 @@
 
 using namespace Main;
 
-static std::vector<int32_t>    Queue;
+static std::list<int32_t>    Queue;
 static std::mutex              QueueMutex;
 static std::condition_variable Condition;
+static std::map<int, std::function<void()> > handler;
 
 bool Vimpc::Running = true;
 
@@ -85,6 +87,10 @@ Vimpc::~Vimpc()
 
 void Vimpc::Run(std::string hostname, uint16_t port)
 {
+   int input = ERR;
+
+   Vimpc::EventHandler(Event::Input, [] () { Debug("Key input"); });
+
    // Set up the display
    {
       Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
@@ -121,7 +127,26 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       {
          screen_.UpdateErrorDisplay();
 
-         int input = Input();
+         //int input = Input();
+         std::unique_lock<std::mutex> Lock(QueueMutex);
+
+         if ((Queue.empty() == false) ||
+            (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
+         {
+            int const Event = Queue.front();
+            Queue.pop_front();
+            Lock.unlock();
+
+            Debug("HAD AN EVENT");
+
+            if (handler.find(Event) != handler.end())
+            {
+               std::function<void()> func = handler[Event];
+               func();
+            }
+
+            screen_.Update();
+         }
 
          if (input != ERR)
          {
@@ -275,8 +300,9 @@ void Vimpc::ChangeMode(char input, std::string initial)
    Condition.notify_all();
 }
 
-/* static */ void Vimpc::EventHandler(int Event, std::function<void()> funct)
+/* static */ void Vimpc::EventHandler(int Event, std::function<void()> func)
 {
+   handler[Event] = func;
 }
 
 
