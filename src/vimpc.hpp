@@ -71,9 +71,6 @@ namespace Main
       static void CreateEvent(int Event, EventData const & Data);
       static void EventHandler(int Event, std::function<void(EventData const &)> func);
 
-      //! Perform any required actions on a connect
-      void OnClientQueueUpdate();
-
    private:
       //! Read input from the screen
       int  Input() const;

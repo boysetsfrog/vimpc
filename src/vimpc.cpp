@@ -84,6 +84,11 @@ Vimpc::Vimpc() :
       this->clientUpdate_.store(true);
    });
 
+   Vimpc::EventHandler(Event::QueueUpdate, [this] (EventData const & Data)
+   {
+      this->clientQueueUpdate_.store(true);
+   });
+
    // 
    Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
    {
@@ -395,10 +400,6 @@ void Vimpc::Handle(int input)
    }
 }
 
-void Vimpc::OnClientQueueUpdate()
-{
-   clientQueueUpdate_.store(true);
-}
 
 bool Vimpc::HandleMouse()
 {

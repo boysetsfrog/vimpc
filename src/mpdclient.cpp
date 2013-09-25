@@ -1679,7 +1679,9 @@ void Client::GetAllMetaInformation()
       ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
 
       screen_.InvalidateAll();
-      vimpc_->OnClientQueueUpdate();
+
+      EventData Data;
+      Main::Vimpc::CreateEvent(Event::QueueUpdate, Data);
    }
 
 #if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
@@ -1871,7 +1873,9 @@ void Client::UpdateStatus(bool ExpectUpdate)
                }
 
                Main::PlaylistTmp().Clear();
-               vimpc_->OnClientQueueUpdate();
+
+               EventData QueueData;
+               Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
             }
 
 
