@@ -455,7 +455,6 @@ void Command::Add(std::string const & arguments)
          screen_.ActiveWindow().AddLine(screen_.ActiveWindow().CurrentLine(), count_, false);
       }
 
-      client_.WaitForCompletion();
       client_.AddComplete();
    }
 }
@@ -466,7 +465,6 @@ void Command::AddAll(std::string const & arguments)
    {
       screen_.Initialise(Ui::Screen::Playlist);
       client_.AddAllSongs();
-      client_.WaitForCompletion();
       client_.AddComplete();
    }
 }
