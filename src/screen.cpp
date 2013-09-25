@@ -27,10 +27,7 @@
 #include <atomic>
 #include <csignal>
 #include <chrono>
-#include <condition_variable>
 #include <list>
-#include <mutex>
-#include <future>
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -75,10 +72,6 @@ bool WindowResized = false;
 int32_t RndCount   = 0;
 
 static std::atomic<bool>       Running(true);
-static std::list<int32_t>      Queue;
-static std::mutex              QueueMutex;
-static std::condition_variable Condition;
-
 
 extern "C" void ResizeHandler(int);
 extern "C" void ContinueHandler(int);
@@ -157,10 +150,6 @@ void QueueInput(WINDOW * inputWindow)
             }
 
             {
-               std::unique_lock<std::mutex> Lock(QueueMutex);
-               Queue.push_back(input);
-               Condition.notify_all();
-
                EventData Data; Data.input = input;
                Main::Vimpc::CreateEvent(Event::Input, Data);
             }
@@ -942,23 +931,7 @@ void Screen::ClearErrorDisplay() const
 
 uint32_t Screen::WaitForInput(uint32_t TimeoutMs, bool HandleEscape) const
 {
-   uint32_t input = ERR;
-
-   std::unique_lock<std::mutex> Lock(QueueMutex);
-
-   if ((Queue.empty() == true) &&
-       (Condition.wait_for(Lock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout))
-   {
-      return ERR;
-   }
-
-   if (Queue.empty() == false)
-   {
-      input = Queue.front();
-      Queue.pop_front();
-   }
-
-   return input;
+   return ERR;
 }
 
 
