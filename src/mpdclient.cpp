@@ -21,6 +21,7 @@
 #include "mpdclient.hpp"
 
 #include "assert.hpp"
+#include "events.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
 #include "vimpc.hpp"
@@ -938,6 +939,7 @@ void Client::EnableOutput(Mpc::Output * output)
 
          if (mpd_run_enable_output(connection_, output->Id()) == true)
          {
+            Main::Vimpc::CreateEvent(Event::OutputEnabled, output->Id());
             output->SetEnabled(true);
          }
       }
@@ -960,6 +962,7 @@ void Client::DisableOutput(Mpc::Output * output)
 
          if (mpd_run_disable_output(connection_, output->Id()) == true)
          {
+            Main::Vimpc::CreateEvent(Event::OutputDisabled, output->Id());
             output->SetEnabled(false);
          }
       }

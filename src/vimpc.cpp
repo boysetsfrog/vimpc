@@ -262,6 +262,11 @@ void Vimpc::ChangeMode(char input, std::string initial)
    Running = isRunning;
 }
 
+/* static */ void Vimpc::CreateEvent(int Event, int Id)
+{
+
+}
+
 
 int Vimpc::Input() const
 {
