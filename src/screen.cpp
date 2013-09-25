@@ -76,7 +76,7 @@ int32_t RndCount   = 0;
 
 static std::atomic<bool>       Running(true);
 static std::list<int32_t>      Queue;
-static std::mutex			       QueueMutex;
+static std::mutex              QueueMutex;
 static std::condition_variable Condition;
 
 
@@ -100,15 +100,15 @@ std::string Windows::PrintString(uint32_t position) const
 
 void RandomCharacterInput()
 {
-	int rndInput = INPUT_SIGSTOP;
+   int rndInput = INPUT_SIGSTOP;
 
-	while ((rndInput == INPUT_SIGSTOP) || //<C-Z>
-			 (rndInput == INPUT_SIGINT)) 	  //<C-C>
-	{
-		rndInput = (rand() % (KEY_MAX + 1));
-	}
+   while ((rndInput == INPUT_SIGSTOP) || //<C-Z>
+          (rndInput == INPUT_SIGINT))      //<C-C>
+   {
+      rndInput = (rand() % (KEY_MAX + 1));
+   }
 
-	ungetch(rndInput);
+   ungetch(rndInput);
 }
 
 void QueueInput(WINDOW * inputWindow)
@@ -116,54 +116,54 @@ void QueueInput(WINDOW * inputWindow)
    keypad(inputWindow, true);
    wtimeout(inputWindow, 250);
 
-	while (true)
-	{
-	#ifdef __DEBUG_PRINTS
-		if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
-	#endif
+   while (true)
+   {
+   #ifdef __DEBUG_PRINTS
+      if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
+   #endif
 
-		int32_t input = wgetch(inputWindow);
+      int32_t input = wgetch(inputWindow);
 
-		if (Running.load() == false)
-		{
-			break;
-		}
+      if (Running.load() == false)
+      {
+         break;
+      }
 
-		if (input != ERR)
-		{
-			if (input == INPUT_SIGINT) //<C-C>
-			{
-				std::raise(SIGINT);
-			}
-			else if (input == INPUT_SIGSTOP) //<C-Z>
-			{
-				std::raise(SIGSTOP);
-			}
-			else
-			{
-				//if ((input == INPUT_ESCAPE) && (HandleEscape == true))
-				if (input == INPUT_ESCAPE)
-				{
-					wtimeout(inputWindow, 0);
+      if (input != ERR)
+      {
+         if (input == INPUT_SIGINT) //<C-C>
+         {
+            std::raise(SIGINT);
+         }
+         else if (input == INPUT_SIGSTOP) //<C-Z>
+         {
+            std::raise(SIGSTOP);
+         }
+         else
+         {
+            //if ((input == INPUT_ESCAPE) && (HandleEscape == true))
+            if (input == INPUT_ESCAPE)
+            {
+               wtimeout(inputWindow, 0);
 
-					int escapeChar = wgetch(inputWindow);
+               int escapeChar = wgetch(inputWindow);
 
-					if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
-					{
-						input = escapeChar | (1 << 31);
-					}
+               if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
+               {
+                  input = escapeChar | (1 << 31);
+               }
 
-					wtimeout(inputWindow, 250);
-				}
+               wtimeout(inputWindow, 250);
+            }
 
-				{
-					std::unique_lock<std::mutex> Lock(QueueMutex);
-					Queue.push_back(input);
-					Condition.notify_all();
-				}
-			}
-		}
-	}
+            {
+               std::unique_lock<std::mutex> Lock(QueueMutex);
+               Queue.push_back(input);
+               Condition.notify_all();
+            }
+         }
+      }
+   }
 }
 
 
@@ -265,13 +265,13 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    // If mouse support is turned on set it up
    SetupMouse(settings_.Get(Setting::Mouse));
 
-	inputThread_ = std::thread(QueueInput, commandWindow_);
+   inputThread_ = std::thread(QueueInput, commandWindow_);
 }
 
 Screen::~Screen()
 {
-	Running.store(false);
-	inputThread_.join();
+   Running.store(false);
+   inputThread_.join();
 
    delete pagerWindow_;
 
@@ -931,29 +931,29 @@ void Screen::UpdateErrorDisplay() const
 
 void Screen::ClearErrorDisplay() const
 {
-	Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
-	Ui::ResultWindow & resultWindow(Ui::ResultWindow::Instance());
-	errorWindow.ClearError();
-	resultWindow.ClearResult();
+   Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
+   Ui::ResultWindow & resultWindow(Ui::ResultWindow::Instance());
+   errorWindow.ClearError();
+   resultWindow.ClearResult();
 }
 
 uint32_t Screen::WaitForInput(uint32_t TimeoutMs, bool HandleEscape) const
 {
-	uint32_t input = ERR;
+   uint32_t input = ERR;
 
-	std::unique_lock<std::mutex> Lock(QueueMutex);
+   std::unique_lock<std::mutex> Lock(QueueMutex);
 
-	if ((Queue.empty() == true) &&
-		 (Condition.wait_for(Lock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout))
-	{
-		return ERR;
-	}
+   if ((Queue.empty() == true) &&
+       (Condition.wait_for(Lock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout))
+   {
+      return ERR;
+   }
 
-	if (Queue.empty() == false)
-	{
-		input = Queue.front();
-		Queue.pop_front();
-	}
+   if (Queue.empty() == false)
+   {
+      input = Queue.front();
+      Queue.pop_front();
+   }
 
    return input;
 }

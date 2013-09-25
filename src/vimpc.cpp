@@ -32,10 +32,16 @@
 #include "test.hpp"
 #include "window/error.hpp"
 
+#include <list>
 #include <sys/time.h>
 #include <unistd.h>
+#include <condition_variable>
 
 using namespace Main;
+
+static std::vector<int32_t>    Queue;
+static std::mutex              QueueMutex;
+static std::condition_variable Condition;
 
 bool Vimpc::Running = true;
 
@@ -113,34 +119,34 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       // The main loop
       while (Running == true)
       {
-			screen_.UpdateErrorDisplay();
+         screen_.UpdateErrorDisplay();
 
          int input = Input();
 
          if (input != ERR)
-			{
-				screen_.ClearErrorDisplay();
+         {
+            screen_.ClearErrorDisplay();
 
-				if ((screen_.PagerIsVisible() == true)
+            if ((screen_.PagerIsVisible() == true)
 #ifdef HAVE_MOUSE_SUPPORT
-					&& (input != KEY_MOUSE)
+               && (input != KEY_MOUSE)
 #endif
             )
-				{
-					if (screen_.PagerIsFinished() == true)
-					{
-						screen_.HidePagerWindow();
-					}
-					else
-					{
-						screen_.PagerWindowNext();
-					}
-				}
-				else
-				{
-					Handle(input);
-				}
-			}
+            {
+               if (screen_.PagerIsFinished() == true)
+               {
+                  screen_.HidePagerWindow();
+               }
+               else
+               {
+                  screen_.PagerWindowNext();
+               }
+            }
+            else
+            {
+               Handle(input);
+            }
+         }
 
          gettimeofday(&end,   NULL);
 
@@ -264,7 +270,9 @@ void Vimpc::ChangeMode(char input, std::string initial)
 
 /* static */ void Vimpc::CreateEvent(int Event, int Id)
 {
-
+   std::unique_lock<std::mutex> Lock(QueueMutex);
+   Queue.push_back(Event);
+   Condition.notify_all();
 }
 
 

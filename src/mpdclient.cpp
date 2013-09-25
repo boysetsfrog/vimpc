@@ -54,7 +54,7 @@ using namespace Mpc;
 static std::atomic<bool>                  Running(true);
 static std::atomic<int>                   QueueCount(0);
 static std::list<std::function<void()> >  Queue;
-static std::mutex			                  QueueMutex;
+static std::mutex                           QueueMutex;
 static std::condition_variable            Condition;
 
 // Helper functions
@@ -132,7 +132,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    listMode_             (false),
    idleMode_             (false)
 {
-	clientThread_ = std::thread(&Client::ClientQueueExecutor, this, this);
+   clientThread_ = std::thread(&Client::ClientQueueExecutor, this, this);
 
    screen_.RegisterProgressCallback(
       new Main::CallbackObject<Mpc::Client, double>(*this, &Mpc::Client::SeekToPercent));
@@ -140,7 +140,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 
 Client::~Client()
 {
-	Running.store(false);
+   Running.store(false);
 
    clientThread_.join();
 
@@ -1541,12 +1541,12 @@ void Client::UpdateDisplay()
 
 void Client::ClientQueueExecutor(Mpc::Client * client)
 {
-	while (true)
-	{
-		if (Running.load() == false)
-		{
-			break;
-		}
+   while (true)
+   {
+      if (Running.load() == false)
+      {
+         break;
+      }
 
       {
          {
