@@ -1428,10 +1428,13 @@ void Client::IdleMode()
    {
       ClearCommand();
 
-      if (mpd_send_idle(connection_) == true)
+      if ((Connected() == true))
       {
-         Debug("Client::Enter idle mode");
-         idleMode_ = true;
+         if (mpd_send_idle(connection_) == true)
+         {
+            Debug("Client::Enter idle mode");
+            idleMode_ = true;
+         }
       }
    }
 }
