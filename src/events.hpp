@@ -26,6 +26,11 @@
 
 #define EVENTS \
    X(Input) \
+   X(Connected) \
+   X(Disonnected) \
+   X(Reconnected) \
+   X(StatusUpdate) \
+   X(QueueUpdate) \
    X(OutputEnabled) \
    X(OutputDisabled) \
    X(Unknown)
