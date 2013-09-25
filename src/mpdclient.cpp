@@ -268,7 +268,9 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
       fd_ = mpd_connection_get_fd(connection_);
 
       Debug("Client::Connected.");
-      vimpc_->OnConnected();
+
+      EventData Data;
+      Main::Vimpc::CreateEvent(Event::Connected, Data);
 
       GetVersion();
 

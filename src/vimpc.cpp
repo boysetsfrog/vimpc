@@ -90,7 +90,17 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 {
    int input = ERR;
 
-   Vimpc::EventHandler(Event::Input, [&input] (EventData const & Data) { Debug("Key input %c", Data.input); input = Data.input; });
+   // Register the handler of events relevent to vimpc
+   Vimpc::EventHandler(Event::Input, [&input] (EventData const & Data)
+   {
+      input = Data.input;
+   });
+
+   Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
+   {
+      this->commandMode_.ExecuteQueuedCommands();
+      this->clientUpdate_.store(true);
+   });
 
    // Set up the display
    {
@@ -128,7 +138,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       {
          screen_.UpdateErrorDisplay();
 
-         //int input = Input();
          {
             std::unique_lock<std::mutex> Lock(QueueMutex);
 
@@ -354,15 +363,6 @@ void Vimpc::Handle(int input)
       ChangeMode(input);
       mode.Refresh();
    }
-}
-
-void Vimpc::OnConnected()
-{
-   // \TODO ideally this should be run out of the main thread
-   //       not in this callback might need to set a flag to indicate
-   //       that it needs to be run
-   commandMode_.ExecuteQueuedCommands();
-   clientUpdate_.store(true);
 }
 
 void Vimpc::OnClientUpdate()

@@ -72,7 +72,6 @@ namespace Main
       static void EventHandler(int Event, std::function<void(EventData const &)> func);
 
       //! Perform any required actions on a connect
-      void OnConnected();
       void OnClientUpdate();
       void OnClientQueueUpdate();
 
