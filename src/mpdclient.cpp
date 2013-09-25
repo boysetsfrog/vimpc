@@ -900,14 +900,16 @@ void Client::RemovePlaylist(std::string const & name)
 
 void Client::AddToNamedPlaylist(std::string const & name, Mpc::Song * song)
 {
-   QueueCommand([this, name, song] ()
+   std::string URI = song->URI();
+
+   QueueCommand([this, name, URI] ()
    {
       ClearCommand();
 
       if (Connected() == true)
       {
-         Debug("Client::Playlist add %s to %s", song->URI().c_str(), name.c_str());
-         mpd_send_playlist_add(connection_, name.c_str(), song->URI().c_str());
+         Debug("Client::Playlist add %s to %s", URI.c_str(), name.c_str());
+         mpd_send_playlist_add(connection_, name.c_str(), URI.c_str());
       }
       else
       {
@@ -931,17 +933,19 @@ void Client::SetOutput(Mpc::Output * output, bool enable)
 
 void Client::EnableOutput(Mpc::Output * output)
 {
-   QueueCommand([this, output] ()
+   uint32_t Id = output->Id();
+
+   QueueCommand([this, Id] ()
    {
       ClearCommand();
 
       if (Connected() == true)
       {
-         Debug("Client::Enable output %d", output->Id());
+         Debug("Client::Enable output %d", Id);
 
-         if (mpd_run_enable_output(connection_, output->Id()) == true)
+         if (mpd_run_enable_output(connection_, Id) == true)
          {
-            EventData Data; Data.id = output->Id();
+            EventData Data; Data.id = Id;
             Main::Vimpc::CreateEvent(Event::OutputEnabled, Data);
          }
       }
@@ -954,17 +958,19 @@ void Client::EnableOutput(Mpc::Output * output)
 
 void Client::DisableOutput(Mpc::Output * output)
 {
-   QueueCommand([this, output] ()
+   uint32_t Id = output->Id();
+
+   QueueCommand([this, Id] ()
    {
       ClearCommand();
 
       if (Connected() == true)
       {
-         Debug("Client::Disable output %d", output->Id());
+         Debug("Client::Disable output %d", Id);
 
-         if (mpd_run_disable_output(connection_, output->Id()) == true)
+         if (mpd_run_disable_output(connection_, Id) == true)
          {
-            EventData Data; Data.id = output->Id();
+            EventData Data; Data.id = Id;
             Main::Vimpc::CreateEvent(Event::OutputDisabled, Data);
          }
       }
@@ -986,16 +992,18 @@ void Client::Add(Mpc::Song * song)
 
 void Client::Add(Mpc::Song & song)
 {
-   QueueCommand([this, &song] ()
+   std::string URI = song.URI();
+
+   QueueCommand([this, URI] ()
    {
       ClearCommand();
 
       if (Connected() == true)
       {
-         Debug("Client::Add song %s", song.URI().c_str());
-         mpd_send_add(connection_, song.URI().c_str());
+         Debug("Client::Add song %s", URI.c_str());
+         mpd_send_add(connection_, URI.c_str());
 
-         EventData Data; Data.uri = song.URI(); Data.pos1 = -1;
+         EventData Data; Data.uri = URI; Data.pos1 = -1;
          Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
       }
       else
@@ -1007,16 +1015,18 @@ void Client::Add(Mpc::Song & song)
 
 void Client::Add(Mpc::Song & song, uint32_t position)
 {
-   QueueCommand([this, &song, position] ()
+   std::string URI = song.URI();
+
+   QueueCommand([this, URI, position] ()
    {
       ClearCommand();
 
       if (Connected() == true)
       {
-         Debug("Client::Add song %s at %u", song.URI().c_str(), position);
-         mpd_send_add_id_to(connection_, song.URI().c_str(), position);
+         Debug("Client::Add song %s at %u", URI.c_str(), position);
+         mpd_send_add_id_to(connection_, URI.c_str(), position);
 
-         EventData Data; Data.uri = song.URI(); Data.pos1 = position;
+         EventData Data; Data.uri = URI; Data.pos1 = position;
          Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
 
          if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
