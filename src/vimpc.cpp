@@ -79,6 +79,11 @@ Vimpc::Vimpc() :
       this->clientUpdate_.store(true);
    });
 
+   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data)
+   {
+      this->clientUpdate_.store(true);
+   });
+
    // 
    Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
    {
@@ -388,11 +393,6 @@ void Vimpc::Handle(int input)
       ChangeMode(input);
       mode.Refresh();
    }
-}
-
-void Vimpc::OnClientUpdate()
-{
-   clientUpdate_.store(true);
 }
 
 void Vimpc::OnClientQueueUpdate()

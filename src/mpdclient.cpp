@@ -1397,7 +1397,9 @@ void Client::IncrementTime(long time)
       if (state_ == MPD_STATE_PLAY)
       {
          elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
-         vimpc_->OnClientUpdate();
+
+         EventData Data;
+         Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
       }
 
       if ((currentSong_ != NULL) &&
@@ -1844,7 +1846,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
                elapsed_ = mpdelapsed_;
             }
 
-            vimpc_->OnClientUpdate();
+            EventData Data;
+            Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
 
             if ((queueVersion_ > -1) &&
                ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
