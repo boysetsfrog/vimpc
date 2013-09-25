@@ -161,7 +161,8 @@ void QueueInput(WINDOW * inputWindow)
                Queue.push_back(input);
                Condition.notify_all();
 
-               Main::Vimpc::CreateEvent(Event::Input, input);
+               EventData Data; Data.input = input;
+               Main::Vimpc::CreateEvent(Event::Input, Data);
             }
          }
       }

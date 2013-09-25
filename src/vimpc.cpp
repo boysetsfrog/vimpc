@@ -40,10 +40,11 @@
 
 using namespace Main;
 
-static std::list<int32_t>    Queue;
-static std::mutex              QueueMutex;
-static std::condition_variable Condition;
-static std::map<int, std::function<void()> > handler;
+typedef std::pair<int32_t, EventData>        EventPair;
+static std::list<EventPair>                  Queue;
+static std::mutex                            QueueMutex;
+static std::condition_variable               Condition;
+static std::map<int, std::function<void(EventData const &)> > Handler;
 
 bool Vimpc::Running = true;
 
@@ -89,7 +90,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 {
    int input = ERR;
 
-   Vimpc::EventHandler(Event::Input, [] () { Debug("Key input"); });
+   Vimpc::EventHandler(Event::Input, [&input] (EventData const & Data) { Debug("Key input %c", Data.input); input = Data.input; });
 
    // Set up the display
    {
@@ -133,16 +134,16 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          if ((Queue.empty() == false) ||
             (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
          {
-            int const Event = Queue.front();
+            EventPair const Event = Queue.front();
             Queue.pop_front();
             Lock.unlock();
 
             Debug("HAD AN EVENT");
 
-            if (handler.find(Event) != handler.end())
+            if (Handler.find(Event.first) != Handler.end())
             {
-               std::function<void()> func = handler[Event];
-               func();
+               std::function<void(EventData const &)> func = Handler[Event.first];
+               func(Event.second);
             }
 
             screen_.Update();
@@ -293,16 +294,16 @@ void Vimpc::ChangeMode(char input, std::string initial)
    Running = isRunning;
 }
 
-/* static */ void Vimpc::CreateEvent(int Event, int Id)
+/* static */ void Vimpc::CreateEvent(int Event, EventData const & Data)
 {
    std::unique_lock<std::mutex> Lock(QueueMutex);
-   Queue.push_back(Event);
+   Queue.push_back(std::make_pair(Event, Data));
    Condition.notify_all();
 }
 
-/* static */ void Vimpc::EventHandler(int Event, std::function<void()> func)
+/* static */ void Vimpc::EventHandler(int Event, std::function<void(EventData const &)> func)
 {
-   handler[Event] = func;
+   Handler[Event] = func;
 }
 
 

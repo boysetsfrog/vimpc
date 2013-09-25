@@ -41,5 +41,14 @@ namespace Event
    };
 }
 
+struct EventData
+{
+   int input;
+   int id;
+   int pos1;
+   int pos2;
+   std::string uri;
+};
+
 #endif
 /* vim: set sw=3 ts=3: */

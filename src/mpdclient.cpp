@@ -939,7 +939,8 @@ void Client::EnableOutput(Mpc::Output * output)
 
          if (mpd_run_enable_output(connection_, output->Id()) == true)
          {
-            Main::Vimpc::CreateEvent(Event::OutputEnabled, output->Id());
+            EventData Data; Data.id = output->Id();
+            Main::Vimpc::CreateEvent(Event::OutputEnabled, Data);
             output->SetEnabled(true);
          }
       }
@@ -962,7 +963,8 @@ void Client::DisableOutput(Mpc::Output * output)
 
          if (mpd_run_disable_output(connection_, output->Id()) == true)
          {
-            Main::Vimpc::CreateEvent(Event::OutputDisabled, output->Id());
+            EventData Data; Data.id = output->Id();
+            Main::Vimpc::CreateEvent(Event::OutputDisabled, Data);
             output->SetEnabled(false);
          }
       }

@@ -27,6 +27,7 @@
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
+struct EventData;
 namespace Ui   { class Mode; class Normal; class Command; }
 namespace Main { class Settings; }
 
@@ -67,8 +68,8 @@ namespace Main
 
    public:
       static void SetRunning(bool isRunning);
-      static void CreateEvent(int Event, int Id);
-      static void EventHandler(int Event, std::function<void()> func);
+      static void CreateEvent(int Event, EventData const & Data);
+      static void EventHandler(int Event, std::function<void(EventData const &)> func);
 
       //! Perform any required actions on a connect
       void OnConnected();
