@@ -275,6 +275,12 @@ void Vimpc::ChangeMode(char input, std::string initial)
    Condition.notify_all();
 }
 
+/* static */ void Vimpc::EventHandler(int Event, std::function<void()> funct)
+{
+}
+
+
+
 
 int Vimpc::Input() const
 {

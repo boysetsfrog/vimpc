@@ -24,7 +24,9 @@
 // Includes
 #include "buffer.hpp"
 #include "callback.hpp"
+#include "events.hpp"
 #include "output.hpp"
+#include "vimpc.hpp"
 
 // Outputs
 namespace Mpc
@@ -38,6 +40,7 @@ namespace Mpc
    public:
       Outputs()
       {
+         Main::Vimpc::EventHandler(Event::OutputEnabled, [] () { Debug("Test"); });
       }
       ~Outputs()
       {

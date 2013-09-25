@@ -68,6 +68,7 @@ namespace Main
    public:
       static void SetRunning(bool isRunning);
       static void CreateEvent(int Event, int Id);
+      static void EventHandler(int Event, std::function<void()> func);
 
       //! Perform any required actions on a connect
       void OnConnected();
