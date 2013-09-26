@@ -15,16 +15,31 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   debug.hpp - console used to display a debug print
+   debug.cpp - console used to display a debug print
    */
 
-#ifndef __UI__DEBUG
-#define __UI__DEBUG
+#include "window/debug.hpp"
 
-#include <string>
+#include "buffers.hpp"
 
-//! Display an error window with the given error
-void Debug(std::string format, ...);
+#include <mutex>
+#include <stdio.h>
+#include <stdarg.h>
 
+void Debug(std::string format, ...)
+{
+#ifdef __DEBUG_PRINTS
+   static std::mutex DebugMutex;
+
+   DebugMutex.lock();
+   char buffer[1024];
+   va_list args;
+   va_start(args, format);
+   vsprintf(buffer, format.c_str(), args);
+   Main::DebugConsole().Add(buffer);
+   va_end(args);
+   DebugMutex.unlock();
 #endif
+}
+
 /* vim: set sw=3 ts=3: */

@@ -27,8 +27,10 @@
 #include "test.hpp"
 #include "window/debug.hpp"
 
+#include <mutex>
 #include <stdint.h>
 #include <string>
+#include <stdarg.h>
 
 //! Display an error window with the given error
 static void Error(uint32_t errorNumber, std::string errorString);
