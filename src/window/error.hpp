@@ -83,11 +83,15 @@ namespace Ui
 
 void Error(uint32_t errorNumber, std::string errorString)
 {
+   static std::mutex ErrorMutex;
+
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
+      ErrorMutex.lock();
       Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
       errorWindow.SetError(true);
       errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
+      ErrorMutex.unlock();
    }
 }
 
