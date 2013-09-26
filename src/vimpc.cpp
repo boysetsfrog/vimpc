@@ -86,9 +86,28 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::QueueUpdate, [this] (EventData const & Data)
    {
+      Main::PlaylistTmp().Clear();
+
+      for (uint32_t i = 0; i < Main::PlaylistPasteBuffer().Size(); ++i)
+      {
+         Main::PlaylistTmp().Add(Main::PlaylistPasteBuffer().Get(i));
+      }
+
       this->client_.ForEachQueuedSongChanges(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
       Main::Playlist().Crop(this->client_.TotalNumberOfSongs());
+
+      // Ensure that the queue related updates don't break our paste buffer
+      Main::PlaylistPasteBuffer().Clear();
+
+      for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
+      {
+         Main::PlaylistPasteBuffer().Add(Main::PlaylistTmp().Get(i));
+      }
+
+      Main::PlaylistTmp().Clear();
+
       this->clientQueueUpdate_ = true;
+
    });
 
    Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)

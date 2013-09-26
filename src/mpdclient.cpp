@@ -1493,6 +1493,7 @@ void Client::IncrementTime(long time)
 
 long Client::TimeSinceUpdate()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return timeSinceUpdate_;
 }
 
@@ -1942,13 +1943,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
             if ((queueVersion_ > -1) &&
                ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
             {
-               /*Main::PlaylistTmp().Clear();
-
-               for (uint32_t i = 0; i < Main::PlaylistPasteBuffer().Size(); ++i)
-               {
-                  Main::PlaylistTmp().Add(Main::PlaylistPasteBuffer().Get(i));
-               }*/
-
                ClearCommand();
 
                if (Connected() == true)
@@ -1965,16 +1959,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
                      mpd_song_free(nextSong);
                   }
                }
-
-               // Ensure that the queue related updates don't break our paste buffer
-               //Main::PlaylistPasteBuffer().Clear();
-
-               /*for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
-               {
-                  Main::PlaylistPasteBuffer().Add(Main::PlaylistTmp().Get(i));
-               }
-
-               Main::PlaylistTmp().Clear();*/
 
                EventData QueueData;
                Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
