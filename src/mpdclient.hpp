@@ -228,6 +228,10 @@ namespace Mpc
       void UpdateDisplay();
 
    public:
+      //! \todo port these over to using the callback object
+      template <typename Object>
+      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
+
       template <typename Object>
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
@@ -253,10 +257,6 @@ namespace Mpc
       void GetAllMetaFromRoot();
 
    private:
-      //! \todo port these over to using the callback object
-      template <typename Object>
-      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
-
       template <typename Object>
       void ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *));
 
@@ -326,6 +326,7 @@ namespace Mpc
       bool                    idleMode_;
 
       std::vector<Mpc::Song *> songs_;
+      std::vector<std::string> songQueue_;
       std::vector<std::string> paths_;
       std::vector<Mpc::List>   playlists_;
       std::vector<Mpc::List>   playlistsOld_;
@@ -335,30 +336,19 @@ namespace Mpc
    template <typename Object>
    void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *))
    {
-      ClearCommand();
-
-      if (Connected() == true)
+      for (std::vector<std::string>::iterator it = songQueue_.begin(); it != songQueue_.end(); ++it)
       {
-         Debug("Client::List queue meta data");
-         mpd_send_list_queue_meta(connection_);
+         Song * song = Main::Library().Song(*it);
 
-         mpd_song * nextSong = mpd_recv_song(connection_);
-
-         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         if (song == NULL)
          {
-            Song * song = Main::Library().Song(mpd_song_get_uri(nextSong));
+            song = new Song();
+            song->SetURI(it->c_str());
+         }
 
-            if (song == NULL)
-            {
-               song = CreateSong(-1, nextSong);
-            }
-
-            if (song != NULL)
-            {
-               (object.*callBack)(song);
-            }
-
-            mpd_song_free(nextSong);
+         if (song != NULL)
+         {
+            (object.*callBack)(song);
          }
       }
    }

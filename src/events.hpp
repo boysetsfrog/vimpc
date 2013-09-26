@@ -30,6 +30,7 @@
    X(Disconnected) \
    X(StatusUpdate) \
    X(QueueUpdate) \
+   X(AllMetaDataReady) \
    X(PlaylistAdd) \
    X(OutputEnabled) \
    X(OutputDisabled) \

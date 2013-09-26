@@ -1626,6 +1626,7 @@ void Client::ClearCommand()
 void Client::GetAllMetaInformation()
 {
    songs_.clear();
+   songQueue_.clear();
    paths_.clear();
    playlists_.clear();
 
@@ -1680,18 +1681,26 @@ void Client::GetAllMetaInformation()
 
          mpd_entity_free(nextEntity);
       }
+   }
 
-      Main::Playlist().Clear();
-      Main::PlaylistPasteBuffer().Clear();
-      Main::Library().Clear();
+   if (Connected() == true)
+   {
+      ClearCommand();
+      Debug("Client::List queue meta data");
+      mpd_send_list_queue_meta(connection_);
 
-      ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
-      ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+      mpd_song * nextSong = mpd_recv_song(connection_);
 
-      screen_.InvalidateAll();
+      for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+      {
+         songQueue_.push_back(mpd_song_get_uri(nextSong));
+      }
+   }
 
+   if (Connected() == true)
+   {
       EventData Data;
-      Main::Vimpc::CreateEvent(Event::QueueUpdate, Data);
+      Main::Vimpc::CreateEvent(Event::AllMetaDataReady, Data);
    }
 
 #if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
@@ -1898,7 +1907,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
             }
 
             queueVersion_ = version;
-
          }
       }
    });

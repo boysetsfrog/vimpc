@@ -72,7 +72,7 @@ Vimpc::Vimpc() :
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
 
-   // 
+   //
    Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
    {
       this->commandMode_.ExecuteQueuedCommands();
@@ -89,6 +89,18 @@ Vimpc::Vimpc() :
       this->clientQueueUpdate_.store(true);
    });
 
+   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
+   {
+      Main::Playlist().Clear();
+      Main::PlaylistPasteBuffer().Clear();
+      Main::Library().Clear();
+
+      this->client_.ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
+      this->client_.ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+      this->screen_.InvalidateAll();
+      this->clientQueueUpdate_.store(true);
+   });
+
    Vimpc::EventHandler(Event::CommandListSend, [this] (EventData const & Data)
    {
       Debug("Command list send bit");
@@ -96,7 +108,7 @@ Vimpc::Vimpc() :
    });
 
 
-   // 
+   //
    Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
    {
       Debug("The playlist add bit");
@@ -224,7 +236,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          client_.IncrementTime(mtime);
 
-         if ((input == ERR) && 
+         if ((input == ERR) &&
              (client_.TimeSinceUpdate() > 900) &&
              (settings_.Get(::Setting::Polling) == true))
          {
