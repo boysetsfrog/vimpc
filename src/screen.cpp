@@ -699,6 +699,13 @@ void Screen::Clear()
    }
 }
 
+void Screen::PrintModeWindow(Ui::ModeWindow * window)
+{
+   CursesMutex.lock();
+   window->Print(0);
+   CursesMutex.unlock();
+}
+
 void Screen::Update()
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))

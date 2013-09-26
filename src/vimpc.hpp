@@ -21,7 +21,6 @@
 #ifndef __MAIN__VIMPC
 #define __MAIN__VIMPC
 
-#include <atomic>
 #include <map>
 
 #include "mpdclient.hpp"
@@ -107,8 +106,8 @@ namespace Main
       ModeTable         modeTable_;
       Ui::Normal   &    normalMode_;
       Ui::Command  &    commandMode_;
-      std::atomic<bool> clientUpdate_;
-      std::atomic<bool> clientQueueUpdate_;
+      bool              clientUpdate_;
+      bool              clientQueueUpdate_;
    };
 }
 

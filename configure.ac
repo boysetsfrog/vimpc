@@ -40,9 +40,8 @@ LIBS="$LIBS $CURSES_LIB"
 AX_PTHREAD([AC_DEFINE(HAVE_PTHREAD,1,[Define if you have POSIX threads libraries and header files.])],
             [AC_MSG_ERROR(vimpc requires pthread library)])
 
-LIBS="$PTHREAD_LIBS $LIBS"
-CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-LDFLAGS="$LDFLAGS $PTHREAD_CFLAGS"
+CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
+CXXFLAGS="$PTHREAD_CFLAGS $CXXFLAGS"
 CC="$PTHREAD_CC"]
 
 PKG_CHECK_MODULES(pcrecpp, libpcrecpp)

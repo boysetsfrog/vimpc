@@ -54,7 +54,7 @@ using namespace Mpc;
 static std::atomic<bool>                  Running(true);
 static std::atomic<int>                   QueueCount(0);
 static std::list<std::function<void()> >  Queue;
-static std::mutex                           QueueMutex;
+static std::mutex                         QueueMutex;
 static std::condition_variable            Condition;
 
 // Helper functions
@@ -123,6 +123,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    currentSong_          (NULL),
    currentStatus_        (NULL),
    currentSongId_        (-1),
+   totalNumberOfSongs_   (0),
    currentSongURI_       (""),
    currentState_         ("Disconnected"),
 
@@ -252,14 +253,23 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
    // Connecting may take a long time as this is a single threaded application
    // and the mpd connect is a blocking call, so be sure to update the screen
    // first to let the user know that something is happening
-   currentState_ = "Connecting";
+   {
+      std::unique_lock<std::recursive_mutex> lock(mutex_);
+      currentState_ = "Connecting";
 
-   hostname_ = connect_hostname;
-   port_     = connect_port;
+      hostname_   = connect_hostname;
+      port_       = connect_port;
+      connection_ = NULL;
+   }
 
    //! \TODO make the connection async
    Debug("Client::Connecting to %s:%u - timeout %u", connect_hostname.c_str(), connect_port, connect_timeout);
-   connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, connect_timeout);
+   struct mpd_connection * connection = mpd_connection_new(connect_hostname.c_str(), connect_port, connect_timeout);
+
+   {
+      std::unique_lock<std::recursive_mutex> lock(mutex_);
+      connection_ = connection;
+   }
 
    CheckError();
 
@@ -285,6 +295,7 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
 
       if (Connected() == true)
       {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
          ready_   = true;
          retried_ = false;
       }
@@ -313,7 +324,17 @@ void Client::Reconnect()
    {
       Debug("Client::Reconnect");
       Disconnect();
-      Connect(hostname_, port_);
+
+      std::string hostname = "";
+      uint16_t    port     = 0;
+
+      {
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+         hostname = hostname_;
+         port     = port_;
+      }
+
+      Connect(hostname, port);
    });
 }
 
@@ -337,21 +358,25 @@ void Client::Password(std::string const & password)
 
 std::string Client::Hostname()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return hostname_;
 }
 
 uint16_t Client::Port()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return port_;
 }
 
 bool Client::Connected() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return (connection_ != NULL);
 }
 
 bool Client::Ready() const
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return ready_;
 }
 
@@ -368,6 +393,7 @@ void Client::Play(uint32_t const playId)
 
          if (mpd_run_play_pos(connection_, playId) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             currentSongId_ = playId;
             state_ = MPD_STATE_PLAY;
          }
@@ -404,6 +430,8 @@ void Client::Pause()
 
          if (mpd_run_toggle_pause(connection_) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
+
             if (state_ == MPD_STATE_PLAY)
             {
                state_ = MPD_STATE_PAUSE;
@@ -433,6 +461,7 @@ void Client::Stop()
 
          if (mpd_run_stop(connection_) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             state_ = MPD_STATE_STOP;
          }
       }
@@ -535,6 +564,7 @@ void Client::SeekToPercent(double Percent)
 
 bool Client::Random()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return random_;
 }
 
@@ -550,6 +580,7 @@ void Client::SetRandom(bool const random)
 
          if (mpd_run_random(connection_, random) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             random_ = random;
          }
       }
@@ -563,6 +594,7 @@ void Client::SetRandom(bool const random)
 
 bool Client::Single()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return single_;
 }
 
@@ -578,6 +610,7 @@ void Client::SetSingle(bool const single)
 
          if (mpd_run_single(connection_, single) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             single_ = single;
          }
       }
@@ -591,6 +624,7 @@ void Client::SetSingle(bool const single)
 
 bool Client::Consume()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return consume_;
 }
 
@@ -606,6 +640,7 @@ void Client::SetConsume(bool const consume)
 
          if (mpd_run_consume(connection_, consume) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             consume_ = consume;
          }
       }
@@ -618,6 +653,7 @@ void Client::SetConsume(bool const consume)
 
 bool Client::Repeat()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return repeat_;
 }
 
@@ -633,6 +669,7 @@ void Client::SetRepeat(bool const repeat)
 
          if (mpd_run_repeat(connection_, repeat) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             repeat_ = repeat;
          }
       }
@@ -645,6 +682,8 @@ void Client::SetRepeat(bool const repeat)
 
 int32_t Client::Crossfade()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
+
    if (crossfade_ == true)
    {
       return crossfadeTime_;
@@ -680,6 +719,7 @@ void Client::SetCrossfade(uint32_t crossfade)
 
          if (mpd_run_crossfade(connection_, crossfade) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             crossfade_ = (crossfade != 0);
 
             if (crossfade_ == true)
@@ -697,6 +737,7 @@ void Client::SetCrossfade(uint32_t crossfade)
 
 int32_t Client::Volume()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return volume_;
 }
 
@@ -712,6 +753,7 @@ void Client::SetVolume(uint32_t volume)
 
          if (mpd_run_set_volume(connection_, volume) == true)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             volume_ = volume;
          }
       }
@@ -726,27 +768,38 @@ void Client::SetMute(bool mute)
 {
    QueueCommand([this, mute] ()
    {
-      if ((mute == true) && (mute_ == false))
+      bool muteState = false;
+
       {
-         mVolume_ = volume_;
+         std::unique_lock<std::recursive_mutex> lock(mutex_);
+         muteState = mute_;
+         mute_ = mute;
+      }
+
+      if ((mute == true) && (muteState == false))
+      {
+         {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
+            mVolume_ = volume_;
+         }
          SetVolume(0);
       }
-      else if ((mute == false) && (mute_ == true))
+      else if ((mute == false) && (muteState == true))
       {
          SetVolume(mVolume_);
       }
-
-      mute_ = mute;
    });
 }
 
 bool Client::Mute()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return mute_;
 }
 
 bool Client::IsUpdating()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return updating_;
 }
 
@@ -1031,6 +1084,7 @@ void Client::Add(Mpc::Song & song, uint32_t position)
 
          if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             ++currentSongId_;
          }
       }
@@ -1091,6 +1145,7 @@ void Client::Delete(uint32_t position)
 
          if ((currentSongId_ > -1) && (position < static_cast<uint32_t>(currentSongId_)))
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             --currentSongId_;
          }
       }
@@ -1128,6 +1183,8 @@ void Client::Delete(uint32_t position1, uint32_t position2)
 
                if (currentSongId_ > -1)
                {
+                  std::unique_lock<std::recursive_mutex> lock(mutex_);
+
                   uint32_t const songId = static_cast<uint32_t>(currentSongId_);
 
                   if ((position1 < songId) && (position2 < songId))
@@ -1248,6 +1305,8 @@ void Client::SearchSong(std::string const & search, bool exact)
 
 std::string Client::CurrentState()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
+
    if (Connected() == true)
    {
       if (currentStatus_ != NULL)
@@ -1279,24 +1338,20 @@ std::string Client::CurrentState()
 
 std::string Client::GetCurrentSongURI()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return currentSongURI_;
 }
 
 int32_t Client::GetCurrentSongPos()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return currentSongId_;
 }
 
 uint32_t Client::TotalNumberOfSongs()
 {
-   uint32_t songTotal = 0;
-
-   if ((Connected() == true) && (currentStatus_ != NULL))
-   {
-      songTotal = mpd_status_get_queue_length(currentStatus_);
-   }
-
-   return songTotal;
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
+   return totalNumberOfSongs_;
 }
 
 bool Client::SongIsInQueue(Mpc::Song const & song) const
@@ -1401,6 +1456,7 @@ void Client::IncrementTime(long time)
 {
    if (time >= 0)
    {
+      std::unique_lock<std::recursive_mutex> lock(mutex_);
       timeSinceUpdate_ += time;
       timeSinceSong_   += time;
 
@@ -1479,11 +1535,13 @@ void Client::ExitIdleMode()
 
 bool Client::IsIdle()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return idleMode_;
 }
 
 bool Client::IsCommandList()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return listMode_;
 }
 
@@ -1516,6 +1574,8 @@ void Client::CheckForEvents()
 void Client::UpdateCurrentSong()
 {
    ClearCommand();
+
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
 
    if ((Connected() == true))
    {
@@ -1559,52 +1619,45 @@ void Client::UpdateDisplay()
 
 void Client::ClientQueueExecutor(Mpc::Client * client)
 {
-   while (true)
+   while (Running.load() == true)
    {
-      if (Running.load() == false)
       {
-         break;
+         std::unique_lock<std::mutex> Lock(QueueMutex);
+
+         if ((Queue.empty() == false) ||
+             (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+         {
+            if (Queue.empty() == false)
+            {
+               std::function<void()> function = Queue.front();
+               Queue.pop_front();
+               Lock.unlock();
+
+               ExitIdleMode();
+               function();
+
+               Lock.lock();
+               QueueCount.store(Queue.size());
+               Lock.unlock();
+               continue;
+            }
+         }
       }
 
       {
+         std::unique_lock<std::mutex> Lock(QueueMutex);
+
+         if ((Queue.empty() == true) && (listMode_ == false))
          {
-            std::unique_lock<std::mutex> Lock(QueueMutex);
-
-            if ((Queue.empty() == false) ||
-                (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+            if (idleMode_ == false)
             {
-               if (Queue.empty() == false)
-               {
-                  std::function<void()> function = Queue.front();
-                  Queue.pop_front();
-                  Lock.unlock();
-
-                  ExitIdleMode();
-                  function();
-
-                  Lock.lock();
-                  QueueCount.store(Queue.size());
-                  Lock.unlock();
-                  continue;
-               }
+               Lock.unlock();
+               IdleMode();
             }
-         }
-
-         {
-            std::unique_lock<std::mutex> Lock(QueueMutex);
-
-            if ((Queue.empty() == true) && (listMode_ == false))
+            else if (idleMode_ == true)
             {
-               if (idleMode_ == false)
-               {
-                  Lock.unlock();
-                  IdleMode();
-               }
-               else if (idleMode_ == true)
-               {
-                  Lock.unlock();
-                  CheckForEvents();
-               }
+               Lock.unlock();
+               CheckForEvents();
             }
          }
       }
@@ -1764,6 +1817,7 @@ void Client::StartCommandList()
 
          if (mpd_command_list_begin(connection_, false) == true)
          {
+            std::unique_lock<std::mutex> Lock(QueueMutex);
             listMode_ = true;
          }
          else
@@ -1785,7 +1839,10 @@ void Client::SendCommandList()
 
          if (mpd_command_list_end(connection_) == true)
          {
-            listMode_ = false;
+            {
+               std::unique_lock<std::mutex> Lock(QueueMutex);
+               listMode_ = false;
+            }
 
             EventData Data;
             Main::Vimpc::CreateEvent(Event::CommandListSend, Data);
@@ -1815,17 +1872,22 @@ void Client::UpdateStatus(bool ExpectUpdate)
       {
          if (currentStatus_ != NULL)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
             mpd_status_free(currentStatus_);
             currentStatus_ = NULL;
          }
 
          Debug("Client::Get current status");
-         timeSinceUpdate_ = 0;
-         currentStatus_   = mpd_run_status(connection_);
+         struct mpd_status * status = mpd_run_status(connection_);
          CheckError();
 
-         if (currentStatus_ != NULL)
+         if (status != NULL)
          {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
+
+            currentStatus_   = status;
+            timeSinceUpdate_ = 0;
+
             unsigned int version     = mpd_status_get_queue_version(currentStatus_);
             unsigned int qVersion    = static_cast<uint32_t>(queueVersion_);
             bool const   wasUpdating = updating_;
@@ -1837,6 +1899,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
             single_   = mpd_status_get_single(currentStatus_);
             consume_  = mpd_status_get_consume(currentStatus_);
             crossfade_ = (mpd_status_get_crossfade(currentStatus_) > 0);
+            totalNumberOfSongs_ = mpd_status_get_queue_length(currentStatus_);
 
             if (crossfade_ == true)
             {
@@ -1869,6 +1932,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
             {
                elapsed_ = mpdelapsed_;
             }
+
+            lock.unlock();
 
             EventData Data;
             Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
@@ -1914,6 +1979,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
 void Client::UpdateCurrentSongPosition()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
+
    if ((currentSong_ != NULL) && (currentSongId_ >= 0) &&
        (currentSongId_ < static_cast<int32_t>(Main::Playlist().Size())) &&
        (*Main::Playlist().Get(currentSongId_) != *currentSong_))
@@ -2024,6 +2091,8 @@ bool Client::CheckError()
 
 void Client::DeleteConnection()
 {
+   std::unique_lock<std::recursive_mutex> lock(mutex_);
+
    ready_        = false;
    listMode_     = false;
    currentState_ = "Disconnected";
@@ -2034,6 +2103,9 @@ void Client::DeleteConnection()
    consume_      = false;
    repeat_       = false;
    idleMode_     = false;
+   crossfade_    = false;
+
+   totalNumberOfSongs_ = 0;
 
    versionMajor_ = -1;
    versionMinor_ = -1;
@@ -2051,6 +2123,8 @@ void Client::DeleteConnection()
       connection_ = NULL;
       fd_         = -1;
    }
+
+   lock.unlock();
 
    EventData Data;
    Main::Vimpc::CreateEvent(Event::Disconnected, Data);

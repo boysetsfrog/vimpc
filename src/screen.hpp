@@ -195,6 +195,9 @@ namespace Ui
       // Clear the console window
       void Clear();
 
+      // Print the mode window
+      void PrintModeWindow(Ui::ModeWindow * window);
+
       // Reprint the currently active main window
       void Update();
 

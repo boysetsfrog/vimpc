@@ -249,7 +249,7 @@ void Normal::Finalise(int input)
 void Normal::Refresh()
 {
    DisplayModeLine();
-   window_->Print(0);
+   screen_.PrintModeWindow(window_);
 }
 
 bool Normal::Handle(int input)

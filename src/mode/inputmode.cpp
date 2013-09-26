@@ -93,7 +93,6 @@ void InputMode::Initialise(int input)
    window_->ShowCursor();
    window_->SetLine(Prompt());
    window_->SetCursorPosition(cursor_.DisplayPosition());
-   //Refresh();
 
    ENSURE(inputString_.empty() == true);
 }
@@ -106,12 +105,11 @@ void InputMode::Finalise(int input)
    }
 
    window_->HideCursor();
-   //Refresh();
 }
 
 void InputMode::Refresh()
 {
-   window_->Print(0);
+   screen_.PrintModeWindow(window_);
 }
 
 bool InputMode::Handle(int const input)

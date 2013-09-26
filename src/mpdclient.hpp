@@ -23,6 +23,7 @@
 
 #include <thread>
 #include <functional>
+#include <mutex>
 
 #include <mpd/client.h>
 
@@ -207,8 +208,8 @@ namespace Mpc
       std::string CurrentState();
       std::string GetCurrentSongURI() ;
 
-      int32_t  GetCurrentSongPos();
       uint32_t TotalNumberOfSongs();
+      int32_t  GetCurrentSongPos();
 
       bool SongIsInQueue(Mpc::Song const & song) const;
       void DisplaySongInformation();
@@ -316,6 +317,7 @@ namespace Mpc
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
       int32_t                 currentSongId_;
+      uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;
       std::string             currentState_;
 
@@ -330,6 +332,8 @@ namespace Mpc
       std::vector<std::string> paths_;
       std::vector<Mpc::List>   playlists_;
       std::vector<Mpc::List>   playlistsOld_;
+
+      mutable std::recursive_mutex mutex_;
    };
 
    //

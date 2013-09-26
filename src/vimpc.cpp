@@ -76,17 +76,17 @@ Vimpc::Vimpc() :
    Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
    {
       this->commandMode_.ExecuteQueuedCommands();
-      this->clientUpdate_.store(true);
+      this->clientUpdate_ = true;
    });
 
    Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data)
    {
-      this->clientUpdate_.store(true);
+      this->clientUpdate_ = true;
    });
 
    Vimpc::EventHandler(Event::QueueUpdate, [this] (EventData const & Data)
    {
-      this->clientQueueUpdate_.store(true);
+      this->clientQueueUpdate_ = true;
    });
 
    Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
@@ -98,13 +98,13 @@ Vimpc::Vimpc() :
       this->client_.ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
       this->client_.ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
       this->screen_.InvalidateAll();
-      this->clientQueueUpdate_.store(true);
+      this->clientQueueUpdate_ = true;
    });
 
    Vimpc::EventHandler(Event::CommandListSend, [this] (EventData const & Data)
    {
       Debug("Command list send bit");
-      this->clientQueueUpdate_.store(true);
+      this->clientQueueUpdate_ = true;
    });
 
 
@@ -247,10 +247,11 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          // \TODO client needs to tell this to force an update somehow
          if ((input != ERR) || (screen_.Resize() == true) ||
-             (clientUpdate_.load() == true) || (clientQueueUpdate_.load() == true))
+             (clientUpdate_ == true) || (clientQueueUpdate_ == true))
          {
             Debug("Doing the update");
-            clientUpdate_.store(false);
+
+            clientUpdate_ = false;
             client_.DisplaySongInformation();
             client_.UpdateDisplay();
 
@@ -259,10 +260,10 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                screen_.UpdateProgressWindow();
             }
 
-            if ((clientQueueUpdate_.load() == true) || (input != ERR) || (screen_.Resize() == true))
+            if ((clientQueueUpdate_ == true) || (input != ERR) || (screen_.Resize() == true))
             {
-            Debug("Doing the screen update");
-               clientQueueUpdate_.store(false);
+               Debug("Doing the screen update");
+               clientQueueUpdate_ = false;
                screen_.Update();
             }
 
