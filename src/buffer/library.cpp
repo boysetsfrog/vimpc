@@ -48,7 +48,6 @@ Library::~Library()
 
 void Library::Clear(bool Delete)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
    uriMutex_.lock();
 
    lastAlbumEntry_   = NULL;
@@ -77,8 +76,6 @@ void Library::Add(Mpc::Song * song)
 {
    std::string const artist = song->Artist();
    std::string const album  = song->Album();
-
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
 
    CreateVariousArtist();
 
@@ -173,8 +170,6 @@ void Library::Add(Mpc::Song * song)
 
 void Library::CreateVariousArtist()
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    if (variousArtist_ == NULL)
    {
       variousArtist_ = new Mpc::LibraryEntry();
@@ -187,8 +182,6 @@ void Library::CreateVariousArtist()
 
 Mpc::LibraryEntry * Library::CreateArtistEntry(std::string artist)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    Mpc::LibraryEntry * const entry = new Mpc::LibraryEntry();
 
    entry->expanded_ = false;
@@ -201,8 +194,6 @@ Mpc::LibraryEntry * Library::CreateArtistEntry(std::string artist)
 
 Mpc::LibraryEntry * Library::CreateAlbumEntry(Mpc::Song * song)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    Mpc::LibraryEntry * const entry = new Mpc::LibraryEntry();
    entry->expanded_ = false;
    entry->artist_   = song->Artist();
@@ -213,8 +204,6 @@ Mpc::LibraryEntry * Library::CreateAlbumEntry(Mpc::Song * song)
 
 Mpc::Song * Library::Song(std::string uri) const
 {
-   std::unique_lock<std::recursive_mutex> lock(uriMutex_);
-
    std::map<std::string, Mpc::Song *>::const_iterator it = uriMap_.find(uri);
 
    if (it != uriMap_.end())
@@ -228,8 +217,6 @@ Mpc::Song * Library::Song(std::string uri) const
 
 void Library::Sort()
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    Mpc::LibraryEntry::LibraryComparator comparator;
 
    Main::Buffer<Library::BufferType>::Sort(comparator);
@@ -242,7 +229,6 @@ void Library::Sort()
 
 void Library::Sort(LibraryEntry * entry)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
    Mpc::LibraryEntry::LibraryComparator entryComparator;
 
    if (entry->children_.empty() == false)
@@ -301,8 +287,6 @@ void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Clie
 
 void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
       if (position != -1)
@@ -343,8 +327,6 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
 
 void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
       int32_t PlaylistIndex = Main::Playlist().Index(entry->song_);
@@ -366,8 +348,6 @@ void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const *
 
 void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    for (Mpc::LibraryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
    {
       if ((*it)->type_ == AlbumType)
@@ -386,8 +366,6 @@ void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> 
 
 void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    for (Mpc::LibraryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
    {
       if ((*it)->type_ == AlbumType)
@@ -404,8 +382,6 @@ void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryE
 
 void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    for (uint32_t i = 0; i < Size(); ++i)
    {
       if (Get(i)->type_ == ArtistType)
@@ -426,8 +402,6 @@ void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
 
 void Library::ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    for (uint32_t i = 0; i < Size(); ++i)
    {
       if (Get(i)->type_ == ArtistType)
@@ -448,8 +422,6 @@ void Library::ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callb
 
 void Library::Expand(uint32_t line)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    uint32_t position = line;
 
    if ((Get(line)->expanded_ == false) && (Get(line)->type_ != Mpc::SongType))
@@ -465,8 +437,6 @@ void Library::Expand(uint32_t line)
 
 void Library::Collapse(uint32_t line)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    Mpc::LibraryEntry * const entry     = Get(line);
    Mpc::LibraryEntry * const parent    = entry->parent_;
    Mpc::LibraryEntry * entryToCollapse = entry;
@@ -535,8 +505,6 @@ std::string Library::PrintString(uint32_t position) const
 
 void Library::RemoveAndUnexpand(LibraryEntry * const entry)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    if (Index(entry) != -1)
    {
       Remove(Index(entry), 1);
@@ -547,8 +515,6 @@ void Library::RemoveAndUnexpand(LibraryEntry * const entry)
 
 void Library::CheckIfVariousRemoved(LibraryEntry * const entry)
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    if (entry == variousArtist_)
    {
       variousArtist_ = NULL;

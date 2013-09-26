@@ -24,6 +24,7 @@
 #include "buffers.hpp"
 #include "window/console.hpp"
 
+#include <mutex>
 #include <string>
 
 //! Display an error window with the given error
