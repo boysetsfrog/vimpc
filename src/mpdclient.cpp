@@ -1747,6 +1747,7 @@ void Client::GetAllMetaInformation()
       for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
       {
          songQueue_.push_back(mpd_song_get_uri(nextSong));
+         mpd_song_free(nextSong);
       }
    }
 
@@ -1941,25 +1942,39 @@ void Client::UpdateStatus(bool ExpectUpdate)
             if ((queueVersion_ > -1) &&
                ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
             {
-               Main::PlaylistTmp().Clear();
+               /*Main::PlaylistTmp().Clear();
 
                for (uint32_t i = 0; i < Main::PlaylistPasteBuffer().Size(); ++i)
                {
                   Main::PlaylistTmp().Add(Main::PlaylistPasteBuffer().Get(i));
+               }*/
+
+               ClearCommand();
+
+               if (Connected() == true)
+               {
+                  songQueueChanges_.clear();
+                  Debug("Client::List queue meta data changes");
+                  mpd_send_queue_changes_meta(connection_, qVersion);
+
+                  mpd_song * nextSong = mpd_recv_song(connection_);
+
+                  for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+                  {
+                     songQueueChanges_.push_back(std::make_pair(mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong)));
+                     mpd_song_free(nextSong);
+                  }
                }
 
-               ForEachQueuedSongChanges(qVersion, Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
-               Main::Playlist().Crop(TotalNumberOfSongs());
-
                // Ensure that the queue related updates don't break our paste buffer
-               Main::PlaylistPasteBuffer().Clear();
+               //Main::PlaylistPasteBuffer().Clear();
 
-               for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
+               /*for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
                {
                   Main::PlaylistPasteBuffer().Add(Main::PlaylistTmp().Get(i));
                }
 
-               Main::PlaylistTmp().Clear();
+               Main::PlaylistTmp().Clear();*/
 
                EventData QueueData;
                Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);

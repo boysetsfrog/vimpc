@@ -234,6 +234,9 @@ namespace Mpc
       void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
+      void ForEachQueuedSongChanges(Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *));
+
+      template <typename Object>
       void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
@@ -256,10 +259,6 @@ namespace Mpc
 
       void GetAllMetaInformation();
       void GetAllMetaFromRoot();
-
-   private:
-      template <typename Object>
-      void ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *));
 
    private:
       void CheckForEvents();
@@ -329,6 +328,7 @@ namespace Mpc
 
       std::vector<Mpc::Song *> songs_;
       std::vector<std::string> songQueue_;
+      std::vector<std::pair<uint32_t, std::string> > songQueueChanges_;
       std::vector<std::string> paths_;
       std::vector<Mpc::List>   playlists_;
       std::vector<Mpc::List>   playlistsOld_;
@@ -359,33 +359,21 @@ namespace Mpc
 
    //
    template <typename Object>
-   void Client::ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *))
+   void Client::ForEachQueuedSongChanges(Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *))
    {
-      ClearCommand();
-
-      if (Connected() == true)
+      for (std::vector<std::pair<uint32_t, std::string> >::iterator it = songQueueChanges_.begin(); it != songQueueChanges_.end(); ++it)
       {
-         Debug("Client::List queue meta data changes");
-         mpd_send_queue_changes_meta(connection_, oldVersion);
+         Song * song = Main::Library().Song((*it).second);
 
-         mpd_song * nextSong = mpd_recv_song(connection_);
-
-         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         if (song == NULL)
          {
-            uint32_t const position = mpd_song_get_pos(nextSong);
-            Song *         song     = Main::Library().Song(mpd_song_get_uri(nextSong));
+            song = new Song();
+            song->SetURI((*it).second.c_str());
+         }
 
-            if (song == NULL)
-            {
-               song = CreateSong(-1, nextSong, false);
-            }
-
-            if (song != NULL)
-            {
-               (object.*callBack)(position, song);
-            }
-
-            mpd_song_free(nextSong);
+         if (song != NULL)
+         {
+            (object.*callBack)((*it).first, song);
          }
       }
    }

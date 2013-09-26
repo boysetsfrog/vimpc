@@ -86,6 +86,8 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::QueueUpdate, [this] (EventData const & Data)
    {
+      this->client_.ForEachQueuedSongChanges(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
+      Main::Playlist().Crop(this->client_.TotalNumberOfSongs());
       this->clientQueueUpdate_ = true;
    });
 
