@@ -28,6 +28,8 @@
 #include <csignal>
 #include <chrono>
 #include <list>
+#include <mutex>
+#include <poll.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -73,6 +75,8 @@ int32_t RndCount   = 0;
 
 static std::atomic<bool> Running(true);
 
+static std::recursive_mutex CursesMutex;
+
 extern "C" void ResizeHandler(int);
 extern "C" void ContinueHandler(int);
 
@@ -101,26 +105,36 @@ void RandomCharacterInput()
       rndInput = (rand() % (KEY_MAX + 1));
    }
 
+   CursesMutex.lock();
    ungetch(rndInput);
+   CursesMutex.unlock();
 }
 
 void QueueInput(WINDOW * inputWindow)
 {
+   CursesMutex.lock();
    keypad(inputWindow, true);
-   wtimeout(inputWindow, 250);
+   wtimeout(inputWindow, -1);
+   CursesMutex.unlock();
 
-   while (true)
+   pollfd fds;
+   fds.fd = 1;
+   fds.events = POLLIN;
+
+   while (Running.load() == true)
    {
    #ifdef __DEBUG_PRINTS
       if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
    #endif
 
-      int32_t input = wgetch(inputWindow);
-
-      if (Running.load() == false)
+      if (poll(&fds, 1, 250) <= 0)
       {
-         break;
+         continue;
       }
+
+      CursesMutex.lock();
+      int32_t input = wgetch(inputWindow);
+      CursesMutex.unlock();
 
       if (input != ERR)
       {
@@ -137,6 +151,7 @@ void QueueInput(WINDOW * inputWindow)
             //if ((input == INPUT_ESCAPE) && (HandleEscape == true))
             if (input == INPUT_ESCAPE)
             {
+               CursesMutex.lock();
                wtimeout(inputWindow, 0);
 
                int escapeChar = wgetch(inputWindow);
@@ -146,7 +161,8 @@ void QueueInput(WINDOW * inputWindow)
                   input = escapeChar | (1 << 31);
                }
 
-               wtimeout(inputWindow, 250);
+               wtimeout(inputWindow, -1);
+               CursesMutex.unlock();
             }
 
             EventData Data; Data.input = input;
@@ -176,6 +192,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    search_          (search)
 {
    // ncurses initialisation
+   CursesMutex.lock();
    initscr();
    raw();
    noecho();
@@ -254,6 +271,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // If mouse support is turned on set it up
    SetupMouse(settings_.Get(Setting::Mouse));
+   CursesMutex.unlock();
 
    inputThread_ = std::thread(QueueInput, commandWindow_);
 }
@@ -262,6 +280,8 @@ Screen::~Screen()
 {
    Running.store(false);
    inputThread_.join();
+
+   CursesMutex.lock();
 
    delete pagerWindow_;
 
@@ -276,6 +296,8 @@ Screen::~Screen()
    }
 
    endwin();
+
+   CursesMutex.unlock();
 }
 
 
@@ -356,7 +378,9 @@ void Screen::Start()
          SetActiveAndVisible(Playlist);
       }
 
+      CursesMutex.lock();
       wrefresh(statusWindow_);
+      CursesMutex.unlock();
    }
 
    ENSURE(started_ == true);
@@ -465,6 +489,8 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 {
    ClearStatus();
 
+   CursesMutex.lock();
+
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
@@ -492,10 +518,14 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
    }
 
    wnoutrefresh(statusWindow_);
+
+   CursesMutex.unlock();
 }
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
+   CursesMutex.lock();
+
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
@@ -523,6 +553,8 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
    }
 
    wrefresh(statusWindow_);
+
+   CursesMutex.unlock();
 }
 
 void Screen::SetProgress(double percent)
@@ -688,6 +720,8 @@ void Screen::Update()
          UpdateProgressWindow();
       }
 
+      CursesMutex.lock();
+
       // Paint the main window
       for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
       {
@@ -710,6 +744,8 @@ void Screen::Update()
       }
 
       doupdate();
+
+      CursesMutex.unlock();
    }
 }
 
@@ -775,6 +811,7 @@ bool Screen::Resize(bool forceResize)
    {
       WasWindowResized = true;
       WindowResized    = false;
+      CursesMutex.lock();
 
       // Get the window size with thanks to irssi
 #ifdef TIOCGWINSZ
@@ -871,6 +908,7 @@ bool Screen::Resize(bool forceResize)
          Update();
          refresh();
       }
+      CursesMutex.unlock();
    }
 
    return WasWindowResized;
@@ -909,6 +947,8 @@ void Screen::UpdateErrorDisplay() const
    Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
    Ui::ResultWindow & resultWindow(Ui::ResultWindow::Instance());
 
+   CursesMutex.lock();
+
    if (errorWindow.HasError() == true)
    {
       errorWindow.Print(0);
@@ -917,6 +957,8 @@ void Screen::UpdateErrorDisplay() const
    {
       resultWindow.Print(0);
    }
+
+   CursesMutex.unlock();
 }
 
 void Screen::ClearErrorDisplay() const
@@ -941,6 +983,8 @@ bool Screen::HandleMouseEvent()
 
    if (settings_.Get(Setting::Mouse) == true)
    {
+      CursesMutex.lock();
+
       MEVENT event;
 
       //! \TODO this seems to scroll quite slowly and not properly at all
@@ -1013,6 +1057,8 @@ bool Screen::HandleMouseEvent()
 
          event_ = event;
       }
+
+      CursesMutex.unlock();
    }
    return false;
 #else
@@ -1272,6 +1318,8 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
 void Screen::SetupMouse(bool on) const
 {
 #ifdef HAVE_MOUSE_SUPPORT
+   CursesMutex.lock();
+
    if (on == true)
    {
       mousemask(ALL_MOUSE_EVENTS, NULL);
@@ -1280,12 +1328,16 @@ void Screen::SetupMouse(bool on) const
    {
       mousemask(0, NULL);
    }
+
+   CursesMutex.unlock();
 #endif
 }
 
 void Screen::ClearStatus() const
 {
    std::string BlankLine(maxColumns_, ' ');
+
+   CursesMutex.lock();
 
    werase(statusWindow_);
 
@@ -1308,11 +1360,15 @@ void Screen::ClearStatus() const
    {
       wattroff(statusWindow_, A_REVERSE);
    }
+
+   CursesMutex.unlock();
 }
 
 void Screen::UpdateTabWindow() const
 {
    std::string const BlankLine(maxColumns_, ' ');
+
+   CursesMutex.lock();
 
    werase(tabWindow_);
 
@@ -1373,10 +1429,14 @@ void Screen::UpdateTabWindow() const
 
    wattroff(tabWindow_, A_UNDERLINE);
    wrefresh(tabWindow_);
+
+   CursesMutex.unlock();
 }
 
 void Screen::UpdateProgressWindow() const
 {
+   CursesMutex.lock();
+
    werase(progressWindow_);
 
    if (settings_.Get(Setting::ColourEnabled) == true)
@@ -1421,6 +1481,8 @@ void Screen::UpdateProgressWindow() const
 
    wattroff(progressWindow_, A_UNDERLINE);
    wrefresh(progressWindow_);
+
+   CursesMutex.unlock();
 }
 
 
@@ -1471,7 +1533,9 @@ void ResizeHandler(int i)
 
 void ContinueHandler(int i)
 {
+   CursesMutex.lock();
    raw();
+   CursesMutex.unlock();
    WindowResized = true;
 }
 /* vim: set sw=3 ts=3: */
