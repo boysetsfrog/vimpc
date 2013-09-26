@@ -33,6 +33,8 @@ namespace Ui
 
    class Window
    {
+      friend class Screen;
+
    public:
       Window(int h, int w, int x, int y);
       virtual ~Window();
@@ -47,6 +49,8 @@ namespace Ui
       virtual void Right(Ui::Player & player, uint32_t count);
       virtual void Click();
       virtual void Confirm();
+
+   protected:
       virtual void Redraw();
       virtual void Move(int row, int column);
       virtual void Resize(uint32_t rows, uint32_t columns);
