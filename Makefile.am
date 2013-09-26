@@ -67,6 +67,7 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/debug.hpp \
                    src/window/directorywindow.cpp \
                    src/window/directorywindow.hpp \
+                   src/window/error.cpp \
                    src/window/error.hpp \
                    src/window/help.cpp \
                    src/window/help.hpp \
