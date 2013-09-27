@@ -574,10 +574,7 @@ void Client::SetRandom(bool const random)
 
          if (mpd_run_random(connection_, random) == true)
          {
-            random_ = random;
-
-            EventData Data; Data.state = random;
-            Main::Vimpc::CreateEvent(Event::Random, Data);
+            SetStateAndEvent(Event::Random, random_, random);
          }
       }
       else
@@ -599,10 +596,7 @@ void Client::SetSingle(bool const single)
 
          if (mpd_run_single(connection_, single) == true)
          {
-            single_ = single;
-
-            EventData Data; Data.state = single;
-            Main::Vimpc::CreateEvent(Event::Single, Data);
+            SetStateAndEvent(Event::Single, single_, single);
          }
       }
       else
@@ -624,10 +618,7 @@ void Client::SetConsume(bool const consume)
 
          if (mpd_run_consume(connection_, consume) == true)
          {
-            consume_ = consume;
-
-            EventData Data; Data.state = consume;
-            Main::Vimpc::CreateEvent(Event::Consume, Data);
+            SetStateAndEvent(Event::Consume, consume_, consume);
          }
       }
       else
@@ -649,11 +640,7 @@ void Client::SetRepeat(bool const repeat)
 
          if (mpd_run_repeat(connection_, repeat) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
-            repeat_ = repeat;
-
-            EventData Data; Data.state = repeat;
-            Main::Vimpc::CreateEvent(Event::Repeat, Data);
+            SetStateAndEvent(Event::Repeat, repeat_, repeat);
          }
       }
       else
@@ -1847,6 +1834,14 @@ unsigned int Client::QueueVersion()
    return queueVersion_;
 }
 
+
+void Client::SetStateAndEvent(int event, bool & state, bool value)
+{
+   state = value;
+   EventData Data; Data.state = value;
+   Main::Vimpc::CreateEvent(event, Data);
+}
+
 void Client::UpdateStatus(bool ExpectUpdate)
 {
    QueueCommand([this, ExpectUpdate] ()
@@ -1879,10 +1874,27 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
             volume_   = mpd_status_get_volume(currentStatus_);
             updating_ = (mpd_status_get_update_id(currentStatus_) >= 1);
-            random_   = mpd_status_get_random(currentStatus_);
-            repeat_   = mpd_status_get_repeat(currentStatus_);
-            single_   = mpd_status_get_single(currentStatus_);
-            consume_  = mpd_status_get_consume(currentStatus_);
+
+            if (random_ != mpd_status_get_random(currentStatus_))
+            {
+               SetStateAndEvent(Event::Random, random_, mpd_status_get_random(currentStatus_));
+            }
+
+            if (repeat_ != mpd_status_get_repeat(currentStatus_))
+            {
+               SetStateAndEvent(Event::Repeat, repeat_, mpd_status_get_repeat(currentStatus_));
+            }
+
+            if (single_ != mpd_status_get_single(currentStatus_))
+            {
+               SetStateAndEvent(Event::Single, single_, mpd_status_get_single(currentStatus_));
+            }
+
+            if (consume_ != mpd_status_get_consume(currentStatus_))
+            {
+               SetStateAndEvent(Event::Consume, consume_, mpd_status_get_consume(currentStatus_));
+            }
+
             crossfade_ = (mpd_status_get_crossfade(currentStatus_) > 0);
             totalNumberOfSongs_ = mpd_status_get_queue_length(currentStatus_);
 

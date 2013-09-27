@@ -69,6 +69,14 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    queueVersion_         (-1),
    idleMode_             (false)
 {
+   Main::Vimpc::EventHandler(Event::Disconnected, [this] (EventData const & Data)
+   { 
+      this->random_  = false; 
+      this->consume_ = false; 
+      this->repeat_  = false; 
+      this->single_  = false; 
+   });
+
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)
    { this->random_ = Data.state; });
 

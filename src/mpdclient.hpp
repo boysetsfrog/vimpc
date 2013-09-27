@@ -259,6 +259,8 @@ namespace Mpc
       void ExitIdleMode();
       void ClientQueueExecutor(Mpc::Client * client);
 
+      void SetStateAndEvent(int, bool & state, bool value);
+
    private:
       void ClearCommand();
 
