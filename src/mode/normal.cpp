@@ -20,6 +20,7 @@
 
 #include "normal.hpp"
 
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
@@ -49,8 +50,8 @@
 
 using namespace Ui;
 
-Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search) :
-   Player           (screen, client, settings),
+Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search) :
+   Player           (screen, client, clientState, settings),
    window_          (NULL),
    actionCount_     (0),
    lastAction_      (""),
@@ -63,6 +64,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    search_          (search),
    screen_          (screen),
    client_          (client),
+   clientState_     (clientState),
    playlist_        (Main::Playlist()),
    settings_        (settings)
 {
@@ -1346,7 +1348,7 @@ std::string Normal::ScrollString()
 std::string Normal::StateString()
 {
    std::string toggles   = "";
-   std::string random    = (client_.Random() == true) ? "random, " : "";
+   std::string random    = (clientState_.Random() == true) ? "random, " : "";
    std::string repeat    = (client_.Repeat() == true) ? "repeat, " : "";
    std::string single    = (client_.Single() == true) ? "single, " : "";
    std::string consume   = (client_.Consume() == true) ? "consume, " : "";

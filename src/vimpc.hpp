@@ -23,6 +23,7 @@
 
 #include <map>
 
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
@@ -103,6 +104,7 @@ namespace Main
       Ui::Search   &    search_;
       Ui::Screen        screen_;
       Mpc::Client       client_;
+      Mpc::ClientState  clientState_;
       ModeTable         modeTable_;
       Ui::Normal   &    normalMode_;
       Ui::Command  &    commandMode_;

@@ -562,12 +562,6 @@ void Client::SeekToPercent(double Percent)
 }
 
 
-bool Client::Random()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return random_;
-}
-
 void Client::SetRandom(bool const random)
 {
    QueueCommand([this, random] ()
@@ -582,6 +576,9 @@ void Client::SetRandom(bool const random)
          {
             std::unique_lock<std::recursive_mutex> lock(mutex_);
             random_ = random;
+
+            EventData Data; Data.state = random;
+            Main::Vimpc::CreateEvent(Event::Random, Data);
          }
       }
       else

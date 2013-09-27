@@ -35,6 +35,7 @@
    X(OutputEnabled) \
    X(OutputDisabled) \
    X(CommandListSend) \
+   X(Random) \
    X(Unknown)
 
 namespace Event
@@ -54,6 +55,7 @@ struct EventData
    int32_t  pos1;
    int32_t  pos2;
    uint32_t id;
+   bool     state;
    std::string uri;
 };
 

@@ -60,9 +60,9 @@
 using namespace Ui;
 
 // COMMANDS
-Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
+Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
    InputMode           (screen),
-   Player              (screen, client, settings),
+   Player              (screen, client, clientState, settings),
    initTabCompletion_  (true),
    forceCommand_       (false),
    queueCommands_      (false),

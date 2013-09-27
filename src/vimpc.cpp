@@ -58,9 +58,10 @@ Vimpc::Vimpc() :
    search_           (*(new Ui::Search (screen_, client_, settings_))),
    screen_           (settings_, client_, search_),
    client_           (this, settings_, screen_),
+   clientState_      (this, settings_, screen_),
    modeTable_        (),
-   normalMode_       (*(new Ui::Normal (this, screen_, client_, settings_, search_))),
-   commandMode_      (*(new Ui::Command(this, screen_, client_, settings_, search_, normalMode_))),
+   normalMode_       (*(new Ui::Normal (this, screen_, client_, clientState_, settings_, search_))),
+   commandMode_      (*(new Ui::Command(this, screen_, client_, clientState_, settings_, search_, normalMode_))),
    clientUpdate_     (false),
    clientQueueUpdate_(false)
 {

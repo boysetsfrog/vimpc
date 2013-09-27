@@ -35,6 +35,7 @@ namespace Main
 
 namespace Mpc
 {
+   class ClientState;
    class Playlist;
 }
 
@@ -44,7 +45,7 @@ namespace Ui
    class Normal : public Mode, public Player
    {
    public:
-      Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search);
+      Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search);
       ~Normal();
 
    private:
@@ -283,12 +284,13 @@ namespace Ui
       MapNameTable       mapNames_;
       WindowMapNameTable windowMapNames_;
 
-      Main::Vimpc *    vimpc_;
-      Ui::Search     & search_;
-      Ui::Screen     & screen_;
-      Mpc::Client    & client_;
-      Mpc::Playlist  & playlist_;
-      Main::Settings & settings_;
+      Main::Vimpc *      vimpc_;
+      Ui::Search &       search_;
+      Ui::Screen &       screen_;
+      Mpc::Client &      client_;
+      Mpc::ClientState & clientState_;
+      Mpc::Playlist  &   playlist_;
+      Main::Settings &   settings_;
    };
 
 }

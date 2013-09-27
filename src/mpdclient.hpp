@@ -132,7 +132,6 @@ namespace Mpc
 
    public:
       // Toggle settings
-      bool Random();
       void SetRandom(bool random);
 
       bool Single();
@@ -268,7 +267,6 @@ namespace Mpc
 
    private:
       void ClearCommand();
-      bool Command(bool InputCommand);
 
    private:
       unsigned int QueueVersion();

@@ -34,11 +34,12 @@
 
 using namespace Ui;
 
-Player::Player(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
-   screen_  (screen),
-   client_  (client),
-   playlist_(Main::Playlist()),
-   settings_(settings)
+Player::Player(Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings) :
+   screen_      (screen),
+   client_      (client),
+   clientState_ (clientState),
+   playlist_    (Main::Playlist()),
+   settings_    (settings)
 {
 
 }
@@ -93,7 +94,7 @@ void Player::ToggleCrossfade()
 
 void Player::ToggleRandom()
 {
-   SetRandom(!client_.Random());
+   SetRandom(!clientState_.Random());
 }
 
 void Player::ToggleRepeat()
@@ -241,7 +242,7 @@ void Player::SkipSong(Skip skip, uint32_t count)
    // If consume or random we have to send a lot of next commands
    // rather than just skipping directly to the right song
    // this is slow and only works in small amounts
-   if ((client_.Random() == true) || (client_.Consume() == true) || (count == 1))
+   if ((clientState_.Random() == true) || (client_.Consume() == true) || (count == 1))
    {
       Mpc::CommandList list(client_, (count != 1));
 
