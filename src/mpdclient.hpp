@@ -133,14 +133,8 @@ namespace Mpc
    public:
       // Toggle settings
       void SetRandom(bool random);
-
-      bool Single();
       void SetSingle(bool single);
-
-      bool Consume();
       void SetConsume(bool consume);
-
-      bool Repeat();
       void SetRepeat(bool repeat);
 
       int32_t Crossfade();

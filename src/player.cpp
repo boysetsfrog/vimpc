@@ -84,7 +84,7 @@ void Player::Quit()
 
 void Player::ToggleConsume()
 {
-   SetConsume(!client_.Consume());
+   SetConsume(!clientState_.Consume());
 }
 
 void Player::ToggleCrossfade()
@@ -99,12 +99,12 @@ void Player::ToggleRandom()
 
 void Player::ToggleRepeat()
 {
-   SetRepeat(!client_.Repeat());
+   SetRepeat(!clientState_.Repeat());
 }
 
 void Player::ToggleSingle()
 {
-   SetSingle(!client_.Single());
+   SetSingle(!clientState_.Single());
 }
 
 void Player::SetRandom(bool random)
@@ -242,7 +242,7 @@ void Player::SkipSong(Skip skip, uint32_t count)
    // If consume or random we have to send a lot of next commands
    // rather than just skipping directly to the right song
    // this is slow and only works in small amounts
-   if ((clientState_.Random() == true) || (client_.Consume() == true) || (count == 1))
+   if ((clientState_.Random() == true) || (clientState_.Consume() == true) || (count == 1))
    {
       Mpc::CommandList list(client_, (count != 1));
 

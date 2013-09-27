@@ -70,9 +70,16 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    idleMode_             (false)
 {
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)
-   {
-      this->random_ = Data.state;
-   });
+   { this->random_ = Data.state; });
+
+   Main::Vimpc::EventHandler(Event::Consume, [this] (EventData const & Data)
+   { this->consume_ = Data.state; });
+
+   Main::Vimpc::EventHandler(Event::Repeat, [this] (EventData const & Data)
+   { this->repeat_ = Data.state; });
+
+   Main::Vimpc::EventHandler(Event::Single, [this] (EventData const & Data)
+   { this->single_ = Data.state; });
 }
 
 ClientState::~ClientState()

@@ -1349,9 +1349,9 @@ std::string Normal::StateString()
 {
    std::string toggles   = "";
    std::string random    = (clientState_.Random() == true) ? "random, " : "";
-   std::string repeat    = (client_.Repeat() == true) ? "repeat, " : "";
-   std::string single    = (client_.Single() == true) ? "single, " : "";
-   std::string consume   = (client_.Consume() == true) ? "consume, " : "";
+   std::string repeat    = (clientState_.Repeat() == true) ? "repeat, " : "";
+   std::string single    = (clientState_.Single() == true) ? "single, " : "";
+   std::string consume   = (clientState_.Consume() == true) ? "consume, " : "";
    std::string crossfade = (client_.Crossfade() > 0) ? "crossfade, " : "";
 
    if ((random != "") || (repeat != "") || (single != "") || (consume != "") || (crossfade != ""))

@@ -36,6 +36,9 @@
    X(OutputDisabled) \
    X(CommandListSend) \
    X(Random) \
+   X(Single) \
+   X(Consume) \
+   X(Repeat) \
    X(Unknown)
 
 namespace Event

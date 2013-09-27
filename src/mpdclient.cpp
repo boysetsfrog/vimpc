@@ -574,7 +574,6 @@ void Client::SetRandom(bool const random)
 
          if (mpd_run_random(connection_, random) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             random_ = random;
 
             EventData Data; Data.state = random;
@@ -586,13 +585,6 @@ void Client::SetRandom(bool const random)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-}
-
-
-bool Client::Single()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return single_;
 }
 
 void Client::SetSingle(bool const single)
@@ -607,8 +599,10 @@ void Client::SetSingle(bool const single)
 
          if (mpd_run_single(connection_, single) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             single_ = single;
+
+            EventData Data; Data.state = single;
+            Main::Vimpc::CreateEvent(Event::Single, Data);
          }
       }
       else
@@ -616,13 +610,6 @@ void Client::SetSingle(bool const single)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-}
-
-
-bool Client::Consume()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return consume_;
 }
 
 void Client::SetConsume(bool const consume)
@@ -637,8 +624,10 @@ void Client::SetConsume(bool const consume)
 
          if (mpd_run_consume(connection_, consume) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             consume_ = consume;
+
+            EventData Data; Data.state = consume;
+            Main::Vimpc::CreateEvent(Event::Consume, Data);
          }
       }
       else
@@ -646,12 +635,6 @@ void Client::SetConsume(bool const consume)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-}
-
-bool Client::Repeat()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return repeat_;
 }
 
 void Client::SetRepeat(bool const repeat)
@@ -668,6 +651,9 @@ void Client::SetRepeat(bool const repeat)
          {
             std::unique_lock<std::recursive_mutex> lock(mutex_);
             repeat_ = repeat;
+
+            EventData Data; Data.state = repeat;
+            Main::Vimpc::CreateEvent(Event::Repeat, Data);
          }
       }
       else
