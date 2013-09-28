@@ -244,7 +244,7 @@ uint32_t SongWindow::Playlist(int count) const
 
 void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       int64_t pos1, pos2;
       uint32_t const posCount = GetPositions(pos1, pos2);
@@ -308,7 +308,7 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       Main::PlaylistPasteBuffer().Clear();
    }
 
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       int64_t pos1, pos2;
       uint32_t const posCount = GetPositions(pos1, pos2);

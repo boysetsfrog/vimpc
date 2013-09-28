@@ -113,8 +113,6 @@ namespace Mpc
       void Reconnect();
       void Password(std::string const & password);
 
-      bool Connected() const;
-
    public:
       // Playback functions
       void Play(uint32_t playId);
@@ -236,6 +234,7 @@ namespace Mpc
       void GetAllMetaFromRoot();
 
    private:
+      bool Connected() const;
       void IncrementTime(long time);
       void StateEvent();
       void CheckForEvents();

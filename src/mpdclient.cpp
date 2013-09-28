@@ -265,12 +265,7 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
 
    //! \TODO make the connection async
    Debug("Client::Connecting to %s:%u - timeout %u", connect_hostname.c_str(), connect_port, connect_timeout);
-   struct mpd_connection * connection = mpd_connection_new(connect_hostname.c_str(), connect_port, connect_timeout);
-
-   {
-      std::unique_lock<std::recursive_mutex> lock(mutex_);
-      connection_ = connection;
-   }
+   connection_ = mpd_connection_new(connect_hostname.c_str(), connect_port, connect_timeout);
 
    CheckError();
 
@@ -350,7 +345,6 @@ void Client::Password(std::string const & password)
 
 bool Client::Connected() const
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
    return (connection_ != NULL);
 }
 

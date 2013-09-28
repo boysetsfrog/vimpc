@@ -73,6 +73,9 @@ namespace Ui
       // Returns true if the command can be used over a range
       bool SupportsRange(std::string const & command);
 
+      // Whether a connect command has been run
+      bool ConnectionAttempt();
+
    public: // Ui::InputMode
       void Initialise(int input);
       bool Handle(int input);
@@ -259,6 +262,7 @@ namespace Ui
       bool                 initTabCompletion_;
       bool                 forceCommand_;
       bool                 queueCommands_;
+      bool                 connectAttempt_;
       uint32_t             count_;
       int32_t              line_;
       int32_t              currentLine_;

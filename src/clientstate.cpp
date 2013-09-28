@@ -40,7 +40,7 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    timeSinceUpdate_      (0),
    timeSinceSong_        (0),
 
-   volume_               (100),
+   volume_               (-1),
    mute_                 (false),
    updating_             (false),
    random_               (false),

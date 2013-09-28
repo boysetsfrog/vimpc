@@ -263,7 +263,7 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
 
@@ -289,7 +289,7 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
 void LibraryWindow::AddAllLines()
 {
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       client_.AddAllSongs();
    }
@@ -326,7 +326,7 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
 

@@ -66,6 +66,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    initTabCompletion_  (true),
    forceCommand_       (false),
    queueCommands_      (false),
+   connectAttempt_     (false),
    count_              (0),
    line_               (-1),
    currentLine_        (-1),
@@ -595,6 +596,11 @@ void Command::Volume(std::string const & arguments)
 }
 
 
+bool Command::ConnectionAttempt()
+{
+   return connectAttempt_;
+}
+
 void Command::Connect(std::string const & arguments)
 {
    // Ignore the connect command when starting up if -h/-p used
@@ -612,6 +618,8 @@ void Command::Connect(std::string const & arguments)
       }
 
       client_.Connect(hostname, port);
+
+      connectAttempt_ = true;
    }
 }
 
