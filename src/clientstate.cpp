@@ -59,13 +59,15 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 {
    Main::Vimpc::EventHandler(Event::Disconnected, [this] (EventData const & Data)
    { 
-      this->volume_   = -1;
-      this->mute_     = false;
-      this->updating_ = false;
-      this->random_   = false; 
-      this->repeat_   = false; 
-      this->single_   = false; 
-      this->consume_  = false; 
+      this->volume_             = -1;
+      this->mute_               = false;
+      this->updating_           = false;
+      this->random_             = false; 
+      this->repeat_             = false; 
+      this->single_             = false; 
+      this->consume_            = false; 
+      this->crossfade_          = false;
+      this->crossfadeTime_      = 0;
 
       this->totalNumberOfSongs_ = 0;
    });
@@ -84,6 +86,12 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 
    Main::Vimpc::EventHandler(Event::Mute, [this] (EventData const & Data)
    { this->mute_ = Data.state; });
+
+   Main::Vimpc::EventHandler(Event::Crossfade, [this] (EventData const & Data)
+   { this->crossfade_ = Data.state; });
+
+   Main::Vimpc::EventHandler(Event::CrossfadeTime, [this] (EventData const & Data)
+   { this->crossfadeTime_ = Data.value; });
 
    Main::Vimpc::EventHandler(Event::TotalSongCount, [this] (EventData const & Data)
    { this->totalNumberOfSongs_ = Data.count; });

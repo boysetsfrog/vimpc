@@ -40,6 +40,8 @@
    X(Single) \
    X(Consume) \
    X(Repeat) \
+   X(Crossfade) \
+   X(CrossfadeTime) \
    X(Mute) \
    X(Volume) \
    X(TotalSongCount) \

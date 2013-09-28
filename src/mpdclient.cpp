@@ -677,7 +677,12 @@ void Client::SetCrossfade(uint32_t crossfade)
             if (crossfade_ == true)
             {
                crossfadeTime_ = crossfade;
+               EventData Data; Data.value = crossfade;
+               Main::Vimpc::CreateEvent(Event::CrossfadeTime, Data);
             }
+
+            EventData Data; Data.state = crossfade_;
+            Main::Vimpc::CreateEvent(Event::Crossfade, Data);
          }
       }
       else
@@ -1867,11 +1872,21 @@ void Client::UpdateStatus(bool ExpectUpdate)
                Main::Vimpc::CreateEvent(Event::TotalSongCount, Data);
             }
 
-            crossfade_ = (mpd_status_get_crossfade(currentStatus_) > 0);
+            if (crossfade_ != (mpd_status_get_crossfade(currentStatus_) > 0))
+            {
+               crossfade_ = (mpd_status_get_crossfade(currentStatus_) > 0);
+               EventData Data; Data.state = crossfade_;
+               Main::Vimpc::CreateEvent(Event::Crossfade, Data);
+            }
 
             if (crossfade_ == true)
             {
-               crossfadeTime_ = mpd_status_get_crossfade(currentStatus_);
+               if (crossfadeTime_ != mpd_status_get_crossfade(currentStatus_))
+               {
+                  crossfadeTime_ = mpd_status_get_crossfade(currentStatus_);
+                  EventData Data; Data.value = crossfadeTime_;
+                  Main::Vimpc::CreateEvent(Event::CrossfadeTime, Data);
+               }
             }
 
             // Check if we need to update the current song
