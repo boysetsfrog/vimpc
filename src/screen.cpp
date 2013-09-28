@@ -37,6 +37,7 @@
 
 #include "algorithm.hpp"
 #include "buffers.hpp"
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "song.hpp"
@@ -173,7 +174,7 @@ void QueueInput(WINDOW * inputWindow)
 }
 
 
-Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const & search) :
+Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
    window_          (Playlist),
    previous_        (Playlist),
    statusWindow_    (NULL),
@@ -189,6 +190,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    windows_         (this),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search)
 {
    // ncurses initialisation
@@ -216,11 +218,11 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[TestConsole]  = new Ui::ConsoleWindow  (settings, *this, "test",    Main::TestConsole());
    mainWindows_[Console]      = new Ui::ConsoleWindow  (settings, *this, "console", Main::Console());
    mainWindows_[Outputs]      = new Ui::OutputWindow   (settings, *this, Main::Outputs(),   client, search);
-   mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, Main::Library(),   client, search);
-   mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, Main::Browse(),    client, search);
-   mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, search);
+   mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, Main::Library(),   client, clientState, search);
+   mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, Main::Browse(),    client, clientState, search);
+   mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, clientState, search);
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::Lists(),     client, search);
-   mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, search);
+   mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, clientState, search);
    mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, windows_, search);
 
    // Create paging window to print maps, settings, etc
@@ -396,7 +398,7 @@ Ui::SongWindow * Screen::CreateSongWindow(std::string const & name)
       ++id;
    }
 
-   Ui::SongWindow * window = new SongWindow(settings_, *this, client_, search_, name);
+   Ui::SongWindow * window = new SongWindow(settings_, *this, client_, clientState_, search_, name);
    mainWindows_[id]        = window;
 
    return window;
@@ -406,7 +408,7 @@ Ui::SongWindow * Screen::CreateSongWindow(std::string const & name)
 Ui::InfoWindow * Screen::CreateInfoWindow(int32_t Id, std::string const & name, Mpc::Song * song)
 {
    SetVisible(Id, false);
-   Ui::InfoWindow * window = new InfoWindow(song->URI(), settings_, *this, client_, search_, name);
+   Ui::InfoWindow * window = new InfoWindow(song->URI(), settings_, *this, client_, clientState_, search_, name);
    mainWindows_[Id]        = window;
    return window;
 }

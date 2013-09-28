@@ -74,6 +74,7 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->consume_            = false; 
       this->crossfade_          = false;
       this->crossfadeTime_      = 0;
+      this->currentSongURI_     = "";
 
       this->totalNumberOfSongs_ = 0;
    });
@@ -83,6 +84,9 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->hostname_ = Data.hostname; 
       this->port_     = Data.port; 
    });
+
+   Main::Vimpc::EventHandler(Event::CurrentSongURI, [this] (EventData const & Data)
+   { this->currentSongURI_ = Data.uri; });
 
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)
    { this->random_ = Data.state; });
@@ -188,13 +192,13 @@ bool ClientState::IsUpdating() const
    return updating_;
 }
 
-std::string ClientState::CurrentState()
+std::string ClientState::CurrentState() const
 {
    return currentState_;
 }
 
 
-std::string ClientState::GetCurrentSongURI()
+std::string ClientState::GetCurrentSongURI() const
 {
    return currentSongURI_;
 }

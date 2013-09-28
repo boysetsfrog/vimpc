@@ -22,6 +22,7 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
+#include "clientstate.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
@@ -36,10 +37,11 @@
 
 using namespace Ui;
 
-LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Ui::Search const & search) :
+LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
    SelectWindow     (settings, screen, "library"),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    library_         (library)
 {
@@ -456,7 +458,7 @@ int32_t LibraryWindow::DetermineColour(uint32_t line) const
    {
       Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
 
-      if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+      if ((entry->song_ != NULL) && (entry->song_->URI() == clientState_.GetCurrentSongURI()))
       {
          colour = settings_.colours.CurrentSong;
       }

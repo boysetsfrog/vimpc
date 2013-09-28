@@ -24,6 +24,7 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
+#include "clientstate.hpp"
 #include "errorcodes.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
@@ -38,10 +39,11 @@
 
 using namespace Ui;
 
-SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
+SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name) :
    SelectWindow     (settings, screen, name),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    browse_          ()
 {
@@ -436,7 +438,7 @@ int32_t SongWindow::DetermineColour(uint32_t line) const
 
    if (song != NULL)
    {
-      if ((song->URI() == client_.GetCurrentSongURI()))
+      if ((song->URI() == clientState_.GetCurrentSongURI()))
       {
          colour = settings_.colours.CurrentSong;
       }

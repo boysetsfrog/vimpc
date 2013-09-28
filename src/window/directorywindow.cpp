@@ -23,6 +23,7 @@
 #include "buffers.hpp"
 #include "buffers.hpp"
 #include "callback.hpp"
+#include "clientstate.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
@@ -38,10 +39,11 @@
 
 using namespace Ui;
 
-DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Ui::Search const & search) :
+DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
    SelectWindow     (settings, screen, "directory"),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    directory_       (directory)
 {
@@ -545,7 +547,7 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
 {
    int32_t colour = settings_.colours.Song;
 
-   if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+   if ((entry->song_ != NULL) && (entry->song_->URI() == clientState_.GetCurrentSongURI()))
    {
       colour = settings_.colours.CurrentSong;
    }

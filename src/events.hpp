@@ -32,6 +32,7 @@
    X(CurrentState) \
    X(ChangeHost) \
    X(StatusUpdate) \
+   X(CurrentSongURI) \
    X(QueueUpdate) \
    X(AllMetaDataReady) \
    X(PlaylistAdd) \

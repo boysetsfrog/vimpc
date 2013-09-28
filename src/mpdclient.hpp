@@ -190,7 +190,6 @@ namespace Mpc
 
    public:
       // Mpd Status
-      std::string GetCurrentSongURI() ;
       int32_t  GetCurrentSongPos();
 
       void DisplaySongInformation();

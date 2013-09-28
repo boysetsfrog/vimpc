@@ -77,8 +77,8 @@ namespace Mpc
 
    public:
       // Mpd Status
-      std::string CurrentState();
-      std::string GetCurrentSongURI() ;
+      std::string CurrentState() const ;
+      std::string GetCurrentSongURI() const;
 
       uint32_t TotalNumberOfSongs();
       int32_t  GetCurrentSongPos();

@@ -31,7 +31,7 @@ namespace Ui
    class InfoWindow : public SongWindow
    {
    public:
-      InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name = "Unknown");
+      InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name = "Unknown");
       virtual ~InfoWindow();
 
    public:

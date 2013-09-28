@@ -35,10 +35,11 @@
 
 using namespace Ui;
 
-BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Ui::Search const & search) :
-   SongWindow       (settings, screen, client, search, "browse"),
+BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
+   SongWindow       (settings, screen, client, clientState, search, "browse"),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    browse_          (browse)
 {

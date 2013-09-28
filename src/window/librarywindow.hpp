@@ -28,7 +28,7 @@
 #include <map>
 
 namespace Main { class Settings; }
-namespace Mpc  { class Client; }
+namespace Mpc  { class Client; class ClientState; }
 
 namespace Ui
 {
@@ -40,7 +40,7 @@ namespace Ui
       typedef void (Mpc::Library::*LibraryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
 
    public:
-      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Ui::Search const & search);
+      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search);
       ~LibraryWindow();
 
    private:
@@ -88,6 +88,7 @@ namespace Ui
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
+      Mpc::ClientState     & clientState_;
       Ui::Search     const & search_;
       Mpc::Library         & library_;
    };

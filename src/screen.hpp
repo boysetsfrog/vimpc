@@ -47,6 +47,7 @@ namespace Main
 namespace Mpc
 {
    class Client;
+   class ClientState;
    class Song;
 }
 
@@ -84,7 +85,7 @@ namespace Ui
       typedef Main::CallbackInterface<double> * ProgressCallback;
 
    public:
-      Screen(Main::Settings & settings, Mpc::Client & client, Search const & search);
+      Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState & clientState, Search const & search);
       ~Screen();
 
    private:
@@ -317,6 +318,7 @@ namespace Ui
       Ui::Windows        windows_;
       Main::Settings &   settings_;
       Mpc::Client &      client_;
+      Mpc::ClientState & clientState_;
       Ui::Search const & search_;
    };
 }

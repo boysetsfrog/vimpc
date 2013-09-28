@@ -407,8 +407,6 @@ void Client::Pause()
 
          if (mpd_run_toggle_pause(connection_) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
-
             if (state_ == MPD_STATE_PLAY)
             {
                state_ = MPD_STATE_PAUSE;
@@ -440,7 +438,6 @@ void Client::Stop()
 
          if (mpd_run_stop(connection_) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             state_ = MPD_STATE_STOP;
             StateEvent();
          }
@@ -1257,12 +1254,6 @@ void Client::StateEvent()
 }
 
 
-std::string Client::GetCurrentSongURI()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return currentSongURI_;
-}
-
 int32_t Client::GetCurrentSongPos()
 {
    std::unique_lock<std::recursive_mutex> lock(mutex_);
@@ -1481,8 +1472,6 @@ void Client::UpdateCurrentSong()
 {
    ClearCommand();
 
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    if ((Connected() == true))
    {
       if (listMode_ == false)
@@ -1513,6 +1502,9 @@ void Client::UpdateCurrentSong()
       currentSongId_ = -1;
       currentSongURI_ = "";
    }
+
+   EventData Data; Data.uri = currentSongURI_;
+   Main::Vimpc::CreateEvent(Event::CurrentSongURI, Data);
 }
 
 void Client::ClientQueueExecutor(Mpc::Client * client)
@@ -1732,7 +1724,6 @@ void Client::StartCommandList()
 
          if (mpd_command_list_begin(connection_, false) == true)
          {
-            std::unique_lock<std::mutex> Lock(QueueMutex);
             listMode_ = true;
          }
          else
@@ -1754,11 +1745,7 @@ void Client::SendCommandList()
 
          if (mpd_command_list_end(connection_) == true)
          {
-            {
-               std::unique_lock<std::mutex> Lock(QueueMutex);
-               listMode_ = false;
-            }
-
+            listMode_ = false;
             EventData Data;
             Main::Vimpc::CreateEvent(Event::CommandListSend, Data);
          }
@@ -1795,7 +1782,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
       {
          if (currentStatus_ != NULL)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             mpd_status_free(currentStatus_);
             currentStatus_ = NULL;
          }
@@ -1806,8 +1792,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
          if (status != NULL)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
-
             currentStatus_   = status;
             timeSinceUpdate_ = 0;
 
@@ -1904,14 +1888,15 @@ void Client::UpdateStatus(bool ExpectUpdate)
             {
                currentSongId_  = -1;
                currentSongURI_ = "";
+
+               EventData Data; Data.uri = currentSongURI_;
+               Main::Vimpc::CreateEvent(Event::CurrentSongURI, Data);
             }
 
             if (mpdstate_ != MPD_STATE_PLAY)
             {
                elapsed_ = mpdelapsed_;
             }
-
-            lock.unlock();
 
             EventData Data;
             Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);

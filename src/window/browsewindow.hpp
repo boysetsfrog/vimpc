@@ -31,7 +31,7 @@
 
 // Forward Declarations
 namespace Main { class Settings; }
-namespace Mpc  { class Client; }
+namespace Mpc  { class Client; class ClientState; }
 namespace Ui   { class Search; }
 
 // Browse window class
@@ -40,7 +40,7 @@ namespace Ui
    class BrowseWindow : public Ui::SongWindow
    {
    public:
-      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Ui::Search const & search);
+      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search);
       ~BrowseWindow();
 
    private:
@@ -64,6 +64,7 @@ namespace Ui
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
+      Mpc::ClientState &     clientState_;
       Ui::Search     const & search_;
       Mpc::Browse &          browse_;
    };

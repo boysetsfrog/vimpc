@@ -24,6 +24,7 @@
 
 #include "buffers.hpp"
 #include "callback.hpp"
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -35,10 +36,11 @@
 
 using namespace Ui;
 
-PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Playlist & playlist, Mpc::Client & client, Ui::Search const & search) :
-   SongWindow       (settings, screen, client, search, "playlist"),
+PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Playlist & playlist, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
+   SongWindow       (settings, screen, client, clientState, search, "playlist"),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    playlist_        (playlist),
    pasteBuffer_     (Main::PlaylistPasteBuffer())

@@ -28,8 +28,8 @@
 
 using namespace Ui;
 
-InfoWindow::InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
-   SongWindow    (settings, screen, client, search, name),
+InfoWindow::InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name) :
+   SongWindow    (settings, screen, client, clientState, search, name),
    m_URI         (URI)
 {
    Redraw();
