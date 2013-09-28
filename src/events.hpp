@@ -43,6 +43,8 @@
    X(TotalSongCount) \
    X(Update) \
    X(UpdateComplete) \
+   X(IdleMode) \
+   X(StopIdleMode) \
    X(Unknown)
 
 namespace Event

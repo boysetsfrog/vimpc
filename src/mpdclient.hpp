@@ -86,7 +86,6 @@ namespace Mpc
 
       private:
          bool          condition_;
-         bool          list_;
          Mpc::Client & client_;
    };
 
@@ -209,8 +208,6 @@ namespace Mpc
       void Update(std::string const & Path);
       void IncrementTime(long time);
       long TimeSinceUpdate();
-      bool IsIdle();
-      bool IsCommandList();
       void StartCommandList();
       void SendCommandList();
       void UpdateCurrentSong();

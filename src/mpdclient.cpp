@@ -71,7 +71,6 @@ uint32_t Mpc::RemainingSeconds(uint32_t duration)
 
 CommandList::CommandList(Mpc::Client & client, bool condition) :
    condition_(condition),
-   list_     (client.IsCommandList()),
    client_   (client)
 {
    if (condition_)
@@ -1469,7 +1468,11 @@ void Client::IdleMode()
          if (mpd_send_idle(connection_) == true)
          {
             Debug("Client::Enter idle mode");
+
             idleMode_ = true;
+
+            EventData Data;
+            Main::Vimpc::CreateEvent(Event::IdleMode, Data);
          }
       }
    }
@@ -1488,20 +1491,12 @@ void Client::ExitIdleMode()
 
       Debug("Client::Cancelled idle mode");
       CheckError();
+
       idleMode_ = false;
+
+      EventData Data;
+      Main::Vimpc::CreateEvent(Event::StopIdleMode, Data);
    }
-}
-
-bool Client::IsIdle()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return idleMode_;
-}
-
-bool Client::IsCommandList()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return listMode_;
 }
 
 void Client::CheckForEvents()
@@ -1516,6 +1511,9 @@ void Client::CheckForEvents()
       if (poll(&fds, 1, 0) > 0)
       {
          idleMode_ = false;
+
+         EventData Data;
+         Main::Vimpc::CreateEvent(Event::StopIdleMode, Data);
 
          if (mpd_recv_idle(connection_, false) != 0)
          {
