@@ -39,7 +39,6 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    port_                 (0),
    timeSinceUpdate_      (0),
    timeSinceSong_        (0),
-   ready_                (false),
 
    volume_               (100),
    mute_                 (false),
@@ -118,33 +117,27 @@ bool ClientState::Connected() const
    return false; //(connection_ != NULL);
 }
 
-bool ClientState::Ready() const
-{
-   return ready_;
-}
-
-
-bool ClientState::Random()
+bool ClientState::Random() const
 {
    return random_;
 }
 
-bool ClientState::Single()
+bool ClientState::Single() const
 {
    return single_;
 }
 
-bool ClientState::Consume()
+bool ClientState::Consume() const
 {
    return consume_;
 }
 
-bool ClientState::Repeat()
+bool ClientState::Repeat() const
 {
    return repeat_;
 }
 
-int32_t ClientState::Crossfade()
+int32_t ClientState::Crossfade() const
 {
    if (crossfade_ == true)
    {
@@ -154,18 +147,18 @@ int32_t ClientState::Crossfade()
    return 0;
 }
 
-int32_t ClientState::Volume()
+int32_t ClientState::Volume() const
 {
    return volume_;
 }
 
 
-bool ClientState::Mute()
+bool ClientState::Mute() const
 {
    return mute_;
 }
 
-bool ClientState::IsUpdating()
+bool ClientState::IsUpdating() const
 {
    return updating_;
 }

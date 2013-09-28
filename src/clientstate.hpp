@@ -63,18 +63,17 @@ namespace Mpc
       std::string Hostname();
       uint16_t Port();
       bool Connected() const;
-      bool Ready() const;
 
    public:
       // Toggle settings
-      bool Random();
-      bool Single();
-      bool Consume();
-      bool Repeat();
-      int32_t Crossfade();
-      int32_t Volume();
-      bool Mute();
-      bool IsUpdating();
+      bool Random() const;
+      bool Single() const;
+      bool Consume() const;
+      bool Repeat() const;
+      int32_t Crossfade() const;
+      int32_t Volume() const;
+      bool Mute() const;
+      bool IsUpdating() const;
 
    public:
       // Mpd Status
@@ -99,7 +98,6 @@ namespace Mpc
       uint16_t                port_;
       long                    timeSinceUpdate_;
       long                    timeSinceSong_;
-      bool                    ready_;
 
       uint32_t                volume_;
       bool                    mute_;

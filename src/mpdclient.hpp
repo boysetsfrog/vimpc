@@ -116,7 +116,6 @@ namespace Mpc
       std::string Hostname();
       uint16_t Port();
       bool Connected() const;
-      bool Ready() const;
 
    public:
       // Playback functions
@@ -139,13 +138,11 @@ namespace Mpc
       void SetSingle(bool single);
       void SetConsume(bool consume);
       void SetRepeat(bool repeat);
-
       int32_t Crossfade();
       void SetCrossfade(bool crossfade);
       void SetCrossfade(uint32_t crossfade);
       void SetVolume(uint32_t volume);
       void SetMute(bool mute);
-      bool Mute();
 
    public:
       // Playlist editing

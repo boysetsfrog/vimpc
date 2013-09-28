@@ -294,7 +294,6 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
 
       if (Connected() == true)
       {
-         std::unique_lock<std::recursive_mutex> lock(mutex_);
          ready_   = true;
          retried_ = false;
       }
@@ -371,12 +370,6 @@ bool Client::Connected() const
 {
    std::unique_lock<std::recursive_mutex> lock(mutex_);
    return (connection_ != NULL);
-}
-
-bool Client::Ready() const
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return ready_;
 }
 
 
@@ -652,18 +645,6 @@ void Client::SetRepeat(bool const repeat)
    });
 }
 
-int32_t Client::Crossfade()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
-   if (crossfade_ == true)
-   {
-      return crossfadeTime_;
-   }
-
-   return 0;
-}
-
 void Client::SetCrossfade(bool crossfade)
 {
    QueueCommand([this, crossfade] ()
@@ -691,7 +672,6 @@ void Client::SetCrossfade(uint32_t crossfade)
 
          if (mpd_run_crossfade(connection_, crossfade) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             crossfade_ = (crossfade != 0);
 
             if (crossfade_ == true)
