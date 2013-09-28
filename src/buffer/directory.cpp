@@ -21,6 +21,7 @@
 #include "directory.hpp"
 
 #include "algorithm.hpp"
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "playlist.hpp"
 
@@ -224,13 +225,13 @@ void Directory::AddEntry(std::string fullPath)
 }
 
 
-void Directory::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
+void Directory::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position)
 {
    if (position < Size())
    {
       if (Collection == Mpc::Song::Single)
       {
-         AddToPlaylist(client, Get(position));
+         AddToPlaylist(client, clientState, Get(position));
       }
       else
       {
@@ -238,19 +239,19 @@ void Directory::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client 
 
          for (uint32_t i = 0; i < Size(); ++i)
          {
-            AddToPlaylist(client, Get(i));
+            AddToPlaylist(client, clientState, Get(i));
          }
       }
    }
 }
 
-void Directory::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
+void Directory::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position)
 {
    if (position < Size())
    {
       if (Collection == Mpc::Song::Single)
       {
-         RemoveFromPlaylist(client, Get(position));
+         RemoveFromPlaylist(client, clientState, Get(position));
       }
       else
       {
@@ -258,13 +259,13 @@ void Directory::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Cl
 
          for (uint32_t i = 0; i < Size(); ++i)
          {
-            RemoveFromPlaylist(client, Get(i));
+            RemoveFromPlaylist(client, clientState, Get(i));
          }
       }
    }
 }
 
-void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry, int32_t position)
+void Directory::AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::DirectoryEntry const * const entry, int32_t position)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
@@ -273,13 +274,13 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
          client.Add(*(entry->song_), position);
       }
       else if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
-            (client.GetCurrentSongPos() == -1))
+               (clientState.GetCurrentSongPos() == -1))
       {
          client.Add(*(entry->song_));
       }
       else
       {
-         client.Add(*(entry->song_), client.GetCurrentSongPos() + 1);
+         client.Add(*(entry->song_), clientState.GetCurrentSongPos() + 1);
       }
    }
    else if (entry->type_ == Mpc::PlaylistType)
@@ -320,7 +321,7 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * 
    }
 }
 
-void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry)
+void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::DirectoryEntry const * const entry)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {

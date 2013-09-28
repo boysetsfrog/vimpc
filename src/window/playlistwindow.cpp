@@ -75,7 +75,7 @@ void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
 
 uint32_t PlaylistWindow::Current() const
 {
-   int32_t current = client_.GetCurrentSongPos();
+   int32_t current = clientState_.GetCurrentSongPos();
 
    if (current < 0)
    {
@@ -95,7 +95,7 @@ int32_t PlaylistWindow::DetermineColour(uint32_t line) const
 
       if (song != NULL)
       {
-         if ((client_.GetCurrentSongPos() > -1) && ((line + FirstLine()) == static_cast<uint32_t>(client_.GetCurrentSongPos())))
+         if ((clientState_.GetCurrentSongPos() > -1) && ((line + FirstLine()) == static_cast<uint32_t>(clientState_.GetCurrentSongPos())))
          {
             colour = settings_.colours.CurrentSong;
          }

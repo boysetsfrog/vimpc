@@ -361,11 +361,12 @@ void Client::Play(uint32_t const playId)
 
          if (mpd_run_play_pos(connection_, playId) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             currentSongId_ = playId;
+            EventData IdData; IdData.id = currentSongId_;
+            Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
+
             state_ = MPD_STATE_PLAY;
             timeSinceUpdate_ = 0;
-
             StateEvent();
          }
       }
@@ -996,8 +997,9 @@ void Client::Add(Mpc::Song & song, uint32_t position)
 
          if ((currentSongId_ > -1) && (position <= static_cast<uint32_t>(currentSongId_)))
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             ++currentSongId_;
+            EventData IdData; IdData.id = currentSongId_;
+            Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
          }
       }
       else
@@ -1057,8 +1059,9 @@ void Client::Delete(uint32_t position)
 
          if ((currentSongId_ > -1) && (position < static_cast<uint32_t>(currentSongId_)))
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             --currentSongId_;
+            EventData IdData; IdData.id = currentSongId_;
+            Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
          }
       }
       else if (Connected() == false)
@@ -1095,8 +1098,6 @@ void Client::Delete(uint32_t position1, uint32_t position2)
 
                if (currentSongId_ > -1)
                {
-                  std::unique_lock<std::recursive_mutex> lock(mutex_);
-
                   uint32_t const songId = static_cast<uint32_t>(currentSongId_);
 
                   if ((position1 < songId) && (position2 < songId))
@@ -1107,6 +1108,9 @@ void Client::Delete(uint32_t position1, uint32_t position2)
                   {
                      currentSongId_ -= (currentSongId_ - position1);
                   }
+
+                  EventData IdData; IdData.id = currentSongId_;
+                  Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
                }
             }
          }
@@ -1247,13 +1251,6 @@ void Client::StateEvent()
    Main::Vimpc::CreateEvent(Event::CurrentState, Data);
 }
 
-
-int32_t Client::GetCurrentSongPos()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return currentSongId_;
-}
-
 void Client::DisplaySongInformation()
 {
    static char durationStr[128];
@@ -1271,7 +1268,7 @@ void Client::DisplaySongInformation()
          std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
          std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
 
-         screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSongPos() + 1, artist.c_str(), title.c_str());
+         screen_.SetStatusLine("[%5u] %s - %s", currentSongId_ + 1, artist.c_str(), title.c_str());
 
 
          if (settings_.Get(Setting::TimeRemaining) == false)
@@ -1497,8 +1494,10 @@ void Client::UpdateCurrentSong()
       currentSongURI_ = "";
    }
 
-   EventData Data; Data.uri = currentSongURI_;
-   Main::Vimpc::CreateEvent(Event::CurrentSongURI, Data);
+   EventData IdData; IdData.id = currentSongId_;
+   Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
+   EventData URIData; URIData.uri = currentSongURI_;
+   Main::Vimpc::CreateEvent(Event::CurrentSongURI, URIData);
 }
 
 void Client::ClientQueueExecutor(Mpc::Client * client)
@@ -1883,6 +1882,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
                currentSongId_  = -1;
                currentSongURI_ = "";
 
+               EventData IdData; IdData.id = currentSongId_;
+               Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
                EventData Data; Data.uri = currentSongURI_;
                Main::Vimpc::CreateEvent(Event::CurrentSongURI, Data);
             }

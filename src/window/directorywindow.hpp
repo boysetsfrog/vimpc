@@ -37,7 +37,7 @@ namespace Ui
    class DirectoryWindow : public Ui::SelectWindow
    {
    private:
-      typedef void (Mpc::Directory::*DirectoryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      typedef void (Mpc::Directory::*DirectoryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
    public:
       DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search);

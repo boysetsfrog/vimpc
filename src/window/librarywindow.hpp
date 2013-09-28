@@ -37,7 +37,7 @@ namespace Ui
    class LibraryWindow : public Ui::SelectWindow
    {
    private:
-      typedef void (Mpc::Library::*LibraryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      typedef void (Mpc::Library::*LibraryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
    public:
       LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search);

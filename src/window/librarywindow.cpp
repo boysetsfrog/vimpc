@@ -101,7 +101,7 @@ void LibraryWindow::SoftRedraw()
 uint32_t LibraryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSongPos();
+   int32_t currentSongId   = clientState_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -445,7 +445,7 @@ void LibraryWindow::ForPositions(T start, T end, LibraryFunction function)
 {
    for (T it = start; it != end; ++it)
    {
-      (library_.*function)(Mpc::Song::Single, client_, *it);
+      (library_.*function)(Mpc::Song::Single, client_, clientState_, *it);
    }
 }
 

@@ -23,7 +23,6 @@
 
 #include <thread>
 #include <functional>
-#include <mutex>
 
 #include <mpd/client.h>
 
@@ -188,7 +187,6 @@ namespace Mpc
 
    public:
       // Mpd Status
-      int32_t  GetCurrentSongPos();
 
       void DisplaySongInformation();
 
@@ -241,7 +239,6 @@ namespace Mpc
       void IdleMode();
       void ExitIdleMode();
       void ClientQueueExecutor(Mpc::Client * client);
-
       void SetStateAndEvent(int, bool & state, bool value);
 
    private:
@@ -307,8 +304,6 @@ namespace Mpc
       std::vector<std::string> paths_;
       std::vector<Mpc::List>   playlists_;
       std::vector<Mpc::List>   playlistsOld_;
-
-      mutable std::recursive_mutex mutex_;
    };
 
    //

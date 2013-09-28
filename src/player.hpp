@@ -137,7 +137,7 @@ namespace Ui
       //! Returns the currently playing song's id
       //!
       //! \return Id of currently playing song
-      uint32_t GetCurrentSongPos() const;
+      int32_t GetCurrentSongPos() const;
 
    private:
       void     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);

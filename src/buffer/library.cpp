@@ -22,6 +22,7 @@
 
 #include "algorithm.hpp"
 #include "browse.hpp"
+#include "clientstate.hpp"
 #include "directory.hpp"
 #include "mpdclient.hpp"
 #include "playlist.hpp"
@@ -245,13 +246,13 @@ void Library::Sort(LibraryEntry * entry)
    }
 }
 
-void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
+void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position)
 {
    if (position < Size())
    {
       if (Collection == Mpc::Song::Single)
       {
-         AddToPlaylist(client, Get(position));
+         AddToPlaylist(client, clientState, Get(position));
       }
       else
       {
@@ -259,13 +260,13 @@ void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & 
 
          for (uint32_t i = 0; i < Size(); ++i)
          {
-            AddToPlaylist(client, Get(i));
+            AddToPlaylist(client, clientState, Get(i));
          }
       }
    }
 }
 
-void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
+void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position)
 {
    if (position < Size())
    {
@@ -285,7 +286,7 @@ void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Clie
    }
 }
 
-void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position)
+void Library::AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::LibraryEntry const * const entry, int32_t position)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
@@ -294,13 +295,13 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
          client.Add(*(entry->song_), position);
       }
       else if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
-          (client.GetCurrentSongPos() == -1))
+               (clientState.GetCurrentSongPos() == -1))
       {
          client.Add(*(entry->song_));
       }
       else
       {
-         client.Add(*(entry->song_), client.GetCurrentSongPos() + 1);
+         client.Add(*(entry->song_), clientState.GetCurrentSongPos() + 1);
       }
    }
    else
@@ -308,14 +309,14 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
       int current = -1;
 
       if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddNext) &&
-          (client.GetCurrentSongPos() != -1))
+          (clientState.GetCurrentSongPos() != -1))
       {
-         current = client.GetCurrentSongPos() + 1;
+         current = clientState.GetCurrentSongPos() + 1;
       }
 
       for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
       {
-         AddToPlaylist(client, (*it), current);
+         AddToPlaylist(client, clientState, (*it), current);
 
          if (current != -1)
          {

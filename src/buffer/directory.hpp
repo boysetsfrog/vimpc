@@ -36,6 +36,7 @@ namespace Ui   { class DirectoryWindow; }
 namespace Mpc
 {
    class  Client;
+   class  ClientState;
    class  Directory;
    class  DirectoryEntry;
 
@@ -122,8 +123,8 @@ namespace Mpc
       void AddChild(std::string directory);
       void Add(Mpc::Song * song);
       void AddPlaylist(Mpc::List playlist);
-      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
-      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
+      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
       uint32_t TotalReferences(std::string const & Path) const
       {
@@ -163,8 +164,8 @@ namespace Mpc
 
    private:
       void AddEntry(std::string fullPath);
-      void AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry, int32_t position = -1);
-      void RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry);
+      void AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::DirectoryEntry const * const entry, int32_t position = -1);
+      void RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::DirectoryEntry const * const entry);
       void DeleteEntry(DirectoryEntry * const entry);
 
       void AddedToPlaylist(std::string URI)

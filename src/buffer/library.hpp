@@ -34,6 +34,7 @@ namespace Ui   { class LibraryWindow; }
 namespace Mpc
 {
    class  Client;
+   class  ClientState;
    class  Library;
    class  LibraryEntry;
 
@@ -221,8 +222,8 @@ namespace Mpc
       void Sort();
       void Sort(LibraryEntry * entry);
       void Add(Mpc::Song * song);
-      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
-      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
+      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
       void CreateVariousArtist();
       Mpc::LibraryEntry * CreateArtistEntry(std::string artist);
@@ -241,7 +242,7 @@ namespace Mpc
       std::string PrintString(uint32_t position) const;
 
    private:
-      void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position = -1);
+      void AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::LibraryEntry const * const entry, int32_t position = -1);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
       void DeleteEntry(LibraryEntry * const entry);
       void CheckIfVariousRemoved(LibraryEntry * const entry);

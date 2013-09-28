@@ -66,13 +66,13 @@ void SongWindow::AddToPlaylist(uint32_t position)
    if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
    {
       if ((settings_.Get(Setting::AddPosition) == Setting::AddEnd) ||
-          (client_.GetCurrentSongPos() == -1))
+          (clientState_.GetCurrentSongPos() == -1))
       {
          client_.Add(*(Buffer().Get(position)));
       }
       else
       {
-         client_.Add(*(Buffer().Get(position)), client_.GetCurrentSongPos() + 1);
+         client_.Add(*(Buffer().Get(position)), clientState_.GetCurrentSongPos() + 1);
       }
    }
 }
@@ -173,7 +173,7 @@ void SongWindow::Confirm()
       }
       else
       {
-         client_.Play(static_cast<uint32_t>(client_.GetCurrentSongPos() + 1));
+         client_.Play(static_cast<uint32_t>(clientState_.GetCurrentSongPos() + 1));
       }
    }
 
@@ -183,7 +183,7 @@ void SongWindow::Confirm()
 uint32_t SongWindow::Current() const
 {
    int32_t current       = CurrentLine();
-   int32_t currentSongId = client_.GetCurrentSongPos();
+   int32_t currentSongId = clientState_.GetCurrentSongPos();
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
    {
