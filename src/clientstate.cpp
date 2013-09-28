@@ -116,6 +116,11 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 
    Main::Vimpc::EventHandler(Event::Volume, [this] (EventData const & Data)
    { this->volume_ = Data.value; });
+
+   Main::Vimpc::EventHandler(Event::CurrentState, [this] (EventData const & Data)
+   {
+      this->currentState_ = Data.clientstate;
+   });
 }
 
 ClientState::~ClientState()

@@ -190,6 +190,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    if (configExecutionResult == true)
    {
       // If we didn't connect to a host from the config file, just connect to the default
+      // \todo move into a connect failed event 
       if (client_.Connected() == false)
       {
          client_.Connect(hostname, port);

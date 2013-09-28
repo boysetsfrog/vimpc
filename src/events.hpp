@@ -76,6 +76,7 @@ struct EventData
    bool     state;
    std::string uri;
    std::string hostname;
+   std::string clientstate;
 };
 
 #endif

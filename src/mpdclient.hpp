@@ -190,7 +190,6 @@ namespace Mpc
 
    public:
       // Mpd Status
-      std::string CurrentState();
       std::string GetCurrentSongURI() ;
 
       int32_t  GetCurrentSongPos();
@@ -241,6 +240,7 @@ namespace Mpc
       void GetAllMetaFromRoot();
 
    private:
+      void StateEvent();
       void CheckForEvents();
       void IdleMode();
       void ExitIdleMode();

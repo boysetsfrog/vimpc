@@ -253,6 +253,7 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
    // and the mpd connect is a blocking call, so be sure to update the screen
    // first to let the user know that something is happening
    currentState_ = "Connecting";
+   StateEvent();
 
    hostname_   = connect_hostname;
    port_       = connect_port;
@@ -292,6 +293,8 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
 
       elapsed_ = 0;
       UpdateStatus();
+      StateEvent();
+
       GetAllMetaInformation();
 
       if (Connected() == true)
@@ -368,6 +371,7 @@ void Client::Play(uint32_t const playId)
             std::unique_lock<std::recursive_mutex> lock(mutex_);
             currentSongId_ = playId;
             state_ = MPD_STATE_PLAY;
+            StateEvent();
          }
       }
       else
@@ -412,6 +416,8 @@ void Client::Pause()
             {
                state_ = MPD_STATE_PLAY;
             }
+
+            StateEvent();
          }
       }
       else
@@ -435,6 +441,7 @@ void Client::Stop()
          {
             std::unique_lock<std::recursive_mutex> lock(mutex_);
             state_ = MPD_STATE_STOP;
+            StateEvent();
          }
       }
       else
@@ -1216,36 +1223,36 @@ void Client::SearchSong(std::string const & search, bool exact)
 }
 
 
-std::string Client::CurrentState()
+void Client::StateEvent()
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    if (Connected() == true)
    {
-      if (currentStatus_ != NULL)
+      switch (state_)
       {
-         switch (state_)
-         {
-            case MPD_STATE_UNKNOWN:
-               currentState_ = "Unknown";
-               break;
-            case MPD_STATE_STOP:
-               currentState_ = "Stopped";
-               break;
-            case MPD_STATE_PLAY:
-               currentState_ = "Playing";
-               break;
-            case MPD_STATE_PAUSE:
-               currentState_ = "Paused";
-               break;
+         case MPD_STATE_UNKNOWN:
+            currentState_ = "Unknown";
+            break;
+         case MPD_STATE_STOP:
+            currentState_ = "Stopped";
+            break;
+         case MPD_STATE_PLAY:
+            currentState_ = "Playing";
+            break;
+         case MPD_STATE_PAUSE:
+            currentState_ = "Paused";
+            break;
 
-            default:
-               break;
-         }
+         default:
+            break;
       }
    }
+   else
+   {
+      currentState_ = "Disconnected";
+   }
 
-   return currentState_;
+   EventData Data; Data.clientstate = currentState_;
+   Main::Vimpc::CreateEvent(Event::CurrentState, Data);
 }
 
 
@@ -1265,7 +1272,7 @@ void Client::DisplaySongInformation()
 {
    static char durationStr[128];
 
-   if ((Connected() == true) && (CurrentState() != "Stopped"))
+   if ((Connected() == true) && (state_ != MPD_STATE_STOP))
    {
       if ((currentSong_ != NULL) && (currentStatus_ != NULL))
       {
@@ -1883,7 +1890,12 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
             mpdstate_   = mpd_status_get_state(currentStatus_);
             mpdelapsed_ = mpd_status_get_elapsed_time(currentStatus_);
-            state_      = mpdstate_;
+
+            if (state_ != mpdstate_)
+            {
+               state_ = mpdstate_;
+               StateEvent();
+            }
 
             if (mpdstate_ == MPD_STATE_STOP)
             {
@@ -2051,6 +2063,8 @@ void Client::DeleteConnection()
    versionMinor_ = -1;
    versionPatch_ = -1;
    queueVersion_ = -1;
+
+   StateEvent();
 
    // \todo it would be nice to clear the queue here
    // but currently it also removes queued up connect attempts
