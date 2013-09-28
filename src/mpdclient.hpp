@@ -147,8 +147,6 @@ namespace Mpc
       void SetMute(bool mute);
       bool Mute();
 
-      bool IsUpdating();
-
    public:
       // Playlist editing
       void Shuffle();

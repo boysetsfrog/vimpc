@@ -71,10 +71,11 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 {
    Main::Vimpc::EventHandler(Event::Disconnected, [this] (EventData const & Data)
    { 
-      this->random_  = false; 
-      this->consume_ = false; 
-      this->repeat_  = false; 
-      this->single_  = false; 
+      this->random_   = false; 
+      this->consume_  = false; 
+      this->repeat_   = false; 
+      this->single_   = false; 
+      this->updating_ = false;
 
       this->totalNumberOfSongs_ = 0;
    });
@@ -93,6 +94,12 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 
    Main::Vimpc::EventHandler(Event::TotalSongCount, [this] (EventData const & Data)
    { this->totalNumberOfSongs_ = Data.count; });
+
+   Main::Vimpc::EventHandler(Event::Update, [this] (EventData const & Data)
+   { this->updating_ = true; });
+
+   Main::Vimpc::EventHandler(Event::UpdateComplete, [this] (EventData const & Data)
+   { this->updating_ = false; });
 }
 
 ClientState::~ClientState()

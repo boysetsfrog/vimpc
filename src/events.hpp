@@ -41,6 +41,8 @@
    X(Consume) \
    X(Repeat) \
    X(TotalSongCount) \
+   X(Update) \
+   X(UpdateComplete) \
    X(Unknown)
 
 namespace Event

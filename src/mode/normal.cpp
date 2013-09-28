@@ -1373,7 +1373,7 @@ std::string Normal::StateString()
 
    std::string updating = "";
 
-   if (client_.IsUpdating() == true)
+   if (clientState_.IsUpdating() == true)
    {
       updating += " [Updating]";
    }

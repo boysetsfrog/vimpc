@@ -770,13 +770,6 @@ bool Client::Mute()
    return mute_;
 }
 
-bool Client::IsUpdating()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return updating_;
-}
-
-
 void Client::Shuffle()
 {
    QueueCommand([this] ()
@@ -1383,6 +1376,9 @@ void Client::Rescan(std::string const & Path)
          if (mpd_run_rescan(connection_, (Path != "") ? Path.c_str() : NULL) == true)
          {
             updating_ = true;
+
+            EventData Data;
+            Main::Vimpc::CreateEvent(Event::Update, Data);
          }
       }
       else
@@ -1405,6 +1401,9 @@ void Client::Update(std::string const & Path)
          if (mpd_run_update(connection_, (Path != "") ? Path.c_str() : NULL) == true)
          {
             updating_ = true;
+
+            EventData Data;
+            Main::Vimpc::CreateEvent(Event::Update, Data);
          }
       }
       else
@@ -1861,7 +1860,17 @@ void Client::UpdateStatus(bool ExpectUpdate)
             bool const   wasUpdating = updating_;
 
             volume_   = mpd_status_get_volume(currentStatus_);
-            updating_ = (mpd_status_get_update_id(currentStatus_) >= 1);
+
+            if (updating_ != (mpd_status_get_update_id(currentStatus_) >= 1))
+            {
+               updating_ = (mpd_status_get_update_id(currentStatus_) >= 1);
+
+               if (updating_ == true)
+               {
+                  EventData Data;
+                  Main::Vimpc::CreateEvent(Event::Update, Data);
+               }
+            }
 
             if (random_ != mpd_status_get_random(currentStatus_))
             {
@@ -1960,6 +1969,9 @@ void Client::UpdateStatus(bool ExpectUpdate)
             {
                GetAllMetaInformation();
                UpdateCurrentSong();
+
+               EventData Data;
+               Main::Vimpc::CreateEvent(Event::UpdateComplete, Data);
             }
 
             queueVersion_ = version;
