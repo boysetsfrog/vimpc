@@ -25,7 +25,8 @@
 #include <string>
 
 #define EVENTS \
-   X(Input) \
+   X(Input) /* Keyboard input event */ \
+   \
    X(Connected) \
    X(Disconnected) \
    X(StatusUpdate) \
@@ -39,6 +40,7 @@
    X(Single) \
    X(Consume) \
    X(Repeat) \
+   X(TotalSongCount) \
    X(Unknown)
 
 namespace Event
@@ -55,6 +57,7 @@ namespace Event
 struct EventData
 {
    int32_t  input;
+   int32_t  count;
    int32_t  pos1;
    int32_t  pos2;
    uint32_t id;

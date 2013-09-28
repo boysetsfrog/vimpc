@@ -75,6 +75,8 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->consume_ = false; 
       this->repeat_  = false; 
       this->single_  = false; 
+
+      this->totalNumberOfSongs_ = 0;
    });
 
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)
@@ -88,6 +90,9 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 
    Main::Vimpc::EventHandler(Event::Single, [this] (EventData const & Data)
    { this->single_ = Data.state; });
+
+   Main::Vimpc::EventHandler(Event::TotalSongCount, [this] (EventData const & Data)
+   { this->totalNumberOfSongs_ = Data.count; });
 }
 
 ClientState::~ClientState()

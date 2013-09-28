@@ -275,9 +275,9 @@ void Player::SkipSong(Skip skip, uint32_t count)
       {
          song = 0;
       }
-      else if ((GetCurrentSongPos() + directionCount) >= client_.TotalNumberOfSongs())
+      else if ((GetCurrentSongPos() + directionCount) >= clientState_.TotalNumberOfSongs())
       {
-         song = client_.TotalNumberOfSongs() - 1;
+         song = clientState_.TotalNumberOfSongs() - 1;
       }
 
       client_.Play(song);

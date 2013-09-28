@@ -1108,7 +1108,7 @@ void Client::Delete(uint32_t position)
    {
       ClearCommand();
 
-      if ((Connected() == true) && (TotalNumberOfSongs() > 0))
+      if ((Connected() == true) && (totalNumberOfSongs_ > 0))
       {
          Debug("Client::Delete position %u", position);
          mpd_send_delete(connection_, position);
@@ -1130,7 +1130,7 @@ void Client::Delete(uint32_t position1, uint32_t position2)
 {
    QueueCommand([this, position1, position2] ()
    {
-      if ((Connected() == true) && (TotalNumberOfSongs() > 0))
+      if ((Connected() == true) && (totalNumberOfSongs_ > 0))
       {
          // Only use range if MPD is >= 0.16
          if ((versionMajor_ == 0) && (versionMinor_ < 16))
@@ -1316,12 +1316,6 @@ int32_t Client::GetCurrentSongPos()
 {
    std::unique_lock<std::recursive_mutex> lock(mutex_);
    return currentSongId_;
-}
-
-uint32_t Client::TotalNumberOfSongs()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return totalNumberOfSongs_;
 }
 
 bool Client::SongIsInQueue(Mpc::Song const & song) const
@@ -1895,8 +1889,15 @@ void Client::UpdateStatus(bool ExpectUpdate)
                SetStateAndEvent(Event::Consume, consume_, mpd_status_get_consume(currentStatus_));
             }
 
+            if (totalNumberOfSongs_ != mpd_status_get_queue_length(currentStatus_))
+            {
+               totalNumberOfSongs_ = mpd_status_get_queue_length(currentStatus_);
+
+               EventData Data; Data.count = totalNumberOfSongs_;
+               Main::Vimpc::CreateEvent(Event::TotalSongCount, Data);
+            }
+
             crossfade_ = (mpd_status_get_crossfade(currentStatus_) > 0);
-            totalNumberOfSongs_ = mpd_status_get_queue_length(currentStatus_);
 
             if (crossfade_ == true)
             {

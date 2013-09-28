@@ -95,7 +95,7 @@ Vimpc::Vimpc() :
       }
 
       this->client_.ForEachQueuedSongChanges(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
-      Main::Playlist().Crop(this->client_.TotalNumberOfSongs());
+      Main::Playlist().Crop(this->clientState_.TotalNumberOfSongs());
 
       // Ensure that the queue related updates don't break our paste buffer
       Main::PlaylistPasteBuffer().Clear();
