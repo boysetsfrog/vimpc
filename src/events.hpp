@@ -40,6 +40,8 @@
    X(Single) \
    X(Consume) \
    X(Repeat) \
+   X(Mute) \
+   X(Volume) \
    X(TotalSongCount) \
    X(Update) \
    X(UpdateComplete) \
@@ -62,6 +64,7 @@ struct EventData
 {
    int32_t  input;
    int32_t  count;
+   int32_t  value;
    int32_t  pos1;
    int32_t  pos2;
    uint32_t id;

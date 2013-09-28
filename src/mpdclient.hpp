@@ -130,6 +130,10 @@ namespace Mpc
       void SeekToPercent(double Percent);
 
    public:
+      //! \TODO add toggle versions for use by the player
+      //! \TODO add a delta based volume control
+      //! so that state will be correct
+   
       // Toggle settings
       void SetRandom(bool random);
       void SetSingle(bool single);
@@ -139,10 +143,7 @@ namespace Mpc
       int32_t Crossfade();
       void SetCrossfade(bool crossfade);
       void SetCrossfade(uint32_t crossfade);
-
-      int32_t Volume();
       void SetVolume(uint32_t volume);
-
       void SetMute(bool mute);
       bool Mute();
 

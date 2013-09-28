@@ -777,7 +777,7 @@ void Normal::Single(uint32_t count)
 template <int Delta>
 void Normal::ChangeVolume(uint32_t count)
 {
-   int CurrentVolume = client_.Volume() + (count * Delta);
+   int CurrentVolume = clientState_.Volume() + (count * Delta);
 
    if (CurrentVolume < 0)
    {
@@ -1347,12 +1347,13 @@ std::string Normal::ScrollString()
 
 std::string Normal::StateString()
 {
-   std::string toggles   = "";
-   std::string random    = (clientState_.Random() == true) ? "random, " : "";
-   std::string repeat    = (clientState_.Repeat() == true) ? "repeat, " : "";
-   std::string single    = (clientState_.Single() == true) ? "single, " : "";
-   std::string consume   = (clientState_.Consume() == true) ? "consume, " : "";
-   std::string crossfade = (client_.Crossfade() > 0) ? "crossfade, " : "";
+   std::string toggles = "";
+
+   std::string const random    = (clientState_.Random() == true) ? "random, " : "";
+   std::string const repeat    = (clientState_.Repeat() == true) ? "repeat, " : "";
+   std::string const single    = (clientState_.Single() == true) ? "single, " : "";
+   std::string const consume   = (clientState_.Consume() == true) ? "consume, " : "";
+   std::string const crossfade = (clientState_.Crossfade() > 0) ? "crossfade, " : "";
 
    if ((random != "") || (repeat != "") || (single != "") || (consume != "") || (crossfade != ""))
    {
@@ -1364,10 +1365,10 @@ std::string Normal::StateString()
 
    std::string volume = "";
 
-   if ((client_.Volume() != -1) && (client_.Connected() == true))
+   if ((clientState_.Volume() != -1) && (client_.Connected() == true))
    {
       char vol[8];
-      snprintf(vol, 8, "%d", client_.Volume());
+      snprintf(vol, 8, "%d", clientState_.Volume());
       volume += " [Volume: " + std::string(vol) + "%]";
    }
 
@@ -1378,7 +1379,7 @@ std::string Normal::StateString()
       updating += " [Updating]";
    }
 
-   std::string const currentState("[State: " + client_.CurrentState() + "]" + volume + toggles + updating);
+   std::string const currentState("[State: " + clientState_.CurrentState() + "]" + volume + toggles + updating);
    return currentState;
 }
 /* vim: set sw=3 ts=3: */

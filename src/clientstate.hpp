@@ -90,7 +90,6 @@ namespace Mpc
       long TimeSinceUpdate();
       bool IsIdle();
 
-
    private:
       Main::Vimpc *           vimpc_;
       Main::Settings &        settings_;
@@ -98,16 +97,11 @@ namespace Mpc
 
       std::string             hostname_;
       uint16_t                port_;
-      uint32_t                versionMajor_;
-      uint32_t                versionMinor_;
-      uint32_t                versionPatch_;
       long                    timeSinceUpdate_;
       long                    timeSinceSong_;
-      bool                    retried_;
       bool                    ready_;
 
       uint32_t                volume_;
-      uint32_t                mVolume_;
       bool                    mute_;
       bool                    updating_;
       bool                    random_;
@@ -117,19 +111,12 @@ namespace Mpc
       bool                    crossfade_;
       uint32_t                crossfadeTime_;
       uint32_t                elapsed_;
-      uint32_t                mpdelapsed_;
-      mpd_state               state_;
-      mpd_state               mpdstate_;
 
       struct mpd_song *       currentSong_;
-      struct mpd_status *     currentStatus_;
       int32_t                 currentSongId_;
       uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;
       std::string             currentState_;
-
-      int                     queueVersion_;
-      bool                    idleMode_;
    };
 }
 

@@ -89,7 +89,7 @@ void Player::ToggleConsume()
 
 void Player::ToggleCrossfade()
 {
-   SetCrossfade((client_.Crossfade() == 0));
+   SetCrossfade((clientState_.Crossfade() == 0));
 }
 
 void Player::ToggleRandom()

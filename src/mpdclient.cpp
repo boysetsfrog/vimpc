@@ -707,12 +707,6 @@ void Client::SetCrossfade(uint32_t crossfade)
    });
 }
 
-int32_t Client::Volume()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return volume_;
-}
-
 void Client::SetVolume(uint32_t volume)
 {
    QueueCommand([this, volume] ()
@@ -725,8 +719,10 @@ void Client::SetVolume(uint32_t volume)
 
          if (mpd_run_set_volume(connection_, volume) == true)
          {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
             volume_ = volume;
+
+            EventData Data; Data.value = volume;
+            Main::Vimpc::CreateEvent(Event::Volume, Data);
          }
       }
       else
@@ -740,33 +736,20 @@ void Client::SetMute(bool mute)
 {
    QueueCommand([this, mute] ()
    {
-      bool muteState = false;
-
+      if ((mute == true) && (mute_ == false))
       {
-         std::unique_lock<std::recursive_mutex> lock(mutex_);
-         muteState = mute_;
-         mute_ = mute;
-      }
-
-      if ((mute == true) && (muteState == false))
-      {
-         {
-            std::unique_lock<std::recursive_mutex> lock(mutex_);
-            mVolume_ = volume_;
-         }
+         mVolume_ = volume_;
          SetVolume(0);
       }
-      else if ((mute == false) && (muteState == true))
+      else if ((mute == false) && (mute_ == true))
       {
          SetVolume(mVolume_);
       }
-   });
-}
 
-bool Client::Mute()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return mute_;
+      mute_ = mute;
+      EventData Data; Data.state = mute_;
+      Main::Vimpc::CreateEvent(Event::Mute, Data);
+   });
 }
 
 void Client::Shuffle()
@@ -1857,7 +1840,13 @@ void Client::UpdateStatus(bool ExpectUpdate)
             unsigned int qVersion    = static_cast<uint32_t>(queueVersion_);
             bool const   wasUpdating = updating_;
 
-            volume_   = mpd_status_get_volume(currentStatus_);
+            if (volume_ != mpd_status_get_volume(currentStatus_))
+            {
+               volume_ = mpd_status_get_volume(currentStatus_);
+
+               EventData Data; Data.value = volume_;
+               Main::Vimpc::CreateEvent(Event::Volume, Data);
+            }
 
             if (updating_ != (mpd_status_get_update_id(currentStatus_) >= 1))
             {

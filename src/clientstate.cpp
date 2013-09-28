@@ -33,19 +33,15 @@ using namespace Mpc;
 ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen) :
    vimpc_                (vimpc),
    settings_             (settings),
+   screen_               (screen),
 
    hostname_             (""),
    port_                 (0),
-   versionMajor_         (-1),
-   versionMinor_         (-1),
-   versionPatch_         (-1),
    timeSinceUpdate_      (0),
    timeSinceSong_        (0),
-   retried_              (true),
    ready_                (false),
 
    volume_               (100),
-   mVolume_              (100),
    mute_                 (false),
    updating_             (false),
    random_               (false),
@@ -55,19 +51,12 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    crossfade_            (false),
    crossfadeTime_        (0),
    elapsed_              (0),
-   state_                (MPD_STATE_STOP),
-   mpdstate_             (MPD_STATE_UNKNOWN),
 
    currentSong_          (NULL),
-   currentStatus_        (NULL),
    currentSongId_        (-1),
    totalNumberOfSongs_   (0),
    currentSongURI_       (""),
-   currentState_         ("Disconnected"),
-
-   screen_               (screen),
-   queueVersion_         (-1),
-   idleMode_             (false)
+   currentState_         ("Disconnected")
 {
    Main::Vimpc::EventHandler(Event::Disconnected, [this] (EventData const & Data)
    { 
@@ -92,6 +81,9 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    Main::Vimpc::EventHandler(Event::Single, [this] (EventData const & Data)
    { this->single_ = Data.state; });
 
+   Main::Vimpc::EventHandler(Event::Mute, [this] (EventData const & Data)
+   { this->mute_ = Data.state; });
+
    Main::Vimpc::EventHandler(Event::TotalSongCount, [this] (EventData const & Data)
    { this->totalNumberOfSongs_ = Data.count; });
 
@@ -100,6 +92,9 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 
    Main::Vimpc::EventHandler(Event::UpdateComplete, [this] (EventData const & Data)
    { this->updating_ = false; });
+
+   Main::Vimpc::EventHandler(Event::Volume, [this] (EventData const & Data)
+   { this->volume_ = Data.value; });
 }
 
 ClientState::~ClientState()
@@ -200,9 +195,8 @@ void ClientState::DisplaySongInformation()
 
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
-      if ((currentSong_ != NULL) && (currentStatus_ != NULL))
+      if (currentSong_ != NULL)
       {
-         mpd_status * const status   = currentStatus_;
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = elapsed_;
          uint32_t     const remain   = (duration > elapsed) ? duration - elapsed : 0;
@@ -246,11 +240,6 @@ void ClientState::DisplaySongInformation()
 long ClientState::TimeSinceUpdate()
 {
    return timeSinceUpdate_;
-}
-
-bool ClientState::IsIdle()
-{
-   return idleMode_;
 }
 
 /* vim: set sw=3 ts=3: */
