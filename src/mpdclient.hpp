@@ -191,7 +191,6 @@ namespace Mpc
    public:
       // Mpd Status
       std::string GetCurrentSongURI() ;
-
       int32_t  GetCurrentSongPos();
 
       void DisplaySongInformation();
@@ -200,8 +199,6 @@ namespace Mpc
       // Database state
       void Rescan(std::string const & Path);
       void Update(std::string const & Path);
-      void IncrementTime(long time);
-      long TimeSinceUpdate();
       void StartCommandList();
       void SendCommandList();
       void UpdateCurrentSong();
@@ -240,6 +237,7 @@ namespace Mpc
       void GetAllMetaFromRoot();
 
    private:
+      void IncrementTime(long time);
       void StateEvent();
       void CheckForEvents();
       void IdleMode();
@@ -274,7 +272,6 @@ namespace Mpc
       uint32_t                versionMinor_;
       uint32_t                versionPatch_;
       long                    timeSinceUpdate_;
-      long                    timeSinceSong_;
       bool                    retried_;
       bool                    ready_;
 

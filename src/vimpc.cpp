@@ -36,7 +36,6 @@
 #include "window/error.hpp"
 
 #include <list>
-#include <sys/time.h>
 #include <unistd.h>
 #include <condition_variable>
 
@@ -200,9 +199,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       screen_.Update();
       commandMode_.SetQueueCommands(false);
 
-      struct timeval start, end;
-      gettimeofday(&start, NULL);
-
       // The main loop
       while (Running == true)
       {
@@ -249,23 +245,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                Handle(input);
             }
          }
-
-         gettimeofday(&end,   NULL);
-
-         long const seconds  = end.tv_sec  - start.tv_sec;
-         long const useconds = end.tv_usec - start.tv_usec;
-         long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
-
-         client_.IncrementTime(mtime);
-
-         if ((input == ERR) &&
-             (client_.TimeSinceUpdate() > 900) &&
-             (settings_.Get(::Setting::Polling) == true))
-         {
-            client_.UpdateStatus();
-         }
-
-         gettimeofday(&start, NULL);
 
          // \TODO client needs to tell this to force an update somehow
          if ((input != ERR) || (screen_.Resize() == true) ||

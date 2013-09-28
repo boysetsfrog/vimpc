@@ -101,7 +101,6 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    versionMinor_         (-1),
    versionPatch_         (-1),
    timeSinceUpdate_      (0),
-   timeSinceSong_        (0),
    retried_              (true),
    ready_                (false),
 
@@ -1369,44 +1368,37 @@ void Client::Update(std::string const & Path)
 
 void Client::IncrementTime(long time)
 {
+   bool const poll = settings_.Get(::Setting::Polling);
+
    if (time >= 0)
    {
-      std::unique_lock<std::recursive_mutex> lock(mutex_);
       timeSinceUpdate_ += time;
-      timeSinceSong_   += time;
 
       if (state_ == MPD_STATE_PLAY)
       {
-         elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
+         if (elapsed_ != (mpdelapsed_ + (timeSinceUpdate_ / 1000)))
+         {
+            elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
+
+            EventData Data;
+            Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
+         }
       }
 
-      if ((currentSong_ != NULL) &&
-         (elapsed_ >= mpd_song_get_duration(currentSong_)))
+      if ((poll == true) && (timeSinceUpdate_ > 900))
+      {
+         UpdateStatus();
+      }
+      else if ((currentSong_ != NULL) && (elapsed_ >= mpd_song_get_duration(currentSong_)))
       {
          elapsed_ = 0;
-
-         if (timeSinceUpdate_ >= 1000)
-         {
-            QueueCommand([this, time] ()
-            {
-               UpdateStatus();
-            });
-         }
+         UpdateStatus();
       }
    }
    else
    {
-      QueueCommand([this, time] ()
-      {
-         UpdateStatus();
-      });
+      UpdateStatus();
    }
-}
-
-long Client::TimeSinceUpdate()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return timeSinceUpdate_;
 }
 
 void Client::IdleMode()
@@ -1503,7 +1495,6 @@ void Client::UpdateCurrentSong()
 
          Debug("Client::Send get current song");
          currentSong_ = mpd_run_current_song(connection_);
-         timeSinceSong_ = 0;
          CheckError();
 
          if (currentSong_ != NULL)
@@ -1524,48 +1515,50 @@ void Client::UpdateCurrentSong()
 
 void Client::ClientQueueExecutor(Mpc::Client * client)
 {
+   struct timeval start, end;
+   gettimeofday(&start, NULL);
+
    while (Running.load() == true)
    {
+      std::unique_lock<std::mutex> Lock(QueueMutex);
+
+      if ((Queue.empty() == false) ||
+          (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
       {
-         std::unique_lock<std::mutex> Lock(QueueMutex);
-
-         if ((Queue.empty() == false) ||
-             (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+         if (Queue.empty() == false)
          {
-            if (Queue.empty() == false)
-            {
-               std::function<void()> function = Queue.front();
-               Queue.pop_front();
-               Lock.unlock();
+            std::function<void()> function = Queue.front();
+            Queue.pop_front();
+            Lock.unlock();
 
-               ExitIdleMode();
-               function();
+            ExitIdleMode();
+            function();
 
-               Lock.lock();
-               QueueCount.store(Queue.size());
-               Lock.unlock();
-               continue;
-            }
+            Lock.lock();
+            QueueCount.store(Queue.size());
          }
       }
 
+      if ((Queue.empty() == true) && (listMode_ == false))
       {
-         std::unique_lock<std::mutex> Lock(QueueMutex);
-
-         if ((Queue.empty() == true) && (listMode_ == false))
+         if (idleMode_ == false)
          {
-            if (idleMode_ == false)
-            {
-               Lock.unlock();
-               IdleMode();
-            }
-            else if (idleMode_ == true)
-            {
-               Lock.unlock();
-               CheckForEvents();
-            }
+            Lock.unlock();
+            IdleMode();
+         }
+         else if (idleMode_ == true)
+         {
+            Lock.unlock();
+            CheckForEvents();
          }
       }
+
+      gettimeofday(&end,   NULL);
+      long const seconds  = end.tv_sec  - start.tv_sec;
+      long const useconds = end.tv_usec - start.tv_usec;
+      long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
+      IncrementTime(mtime);
+      gettimeofday(&start, NULL);
    }
 }
 
@@ -2043,8 +2036,6 @@ bool Client::CheckError()
 
 void Client::DeleteConnection()
 {
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
    ready_        = false;
    listMode_     = false;
    currentState_ = "Disconnected";
@@ -2077,8 +2068,6 @@ void Client::DeleteConnection()
       connection_ = NULL;
       fd_         = -1;
    }
-
-   lock.unlock();
 
    EventData Data;
    Main::Vimpc::CreateEvent(Event::Disconnected, Data);
