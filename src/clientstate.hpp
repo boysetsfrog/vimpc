@@ -94,6 +94,7 @@ namespace Mpc
       Main::Settings &        settings_;
       Ui::Screen &            screen_;
 
+      bool                    connected_;
       std::string             hostname_;
       uint16_t                port_;
       long                    timeSinceUpdate_;

@@ -46,7 +46,7 @@ typedef std::pair<int32_t, EventData>        EventPair;
 static std::list<EventPair>                  Queue;
 static std::mutex                            QueueMutex;
 static std::condition_variable               Condition;
-static std::map<int, std::function<void(EventData const &)> > Handler;
+static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
 
 bool Vimpc::Running = true;
 
@@ -217,9 +217,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                Queue.pop_front();
                Lock.unlock();
 
-               if (Handler.find(Event.first) != Handler.end())
+               for (auto func : Handler[Event.first])
                {
-                  std::function<void(EventData const &)> func = Handler[Event.first];
                   func(Event.second);
                }
             }
@@ -384,7 +383,7 @@ void Vimpc::ChangeMode(char input, std::string initial)
 
 /* static */ void Vimpc::EventHandler(int Event, std::function<void(EventData const &)> func)
 {
-   Handler[Event] = func;
+   Handler[Event].push_back(func);
 }
 
 

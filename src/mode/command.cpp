@@ -430,7 +430,7 @@ void Command::Play(std::string const & arguments)
 
 bool Command::CheckConnected()
 {
-   if (client_.Connected() == false)
+   if (clientState_.Connected() == false)
    {
       ErrorString(ErrorNumber::ClientNoConnection);
       return false;
@@ -1461,14 +1461,14 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
          return true;
       }
 
-      if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (client_.Connected() == true))
+      if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (clientState_.Connected() == true))
       {
          count_ = (count <= 0) ? 1 : count;
          CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
          CommandFunction const commandFunction = it->second;
          (*this.*commandFunction)(arguments);
       }
-      else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
+      else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (clientState_.Connected() == false)))
       {
          CommandArgs commandArgs;
          commandArgs.line      = line;

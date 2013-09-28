@@ -952,7 +952,7 @@ void Normal::Add(uint32_t count)
 {
    static WindowActionTable confirmTable;
 
-   if (client_.Connected())
+   if (clientState_.Connected())
    {
       if (confirmTable.size() == 0)
       {
@@ -988,7 +988,7 @@ void Normal::Delete(uint32_t count)
 {
    static WindowActionTable confirmTable;
 
-   if (client_.Connected())
+   if (clientState_.Connected())
    {
       if (confirmTable.size() == 0)
       {

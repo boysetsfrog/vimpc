@@ -57,8 +57,14 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    currentSongURI_       (""),
    currentState_         ("Disconnected")
 {
+   Main::Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
+   {
+      this->connected_ = true;
+   });
+
    Main::Vimpc::EventHandler(Event::Disconnected, [this] (EventData const & Data)
    { 
+      this->connected_          = false;
       this->volume_             = -1;
       this->mute_               = false;
       this->updating_           = false;
@@ -128,7 +134,7 @@ uint16_t ClientState::Port()
 
 bool ClientState::Connected() const
 {
-   return false; //(connection_ != NULL);
+   return connected_;
 }
 
 bool ClientState::Random() const
