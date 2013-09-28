@@ -60,11 +60,13 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 {
    Main::Vimpc::EventHandler(Event::Disconnected, [this] (EventData const & Data)
    { 
+      this->volume_   = -1;
+      this->mute_     = false;
+      this->updating_ = false;
       this->random_   = false; 
-      this->consume_  = false; 
       this->repeat_   = false; 
       this->single_   = false; 
-      this->updating_ = false;
+      this->consume_  = false; 
 
       this->totalNumberOfSongs_ = 0;
    });
