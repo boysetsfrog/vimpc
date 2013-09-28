@@ -1522,45 +1522,53 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
 
    while (Running.load() == true)
    {
-      std::unique_lock<std::mutex> Lock(QueueMutex);
-
-      if ((Queue.empty() == false) ||
-          (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
-      {
-         if (Queue.empty() == false)
-         {
-            std::function<void()> function = Queue.front();
-            Queue.pop_front();
-            Lock.unlock();
-
-            ExitIdleMode();
-            function();
-
-            Lock.lock();
-            QueueCount.store(Queue.size());
-         }
-      }
-
-      if ((Queue.empty() == true) && (listMode_ == false))
-      {
-         if (idleMode_ == false)
-         {
-            Lock.unlock();
-            IdleMode();
-         }
-         else if (idleMode_ == true)
-         {
-            Lock.unlock();
-            CheckForEvents();
-         }
-      }
-
       gettimeofday(&end,   NULL);
       long const seconds  = end.tv_sec  - start.tv_sec;
       long const useconds = end.tv_usec - start.tv_usec;
       long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
       IncrementTime(mtime);
       gettimeofday(&start, NULL);
+
+      {
+         std::unique_lock<std::mutex> Lock(QueueMutex);
+
+         if ((Queue.empty() == false) ||
+             (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+         {
+            if (Queue.empty() == false)
+            {
+               std::function<void()> function = Queue.front();
+               Queue.pop_front();
+               Lock.unlock();
+
+               ExitIdleMode();
+               function();
+
+               Lock.lock();
+               QueueCount.store(Queue.size());
+               Lock.unlock();
+               continue;
+            }
+         }
+      }
+
+      {
+         std::unique_lock<std::mutex> Lock(QueueMutex);
+
+         if ((Queue.empty() == true) && (listMode_ == false))
+         {
+            if (idleMode_ == false)
+            {
+               Lock.unlock();
+               IdleMode();
+            }
+            else if (idleMode_ == true)
+            {
+               Lock.unlock();
+               CheckForEvents();
+            }
+         }
+      }
    }
 }
 
