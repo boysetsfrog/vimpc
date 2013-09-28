@@ -537,8 +537,11 @@ void Client::SeekTo(uint32_t Time)
 
       if (Connected() == true)
       {
-         Debug("Client::Seek to time %u", Time);
-         mpd_send_seek_pos(connection_, currentSongId_, Time);
+         if (currentSongId_ >= 0)
+         {
+            Debug("Client::Seek to time %u", Time);
+            mpd_send_seek_pos(connection_, currentSongId_, Time);
+         }
       }
       else
       {
@@ -1318,11 +1321,6 @@ int32_t Client::GetCurrentSongPos()
    return currentSongId_;
 }
 
-bool Client::SongIsInQueue(Mpc::Song const & song) const
-{
-   return (song.Reference() != 0);
-}
-
 void Client::DisplaySongInformation()
 {
    static char durationStr[128];
@@ -1427,9 +1425,6 @@ void Client::IncrementTime(long time)
       if (state_ == MPD_STATE_PLAY)
       {
          elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
-
-         EventData Data;
-         Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
       }
 
       if ((currentSong_ != NULL) &&
@@ -1575,13 +1570,6 @@ void Client::UpdateCurrentSong()
    }
 }
 
-void Client::UpdateDisplay()
-{
-   // Try and correct display without requesting status from mpd
-   UpdateCurrentSongPosition();
-}
-
-
 void Client::ClientQueueExecutor(Mpc::Client * client)
 {
    while (Running.load() == true)
@@ -1650,6 +1638,8 @@ void Client::GetAllMetaInformation()
 
    ClearCommand();
 
+   std::string const SongFormat = settings_.Get(Setting::SongFormat);
+
    if (Connected() == true)
    {
       Debug("Client::Get all meta information");
@@ -1666,6 +1656,10 @@ void Client::GetAllMetaInformation()
             if (nextSong != NULL)
             {
                Song * const newSong = CreateSong(-1, nextSong);
+               
+               // Pre cache the print of the song
+               (void) newSong->FormatString(SongFormat);
+   
                songs_.push_back(newSong);
             }
          }
@@ -1956,14 +1950,16 @@ void Client::UpdateStatus(bool ExpectUpdate)
                   }
                }
 
+               UpdateCurrentSong();
+
                EventData QueueData;
                Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
             }
 
-
             if ((wasUpdating == true) && (updating_ == false))
             {
                GetAllMetaInformation();
+               UpdateCurrentSong();
             }
 
             queueVersion_ = version;
@@ -1971,31 +1967,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
       }
    });
 }
-
-void Client::UpdateCurrentSongPosition()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-
-   if ((currentSong_ != NULL) && (currentSongId_ >= 0) &&
-       (currentSongId_ < static_cast<int32_t>(Main::Playlist().Size())) &&
-       (*Main::Playlist().Get(currentSongId_) != *currentSong_))
-   {
-      currentSongId_ = -1;
-
-      for (uint32_t i = 0; i < screen_.MaxRows(); ++i)
-      {
-         int32_t id = i + screen_.ActiveWindow().FirstLine();
-
-         if ((id < static_cast<int32_t>(Main::Playlist().Size())) &&
-             (*Main::Playlist().Get(id) == *currentSong_))
-         {
-            currentSongId_ = id;
-            break;
-         }
-      }
-   }
-}
-
 
 Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInLibrary) const
 {

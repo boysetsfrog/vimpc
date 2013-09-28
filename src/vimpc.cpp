@@ -275,7 +275,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
             clientUpdate_ = false;
             client_.DisplaySongInformation();
-            client_.UpdateDisplay();
 
             if (settings_.Get(Setting::ProgressBar) == true)
             {

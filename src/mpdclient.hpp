@@ -203,7 +203,6 @@ namespace Mpc
 
       int32_t  GetCurrentSongPos();
 
-      bool SongIsInQueue(Mpc::Song const & song) const;
       void DisplaySongInformation();
 
    public:
@@ -218,7 +217,6 @@ namespace Mpc
       void SendCommandList();
       void UpdateCurrentSong();
       void UpdateStatus(bool ExpectUpdate = false);
-      void UpdateDisplay();
 
    public:
       //! \todo port these over to using the callback object
@@ -265,7 +263,6 @@ namespace Mpc
 
    private:
       unsigned int QueueVersion();
-      void UpdateCurrentSongPosition();
       Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
 
    private:

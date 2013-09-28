@@ -440,7 +440,7 @@ int32_t SongWindow::DetermineColour(uint32_t line) const
       {
          colour = settings_.colours.CurrentSong;
       }
-      else if (client_.SongIsInQueue(*song))
+      else if (song->Reference() != 0)
       {
          colour = settings_.colours.FullAdd;
       }

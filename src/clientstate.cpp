@@ -187,11 +187,6 @@ uint32_t ClientState::TotalNumberOfSongs()
    return totalNumberOfSongs_;
 }
 
-bool ClientState::SongIsInQueue(Mpc::Song const & song) const
-{
-   return (song.Reference() != 0);
-}
-
 void ClientState::DisplaySongInformation()
 {
    static char durationStr[128];

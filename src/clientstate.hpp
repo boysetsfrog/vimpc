@@ -84,8 +84,6 @@ namespace Mpc
       uint32_t TotalNumberOfSongs();
       int32_t  GetCurrentSongPos();
 
-      bool SongIsInQueue(Mpc::Song const & song) const;
-
       void DisplaySongInformation();
 
    public:
