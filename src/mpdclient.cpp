@@ -370,6 +370,8 @@ void Client::Play(uint32_t const playId)
             std::unique_lock<std::recursive_mutex> lock(mutex_);
             currentSongId_ = playId;
             state_ = MPD_STATE_PLAY;
+            timeSinceUpdate_ = 0;
+
             StateEvent();
          }
       }
