@@ -75,6 +75,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    search_             (search),
    screen_             (screen),
    client_             (client),
+   clientState_        (clientState),
    settings_           (settings),
    normalMode_         (normalMode)
 {
@@ -1563,12 +1564,12 @@ void Command::Mpc(std::string const & arguments)
    char   port[8];
 
    // \todo redirect stderr results into the console window too
-   snprintf(port, 8, "%u", client_.Port());
+   snprintf(port, 8, "%u", clientState_.Port());
 
    // Ensure that we use the same mpd_host and port for mpc that
    // we are using but still allow the person running the command
    // to do -h and -p flags
-   std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) +
+   std::string const command("MPD_HOST=" + clientState_.Hostname() + " MPD_PORT=" + std::string(port) +
                              " mpc " + arguments + " 2>&1");
 
    Main::Console().Add("> mpc " + arguments);

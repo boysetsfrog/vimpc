@@ -72,6 +72,12 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->totalNumberOfSongs_ = 0;
    });
 
+   Main::Vimpc::EventHandler(Event::ChangeHost, [this] (EventData const & Data)
+   { 
+      this->hostname_ = Data.hostname; 
+      this->port_     = Data.port; 
+   });
+
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)
    { this->random_ = Data.state; });
 

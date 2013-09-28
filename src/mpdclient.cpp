@@ -252,14 +252,16 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
    // Connecting may take a long time as this is a single threaded application
    // and the mpd connect is a blocking call, so be sure to update the screen
    // first to let the user know that something is happening
-   {
-      std::unique_lock<std::recursive_mutex> lock(mutex_);
-      currentState_ = "Connecting";
+   currentState_ = "Connecting";
 
-      hostname_   = connect_hostname;
-      port_       = connect_port;
-      connection_ = NULL;
-   }
+   hostname_   = connect_hostname;
+   port_       = connect_port;
+   connection_ = NULL;
+
+   EventData HostData; 
+   HostData.hostname = hostname_;
+   HostData.port     = port_;
+   Main::Vimpc::CreateEvent(Event::ChangeHost, HostData);
 
    //! \TODO make the connection async
    Debug("Client::Connecting to %s:%u - timeout %u", connect_hostname.c_str(), connect_port, connect_timeout);
@@ -322,17 +324,7 @@ void Client::Reconnect()
    {
       Debug("Client::Reconnect");
       Disconnect();
-
-      std::string hostname = "";
-      uint16_t    port     = 0;
-
-      {
-         std::unique_lock<std::recursive_mutex> lock(mutex_);
-         hostname = hostname_;
-         port     = port_;
-      }
-
-      Connect(hostname, port);
+      Connect(hostname_, port_);
    });
 }
 
@@ -352,18 +344,6 @@ void Client::Password(std::string const & password)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
-}
-
-std::string Client::Hostname()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return hostname_;
-}
-
-uint16_t Client::Port()
-{
-   std::unique_lock<std::recursive_mutex> lock(mutex_);
-   return port_;
 }
 
 bool Client::Connected() const

@@ -113,8 +113,6 @@ namespace Mpc
       void Reconnect();
       void Password(std::string const & password);
 
-      std::string Hostname();
-      uint16_t Port();
       bool Connected() const;
 
    public:

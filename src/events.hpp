@@ -29,6 +29,8 @@
    \
    X(Connected) \
    X(Disconnected) \
+   X(CurrentState) \
+   X(ChangeHost) \
    X(StatusUpdate) \
    X(QueueUpdate) \
    X(AllMetaDataReady) \
@@ -70,8 +72,10 @@ struct EventData
    int32_t  pos1;
    int32_t  pos2;
    uint32_t id;
+   uint32_t port;
    bool     state;
    std::string uri;
+   std::string hostname;
 };
 
 #endif

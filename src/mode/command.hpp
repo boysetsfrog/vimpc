@@ -274,6 +274,7 @@ namespace Ui
       Ui::Search         & search_;
       Ui::Screen         & screen_;
       Mpc::Client        & client_;
+      Mpc::ClientState   & clientState_;
       Main::Settings     & settings_;
       Ui::Normal         & normalMode_;
 
