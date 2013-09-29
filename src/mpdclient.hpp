@@ -307,37 +307,6 @@ namespace Mpc
          }
       });
    }
-
-   // Requires search to be prepared before calling
-   template <typename Object>
-   void Client::ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song * ))
-   {
-      QueueCommand([this, &object, callBack] ()
-      {
-         if (Connected())
-         {
-            // Start the search
-            Debug("Client::Commit search");
-            mpd_search_commit(connection_);
-
-            // Recv the songs and do some callbacks
-            mpd_song * nextSong = mpd_recv_song(connection_);
-
-            for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-            {
-               Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
-
-               if (song != NULL)
-               {
-                  (object.*callBack)(song);
-               }
-
-               mpd_song_free(nextSong);
-            }
-         }
-      });
-   }
-
 }
 
 #endif
