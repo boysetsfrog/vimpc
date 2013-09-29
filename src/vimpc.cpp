@@ -103,7 +103,7 @@ Vimpc::Vimpc() :
    Vimpc::EventHandler(Event::ClearDatabase, [this] (EventData const & Data)
    {
       Main::Playlist().Clear();
-      Main::Directory().Clear();
+      Main::Directory().Clear(true);
       Main::Library().Clear();
 
       Main::AllLists().Clear();
