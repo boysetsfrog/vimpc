@@ -43,6 +43,7 @@
    X(DatabasePath) \
    X(DatabaseSong) \
    X(AllMetaDataReady) \
+   X(NewPlaylist) \
    X(PlaylistAdd) \
    X(PlaylistReplace) \
    X(Output) \

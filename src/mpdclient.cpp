@@ -782,13 +782,8 @@ void Client::CreatePlaylist(std::string const & name)
 
          if (mpd_run_save(connection_, name.c_str()) == true)
          {
-            if (Main::AllLists().Index(Mpc::List(name)) == -1)
-            {
-               Main::AllLists().Add(name);
-               Main::AllLists().Sort();
-               Main::MpdLists().Add(name);
-               Main::MpdLists().Sort();
-            }
+            EventData Data; Data.name = name; 
+            Main::Vimpc::CreateEvent(Event::NewPlaylist, Data);
          }
 
          Debug("Client::Send clear playlist %s", name.c_str());
@@ -813,13 +808,8 @@ void Client::SavePlaylist(std::string const & name)
 
          if (mpd_run_save(connection_, name.c_str()) == true)
          {
-            if (Main::AllLists().Index(Mpc::List(name)) == -1)
-            {
-               Main::AllLists().Add(name);
-               Main::AllLists().Sort();
-               Main::MpdLists().Add(name);
-               Main::MpdLists().Sort();
-            }
+            EventData Data; Data.name = name; 
+            Main::Vimpc::CreateEvent(Event::NewPlaylist, Data);
          }
       }
       else

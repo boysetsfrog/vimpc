@@ -184,6 +184,17 @@ Vimpc::Vimpc() :
       Main::Outputs().Add(Data.output);
    });
 
+   Vimpc::EventHandler(Event::NewPlaylist, [] (EventData const & Data)
+   {
+      if (Main::AllLists().Index(Mpc::List(Data.name)) == -1)
+      {
+         Main::AllLists().Add(Data.name);
+         Main::AllLists().Sort();
+         Main::MpdLists().Add(Data.name);
+         Main::MpdLists().Sort();
+      }
+   });
+
    //
    Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
    {
