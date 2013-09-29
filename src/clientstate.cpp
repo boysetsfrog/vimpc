@@ -35,6 +35,7 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    settings_             (settings),
    screen_               (screen),
 
+   connected_            (false),
    hostname_             (""),
    port_                 (0),
    timeSinceUpdate_      (0),

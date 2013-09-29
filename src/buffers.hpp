@@ -49,7 +49,9 @@ namespace Main
    Mpc::Browse    & Browse();
    Mpc::Library   & Library();
    Mpc::Directory & Directory();
-   Mpc::Lists     & Lists();
+   Mpc::Lists     & FileLists();
+   Mpc::Lists     & MpdLists();
+   Mpc::Lists     & AllLists();
    Mpc::Outputs   & Outputs();
    Ui::Console    & Console();
    Ui::Console    & DebugConsole();

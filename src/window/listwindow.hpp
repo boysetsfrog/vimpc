@@ -59,9 +59,9 @@ namespace Ui
    public:
       std::string SearchPattern(uint32_t id) const
       {
-         if (id < lists_.Size())
+         if (id < lists_->Size())
          {
-            return lists_.Get(id).name_;
+            return lists_->Get(id).name_;
          }
 
          return "";
@@ -78,19 +78,19 @@ namespace Ui
       void ScrollToFirstMatch(std::string const & input);
 
    protected:
-      Main::WindowBuffer const & WindowBuffer() const { return lists_; }
+      Main::WindowBuffer const & WindowBuffer() const { return *lists_; }
 
    private:
       void     SoftRedraw();
       void     Clear();
-      uint32_t BufferSize() const { return lists_.Size(); }
+      uint32_t BufferSize() const { return lists_->Size(); }
       int32_t  DetermineColour(uint32_t line) const;
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      Mpc::Lists           & lists_;
+      Mpc::Lists           * lists_;
    };
 }
 

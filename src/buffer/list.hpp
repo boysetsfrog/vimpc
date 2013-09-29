@@ -33,8 +33,8 @@ namespace Mpc
    class List
    {
       public:
-         List(std::string const & name) : path_(name), name_(name) { }
-         List(std::string const & path, std::string const & name) : path_(path), name_(name) { }
+         List(std::string const & name) : path_(name), name_(name), file_(false) { }
+         List(std::string const & path, std::string const & name) : path_(path), name_(name), file_(true) { }
 
          bool operator!=(Mpc::List const & rhs) const
          {
@@ -44,6 +44,7 @@ namespace Mpc
 
          std::string path_;
          std::string name_;
+         bool        file_;
    };
 
    class ListComparator

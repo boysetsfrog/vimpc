@@ -34,6 +34,8 @@ static Mpc::Playlist *  t_buffer    = NULL;
 static Mpc::Browse *    b_buffer    = NULL;
 static Mpc::Library *   l_buffer    = NULL;
 static Mpc::Directory * dir_buffer  = NULL;
+static Mpc::Lists *     f_buffer    = NULL;
+static Mpc::Lists *     m_buffer    = NULL;
 static Mpc::Lists *     i_buffer    = NULL;
 static Mpc::Outputs *   o_buffer    = NULL;
 static Ui::Console *    c_buffer    = NULL;
@@ -48,6 +50,8 @@ void Main::Delete()
    delete pt_buffer;
    delete t_buffer;
    delete b_buffer;
+   delete f_buffer;
+   delete m_buffer;
    delete i_buffer;
    delete o_buffer;
    delete c_buffer;
@@ -109,7 +113,25 @@ Mpc::Directory & Main::Directory()
    return *dir_buffer;
 }
 
-Mpc::Lists & Main::Lists()
+Mpc::Lists & Main::FileLists()
+{
+   if (f_buffer == NULL)
+   {
+      f_buffer = new Mpc::Lists();
+   }
+   return *f_buffer;
+}
+
+Mpc::Lists & Main::MpdLists()
+{
+   if (m_buffer == NULL)
+   {
+      m_buffer = new Mpc::Lists();
+   }
+   return *m_buffer;
+}
+
+Mpc::Lists & Main::AllLists()
 {
    if (i_buffer == NULL)
    {

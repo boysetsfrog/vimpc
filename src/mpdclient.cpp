@@ -143,8 +143,6 @@ Client::~Client()
 
    clientThread_.join();
 
-   songs_.clear();
-
    if (currentStatus_ != NULL)
    {
       mpd_status_free(currentStatus_);
@@ -784,10 +782,12 @@ void Client::CreatePlaylist(std::string const & name)
 
          if (mpd_run_save(connection_, name.c_str()) == true)
          {
-            if (Main::Lists().Index(Mpc::List(name)) == -1)
+            if (Main::AllLists().Index(Mpc::List(name)) == -1)
             {
-               Main::Lists().Add(name);
-               Main::Lists().Sort();
+               Main::AllLists().Add(name);
+               Main::AllLists().Sort();
+               Main::MpdLists().Add(name);
+               Main::MpdLists().Sort();
             }
          }
 
@@ -813,10 +813,12 @@ void Client::SavePlaylist(std::string const & name)
 
          if (mpd_run_save(connection_, name.c_str()) == true)
          {
-            if (Main::Lists().Index(Mpc::List(name)) == -1)
+            if (Main::AllLists().Index(Mpc::List(name)) == -1)
             {
-               Main::Lists().Add(name);
-               Main::Lists().Sort();
+               Main::AllLists().Add(name);
+               Main::AllLists().Sort();
+               Main::MpdLists().Add(name);
+               Main::MpdLists().Sort();
             }
          }
       }
@@ -1571,17 +1573,15 @@ void Client::ClearCommand()
 
 void Client::GetAllMetaInformation()
 {
-   songs_.clear();
-   songQueue_.clear();
-   paths_.clear();
-   playlists_.clear();
-
    ClearCommand();
 
    std::string const SongFormat = settings_.Get(Setting::SongFormat);
 
    if (Connected() == true)
    {
+      EventData DBData;
+      Main::Vimpc::CreateEvent(Event::ClearDatabase, DBData);
+
       Debug("Client::Get all meta information");
       mpd_send_list_all_meta(connection_, NULL);
 
@@ -1600,17 +1600,16 @@ void Client::GetAllMetaInformation()
                // Pre cache the print of the song
                (void) newSong->FormatString(SongFormat);
    
-               songs_.push_back(newSong);
+               EventData Data; Data.song = newSong;
+               Main::Vimpc::CreateEvent(Event::DatabaseSong, Data);
             }
          }
          else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_DIRECTORY)
          {
             mpd_directory const * const nextDirectory = mpd_entity_get_directory(nextEntity);
 
-            if (nextDirectory != NULL)
-            {
-               paths_.push_back(std::string(mpd_directory_get_path(nextDirectory)));
-            }
+            EventData Data; Data.uri = std::string(mpd_directory_get_path(nextDirectory));
+            Main::Vimpc::CreateEvent(Event::DatabasePath, Data);
          }
          else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_PLAYLIST)
          {
@@ -1626,8 +1625,8 @@ void Client::GetAllMetaInformation()
                   name = name.substr(name.find_last_of("/") + 1);
                }
 
-               Mpc::List const list(path, name);
-               playlists_.push_back(list);
+               EventData Data; Data.uri = path; Data.name = name;
+               Main::Vimpc::CreateEvent(Event::DatabaseListFile, Data);
             }
          }
 
@@ -1645,9 +1644,39 @@ void Client::GetAllMetaInformation()
 
       for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
       {
-         songQueue_.push_back(mpd_song_get_uri(nextSong));
+         EventData Data; Data.uri = mpd_song_get_uri(nextSong); Data.pos1 = -1;
+         Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
          mpd_song_free(nextSong);
       }
+   }
+
+   if (Connected() == true)
+   {
+#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Request playlists");
+
+         if (mpd_send_list_playlists(connection_))
+         {
+            mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
+
+            for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
+            {
+               std::string const playlist = mpd_playlist_get_path(nextPlaylist);
+
+               EventData Data; Data.uri = playlist; Data.name = playlist;
+               Main::Vimpc::CreateEvent(Event::DatabaseList, Data);
+
+               mpd_playlist_free(nextPlaylist);
+            }
+         }
+
+         mpd_connection_clear_error(connection_);
+      }
+#endif
    }
 
    if (Connected() == true)
@@ -1661,12 +1690,39 @@ void Client::GetAllMetaInformation()
 #endif
 }
 
+void Client::GetAllOutputs()
+{
+   QueueCommand([this] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Get outputs");
+         mpd_send_outputs(connection_);
+
+         mpd_output * next = mpd_recv_output(connection_);
+
+         for (; next != NULL; next = mpd_recv_output(connection_))
+         {
+            Mpc::Output * output = new Mpc::Output(mpd_output_get_id(next));
+
+            output->SetEnabled(mpd_output_get_enabled(next));
+            output->SetName(mpd_output_get_name(next));
+
+            EventData Data; Data.output = output;
+            Main::Vimpc::CreateEvent(Event::Output, Data);
+
+            mpd_output_free(next);
+         }
+      }
+   });
+}
+
 void Client::GetAllMetaFromRoot()
 {
    // This is a hack to get playlists when using older libmpdclients, it should
    // not be used unless absolutely necessary
-   playlistsOld_.clear();
-
    ClearCommand();
 
    if (Connected() == true)
@@ -1692,8 +1748,8 @@ void Client::GetAllMetaFromRoot()
                   name = name.substr(name.find_last_of("/") + 1);
                }
 
-               Mpc::List const list(path, name);
-               playlistsOld_.push_back(list);
+               EventData Data; Data.uri = path; Data.name = name;
+               Main::Vimpc::CreateEvent(Event::DatabaseList, Data);
             }
          }
 
@@ -1903,7 +1959,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
                if (Connected() == true)
                {
-                  songQueueChanges_.clear();
                   Debug("Client::List queue meta data changes");
                   mpd_send_queue_changes_meta(connection_, qVersion);
 
@@ -1911,7 +1966,11 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
                   for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
                   {
-                     songQueueChanges_.push_back(std::make_pair(mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong)));
+                     EventData Data; 
+                     Data.uri = mpd_song_get_uri(nextSong); 
+                     Data.pos1 = mpd_song_get_pos(nextSong);
+                     Main::Vimpc::CreateEvent(Event::PlaylistReplace, Data);
+
                      mpd_song_free(nextSong);
                   }
                }

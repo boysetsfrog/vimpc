@@ -54,7 +54,7 @@ OutputWindow::~OutputWindow()
 void OutputWindow::Redraw()
 {
    Clear();
-   client_.ForEachOutput(outputs_, static_cast<void (Mpc::Outputs::*)(Mpc::Output *)>(&Mpc::Outputs::Add));
+   client_.GetAllOutputs();
    SoftRedraw();
 }
 

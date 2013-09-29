@@ -30,8 +30,11 @@
 #include "config.hpp"
 #include "events.hpp"
 #include "settings.hpp"
+#include "song.hpp"
 #include "test.hpp"
 
+#include "buffer/directory.hpp"
+#include "buffer/outputs.hpp"
 #include "buffer/playlist.hpp"
 #include "window/error.hpp"
 
@@ -86,40 +89,53 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::QueueUpdate, [this] (EventData const & Data)
    {
-      Main::PlaylistTmp().Clear();
-
-      for (uint32_t i = 0; i < Main::PlaylistPasteBuffer().Size(); ++i)
-      {
-         Main::PlaylistTmp().Add(Main::PlaylistPasteBuffer().Get(i));
-      }
-
-      this->client_.ForEachQueuedSongChanges(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(uint32_t, Mpc::Song *)>(&Mpc::Playlist::Replace));
       Main::Playlist().Crop(this->clientState_.TotalNumberOfSongs());
-
-      // Ensure that the queue related updates don't break our paste buffer
-      Main::PlaylistPasteBuffer().Clear();
-
-      for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
-      {
-         Main::PlaylistPasteBuffer().Add(Main::PlaylistTmp().Get(i));
-      }
-
-      Main::PlaylistTmp().Clear();
-
       this->clientQueueUpdate_ = true;
-
    });
 
    Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
    {
-      Main::Playlist().Clear();
-      Main::PlaylistPasteBuffer().Clear();
-      Main::Library().Clear();
-
-      this->client_.ForEachLibrarySong(Main::Library(), &Mpc::Library::Add);
-      this->client_.ForEachQueuedSong(Main::Playlist(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
       this->screen_.InvalidateAll();
       this->clientQueueUpdate_ = true;
+   });
+
+   Vimpc::EventHandler(Event::ClearDatabase, [this] (EventData const & Data)
+   {
+      Main::Playlist().Clear();
+      Main::Directory().Clear();
+      Main::Library().Clear();
+
+      Main::AllLists().Clear();
+      Main::MpdLists().Clear();
+      Main::FileLists().Clear();
+
+      Main::PlaylistPasteBuffer().Clear();
+   });
+
+   Vimpc::EventHandler(Event::DatabaseSong, [this] (EventData const & Data)
+   {
+      Main::Library().Add(Data.song);
+      Main::Directory().Add(Data.song);
+   });
+
+   Vimpc::EventHandler(Event::DatabasePath, [this] (EventData const & Data)
+   {
+      Main::Directory().Add(Data.uri);
+   });
+
+   Vimpc::EventHandler(Event::DatabaseListFile, [this] (EventData const & Data)
+   {
+      Mpc::List list(Data.uri, Data.name);
+      Main::Directory().AddPlaylist(list);
+      Main::FileLists().Add(list);
+      Main::AllLists().Add(list);
+   });
+
+   Vimpc::EventHandler(Event::DatabaseList, [this] (EventData const & Data)
+   {
+      Mpc::List const list(Data.name);
+      Main::MpdLists().Add(list);
+      Main::AllLists().Add(list);
    });
 
    Vimpc::EventHandler(Event::CommandListSend, [this] (EventData const & Data)
@@ -128,19 +144,43 @@ Vimpc::Vimpc() :
       this->clientQueueUpdate_ = true;
    });
 
+   Vimpc::EventHandler(Event::Output, [] (EventData const & Data)
+   {
+      Main::Outputs().Add(Data.output);
+   });
 
    //
    Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
    {
-      Debug("The playlist add bit");
+      Mpc::Song * song = Main::Library().Song(Data.uri);
+
+      if (song == NULL)
+      {
+         song = new Mpc::Song();
+         song->SetURI(Data.uri.c_str());
+      }
+
       if (Data.pos1 == -1)
       {
-         Main::Playlist().Add(Main::Library().Song(Data.uri));
+         Main::Playlist().Add(song);
       }
       else
       {
-         Main::Playlist().Add(Main::Library().Song(Data.uri), Data.pos1);
+         Main::Playlist().Add(song, Data.pos1);
       }
+   });
+
+   Vimpc::EventHandler(Event::PlaylistReplace, [] (EventData const & Data)
+   {
+       Mpc::Song * song = Main::Library().Song(Data.uri);
+
+      if (song == NULL)
+      {
+         song = new Mpc::Song();
+         song->SetURI(Data.uri.c_str());
+      }
+
+      Main::Playlist().Replace(Data.pos1, song);
    });
 
 

@@ -187,7 +187,6 @@ namespace Mpc
 
    public:
       // Mpd Status
-
       void DisplaySongInformation();
 
    public:
@@ -200,34 +199,12 @@ namespace Mpc
       void UpdateStatus(bool ExpectUpdate = false);
 
    public:
-      //! \todo port these over to using the callback object
-      template <typename Object>
-      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachQueuedSongChanges(Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *));
-
-      template <typename Object>
-      void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachDirectory(Object & object, void (Object::*callBack)(std::string));
-
       template <typename Object>
       void ForEachPlaylistSong(std::string Playlist, Object & object, void (Object::*callBack)(Mpc::Song *));
 
       template <typename Object>
-      void ForEachPlaylist(Object & object, void (Object::*callBack)(Mpc::List));
-
-      template <typename Object>
-      void ForEachPlaylistEntity(Object & object, void (Object::*callBack)(Mpc::List));
-
-      template <typename Object>
       void ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
-
+      void GetAllOutputs();
       void GetAllMetaInformation();
       void GetAllMetaFromRoot();
 
@@ -297,76 +274,7 @@ namespace Mpc
       bool                    forceUpdate_;
       bool                    listMode_;
       bool                    idleMode_;
-
-      std::vector<Mpc::Song *> songs_;
-      std::vector<std::string> songQueue_;
-      std::vector<std::pair<uint32_t, std::string> > songQueueChanges_;
-      std::vector<std::string> paths_;
-      std::vector<Mpc::List>   playlists_;
-      std::vector<Mpc::List>   playlistsOld_;
    };
-
-   //
-   template <typename Object>
-   void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *))
-   {
-      for (std::vector<std::string>::iterator it = songQueue_.begin(); it != songQueue_.end(); ++it)
-      {
-         Song * song = Main::Library().Song(*it);
-
-         if (song == NULL)
-         {
-            song = new Song();
-            song->SetURI(it->c_str());
-         }
-
-         if (song != NULL)
-         {
-            (object.*callBack)(song);
-         }
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachQueuedSongChanges(Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *))
-   {
-      for (std::vector<std::pair<uint32_t, std::string> >::iterator it = songQueueChanges_.begin(); it != songQueueChanges_.end(); ++it)
-      {
-         Song * song = Main::Library().Song((*it).second);
-
-         if (song == NULL)
-         {
-            song = new Song();
-            song->SetURI((*it).second.c_str());
-         }
-
-         if (song != NULL)
-         {
-            (object.*callBack)((*it).first, song);
-         }
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song * ))
-   {
-      for (std::vector<Mpc::Song *>::iterator it = songs_.begin(); it != songs_.end(); ++it)
-      {
-         (object.*callBack)(*it);
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachDirectory(Object & object, void (Object::*callBack)(std::string))
-   {
-      for (std::vector<std::string>::iterator it = paths_.begin(); it != paths_.end(); ++it)
-      {
-         (object.*callBack)(*it);
-      }
-   }
 
    //
    template <typename Object>
@@ -396,71 +304,6 @@ namespace Mpc
             }
          }
       });
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachPlaylist(Object & object, void (Object::*callBack)(Mpc::List))
-   {
-#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
-      {
-         QueueCommand([this, &object, callBack] ()
-         {
-            ClearCommand();
-
-            if (Connected() == true)
-            {
-               Debug("Client::Request playlists");
-
-               if (mpd_send_list_playlists(connection_))
-               {
-                  mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
-
-                  for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
-                  {
-                     std::string const playlist = mpd_playlist_get_path(nextPlaylist);
-                     (object.*callBack)(Mpc::List(playlist));
-                     mpd_playlist_free(nextPlaylist);
-                  }
-               }
-
-               mpd_connection_clear_error(connection_);
-            }
-         });
-      }
-#endif
-
-#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
-      {
-         for (std::vector<Mpc::List>::iterator it = playlistsOld_.begin(); it != playlistsOld_.end(); ++it)
-         {
-            (object.*callBack)(*it);
-         }
-      }
-#endif
-
-      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles))
-      {
-         for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
-         {
-            (object.*callBack)(*it);
-         }
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachPlaylistEntity(Object & object, void (Object::*callBack)(Mpc::List))
-   {
-      for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
-      {
-         (object.*callBack)(*it);
-      }
    }
 
    // Requires search to be prepared before calling
@@ -493,34 +336,6 @@ namespace Mpc
       });
    }
 
-   template <typename Object>
-   void Client::ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *))
-   {
-      QueueCommand([this, &object, callBack] ()
-      {
-         ClearCommand();
-
-         if (Connected() == true)
-         {
-            Debug("Client::Get outputs");
-            mpd_send_outputs(connection_);
-
-            mpd_output * next = mpd_recv_output(connection_);
-
-            for (; next != NULL; next = mpd_recv_output(connection_))
-            {
-               Mpc::Output * output = new Mpc::Output(mpd_output_get_id(next));
-
-               output->SetEnabled(mpd_output_get_enabled(next));
-               output->SetName(mpd_output_get_name(next));
-
-               (object.*callBack)(output);
-
-               mpd_output_free(next);
-            }
-         }
-      });
-   }
 }
 
 #endif

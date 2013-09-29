@@ -221,7 +221,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, Main::Library(),   client, clientState, search);
    mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, Main::Browse(),    client, clientState, search);
    mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, clientState, search);
-   mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::Lists(),     client, search);
+   mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::AllLists(),  client, search);
    mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, clientState, search);
    mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, windows_, search);
 

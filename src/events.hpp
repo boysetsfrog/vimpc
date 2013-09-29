@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include "song.hpp"
+
 #define EVENTS \
    X(Input) /* Keyboard input event */ \
    \
@@ -35,8 +37,15 @@
    X(CurrentSongId) \
    X(CurrentSongURI) \
    X(QueueUpdate) \
+   X(ClearDatabase) \
+   X(DatabaseList) \
+   X(DatabaseListFile) \
+   X(DatabasePath) \
+   X(DatabaseSong) \
    X(AllMetaDataReady) \
    X(PlaylistAdd) \
+   X(PlaylistReplace) \
+   X(Output) \
    X(OutputEnabled) \
    X(OutputDisabled) \
    X(CommandListSend) \
@@ -54,6 +63,12 @@
    X(IdleMode) \
    X(StopIdleMode) \
    X(Unknown)
+
+namespace Mpc
+{
+   class Output;
+   class Song;
+};
 
 namespace Event
 {
@@ -77,8 +92,11 @@ struct EventData
    uint32_t port;
    bool     state;
    std::string uri;
+   std::string name;
    std::string hostname;
    std::string clientstate;
+   Mpc::Song * song;
+   Mpc::Output * output;
 };
 
 #endif

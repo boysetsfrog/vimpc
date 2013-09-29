@@ -349,7 +349,7 @@ void Command::ExecuteQueuedCommands()
 {
    for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
    {
-      Debug("Executing queued command :%u,%u %s %s", __func__, (*it).line, (*it).count, (*it).command.c_str(), (*it).arguments.c_str());
+      Debug("Executing queued command :%u,%u %s %s", (*it).line, (*it).count, (*it).command.c_str(), (*it).arguments.c_str());
       ExecuteCommand((*it).line, (*it).count, (*it).command, (*it).arguments);
    }
 
@@ -1642,10 +1642,10 @@ std::string Command::TabComplete(std::string const & command)
       screen_.Initialise(Ui::Screen::Directory);
       screen_.Initialise(Ui::Screen::Lists);
 
-      for (uint32_t i = 0; i < Main::Lists().Size(); ++i)
+      for (uint32_t i = 0; i < Main::MpdLists().Size(); ++i)
       {
-         loadTable_.push_back("load " + Main::Lists().Get(i).name_);
-         loadTable_.push_back("edit " + Main::Lists().Get(i).name_);
+         loadTable_.push_back("load " + Main::MpdLists().Get(i).name_);
+         loadTable_.push_back("edit " + Main::MpdLists().Get(i).name_);
       }
 
       std::vector<std::string> const & paths = Main::Directory().Paths();
