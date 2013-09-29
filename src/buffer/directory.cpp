@@ -311,7 +311,6 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clie
       if (PlaylistIndex >= 0)
       {
          client.Delete(PlaylistIndex);
-         Main::Playlist().Remove(PlaylistIndex, 1);
       }
    }
    else if (entry->type_ == Mpc::PlaylistType)
@@ -346,7 +345,6 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clie
             if (PlaylistIndex >= 0)
             {
                client.Delete(PlaylistIndex);
-               Main::Playlist().Remove(PlaylistIndex, 1);
             }
          }
       }

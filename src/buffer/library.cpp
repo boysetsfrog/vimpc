@@ -335,7 +335,6 @@ void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const *
       if (PlaylistIndex >= 0)
       {
          client.Delete(PlaylistIndex);
-         Main::Playlist().Remove(PlaylistIndex, 1);
       }
    }
    else

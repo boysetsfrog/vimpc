@@ -1165,6 +1165,8 @@ void Client::Delete(uint32_t position)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
+
+   Main::Playlist().Remove(position, 1);
 }
 
 void Client::Delete(uint32_t position1, uint32_t position2)
@@ -1217,6 +1219,8 @@ void Client::Delete(uint32_t position1, uint32_t position2)
          ErrorString(ErrorNumber::ClientNoConnection);
       }
    });
+
+   Main::Playlist().Remove(position1, position2 - position1);
 }
 
 void Client::Clear()

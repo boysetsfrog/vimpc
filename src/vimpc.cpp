@@ -235,7 +235,7 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::PlaylistReplace, [] (EventData const & Data)
    {
-       Mpc::Song * song = Main::Library().Song(Data.uri);
+      Mpc::Song * song = Main::Library().Song(Data.uri);
 
       if (song == NULL)
       {
@@ -245,7 +245,6 @@ Vimpc::Vimpc() :
 
       Main::Playlist().Replace(Data.pos1, song);
    });
-
 
 #ifdef TEST_ENABLED
    Main::Tester::Instance().Screen  = &screen_;

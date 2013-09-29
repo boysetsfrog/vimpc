@@ -155,7 +155,6 @@ void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   playlist_.Remove(line, count);
    client_.Delete(line, count + line);
    ScrollTo(line);
 

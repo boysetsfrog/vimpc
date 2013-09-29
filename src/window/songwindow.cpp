@@ -333,7 +333,6 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
                if (index >= 0)
                {
                   client_.Delete(index);
-                  Main::Playlist().Remove(index, 1);
                }
             }
          }

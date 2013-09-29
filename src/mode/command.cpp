@@ -486,13 +486,11 @@ void Command::Delete(std::string const & arguments)
          uint32_t pos2 = atoi(args[1].c_str()) - 1;
 
          client_.Delete(pos1, pos2 + 1);
-         Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
       }
       else if (args.size() == 1)
       {
          // Delete the song at given position
          client_.Delete(atoi(args[0].c_str()) - 1);
-         Main::Playlist().Remove(atoi(args[0].c_str()) - 1, 1);
       }
       else
       {
