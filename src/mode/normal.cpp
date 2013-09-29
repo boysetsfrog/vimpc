@@ -777,18 +777,7 @@ void Normal::Single(uint32_t count)
 template <int Delta>
 void Normal::ChangeVolume(uint32_t count)
 {
-   int CurrentVolume = clientState_.Volume() + (count * Delta);
-
-   if (CurrentVolume < 0)
-   {
-      CurrentVolume = 0;
-   }
-   else if (CurrentVolume > 100)
-   {
-      CurrentVolume = 100;
-   }
-
-   Player::Volume(CurrentVolume);
+   client_.DeltaVolume(count * Delta);
 }
 
 template <Ui::Player::Location LOCATION>

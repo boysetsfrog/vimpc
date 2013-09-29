@@ -715,6 +715,37 @@ void Client::SetMute(bool mute)
    });
 }
 
+void Client::DeltaVolume(int32_t Delta)
+{
+   QueueCommand([this, Delta] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         int CurrentVolume = volume_ + Delta;
+
+         if (CurrentVolume < 0)
+         {
+            CurrentVolume = 0;
+         }
+         else if (CurrentVolume > 100)
+         {
+            CurrentVolume = 100;
+         }
+
+         Debug("Client::Delta volume %d %d", Delta, CurrentVolume);
+
+         if (mpd_run_set_volume(connection_, CurrentVolume) == true)
+         {
+            volume_ = CurrentVolume;
+            EventData Data; Data.value = CurrentVolume;
+            Main::Vimpc::CreateEvent(Event::Volume, Data);
+         }
+      }
+   });
+}
+
 void Client::ToggleRandom()
 {
    QueueCommand([this] ()

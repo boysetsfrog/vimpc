@@ -124,8 +124,6 @@ namespace Mpc
       void SeekToPercent(double Percent);
 
    public:
-      //! \TODO add a delta based volume control
-   
       // Toggle settings
       void SetRandom(bool random);
       void SetSingle(bool single);
@@ -135,6 +133,7 @@ namespace Mpc
       void SetCrossfade(uint32_t crossfade);
       void SetVolume(uint32_t volume);
       void SetMute(bool mute);
+      void DeltaVolume(int32_t Delta);
 
       // Toggle settings
       void ToggleRandom();
