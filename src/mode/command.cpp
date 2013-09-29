@@ -875,25 +875,7 @@ void Command::Find(std::string const & arguments)
    }
    else
    {
-      SongWindow * const window = screen_.CreateSongWindow(arguments);
-
-      /*Main::Vimpc::OneTimeEventHandler(Event::SearchResults, [this] (EventData const & Data)
-      {
-                  
-      });*/
-
-      client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-      client_.WaitForCompletion();
-
-      if (window->BufferSize() > 0)
-      {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
-      }
-      else
-      {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         ErrorString(ErrorNumber::FindNoResults);
-      }
+      client_.SearchResults(arguments);
    }
 }
 

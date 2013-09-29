@@ -58,6 +58,7 @@
    X(Mute) \
    X(Volume) \
    X(TotalSongCount) \
+   X(SearchResults) \
    X(Update) \
    X(UpdateComplete) \
    X(IdleMode) \
@@ -97,6 +98,8 @@ struct EventData
    std::string clientstate;
    Mpc::Song * song;
    Mpc::Output * output;
+
+   std::vector<std::string> uris;
 };
 
 #endif

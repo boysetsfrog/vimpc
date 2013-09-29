@@ -37,6 +37,7 @@
 #include "buffer/outputs.hpp"
 #include "buffer/playlist.hpp"
 #include "window/error.hpp"
+#include "window/songwindow.hpp"
 
 #include <list>
 #include <unistd.h>
@@ -142,6 +143,23 @@ Vimpc::Vimpc() :
    {
       Debug("Command list send bit");
       this->clientQueueUpdate_ = true;
+   });
+
+   Vimpc::EventHandler(Event::SearchResults, [this] (EventData const & Data)
+   {
+      Ui::SongWindow * const window = screen_.CreateSongWindow(Data.name);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+   
+         if (song != NULL)
+         {
+            window->Buffer().Add(song);
+         } 
+      }
+
+      screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
    });
 
    Vimpc::EventHandler(Event::Output, [] (EventData const & Data)

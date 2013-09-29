@@ -1253,6 +1253,41 @@ void Client::AddAllSearchResults()
    });
 }
 
+void Client::SearchResults(std::string const & name)
+{
+   QueueCommand([this, name] ()
+   {
+      if (Connected())
+      {
+         Mpc::Song Song;
+
+         // Start the search
+         Debug("Client::Search results via events");
+         mpd_search_commit(connection_);
+
+         // Recv the songs and do some callbacks
+         mpd_song * nextSong = mpd_recv_song(connection_);
+
+         if (nextSong == NULL)
+         {
+            ErrorString(ErrorNumber::FindNoResults);
+         }
+         else
+         {
+            EventData Data; Data.name = name;
+
+            for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+            {
+               Data.uris.push_back(mpd_song_get_uri(nextSong));
+               mpd_song_free(nextSong);
+            }
+
+            Main::Vimpc::CreateEvent(Event::SearchResults, Data);
+         }
+      }
+   });
+}
+
 
 void Client::StateEvent()
 {
