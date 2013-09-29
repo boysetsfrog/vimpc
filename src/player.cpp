@@ -84,27 +84,27 @@ void Player::Quit()
 
 void Player::ToggleConsume()
 {
-   SetConsume(!clientState_.Consume());
+   client_.ToggleConsume();
 }
 
 void Player::ToggleCrossfade()
 {
-   SetCrossfade((clientState_.Crossfade() == 0));
+   client_.ToggleCrossfade();
 }
 
 void Player::ToggleRandom()
 {
-   SetRandom(!clientState_.Random());
+   client_.ToggleRandom();
 }
 
 void Player::ToggleRepeat()
 {
-   SetRepeat(!clientState_.Repeat());
+   client_.ToggleRepeat();
 }
 
 void Player::ToggleSingle()
 {
-   SetSingle(!clientState_.Single());
+   client_.ToggleSingle();
 }
 
 void Player::SetRandom(bool random)

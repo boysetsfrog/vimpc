@@ -124,9 +124,7 @@ namespace Mpc
       void SeekToPercent(double Percent);
 
    public:
-      //! \TODO add toggle versions for use by the player
       //! \TODO add a delta based volume control
-      //! so that state will be correct
    
       // Toggle settings
       void SetRandom(bool random);
@@ -137,6 +135,13 @@ namespace Mpc
       void SetCrossfade(uint32_t crossfade);
       void SetVolume(uint32_t volume);
       void SetMute(bool mute);
+
+      // Toggle settings
+      void ToggleRandom();
+      void ToggleSingle();
+      void ToggleConsume();
+      void ToggleRepeat();
+      void ToggleCrossfade();
 
    public:
       // Playlist editing

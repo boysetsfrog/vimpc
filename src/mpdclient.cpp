@@ -715,6 +715,110 @@ void Client::SetMute(bool mute)
    });
 }
 
+void Client::ToggleRandom()
+{
+   QueueCommand([this] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Toggle random state %d", static_cast<int32_t>(!random_));
+
+         if (mpd_run_random(connection_, !random_) == true)
+         {
+            SetStateAndEvent(Event::Random, random_, !random_);
+         }
+      }
+      else
+      {
+         ErrorString(ErrorNumber::ClientNoConnection);
+      }
+   });
+}
+
+void Client::ToggleSingle()
+{
+   QueueCommand([this] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Toggle single state %d", static_cast<int32_t>(!single_));
+
+         if (mpd_run_single(connection_, !single_) == true)
+         {
+            SetStateAndEvent(Event::Single, single_, !single_);
+         }
+      }
+      else
+      {
+         ErrorString(ErrorNumber::ClientNoConnection);
+      }
+   });
+}
+
+void Client::ToggleConsume()
+{
+   QueueCommand([this] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Toggle consume state %d", static_cast<int32_t>(!consume_));
+
+         if (mpd_run_consume(connection_, !consume_) == true)
+         {
+            SetStateAndEvent(Event::Consume, consume_, !consume_);
+         }
+      }
+      else
+      {
+         ErrorString(ErrorNumber::ClientNoConnection);
+      }
+   });
+}
+
+
+void Client::ToggleRepeat()
+{
+   QueueCommand([this] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Toggle repeat state %d", static_cast<int32_t>(!repeat_));
+
+         if (mpd_run_repeat(connection_, !repeat_) == true)
+         {
+            SetStateAndEvent(Event::Repeat, repeat_, !repeat_);
+         }
+      }
+      else
+      {
+         ErrorString(ErrorNumber::ClientNoConnection);
+      }
+   });
+}
+
+void Client::ToggleCrossfade()
+{
+   QueueCommand([this] ()
+   {
+      if (crossfade_ == false)
+      {
+         SetCrossfade(crossfadeTime_);
+      }
+      else
+      {
+         SetCrossfade(static_cast<uint32_t>(0));
+      }
+   });
+}
+
 void Client::Shuffle()
 {
    QueueCommand([this] ()
