@@ -453,20 +453,7 @@ void DirectoryWindow::Edit()
       {
          std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
          std::string const playlist(path + entry->name_);
-
-         SongWindow * window = screen_.CreateSongWindow("P:" + entry->name_);
-         client_.ForEachPlaylistSong(playlist, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-         client_.WaitForCompletion();
-
-         if (window->BufferSize() > 0)
-         {
-            screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
-         }
-         else
-         {
-            screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-            ErrorString(ErrorNumber::PlaylistEmpty);
-         }
+         client_.PlaylistContents(playlist);
       }
    }
 }

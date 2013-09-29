@@ -162,6 +162,23 @@ Vimpc::Vimpc() :
       screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
    });
 
+   Vimpc::EventHandler(Event::PlaylistContents, [this] (EventData const & Data)
+   {
+      Ui::SongWindow * const window = screen_.CreateSongWindow("P:" + Data.name);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+   
+         if (song != NULL)
+         {
+            window->Buffer().Add(song);
+         } 
+      }
+
+      screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
+   });
+
    Vimpc::EventHandler(Event::Output, [] (EventData const & Data)
    {
       Main::Outputs().Add(Data.output);

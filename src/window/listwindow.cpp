@@ -274,20 +274,7 @@ void ListWindow::Edit()
    if (lists_->Size() > 0)
    {
       Mpc::List const playlist(lists_->Get(CurrentLine()));
-
-      SongWindow * window = screen_.CreateSongWindow("P:" + playlist.name_);
-      client_.ForEachPlaylistSong(playlist.path_, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-      client_.WaitForCompletion();
-
-      if (window->BufferSize() > 0)
-      {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
-      }
-      else
-      {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         ErrorString(ErrorNumber::PlaylistEmpty);
-      }
+      client_.PlaylistContents(playlist.name_);
    }
 }
 

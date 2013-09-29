@@ -153,6 +153,7 @@ namespace Mpc
       void AddToNamedPlaylist(std::string const & name, Mpc::Song * song);
 
       void AddSongsFromPlaylist(std::string const & name);
+      void PlaylistContents(std::string const & name);
 
    public:
       // Outputs

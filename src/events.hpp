@@ -59,6 +59,7 @@
    X(Volume) \
    X(TotalSongCount) \
    X(SearchResults) \
+   X(PlaylistContents) \
    X(Update) \
    X(UpdateComplete) \
    X(IdleMode) \
