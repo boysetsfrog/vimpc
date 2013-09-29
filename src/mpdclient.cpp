@@ -887,6 +887,45 @@ void Client::AddToNamedPlaylist(std::string const & name, Mpc::Song * song)
 }
 
 
+void Client::AddSongsFromPlaylist(std::string const & name)
+{
+   QueueCommand([this, name] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Add songs from playlist %s", name.c_str());
+
+         mpd_send_list_playlist(connection_, name.c_str());
+
+         mpd_song * nextSong = mpd_recv_song(connection_);
+
+         std::vector<std::string> URIs;
+
+         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         {
+            URIs.push_back(mpd_song_get_uri(nextSong));
+            mpd_song_free(nextSong);
+         }
+
+         if (Connected() == true)
+         {
+            EventData Data; Data.pos1 = -1;
+      
+            for (auto uri : URIs)
+            {
+               ClearCommand();
+               mpd_send_add(connection_, uri.c_str());
+               Data.uri = uri; 
+               Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
+            }
+         }
+      }
+   });
+}
+
+
 void Client::SetOutput(Mpc::Output * output, bool enable)
 {
    if (enable == true)

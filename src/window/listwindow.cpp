@@ -183,28 +183,11 @@ void ListWindow::AdjustScroll(Mpc::List list)
 
 void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
-   Main::PlaylistTmp().Clear();
-
    for (uint32_t i = 0; i < count; ++i)
    {
       if (i < lists_->Size())
       {
-         client_.ForEachPlaylistSong(lists_->Get(line +  i).path_, Main::PlaylistTmp(),
-                                    static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-      }
-   }
-
-   client_.WaitForCompletion();
-
-   uint32_t total = Main::PlaylistTmp().Size();
-
-   if (total > 0)
-   {
-      Mpc::CommandList list(client_, (total > 1));
-
-      for (uint32_t i = 0; i < total; ++i)
-      {
-         client_.Add(Main::PlaylistTmp().Get(i));
+         client_.AddSongsFromPlaylist(lists_->Get(line +  i).path_);
       }
    }
 

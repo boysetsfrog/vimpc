@@ -288,32 +288,13 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientSta
       //bool const isList = client.IsCommandList();
       std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
 
-      Main::PlaylistTmp().Clear();
-
-      /*if (isList == true)
-      {
-         client.SendCommandList();
-      }*/
-
-      client.ForEachPlaylistSong(path + entry->name_, Main::PlaylistTmp(),
-            static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+      client.SendCommandList();
+      client.AddSongsFromPlaylist(path + entry->name_);
 
       /*if (isList == true)
       {
          client.StartCommandList();
       }*/
-
-      uint32_t total = Main::PlaylistTmp().Size();
-
-      if (total > 0)
-      {
-         //Mpc::CommandList list(client, (total > 1));
-
-         for (uint32_t i = 0; i < total; ++i)
-         {
-            client.Add(Main::PlaylistTmp().Get(i));
-         }
-      }
    }
    else if (entry->type_ == Mpc::PathType)
    {
