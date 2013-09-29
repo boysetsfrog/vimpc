@@ -950,6 +950,36 @@ void Client::PlaylistContents(std::string const & name)
    });
 }
 
+void Client::PlaylistContentsForRemove(std::string const & name)
+{
+   QueueCommand([this, name] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Add songs from playlist %s", name.c_str());
+
+         mpd_send_list_playlist(connection_, name.c_str());
+
+         mpd_song * nextSong = mpd_recv_song(connection_);
+
+         std::vector<std::string> URIs;
+
+         if (nextSong != NULL)
+         {
+            for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+            {
+               URIs.push_back(mpd_song_get_uri(nextSong));
+               mpd_song_free(nextSong);
+            }
+
+            EventData Data; Data.name = name; Data.uris = URIs;
+            Main::Vimpc::CreateEvent(Event::PlaylistContentsForRemove, Data);
+         }
+      }
+   });
+}
 
 void Client::SetOutput(Mpc::Output * output, bool enable)
 {

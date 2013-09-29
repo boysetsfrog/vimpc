@@ -210,28 +210,7 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (i < lists_->Size())
       {
-         client_.ForEachPlaylistSong(lists_->Get(line +  i).path_, Main::PlaylistTmp(),
-                                    static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-      }
-   }
-
-   client_.WaitForCompletion();
-
-   uint32_t total = Main::PlaylistTmp().Size();
-
-   if (total > 0)
-   {
-      Mpc::CommandList list(client_, (total > 1));
-
-      for (uint32_t i = 0; i < total; ++i)
-      {
-         int const PlaylistIndex = Main::Playlist().Index(Main::PlaylistTmp().Get(i));
-
-         if (PlaylistIndex >= 0)
-         {
-            client_.Delete(PlaylistIndex);
-            Main::Playlist().Remove(PlaylistIndex, 1);
-         }
+         client_.PlaylistContentsForRemove(lists_->Get(line +  i).path_);
       }
    }
 

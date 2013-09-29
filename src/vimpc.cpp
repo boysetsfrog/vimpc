@@ -179,6 +179,23 @@ Vimpc::Vimpc() :
       screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
    });
 
+   Vimpc::EventHandler(Event::PlaylistContentsForRemove, [this] (EventData const & Data)
+   {
+      Ui::SongWindow * const window = screen_.CreateSongWindow("P:" + Data.name);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+
+         int const PlaylistIndex = Main::Playlist().Index(song);
+
+         if (PlaylistIndex >= 0)
+         {
+            client_.Delete(PlaylistIndex);
+         }
+      }
+   });
+
    Vimpc::EventHandler(Event::Output, [] (EventData const & Data)
    {
       Main::Outputs().Add(Data.output);

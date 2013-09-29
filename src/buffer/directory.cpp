@@ -319,38 +319,17 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clie
       //bool const isList = client.IsCommandList();
       std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
 
-      Main::PlaylistTmp().Clear();
-
       /*if (isList == true)
       {
          client.SendCommandList();
       }*/
 
-      client.ForEachPlaylistSong(path + entry->name_, Main::PlaylistTmp(),
-            static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
+      client.PlaylistContentsForRemove(path + entry->name_);
 
       /*if (isList == true)
       {
          client.StartCommandList();
       }*/
-
-      uint32_t total = Main::PlaylistTmp().Size();
-
-      if (total > 0)
-      {
-         //Mpc::CommandList list(client, (total > 1));
-
-         for (uint32_t i = 0; i < total; ++i)
-         {
-            int const PlaylistIndex = Main::Playlist().Index(Main::PlaylistTmp().Get(i));
-
-            if (PlaylistIndex >= 0)
-            {
-               client.Delete(PlaylistIndex);
-               Main::Playlist().Remove(PlaylistIndex, 1);
-            }
-         }
-      }
    }
    else if (entry->type_ == Mpc::PathType)
    {

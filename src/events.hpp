@@ -61,6 +61,7 @@
    X(TotalSongCount) \
    X(SearchResults) \
    X(PlaylistContents) \
+   X(PlaylistContentsForRemove) \
    X(Update) \
    X(UpdateComplete) \
    X(IdleMode) \

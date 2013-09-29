@@ -154,6 +154,7 @@ namespace Mpc
 
       void AddSongsFromPlaylist(std::string const & name);
       void PlaylistContents(std::string const & name);
+      void PlaylistContentsForRemove(std::string const & name);
 
    public:
       // Outputs
@@ -204,11 +205,6 @@ namespace Mpc
       void UpdateStatus(bool ExpectUpdate = false);
 
    public:
-      template <typename Object>
-      void ForEachPlaylistSong(std::string Playlist, Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song *));
       void GetAllOutputs();
       void GetAllMetaInformation();
       void GetAllMetaFromRoot();
@@ -280,36 +276,6 @@ namespace Mpc
       bool                    listMode_;
       bool                    idleMode_;
    };
-
-   //
-   template <typename Object>
-   void Client::ForEachPlaylistSong(std::string playlist, Object & object, void (Object::*callBack)(Mpc::Song * ))
-   {
-      QueueCommand([this, playlist, &object, callBack] ()
-      {
-         ClearCommand();
-
-         if (Connected() == true)
-         {
-            Debug("Client::List songs in playlist %s", playlist.c_str());
-            mpd_send_list_playlist(connection_, playlist.c_str());
-
-            mpd_song * nextSong = mpd_recv_song(connection_);
-
-            for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-            {
-               Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
-
-               if (song != NULL)
-               {
-                  (object.*callBack)(song);
-               }
-
-               mpd_song_free(nextSong);
-            }
-         }
-      });
-   }
 }
 
 #endif
