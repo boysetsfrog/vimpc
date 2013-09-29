@@ -871,26 +871,17 @@ void Command::Find(std::string const & arguments)
 {
    if (forceCommand_ == true)
    {
-      Main::PlaylistTmp().Clear();
-      client_.ForEachSearchResult(Main::PlaylistTmp(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-
-      if (Main::PlaylistTmp().Size() == 0)
-      {
-         ErrorString(ErrorNumber::FindNoResults);
-      }
-      else
-      {
-         Mpc::CommandList list(client_);
-
-         for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
-         {
-            client_.Add(Main::PlaylistTmp().Get(i));
-         }
-      }
+      client_.AddAllSearchResults();
    }
    else
    {
       SongWindow * const window = screen_.CreateSongWindow(arguments);
+
+      /*Main::Vimpc::OneTimeEventHandler(Event::SearchResults, [this] (EventData const & Data)
+      {
+                  
+      });*/
+
       client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
       client_.WaitForCompletion();
 

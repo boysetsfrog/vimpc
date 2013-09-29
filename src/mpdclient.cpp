@@ -1221,6 +1221,39 @@ void Client::SearchSong(std::string const & search, bool exact)
 }
 
 
+void Client::AddAllSearchResults()
+{
+   QueueCommand([this] ()
+   {
+      if (Connected())
+      {
+         Mpc::Song Song;
+
+         // Start the search
+         Debug("Client::Add all search results");
+         mpd_search_commit(connection_);
+
+         // Recv the songs and do some callbacks
+         mpd_song * nextSong = mpd_recv_song(connection_);
+
+         if (nextSong == NULL)
+         {
+            ErrorString(ErrorNumber::FindNoResults);
+         }
+         else
+         {
+            for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+            {
+               Song.SetURI(mpd_song_get_uri(nextSong));
+               Add(Song);
+               mpd_song_free(nextSong);
+            }
+         }
+      }
+   });
+}
+
+
 void Client::StateEvent()
 {
    if (Connected() == true)

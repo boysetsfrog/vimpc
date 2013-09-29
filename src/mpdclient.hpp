@@ -184,6 +184,7 @@ namespace Mpc
       void SearchAlbum(std::string const & search, bool exact = false);
       void SearchGenre(std::string const & search, bool exact = false);
       void SearchSong(std::string const & search, bool exact = false);
+      void AddAllSearchResults();
 
    public:
       // Mpd Status
