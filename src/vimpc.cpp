@@ -51,7 +51,6 @@ static std::list<EventPair>                  Queue;
 static std::mutex                            QueueMutex;
 static std::condition_variable               Condition;
 static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
-static std::atomic<bool> EventProcessing(true);
 
 bool Vimpc::Running = true;
 
@@ -314,12 +313,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       while (Running == true)
       {
          screen_.UpdateErrorDisplay();
-
-         if (EventProcessing == false)
-         {
-            usleep(20 * 1000);
-            continue;
-         }
 
          {
             std::unique_lock<std::mutex> Lock(QueueMutex);
