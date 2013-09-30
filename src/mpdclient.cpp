@@ -2351,7 +2351,6 @@ void Client::QueueMetaChanges()
 
       for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
       {
-         Debug("???");
          Data.posuri.push_back(std::make_pair(mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong)));
          mpd_song_free(nextSong);
       }

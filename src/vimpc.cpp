@@ -238,10 +238,10 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::PlaylistQueueReplace, [] (EventData const & Data)
    {
-      Debug("playlist queue replace");
+      Debug("Playlist Queue Replace Event");
+
       for (auto pair : Data.posuri)
       { 
-         Debug("!!!");
          Mpc::Song * song = Main::Library().Song(pair.second);
 
          if (song == NULL)
@@ -250,7 +250,6 @@ Vimpc::Vimpc() :
             song->SetURI(pair.second.c_str());
          }
 
-         Debug("Playlist replace %d %s", pair.first, pair.second.c_str());
          Main::Playlist().Replace(pair.first, song);
       }
 
