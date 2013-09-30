@@ -183,6 +183,8 @@ Vimpc::Vimpc() :
    {
       Ui::SongWindow * const window = screen_.CreateSongWindow("P:" + Data.name);
 
+      Mpc::CommandList list(client_);
+
       for (auto uri : Data.uris)
       {
          Mpc::Song * song = Main::Library().Song(uri);

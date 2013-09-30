@@ -73,6 +73,8 @@ CommandList::CommandList(Mpc::Client & client, bool condition) :
    condition_(condition),
    client_   (client)
 {
+   Debug("Commandlist object construct");
+
    if (condition_)
    {
       client_.StartCommandList();
@@ -81,6 +83,8 @@ CommandList::CommandList(Mpc::Client & client, bool condition) :
 
 CommandList::~CommandList()
 {
+   Debug("Commandlist object destruct");
+
    if (condition_)
    {
       client_.SendCommandList();
@@ -1020,6 +1024,18 @@ void Client::AddSongsFromPlaylist(std::string const & name)
 
       if (Connected() == true)
       {
+         bool listmode = listMode_;
+
+         if (listMode_ == true)
+         {
+            Debug("Client::Add songs from playlist - end command list");
+
+            if (mpd_command_list_end(connection_) == true)
+            {
+               listMode_ = false;
+            }
+         }
+
          Debug("Client::Add songs from playlist %s", name.c_str());
 
          mpd_send_list_playlist(connection_, name.c_str());
@@ -1034,16 +1050,32 @@ void Client::AddSongsFromPlaylist(std::string const & name)
             mpd_song_free(nextSong);
          }
 
+         ClearCommand();
+
          if (Connected() == true)
          {
             EventData Data; Data.pos1 = -1;
+
+            mpd_command_list_begin(connection_, false);
       
             for (auto uri : URIs)
             {
-               ClearCommand();
                mpd_send_add(connection_, uri.c_str());
                Data.uri = uri; 
                Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
+            }
+
+            mpd_command_list_end(connection_);
+         }
+
+         if (listmode == true)
+         {
+            Debug("Client::Add songs from playlist - resume command list");
+            ClearCommand();
+
+            if (mpd_command_list_begin(connection_, false) == true)
+            {
+               listMode_ = true;
             }
          }
       }

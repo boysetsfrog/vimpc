@@ -235,7 +235,7 @@ void Directory::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client 
       }
       else
       {
-         //Mpc::CommandList list(client);
+         Mpc::CommandList list(client);
 
          for (uint32_t i = 0; i < Size(); ++i)
          {
@@ -255,7 +255,7 @@ void Directory::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Cl
       }
       else
       {
-         //Mpc::CommandList list(client);
+         Mpc::CommandList list(client);
 
          for (uint32_t i = 0; i < Size(); ++i)
          {
@@ -285,16 +285,8 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientSta
    }
    else if (entry->type_ == Mpc::PlaylistType)
    {
-      //bool const isList = client.IsCommandList();
       std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
-
-      client.SendCommandList();
       client.AddSongsFromPlaylist(path + entry->name_);
-
-      /*if (isList == true)
-      {
-         client.StartCommandList();
-      }*/
    }
    else if (entry->type_ == Mpc::PathType)
    {
@@ -315,20 +307,8 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clie
    }
    else if (entry->type_ == Mpc::PlaylistType)
    {
-      //bool const isList = client.IsCommandList();
       std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
-
-      /*if (isList == true)
-      {
-         client.SendCommandList();
-      }*/
-
       client.PlaylistContentsForRemove(path + entry->name_);
-
-      /*if (isList == true)
-      {
-         client.StartCommandList();
-      }*/
    }
    else if (entry->type_ == Mpc::PathType)
    {
@@ -336,7 +316,7 @@ void Directory::RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clie
 
       if (ChildSongs.size() > 0)
       {
-         //Mpc::CommandList list(client, (ChildSongs.size() > 1));
+         Mpc::CommandList list(client, (ChildSongs.size() > 1));
 
          for (uint32_t i = 0; i < ChildSongs.size(); ++i)
          {
