@@ -37,6 +37,7 @@
    X(CurrentSongId) \
    X(CurrentSongURI) \
    X(QueueUpdate) \
+   X(QueueChangesStart) \
    X(ClearDatabase) \
    X(DatabaseList) \
    X(DatabaseListFile) \
@@ -46,6 +47,7 @@
    X(NewPlaylist) \
    X(PlaylistAdd) \
    X(PlaylistReplace) \
+   X(PlaylistQueueReplace) \
    X(Output) \
    X(OutputEnabled) \
    X(OutputDisabled) \
@@ -103,6 +105,7 @@ struct EventData
    Mpc::Output * output;
 
    std::vector<std::string> uris;
+   std::vector<std::pair<int32_t, std::string> > posuri;
 };
 
 #endif

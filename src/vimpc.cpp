@@ -39,6 +39,7 @@
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 
+#include <atomic>
 #include <list>
 #include <unistd.h>
 #include <condition_variable>
@@ -50,6 +51,7 @@ static std::list<EventPair>                  Queue;
 static std::mutex                            QueueMutex;
 static std::condition_variable               Condition;
 static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
+static std::atomic<bool> EventProcessing(true);
 
 bool Vimpc::Running = true;
 
@@ -90,7 +92,6 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::QueueUpdate, [this] (EventData const & Data)
    {
-      Main::Playlist().Crop(this->clientState_.TotalNumberOfSongs());
       this->clientQueueUpdate_ = true;
    });
 
@@ -235,17 +236,25 @@ Vimpc::Vimpc() :
       }
    });
 
-   Vimpc::EventHandler(Event::PlaylistReplace, [] (EventData const & Data)
+   Vimpc::EventHandler(Event::PlaylistQueueReplace, [] (EventData const & Data)
    {
-      Mpc::Song * song = Main::Library().Song(Data.uri);
+      Debug("playlist queue replace");
+      for (auto pair : Data.posuri)
+      { 
+         Debug("!!!");
+         Mpc::Song * song = Main::Library().Song(pair.second);
 
-      if (song == NULL)
-      {
-         song = new Mpc::Song();
-         song->SetURI(Data.uri.c_str());
+         if (song == NULL)
+         {
+            song = new Mpc::Song();
+            song->SetURI(pair.second.c_str());
+         }
+
+         Debug("Playlist replace %d %s", pair.first, pair.second.c_str());
+         Main::Playlist().Replace(pair.first, song);
       }
 
-      Main::Playlist().Replace(Data.pos1, song);
+      Main::Playlist().Crop(Data.count);
    });
 
 #ifdef TEST_ENABLED
@@ -306,6 +315,12 @@ void Vimpc::Run(std::string hostname, uint16_t port)
       while (Running == true)
       {
          screen_.UpdateErrorDisplay();
+
+         if (EventProcessing == false)
+         {
+            usleep(20 * 1000);
+            continue;
+         }
 
          {
             std::unique_lock<std::mutex> Lock(QueueMutex);
@@ -468,7 +483,6 @@ void Vimpc::ChangeMode(char input, std::string initial)
 {
    Handler[Event].push_back(func);
 }
-
 
 int Vimpc::Input() const
 {

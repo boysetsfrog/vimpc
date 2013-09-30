@@ -207,6 +207,7 @@ namespace Mpc
       void SendCommandList();
       void UpdateCurrentSong();
       void UpdateStatus(bool ExpectUpdate = false);
+      void QueueMetaChanges();
 
    public:
       void GetAllOutputs();
@@ -276,9 +277,11 @@ namespace Mpc
 
       Ui::Screen &            screen_;
       int                     queueVersion_;
+      int                     oldVersion_;
       bool                    forceUpdate_;
       bool                    listMode_;
       bool                    idleMode_;
+      bool                    queueUpdate_;
    };
 }
 

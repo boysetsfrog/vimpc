@@ -131,9 +131,11 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 
    screen_               (screen),
    queueVersion_         (-1),
+   oldVersion_           (-1),
    forceUpdate_          (true),
    listMode_             (false),
-   idleMode_             (false)
+   idleMode_             (false),
+   queueUpdate_          (false)
 {
    clientThread_ = std::thread(&Client::ClientQueueExecutor, this, this);
 
@@ -1853,7 +1855,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
          std::unique_lock<std::mutex> Lock(QueueMutex);
 
          if ((Queue.empty() == false) ||
-             (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+             (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
          {
             if (Queue.empty() == false)
             {
@@ -1877,7 +1879,12 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
 
          if ((Queue.empty() == true) && (listMode_ == false))
          {
-            if (idleMode_ == false)
+            if (queueUpdate_ == true)
+            {
+               Lock.unlock();
+               QueueMetaChanges();
+            }
+            else if (idleMode_ == false)
             {
                Lock.unlock();
                IdleMode();
@@ -2285,33 +2292,10 @@ void Client::UpdateStatus(bool ExpectUpdate)
             EventData Data;
             Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
 
-            if ((queueVersion_ > -1) &&
-               ((version > qVersion + 1) || ((version > qVersion) && (ExpectUpdate == false))))
+            if ((queueVersion_ > -1) && (version > qVersion) && (queueUpdate_ == false))
             {
-               ClearCommand();
-
-               if (Connected() == true)
-               {
-                  Debug("Client::List queue meta data changes");
-                  mpd_send_queue_changes_meta(connection_, qVersion);
-
-                  mpd_song * nextSong = mpd_recv_song(connection_);
-
-                  for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-                  {
-                     EventData Data; 
-                     Data.uri = mpd_song_get_uri(nextSong); 
-                     Data.pos1 = mpd_song_get_pos(nextSong);
-                     Main::Vimpc::CreateEvent(Event::PlaylistReplace, Data);
-
-                     mpd_song_free(nextSong);
-                  }
-               }
-
-               UpdateCurrentSong();
-
-               EventData QueueData;
-               Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
+               oldVersion_  = queueVersion_;
+               queueUpdate_ = true;
             }
 
             if ((wasUpdating == true) && (updating_ == false))
@@ -2350,6 +2334,39 @@ Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInL
    newSong->SetDuration (mpd_song_get_duration(song));
 
    return newSong;
+}
+
+void Client::QueueMetaChanges()
+{
+   ClearCommand();
+
+   if (Connected() == true)
+   {
+      Debug("Client::List queue meta data changes");
+      mpd_send_queue_changes_meta(connection_, oldVersion_);
+
+      mpd_song * nextSong = mpd_recv_song(connection_);
+      EventData Data; 
+      Data.count = totalNumberOfSongs_;
+
+      for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+      {
+         Debug("???");
+         Data.posuri.push_back(std::make_pair(mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong)));
+         mpd_song_free(nextSong);
+      }
+
+      if (QueueCount == 0)
+      {
+         oldVersion_  = queueVersion_;
+         queueUpdate_ = false;
+         Main::Vimpc::CreateEvent(Event::PlaylistQueueReplace, Data);
+
+         EventData QueueData;
+         Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
+         UpdateCurrentSong();
+      }
+   }
 }
 
 
