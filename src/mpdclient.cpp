@@ -262,7 +262,7 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
    port_       = connect_port;
    connection_ = NULL;
 
-   EventData HostData; 
+   EventData HostData;
    HostData.hostname = hostname_;
    HostData.port     = port_;
    Main::Vimpc::CreateEvent(Event::ChangeHost, HostData);
@@ -923,7 +923,7 @@ void Client::CreatePlaylist(std::string const & name)
 
          if (mpd_run_save(connection_, name.c_str()) == true)
          {
-            EventData Data; Data.name = name; 
+            EventData Data; Data.name = name;
             Main::Vimpc::CreateEvent(Event::NewPlaylist, Data);
          }
 
@@ -949,7 +949,7 @@ void Client::SavePlaylist(std::string const & name)
 
          if (mpd_run_save(connection_, name.c_str()) == true)
          {
-            EventData Data; Data.name = name; 
+            EventData Data; Data.name = name;
             Main::Vimpc::CreateEvent(Event::NewPlaylist, Data);
          }
       }
@@ -1059,11 +1059,11 @@ void Client::AddSongsFromPlaylist(std::string const & name)
             EventData Data; Data.pos1 = -1;
 
             mpd_command_list_begin(connection_, false);
-      
+
             for (auto uri : URIs)
             {
                mpd_send_add(connection_, uri.c_str());
-               Data.uri = uri; 
+               Data.uri = uri;
                Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
             }
 
@@ -1936,10 +1936,10 @@ void Client::GetAllMetaInformation()
             if (nextSong != NULL)
             {
                Song * const newSong = CreateSong(-1, nextSong);
-               
+
                // Pre cache the print of the song
                (void) newSong->FormatString(SongFormat);
-   
+
                EventData Data; Data.song = newSong;
                Main::Vimpc::CreateEvent(Event::DatabaseSong, Data);
             }
@@ -2342,28 +2342,47 @@ void Client::QueueMetaChanges()
 
    if (Connected() == true)
    {
-      Debug("Client::List queue meta data changes");
-      mpd_send_queue_changes_meta(connection_, oldVersion_);
+      struct mpd_status * status = mpd_run_status(connection_);
+      queueVersion_ = mpd_status_get_queue_version(status);
 
-      mpd_song * nextSong = mpd_recv_song(connection_);
-      EventData Data; 
-      Data.count = totalNumberOfSongs_;
-
-      for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+      if (totalNumberOfSongs_ != mpd_status_get_queue_length(status))
       {
-         Data.posuri.push_back(std::make_pair(mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong)));
-         mpd_song_free(nextSong);
+         totalNumberOfSongs_ = mpd_status_get_queue_length(status);
+
+         EventData Data; Data.count = totalNumberOfSongs_;
+         Main::Vimpc::CreateEvent(Event::TotalSongCount, Data);
       }
 
-      if (QueueCount == 0)
+      if (oldVersion_ != queueVersion_)
       {
-         oldVersion_  = queueVersion_;
-         queueUpdate_ = false;
-         Main::Vimpc::CreateEvent(Event::PlaylistQueueReplace, Data);
+         Debug("Client::List queue meta data changes %d %d", oldVersion_, queueVersion_);
+         mpd_send_queue_changes_meta(connection_, oldVersion_);
 
-         EventData QueueData;
-         Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
-         UpdateCurrentSong();
+         mpd_song * nextSong = mpd_recv_song(connection_);
+         EventData Data;
+         Data.count = totalNumberOfSongs_;
+
+         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
+         {
+            //Debug("Change: %d %s", mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong));
+            Data.posuri.push_back(std::make_pair(mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong)));
+            mpd_song_free(nextSong);
+         }
+
+         if (QueueCount == 0)
+         {
+            oldVersion_  = queueVersion_;
+            queueUpdate_ = false;
+            Main::Vimpc::CreateEvent(Event::PlaylistQueueReplace, Data);
+
+            EventData QueueData;
+            Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
+            UpdateCurrentSong();
+         }
+      }
+      else
+      {
+         queueUpdate_ = false;
       }
    }
 }
