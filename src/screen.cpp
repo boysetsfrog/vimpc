@@ -1036,6 +1036,7 @@ bool Screen::HandleMouseEvent()
                   SetActiveAndVisible(WindowSelect);
                }
             }
+            CursesMutex.unlock();
             return true;
          }
          else if ((event.y >= 0) && (event.y <= static_cast<int32_t>(MaxRows())))
@@ -1061,6 +1062,7 @@ bool Screen::HandleMouseEvent()
             {
                OnProgressClicked(event.x);
             }
+            CursesMutex.unlock();
             return true;
          }
 
