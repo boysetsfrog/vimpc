@@ -1594,7 +1594,7 @@ void Client::DisplaySongInformation()
 
    if ((Connected() == true) && (state_ != MPD_STATE_STOP))
    {
-      if ((currentSong_ != NULL) && (currentStatus_ != NULL)
+      if ((currentSong_ != NULL) && (currentStatus_ != NULL))
       {
          mpd_status * const status   = currentStatus_;
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
