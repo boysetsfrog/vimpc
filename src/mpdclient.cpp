@@ -1974,6 +1974,8 @@ void Client::GetAllMetaInformation()
 
    if (Connected() == true)
    {
+      // Songs, paths, lists, etc are collated and the events created this way
+      // because mpd seems to disconnect you if you take to long to recv entities
       for (auto song : songs)
       {
          // Pre cache the print of the song
