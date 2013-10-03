@@ -1917,6 +1917,10 @@ void Client::GetAllMetaInformation()
 
    std::string const SongFormat = settings_.Get(Setting::SongFormat);
 
+   std::vector<Mpc::Song *> songs;
+   std::vector<std::string> paths;
+   std::vector<std::pair<std::string, std::string> > lists;
+
    if (Connected() == true)
    {
       EventData DBData;
@@ -1936,20 +1940,13 @@ void Client::GetAllMetaInformation()
             if (nextSong != NULL)
             {
                Song * const newSong = CreateSong(-1, nextSong);
-
-               // Pre cache the print of the song
-               (void) newSong->FormatString(SongFormat);
-
-               EventData Data; Data.song = newSong;
-               Main::Vimpc::CreateEvent(Event::DatabaseSong, Data);
+               songs.push_back(newSong);
             }
          }
          else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_DIRECTORY)
          {
             mpd_directory const * const nextDirectory = mpd_entity_get_directory(nextEntity);
-
-            EventData Data; Data.uri = std::string(mpd_directory_get_path(nextDirectory));
-            Main::Vimpc::CreateEvent(Event::DatabasePath, Data);
+            paths.push_back(std::string(mpd_directory_get_path(nextDirectory)));
          }
          else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_PLAYLIST)
          {
@@ -1965,8 +1962,7 @@ void Client::GetAllMetaInformation()
                   name = name.substr(name.find_last_of("/") + 1);
                }
 
-               EventData Data; Data.uri = path; Data.name = name;
-               Main::Vimpc::CreateEvent(Event::DatabaseListFile, Data);
+               lists.push_back(std::make_pair(name, path));
             }
          }
 
@@ -1975,6 +1971,29 @@ void Client::GetAllMetaInformation()
    }
 
    ClearCommand();
+
+   if (Connected() == true)
+   {
+      for (auto song : songs)
+      {
+         // Pre cache the print of the song
+         (void) song->FormatString(SongFormat);
+         EventData Data; Data.song = song;
+         Main::Vimpc::CreateEvent(Event::DatabaseSong, Data);
+      }
+
+      for (auto path : paths)
+      {
+         EventData Data; Data.uri = path;
+         Main::Vimpc::CreateEvent(Event::DatabasePath, Data);
+      }
+
+      for (auto list : lists)
+      {
+         EventData Data; Data.name = list.first; Data.uri = list.second;
+         Main::Vimpc::CreateEvent(Event::DatabaseListFile, Data);
+      }
+   }
 
    if (Connected() == true)
    {
