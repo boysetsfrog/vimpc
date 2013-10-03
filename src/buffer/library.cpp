@@ -91,9 +91,9 @@ void Library::Add(Mpc::Song * song)
 
          for (i = 0;
               ((i < Size()) &&
-               ((Algorithm::imatch(Get(i)->artist_, artist,
-                                   settings_.Get(Setting::IgnoreTheGroup), true) == false) ||
-                (Get(i)->type_ != Mpc::ArtistType)));
+               ((Get(i)->type_ != Mpc::ArtistType) ||
+                (Algorithm::imatch(Get(i)->artist_, artist,
+                                   settings_.Get(Setting::IgnoreTheGroup), true) == false)));
                ++i);
 
          if (i < Size())
@@ -106,12 +106,13 @@ void Library::Add(Mpc::Song * song)
          }
       }
 
-      for (Mpc::LibraryEntryVector::iterator it = lastArtistEntry_->children_.begin(); ((it != lastArtistEntry_->children_.end()) && (lastAlbumEntry_ == NULL)); ++it)
+      for (auto entry : lastArtistEntry_->children_)
       {
-         if ((Algorithm::iequals((*it)->album_, album) == true) &&
-               ((*it)->type_ == Mpc::AlbumType))
+         if ((entry->type_ == Mpc::AlbumType) &&
+             (Algorithm::iequals(entry->album_, album) == true))
          {
-            lastAlbumEntry_ = (*it);
+            lastAlbumEntry_ = entry;
+            break;
          }
       }
 
@@ -123,11 +124,11 @@ void Library::Add(Mpc::Song * song)
       }
    }
    else if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
+           (lastArtistEntry_ != variousArtist_) &&
+           (lastArtistEntry_->children_.back() == lastAlbumEntry_) &&
            (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
            (Algorithm::imatch(lastAlbumEntry_->album_, album,
-              settings_.Get(Setting::IgnoreTheGroup), true) == false) &&
-           (lastArtistEntry_ != variousArtist_) &&
-           (lastArtistEntry_->children_.back() == lastAlbumEntry_))
+              settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
       lastArtistEntry_->children_.pop_back();
 
