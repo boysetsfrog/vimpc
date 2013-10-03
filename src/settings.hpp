@@ -83,7 +83,7 @@
    /* Sort based on song format */ \
    X(Sort,             "sort", "format", "format|library") \
    /* Connection Timeout in seconds */ \
-   X(Timeout,          "timeout", "15", "\\d+") \
+   X(Timeout,          "timeout", "30", "\\d+") \
    /* Startup window */ \
    X(Window,           "window",  "help", ".*") \
    /* Startup windows */ \
@@ -196,8 +196,8 @@ namespace Main
          void RegisterCallback(Setting::StringSettings setting, StringCallback callback);
 
          //! Turn the callbacks on and off
-         void EnableCallbacks();         
-         void DisableCallbacks();         
+         void EnableCallbacks();
+         void DisableCallbacks();
 
       public:
          //! Set/Get whether or not to connect if asked to in config
