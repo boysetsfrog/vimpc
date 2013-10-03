@@ -49,8 +49,6 @@ Library::~Library()
 
 void Library::Clear(bool Delete)
 {
-   uriMutex_.lock();
-
    lastAlbumEntry_   = NULL;
    lastArtistEntry_  = NULL;
 
@@ -69,8 +67,6 @@ void Library::Clear(bool Delete)
          delete entry;
       }
    }
-
-   uriMutex_.unlock();
 }
 
 void Library::Add(Mpc::Song * song)
@@ -159,9 +155,7 @@ void Library::Add(Mpc::Song * song)
    entry->parent_   = lastAlbumEntry_;
    song->SetEntry(entry);
 
-   uriMutex_.lock();
    uriMap_[song->URI()] = song;
-   uriMutex_.unlock();
 
    if (lastAlbumEntry_ != NULL)
    {
