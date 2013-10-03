@@ -1921,6 +1921,8 @@ void Client::GetAllMetaInformation()
    std::vector<std::string> paths;
    std::vector<std::pair<std::string, std::string> > lists;
 
+   bool const albumartist = settings_.Get(Setting::AlbumArtist);
+
    if (Connected() == true)
    {
       EventData DBData;
@@ -1939,7 +1941,7 @@ void Client::GetAllMetaInformation()
 
             if (nextSong != NULL)
             {
-               Song * const newSong = CreateSong(-1, nextSong);
+               Song * const newSong = CreateSong(nextSong, albumartist);
                songs.push_back(newSong);
             }
          }
@@ -2335,13 +2337,13 @@ void Client::UpdateStatus(bool ExpectUpdate)
    });
 }
 
-Song * Client::CreateSong(uint32_t id, mpd_song const * const song, bool songInLibrary) const
+Song * Client::CreateSong(mpd_song const * const song, bool albumartist) const
 {
    Song * const newSong = new Song();
 
    char const * artist = NULL;
 
-   if (settings_.Get(Setting::AlbumArtist) == true)
+   if (albumartist == true)
    {
       artist = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0);
    }

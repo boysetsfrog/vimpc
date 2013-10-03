@@ -229,7 +229,7 @@ namespace Mpc
 
    private:
       unsigned int QueueVersion();
-      Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
+      Song * CreateSong(mpd_song const * const, bool albumartist = false) const;
 
    private:
       void GetVersion();
