@@ -54,6 +54,7 @@ Settings::Settings() :
    stringTable_  ()
 {
 #define X(a, b, c) toggleTable_[b] = new SettingValue<bool>(Setting::a, c); \
+                   toggleVector_.push_back(toggleTable_[b]); \
                    settingName_[Setting::a] = b;
    TOGGLE_SETTINGS
 #undef X
@@ -154,11 +155,9 @@ void Settings::Set(std::string const & input)
 
 bool Settings::Get(::Setting::ToggleSettings setting) const
 {
-   SettingNameTable::const_iterator const it = settingName_.find(setting);
-
-   if (it != settingName_.end())
+   if ((setting >= 0) && (setting < toggleVector_.size()))
    {
-      return GetBool(it->second);
+      return toggleVector_.at(setting)->Get();
    }
 
    ASSERT(false);

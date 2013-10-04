@@ -257,6 +257,9 @@ namespace Main
          typedef std::map<std::string, SettingValue<bool> * > BoolSettingsTable;
          BoolSettingsTable    toggleTable_;
 
+         typedef std::vector<SettingValue<bool> * > BoolVector;
+         BoolVector           toggleVector_;
+
          // Callbacks for on/off settings
          typedef std::map<Setting::ToggleSettings, std::vector<BoolCallback> > BoolCallbackTable;
          BoolCallbackTable    tCallbackTable_;
