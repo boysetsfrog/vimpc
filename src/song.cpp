@@ -287,7 +287,9 @@ std::string Song::FormatString(std::string fmt) const
    lastFormat_ = fmt;
    std::string::const_iterator it = fmt.begin();
    valid = true;
-   return ParseString(it, valid);
+   formatted_ = ParseString(it, valid);
+
+   return formatted_;
 }
 
 std::string Song::ParseString(std::string::const_iterator & it, bool & valid) const
@@ -370,7 +372,6 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
       }
    } while (*++it);
 
-   formatted_ = result;
    return result;
 }
 
