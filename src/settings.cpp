@@ -60,6 +60,7 @@ Settings::Settings() :
 #undef X
 
 #define X(a, b, c, d) stringTable_[b] = new SettingValue<std::string>(Setting::a, c); \
+                      stringVector_.push_back(stringTable_[b]); \
                       settingName_[Setting::a] = b; \
                       filterTable_[b] = d;
    STRING_SETTINGS
@@ -166,11 +167,11 @@ bool Settings::Get(::Setting::ToggleSettings setting) const
 
 std::string Settings::Get(::Setting::StringSettings setting) const
 {
-   SettingNameTable::const_iterator const it = settingName_.find(setting);
+   int const strSetting = setting - (Setting::StartString + 1);
 
-   if (it != settingName_.end())
+   if ((strSetting >= 0) && (strSetting < stringVector_.size()))
    {
-      return GetString(it->second);
+      return stringVector_.at(strSetting)->Get();
    }
 
    ASSERT(false);

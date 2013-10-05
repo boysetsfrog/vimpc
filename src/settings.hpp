@@ -272,6 +272,9 @@ namespace Main
          typedef std::map<std::string, SettingValue<std::string> * > StringSettingsTable;
          StringSettingsTable  stringTable_;
 
+         typedef std::vector<SettingValue<std::string> * > StringVector;
+         StringVector         stringVector_;
+
          // Callbacks for string style settings
          typedef std::map<Setting::StringSettings, std::vector<StringCallback> > StringCallbackTable;
          StringCallbackTable  sCallbackTable_;
