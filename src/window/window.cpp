@@ -44,28 +44,6 @@ Window::~Window()
    delwin(window_);
 }
 
-void Window::Left(Ui::Player & player, uint32_t count)
-{
-
-}
-
-void Window::Right(Ui::Player & player, uint32_t count)
-{
-
-}
-
-void Window::Click()
-{
-}
-
-void Window::Confirm()
-{
-}
-
-void Window::Redraw()
-{
-
-}
 
 void Window::Move(int row, int column)
 {

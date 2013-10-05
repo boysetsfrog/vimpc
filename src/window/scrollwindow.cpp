@@ -27,10 +27,12 @@
 using namespace Ui;
 
 ScrollWindow::ScrollWindow(Ui::Screen & screen, std::string name) :
-   Window     (screen.MaxRows(), screen.MaxColumns(), 1, 0),
    settings_  (Main::Settings::Instance()),
    screen_    (screen),
    name_      (name),
+   window_    (screen.W_MainWindow()),
+   rows_      (screen.MaxRows()),
+   cols_      (screen.MaxColumns()),
    scrollLine_(screen.MaxRows()),
    autoScroll_(false)
 {
@@ -225,6 +227,9 @@ void ScrollWindow::Print(uint32_t line) const
 
 void ScrollWindow::Resize(uint32_t rows, uint32_t columns)
 {
+   rows_ = rows;
+   cols_ = columns;
+
    if ((scrollLine_ > rows) || (rows > scrollLine_))
    {
       scrollLine_ = FirstLine() + rows;
@@ -233,8 +238,6 @@ void ScrollWindow::Resize(uint32_t rows, uint32_t columns)
    {
       scrollLine_ = rows;
    }
-
-   Window::Resize(rows, columns);
 }
 
 

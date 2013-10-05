@@ -49,7 +49,6 @@ void ConsoleWindow::PerformAutoScroll(Console::BufferType line)
 void ConsoleWindow::Clear()
 {
    console_.Clear();
-   werase(N_WINDOW());
    ResetScroll();
 }
 /* vim: set sw=3 ts=3: */

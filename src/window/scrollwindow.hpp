@@ -29,7 +29,7 @@ namespace Ui
 {
    class Screen;
 
-   class ScrollWindow : public Window
+   class ScrollWindow
    {
    public:
       ScrollWindow(Ui::Screen & screen, std::string name = "Unknown");
@@ -47,6 +47,13 @@ namespace Ui
    public:
       virtual void Print(uint32_t line) const;
       virtual void Resize(uint32_t rows, uint32_t columns);
+      virtual void Redraw() {}
+
+      virtual void Left(Ui::Player & player, uint32_t count) { }
+      virtual void Right(Ui::Player & player, uint32_t count) { }
+      virtual void Click() { }
+      virtual void Confirm() { }
+
       virtual void Scroll(int64_t scrollCount);
       virtual void ScrollTo(uint32_t scrollLine);
       virtual void ScrollToFirstMatch(std::string const & input) { }
@@ -86,10 +93,18 @@ namespace Ui
       uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() : ScrollLine(); }
       virtual  uint32_t CurrentLine() const { return FirstLine(); }
 
+      int32_t Rows() const { return rows_; }
+      int32_t Columns() const { return cols_; }
+
+
+   protected:
+      WINDOW * N_WINDOW() const { return window_; }
+
    protected:
       void ResetScroll();
-      void SetScrollLine(uint32_t scrollLine);
+
       uint32_t ScrollLine() const;
+      void SetScrollLine(uint32_t scrollLine);
 
    protected:
       void SoftRedrawOnSetting(Setting::ToggleSettings setting);
@@ -106,6 +121,9 @@ namespace Ui
       Main::Settings &           settings_;
       Ui::Screen &               screen_;
       std::string                name_;
+      WINDOW *                   window_;
+      int32_t                    rows_;
+      int32_t                    cols_;
       uint32_t                   scrollLine_;
       bool                       autoScroll_;
    };

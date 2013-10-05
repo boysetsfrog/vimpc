@@ -229,6 +229,8 @@ namespace Ui
       MEVENT LastMouseEvent() { return event_; }
 #endif
 
+      WINDOW * W_MainWindow() { return mainWindow_; }
+
    public:
       // Access the active window
       int32_t GetActiveWindow() const;
@@ -290,6 +292,7 @@ namespace Ui
       int32_t    window_;
       int32_t    previous_;
       WindowMap  mainWindows_;
+      WINDOW *   mainWindow_;
       WINDOW *   statusWindow_;
       WINDOW *   tabWindow_;
       WINDOW *   progressWindow_;

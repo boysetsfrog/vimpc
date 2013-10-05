@@ -212,6 +212,13 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    signal(SIGWINCH, ResizeHandler);
    signal(SIGCONT,  ContinueHandler);
 
+   // Create paging window to print maps, settings, etc
+   pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
+   statusWindow_              = newwin(1, maxColumns_, mainRows_ + 2, 0);
+   tabWindow_                 = newwin(1, maxColumns_, 0, 0);
+   progressWindow_            = newwin(1, maxColumns_, mainRows_ + 1, 0);
+   mainWindow_                = newwin(mainRows_, maxColumns_, 1, 0);
+
    // Create all the static windows
    mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this, search);
    mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (settings, *this, "debug",   Main::DebugConsole());
@@ -224,12 +231,6 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::AllLists(),  client, search);
    mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, clientState, search);
    mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, windows_, search);
-
-   // Create paging window to print maps, settings, etc
-   pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
-   statusWindow_              = newwin(1, maxColumns_, mainRows_ + 2, 0);
-   tabWindow_                 = newwin(1, maxColumns_, 0, 0);
-   progressWindow_            = newwin(1, maxColumns_, mainRows_ + 1, 0);
 
    // Commands must be read through a window that is always visible
    commandWindow_             = newwin(0, 0, 0, 0);
@@ -697,6 +698,7 @@ void Screen::Clear()
 
    if (window_ == Console)
    {
+      werase(mainWindow_);
       Update();
    }
 }
@@ -716,7 +718,7 @@ void Screen::Update()
 
       Initialise(window_);
 
-      ActiveWindow().Erase();
+      werase(mainWindow_);
 
       // Only paint the tab bar if it is currently visible
       if (settings_.Get(Setting::TabBar) == true)
@@ -737,7 +739,7 @@ void Screen::Update()
          ActiveWindow().Print(i);
       }
 
-      ActiveWindow().Refresh();
+      wnoutrefresh(mainWindow_);
 
       // Show the pager window if it is currently enabled
       if (pager_ == true)
@@ -902,14 +904,15 @@ bool Screen::Resize(bool forceResize)
             maxRows_ += (lines - 1);
          }
 
+         wclear(mainWindow_);
+         mvwin(mainWindow_, topline, 0);
+
          for (int i = 0; (i < MainWindowCount); ++i)
          {
             if (mainWindows_[i] != NULL)
             {
                uint32_t CurrentLine = mainWindows_[i]->CurrentLine();
-               wclear(mainWindows_[i]->N_WINDOW());
                mainWindows_[i]->Resize(mainRows_, maxColumns_);
-               mainWindows_[i]->Move(topline, 0);
                mainWindows_[i]->ScrollTo(CurrentLine);
             }
          }

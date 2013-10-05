@@ -45,13 +45,8 @@ namespace Ui
 
    public:
       virtual void Print(uint32_t line) const = 0;
-      virtual void Left(Ui::Player & player, uint32_t count);
-      virtual void Right(Ui::Player & player, uint32_t count);
-      virtual void Click();
-      virtual void Confirm();
 
    protected:
-      virtual void Redraw();
       virtual void Move(int row, int column);
       virtual void Resize(uint32_t rows, uint32_t columns);
 
@@ -62,7 +57,7 @@ namespace Ui
       int32_t Rows() const { return rows_; }
       int32_t Columns() const { return cols_; }
 
-   public:
+   protected:
       WINDOW * N_WINDOW() const { return window_; }
 
    private:
