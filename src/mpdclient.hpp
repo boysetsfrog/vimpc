@@ -242,8 +242,6 @@ namespace Mpc
       struct mpd_connection * connection_;
       int                     fd_;
 
-		std::thread	            clientThread_;
-
       std::string             hostname_;
       uint16_t                port_;
       uint32_t                versionMajor_;
@@ -282,6 +280,9 @@ namespace Mpc
       bool                    listMode_;
       bool                    idleMode_;
       bool                    queueUpdate_;
+
+		std::thread	            clientThread_;
+
    };
 }
 

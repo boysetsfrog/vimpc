@@ -135,10 +135,9 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    forceUpdate_          (true),
    listMode_             (false),
    idleMode_             (false),
-   queueUpdate_          (false)
+   queueUpdate_          (false),
+   clientThread_         (std::thread(&Client::ClientQueueExecutor, this, this))
 {
-   clientThread_ = std::thread(&Client::ClientQueueExecutor, this, this);
-
    screen_.RegisterProgressCallback(
       new Main::CallbackObject<Mpc::Client, double>(*this, &Mpc::Client::SeekToPercent));
 }
