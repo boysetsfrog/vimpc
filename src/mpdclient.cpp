@@ -164,7 +164,7 @@ Client::~Client()
    DeleteConnection();
 }
 
-void Client::QueueCommand(std::function<void()> function)
+void Client::QueueCommand(std::function<void()> const & function)
 {
    std::unique_lock<std::mutex> Lock(QueueMutex);
    Queue.push_back(function);
@@ -186,7 +186,7 @@ void Client::WaitForCompletion()
 
 void Client::Connect(std::string const & hostname, uint16_t port, uint32_t timeout_ms)
 {
-   QueueCommand([this, hostname, port, timeout_ms] () { this->ConnectImpl(hostname, port, timeout_ms); });
+   QueueCommand([this, hostname, port, timeout_ms] () { ConnectImpl(hostname, port, timeout_ms); });
    //ConnectImpl(hostname, port, timeout_ms);
 }
 
@@ -2339,7 +2339,11 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
 Song * Client::CreateSong(mpd_song const * const song, bool albumartist) const
 {
+   static int count = 0;
+
    Song * const newSong = new Song();
+
+   //Debug("Alloc a song %d %d", count, sizeof(Song));
 
    char const * artist = NULL;
 

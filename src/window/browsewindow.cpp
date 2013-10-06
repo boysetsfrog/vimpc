@@ -58,8 +58,6 @@ void BrowseWindow::Redraw()
    uint32_t scrollLine  = ScrollLine();
 
    Clear();
-   Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
-   Main::Library().ForEachSong(&callback);
    SoftRedraw();
 
    // If we are redrawing and can keep the same scroll point do so
@@ -73,8 +71,21 @@ void BrowseWindow::Redraw()
 
 void BrowseWindow::SoftRedraw()
 {
-   Ui::SongSorter const sorter(settings_.Get(::Setting::Sort));
-   Buffer().Sort(sorter);
+   std::string const format = settings_.Get(::Setting::Sort);
+
+   if ((format == "library") || (browse_.Size() == 0))
+   {
+      Clear();
+      Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
+      Main::Library().ForEachSong(&callback);
+   }
+
+   if (format != "library")
+   {
+      Ui::SongSorter const sorter(format);
+      Buffer().Sort(sorter);
+   }
+
    ScrollTo(0);
 }
 

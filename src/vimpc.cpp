@@ -96,6 +96,7 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
    {
+      Main::Library().Sort();
       this->screen_.InvalidateAll();
       this->clientQueueUpdate_ = true;
    });
