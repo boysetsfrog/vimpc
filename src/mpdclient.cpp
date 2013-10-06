@@ -30,8 +30,7 @@
 #include "mode/mode.hpp"
 #include "window/error.hpp"
 
-#include <mpd/tag.h>
-#include <mpd/status.h>
+#include <mpd/client.h>
 #include <sys/time.h>
 #include <poll.h>
 #include <unistd.h>
@@ -293,6 +292,7 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
       StateEvent();
 
       GetAllMetaInformation();
+      UpdateCurrentSong();
 
       if (Connected() == true)
       {
@@ -414,6 +414,8 @@ void Client::Pause()
                state_ = MPD_STATE_PLAY;
             }
 
+            timeSinceUpdate_ = 0;
+            elapsed_ = mpdelapsed_;
             StateEvent();
          }
       }
@@ -1587,54 +1589,6 @@ void Client::StateEvent()
    Main::Vimpc::CreateEvent(Event::CurrentState, Data);
 }
 
-void Client::DisplaySongInformation()
-{
-   static char durationStr[128];
-
-   if ((Connected() == true) && (state_ != MPD_STATE_STOP))
-   {
-      if ((currentSong_ != NULL) && (currentStatus_ != NULL))
-      {
-         mpd_status * const status   = currentStatus_;
-         uint32_t     const duration = mpd_song_get_duration(currentSong_);
-         uint32_t     const elapsed  = elapsed_;
-         uint32_t     const remain   = (duration > elapsed) ? duration - elapsed : 0;
-         char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
-         char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
-         std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
-         std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
-
-         screen_.SetStatusLine("[%5u] %s - %s", currentSongId_ + 1, artist.c_str(), title.c_str());
-
-
-         if (settings_.Get(Setting::TimeRemaining) == false)
-         {
-            snprintf(durationStr, 127, "[%d:%.2d/%d:%.2d]",
-                     SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
-                     SecondsToMinutes(duration), RemainingSeconds(duration));
-         }
-         else
-         {
-            snprintf(durationStr, 127, "[-%d:%.2d/%d:%.2d]",
-                     SecondsToMinutes(remain),  RemainingSeconds(remain),
-                     SecondsToMinutes(duration), RemainingSeconds(duration));
-         }
-
-         screen_.MoveSetStatus(screen_.MaxColumns() - strlen(durationStr), "%s", durationStr);
-         screen_.SetProgress(static_cast<double>(elapsed) / duration);
-      }
-      else
-      {
-         screen_.SetProgress(0);
-      }
-   }
-   else
-   {
-      screen_.SetStatusLine("%s","");
-      screen_.SetProgress(0);
-   }
-}
-
 
 void Client::Rescan(std::string const & Path)
 {
@@ -1699,6 +1653,9 @@ void Client::IncrementTime(long time)
          if (elapsed_ != (mpdelapsed_ + (timeSinceUpdate_ / 1000)))
          {
             elapsed_ = mpdelapsed_ + (timeSinceUpdate_ / 1000);
+
+            EventData EData; EData.value = elapsed_;
+            Main::Vimpc::CreateEvent(Event::Elapsed, EData);
 
             EventData Data;
             Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
@@ -1832,6 +1789,7 @@ void Client::UpdateCurrentSong()
 
    EventData IdData; IdData.id = currentSongId_;
    Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
+
    EventData URIData; URIData.uri = currentSongURI_;
    Main::Vimpc::CreateEvent(Event::CurrentSongURI, URIData);
 }
@@ -2311,6 +2269,9 @@ void Client::UpdateStatus(bool ExpectUpdate)
             {
                elapsed_ = mpdelapsed_;
             }
+
+            EventData EData; EData.value = elapsed_;
+            Main::Vimpc::CreateEvent(Event::Elapsed, EData);
 
             EventData Data;
             Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);

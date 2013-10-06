@@ -306,7 +306,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          client_.Connect(hostname, port);
       }
 
-      client_.DisplaySongInformation();
       screen_.Update();
       commandMode_.SetQueueCommands(false);
 
@@ -364,12 +363,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             Debug("Doing the update");
 
             clientUpdate_ = false;
-            client_.DisplaySongInformation();
-
-            if (settings_.Get(Setting::ProgressBar) == true)
-            {
-               screen_.UpdateProgressWindow();
-            }
 
             if ((clientQueueUpdate_ == true) || (input != ERR) || (screen_.Resize() == true))
             {

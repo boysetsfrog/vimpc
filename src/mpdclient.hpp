@@ -196,10 +196,6 @@ namespace Mpc
       void SearchResults(std::string const & name);
 
    public:
-      // Mpd Status
-      void DisplaySongInformation();
-
-   public:
       // Database state
       void Rescan(std::string const & Path);
       void Update(std::string const & Path);

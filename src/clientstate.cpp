@@ -22,6 +22,7 @@
 #include "mpdclient.hpp"
 
 #include "assert.hpp"
+#include "buffers.hpp"
 #include "events.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
@@ -61,6 +62,7 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    Main::Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
    {
       this->connected_ = true;
+      DisplaySongInformation();
    });
 
    Main::Vimpc::EventHandler(Event::Disconnected, [this] (EventData const & Data)
@@ -77,8 +79,11 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->crossfadeTime_      = 0;
       this->currentSongId_      = -1;
       this->currentSongURI_     = "";
+      this->currentSong_        = NULL; 
 
       this->totalNumberOfSongs_ = 0;
+
+      DisplaySongInformation();
    });
 
    Main::Vimpc::EventHandler(Event::ChangeHost, [this] (EventData const & Data)
@@ -88,10 +93,23 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    });
 
    Main::Vimpc::EventHandler(Event::CurrentSongId, [this] (EventData const & Data)
-   { this->currentSongId_ = Data.id; });
+   { 
+      this->currentSongId_ = Data.id; 
+      DisplaySongInformation();
+   });
+
+   Main::Vimpc::EventHandler(Event::Elapsed, [this] (EventData const & Data)
+   { 
+      this->elapsed_ = Data.value; 
+      DisplaySongInformation();
+   });
 
    Main::Vimpc::EventHandler(Event::CurrentSongURI, [this] (EventData const & Data)
-   { this->currentSongURI_ = Data.uri; });
+   { 
+      this->currentSongURI_ = Data.uri; 
+      this->currentSong_    = Main::Library().Song(Data.uri); 
+      DisplaySongInformation();
+   });
 
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)
    { this->random_ = Data.state; });
@@ -226,16 +244,13 @@ void ClientState::DisplaySongInformation()
    {
       if (currentSong_ != NULL)
       {
-         uint32_t     const duration = mpd_song_get_duration(currentSong_);
+         uint32_t     const duration = currentSong_->Duration();
          uint32_t     const elapsed  = elapsed_;
          uint32_t     const remain   = (duration > elapsed) ? duration - elapsed : 0;
-         char const * const cArtist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
-         char const * const cTitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
-         std::string  const artist   = (cArtist == NULL) ? "Unknown" : cArtist;
-         std::string  const title    = (cTitle  == NULL) ? "Unknown" : cTitle;
+         std::string  const artist   = currentSong_->Artist();
+         std::string  const title    = currentSong_->Title();
 
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSongPos() + 1, artist.c_str(), title.c_str());
-
 
          if (settings_.Get(Setting::TimeRemaining) == false)
          {
@@ -262,6 +277,11 @@ void ClientState::DisplaySongInformation()
    {
       screen_.SetStatusLine("%s","");
       screen_.SetProgress(0);
+   }
+   
+   if (settings_.Get(Setting::ProgressBar) == true)
+   {
+      screen_.UpdateProgressWindow();
    }
 }
 

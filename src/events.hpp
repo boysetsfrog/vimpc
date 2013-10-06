@@ -33,6 +33,7 @@
    X(Disconnected) \
    X(CurrentState) \
    X(ChangeHost) \
+   X(Elapsed) \
    X(StatusUpdate) \
    X(CurrentSongId) \
    X(CurrentSongURI) \

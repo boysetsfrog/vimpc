@@ -83,11 +83,13 @@ namespace Mpc
       uint32_t TotalNumberOfSongs();
       int32_t  GetCurrentSongPos();
 
-      void DisplaySongInformation();
 
    public:
       long TimeSinceUpdate();
       bool IsIdle();
+
+   private:
+      void DisplaySongInformation();
 
    private:
       Main::Vimpc *           vimpc_;
@@ -111,7 +113,7 @@ namespace Mpc
       uint32_t                crossfadeTime_;
       uint32_t                elapsed_;
 
-      struct mpd_song *       currentSong_;
+      Mpc::Song *             currentSong_;
       int32_t                 currentSongId_;
       uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;
