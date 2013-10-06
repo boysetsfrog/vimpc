@@ -28,8 +28,13 @@ void Error(uint32_t errorNumber, std::string errorString)
    {
       ErrorMutex.lock();
       Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
-      errorWindow.SetError(true);
-      errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
+      
+      if (errorWindow.HasError() == false)
+      {
+         errorWindow.SetError(true);
+         errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
+      }
+
       ErrorMutex.unlock();
    }
 }

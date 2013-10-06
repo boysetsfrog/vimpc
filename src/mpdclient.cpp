@@ -1230,7 +1230,7 @@ void Client::Add(Mpc::Song & song)
 
       if (Connected() == true)
       {
-         Debug("Client::Add song %s", URI.c_str());
+         //Debug("Client::Add song %s", URI.c_str());
          mpd_send_add(connection_, URI.c_str());
 
          EventData Data; Data.uri = URI; Data.pos1 = -1;
