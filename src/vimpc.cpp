@@ -360,8 +360,6 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          if ((input != ERR) || (screen_.Resize() == true) ||
              (clientUpdate_ == true) || (clientQueueUpdate_ == true))
          {
-            Debug("Doing the update");
-
             clientUpdate_ = false;
 
             if ((clientQueueUpdate_ == true) || (input != ERR) || (screen_.Resize() == true))

@@ -1656,9 +1656,6 @@ void Client::IncrementTime(long time)
 
             EventData EData; EData.value = elapsed_;
             Main::Vimpc::CreateEvent(Event::Elapsed, EData);
-
-            EventData Data;
-            Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
          }
       }
 
@@ -2272,9 +2269,6 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
             EventData EData; EData.value = elapsed_;
             Main::Vimpc::CreateEvent(Event::Elapsed, EData);
-
-            EventData Data;
-            Main::Vimpc::CreateEvent(Event::StatusUpdate, Data);
 
             if ((queueVersion_ > -1) && (version > qVersion) && (queueUpdate_ == false))
             {

@@ -84,6 +84,8 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->totalNumberOfSongs_ = 0;
 
       DisplaySongInformation();
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
    });
 
    Main::Vimpc::EventHandler(Event::ChangeHost, [this] (EventData const & Data)
@@ -112,41 +114,83 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    });
 
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)
-   { this->random_ = Data.state; });
+   { 
+      this->random_ = Data.state; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::Consume, [this] (EventData const & Data)
-   { this->consume_ = Data.state; });
+   { 
+      this->consume_ = Data.state; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::Repeat, [this] (EventData const & Data)
-   { this->repeat_ = Data.state; });
+   { 
+      this->repeat_ = Data.state; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::Single, [this] (EventData const & Data)
-   { this->single_ = Data.state; });
+   { 
+      this->single_ = Data.state; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::Mute, [this] (EventData const & Data)
-   { this->mute_ = Data.state; });
+   { 
+      this->mute_ = Data.state; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::Crossfade, [this] (EventData const & Data)
-   { this->crossfade_ = Data.state; });
+   { 
+      this->crossfade_ = Data.state; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::CrossfadeTime, [this] (EventData const & Data)
    { this->crossfadeTime_ = Data.value; });
 
    Main::Vimpc::EventHandler(Event::TotalSongCount, [this] (EventData const & Data)
-   { this->totalNumberOfSongs_ = Data.count; });
+   { 
+      this->totalNumberOfSongs_ = Data.count; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::Update, [this] (EventData const & Data)
-   { this->updating_ = true; });
+   { 
+      this->updating_ = true; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::UpdateComplete, [this] (EventData const & Data)
-   { this->updating_ = false; });
+   { 
+      this->updating_ = false; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::Volume, [this] (EventData const & Data)
-   { this->volume_ = Data.value; });
+   { 
+      this->volume_ = Data.value; 
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
 
    Main::Vimpc::EventHandler(Event::CurrentState, [this] (EventData const & Data)
    {
       this->currentState_ = Data.clientstate;
+      EventData EData;
+      Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
    });
 }
 
