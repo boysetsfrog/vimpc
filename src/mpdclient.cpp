@@ -1059,16 +1059,24 @@ void Client::AddSongsFromPlaylist(std::string const & name)
          {
             EventData Data; Data.pos1 = -1;
 
-            mpd_command_list_begin(connection_, false);
-
-            for (auto uri : URIs)
+            if (mpd_command_list_begin(connection_, false) == true)
             {
-               mpd_send_add(connection_, uri.c_str());
-               Data.uri = uri;
-               Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
-            }
+               for (auto uri : URIs)
+               {
+                  mpd_send_add(connection_, uri.c_str());
+                  Data.uri = uri;
+                  Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
+               }
 
-            mpd_command_list_end(connection_);
+               if (mpd_command_list_end(connection_) != true)
+               {
+                  CheckError();
+               }
+            }
+            else
+            {
+               CheckError();
+            }
          }
 
          if (listmode == true)
@@ -1220,6 +1228,63 @@ void Client::Add(Mpc::Song * song)
    {
       (void) Add(*song);
    }
+}
+
+void Client::Add(std::vector<Mpc::Song *> songs)
+{
+   std::vector<std::string> URIs;
+
+   for (auto song : songs)
+   {
+      URIs.push_back(song->URI());
+   }
+
+   QueueCommand([this, URIs] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         if (mpd_command_list_begin(connection_, false) == true)
+         {
+            listMode_ = true;
+
+            Debug("Client::List add started");
+
+            for (auto URI : URIs)
+            {
+               mpd_send_add(connection_, URI.c_str());
+            }
+
+            if (mpd_command_list_end(connection_) == true)
+            {
+               Debug("Client::List add success");
+               listMode_ = false;
+
+               for (auto URI : URIs)
+               {
+                  EventData Data; Data.uri = URI; Data.pos1 = -1;
+                  Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
+               }
+
+               EventData Data;
+               Main::Vimpc::CreateEvent(Event::CommandListSend, Data);
+            }
+            else
+            {
+               CheckError();
+            }
+         }
+         else
+         {
+            CheckError();
+         }
+      }
+      else
+      {
+         ErrorString(ErrorNumber::ClientNoConnection);
+      }
+   });
 }
 
 void Client::Add(Mpc::Song & song)

@@ -169,6 +169,7 @@ namespace Mpc
    public:
       // Queue manipulation
       void Add(Mpc::Song * song);
+      void Add(std::vector<Mpc::Song *> song);
       void Add(Mpc::Song & song);
       void Add(Mpc::Song & song, uint32_t position);
       void AddAllSongs();

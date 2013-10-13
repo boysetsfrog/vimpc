@@ -256,17 +256,29 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       }
 
       {
-         Mpc::CommandList list(client_, (count > 1));
 
          if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
          {
+            std::vector<Mpc::Song *> songs;
+
             for (uint32_t i = 0; i < count; ++i)
             {
-               AddToPlaylist(line + i);
+               //AddToPlaylist(line + i);
+               int32_t const position = line + i;
+
+               if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
+               {
+                  songs.push_back(Buffer().Get(position));
+               }
             }
+
+            Debug("Queueing up a client add of %d songs", songs.size());
+            client_.Add(songs);
          }
          else
          {
+            Mpc::CommandList list(client_, (count > 1));
+
             for (int32_t i = count - 1; i >= 0; --i)
             {
                AddToPlaylist(line + i);
