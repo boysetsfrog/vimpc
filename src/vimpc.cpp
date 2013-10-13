@@ -31,6 +31,7 @@
 #include "events.hpp"
 #include "settings.hpp"
 #include "song.hpp"
+#include "songsorter.hpp"
 #include "test.hpp"
 
 #include "buffer/directory.hpp"
@@ -153,13 +154,15 @@ Vimpc::Vimpc() :
       for (auto uri : Data.uris)
       {
          Mpc::Song * song = Main::Library().Song(uri);
-   
+
          if (song != NULL)
          {
             window->Buffer().Add(song);
-         } 
+         }
       }
 
+      Ui::SongSorter const sorter(settings_.Get(::Setting::Sort));
+      window->Buffer().Sort(sorter);
       screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
    });
 
@@ -170,11 +173,11 @@ Vimpc::Vimpc() :
       for (auto uri : Data.uris)
       {
          Mpc::Song * song = Main::Library().Song(uri);
-   
+
          if (song != NULL)
          {
             window->Buffer().Add(song);
-         } 
+         }
       }
 
       screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
@@ -241,7 +244,7 @@ Vimpc::Vimpc() :
       Debug("Playlist Queue Replace Event");
 
       for (auto pair : Data.posuri)
-      { 
+      {
          Mpc::Song * song = Main::Library().Song(pair.second);
 
          if (song == NULL)
