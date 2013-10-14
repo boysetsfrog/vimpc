@@ -88,7 +88,7 @@ namespace Mpc
       long TimeSinceUpdate();
       bool IsIdle();
 
-   private:
+   public:
       void DisplaySongInformation();
 
    private:

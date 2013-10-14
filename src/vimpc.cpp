@@ -370,6 +370,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             {
                Debug("Doing the screen update");
                clientQueueUpdate_ = false;
+               clientState_.DisplaySongInformation();
                screen_.Update();
             }
 
