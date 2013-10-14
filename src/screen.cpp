@@ -520,7 +520,7 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
       wattroff(statusWindow_, A_REVERSE);
    }
 
-   wnoutrefresh(statusWindow_);
+   wrefresh(statusWindow_);
 
    CursesMutex.unlock();
 }

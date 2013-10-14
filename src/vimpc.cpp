@@ -263,6 +263,7 @@ Vimpc::Vimpc() :
    Main::Tester::Instance().Screen  = &screen_;
    Main::Tester::Instance().Command = &commandMode_;
    Main::Tester::Instance().Client  = &client_;
+   Main::Tester::Instance().ClientState = &clientState_;
 #endif
 }
 

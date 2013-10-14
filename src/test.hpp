@@ -28,7 +28,7 @@
 #endif
 
 namespace Ui
-{ 
+{
    class Command;
    class Screen;
 }
@@ -36,6 +36,7 @@ namespace Ui
 namespace Mpc
 {
    class Client;
+   class ClientState;
 }
 
 namespace Main
@@ -55,8 +56,9 @@ namespace Main
 
       #ifdef TEST_ENABLED
          Ui::Screen *  Screen;
-         Ui::Command * Command;   
+         Ui::Command * Command;
          Mpc::Client * Client;
+         Mpc::ClientState * ClientState;
       #endif
    };
 }

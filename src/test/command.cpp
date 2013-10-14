@@ -47,7 +47,8 @@ public:
       settings_(Main::Settings::Instance()),
       commandMode_(*Main::Tester::Instance().Command),
       screen_(*Main::Tester::Instance().Screen),
-      client_(*Main::Tester::Instance().Client)
+      client_(*Main::Tester::Instance().Client),
+      clientState_(*Main::Tester::Instance().ClientState)
       { }
 
 public:
@@ -68,11 +69,12 @@ private:
    void ActiveWindow(std::string window, Ui::Screen::MainWindow);
 
 private:
-   Main::Settings & settings_;
-   Ui::Command    & commandMode_;
-   Ui::Screen     & screen_;
-   Mpc::Client    & client_;
-   int32_t          window_;
+   Main::Settings   & settings_;
+   Ui::Command      & commandMode_;
+   Ui::Screen       & screen_;
+   Mpc::Client      & client_;
+   Mpc::ClientState & clientState_;
+   int32_t            window_;
 };
 
 void CommandTester::setUp()
@@ -265,55 +267,55 @@ void CommandTester::StateCommands()
 {
    client_.WaitForCompletion();
 
-   bool    Random    = client_.Random();
-   bool    Single    = client_.Single();
-   bool    Consume   = client_.Consume();
-   bool    Repeat    = client_.Repeat();
-   int32_t Crossfade = client_.Crossfade();
-   int32_t Volume    = client_.Volume();
-   std::string State = client_.CurrentState();
+   bool    Random    = clientState_.Random();
+   bool    Single    = clientState_.Single();
+   bool    Consume   = clientState_.Consume();
+   bool    Repeat    = clientState_.Repeat();
+   int32_t Crossfade = clientState_.Crossfade();
+   int32_t Volume    = clientState_.Volume();
+   std::string State = clientState_.CurrentState();
 
    // Test that all the states are toggled
    commandMode_.ExecuteCommand("random");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(Random != client_.Random());
+   CPPUNIT_ASSERT(Random != clientState_.Random());
    commandMode_.ExecuteCommand("repeat");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(Repeat != client_.Repeat());
+   CPPUNIT_ASSERT(Repeat != clientState_.Repeat());
    commandMode_.ExecuteCommand("single");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(Single != client_.Single());
+   CPPUNIT_ASSERT(Single != clientState_.Single());
    commandMode_.ExecuteCommand("consume");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(Consume != client_.Consume());
+   CPPUNIT_ASSERT(Consume != clientState_.Consume());
 
    // Test that all the states are turned on
    commandMode_.ExecuteCommand("random on");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Random() == true);
+   CPPUNIT_ASSERT(clientState_.Random() == true);
    commandMode_.ExecuteCommand("repeat on");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Repeat() == true);
+   CPPUNIT_ASSERT(clientState_.Repeat() == true);
    commandMode_.ExecuteCommand("single on");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Single() == true);
+   CPPUNIT_ASSERT(clientState_.Single() == true);
    commandMode_.ExecuteCommand("consume on");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Consume() == true);
+   CPPUNIT_ASSERT(clientState_.Consume() == true);
 
    // Test that all the states are turned off
    commandMode_.ExecuteCommand("random off");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Random() == false);
+   CPPUNIT_ASSERT(clientState_.Random() == false);
    commandMode_.ExecuteCommand("repeat off");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Repeat() == false);
+   CPPUNIT_ASSERT(clientState_.Repeat() == false);
    commandMode_.ExecuteCommand("single off");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Single() == false);
+   CPPUNIT_ASSERT(clientState_.Single() == false);
    commandMode_.ExecuteCommand("consume off");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Consume() == false);
+   CPPUNIT_ASSERT(clientState_.Consume() == false);
 
    // Restore their original values
    client_.SetRandom((Random == true));
@@ -336,17 +338,17 @@ void CommandTester::StateCommands()
    Ui::ErrorWindow::Instance().ClearError();
    commandMode_.ExecuteCommand("volume 0");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Volume() == 0);
+   CPPUNIT_ASSERT(clientState_.Volume() == 0);
    commandMode_.ExecuteCommand("volume 100");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Volume() == 100);
+   CPPUNIT_ASSERT(clientState_.Volume() == 100);
    commandMode_.ExecuteCommand("volume 50");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Volume() == 50);
+   CPPUNIT_ASSERT(clientState_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
    commandMode_.ExecuteCommand("volume 500");
    client_.WaitForCompletion();
-   CPPUNIT_ASSERT(client_.Volume() == 50);
+   CPPUNIT_ASSERT(clientState_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
 
