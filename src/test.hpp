@@ -41,6 +41,8 @@ namespace Mpc
 
 namespace Main
 {
+   class Vimpc;
+
    class Tester
    {
       protected:
@@ -55,6 +57,7 @@ namespace Main
          }
 
       #ifdef TEST_ENABLED
+         Main::Vimpc * Vimpc;
          Ui::Screen *  Screen;
          Ui::Command * Command;
          Mpc::Client * Client;

@@ -260,6 +260,7 @@ Vimpc::Vimpc() :
    });
 
 #ifdef TEST_ENABLED
+   Main::Tester::Instance().Vimpc   = this;
    Main::Tester::Instance().Screen  = &screen_;
    Main::Tester::Instance().Command = &commandMode_;
    Main::Tester::Instance().Client  = &client_;

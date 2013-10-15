@@ -25,6 +25,8 @@
 #include <algorithm>
 #include <pcrecpp.h>
 #include <sstream>
+#include <atomic>
+#include <condition_variable>
 
 #ifdef HAVE_TAGLIB_H
 #include <taglib/tag.h>
@@ -59,6 +61,13 @@
 
 using namespace Ui;
 
+static std::atomic<bool>                  Running(true);
+static std::atomic<int>                   QueueCount(0);
+static std::list<std::string>             Queue;
+static std::mutex                         QueueMutex;
+static std::condition_variable            Condition;
+
+
 // COMMANDS
 Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
    InputMode           (screen),
@@ -79,6 +88,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    clientState_        (clientState),
    settings_           (settings),
    normalMode_         (normalMode)
+#ifdef HAVE_TEST_H
+   ,testThread_         (std::thread(&Command::TestExecutor, this))
+#endif
 {
    // \todo find a away to add aliases to tab completion
    // Command, RequiresConnection, SupportsRange, Function
@@ -204,6 +216,11 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 
 Command::~Command()
 {
+   Running = false;
+
+#ifdef HAVE_TEST_H
+   testThread_.join();
+#endif
 }
 
 
@@ -1322,43 +1339,67 @@ void Command::DebugClient(std::string const & arguments)
    (client_.*func)();
 }
 
-void Command::Test(std::string const & arguments)
+void Command::TestExecutor()
 {
-#ifdef HAVE_TEST_H
-   CPPUNIT_NS::TestResult testresult;
-   CPPUNIT_NS::TestResultCollector collectedresults;
-   testresult.addListener(&collectedresults);
-   CPPUNIT_NS::TestRunner testrunner;
-
-   if ((arguments == "") || (arguments == "all"))
+   while (Running.load() == true)
    {
-      Main::TestConsole().Add("Running all tests...");
-      testrunner.addTest(CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest());
-   }
-   else
-   {
-      Main::TestConsole().Add("Running test " + arguments + "...");
-      CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry(arguments);
-      testrunner.addTest(registry.makeTest());
-   }
-   testrunner.run(testresult);
+      std::unique_lock<std::mutex> Lock(QueueMutex);
 
-   std::stringstream outStream;
-   CPPUNIT_NS::TextOutputter textoutput(&collectedresults, outStream);
-   textoutput.write();
-
-   std::string output;
-
-   while (!outStream.eof())
-   {
-      std::getline(outStream, output);
-
-      if (output != "")
+      if ((Queue.empty() == false) ||
+          (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
       {
-         Main::TestConsole().Add(output);
+         if (Queue.empty() == false)
+         {
+            std::string arguments = Queue.front();
+            Queue.pop_front();
+            Lock.unlock();
+
+#ifdef HAVE_TEST_H
+            CPPUNIT_NS::TestResult testresult;
+            CPPUNIT_NS::TestResultCollector collectedresults;
+            testresult.addListener(&collectedresults);
+            CPPUNIT_NS::TestRunner testrunner;
+
+            if ((arguments == "") || (arguments == "all"))
+            {
+               Main::TestConsole().Add("Running all tests...");
+               testrunner.addTest(CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest());
+            }
+            else
+            {
+               Main::TestConsole().Add("Running test " + arguments + "...");
+               CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry(arguments);
+               testrunner.addTest(registry.makeTest());
+            }
+            testrunner.run(testresult);
+
+            std::stringstream outStream;
+            CPPUNIT_NS::TextOutputter textoutput(&collectedresults, outStream);
+            textoutput.write();
+
+            std::string output;
+
+            while (!outStream.eof())
+            {
+               std::getline(outStream, output);
+
+               if (output != "")
+               {
+                  Main::TestConsole().Add(output);
+               }
+            }
+   #endif
+         }
       }
    }
-#endif
+}
+
+void Command::Test(std::string const & arguments)
+{
+   std::unique_lock<std::mutex> Lock(QueueMutex);
+   Queue.push_back(arguments);
+   Condition.notify_all();
+   QueueCount.store(Queue.size());
 }
 
 void Command::TestInputRandom(std::string const & arguments)

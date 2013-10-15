@@ -22,6 +22,7 @@
 #define __UI__COMMAND
 
 #include <string>
+#include <thread>
 #include <map>
 
 #include "inputmode.hpp"
@@ -199,6 +200,7 @@ namespace Ui
       void DebugClient(std::string const & arguments);
 
    private: // Test only commands
+      void TestExecutor();
       void Test(std::string const & arguments);
       void TestInputRandom(std::string const & arguments);
       void TestInputSequence(std::string const & arguments);
@@ -281,6 +283,10 @@ namespace Ui
       Mpc::ClientState   & clientState_;
       Main::Settings     & settings_;
       Ui::Normal         & normalMode_;
+
+#ifdef HAVE_TEST_H
+      std::thread          testThread_;
+#endif
 
    private:
       // Tab completion searching class
