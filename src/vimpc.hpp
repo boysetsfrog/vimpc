@@ -66,6 +66,9 @@ namespace Main
 
       void ChangeMode(char input, std::string initial);
 
+      //! Change whether user events are handled
+      void HandleUserEvents(bool Enabled);
+
    public:
       static void SetRunning(bool isRunning);
       static void CreateEvent(int Event, EventData const & Data);
@@ -110,6 +113,7 @@ namespace Main
       Ui::Command  &    commandMode_;
       bool              clientUpdate_;
       bool              clientQueueUpdate_;
+      bool              userEvents_;
    };
 }
 

@@ -1354,6 +1354,8 @@ void Command::TestExecutor()
             Queue.pop_front();
             Lock.unlock();
 
+            Main::Tester::Instance().Vimpc->HandleUserEvents(false);
+
 #ifdef HAVE_TEST_H
             CPPUNIT_NS::TestResult testresult;
             CPPUNIT_NS::TestResultCollector collectedresults;
@@ -1388,6 +1390,8 @@ void Command::TestExecutor()
                   Main::TestConsole().Add(output);
                }
             }
+
+            Main::Tester::Instance().Vimpc->HandleUserEvents(true);
    #endif
          }
       }

@@ -68,7 +68,8 @@ Vimpc::Vimpc() :
    normalMode_       (*(new Ui::Normal (this, screen_, client_, clientState_, settings_, search_))),
    commandMode_      (*(new Ui::Command(this, screen_, client_, clientState_, settings_, search_, normalMode_))),
    clientUpdate_     (false),
-   clientQueueUpdate_(false)
+   clientQueueUpdate_(false),
+   userEvents_       (true)
 {
 
    modeTable_[Command] = &commandMode_;
@@ -329,6 +330,13 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                Queue.pop_front();
                Lock.unlock();
 
+               if ((userEvents_ == false) && 
+                   (Event.second.user == true))
+               {
+                  Debug("Discarding user event");
+                  continue;
+               }
+
                for (auto func : Handler[Event.first])
                {
                   func(Event.second);
@@ -454,6 +462,11 @@ void Vimpc::ChangeMode(char input, std::string initial)
          mode->Refresh();
       }
    }
+}
+
+void Vimpc::HandleUserEvents(bool Enabled)
+{
+   userEvents_ = Enabled;
 }
 
 

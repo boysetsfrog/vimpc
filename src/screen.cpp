@@ -166,7 +166,9 @@ void QueueInput(WINDOW * inputWindow)
                CursesMutex.unlock();
             }
 
-            EventData Data; Data.input = input;
+            EventData Data; 
+            Data.user  = true;
+            Data.input = input;
             Main::Vimpc::CreateEvent(Event::Input, Data);
          }
       }

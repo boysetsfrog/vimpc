@@ -90,6 +90,8 @@ namespace Event
 
 struct EventData
 {
+   EventData() : user(false) { }
+
    int32_t  input;
    int32_t  count;
    int32_t  value;
@@ -98,6 +100,7 @@ struct EventData
    uint32_t id;
    uint32_t port;
    bool     state;
+   bool     user;
    std::string uri;
    std::string name;
    std::string hostname;
