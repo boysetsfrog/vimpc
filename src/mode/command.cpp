@@ -1120,7 +1120,7 @@ void Command::Move(std::string const & arguments)
          position2 = 1;
       }
 
-      if ((position1 <  static_cast<int32_t>(Main::Playlist().Size())) && 
+      if ((position1 <  static_cast<int32_t>(Main::Playlist().Size())) &&
           (position2 <= static_cast<int32_t>(Main::Playlist().Size())))
       {
          client_.Move(position1 - 1, position2 - 1);
@@ -1354,9 +1354,9 @@ void Command::TestExecutor()
             Queue.pop_front();
             Lock.unlock();
 
+#ifdef HAVE_TEST_H
             Main::Tester::Instance().Vimpc->HandleUserEvents(false);
 
-#ifdef HAVE_TEST_H
             CPPUNIT_NS::TestResult testresult;
             CPPUNIT_NS::TestResultCollector collectedresults;
             testresult.addListener(&collectedresults);
