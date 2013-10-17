@@ -196,14 +196,14 @@ bool Search::SearchForResult(Direction direction, std::string search, uint32_t c
 
    if (direction == Forwards)
    {
-      for (int32_t i = startLine + 1; ((i < static_cast<int32_t>(screen_.ActiveWindow().BufferSize())) && (found == false)); ++i)
+      for (int32_t i = startLine + 1; ((i >= 0) && (i < static_cast<int32_t>(screen_.ActiveWindow().BufferSize())) && (found == false)); ++i)
       {
          found = CheckForMatch(search, i, count);
       }
    }
    else
    {
-      for (int32_t i = startLine - 1; ((i >= 0) && (found == false)); --i)
+      for (int32_t i = startLine - 1; ((i >= 0) && (i < static_cast<int32_t>(screen_.ActiveWindow().BufferSize())) && (found == false)); --i)
       {
          found = CheckForMatch(search, i, count);
       }
