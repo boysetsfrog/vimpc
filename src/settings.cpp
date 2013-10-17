@@ -75,6 +75,8 @@ Settings::Settings() :
 
 Settings::~Settings()
 {
+   mutex_.lock();
+
    for (BoolSettingsTable::iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
    {
       delete it->second;
@@ -84,11 +86,15 @@ Settings::~Settings()
    {
       delete it->second;
    }
+
+   mutex_.unlock();
 }
 
 
 std::vector<std::string> Settings::AvailableSettings() const
 {
+   mutex_.lock();
+
    std::vector<std::string> AllSettings;
 
    for (BoolSettingsTable::const_iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
@@ -101,6 +107,8 @@ std::vector<std::string> Settings::AvailableSettings() const
    {
       AllSettings.push_back(it->first);
    }
+
+   mutex_.unlock();
 
    std::sort(AllSettings.begin(), AllSettings.end());
 
@@ -127,6 +135,8 @@ void Settings::Set(std::string const & input)
       // Remove the '?' from the end of the setting
       setting = setting.substr(0, setting.length() - 1);
 
+      mutex_.lock();
+
       // Print the value either "setting" or "nosetting"
       if (toggleTable_.find(setting) != toggleTable_.end())
       {
@@ -141,8 +151,12 @@ void Settings::Set(std::string const & input)
       }
       else
       {
+         mutex_.unlock();
          ErrorString(ErrorNumber::SettingNonexistant, setting);
+         return;
       }
+
+      mutex_.unlock();
    }
    else if (arguments == "")
    {
@@ -156,110 +170,168 @@ void Settings::Set(std::string const & input)
 
 bool Settings::Get(::Setting::ToggleSettings setting) const
 {
+   bool Result = false;
+
+   mutex_.lock();
+
    if ((setting >= 0) && (setting < toggleVector_.size()))
    {
-      return toggleVector_.at(setting)->Get();
+      Result = toggleVector_.at(setting)->Get();
+   }
+   else
+   {
+      ASSERT(false);
    }
 
-   ASSERT(false);
-   return false;
+   mutex_.unlock();
+
+   return Result;
 }
 
 std::string Settings::Get(::Setting::StringSettings setting) const
 {
    int const strSetting = setting - (Setting::StartString + 1);
 
+   std::string Result = "";
+
+   mutex_.lock();
+
    if ((strSetting >= 0) && (strSetting < stringVector_.size()))
    {
-      return stringVector_.at(strSetting)->Get();
+      Result = stringVector_.at(strSetting)->Get();
+   }
+   else
+   {
+      ASSERT(false);
    }
 
-   ASSERT(false);
-   return "";
+   mutex_.unlock();
+
+   return Result;
 }
 
 void Settings::Set(::Setting::ToggleSettings setting, bool value)
 {
+   mutex_.lock();
+
    SettingNameTable::const_iterator const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
-      return SetBool(it->second, value);
+      SetBool(it->second, value);
+   }
+   else
+   {
+      ASSERT(false);
    }
 
-   ASSERT(false);
+   mutex_.unlock();
 }
 
 void Settings::Set(::Setting::StringSettings setting, std::string value)
 {
+   mutex_.lock();
+
    SettingNameTable::const_iterator const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
-      return SetString(it->second, value);
+      SetString(it->second, value);
+   }
+   else
+   {
+      ASSERT(false);
    }
 
-   ASSERT(false);
+   mutex_.unlock();
 }
 
 std::string Settings::Name(::Setting::ToggleSettings setting) const
 {
+   std::string Result = "";
+
+   mutex_.lock();
+
    SettingNameTable::const_iterator const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
-      return it->second;
+      Result = it->second;
    }
 
-   return "";
+   mutex_.unlock();
+
+   return Result;
 }
 
 std::string Settings::Name(::Setting::StringSettings setting) const
 {
+   std::string Result = "";
+
+   mutex_.lock();
+
    SettingNameTable::const_iterator const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
-      return it->second;
+      Result = it->second;
    }
 
-   return "";
+   mutex_.unlock();
+
+   return Result;
 }
 
 
 void Settings::RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback)
 {
+   mutex_.lock();
    tCallbackTable_[setting].push_back(callback);
+   mutex_.unlock();
 }
 
 void Settings::RegisterCallback(Setting::StringSettings setting, StringCallback callback)
 {
+   mutex_.lock();
    sCallbackTable_[setting].push_back(callback);
+   mutex_.unlock();
 }
 
 void Settings::EnableCallbacks()
 {
+   mutex_.lock();
    enabled_ = true;
+   mutex_.unlock();
 }
 
 void Settings::DisableCallbacks()
 {
+   mutex_.lock();
    enabled_ = false;
+   mutex_.unlock();
 }
 
 
 void Settings::SetSkipConfigConnects(bool val)
 {
+   mutex_.lock();
    skipConfigConnects_ = val;
+   mutex_.unlock();
 }
 
 bool Settings::SkipConfigConnects() const
 {
-   return skipConfigConnects_;
+   mutex_.lock();
+   bool const skipValue = skipConfigConnects_;
+   mutex_.unlock();
+
+   return skipValue;
 }
 
 void Settings::SetColour(std::string property, std::string colour)
 {
+   mutex_.lock();
+
    if (colourTable_.find(colour) != colourTable_.end())
    {
       if (property == "song") {
@@ -298,18 +370,27 @@ void Settings::SetColour(std::string property, std::string colour)
       else if (property == "progress") {
          colours.ProgressWindow = colourTable_[colour];
       }
-      else {
+      else
+      {
+         mutex_.unlock();
          ErrorString(ErrorNumber::UnknownOption, property);
+         return;
       }
    }
    else
    {
-         ErrorString(ErrorNumber::UnknownOption, colour);
+      mutex_.unlock();
+      ErrorString(ErrorNumber::UnknownOption, colour);
+      return;
    }
+
+   mutex_.unlock();
 }
 
 void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 {
+   mutex_.lock();
+
    if (stringTable_.find(setting) != stringTable_.end())
    {
       bool ValidSetting = true;
@@ -350,13 +431,19 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
       }
       else
       {
+         mutex_.unlock();
          ErrorString(ErrorNumber::UnknownOption, arguments);
+         return;
       }
    }
    else
    {
+      mutex_.unlock();
       ErrorString(ErrorNumber::SettingNonexistant, setting);
+      return;
    }
+
+   mutex_.unlock();
 }
 
 void Settings::SetSingleSetting(std::string setting)
@@ -380,6 +467,8 @@ void Settings::SetSingleSetting(std::string setting)
    {
       setting = setting.substr(2, setting.length() - 2);
    }
+
+   mutex_.lock();
 
    if (toggleTable_.find(setting) != toggleTable_.end())
    {
@@ -412,8 +501,12 @@ void Settings::SetSingleSetting(std::string setting)
    }
    else
    {
+      mutex_.unlock();
       ErrorString(ErrorNumber::SettingNonexistant, setting);
+      return;
    }
+
+   mutex_.unlock();
 }
 
 /* vim: set sw=3 ts=3: */

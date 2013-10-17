@@ -27,6 +27,7 @@
 
 #include <string>
 #include <map>
+#include <mutex>
 
 // Create an enum entry, name and value for each setting
 // X(enum-entry, setting-name, default-value)
@@ -204,24 +205,35 @@ namespace Main
          void SetSkipConfigConnects(bool val);
          bool SkipConfigConnects() const;
 
-      public:
          void SetColour(std::string property, std::string colour);
 
          //! Get the value for the given \p setting
          bool GetBool(std::string setting) const
          {
+            mutex_.lock();
             BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
-            return ((it != toggleTable_.end()) && (it->second->Get()));
+            bool const Result = ((it != toggleTable_.end()) && (it->second->Get()));
+            mutex_.unlock();
+
+            return Result;
          }
 
          std::string GetString(std::string setting) const
          {
+            std::string Result = "";
+
+            mutex_.lock();
+
             StringSettingsTable::const_iterator it = stringTable_.find(setting);
+
             if (it != stringTable_.end())
             {
-               return (it->second->Get());
+               Result = (it->second->Get());
             }
-            return "";
+
+            mutex_.unlock();
+
+            return Result;
          }
 
       protected:
@@ -232,17 +244,21 @@ namespace Main
          //! Set the value for the given \p setting
          void SetBool(std::string setting, bool value)
          {
+            mutex_.lock();
             BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
             if ((it != toggleTable_.end())) { it->second->Set(value); }
+            mutex_.unlock();
          }
 
          void SetString(std::string setting, std::string value)
          {
+            mutex_.lock();
             StringSettingsTable::const_iterator it = stringTable_.find(setting);
             if (it != stringTable_.end())
             {
                (it->second->Set(value));
             }
+            mutex_.unlock();
          }
 
       private:
@@ -283,6 +299,8 @@ namespace Main
          ColorNameTable       colourTable_;
 
          bool                 enabled_;
+
+         mutable std::recursive_mutex mutex_;
    };
 }
 
