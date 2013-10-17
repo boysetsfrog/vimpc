@@ -53,6 +53,7 @@ void Library::Clear(bool Delete)
    lastArtistEntry_  = NULL;
 
    Main::Playlist().Clear();
+   Main::Browse().Clear();
 
    uriMap_.clear();
 
