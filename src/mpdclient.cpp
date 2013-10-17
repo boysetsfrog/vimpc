@@ -2148,10 +2148,10 @@ void Client::StartCommandList()
 {
    QueueCommand([this] ()
    {
+      ClearCommand();
+
       if ((Connected() == true) && (listMode_ == false))
       {
-         ClearCommand();
-
          Debug("Client::Start command list");
 
          if (mpd_command_list_begin(connection_, false) == true)

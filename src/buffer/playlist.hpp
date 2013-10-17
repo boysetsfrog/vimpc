@@ -66,16 +66,19 @@ namespace Mpc
       {
          std::string out("");
 
-         if (settings_.Get(Setting::PlaylistNumbers) == true)
+         if (position < Size())
          {
-            out += "$H[$I$L$D]$H ";
-         }
-         else
-         {
-            out = " ";
-         }
+            if (settings_.Get(Setting::PlaylistNumbers) == true)
+            {
+               out += "$H[$I$L$D]$H ";
+            }
+            else
+            {
+               out = " ";
+            }
 
-         out += Get(position)->FormatString(settings_.Get(Setting::SongFormat));
+            out += Get(position)->FormatString(settings_.Get(Setting::SongFormat));
+         }
          return out;
       }
 

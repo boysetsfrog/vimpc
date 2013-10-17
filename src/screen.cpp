@@ -126,12 +126,18 @@ void QueueInput(WINDOW * inputWindow)
    {
    #ifdef __DEBUG_PRINTS
       if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
+      else 
+      {
    #endif
 
       if (poll(&fds, 1, 250) <= 0)
       {
          continue;
       }
+
+   #ifdef __DEBUG_PRINTS
+      }
+   #endif
 
       CursesMutex.lock();
       int32_t input = wgetch(inputWindow);
