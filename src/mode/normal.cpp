@@ -245,7 +245,7 @@ void Normal::Initialise(int input)
 void Normal::Finalise(int input)
 {
    input_ = "";
-   window_->Print(0);
+   screen_.PrintModeWindow(window_);
 }
 
 void Normal::Refresh()
