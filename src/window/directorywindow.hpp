@@ -70,7 +70,7 @@ namespace Ui
       void Edit();
       void ScrollToFirstMatch(std::string const & input);
       void ScrollToCurrent();
-      void Scroll(int64_t scrollCount);
+      void Scroll(int32_t scrollCount);
       void ScrollTo(uint32_t scrollLine);
       uint32_t BufferSize() const;
 

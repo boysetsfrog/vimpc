@@ -820,7 +820,7 @@ void Normal::Confirm(uint32_t count)
       confirmTable[Ui::Screen::Playlist]     = &Normal::PlaySelected;
    }
 
-   WindowActionTable::const_iterator it = 
+   WindowActionTable::const_iterator it =
       confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
    if (it != confirmTable.end())
@@ -948,7 +948,7 @@ void Normal::Add(uint32_t count)
          confirmTable[Ui::Screen::Outputs] = &Normal::SetOutput<COLLECTION, true>;
       }
 
-      WindowActionTable::const_iterator it = 
+      WindowActionTable::const_iterator it =
          confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
       if (it != confirmTable.end())
@@ -984,7 +984,7 @@ void Normal::Delete(uint32_t count)
          confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, false>;
       }
 
-      WindowActionTable::const_iterator it = 
+      WindowActionTable::const_iterator it =
          confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
       if (it != confirmTable.end())
@@ -1085,7 +1085,8 @@ void Normal::ScrollToCurrent(uint32_t line)
 template <int8_t OFFSET>
 void Normal::Scroll(uint32_t count)
 {
-   screen_.Scroll(OFFSET * count);
+   int32_t scroll = OFFSET * count;
+   screen_.Scroll(scroll);
 }
 
 template <Screen::Size SIZE, Screen::Direction DIRECTION>

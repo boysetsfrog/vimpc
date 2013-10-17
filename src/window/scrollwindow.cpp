@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "screen.hpp"
+#include "window/debug.hpp"
 
 using namespace Ui;
 
@@ -241,9 +242,9 @@ void ScrollWindow::Resize(uint32_t rows, uint32_t columns)
 }
 
 
-void ScrollWindow::Scroll(int64_t scrollCount)
+void ScrollWindow::Scroll(int32_t scrollCount)
 {
-   uint32_t const newLine = (scrollLine_ + scrollCount);
+   int64_t const newLine = (scrollLine_ + scrollCount);
 
    if (BufferSize() > static_cast<uint32_t>(Rows()))
    {

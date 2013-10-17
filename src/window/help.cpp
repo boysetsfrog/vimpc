@@ -148,7 +148,7 @@ void HelpWindow::Confirm()
 {
 }
 
-void HelpWindow::Scroll(int64_t scrollCount)
+void HelpWindow::Scroll(int32_t scrollCount)
 {
    currentLine_ += scrollCount;
    LimitCurrentSelection();

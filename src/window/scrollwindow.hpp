@@ -54,7 +54,7 @@ namespace Ui
       virtual void Click() { }
       virtual void Confirm() { }
 
-      virtual void Scroll(int64_t scrollCount);
+      virtual void Scroll(int32_t scrollCount);
       virtual void ScrollTo(uint32_t scrollLine);
       virtual void ScrollToFirstMatch(std::string const & input) { }
       virtual void ScrollToCurrent() { }

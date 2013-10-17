@@ -166,7 +166,7 @@ void QueueInput(WINDOW * inputWindow)
                CursesMutex.unlock();
             }
 
-            EventData Data; 
+            EventData Data;
             Data.user  = true;
             Data.input = input;
             Main::Vimpc::CreateEvent(Event::Input, Data);
@@ -635,7 +635,7 @@ void Screen::Select(ScrollWindow::Position position, uint32_t count)
    ActiveWindow().Select(position, count);
 }
 
-void Screen::Scroll(int64_t count)
+void Screen::Scroll(int32_t count)
 {
    ActiveWindow().Scroll(count);
 }

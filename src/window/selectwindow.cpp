@@ -22,6 +22,7 @@
 
 #include "settings.hpp"
 #include "screen.hpp"
+#include "window/debug.hpp"
 
 using namespace Ui;
 
@@ -82,7 +83,7 @@ void SelectWindow::Resize(uint32_t rows, uint32_t columns)
    LimitCurrentSelection();
 }
 
-void SelectWindow::Scroll(int64_t scrollCount)
+void SelectWindow::Scroll(int32_t scrollCount)
 {
    currentLine_ += scrollCount;
    LimitCurrentSelection();

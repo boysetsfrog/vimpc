@@ -123,7 +123,7 @@ void DirectoryWindow::ScrollToCurrent()
 }
 
 
-void DirectoryWindow::Scroll(int64_t scrollCount)
+void DirectoryWindow::Scroll(int32_t scrollCount)
 {
    SelectWindow::Scroll(scrollCount);
 

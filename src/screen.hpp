@@ -186,7 +186,7 @@ namespace Ui
       void Select(ScrollWindow::Position position, uint32_t count);
 
       // Scroll the window to a location or by a given amount
-      void Scroll(int64_t count);
+      void Scroll(int32_t count);
       void Scroll(Size size, Direction direction, uint32_t count);
       void ScrollTo(uint32_t line);
       void ScrollTo(Location location, uint32_t line = 0);

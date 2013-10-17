@@ -39,7 +39,7 @@ namespace Ui
       void Redraw();
       void Print(uint32_t line) const;
       void Confirm();
-      void Scroll(int64_t scrollCount);
+      void Scroll(int32_t scrollCount);
       void ScrollTo(uint32_t scrollLine);
 
       std::string SearchPattern(uint32_t id) const { return help_.Get(id); }
