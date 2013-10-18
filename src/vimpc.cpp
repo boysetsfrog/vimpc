@@ -47,11 +47,14 @@
 
 using namespace Main;
 
-typedef std::pair<int32_t, EventData>        EventPair;
-static std::list<EventPair>                  Queue;
-static std::mutex                            QueueMutex;
-static std::condition_variable               Condition;
+typedef std::pair<int32_t, EventData>  EventPair;
+static std::list<EventPair>            Queue;
+static std::mutex                      QueueMutex;
+static std::condition_variable         Condition;
 static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
+
+static std::map<int, std::list<std::condition_variable *> > WaitConditions;
+static std::mutex EventMutex;
 
 bool Vimpc::Running = true;
 
@@ -341,6 +344,11 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                {
                   func(Event.second);
                }
+
+               for (auto cond : WaitConditions[Event.first])
+               {
+                  cond->notify_all();
+               }
             }
          }
 
@@ -485,6 +493,21 @@ void Vimpc::HandleUserEvents(bool Enabled)
 /* static */ void Vimpc::EventHandler(int Event, std::function<void(EventData const &)> func)
 {
    Handler[Event].push_back(func);
+}
+
+/* static */ bool Vimpc::WaitForEvent(int Event, int TimeoutMs)
+{
+   std::unique_lock<std::mutex> EventLock(EventMutex);
+
+   std::condition_variable * WaitCondition = new std::condition_variable();
+   WaitConditions[Event].push_back(WaitCondition);
+
+   bool const Result = (WaitCondition->wait_for(EventLock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout);
+
+   WaitConditions[Event].remove(WaitCondition);
+   delete WaitCondition;
+   EventLock.unlock();
+   return Result; 
 }
 
 int Vimpc::Input() const

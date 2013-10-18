@@ -24,6 +24,8 @@
 #include "buffers.hpp"
 #include "output.hpp"
 #include "test.hpp"
+#include "vimpc.hpp"
+
 #include "buffer/outputs.hpp"
 #include "mode/command.hpp"
 #include "window/debug.hpp"
@@ -265,8 +267,6 @@ void CommandTester::ActiveWindow(std::string window, Ui::Screen::MainWindow main
 
 void CommandTester::StateCommands()
 {
-   client_.WaitForCompletion();
-
    bool    Random    = clientState_.Random();
    bool    Single    = clientState_.Single();
    bool    Consume   = clientState_.Consume();
@@ -277,44 +277,53 @@ void CommandTester::StateCommands()
 
    // Test that all the states are toggled
    commandMode_.ExecuteCommand("random");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Random, 5000);
    CPPUNIT_ASSERT(Random != clientState_.Random());
+
    commandMode_.ExecuteCommand("repeat");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Repeat, 5000);
    CPPUNIT_ASSERT(Repeat != clientState_.Repeat());
+
    commandMode_.ExecuteCommand("single");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Single, 5000);
    CPPUNIT_ASSERT(Single != clientState_.Single());
+
    commandMode_.ExecuteCommand("consume");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Consume, 5000);
    CPPUNIT_ASSERT(Consume != clientState_.Consume());
 
    // Test that all the states are turned on
    commandMode_.ExecuteCommand("random on");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Random, 5000);
    CPPUNIT_ASSERT(clientState_.Random() == true);
+
    commandMode_.ExecuteCommand("repeat on");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Repeat, 5000);
    CPPUNIT_ASSERT(clientState_.Repeat() == true);
+
    commandMode_.ExecuteCommand("single on");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Single, 5000);
    CPPUNIT_ASSERT(clientState_.Single() == true);
+
    commandMode_.ExecuteCommand("consume on");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Consume, 5000);
    CPPUNIT_ASSERT(clientState_.Consume() == true);
 
    // Test that all the states are turned off
    commandMode_.ExecuteCommand("random off");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Random, 5000);
    CPPUNIT_ASSERT(clientState_.Random() == false);
+
    commandMode_.ExecuteCommand("repeat off");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Repeat, 5000);
    CPPUNIT_ASSERT(clientState_.Repeat() == false);
+
    commandMode_.ExecuteCommand("single off");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Single, 5000);
    CPPUNIT_ASSERT(clientState_.Single() == false);
+
    commandMode_.ExecuteCommand("consume off");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Consume, 5000);
    CPPUNIT_ASSERT(clientState_.Consume() == false);
 
    // Restore their original values
@@ -336,24 +345,28 @@ void CommandTester::StateCommands()
    //       before doing this test
    // Try min, max, mid and invalid volumes
    Ui::ErrorWindow::Instance().ClearError();
+
    commandMode_.ExecuteCommand("volume 0");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
    CPPUNIT_ASSERT(clientState_.Volume() == 0);
+
    commandMode_.ExecuteCommand("volume 100");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
    CPPUNIT_ASSERT(clientState_.Volume() == 100);
+
    commandMode_.ExecuteCommand("volume 50");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
    CPPUNIT_ASSERT(clientState_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+
    commandMode_.ExecuteCommand("volume 500");
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Volume, 500);
    CPPUNIT_ASSERT(clientState_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
 
    client_.SetVolume(Volume);
-   client_.WaitForCompletion();
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
 
    // Set mpd to whatever state it was in before
    if (Algorithm::iequals(State, "playing") == true)
@@ -382,59 +395,60 @@ void CommandTester::OutputCommands()
       // Ensure that the selected outputs are enabled/disabled
       screen_.ScrollTo(i);
       commandMode_.ExecuteCommand("enable");
-      client_.WaitForCompletion();
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
+
       commandMode_.ExecuteCommand("disable");
-      client_.WaitForCompletion();
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
 
       // Ensure that enable using the id works
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "enable %d", i);
       commandMode_.ExecuteCommand(Buffer);
-      client_.WaitForCompletion();
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
 
       // Ensure that disable using the id works
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "disable %d", i);
       commandMode_.ExecuteCommand(Buffer);
-      client_.WaitForCompletion();
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
 
       // Ensure that a line based command enables the correct output
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "%denable", i+1);
       commandMode_.ExecuteCommand(Buffer);
-      client_.WaitForCompletion();
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
 
       // Ensure that a line based command disables the correct output
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "%ddisable", i+1);
       commandMode_.ExecuteCommand(Buffer);
-      client_.WaitForCompletion();
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
    }
 
    // Ensure that range based enables and disables work
    snprintf(Buffer, 128, "%d,%denable", 1, outputCount);
    commandMode_.ExecuteCommand(Buffer);
-   client_.WaitForCompletion();
 
    // \TODO TBD: range based enable, disable are not implemented
 
    for (int i = 0; i < outputCount; ++i)
    {
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 1000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
    }
 
    snprintf(Buffer, 128, "%d,%ddisable", 1, outputCount);
    commandMode_.ExecuteCommand(Buffer);
-   client_.WaitForCompletion();
 
    for (int i = 0; i < outputCount; ++i)
    {
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 1000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
    }
 
