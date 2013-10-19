@@ -194,9 +194,6 @@ namespace Mpc
          return (it != children_.end()) ? it->second : emptyvector;
       }
 
-      typedef Main::CallbackObject<Mpc::Directory, Directory::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Directory::BufferType> CallbackFunction;
-
    private:
       std::vector<std::string>                         paths_;
       std::map<std::string, int >                      references_;

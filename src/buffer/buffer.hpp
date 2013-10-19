@@ -23,10 +23,11 @@
 
 #include <map>
 #include <stdint.h>
+#include <functional>
+#include <algorithm>
 #include <vector>
 
 #include "assert.hpp"
-#include "callback.hpp"
 #include "window/window.hpp"
 
 namespace Item
@@ -150,7 +151,7 @@ namespace Main
          }
       }
 
-      void ForEach(uint32_t position, uint32_t count, CallbackInterface<T> * callback) const
+      void ForEach(uint32_t position, uint32_t count, std::function<void (T)> callback) const
       {
          uint32_t pos = 0;
          typename BufferImpl<T>::const_iterator it;

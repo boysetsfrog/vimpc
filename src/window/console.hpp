@@ -47,9 +47,6 @@ namespace Ui
       Main::WindowBuffer const & WindowBuffer() const { return console_; }
 
    private:
-      typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferType> CallbackObject;
-
-   private:
       Console & console_;
    };
 }

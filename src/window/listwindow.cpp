@@ -23,7 +23,6 @@
 #include <pcrecpp.h>
 
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -44,8 +43,6 @@ ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc
    lists_           (&lists)
 {
    SetSupportsVisual(false);
-
-   typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;
 
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);

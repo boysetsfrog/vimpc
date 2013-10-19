@@ -24,7 +24,6 @@
 #include <future>
 
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
@@ -76,8 +75,7 @@ void BrowseWindow::SoftRedraw()
    if ((format == "library") || (browse_.Size() == 0))
    {
       Clear();
-      Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
-      Main::Library().ForEachSong(&callback);
+      Main::Library().ForEachSong([this] (Mpc::Song * song) { Add(song); });
    }
 
    if (format != "library")

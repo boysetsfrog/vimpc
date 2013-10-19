@@ -21,13 +21,13 @@
 #ifndef __MAIN__SETTINGS
 #define __MAIN__SETTINGS
 
-#include "callback.hpp"
 #include "colours.hpp"
 #include "test.hpp"
 
 #include <string>
 #include <map>
 #include <mutex>
+#include <vector>
 
 // Create an enum entry, name and value for each setting
 // X(enum-entry, setting-name, default-value)

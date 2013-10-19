@@ -23,7 +23,6 @@
 
 // Includes
 #include "buffer.hpp"
-#include "callback.hpp"
 #include "events.hpp"
 #include "output.hpp"
 #include "vimpc.hpp"
@@ -33,10 +32,6 @@ namespace Mpc
 {
    class Outputs : public Main::Buffer<Mpc::Output *>
    {
-   private:
-      typedef Main::CallbackObject<Mpc::Outputs, Outputs::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Outputs::BufferType> CallbackFunction;
-
    public:
       Outputs()
       {

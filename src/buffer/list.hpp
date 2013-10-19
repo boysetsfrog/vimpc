@@ -24,7 +24,6 @@
 // Includes
 #include "algorithm.hpp"
 #include "buffer.hpp"
-#include "callback.hpp"
 #include "settings.hpp"
 
 // Lists
@@ -61,10 +60,6 @@ namespace Mpc
 
    class Lists : public Main::Buffer<List>
    {
-   private:
-      typedef Main::CallbackObject<Mpc::Lists, Lists::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Lists::BufferType> CallbackFunction;
-
    public:
       Lists()
       {

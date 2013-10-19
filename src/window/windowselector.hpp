@@ -57,9 +57,6 @@ namespace Ui
       Main::WindowBuffer const & WindowBuffer() const { return windows_; }
 
    private:
-      typedef Main::CallbackObject<Ui::WindowSelector, Windows::BufferType> CallbackObject;
-
-   private:
       Ui::Windows const & windows_;
       Main::Settings const & settings_;
    };

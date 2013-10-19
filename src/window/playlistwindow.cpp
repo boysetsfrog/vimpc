@@ -23,7 +23,6 @@
 #include <pcrecpp.h>
 
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"

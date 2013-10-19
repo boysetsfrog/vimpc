@@ -22,7 +22,6 @@
 
 #include "buffers.hpp"
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "clientstate.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"

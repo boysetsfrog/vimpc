@@ -21,7 +21,6 @@
 #include "librarywindow.hpp"
 
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "clientstate.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
@@ -66,8 +65,7 @@ void LibraryWindow::SoftRedraw()
 {
    // The library needs to be completely collapsed before sorting as the sort cannot compare different types
    // so we mark everything as collapsed then remove anything that is not an artist from the buffer
-   Main::CallbackFunction<Mpc::LibraryEntry *> Callback(&Mpc::MarkUnexpanded);
-   library_.ForEachParent(&Callback);
+   library_.ForEachParent([] (Mpc::LibraryEntry * entry) { Mpc::MarkUnexpanded(entry); });
 
    for (unsigned int i = 0; i < library_.Size(); )
    {
@@ -366,11 +364,8 @@ void LibraryWindow::Edit()
 
          SongWindow * window = screen_.CreateSongWindow("L:" + title);
 
-         Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
-
          // Do not need to sort as this ensures it will be sorted in the same order as the library
-         Main::Library().ForEachChild(CurrentLine(), &callback);
-
+         Main::Library().ForEachChild(CurrentLine(), [&window] (Mpc::Song * song) { window->Add(song); });
 
          if (window->BufferSize() > 0)
          {

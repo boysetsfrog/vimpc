@@ -23,7 +23,6 @@
 
 #include <map>
 
-#include "callback.hpp"
 #include "screen.hpp"
 #include "search.hpp"
 #include "vimpc.hpp"

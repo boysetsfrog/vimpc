@@ -229,10 +229,10 @@ namespace Mpc
       Mpc::LibraryEntry * CreateArtistEntry(std::string artist);
       Mpc::LibraryEntry * CreateAlbumEntry(Mpc::Song * song);
 
-      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
-      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
-      void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
-      void ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
+      void ForEachChild(uint32_t index, std::function<void (Mpc::Song *)> callback) const;
+      void ForEachChild(uint32_t index, std::function<void (Mpc::LibraryEntry *)> callback) const;
+      void ForEachSong(std::function<void (Mpc::Song *)> callback) const;
+      void ForEachParent(std::function<void (Mpc::LibraryEntry *)> callback) const;
 
    public:
       void Expand(uint32_t line);
@@ -247,9 +247,6 @@ namespace Mpc
       void DeleteEntry(LibraryEntry * const entry);
       void CheckIfVariousRemoved(LibraryEntry * const entry);
       void RemoveAndUnexpand(LibraryEntry * const entry);
-
-      typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;
 
    private:
       Main::Settings const & settings_;

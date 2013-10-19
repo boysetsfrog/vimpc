@@ -24,7 +24,6 @@
 // Includes
 #include "buffers.hpp"
 #include "buffer.hpp"
-#include "callback.hpp"
 #include "library.hpp"
 #include "song.hpp"
 
@@ -33,10 +32,6 @@ namespace Mpc
 {
    class Playlist : public Main::Buffer<Mpc::Song *>
    {
-   private:
-      typedef Main::CallbackObject<Mpc::Playlist, Playlist::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Playlist::BufferType> CallbackFunction;
-
    public:
       Playlist(bool IncrementReferences = false) :
          settings_(Main::Settings::Instance())
