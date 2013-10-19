@@ -283,14 +283,14 @@ std::string Settings::Name(::Setting::StringSettings setting) const
 }
 
 
-void Settings::RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback)
+void Settings::RegisterCallback(Setting::ToggleSettings setting, std::function<void (bool)> callback)
 {
    mutex_.lock();
    tCallbackTable_[setting].push_back(callback);
    mutex_.unlock();
 }
 
-void Settings::RegisterCallback(Setting::StringSettings setting, StringCallback callback)
+void Settings::RegisterCallback(Setting::StringSettings setting, std::function<void (std::string)> callback)
 {
    mutex_.lock();
    sCallbackTable_[setting].push_back(callback);
@@ -414,12 +414,11 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
             if (enabled_ == true)
             {
                // Call any registered callbacks for this setting
-               std::vector<StringCallback> const Callbacks =
-                  sCallbackTable_[static_cast<Setting::StringSettings>(set->Id())];
+               auto const Callbacks = sCallbackTable_[static_cast<Setting::StringSettings>(set->Id())];
 
-               for (auto functor : Callbacks)
+               for (auto func : Callbacks)
                {
-                  (*functor)(arguments);
+                  (func)(arguments);
                }
             }
          }
@@ -487,12 +486,11 @@ void Settings::SetSingleSetting(std::string setting)
          if (enabled_ == true)
          {
             // Call any registered callbacks for this setting
-            std::vector<BoolCallback> const Callbacks =
-               tCallbackTable_[static_cast<Setting::ToggleSettings>(set->Id())];
+            auto const Callbacks = tCallbackTable_[static_cast<Setting::ToggleSettings>(set->Id())];
 
-            for (auto functor : Callbacks)
+            for (auto func : Callbacks)
             {
-               (*functor)(newValue);
+               (func)(newValue);
             }
          }
       }

@@ -163,8 +163,6 @@ namespace Main
    class Settings
    {
       public:
-         typedef Main::CallbackInterface<bool> *          BoolCallback;
-         typedef Main::CallbackInterface<std::string> *   StringCallback;
          Colours colours;
 
       public:
@@ -193,8 +191,8 @@ namespace Main
          std::string Name(Setting::StringSettings setting) const;
 
          //! Register a callback to be called when a setting is changed
-         void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback);
-         void RegisterCallback(Setting::StringSettings setting, StringCallback callback);
+         void RegisterCallback(Setting::ToggleSettings setting, std::function<void (bool)> callback);
+         void RegisterCallback(Setting::StringSettings setting, std::function<void (std::string)> callback);
 
          //! Turn the callbacks on and off
          void EnableCallbacks();
@@ -277,7 +275,7 @@ namespace Main
          BoolVector           toggleVector_;
 
          // Callbacks for on/off settings
-         typedef std::map<Setting::ToggleSettings, std::vector<BoolCallback> > BoolCallbackTable;
+         typedef std::map<Setting::ToggleSettings, std::vector<std::function<void (bool)> > > BoolCallbackTable;
          BoolCallbackTable    tCallbackTable_;
 
          // Used to validate string settings against a regex pattern
@@ -292,7 +290,7 @@ namespace Main
          StringVector         stringVector_;
 
          // Callbacks for string style settings
-         typedef std::map<Setting::StringSettings, std::vector<StringCallback> > StringCallbackTable;
+         typedef std::map<Setting::StringSettings, std::vector<std::function<void (std::string)> > > StringCallbackTable;
          StringCallbackTable  sCallbackTable_;
 
          typedef std::map<std::string, int> ColorNameTable;

@@ -371,14 +371,12 @@ void ScrollWindow::SetScrollLine(uint32_t scrollLine)
 
 void ScrollWindow::SoftRedrawOnSetting(Setting::ToggleSettings setting)
 {
-   settings_.RegisterCallback(setting,
-      new Main::CallbackObject<Ui::ScrollWindow, bool>(*this, &Ui::ScrollWindow::OnSettingChanged));
+   settings_.RegisterCallback(setting, [this] (bool Value) { OnSettingChanged(Value); });
 }
 
 void ScrollWindow::SoftRedrawOnSetting(Setting::StringSettings setting)
 {
-   settings_.RegisterCallback(setting,
-      new Main::CallbackObject<Ui::ScrollWindow, std::string>(*this, &Ui::ScrollWindow::OnSettingChanged));
+   settings_.RegisterCallback(setting, [this] (std::string Value) { OnSettingChanged(Value); });
 }
 
 int32_t ScrollWindow::DetermineColour(uint32_t line) const

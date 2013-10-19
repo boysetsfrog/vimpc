@@ -273,12 +273,9 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    mainWindows_[DebugConsole]->SetAutoScroll(true);
 
    // Register settings callbacks
-   settings_.RegisterCallback(Setting::TabBar,
-      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnTabSettingChange));
-   settings_.RegisterCallback(Setting::ProgressBar,
-      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnProgressSettingChange));
-   settings_.RegisterCallback(Setting::Mouse,
-      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnMouseSettingChange));
+   settings_.RegisterCallback(Setting::TabBar,      [this] (bool Value) { OnTabSettingChange(Value); });
+   settings_.RegisterCallback(Setting::ProgressBar, [this] (bool Value) { OnProgressSettingChange(Value); });
+   settings_.RegisterCallback(Setting::Mouse,       [this] (bool Value) { OnMouseSettingChange(Value); });
 
    // If mouse support is turned on set it up
    SetupMouse(settings_.Get(Setting::Mouse));
