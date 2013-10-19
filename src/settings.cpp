@@ -77,14 +77,14 @@ Settings::~Settings()
 {
    mutex_.lock();
 
-   for (BoolSettingsTable::iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   for (auto entry : toggleTable_)
    {
-      delete it->second;
+      delete entry.second;
    }
 
-   for (StringSettingsTable::iterator it = stringTable_.begin(); it != stringTable_.end(); ++it)
+   for (auto entry : stringTable_)
    {
-      delete it->second;
+      delete entry.second;
    }
 
    mutex_.unlock();
@@ -97,15 +97,15 @@ std::vector<std::string> Settings::AvailableSettings() const
 
    std::vector<std::string> AllSettings;
 
-   for (BoolSettingsTable::const_iterator it = toggleTable_.begin(); it != toggleTable_.end(); ++it)
+   for (auto entry : toggleTable_)
    {
-      AllSettings.push_back(it->first);
-      AllSettings.push_back("no" + it->first);
+      AllSettings.push_back(entry.first);
+      AllSettings.push_back("no" + entry.first);
    }
 
-   for (StringSettingsTable::const_iterator it = stringTable_.begin(); it != stringTable_.end(); ++it)
+   for (auto entry : stringTable_)
    {
-      AllSettings.push_back(it->first);
+      AllSettings.push_back(entry.first);
    }
 
    mutex_.unlock();
@@ -414,12 +414,11 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
             if (enabled_ == true)
             {
                // Call any registered callbacks for this setting
-               std::vector<StringCallback> Callbacks =
+               std::vector<StringCallback> const Callbacks =
                   sCallbackTable_[static_cast<Setting::StringSettings>(set->Id())];
 
-               for (std::vector<StringCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+               for (auto functor : Callbacks)
                {
-                  StringCallback functor = (*it);
                   (*functor)(arguments);
                }
             }
@@ -488,12 +487,11 @@ void Settings::SetSingleSetting(std::string setting)
          if (enabled_ == true)
          {
             // Call any registered callbacks for this setting
-            std::vector<BoolCallback> Callbacks =
+            std::vector<BoolCallback> const Callbacks =
                tCallbackTable_[static_cast<Setting::ToggleSettings>(set->Id())];
 
-            for (std::vector<BoolCallback>::iterator it = Callbacks.begin(); it != Callbacks.end(); ++it)
+            for (auto functor : Callbacks)
             {
-               BoolCallback functor = (*it);
                (*functor)(newValue);
             }
          }
