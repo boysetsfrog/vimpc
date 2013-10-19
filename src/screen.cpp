@@ -1515,12 +1515,9 @@ void Screen::OnProgressClicked(int32_t x)
    if (settings_.Get(Setting::SeekBar) == true)
    {
       // Call any registered callbacks for a progress click
-      std::vector<ProgressCallback>::iterator it = pCallbacks_.begin();
-
-      for (; it != pCallbacks_.end(); ++it)
+      for (auto func : pCallbacks_)
       {
-         ProgressCallback functor = (*it);
-         (*functor)((static_cast<double>(x) / MaxColumns()));
+         (func)((static_cast<double>(x) / MaxColumns()));
       }
    }
 }
