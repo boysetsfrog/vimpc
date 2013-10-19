@@ -30,7 +30,7 @@ ConsoleWindow::ConsoleWindow(Main::Settings const & settings, Ui::Screen & scree
    ScrollWindow(screen, name),
    console_    (console)
 {
-   console_.AddCallback(Main::Buffer_Add, new CallbackObject(*this, &Ui::ConsoleWindow::PerformAutoScroll));
+   console_.AddCallback(Main::Buffer_Add, [this] (Console::BufferType line) { PerformAutoScroll(line); });
 }
 
 ConsoleWindow::~ConsoleWindow()

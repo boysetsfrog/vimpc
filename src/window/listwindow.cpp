@@ -45,16 +45,15 @@ ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc
 {
    SetSupportsVisual(false);
 
-   typedef Main::CallbackObject<Ui::ListWindow , Mpc::Lists::BufferType> WindowCallbackObject;
    typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;
 
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
    SoftRedrawOnSetting(Setting::Playlists);
 
-   Main::AllLists().AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::ListWindow::AdjustScroll));
-   Main::MpdLists().AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::ListWindow::AdjustScroll));
-   Main::FileLists().AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::ListWindow::AdjustScroll));
+   Main::AllLists().AddCallback(Main::Buffer_Remove,  [this] (Mpc::Lists::BufferType line) { AdjustScroll(line); });
+   Main::MpdLists().AddCallback(Main::Buffer_Remove,  [this] (Mpc::Lists::BufferType line) { AdjustScroll(line); });
+   Main::FileLists().AddCallback(Main::Buffer_Remove, [this] (Mpc::Lists::BufferType line) { AdjustScroll(line); });
 
    SoftRedraw();
 }

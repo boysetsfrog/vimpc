@@ -62,7 +62,8 @@ namespace Main
    class BufferImpl : public WindowBuffer, private std::vector<T>
    {
    private:
-      typedef std::vector<Main::CallbackInterface<T> *> CallbackList;
+      typedef std::function<void (T)>         CallbackFunction;
+      typedef std::vector<CallbackFunction>   CallbackList;
       typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
 
    public:
@@ -70,16 +71,7 @@ namespace Main
 
    public:
       BufferImpl<T>() { }
-      virtual ~BufferImpl<T>()
-      {
-         for (typename CallbackMap::iterator it = callback_.begin(); (it != callback_.end()); ++it)
-         {
-            for (typename CallbackList::const_iterator jt = it->second.begin(); (jt != it->second.end()); ++jt)
-            {
-               delete *jt;
-            }
-         }
-      }
+      virtual ~BufferImpl<T>() { }
 
    private:
       BufferImpl<T>(BufferImpl<T> const & buffer);
@@ -206,7 +198,7 @@ namespace Main
       }
 
    public:
-      void AddCallback(BufferCallbackEvent event, CallbackInterface<T> * callback)
+      void AddCallback(BufferCallbackEvent event, CallbackFunction callback)
       {
          callback_[event].push_back(callback);
       }
@@ -218,9 +210,9 @@ namespace Main
 
          if (entry != callback_.end())
          {
-            for (typename CallbackList::const_iterator it = entry->second.begin(); (it != entry->second.end()); ++it)
+            for (auto func : entry->second)
             {
-               (*(*it))(param);
+               (func)(param);
             }
          }
       }

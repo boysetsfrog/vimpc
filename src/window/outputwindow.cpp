@@ -39,10 +39,7 @@ OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen,
    search_          (search),
    outputs_         (outputs)
 {
-   typedef Main::CallbackObject<Ui::OutputWindow , Mpc::Outputs::BufferType> WindowCallbackObject;
-   typedef Main::CallbackObject<Mpc::Outputs,      Mpc::Outputs::BufferType> OutputCallbackObject;
-
-   outputs_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::OutputWindow::AdjustScroll));
+   outputs_.AddCallback(Main::Buffer_Remove, [this] (Mpc::Outputs::BufferType line) { AdjustScroll(line); });
 }
 
 OutputWindow::~OutputWindow()

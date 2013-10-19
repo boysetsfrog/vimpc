@@ -39,7 +39,7 @@ Library::Library() :
    lastAlbumEntry_ (NULL),
    lastArtistEntry_(NULL)
 {
-   AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Library::CheckIfVariousRemoved));
+   AddCallback(Main::Buffer_Remove, [this] (LibraryEntry * const entry) { CheckIfVariousRemoved(entry); });
 }
 
 Library::~Library()

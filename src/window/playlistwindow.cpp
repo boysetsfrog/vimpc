@@ -45,11 +45,8 @@ PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & scr
    playlist_        (playlist),
    pasteBuffer_     (Main::PlaylistPasteBuffer())
 {
-   typedef Main::CallbackObject<Ui::PlaylistWindow, Mpc::Playlist::BufferType> WindowCallbackObject;
-   typedef Main::CallbackObject<Mpc::Playlist,      Mpc::Playlist::BufferType> PlaylistCallbackObject;
-
-   playlist_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this,        &Ui::PlaylistWindow::AdjustScroll));
-   playlist_.AddCallback(Main::Buffer_Remove, new PlaylistCallbackObject(pasteBuffer_, &Mpc::Playlist::Add));
+   playlist_.AddCallback(Main::Buffer_Remove, [this] (Mpc::Playlist::BufferType line) { AdjustScroll(line); });
+   playlist_.AddCallback(Main::Buffer_Remove, [this] (Mpc::Playlist::BufferType line) { this->pasteBuffer_.Add(line); });
 }
 
 PlaylistWindow::~PlaylistWindow()
