@@ -104,13 +104,19 @@ std::vector<std::string> Settings::AvailableSettings() const
 
    for (auto entry : toggleTable_)
    {
-      AllSettings.push_back(entry.first);
-      AllSettings.push_back("no" + entry.first);
+      if (entry.first != Setting::Default)
+      {
+         AllSettings.push_back(entry.first);
+         AllSettings.push_back("no" + entry.first);
+      }
    }
 
    for (auto entry : stringTable_)
    {
-      AllSettings.push_back(entry.first);
+      if (entry.first != Setting::Default)
+      {
+         AllSettings.push_back(entry.first);
+      }
    }
 
    mutex_.unlock();
