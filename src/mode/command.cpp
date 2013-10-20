@@ -782,7 +782,7 @@ void Command::Output(std::string const & arguments)
       }
       else
       {
-         for (int i = 0; (i < count_); ++i)
+         for (int i = 0; (i < static_cast<int>(count_)); ++i)
          {
             if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
             {
@@ -831,7 +831,7 @@ void Command::ToggleOutput(std::string const & arguments)
       {
          for (uint32_t i = 0; (i < count_); ++i)
          {
-            if ((output + i < Main::Outputs().Size()) && (output + i >= 0))
+            if (output + i < Main::Outputs().Size())
             {
                Player::ToggleOutput(output + i);
             }
@@ -1237,6 +1237,7 @@ void Command::ChangeToWindow(std::string const & arguments)
          active = screen_.VisibleWindows() - 1;
          break;
 
+      case LocationCount:
       default:
          break;
    }
@@ -1559,13 +1560,13 @@ void Command::Set(std::string const & arguments)
       for (auto setting : settings_.AvailableSettings())
       {
          if (((setting.size() < 2) || (setting.substr(0, 2) != "no")) &&
-             (settings_.GetBool(setting) == true))
+             (settings_.Get<bool>(setting) == true))
          {
             pager->AddLine(setting);
          }
-         else if (settings_.GetString(setting) != "")
+         else if (settings_.Get<std::string>(setting) != "")
          {
-            std::string const value = settings_.GetString(setting);
+            std::string const value = settings_.Get<std::string>(setting);
             pager->AddLine(setting + "=" + value);
          }
       }

@@ -36,6 +36,8 @@ using namespace Main;
 
 bool skipConfigConnects_ (false);
 
+std::string Setting::Default = "SettingDefaultValueKey";
+
 std::string Setting::AddEnd  = "end";
 std::string Setting::AddNext = "next";
 
@@ -69,6 +71,9 @@ Settings::Settings() :
 #define X(a, b) colourTable_[b] = a;
    COLOUR_SETTINGS
 #undef X
+
+   stringTable_[Setting::Default] = new SettingValue<std::string>(-1, "");
+   toggleTable_[Setting::Default] = new SettingValue<bool>(-1, false);
 
    enabled_ = true;
 }

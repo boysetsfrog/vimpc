@@ -112,6 +112,9 @@
 class Setting
 {
 public:
+   // Provide access to default values through settings table
+   static std::string Default;
+
    // Use for add position comparisons
    static std::string AddEnd;
    static std::string AddNext;
@@ -206,23 +209,8 @@ namespace Main
          void SetColour(std::string property, std::string colour);
 
          //! Get the value for the given \p setting
-         bool GetBool(std::string setting) const
-         {
-            mutex_.lock();
-            auto const it = toggleTable_.find(setting);
-            auto const Result = (it != toggleTable_.end()) ? (it->second->Get()) : false;
-            mutex_.unlock();
-            return Result;
-         }
-
-         std::string GetString(std::string setting) const
-         {
-            mutex_.lock();
-            auto const it = stringTable_.find(setting);
-            auto const Result = (it != stringTable_.end()) ? (it->second->Get()) : "";
-            mutex_.unlock();
-            return Result;
-         }
+         template <typename T>
+         inline T Get(std::string setting) const;
 
       protected:
          //! Set the value of a particular setting
@@ -230,17 +218,27 @@ namespace Main
          void Set(Setting::StringSettings setting, std::string value);
 
          //! Set the value for the given \p setting
-         void SetValue(std::string setting, bool value)
+         inline void SetValue(std::string setting, bool value)
          {
             SetValue(setting, value, toggleTable_);
          }
 
-         void SetValue(std::string setting, std::string value)
+         inline void SetValue(std::string setting, std::string value)
          {
             SetValue(setting, value, stringTable_);
          }
 
       private:
+         template <class T>
+         auto GetValue(std::string setting, T table) const -> decltype (table.at(Setting::Default)->Get())
+         {
+            mutex_.lock();
+            auto const it = table.find(setting);
+            auto const Result = (it != table.end()) ? (it->second->Get()) : table.at(Setting::Default)->Get();
+            mutex_.unlock();
+            return Result;
+         }
+
          template <class T, class U>
          void SetValue(std::string setting, T value, U const & table)
          {
@@ -290,6 +288,18 @@ namespace Main
 
          mutable std::recursive_mutex mutex_;
    };
+
+   template <>
+   inline bool Settings::Get<bool>(std::string setting) const
+   {
+      return GetValue(setting, toggleTable_);
+   }
+
+   template <>
+   inline std::string Settings::Get<std::string>(std::string setting) const
+   {
+      return GetValue(setting, stringTable_);
+   }
 }
 
 #endif
