@@ -113,12 +113,13 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
       fi
     done
   fi])
+
   AC_LANG_POP([C++])
-  if test x$ax_cxx_compile_cxx11_required = xtrue; then
+#  if test x$ax_cxx_compile_cxx11_required = xtrue; then
     if test x$ac_success = xno; then
       AC_MSG_ERROR([*** A compiler with support for C++11 language features is required.])
     fi
-  else
+#  else
     if test x$ac_success = xno; then
       HAVE_CXX11=0
       AC_MSG_NOTICE([No compiler with C++11 support was found])
@@ -129,5 +130,5 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
     fi
 
     AC_SUBST(HAVE_CXX11)
-  fi
+#  fi
 ])

@@ -122,7 +122,7 @@ if test "x$enable_debug" = "xyes"; then
    AC_CHECK_HEADER(execinfo.h, [AC_DEFINE_UNQUOTED(HAVE_EXECINFO_H,1,Define to 1 if there is an <execinfo.h> header file)],[])
 fi
 
-AX_CXX_COMPILE_STDCXX_11
+AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 
 AC_MSG_CHECKING(whether to enable warnings)
 warn_default="no"
