@@ -47,8 +47,10 @@ namespace Ui
       DirectoryWindow(DirectoryWindow & library);
       DirectoryWindow & operator=(DirectoryWindow & library);
 
-   public:
+   private:
       void Print(uint32_t line) const;
+
+   public:
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Click();

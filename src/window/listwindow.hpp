@@ -45,8 +45,10 @@ namespace Ui
       ListWindow(ListWindow & window);
       ListWindow & operator=(ListWindow & window);
 
-   public:
+   private:
       void Print(uint32_t line) const;
+
+   public:
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();

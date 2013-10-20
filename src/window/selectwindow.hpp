@@ -36,9 +36,11 @@ namespace Ui
       SelectWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name = "Unknown");
       ~SelectWindow();
 
-   public:
+   protected:
       void Print(uint32_t line) const;
       void Resize(uint32_t rows, uint32_t columns);
+
+   public:
       void Scroll(int32_t scrollCount);
       void ScrollTo(uint32_t scrollLine);
 

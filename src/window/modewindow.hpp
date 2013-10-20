@@ -22,7 +22,6 @@
 #define __UI__MODEWINDOW
 
 #include "window.hpp"
-
 #include "buffer/linebuffer.hpp"
 
 #include <stdint.h>
@@ -30,8 +29,12 @@
 
 namespace Ui
 {
+   class Screen;
+
    class ModeWindow : public Ui::Window
    {
+      friend class Ui::Screen;
+
    public:
       ModeWindow(int columns, int lines);
       virtual ~ModeWindow();
@@ -39,12 +42,14 @@ namespace Ui
    public:
       void SetLine(std::string const & line);
       void SetLine(char const * const fmt, ... );
-      virtual void Print(uint32_t line) const;
 
       uint32_t BufferSize() const { return buffer_.Size(); }
       void SetCursorPosition(uint32_t cursorPosition);
       void ShowCursor();
       void HideCursor();
+
+   protected:
+      virtual void Print(uint32_t line) const;
 
    private:
       bool             cursorVisible_;

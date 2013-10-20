@@ -34,8 +34,10 @@ namespace Ui
       InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name = "Unknown");
       virtual ~InfoWindow();
 
-   public:
+   private:
       void Print(uint32_t line) const;
+
+   public:
       uint32_t Current() const              { return CurrentLine(); };
       std::string SearchPattern(uint32_t id) const { return ""; }
 

@@ -35,9 +35,11 @@ namespace Ui
       HelpWindow(Main::Settings const & settings, Ui::Screen & screen, Ui::Search const & search);
       ~HelpWindow();
 
+   private:
+      void Print(uint32_t line) const;
+
    public:
       void Redraw();
-      void Print(uint32_t line) const;
       void Confirm();
       void Scroll(int32_t scrollCount);
       void ScrollTo(uint32_t scrollLine);

@@ -31,6 +31,8 @@ namespace Ui
 
    class ScrollWindow
    {
+      friend class Ui::Screen;
+
    public:
       ScrollWindow(Ui::Screen & screen, std::string name = "Unknown");
       virtual ~ScrollWindow();
@@ -44,11 +46,12 @@ namespace Ui
          PositionCount
       } Position;
 
-   public:
+   protected:
       virtual void Print(uint32_t line) const;
       virtual void Resize(uint32_t rows, uint32_t columns);
       virtual void Redraw() {}
 
+   public:
       virtual void Left(Ui::Player & player, uint32_t count) { }
       virtual void Right(Ui::Player & player, uint32_t count) { }
       virtual void Click() { }

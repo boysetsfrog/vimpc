@@ -43,10 +43,8 @@ namespace Ui
       Window(Window & window);
       Window & operator=(Window & window);
 
-   public:
+   private:
       virtual void Print(uint32_t line) const = 0;
-
-   protected:
       virtual void Move(int row, int column);
       virtual void Resize(uint32_t rows, uint32_t columns);
 
