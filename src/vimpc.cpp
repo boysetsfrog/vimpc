@@ -206,9 +206,20 @@ Vimpc::Vimpc() :
       }
    });
 
-   Vimpc::EventHandler(Event::Output, [] (EventData const & Data)
+   Vimpc::EventHandler(Event::Output, [this] (EventData const & Data)
    {
       Main::Outputs().Add(Data.output);
+      clientQueueUpdate_ = true;
+   });
+
+   Vimpc::EventHandler(Event::OutputEnabled,  [this] (EventData const & Data) 
+   { 
+      clientQueueUpdate_ = true;
+   });
+
+   Vimpc::EventHandler(Event::OutputDisabled, [this] (EventData const & Data)
+   {
+      clientQueueUpdate_ = true;
    });
 
    Vimpc::EventHandler(Event::NewPlaylist, [] (EventData const & Data)
