@@ -263,7 +263,7 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
             for (uint32_t i = 0; i < count; ++i)
             {
                //AddToPlaylist(line + i);
-               int32_t const position = line + i;
+               uint32_t const position = line + i;
 
                if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
                {

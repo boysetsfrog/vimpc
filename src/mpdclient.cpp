@@ -2247,7 +2247,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
             unsigned int qVersion    = static_cast<uint32_t>(queueVersion_);
             bool const   wasUpdating = updating_;
 
-            if (volume_ != mpd_status_get_volume(currentStatus_))
+            if (static_cast<int32_t>(volume_) != mpd_status_get_volume(currentStatus_))
             {
                volume_ = mpd_status_get_volume(currentStatus_);
 

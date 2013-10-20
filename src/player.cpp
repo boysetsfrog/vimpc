@@ -275,7 +275,7 @@ void Player::SkipSong(Skip skip, uint32_t count)
       {
          song = 0;
       }
-      else if (song >= clientState_.TotalNumberOfSongs())
+      else if (song >= static_cast<int32_t>(clientState_.TotalNumberOfSongs()))
       {
          song = clientState_.TotalNumberOfSongs() - 1;
       }

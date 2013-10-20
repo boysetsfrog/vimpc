@@ -201,7 +201,7 @@ bool Settings::Get(::Setting::ToggleSettings setting) const
 
 std::string Settings::Get(::Setting::StringSettings setting) const
 {
-   int const strSetting = setting - (Setting::StartString + 1);
+   uint32_t const strSetting = setting - (Setting::StartString + 1);
 
    std::string Result = "";
 
