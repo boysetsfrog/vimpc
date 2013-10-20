@@ -163,7 +163,7 @@ void Song::SetArtist(const char * artist)
 
 std::string const & Song::Artist() const
 {
-   if ((artist_ > 0) && (artist_ < Artists.size()))
+   if ((artist_ >= 0) && (artist_ < static_cast<int32_t>(Artists.size())))
    {
       return Artists.at(artist_);
    }
@@ -178,7 +178,7 @@ void Song::SetAlbum(const char * album)
 
 std::string const & Song::Album() const
 {
-   if ((album_ > 0) && (album_ < Albums.size()))
+   if ((album_ >= 0) && (album_ < static_cast<int32_t>(Albums.size())))
    {
       return Albums.at(album_);
    }
@@ -212,7 +212,7 @@ void Song::SetTrack(const char * track)
 
 std::string const & Song::Track() const
 {
-   if ((track_ > 0) && (track_ < Tracks.size()))
+   if ((track_ >= 0) && (track_ < static_cast<int32_t>(Tracks.size())))
    {
       return Tracks.at(track_);
    }
@@ -246,7 +246,7 @@ void Song::SetGenre(const char * genre)
 
 std::string const & Song::Genre() const
 {
-   if ((genre_ > 0) && (genre_ < Genres.size()))
+   if ((genre_ >= 0) && (genre_ < static_cast<int32_t>(Genres.size())))
    {
       return Genres.at(genre_);
    }
@@ -261,7 +261,7 @@ void Song::SetDate(const char * date)
 
 std::string const & Song::Date() const
 {
-   if ((date_ > 0) && (date_ < Dates.size()))
+   if ((date_ >= 0) && (date_ < static_cast<int32_t>(Dates.size())))
    {
       return Dates.at(date_);
    }
