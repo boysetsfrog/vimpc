@@ -451,7 +451,11 @@ void Library::Collapse(uint32_t line)
    if (Index(entryToCollapse) >= 0)
    {
       uint32_t Pos = Index(entryToCollapse);
-      ForEachChild(Pos, [this] (LibraryEntry * exp) { RemoveAndUnexpand(exp); });
+
+      // Separated function out into variable as compile fails on g++ 4.7.2
+      // if passed directly to function using the lambda
+      std::function<void (LibraryEntry *)> function = [this] (LibraryEntry * exp) { RemoveAndUnexpand(exp); };
+      ForEachChild(Pos, function);
       entryToCollapse->expanded_ = false;
    }
 }

@@ -365,7 +365,10 @@ void LibraryWindow::Edit()
          SongWindow * window = screen_.CreateSongWindow("L:" + title);
 
          // Do not need to sort as this ensures it will be sorted in the same order as the library
-         Main::Library().ForEachChild(CurrentLine(), [&window] (Mpc::Song * song) { window->Add(song); });
+         // Separated function out into variable as compile fails on g++ 4.7.2
+         // if passed directly to function using the lambda
+         std::function<void (Mpc::Song * song)> function = [&window] (Mpc::Song * song) { window->Add(song); };
+         Main::Library().ForEachChild(CurrentLine(), function);
 
          if (window->BufferSize() > 0)
          {
