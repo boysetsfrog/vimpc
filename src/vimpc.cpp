@@ -69,8 +69,6 @@ Vimpc::Vimpc() :
    modeTable_        (),
    normalMode_       (*(new Ui::Normal (this, screen_, client_, clientState_, settings_, search_))),
    commandMode_      (*(new Ui::Command(this, screen_, client_, clientState_, settings_, search_, normalMode_))),
-   clientUpdate_     (false),
-   clientQueueUpdate_(false),
    userEvents_       (true)
 {
 
@@ -82,14 +80,13 @@ Vimpc::Vimpc() :
    ENSURE(ModesAreInitialised() == true);
 
    // All the events that cause repaints
-   Vimpc::EventHandler(Event::Connected,        [this] (EventData const & Data) { this->clientUpdate_      = true; });
-   Vimpc::EventHandler(Event::StatusUpdate,     [this] (EventData const & Data) { this->clientUpdate_      = true; });
-   Vimpc::EventHandler(Event::OutputEnabled,    [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
-   Vimpc::EventHandler(Event::OutputDisabled,   [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
-   Vimpc::EventHandler(Event::QueueUpdate,      [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
-   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
-   Vimpc::EventHandler(Event::CommandListSend,  [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
-   Vimpc::EventHandler(Event::Output,           [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
+   Vimpc::EventHandler(Event::Connected,        [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::OutputEnabled,    [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::OutputDisabled,   [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::QueueUpdate,      [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::CommandListSend,  [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::Output,           [this] (EventData const & Data) { Repaint(); });
 
 #ifdef TEST_ENABLED
    Main::Tester::Instance().Vimpc   = this;
@@ -117,6 +114,16 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    Vimpc::EventHandler(Event::Input, [&input] (EventData const & Data)
    {
       input = Data.input;
+   });
+
+   // Refresh the mode after a status update
+   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data) 
+   { 
+      if (screen_.PagerIsVisible() == false)
+      {
+         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+         mode.Refresh();
+      }
    });
 
    // Set up the display
@@ -207,30 +214,27 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          bool const Resize = screen_.Resize();
 
-         // \TODO client needs to tell this to force an update somehow
-         if ((input != ERR) || (Resize == true) ||
-             (clientUpdate_ == true) || (clientQueueUpdate_ == true))
+         if ((input != ERR) || (Resize == true))
          {
-            clientUpdate_ = false;
-
-            if ((input != ERR) || (Resize == true) ||
-                (clientQueueUpdate_ == true))
-            {
-               Debug("Doing the screen update");
-               clientQueueUpdate_ = false;
-               screen_.Update();
-               clientState_.DisplaySongInformation();
-            }
-
-            if (screen_.PagerIsVisible() == false)
-            {
-               Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-               mode.Refresh();
-            }
+            Repaint();
          }
 
          input = ERR;
       }
+   }
+}
+
+void Vimpc::Repaint()
+{
+   Debug("Doing the screen update");
+
+   screen_.Update();
+   clientState_.DisplaySongInformation();
+
+   if (screen_.PagerIsVisible() == false)
+   {
+      Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+      mode.Refresh();
    }
 }
 

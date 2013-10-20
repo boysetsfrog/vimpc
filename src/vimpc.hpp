@@ -89,6 +89,9 @@ namespace Main
       //! \todo Possibly template this kind of check?
       bool ModesAreInitialised();
 
+      // Update the screen
+      void Repaint();
+
    private:
       //! Change the currently active mode based on \p input
       void ChangeMode(int input);
@@ -112,8 +115,6 @@ namespace Main
       ModeTable         modeTable_;
       Ui::Normal   &    normalMode_;
       Ui::Command  &    commandMode_;
-      bool              clientUpdate_;
-      bool              clientQueueUpdate_;
       bool              userEvents_;
    };
 }
