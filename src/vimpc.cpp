@@ -82,37 +82,24 @@ Vimpc::Vimpc() :
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
 
-   //
-   Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
-   {
-      this->clientUpdate_ = true;
-   });
-
-   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data)
-   {
-      this->clientUpdate_ = true;
-   });
-
-   Vimpc::EventHandler(Event::QueueUpdate, [this] (EventData const & Data)
-   {
-      this->clientQueueUpdate_ = true;
-   });
-
-   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
-   {
-      this->clientQueueUpdate_ = true;
-   });
+   // All the events that cause repaints
+   Vimpc::EventHandler(Event::Connected,        [this] (EventData const & Data) { this->clientUpdate_      = true; });
+   Vimpc::EventHandler(Event::StatusUpdate,     [this] (EventData const & Data) { this->clientUpdate_      = true; });
+   Vimpc::EventHandler(Event::OutputEnabled,    [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
+   Vimpc::EventHandler(Event::OutputDisabled,   [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
+   Vimpc::EventHandler(Event::QueueUpdate,      [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
+   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
+   Vimpc::EventHandler(Event::CommandListSend,  [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
+   Vimpc::EventHandler(Event::Output,           [this] (EventData const & Data) { this->clientQueueUpdate_ = true; });
 
    Vimpc::EventHandler(Event::ClearDatabase, [this] (EventData const & Data)
    {
       Main::Playlist().Clear();
       Main::Directory().Clear(true);
       Main::Library().Clear();
-
       Main::AllLists().Clear();
       Main::MpdLists().Clear();
       Main::FileLists().Clear();
-
       Main::PlaylistPasteBuffer().Clear();
    });
 
@@ -140,12 +127,6 @@ Vimpc::Vimpc() :
       Mpc::List const list(Data.name);
       Main::MpdLists().Add(list);
       Main::AllLists().Add(list);
-   });
-
-   Vimpc::EventHandler(Event::CommandListSend, [this] (EventData const & Data)
-   {
-      Debug("Command list send bit");
-      this->clientQueueUpdate_ = true;
    });
 
    Vimpc::EventHandler(Event::SearchResults, [this] (EventData const & Data)
@@ -206,17 +187,6 @@ Vimpc::Vimpc() :
    Vimpc::EventHandler(Event::Output, [this] (EventData const & Data)
    {
       Main::Outputs().Add(Data.output);
-      clientQueueUpdate_ = true;
-   });
-
-   Vimpc::EventHandler(Event::OutputEnabled,  [this] (EventData const & Data) 
-   { 
-      clientQueueUpdate_ = true;
-   });
-
-   Vimpc::EventHandler(Event::OutputDisabled, [this] (EventData const & Data)
-   {
-      clientQueueUpdate_ = true;
    });
 
    Vimpc::EventHandler(Event::NewPlaylist, [] (EventData const & Data)
