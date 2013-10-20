@@ -41,6 +41,7 @@
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "song.hpp"
+#include "songsorter.hpp"
 #include "vimpc.hpp"
 
 #include "window/browsewindow.hpp"
@@ -282,9 +283,43 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    CursesMutex.unlock();
 
    // Register events
-   Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
+   Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { InvalidateAll(); });
+
+   // Song window events
+   Main::Vimpc::EventHandler(Event::SearchResults, [this] (EventData const & Data)
    {
-      InvalidateAll();
+      Ui::SongWindow * const window = CreateSongWindow(Data.name);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+
+         if (song != NULL)
+         {
+            window->Buffer().Add(song);
+         }
+      }
+
+      Ui::SongSorter const sorter(settings_.Get(::Setting::Sort));
+      window->Buffer().Sort(sorter);
+      SetActiveAndVisible(GetWindowFromName(window->Name()));
+   });
+
+   Main::Vimpc::EventHandler(Event::PlaylistContents, [this] (EventData const & Data)
+   {
+      Ui::SongWindow * const window = CreateSongWindow("P:" + Data.name);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+
+         if (song != NULL)
+         {
+            window->Buffer().Add(song);
+         }
+      }
+
+      SetActiveAndVisible(GetWindowFromName(window->Name()));
    });
 
    // Thread handling of input

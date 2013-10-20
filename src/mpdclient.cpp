@@ -138,6 +138,23 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    clientThread_         (std::thread(&Client::ClientQueueExecutor, this, this))
 {
    screen_.RegisterProgressCallback([this] (double Value) { SeekToPercent(Value); });
+
+   Main::Vimpc::EventHandler(Event::PlaylistContentsForRemove, [this] (EventData const & Data)
+   {
+      Mpc::CommandList list(*this);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+
+         int const PlaylistIndex = Main::Playlist().Index(song);
+
+         if (PlaylistIndex >= 0)
+         {
+            Delete(PlaylistIndex);
+         }
+      }
+   });
 }
 
 Client::~Client()
