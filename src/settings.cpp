@@ -207,7 +207,7 @@ std::string Settings::Get(::Setting::StringSettings setting) const
 
    mutex_.lock();
 
-   if ((strSetting >= 0) && (strSetting < stringVector_.size()))
+   if (strSetting < stringVector_.size())
    {
       Result = stringVector_.at(strSetting)->Get();
    }

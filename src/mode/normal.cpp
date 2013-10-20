@@ -902,7 +902,7 @@ void Normal::ToggleOutput(uint32_t count)
    {
       int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
 
-      for (int i = 0; i < count; ++i)
+      for (uint32_t i = 0; i < count; ++i)
       {
          Player::ToggleOutput(output + i);
       }

@@ -78,7 +78,7 @@ void SongWindow::AddToPlaylist(uint32_t position)
 
 std::string SongWindow::SearchPattern(uint32_t id) const
 {
-   if ((id >= 0) && (id < Buffer().Size()))
+   if (id < Buffer().Size())
    {
       return Buffer().Get(id)->FormatString(settings_.Get(Setting::SongFormat));
    }
