@@ -902,6 +902,7 @@ bool Screen::Resize(bool forceResize)
          }
 
          wclear(mainWindow_);
+         wresize(mainWindow_, mainRows_, maxColumns_);
          mvwin(mainWindow_, topline, 0);
 
          for (int i = 0; (i < MainWindowCount); ++i)
