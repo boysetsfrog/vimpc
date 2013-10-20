@@ -162,6 +162,8 @@ Mpc::Directory & Main::Directory()
          { Main::Directory().Clear(true); });
       Main::Vimpc::EventHandler(Event::DatabaseSong,  [] (EventData const & Data) 
          { Main::Directory().Add(Data.song); });
+      Main::Vimpc::EventHandler(Event::DatabasePath, [] (EventData const & Data)
+         { Main::Directory().Add(Data.uri); });
       Main::Vimpc::EventHandler(Event::DatabaseListFile, [] (EventData const & Data)
          { Mpc::List const list(Data.uri, Data.name); Main::Directory().AddPlaylist(list); });
    }
