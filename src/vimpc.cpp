@@ -388,13 +388,16 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             }
          }
 
+         bool const Resize = screen_.Resize();
+
          // \TODO client needs to tell this to force an update somehow
-         if ((input != ERR) || (screen_.Resize() == true) ||
+         if ((input != ERR) || (Resize == true) ||
              (clientUpdate_ == true) || (clientQueueUpdate_ == true))
          {
             clientUpdate_ = false;
 
-            if ((clientQueueUpdate_ == true) || (input != ERR) || (screen_.Resize() == true))
+            if ((input != ERR) || (Resize == true) ||
+                (clientQueueUpdate_ == true))
             {
                Debug("Doing the screen update");
                clientQueueUpdate_ = false;
