@@ -24,8 +24,10 @@
 #include "browse.hpp"
 #include "clientstate.hpp"
 #include "directory.hpp"
+#include "events.hpp"
 #include "mpdclient.hpp"
 #include "playlist.hpp"
+#include "vimpc.hpp"
 
 #include <algorithm>
 
@@ -40,6 +42,8 @@ Library::Library() :
    lastArtistEntry_(NULL)
 {
    AddCallback(Main::Buffer_Remove, [this] (LibraryEntry * const entry) { CheckIfVariousRemoved(entry); });
+
+   Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Sort(); });
 }
 
 Library::~Library()

@@ -35,8 +35,10 @@ namespace Mpc
    public:
       Outputs()
       {
-         Main::Vimpc::EventHandler(Event::OutputEnabled,  [this] (EventData const & Data) { Debug("OutputEnabled %d", Data.id); SetOutput(Data.id, true); });
-         Main::Vimpc::EventHandler(Event::OutputDisabled, [this] (EventData const & Data) { Debug("OutputDisabled %d", Data.id); SetOutput(Data.id, false); });
+         Main::Vimpc::EventHandler(Event::OutputEnabled,  [this] (EventData const & Data) 
+            { Debug("OutputEnabled %d", Data.id); SetOutput(Data.id, true); });
+         Main::Vimpc::EventHandler(Event::OutputDisabled, [this] (EventData const & Data) 
+            { Debug("OutputDisabled %d", Data.id); SetOutput(Data.id, false); });
       }
       ~Outputs()
       {

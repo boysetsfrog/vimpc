@@ -281,6 +281,13 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    SetupMouse(settings_.Get(Setting::Mouse));
    CursesMutex.unlock();
 
+   // Register events
+   Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
+   {
+      InvalidateAll();
+   });
+
+   // Thread handling of input
    inputThread_ = std::thread(QueueInput, commandWindow_);
 }
 

@@ -85,7 +85,6 @@ Vimpc::Vimpc() :
    //
    Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
    {
-      this->commandMode_.ExecuteQueuedCommands();
       this->clientUpdate_ = true;
    });
 
@@ -101,8 +100,6 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data)
    {
-      Main::Library().Sort();
-      this->screen_.InvalidateAll();
       this->clientQueueUpdate_ = true;
    });
 

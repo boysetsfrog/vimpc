@@ -210,6 +210,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    {
       settingsTable_.push_back("set " + setting);
    }
+
+   // Register for events
+   Main::Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data) { ExecuteQueuedCommands(); });
 }
 
 Command::~Command()
