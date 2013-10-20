@@ -440,10 +440,10 @@ bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> &
                KeyMapVector = mapTable_[input];
             }
 
-            for (std::vector<KeyMapItem>::iterator it = KeyMapVector.begin(); it != KeyMapVector.end(); ++it)
+            for (auto newitem : KeyMapVector)
             {
                // \todo If there is a count before this bunch of stuff is mapped that won't work
-               KeyMap.push_back(*it);
+               KeyMap.push_back(newitem);
             }
          }
 
@@ -487,14 +487,14 @@ bool Normal::CheckTableForInput(T table, std::string const & toMap, std::string 
 {
    uint32_t max = 0;
 
-   for (typename T::iterator it = table.begin(); (it != table.end()); ++it)
+   for (auto entry : table)
    {
-      if ((it->first == toMap.substr(0, it->first.length())) && (it->first.length() >= max))
+      if ((entry.first == toMap.substr(0, entry.first.length())) && (entry.first.length() >= max))
       {
-         if (max < it->first.length())
+         if (max < entry.first.length())
          {
-            result = it->first;
-            max    = it->first.length();
+            result = entry.first;
+            max    = entry.first.length();
          }
       }
    }
@@ -507,22 +507,22 @@ bool Normal::Handle(std::string input, int count)
    bool inMap    = false;
    bool complete = true;
 
-   for (MapTable::const_iterator it = windowMap_[screen_.GetActiveWindow()].begin(); it != windowMap_[screen_.GetActiveWindow()].end(); ++it)
+   for (auto entry : windowMap_[screen_.GetActiveWindow()])
    {
-      if (it->first.substr(0, input.size()) == input)
+      if (entry.first.substr(0, input.size()) == input)
       {
-         complete = (it->first == input) && complete;
+         complete = (entry.first == input) && complete;
          inMap    = true;
       }
    }
 
    if (inMap == false)
    {
-      for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
+      for (auto entry : mapTable_)
       {
-         if (it->first.substr(0, input.size()) == input)
+         if (entry.first.substr(0, input.size()) == input)
          {
-            complete = (it->first == input) && complete;
+            complete = (entry.first == input) && complete;
             inMap    = true;
          }
       }
@@ -536,12 +536,12 @@ bool Normal::Handle(std::string input, int count)
    {
       ptrToMember actionFunc = NULL;
 
-      for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
+      for (auto action : actionTable_)
       {
-         if (it->first.substr(0, input.size()) == input)
+         if (action.first.substr(0, input.size()) == input)
          {
-            complete   = (it->first == input) && complete;
-            actionFunc = it->second;
+            complete   = (action.first == input) && complete;
+            actionFunc = action.second;
          }
       }
 
@@ -581,10 +581,8 @@ bool Normal::RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count)
    bool complete      = false;
    bool specificCount = wasSpecificCount_;
 
-   for (std::vector<KeyMapItem>::const_iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
+   for (auto item : KeyMap)
    {
-      KeyMapItem item = (*it);
-
       uint32_t param = (item.count_ > 0) ? item.count_ : 1;
 
       if (wasSpecificCount_ == false)
@@ -699,6 +697,7 @@ std::string Normal::InputCharToString(int input) const
 std::string Normal::MouseInputToString() const
 {
 #ifdef HAVE_MOUSE_SUPPORT
+   //! \TODO this seems to scroll quite slowly and not properly at all
    static std::map<uint32_t, std::string> conversionTable;
 
    if (conversionTable.empty() == true)
@@ -716,14 +715,11 @@ std::string Normal::MouseInputToString() const
 
    MEVENT event = screen_.LastMouseEvent();
 
-   //! \TODO this seems to scroll quite slowly and not properly at all
-   std::map<uint32_t, std::string>::const_iterator it = conversionTable.begin();
-
-   for (; it != conversionTable.end(); ++it)
+   for (auto conv : conversionTable)
    {
-      if ((it->first & event.bstate) == it->first)
+      if ((conv.first & event.bstate) == conv.first)
       {
-         return it->second;
+         return conv.second;
       }
    }
 

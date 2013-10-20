@@ -161,11 +161,11 @@ bool InputMode::CausesModeToEnd(int input) const
 
    for (uint32_t i = 0; i < input.length(); ++i)
    {
-      for (std::vector<std::string>::iterator it = terminators.begin(); it != terminators.end(); ++it)
+      for (auto terminator : terminators)
       {
-         if (input.substr(i, (*it).length()) == (*it))
+         if (input.substr(i, terminator.length()) == terminator)
          {
-            return input.substr(0, i + ((keepTerminator == true) ? (*it).length() : 0));
+            return input.substr(0, i + ((keepTerminator == true) ? terminator.length() : 0));
          }
       }
    }

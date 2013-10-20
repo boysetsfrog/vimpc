@@ -364,10 +364,10 @@ void Command::SetQueueCommands(bool enabled)
 
 void Command::ExecuteQueuedCommands()
 {
-   for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
+   for (auto command : commandQueue_)
    {
-      Debug("Executing queued command :%u,%u %s %s", (*it).line, (*it).count, (*it).command.c_str(), (*it).arguments.c_str());
-      ExecuteCommand((*it).line, (*it).count, (*it).command, (*it).arguments);
+      Debug("Executing queued command :%u,%u %s %s", command.line, command.count, command.command.c_str(), command.arguments.c_str());
+      ExecuteCommand(command.line, command.count, command.command, command.arguments);
    }
 
    commandQueue_.clear();
@@ -935,14 +935,12 @@ void Command::PrintMappings(std::string tabname)
 
    if (mappings.size() > 0)
    {
-      Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
       PagerWindow * const pager = screen_.GetPagerWindow();
       pager->Clear();
 
-      for (; it != mappings.end(); ++it)
+      for (auto mapping : mappings)
       {
-         pager->AddLine(it->first + "   " + it->second);
+         pager->AddLine(mapping.first + "   " + mapping.second);
       }
 
       screen_.ShowPagerWindow();
@@ -1449,12 +1447,12 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
 
    if (matchingCommand == false)
    {
-      for (CommandTable::const_iterator it = commandTable_.begin(); it != commandTable_.end(); ++it)
+      for (auto cmd : commandTable_)
       {
-         if (command.compare(it->first.substr(0, command.length())) == 0)
+         if (command.compare(cmd.first.substr(0, command.length())) == 0)
          {
             ++validCommandCount;
-            commandToExecute = it->first;
+            commandToExecute = cmd.first;
          }
       }
 
@@ -1557,23 +1555,20 @@ void Command::Set(std::string const & arguments)
    }
    else
    {
-      std::vector<std::string> settings  = settings_.AvailableSettings();
-      std::vector<std::string>::iterator it = settings.begin();
-
       PagerWindow * pager = screen_.GetPagerWindow();
       pager->Clear();
 
-      for (; it != settings.end(); ++it)
+      for (auto setting : settings_.AvailableSettings())
       {
-         if ((((*it).size() < 2) || ((*it).substr(0, 2) != "no")) &&
-             (settings_.GetBool(*it) == true))
+         if (((setting.size() < 2) || (setting.substr(0, 2) != "no")) &&
+             (settings_.GetBool(setting) == true))
          {
-            pager->AddLine(*it);
+            pager->AddLine(setting);
          }
-         else if (settings_.GetString(*it) != "")
+         else if (settings_.GetString(setting) != "")
          {
-            std::string const value = settings_.GetString(*it);
-            pager->AddLine(*it + "=" + value);
+            std::string const value = settings_.GetString(setting);
+            pager->AddLine(setting + "=" + value);
          }
       }
 

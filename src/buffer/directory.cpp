@@ -52,9 +52,9 @@ void Directory::ChangeDirectory(std::string New)
 
    bool found = false;
 
-   for(std::vector<std::string>::iterator it = paths_.begin(); (it != paths_.end()); ++it)
+   for (auto path : paths_)
    {
-      if (*it == New)
+      if (path == New)
       {
          found = true;
       }
@@ -81,31 +81,31 @@ void Directory::ChangeDirectory(std::string New)
 
    directory_ = New;
 
-   for(std::vector<std::string>::iterator it = paths_.begin(); (it != paths_.end()); ++it)
+   for (auto path : paths_)
    {
-      if (*it != New)
+      if (path != New)
       {
-         AddEntry(*it);
+         AddEntry(path);
       }
    }
 
-   std::vector<Mpc::Song *> songs = songs_[directory_];
+   std::vector<Mpc::Song *> const & songs = songs_[directory_];
 
-   for (std::vector<Mpc::Song *>::iterator it = songs.begin(); (it != songs.end()); ++it)
+   for (auto song : songs)
    {
-      Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::SongType, FileFromURI((*it)->URI()),
-            directory_, *it);
+      Mpc::DirectoryEntry * const entry = 
+         new Mpc::DirectoryEntry(Mpc::SongType, FileFromURI(song->URI()), directory_, song);
       Add(entry);
    }
 
    if ((Main::Settings::Instance().Get(Setting::ShowLists) == true))
    {
-      std::vector<std::string> playlists = playlists_[directory_];
+      std::vector<std::string> const & playlists = playlists_[directory_];
 
-      for (std::vector<std::string>::iterator it = playlists.begin(); (it != playlists.end()); ++it)
+      for (auto playlist : playlists)
       {
-         Mpc::DirectoryEntry * entry = new Mpc::DirectoryEntry(Mpc::PlaylistType, FileFromURI(*it),
-               directory_);
+         Mpc::DirectoryEntry * const entry = 
+            new Mpc::DirectoryEntry(Mpc::PlaylistType, FileFromURI(playlist), directory_);
          Add(entry);
       }
    }

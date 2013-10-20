@@ -274,10 +274,10 @@ Vimpc::Vimpc() :
 
 Vimpc::~Vimpc()
 {
-   for (ModeTable::iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
+   for (auto mode : modeTable_)
    {
-      delete (it->second);
-      it->second = NULL;
+      delete (mode.second);
+      mode.second = NULL;
    }
 }
 
@@ -431,15 +431,15 @@ Vimpc::ModeName Vimpc::ModeAfterInput(ModeName mode, int input) const
    // Must be in normal mode to be able to enter any other mode
    else
    {
-      for (ModeTable::const_iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
+      for (auto nmode : modeTable_)
       {
-         if (it->first != Normal)
+         if (nmode.first != Normal)
          {
-            Ui::Mode const & nextMode = assert_reference(it->second);
+            Ui::Mode const & nextMode = assert_reference(nmode.second);
 
             if (nextMode.CausesModeToStart(input) == true)
             {
-               newMode = it->first;
+               newMode = nmode.first;
             }
          }
       }
@@ -562,9 +562,9 @@ bool Vimpc::ModesAreInitialised()
 {
    bool result = true;
 
-   for (ModeTable::iterator it = modeTable_.begin(); ((it != modeTable_.end()) && (result == true)); ++it)
+   for (auto mode : modeTable_)
    {
-      result = (it->second != NULL);
+      result = (mode.second == NULL) ? false : result;
    }
 
    return result;

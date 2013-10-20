@@ -298,9 +298,9 @@ Screen::~Screen()
    delwin(statusWindow_);
    delwin(commandWindow_);
 
-   for (WindowMap::iterator it = mainWindows_.begin(); it != mainWindows_.end(); ++it)
+   for (auto window : mainWindows_)
    {
-      delete it->second;
+      delete window.second;
    }
 
    endwin();
@@ -311,19 +311,17 @@ Screen::~Screen()
 
 int32_t Screen::GetWindowFromName(std::string const & name) const
 {
-   WindowMap::const_iterator it = mainWindows_.begin();
+   int32_t index = Unknown;
 
-   int32_t window = Unknown;
-
-   for (; it != mainWindows_.end(); ++it)
+   for (auto window : mainWindows_)
    {
-      if ((it->second != NULL) && (Algorithm::iequals(name, it->second->Name()) == true))
+      if ((window.second != NULL) && (Algorithm::iequals(name, window.second->Name()) == true))
       {
-         window = it->first;
+         index = window.first;
       }
    }
 
-   return window;
+   return index;
 }
 
 
@@ -444,17 +442,13 @@ void Screen::DeleteModeWindow(ModeWindow * window)
 {
    bool found = false;
 
-   for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); ((it != modeWindows_.end()) && (found != true)); )
+   for (auto modewindow : modeWindows_)
    {
-      if (*it == window)
+      if (modewindow == window)
       {
-         found = true;
-         delete *it;
-         it = modeWindows_.erase(it);
-      }
-      else
-      {
-         ++it;
+         delete modewindow;
+         modeWindows_.remove(modewindow);
+         break;
       }
    }
 }
@@ -802,9 +796,7 @@ void Screen::Invalidate(int32_t window)
 
 void Screen::InvalidateAll()
 {
-   WindowMap::iterator it = mainWindows_.begin();
-
-   for (; (it != mainWindows_.end()); ++it)
+   for (auto it = mainWindows_.begin(); (it != mainWindows_.end()); ++it)
    {
       if (it->first < static_cast<int>(Dynamic))
       {
@@ -895,10 +887,10 @@ bool Screen::Resize(bool forceResize)
          mvwin(statusWindow_,   maxRows_ - 2, 0);
          mvwin(progressWindow_, maxRows_ - 2 - statusline, 0);
 
-         for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
+         for (auto modewindow : modeWindows_)
          {
-            (*it)->Resize(1, maxColumns_);
-            (*it)->Move(lastRow, 0);
+            modewindow->Resize(1, maxColumns_);
+            modewindow->Move(lastRow, 0);
          }
 
          mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), lastRow, 0);
@@ -1014,9 +1006,9 @@ bool Screen::HandleMouseEvent()
                int32_t  x = 0;
                uint32_t i = 1;
 
-               for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
+               for (auto window : visibleWindows_)
                {
-                  std::string const name = GetNameFromWindow(static_cast<int32_t>(*it));
+                  std::string const name = GetNameFromWindow(static_cast<int32_t>(window));
                   size_t const mblength = mbstowcs(wbuffer, name.c_str(), (name.length() < 256) ? name.length() : 255);
                   std::wstring const wname(wbuffer, mblength);
 
@@ -1030,7 +1022,7 @@ bool Screen::HandleMouseEvent()
 
                   if (event.x < x)
                   {
-                     SetActiveAndVisible((static_cast<int32_t>(*it)));
+                     SetActiveAndVisible((static_cast<int32_t>(window)));
                      break;
                   }
 
@@ -1194,9 +1186,9 @@ void Screen::SetActiveWindow(Skip skip)
 
 bool Screen::IsVisible(int32_t window)
 {
-   for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+   for (auto win : visibleWindows_)
    {
-      if (visibleWindows_.at(i) == window)
+      if (win == window)
       {
          return true;
       }
@@ -1217,7 +1209,7 @@ void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
          bool previous = false;
          int32_t index = -1;
 
-         for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (previous == false)); ++it)
+         for (auto it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (previous == false)); ++it)
          {
             if (((*it) == previous_) && ((*it) != window))
             {
@@ -1226,6 +1218,7 @@ void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
 
             index++;
          }
+
          if (previous == true)
          {
             SetActiveWindow(index);
@@ -1240,7 +1233,7 @@ void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
          }
       }
 
-      for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      for (auto it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
       {
          if ((*it) == window)
          {
@@ -1313,7 +1306,7 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
          position = visibleWindows_.size() - 1;
       }
 
-      for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      for (auto it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
       {
          if ((*it) == window)
          {
@@ -1322,9 +1315,8 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
          }
       }
 
-      std::vector<int32_t>::iterator it;
-
-      for (it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
+      auto it = visibleWindows_.begin();
+      for (; ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
 
       if (pos == position)
       {
@@ -1402,7 +1394,7 @@ void Screen::UpdateTabWindow() const
    std::string name   = "";
    uint32_t    count  = 0;
 
-   for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
+   for (auto window : visibleWindows_)
    {
       if (settings_.Get(Setting::ColourEnabled) == true)
       {
@@ -1410,9 +1402,9 @@ void Screen::UpdateTabWindow() const
       }
 
       wattron(tabWindow_, A_UNDERLINE);
-      name = GetNameFromWindow(static_cast<int32_t>(*it));
+      name = GetNameFromWindow(static_cast<int32_t>(window));
 
-      if (*it == window_)
+      if (window == window_)
       {
          if (settings_.Get(Setting::ColourEnabled) == true)
          {
@@ -1428,7 +1420,7 @@ void Screen::UpdateTabWindow() const
          wattron(tabWindow_, A_BOLD);
          wprintw(tabWindow_, "%d", count + 1);
 
-         if (*it != window_)
+         if (window != window_)
          {
             wattroff(tabWindow_, A_BOLD);
          }

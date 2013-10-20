@@ -31,6 +31,7 @@
 #include "window/pagerwindow.hpp"
 #include "window/scrollwindow.hpp"
 
+#include <list>
 #include <string>
 #include <thread>
 
@@ -302,7 +303,7 @@ namespace Ui
 		std::thread	inputThread_;
 
       std::vector<int32_t>      visibleWindows_;
-      std::vector<ModeWindow *> modeWindows_;
+      std::list<ModeWindow *>   modeWindows_;
       mutable std::map<int32_t, bool> drawn_;
 
       std::vector<ProgressCallback> pCallbacks_;

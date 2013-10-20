@@ -131,9 +131,9 @@ namespace Mpc
          uint32_t Result = References(Path);
          std::vector<std::string> const CPaths = ChildPaths(Path);
 
-         for (std::vector<std::string>::const_iterator it = CPaths.begin(); it != CPaths.end(); ++it)
+         for (auto CPath : CPaths)
          {
-            Result += References(*it);
+            Result += References(CPath);
          }
          return Result;
       }
@@ -144,9 +144,9 @@ namespace Mpc
          std::vector<std::string> const CPaths = ChildPaths(Path);
          std::vector<Mpc::Song *> const OwnSongs = Songs(Path);
 
-         for (std::vector<std::string>::const_iterator it = CPaths.begin(); it != CPaths.end(); ++it)
+         for (auto CPath : CPaths)
          {
-            std::vector<Mpc::Song *> Children = Songs(*it);
+            std::vector<Mpc::Song *> Children = Songs(CPath);
             Result.insert(Result.end(), Children.begin(), Children.end());
          }
 

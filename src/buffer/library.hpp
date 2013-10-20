@@ -103,11 +103,11 @@ namespace Mpc
 
          song_ = NULL;
 
-         for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
+         for (auto child : children_)
          {
-            if ((*it) && ((*it)->Parent() == this))
+            if ((child) && (child->Parent() == this))
             {
-               delete *it;
+               delete child;
             }
          }
 
