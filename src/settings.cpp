@@ -214,11 +214,11 @@ void Settings::Set(::Setting::ToggleSettings setting, bool value)
 {
    mutex_.lock();
 
-   SettingNameTable::const_iterator const it = settingName_.find(setting);
+   auto const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
-      SetBool(it->second, value);
+      SetValue(it->second, value);
    }
    else
    {
@@ -232,11 +232,11 @@ void Settings::Set(::Setting::StringSettings setting, std::string value)
 {
    mutex_.lock();
 
-   SettingNameTable::const_iterator const it = settingName_.find(setting);
+   auto const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
-      SetString(it->second, value);
+      SetValue(it->second, value);
    }
    else
    {
@@ -252,7 +252,7 @@ std::string Settings::Name(::Setting::ToggleSettings setting) const
 
    mutex_.lock();
 
-   SettingNameTable::const_iterator const it = settingName_.find(setting);
+   auto const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {
@@ -270,7 +270,7 @@ std::string Settings::Name(::Setting::StringSettings setting) const
 
    mutex_.lock();
 
-   SettingNameTable::const_iterator const it = settingName_.find(setting);
+   auto const it = settingName_.find(setting);
 
    if (it != settingName_.end())
    {

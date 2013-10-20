@@ -664,7 +664,7 @@ std::string Normal::InputCharToString(int input) const
    else
    {
 #endif
-      std::map<int, std::string>::const_iterator it = conversionTable.find(input);
+      auto it = conversionTable.find(input);
 
       if (it != conversionTable.end())
       {

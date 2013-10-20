@@ -209,28 +209,18 @@ namespace Main
          bool GetBool(std::string setting) const
          {
             mutex_.lock();
-            BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
-            bool const Result = ((it != toggleTable_.end()) && (it->second->Get()));
+            auto const it = toggleTable_.find(setting);
+            auto const Result = (it != toggleTable_.end()) ? (it->second->Get()) : false;
             mutex_.unlock();
-
             return Result;
          }
 
          std::string GetString(std::string setting) const
          {
-            std::string Result = "";
-
             mutex_.lock();
-
-            StringSettingsTable::const_iterator it = stringTable_.find(setting);
-
-            if (it != stringTable_.end())
-            {
-               Result = (it->second->Get());
-            }
-
+            auto const it = stringTable_.find(setting);
+            auto const Result = (it != stringTable_.end()) ? (it->second->Get()) : "";
             mutex_.unlock();
-
             return Result;
          }
 
@@ -240,26 +230,26 @@ namespace Main
          void Set(Setting::StringSettings setting, std::string value);
 
          //! Set the value for the given \p setting
-         void SetBool(std::string setting, bool value)
+         void SetValue(std::string setting, bool value)
          {
-            mutex_.lock();
-            BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
-            if ((it != toggleTable_.end())) { it->second->Set(value); }
-            mutex_.unlock();
+            SetValue(setting, value, toggleTable_);
          }
 
-         void SetString(std::string setting, std::string value)
+         void SetValue(std::string setting, std::string value)
          {
-            mutex_.lock();
-            StringSettingsTable::const_iterator it = stringTable_.find(setting);
-            if (it != stringTable_.end())
-            {
-               (it->second->Set(value));
-            }
-            mutex_.unlock();
+            SetValue(setting, value, stringTable_);
          }
 
       private:
+         template <class T, class U>
+         void SetValue(std::string setting, T value, U const & table)
+         {
+            mutex_.lock();
+            auto const it = table.find(setting);
+            if (it != table.end()) { (it->second->Set(value)); }
+            mutex_.unlock();
+         }
+
          //! Used to handle settings that require very specific paramters
          void SetSpecificSetting(std::string setting, std::string arguments);
 

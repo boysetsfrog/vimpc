@@ -53,6 +53,8 @@ void Library::Clear(bool Delete)
    lastArtistEntry_  = NULL;
 
    Main::Playlist().Clear();
+
+   // \todo investigate this, adds considerable overhead in callgrind
    Main::Browse().Clear();
 
    uriMap_.clear();

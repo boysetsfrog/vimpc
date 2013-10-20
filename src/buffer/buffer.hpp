@@ -207,11 +207,11 @@ namespace Main
    private:
       void Callback(BufferCallbackEvent event, T & param) const
       {
-         typename CallbackMap::const_iterator entry = callback_.find(event);
+         auto const it = callback_.find(event);
 
-         if (entry != callback_.end())
+         if (it != callback_.end())
          {
-            for (auto func : entry->second)
+            for (auto func : it->second)
             {
                (func)(param);
             }

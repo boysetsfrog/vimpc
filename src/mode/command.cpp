@@ -206,11 +206,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 #endif
 
    // Add all settings to command table to provide tab completion
-   std::vector<std::string> const AllSettings = settings_.AvailableSettings();
-
-   for (uint32_t i = 0; i < AllSettings.size(); ++i)
+   for (auto setting : settings_.AvailableSettings())
    {
-      settingsTable_.push_back("set " + AllSettings.at(i));
+      settingsTable_.push_back("set " + setting);
    }
 }
 

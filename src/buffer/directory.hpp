@@ -184,13 +184,13 @@ namespace Mpc
       std::vector<Mpc::Song *> Songs(std::string const & Path) const
       {
          static std::vector<Mpc::Song *> emptyvector;
-         std::map<std::string, std::vector<Mpc::Song *> >::const_iterator it = songs_.find(Path);
+         auto const it = songs_.find(Path);
          return (it != songs_.end()) ? it->second : emptyvector;
       }
       std::vector<std::string> ChildPaths(std::string const & Path) const
       {
          static std::vector<std::string> emptyvector;
-         std::map<std::string, std::vector<std::string> >::const_iterator it = children_.find(Path);
+         auto const it = children_.find(Path);
          return (it != children_.end()) ? it->second : emptyvector;
       }
 
