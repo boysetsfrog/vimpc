@@ -77,7 +77,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["c"]       = &Normal::ClearScreen;
 
    // Player
-   actionTable_["p"]       = &Normal::Pause;
+   actionTable_["p"]       = &Normal::PlayPause;
    actionTable_["s"]       = &Normal::Stop;
    actionTable_["<BS>"]    = &Normal::Stop;
    actionTable_["<Space>"] = &Normal::Pause;
@@ -731,6 +731,18 @@ std::string Normal::MouseInputToString() const
 void Normal::ClearScreen(uint32_t count)
 {
    Player::ClearScreen();
+}
+
+void Normal::PlayPause(uint32_t count)
+{
+   if (clientState_.CurrentState() == "Stopped")
+   {
+     client_.Play(0);
+   }
+   else
+   {
+      Player::Pause();
+   }
 }
 
 void Normal::Pause(uint32_t count)

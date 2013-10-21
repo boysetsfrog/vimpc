@@ -100,6 +100,7 @@ namespace Ui
 
    private: // Ui::Player wrapper functions
       void ClearScreen(uint32_t count);
+      void PlayPause(uint32_t count);
       void Pause(uint32_t count);
       void Stop(uint32_t count);
 
