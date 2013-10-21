@@ -189,7 +189,13 @@ namespace Main
       {
          // We need to remove one by one to ensure
          // that the callback is called at the right time
-         Remove(0, Size());
+         for (auto it = BufferImpl<T>::begin(); (it != BufferImpl<T>::end()); ++it)
+         {
+            Callback(Buffer_Remove, *it);
+         }
+
+         BufferImpl<T>::clear();
+
          ENSURE(Size() == 0);
       }
 
