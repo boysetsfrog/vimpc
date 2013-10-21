@@ -390,16 +390,22 @@ void InputMode::ClearWordBeforeCursor()
 
 std::wstring InputMode::stringtow(std::string & string)
 {
+   std::wstring result = L"";
+
    if (string.length() > 0)
    {
       wchar_t * wbuffer = new wchar_t[string.length() + 1];
       size_t const mblength = mbstowcs(wbuffer, string.c_str(), string.length());
-      std::wstring result = std::wstring(wbuffer, mblength);
+
+      if (mblength != static_cast<size_t>(-1))
+      {
+         result = std::wstring(wbuffer, mblength);
+      }
+
       delete[] wbuffer;
-      return result;
    }
 
-   return L"";
+   return result;
 }
 
 std::string InputMode::wtostring(std::wstring & string)
