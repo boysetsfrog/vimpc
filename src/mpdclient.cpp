@@ -304,16 +304,17 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
       }
 
       elapsed_ = 0;
-      UpdateStatus();
-      StateEvent();
 
-      GetAllMetaInformation();
-      UpdateCurrentSong();
-
-      if (Connected() == true)
+      if (IsPasswordRequired() == false)
       {
-         ready_   = true;
-         retried_ = false;
+         Initialise();
+      }
+      else
+      {
+         Error(ErrorNumber::Unknown, "You need a password");
+
+         EventData Data;
+         Main::Vimpc::CreateEvent(Event::RequirePassword, Data);
       }
    }
    else
@@ -321,6 +322,22 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
       Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server> [port]");
    }
 }
+
+void Client::Initialise()
+{
+   UpdateStatus();
+   StateEvent();
+
+   GetAllMetaInformation();
+   UpdateCurrentSong();
+
+   if (Connected() == true)
+   {
+      ready_   = true;
+      retried_ = false;
+   }
+}
+
 
 void Client::Disconnect()
 {
@@ -1943,6 +1960,38 @@ void Client::ClearCommand()
       mpd_response_finish(connection_);
       CheckError();
    }
+}
+
+bool Client::IsPasswordRequired()
+{
+   Debug("Client::Trying status update to determine if password required");
+
+   bool Result = false;
+
+   if (Connected() == true)
+   {
+      struct mpd_status * status = mpd_run_status(connection_);
+
+      mpd_error error = mpd_connection_get_error(connection_);
+
+      if (error != MPD_ERROR_SUCCESS)
+      {
+         if ((error == MPD_ERROR_SERVER) &&
+            (mpd_connection_get_server_error(connection_) == MPD_SERVER_ERROR_PERMISSION))
+         {
+            Result = true;
+         }
+
+         mpd_connection_clear_error(connection_);
+      }
+
+      if (status != NULL)
+      {
+         mpd_status_free(status);
+      }
+   }
+
+   return Result;
 }
 
 

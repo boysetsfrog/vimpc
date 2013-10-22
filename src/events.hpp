@@ -67,6 +67,7 @@
    X(PlaylistContentsForRemove) \
    X(Update) \
    X(UpdateComplete) \
+   X(RequirePassword) \
    X(IdleMode) \
    X(StopIdleMode) \
    X(Unknown)

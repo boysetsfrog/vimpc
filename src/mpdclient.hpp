@@ -223,6 +223,8 @@ namespace Mpc
 
    private:
       void ClearCommand();
+      bool IsPasswordRequired();
+      void Initialise();
 
    private:
       unsigned int QueueVersion();
