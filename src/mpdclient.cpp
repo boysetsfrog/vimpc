@@ -312,9 +312,6 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
       else
       {
          StateEvent();
-
-         Error(ErrorNumber::Unknown, "You need a password");
-
          EventData Data;
          Main::Vimpc::CreateEvent(Event::RequirePassword, Data);
       }

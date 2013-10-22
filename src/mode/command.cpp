@@ -651,7 +651,14 @@ void Command::Reconnect(std::string const & arguments)
 
 void Command::Password(std::string const & password)
 {
-   client_.Password(password.c_str());
+   if (password == "")
+   {
+      screen_.PromptForPassword();
+   }
+   else
+   {
+      client_.Password(password.c_str());
+   }
 }
 
 void Command::Echo(std::string const & echo)

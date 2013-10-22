@@ -127,7 +127,7 @@ void QueueInput(WINDOW * inputWindow)
    {
    #ifdef __DEBUG_PRINTS
       if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
-      else 
+      else
       {
    #endif
 
@@ -284,6 +284,11 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
 
    // Register events
    Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { InvalidateAll(); });
+
+   Main::Vimpc::EventHandler(Event::RequirePassword,  [this] (EventData const & Data)
+   {
+      PromptForPassword();
+   });
 
    // Song window events
    Main::Vimpc::EventHandler(Event::SearchResults, [this] (EventData const & Data)
@@ -495,6 +500,11 @@ void Screen::DeleteModeWindow(ModeWindow * window)
    }
 }
 
+
+void Screen::PromptForPassword()
+{
+   Error(ErrorNumber::Unknown, "You need a password");
+}
 
 PagerWindow * Screen::GetPagerWindow()
 {

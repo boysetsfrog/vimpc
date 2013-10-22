@@ -161,6 +161,9 @@ namespace Ui
       ModeWindow * CreateModeWindow();
       void DeleteModeWindow(ModeWindow * window);
 
+      // Prompt for a password from the user
+      void PromptForPassword();
+
       // Pager window used to display maps, settings, etc
       PagerWindow * GetPagerWindow();
       void ShowPagerWindow();
