@@ -36,7 +36,7 @@
    X(Elapsed) \
    X(StatusUpdate) \
    X(CurrentSongId) \
-   X(CurrentSongURI) \
+   X(CurrentSong) \
    X(QueueUpdate) \
    X(QueueChangesStart) \
    X(ClearDatabase) \
@@ -108,6 +108,7 @@ struct EventData
    std::string clientstate;
    Mpc::Song * song;
    Mpc::Output * output;
+   mpd_song *  currentSong;
 
    std::vector<std::string> uris;
    std::vector<std::pair<int32_t, std::string> > posuri;

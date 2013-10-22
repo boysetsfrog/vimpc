@@ -56,7 +56,6 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    currentSong_          (NULL),
    currentSongId_        (-1),
    totalNumberOfSongs_   (0),
-   currentSongURI_       (""),
    currentState_         ("Disconnected")
 {
    Main::Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
@@ -79,9 +78,13 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->crossfadeTime_      = 0;
       this->currentSongId_      = -1;
       this->currentSongURI_     = "";
-      this->currentSong_        = NULL;
-
       this->totalNumberOfSongs_ = 0;
+
+      if (currentSong_ != NULL)
+      {
+         mpd_song_free(currentSong_);
+         currentSong_ = NULL;
+      }
 
       DisplaySongInformation();
       EventData EData;
@@ -90,7 +93,6 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
 
    Main::Vimpc::EventHandler(Event::ClearDatabase, [this] (EventData const & Data)
    {
-      currentSong_ = NULL;
       DisplaySongInformation();
    });
 
@@ -112,10 +114,16 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       DisplaySongInformation();
    });
 
-   Main::Vimpc::EventHandler(Event::CurrentSongURI, [this] (EventData const & Data)
+   Main::Vimpc::EventHandler(Event::CurrentSong, [this] (EventData const & Data)
    {
-      this->currentSongURI_ = Data.uri;
-      this->currentSong_    = Main::Library().Song(Data.uri);
+      if (currentSong_ != NULL)
+      {
+         mpd_song_free(currentSong_);
+         currentSong_ = NULL;
+      }
+
+      currentSong_    = Data.currentSong;
+      currentSongURI_ = (currentSong_ != NULL) ? mpd_song_get_uri(currentSong_) : "";
       DisplaySongInformation();
    });
 
@@ -270,11 +278,11 @@ std::string ClientState::CurrentState() const
    return currentState_;
 }
 
-
 std::string ClientState::GetCurrentSongURI() const
 {
    return currentSongURI_;
 }
+
 
 int32_t ClientState::GetCurrentSongPos()
 {
@@ -292,18 +300,13 @@ void ClientState::DisplaySongInformation()
 
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
-      if ((currentSong_ == NULL) && (currentSongURI_ != ""))
-      {
-         currentSong_ = Main::Library().Song(currentSongURI_);
-      }
-
       if (currentSong_ != NULL)
       {
-         uint32_t     const duration = currentSong_->Duration();
+         uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = elapsed_;
          uint32_t     const remain   = (duration > elapsed) ? duration - elapsed : 0;
-         std::string  const artist   = currentSong_->Artist();
-         std::string  const title    = currentSong_->Title();
+         std::string  const artist   = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
+         std::string  const title    = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
 
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSongPos() + 1, artist.c_str(), title.c_str());
 

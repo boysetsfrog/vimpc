@@ -1754,7 +1754,9 @@ void Client::IncrementTime(long time)
       {
          UpdateStatus();
       }
-      else if ((currentSong_ != NULL) && (elapsed_ >= mpd_song_get_duration(currentSong_)))
+      else if ((currentSong_ != NULL) && 
+               (mpd_song_get_duration(currentSong_) > 0) &&
+               (elapsed_ >= mpd_song_get_duration(currentSong_)))
       {
          elapsed_ = 0;
          UpdateStatus();
@@ -1878,8 +1880,11 @@ void Client::UpdateCurrentSong()
    EventData IdData; IdData.id = currentSongId_;
    Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
 
-   EventData URIData; URIData.uri = currentSongURI_;
-   Main::Vimpc::CreateEvent(Event::CurrentSongURI, URIData);
+   if (currentSong_ != NULL)
+   {
+      EventData SongData; SongData.currentSong = mpd_song_dup(currentSong_);
+      Main::Vimpc::CreateEvent(Event::CurrentSong, SongData);
+   }
 }
 
 void Client::ClientQueueExecutor(Mpc::Client * client)
@@ -2358,7 +2363,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
                ((mpdstate_ != MPD_STATE_STOP) && (currentSong_ == NULL)) ||
                ((mpdstate_ == MPD_STATE_STOP) && (currentSong_ != NULL)) ||
                ((currentSong_ != NULL) &&
-               ((elapsed_ >= mpd_song_get_duration(currentSong_) - 3) ||
+                (mpd_song_get_duration(currentSong_) > 0) &&
+                ((elapsed_ >= mpd_song_get_duration(currentSong_) - 3) ||
                   (mpd_status_get_elapsed_time(currentStatus_) < mpdelapsed_) ||
                   (mpd_status_get_elapsed_time(currentStatus_) <= 3))))
             {
@@ -2381,8 +2387,8 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
                EventData IdData; IdData.id = currentSongId_;
                Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
-               EventData Data; Data.uri = currentSongURI_;
-               Main::Vimpc::CreateEvent(Event::CurrentSongURI, Data);
+               EventData Data; Data.currentSong = NULL;
+               Main::Vimpc::CreateEvent(Event::CurrentSong, Data);
             }
 
             if (mpdstate_ != MPD_STATE_PLAY)

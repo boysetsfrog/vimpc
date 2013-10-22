@@ -113,7 +113,7 @@ namespace Mpc
       uint32_t                crossfadeTime_;
       uint32_t                elapsed_;
 
-      Mpc::Song *             currentSong_;
+      mpd_song *              currentSong_;
       int32_t                 currentSongId_;
       uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;
