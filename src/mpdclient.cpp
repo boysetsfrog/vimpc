@@ -118,7 +118,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    crossfade_            (false),
    crossfadeTime_        (0),
    elapsed_              (0),
-   state_                (MPD_STATE_STOP),
+   state_                (MPD_STATE_UNKNOWN),
    mpdstate_             (MPD_STATE_UNKNOWN),
 
    currentSong_          (NULL),
@@ -311,6 +311,8 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
       }
       else
       {
+         StateEvent();
+
          Error(ErrorNumber::Unknown, "You need a password");
 
          EventData Data;
@@ -1661,9 +1663,6 @@ void Client::StateEvent()
    {
       switch (state_)
       {
-         case MPD_STATE_UNKNOWN:
-            currentState_ = "Unknown";
-            break;
          case MPD_STATE_STOP:
             currentState_ = "Stopped";
             break;
@@ -1673,14 +1672,11 @@ void Client::StateEvent()
          case MPD_STATE_PAUSE:
             currentState_ = "Paused";
             break;
-
+         case MPD_STATE_UNKNOWN:
          default:
+            currentState_ = "Unknown";
             break;
       }
-   }
-   else
-   {
-      currentState_ = "Disconnected";
    }
 
    EventData Data; Data.clientstate = currentState_;
@@ -2576,6 +2572,7 @@ void Client::DeleteConnection()
    repeat_       = false;
    idleMode_     = false;
    crossfade_    = false;
+   state_        = MPD_STATE_UNKNOWN;
 
    totalNumberOfSongs_ = 0;
 
