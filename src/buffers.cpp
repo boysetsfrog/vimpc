@@ -261,6 +261,8 @@ Ui::Console & Main::TestConsole()
    if (x_buffer == NULL)
    {
       x_buffer = new Ui::Console();
+      Main::Vimpc::EventHandler(Event::TestResult, [] (EventData const & Data)
+         { Main::TestConsole().Add(Data.name); });
    }
    return *x_buffer;
 }

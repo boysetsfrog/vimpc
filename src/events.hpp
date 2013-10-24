@@ -63,6 +63,7 @@
    X(Volume) \
    X(TotalSongCount) \
    X(SearchResults) \
+   X(TestResult) \
    X(PlaylistContents) \
    X(PlaylistContentsForRemove) \
    X(Update) \

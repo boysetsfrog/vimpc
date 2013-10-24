@@ -435,8 +435,6 @@ void CommandTester::OutputCommands()
    snprintf(Buffer, 128, "%d,%denable", 1, outputCount);
    commandMode_.ExecuteCommand(Buffer);
 
-   // \TODO TBD: range based enable, disable are not implemented
-
    for (int i = 0; i < outputCount; ++i)
    {
       Main::Vimpc::WaitForEvent(Event::OutputEnabled, 1000);

@@ -81,12 +81,14 @@ Vimpc::Vimpc() :
 
    // All the events that cause repaints
    Vimpc::EventHandler(Event::Connected,        [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::CommandListSend,  [this] (EventData const & Data) { Repaint(); });
+
    Vimpc::EventHandler(Event::OutputEnabled,    [this] (EventData const & Data) { Repaint(); });
    Vimpc::EventHandler(Event::OutputDisabled,   [this] (EventData const & Data) { Repaint(); });
    Vimpc::EventHandler(Event::QueueUpdate,      [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::CommandListSend,  [this] (EventData const & Data) { Repaint(); });
    Vimpc::EventHandler(Event::Output,           [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::TestResult,       [this] (EventData const & Data) { Repaint(); });
 
 #ifdef TEST_ENABLED
    Main::Tester::Instance().Vimpc   = this;

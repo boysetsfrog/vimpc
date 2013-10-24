@@ -1394,7 +1394,8 @@ void Command::TestExecutor()
 
                if (output != "")
                {
-                  Main::TestConsole().Add(output);
+                  EventData Data; Data.name = output;
+                  Main::Vimpc::CreateEvent(Event::TestResult, Data);
                }
             }
 
