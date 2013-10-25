@@ -78,8 +78,14 @@ void Library::Clear(bool Delete)
 
 void Library::Add(Mpc::Song * song)
 {
-   std::string const artist = song->Artist();
+   std::string artist = song->Artist();
    std::string const album  = song->Album();
+   std::string const albumartist = song->AlbumArtist();
+
+   if ((settings_.Get(Setting::AlbumArtist) == true) && (albumartist != "Unknown Artist"))
+   {
+      artist = albumartist;
+   }
 
    CreateVariousArtist();
 
@@ -130,12 +136,13 @@ void Library::Add(Mpc::Song * song)
          lastArtistEntry_->children_.push_back(lastAlbumEntry_);
       }
    }
-   else if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
-           (lastArtistEntry_ != variousArtist_) &&
-           (lastArtistEntry_->children_.back() == lastAlbumEntry_) &&
-           (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
-           (Algorithm::imatch(lastAlbumEntry_->album_, album,
-              settings_.Get(Setting::IgnoreTheGroup), true) == false))
+
+   if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
+       (lastArtistEntry_ != variousArtist_) &&
+       (lastArtistEntry_->children_.back() == lastAlbumEntry_) &&
+       (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
+       (Algorithm::imatch(lastArtistEntry_->artist_, artist,
+           settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
       lastArtistEntry_->children_.pop_back();
 

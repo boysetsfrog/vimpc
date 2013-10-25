@@ -98,6 +98,9 @@ namespace Mpc
       void SetArtist(const char * artist);
       std::string const & Artist() const;
 
+      void SetAlbumArtist(const char * artist);
+      std::string const & AlbumArtist() const;
+
       void SetAlbum(const char * album);
       std::string const & Album() const;
 
@@ -148,6 +151,7 @@ namespace Mpc
    private:
       int32_t     reference_;
       int32_t     artist_;
+      int32_t     albumArtist_;
       int32_t     album_;
       int32_t     track_;
       int32_t     genre_;
