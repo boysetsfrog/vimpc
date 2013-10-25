@@ -1754,7 +1754,7 @@ void Client::IncrementTime(long time)
       {
          UpdateStatus();
       }
-      else if ((currentSong_ != NULL) && 
+      else if ((currentSong_ != NULL) &&
                (mpd_song_get_duration(currentSong_) > 0) &&
                (elapsed_ >= mpd_song_get_duration(currentSong_)))
       {
@@ -2003,8 +2003,6 @@ void Client::GetAllMetaInformation()
    std::vector<std::string> paths;
    std::vector<std::pair<std::string, std::string> > lists;
 
-   bool const albumartist = settings_.Get(Setting::AlbumArtist);
-
    if (Connected() == true)
    {
       EventData DBData;
@@ -2023,7 +2021,7 @@ void Client::GetAllMetaInformation()
 
             if (nextSong != NULL)
             {
-               Song * const newSong = CreateSong(nextSong, albumartist);
+               Song * const newSong = CreateSong(nextSong);
                songs.push_back(newSong);
             }
          }
@@ -2420,7 +2418,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
    });
 }
 
-Song * Client::CreateSong(mpd_song const * const song, bool albumartist) const
+Song * Client::CreateSong(mpd_song const * const song) const
 {
    static int count = 0;
 
@@ -2428,21 +2426,15 @@ Song * Client::CreateSong(mpd_song const * const song, bool albumartist) const
 
    //Debug("Alloc a song %d %d", count, sizeof(Song));
 
-   char const * artist = NULL;
-
-   if (albumartist == true)
-   {
-      artist = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0);
-   }
-
-   newSong->SetArtist   ((artist == NULL) ? mpd_song_get_tag(song, MPD_TAG_ARTIST, 0) : artist);
-   newSong->SetAlbum    (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
-   newSong->SetTitle    (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
-   newSong->SetTrack    (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
-   newSong->SetURI      (mpd_song_get_uri(song));
-   newSong->SetGenre    (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
-   newSong->SetDate     (mpd_song_get_tag(song, MPD_TAG_DATE, 0));
-   newSong->SetDuration (mpd_song_get_duration(song));
+   newSong->SetArtist     (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
+   newSong->SetAlbumArtist(mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0));
+   newSong->SetAlbum      (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
+   newSong->SetTitle      (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
+   newSong->SetTrack      (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
+   newSong->SetURI        (mpd_song_get_uri(song));
+   newSong->SetGenre      (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
+   newSong->SetDate       (mpd_song_get_tag(song, MPD_TAG_DATE, 0));
+   newSong->SetDuration   (mpd_song_get_duration(song));
 
    return newSong;
 }

@@ -55,6 +55,7 @@ using namespace Mpc;
 Song::Song() :
    reference_ (0),
    artist_    (-1),
+   albumArtist_(-1),
    album_     (-1),
    track_     (-1),
    genre_     (-1),
@@ -70,6 +71,7 @@ Song::Song() :
 Song::Song(Song const & song) :
    reference_ (0),
    artist_    (song.artist_),
+   albumArtist_(song.albumArtist_),
    album_     (song.album_),
    track_     (song.track_),
    genre_     (song.genre_),
@@ -166,6 +168,21 @@ std::string const & Song::Artist() const
    if ((artist_ >= 0) && (artist_ < static_cast<int32_t>(Artists.size())))
    {
       return Artists.at(artist_);
+   }
+
+   return UnknownArtist;
+}
+
+void Song::SetAlbumArtist(const char * albumArtist)
+{
+   Set(albumArtist, albumArtist_, Artists, ArtistMap);
+}
+
+std::string const & Song::AlbumArtist() const
+{
+   if ((albumArtist_ >= 0) && (albumArtist_ < static_cast<int32_t>(Artists.size())))
+   {
+      return Artists.at(albumArtist_);
    }
 
    return UnknownArtist;
@@ -374,7 +391,21 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
                   (*it == 'n') || (*it == 'f'))
          {
             SongFunction Function = songInfo[*it];
-            std::string val = (*this.*Function)();
+            std::string val = "";
+
+            if ((*it == 'a') || (*it == 'A'))
+            {
+               if (Main::Settings().Instance().Get(Setting::AlbumArtist) == true)
+               {
+                  val = AlbumArtist();
+               }
+            }
+
+            if ((val == "") || (val.substr(0, strlen("Unknown")) == "Unknown"))
+            {
+               val = (*this.*Function)();
+            }
+
             if ((*it == 'B') || (*it == 'A'))
             {
                SwapThe(val);
