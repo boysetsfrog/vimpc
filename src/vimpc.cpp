@@ -89,6 +89,7 @@ Vimpc::Vimpc() :
    Vimpc::EventHandler(Event::QueueUpdate,      [this] (EventData const & Data) { Repaint(); });
    Vimpc::EventHandler(Event::Output,           [this] (EventData const & Data) { Repaint(); });
    Vimpc::EventHandler(Event::TestResult,       [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::NewPlaylist,      [this] (EventData const & Data) { Repaint(); });
 
 #ifdef TEST_ENABLED
    Main::Tester::Instance().Vimpc   = this;
