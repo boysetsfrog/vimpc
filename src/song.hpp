@@ -129,6 +129,11 @@ namespace Mpc
       std::string FormatString(std::string fmt) const;
       std::string ParseString(std::string::const_iterator &it, bool &valid) const;
 
+   public:
+      typedef std::string const & (Mpc::Song::*SongFunction)() const;
+      static std::map<char, SongFunction> SongInfo;
+      static void RepopulateSongFunctions();
+
    private:
       static std::vector<std::string> Artists;
       static std::map<std::string, uint32_t> ArtistMap;

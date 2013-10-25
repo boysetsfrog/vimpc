@@ -91,6 +91,15 @@ Vimpc::Vimpc() :
    Vimpc::EventHandler(Event::TestResult,       [this] (EventData const & Data) { Repaint(); });
    Vimpc::EventHandler(Event::NewPlaylist,      [this] (EventData const & Data) { Repaint(); });
 
+   // When we change the album artist we need to repopulate the print functions in the song
+   // this is an optimisation, if you check the setting for every song print to determine
+   // whether to use the albumartist or the artist it is a huge overhead, so we don't
+   // we also need to clear the format cache, this occurs in a library callback
+   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value) 
+   { 
+      Mpc::Song::RepopulateSongFunctions(); 
+   });
+
 #ifdef TEST_ENABLED
    Main::Tester::Instance().Vimpc   = this;
    Main::Tester::Instance().Screen  = &screen_;

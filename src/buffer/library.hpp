@@ -249,7 +249,7 @@ namespace Mpc
       void RemoveAndUnexpand(LibraryEntry * const entry);
 
    private:
-      Main::Settings const & settings_;
+      Main::Settings & settings_;
       std::map<std::string, Mpc::Song *> uriMap_;
       Mpc::LibraryEntry * variousArtist_;
       Mpc::LibraryEntry * lastAlbumEntry_;

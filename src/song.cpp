@@ -49,6 +49,7 @@ std::map<std::string, uint32_t> Mpc::Song::GenreMap;
 std::vector<std::string> Mpc::Song::Dates;
 std::map<std::string, uint32_t> Mpc::Song::DateMap;
 
+std::map<char, Mpc::Song::SongFunction> Mpc::Song::SongInfo;
 
 using namespace Mpc;
 
@@ -183,6 +184,11 @@ std::string const & Song::AlbumArtist() const
    if ((albumArtist_ >= 0) && (albumArtist_ < static_cast<int32_t>(Artists.size())))
    {
       return Artists.at(albumArtist_);
+   }
+
+   if ((artist_ >= 0) && (artist_ < static_cast<int32_t>(Artists.size())))
+   {
+      return Artists.at(artist_);
    }
 
    return UnknownArtist;
@@ -337,24 +343,35 @@ std::string Song::FormatString(std::string fmt) const
    return formatted_;
 }
 
+/* static */ void Song::RepopulateSongFunctions()
+{
+   SongInfo['b'] = &Mpc::Song::Album;
+   SongInfo['B'] = &Mpc::Song::Album;
+   SongInfo['l'] = &Mpc::Song::DurationString;
+   SongInfo['t'] = &Mpc::Song::Title;
+   SongInfo['n'] = &Mpc::Song::Track;
+   SongInfo['f'] = &Mpc::Song::URI;
+
+   if (Main::Settings().Instance().Get(Setting::AlbumArtist) == true)
+   {
+      SongInfo['a'] = &Mpc::Song::AlbumArtist;
+      SongInfo['A'] = &Mpc::Song::AlbumArtist;
+   }
+   else
+   {
+      SongInfo['a'] = &Mpc::Song::Artist;
+      SongInfo['A'] = &Mpc::Song::Artist;
+   }
+}
+
 std::string Song::ParseString(std::string::const_iterator & it, bool & valid) const
 {
-   typedef std::string const & (Mpc::Song::*SongFunction)() const;
-   static std::map<char, SongFunction> songInfo;
-
-   if (songInfo.size() == 0)
-   {
-      songInfo['a'] = &Mpc::Song::Artist;
-      songInfo['A'] = &Mpc::Song::Artist;
-      songInfo['b'] = &Mpc::Song::Album;
-      songInfo['B'] = &Mpc::Song::Album;
-      songInfo['l'] = &Mpc::Song::DurationString;
-      songInfo['t'] = &Mpc::Song::Title;
-      songInfo['n'] = &Mpc::Song::Track;
-      songInfo['f'] = &Mpc::Song::URI;
-   }
-
    std::string result;
+
+   if (SongInfo.empty() == true)
+   {
+      Mpc::Song::RepopulateSongFunctions();
+   }
 
    do
    {
@@ -390,21 +407,8 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
                   (*it == 'l') || (*it == 't') ||
                   (*it == 'n') || (*it == 'f'))
          {
-            SongFunction Function = songInfo[*it];
-            std::string val = "";
-
-            if ((*it == 'a') || (*it == 'A'))
-            {
-               if (Main::Settings().Instance().Get(Setting::AlbumArtist) == true)
-               {
-                  val = AlbumArtist();
-               }
-            }
-
-            if ((val == "") || (val.substr(0, strlen("Unknown")) == "Unknown"))
-            {
-               val = (*this.*Function)();
-            }
+            SongFunction Function = SongInfo[*it];
+            std::string val = (*this.*Function)();
 
             if ((*it == 'B') || (*it == 'A'))
             {
