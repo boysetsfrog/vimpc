@@ -54,23 +54,20 @@ BrowseWindow::~BrowseWindow()
 
 void BrowseWindow::Redraw()
 {
-   uint32_t currentLine = CurrentLine();
-   uint32_t scrollLine  = ScrollLine();
-
    Clear();
    SoftRedraw();
-
-   // If we are redrawing and can keep the same scroll point do so
-   // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
-   if (currentLine < browse_.Size())
-   {
-      SetScrollLine(scrollLine);
-      ScrollTo(currentLine);
-   }
 }
 
 void BrowseWindow::SoftRedraw()
 {
+   std::string uri = "";
+
+   if (browse_.Size() > 0)
+   {
+      Mpc::Song * song = browse_.Get(CurrentLine());
+      uri = (song != NULL) ? song->URI() : "";
+   }
+
    std::string const format = settings_.Get(::Setting::Sort);
 
    if ((format == "library") || (browse_.Size() == 0))
@@ -85,7 +82,22 @@ void BrowseWindow::SoftRedraw()
       Buffer().Sort(sorter);
    }
 
-   ScrollTo(0);
+   // If we are redrawing and can keep the same scroll point do so
+   // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
+   if (uri != "")
+   {
+      for (int i = 0; i < browse_.Size(); ++i)
+      {
+         if ((browse_.Get(i) != NULL) && (browse_.Get(i)->URI() == uri))
+         {
+            ScrollTo(i);
+         }
+      }
+   }
+   else
+   {
+      ScrollTo(0);
+   }
 }
 
 void BrowseWindow::PrintId(uint32_t Id) const
