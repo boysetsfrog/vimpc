@@ -48,6 +48,7 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
    SoftRedrawOnSetting(Setting::IgnoreTheGroup);
    SoftRedrawOnSetting(Setting::ExpandArtists);
+   SoftRedrawOnSetting(Setting::AlbumArtist);
 }
 
 LibraryWindow::~LibraryWindow()

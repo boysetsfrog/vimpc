@@ -242,6 +242,8 @@ namespace Mpc
       std::string PrintString(uint32_t position) const;
 
    private:
+      void RecreateLibraryFromURIs();
+
       void AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::LibraryEntry const * const entry, int32_t position = -1);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
       void DeleteEntry(LibraryEntry * const entry);

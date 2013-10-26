@@ -52,6 +52,8 @@ Library::Library() :
       {
          song.second->FormatString("");
       }
+
+      RecreateLibraryFromURIs();
    });
 }
 
@@ -82,6 +84,38 @@ void Library::Clear(bool Delete)
       {
          delete entry;
       }
+   }
+}
+
+void Library::RecreateLibraryFromURIs()
+{
+   // collapse everything
+   ForEachParent([] (Mpc::LibraryEntry * entry) { Mpc::MarkUnexpanded(entry); });
+
+   // clear the songs
+   std::function<void (LibraryEntry *)> function = [this] (LibraryEntry * entry) { entry->song_ = NULL; };
+
+   for (int i = 0; i < Size(); ++i)
+   {
+      ForEachChild(i, function);
+   }
+
+   // get rid of every entry
+   while (Size() > 0)
+   {
+      int const Pos = Size() - 1;
+      LibraryEntry * entry = Get(Pos);
+      Remove(Pos, 1);
+
+      if (entry->parent_ == NULL)
+      {
+         delete entry;
+      }
+   }
+
+   for (auto song : uriMap_)
+   {
+      Add(song.second);
    }
 }
 
