@@ -45,6 +45,7 @@ BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen,
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
    SoftRedrawOnSetting(Setting::Sort);
+   SoftRedrawOnSetting(Setting::AlbumArtist);
 }
 
 BrowseWindow::~BrowseWindow()
