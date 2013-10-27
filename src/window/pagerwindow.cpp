@@ -104,11 +104,11 @@ bool PagerWindow::IsAtEnd()
    return ((buffer_.Size() - currentLine_) <= (screen_.TotalRows() / 2));
 }
 
-size_t PagerWindow::BufferSize() const
+uint32_t PagerWindow::BufferSize() const
 {
    if (buffer_.Size() > (screen_.TotalRows() / 2))
    {
-      return (screen_.TotalRows() / 2) + 1; 
+      return (screen_.TotalRows() / 2) + 1;
    }
 
    return buffer_.Size() + 1;

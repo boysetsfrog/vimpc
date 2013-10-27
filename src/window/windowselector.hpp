@@ -35,7 +35,7 @@ namespace Ui
    class WindowSelector : public Ui::SelectWindow
    {
    public:
-      WindowSelector(Main::Settings const & settings, Ui::Screen & screen, 
+      WindowSelector(Main::Settings const & settings, Ui::Screen & screen,
                      Ui::Windows const & windows, Ui::Search const & search);
       ~WindowSelector();
 
@@ -55,9 +55,6 @@ namespace Ui
       int32_t DetermineColour(uint32_t line) const;
 
       Main::WindowBuffer const & WindowBuffer() const { return windows_; }
-
-   private:
-      typedef Main::CallbackObject<Ui::WindowSelector, Windows::BufferType> CallbackObject;
 
    private:
       Ui::Windows const & windows_;

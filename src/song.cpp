@@ -30,17 +30,40 @@ const std::string UnknownArtist = "Unknown Artist";
 const std::string UnknownAlbum  = "Unknown Album";
 const std::string UnknownTitle  = "Unknown";
 const std::string UnknownURI    = "Unknown";
+const std::string UnknownGenre  = "Unknown";
+const std::string UnknownTrack  = "";
+const std::string UnknownDate   = "Unknown";
+
+std::vector<std::string> Mpc::Song::Artists;
+std::map<std::string, uint32_t> Mpc::Song::ArtistMap;
+
+std::vector<std::string> Mpc::Song::Albums;
+std::map<std::string, uint32_t> Mpc::Song::AlbumMap;
+
+std::vector<std::string> Mpc::Song::Tracks;
+std::map<std::string, uint32_t> Mpc::Song::TrackMap;
+
+std::vector<std::string> Mpc::Song::Genres;
+std::map<std::string, uint32_t> Mpc::Song::GenreMap;
+
+std::vector<std::string> Mpc::Song::Dates;
+std::map<std::string, uint32_t> Mpc::Song::DateMap;
+
+std::map<char, Mpc::Song::SongFunction> Mpc::Song::SongInfo;
 
 using namespace Mpc;
 
 Song::Song() :
    reference_ (0),
-   artist_    (""),
-   album_     (""),
-   title_     (""),
-   track_     (""),
-   uri_       (""),
+   artist_    (-1),
+   albumArtist_(-1),
+   album_     (-1),
+   track_     (-1),
+   genre_     (-1),
+   date_      (-1),
    duration_  (0),
+   uri_       (""),
+   title_     (""),
    lastFormat_(""),
    formatted_ (""),
    entry_     (NULL)
@@ -48,12 +71,15 @@ Song::Song() :
 
 Song::Song(Song const & song) :
    reference_ (0),
-   artist_    (song.Artist()),
-   album_     (song.Album()),
-   title_     (song.Title()),
-   track_     (song.Track()),
+   artist_    (song.artist_),
+   albumArtist_(song.albumArtist_),
+   album_     (song.album_),
+   track_     (song.track_),
+   genre_     (song.genre_),
+   date_      (song.date_),
+   duration_  (song.duration_),
    uri_       (song.URI()),
-   duration_  (song.Duration()),
+   title_     (song.Title()),
    lastFormat_(song.lastFormat_),
    formatted_ (song.formatted_)
 {
@@ -106,42 +132,87 @@ int32_t Song::Reference() const
    }
 }
 
-void Song::SetArtist(const char * artist)
+
+
+void Song::Set(const char * newVal, int32_t & oldVal, std::vector<std::string> & Values, std::map<std::string, uint32_t> & Indexes)
 {
-   if (artist != NULL)
+   lastFormat_ = "";
+
+   if (newVal == NULL)
    {
-      artist_ = artist;
+      oldVal = -1;
    }
    else
    {
-      artist_ = UnknownArtist;
+      auto it = Indexes.find(newVal);
+
+      if (it == Indexes.end())
+      {
+         oldVal = Values.size();
+         Indexes[std::string(newVal)] = oldVal;
+         Values.push_back(newVal);
+      }
+      else
+      {
+         oldVal = it->second;
+      }
    }
+}
+
+void Song::SetArtist(const char * artist)
+{
+   Set(artist, artist_, Artists, ArtistMap);
 }
 
 std::string const & Song::Artist() const
 {
-   return artist_;
+   if ((artist_ >= 0) && (artist_ < static_cast<int32_t>(Artists.size())))
+   {
+      return Artists.at(artist_);
+   }
+
+   return UnknownArtist;
+}
+
+void Song::SetAlbumArtist(const char * albumArtist)
+{
+   Set(albumArtist, albumArtist_, Artists, ArtistMap);
+}
+
+std::string const & Song::AlbumArtist() const
+{
+   if ((albumArtist_ >= 0) && (albumArtist_ < static_cast<int32_t>(Artists.size())))
+   {
+      return Artists.at(albumArtist_);
+   }
+
+   if ((artist_ >= 0) && (artist_ < static_cast<int32_t>(Artists.size())))
+   {
+      return Artists.at(artist_);
+   }
+
+   return UnknownArtist;
 }
 
 void Song::SetAlbum(const char * album)
 {
-   if (album != NULL)
-   {
-      album_ = album;
-   }
-   else
-   {
-      album_ = UnknownAlbum;
-   }
+   Set(album, album_, Albums, AlbumMap);
 }
 
 std::string const & Song::Album() const
 {
-   return album_;
+   if ((album_ >= 0) && (album_ < static_cast<int32_t>(Albums.size())))
+   {
+      return Albums.at(album_);
+   }
+
+   return UnknownAlbum;
 }
 
 void Song::SetTitle(const char * title)
 {
+   lastFormat_ = "";
+
    if (title != NULL)
    {
       title_ = title;
@@ -159,23 +230,23 @@ std::string const & Song::Title() const
 
 void Song::SetTrack(const char * track)
 {
-   if (track != NULL)
-   {
-      track_ = track;
-   }
-   else
-   {
-      track = "";
-   }
+   Set(track, track_, Tracks, TrackMap);
 }
 
 std::string const & Song::Track() const
 {
-   return track_;
+   if ((track_ >= 0) && (track_ < static_cast<int32_t>(Tracks.size())))
+   {
+      return Tracks.at(track_);
+   }
+
+   return UnknownTrack;
 }
 
 void Song::SetURI(const char * uri)
 {
+   lastFormat_ = "";
+
    if (uri != NULL)
    {
       uri_ = uri;
@@ -191,16 +262,40 @@ std::string const & Song::URI() const
    return uri_;
 }
 
+void Song::SetGenre(const char * genre)
+{
+   Set(genre, genre_, Genres, GenreMap);
+}
+
+std::string const & Song::Genre() const
+{
+   if ((genre_ >= 0) && (genre_ < static_cast<int32_t>(Genres.size())))
+   {
+      return Genres.at(genre_);
+   }
+
+   return UnknownGenre;
+}
+
+void Song::SetDate(const char * date)
+{
+   Set(date, date_, Dates, DateMap);
+}
+
+std::string const & Song::Date() const
+{
+   if ((date_ >= 0) && (date_ < static_cast<int32_t>(Dates.size())))
+   {
+      return Dates.at(date_);
+   }
+
+   return UnknownDate;
+}
+
 void Song::SetDuration(int32_t duration)
 {
+   lastFormat_ = "";
    duration_ = duration;
-
-   char cduration[32];
-   uint32_t const minutes = static_cast<uint32_t>(duration_ / 60);
-   uint32_t const seconds = (duration_ - (minutes * 60));
-
-   snprintf(cduration, 32, "%2d:%.2d", minutes, seconds);
-   durationString_ = (std::string(cduration));
 }
 
 int32_t Song::Duration() const
@@ -220,7 +315,15 @@ LibraryEntry * Song::Entry() const
 
 std::string const & Song::DurationString() const
 {
-   return durationString_;
+   static std::string Result;
+   static char cduration[32];
+
+   uint32_t const minutes = static_cast<uint32_t>(duration_ / 60);
+   uint32_t const seconds = (duration_ - (minutes * 60));
+
+   snprintf(cduration, 32, "%2d:%.2d", minutes, seconds);
+   Result = std::string(cduration);
+   return Result;
 }
 
 std::string Song::FormatString(std::string fmt) const
@@ -235,27 +338,40 @@ std::string Song::FormatString(std::string fmt) const
    lastFormat_ = fmt;
    std::string::const_iterator it = fmt.begin();
    valid = true;
-   return ParseString(it, valid);
+   formatted_ = ParseString(it, valid);
+
+   return formatted_;
+}
+
+/* static */ void Song::RepopulateSongFunctions()
+{
+   SongInfo['b'] = &Mpc::Song::Album;
+   SongInfo['B'] = &Mpc::Song::Album;
+   SongInfo['l'] = &Mpc::Song::DurationString;
+   SongInfo['t'] = &Mpc::Song::Title;
+   SongInfo['n'] = &Mpc::Song::Track;
+   SongInfo['f'] = &Mpc::Song::URI;
+
+   if (Main::Settings().Instance().Get(Setting::AlbumArtist) == true)
+   {
+      SongInfo['a'] = &Mpc::Song::AlbumArtist;
+      SongInfo['A'] = &Mpc::Song::AlbumArtist;
+   }
+   else
+   {
+      SongInfo['a'] = &Mpc::Song::Artist;
+      SongInfo['A'] = &Mpc::Song::Artist;
+   }
 }
 
 std::string Song::ParseString(std::string::const_iterator & it, bool & valid) const
 {
-   typedef std::string const & (Mpc::Song::*SongFunction)() const;
-   static std::map<char, SongFunction> songInfo;
-
-   if (songInfo.size() == 0)
-   {
-      songInfo['a'] = &Mpc::Song::Artist;
-      songInfo['A'] = &Mpc::Song::Artist;
-      songInfo['b'] = &Mpc::Song::Album;
-      songInfo['B'] = &Mpc::Song::Album;
-      songInfo['l'] = &Mpc::Song::DurationString;
-      songInfo['t'] = &Mpc::Song::Title;
-      songInfo['n'] = &Mpc::Song::Track;
-      songInfo['f'] = &Mpc::Song::URI;
-   }
-
    std::string result;
+
+   if (SongInfo.empty() == true)
+   {
+      Mpc::Song::RepopulateSongFunctions();
+   }
 
    do
    {
@@ -291,8 +407,9 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
                   (*it == 'l') || (*it == 't') ||
                   (*it == 'n') || (*it == 'f'))
          {
-            SongFunction Function = songInfo[*it];
+            SongFunction Function = SongInfo[*it];
             std::string val = (*this.*Function)();
+
             if ((*it == 'B') || (*it == 'A'))
             {
                SwapThe(val);
@@ -318,7 +435,6 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
       }
    } while (*++it);
 
-   formatted_ = result;
    return result;
 }
 

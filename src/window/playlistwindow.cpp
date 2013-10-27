@@ -23,7 +23,7 @@
 #include <pcrecpp.h>
 
 #include "buffers.hpp"
-#include "callback.hpp"
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -35,19 +35,17 @@
 
 using namespace Ui;
 
-PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Playlist & playlist, Mpc::Client & client, Ui::Search const & search) :
-   SongWindow       (settings, screen, client, search, "playlist"),
+PlaylistWindow::PlaylistWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Playlist & playlist, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
+   SongWindow       (settings, screen, client, clientState, search, "playlist"),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    playlist_        (playlist),
    pasteBuffer_     (Main::PlaylistPasteBuffer())
 {
-   typedef Main::CallbackObject<Ui::PlaylistWindow, Mpc::Playlist::BufferType> WindowCallbackObject;
-   typedef Main::CallbackObject<Mpc::Playlist,      Mpc::Playlist::BufferType> PlaylistCallbackObject;
-
-   playlist_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this,        &Ui::PlaylistWindow::AdjustScroll));
-   playlist_.AddCallback(Main::Buffer_Remove, new PlaylistCallbackObject(pasteBuffer_, &Mpc::Playlist::Add));
+   playlist_.AddCallback(Main::Buffer_Remove, [this] (Mpc::Playlist::BufferType line) { AdjustScroll(line); });
+   playlist_.AddCallback(Main::Buffer_Remove, [this] (Mpc::Playlist::BufferType line) { this->pasteBuffer_.Add(line); });
 }
 
 PlaylistWindow::~PlaylistWindow()
@@ -73,7 +71,7 @@ void PlaylistWindow::Right(Ui::Player & player, uint32_t count)
 
 uint32_t PlaylistWindow::Current() const
 {
-   int32_t current = client_.GetCurrentSong();
+   int32_t current = clientState_.GetCurrentSongPos();
 
    if (current < 0)
    {
@@ -93,7 +91,7 @@ int32_t PlaylistWindow::DetermineColour(uint32_t line) const
 
       if (song != NULL)
       {
-         if ((client_.GetCurrentSong() > -1) && ((line + FirstLine()) == static_cast<uint32_t>(client_.GetCurrentSong())))
+         if ((clientState_.GetCurrentSongPos() > -1) && ((line + FirstLine()) == static_cast<uint32_t>(clientState_.GetCurrentSongPos())))
          {
             colour = settings_.colours.CurrentSong;
          }
@@ -153,7 +151,6 @@ void PlaylistWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   playlist_.Remove(line, count);
    client_.Delete(line, count + line);
    ScrollTo(line);
 
@@ -173,12 +170,6 @@ void PlaylistWindow::DeleteAllLines()
 
 void PlaylistWindow::Save(std::string const & name)
 {
-   if (Main::Lists().Index(Mpc::List(name)) == -1)
-   {
-      Main::Lists().Add(name);
-      Main::Lists().Sort();
-   }
-
    client_.SavePlaylist(name);
 }
 

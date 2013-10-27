@@ -24,13 +24,24 @@
 #include <sys/ioctl.h>
 #endif
 
+#include <atomic>
+#include <csignal>
+#include <chrono>
+#include <list>
+#include <mutex>
+#include <poll.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <wchar.h>
 
 #include "algorithm.hpp"
 #include "buffers.hpp"
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "song.hpp"
+#include "songsorter.hpp"
 #include "vimpc.hpp"
 
 #include "window/browsewindow.hpp"
@@ -54,11 +65,26 @@
 #endif
 #endif
 
+#define INPUT_SIGINT  3
+#define INPUT_SIGSTOP 26
+#define INPUT_ESCAPE  27
+
 using namespace Ui;
 
+
 bool WindowResized = false;
+int32_t RndCount   = 0;
+
+static std::atomic<bool> Running(true);
+
+static std::recursive_mutex CursesMutex;
 
 extern "C" void ResizeHandler(int);
+extern "C" void ContinueHandler(int);
+
+void RandomCharacterInput();
+void QueueInput(WINDOW * inputWindow);
+
 
 std::string Windows::String(uint32_t position) const
 {
@@ -71,27 +97,113 @@ std::string Windows::PrintString(uint32_t position) const
    return Result;
 }
 
+void RandomCharacterInput()
+{
+   int rndInput = INPUT_SIGSTOP;
 
-Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const & search) :
+   while ((rndInput == INPUT_SIGSTOP) || //<C-Z>
+          (rndInput == INPUT_SIGINT))      //<C-C>
+   {
+      rndInput = (rand() % (KEY_MAX + 1));
+   }
+
+   CursesMutex.lock();
+   ungetch(rndInput);
+   CursesMutex.unlock();
+}
+
+void QueueInput(WINDOW * inputWindow)
+{
+   CursesMutex.lock();
+   keypad(inputWindow, true);
+   wtimeout(inputWindow, -1);
+   CursesMutex.unlock();
+
+   pollfd fds;
+   fds.fd = 1;
+   fds.events = POLLIN;
+
+   while (Running.load() == true)
+   {
+   #ifdef __DEBUG_PRINTS
+      if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
+      else
+      {
+   #endif
+
+      if (poll(&fds, 1, 250) <= 0)
+      {
+         continue;
+      }
+
+   #ifdef __DEBUG_PRINTS
+      }
+   #endif
+
+      CursesMutex.lock();
+      int32_t input = wgetch(inputWindow);
+      CursesMutex.unlock();
+
+      if (input != ERR)
+      {
+         if (input == INPUT_SIGINT) //<C-C>
+         {
+            std::raise(SIGINT);
+         }
+         else if (input == INPUT_SIGSTOP) //<C-Z>
+         {
+            std::raise(SIGSTOP);
+         }
+         else
+         {
+            //if ((input == INPUT_ESCAPE) && (HandleEscape == true))
+            if (input == INPUT_ESCAPE)
+            {
+               CursesMutex.lock();
+               wtimeout(inputWindow, 0);
+
+               int escapeChar = wgetch(inputWindow);
+
+               if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
+               {
+                  input = escapeChar | (1 << 31);
+               }
+
+               wtimeout(inputWindow, -1);
+               CursesMutex.unlock();
+            }
+
+            EventData Data;
+            Data.user  = true;
+            Data.input = input;
+            Main::Vimpc::CreateEvent(Event::Input, Data);
+         }
+      }
+   }
+}
+
+
+Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
    window_          (Playlist),
    previous_        (Playlist),
    statusWindow_    (NULL),
    tabWindow_       (NULL),
-	progressWindow_  (NULL),
+   progressWindow_  (NULL),
    commandWindow_   (NULL),
    pagerWindow_     (NULL),
    started_         (false),
    pager_           (false),
-	progress_		  (0),
+   progress_        (0),
    maxRows_         (0),
    maxColumns_      (0),
-   rndCount_        (0),
    windows_         (this),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search)
 {
    // ncurses initialisation
+   CursesMutex.lock();
    initscr();
    raw();
    noecho();
@@ -107,29 +219,30 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
 
    // Handler for the resize signal
    signal(SIGWINCH, ResizeHandler);
-
-   // Create all the static windows
-   mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this);
-   mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (settings, *this, "debug",   Main::DebugConsole());
-   mainWindows_[Console]      = new Ui::ConsoleWindow  (settings, *this, "console", Main::Console());
-   mainWindows_[Outputs]      = new Ui::OutputWindow   (settings, *this, Main::Outputs(),   client, search);
-   mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, Main::Library(),   client, search);
-   mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, Main::Browse(),    client, search);
-   mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, search);
-   mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::Lists(),     client, search);
-   mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, search);
-   mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, windows_, search);
+   signal(SIGCONT,  ContinueHandler);
 
    // Create paging window to print maps, settings, etc
    pagerWindow_               = new PagerWindow(*this, maxColumns_, 0);
    statusWindow_              = newwin(1, maxColumns_, mainRows_ + 2, 0);
    tabWindow_                 = newwin(1, maxColumns_, 0, 0);
    progressWindow_            = newwin(1, maxColumns_, mainRows_ + 1, 0);
+   mainWindow_                = newwin(mainRows_, maxColumns_, 1, 0);
+
+   // Create all the static windows
+   mainWindows_[Help]         = new Ui::HelpWindow     (settings, *this, search);
+   mainWindows_[DebugConsole] = new Ui::ConsoleWindow  (settings, *this, "debug",   Main::DebugConsole());
+   mainWindows_[TestConsole]  = new Ui::ConsoleWindow  (settings, *this, "test",    Main::TestConsole());
+   mainWindows_[Console]      = new Ui::ConsoleWindow  (settings, *this, "console", Main::Console());
+   mainWindows_[Outputs]      = new Ui::OutputWindow   (settings, *this, Main::Outputs(),   client, search);
+   mainWindows_[Library]      = new Ui::LibraryWindow  (settings, *this, Main::Library(),   client, clientState, search);
+   mainWindows_[Browse]       = new Ui::BrowseWindow   (settings, *this, Main::Browse(),    client, clientState, search);
+   mainWindows_[Directory]    = new Ui::DirectoryWindow(settings, *this, Main::Directory(), client, clientState, search);
+   mainWindows_[Lists]        = new Ui::ListWindow     (settings, *this, Main::AllLists(),  client, search);
+   mainWindows_[Playlist]     = new Ui::PlaylistWindow (settings, *this, Main::Playlist(),  client, clientState, search);
+   mainWindows_[WindowSelect] = new Ui::WindowSelector (settings, *this, windows_, search);
 
    // Commands must be read through a window that is always visible
-   commandWindow_             = statusWindow_;
-   keypad(commandWindow_, true);
-   wtimeout(commandWindow_, 100);
+   commandWindow_             = newwin(0, 0, 0, 0);
 
    // Mark every tab as visible initially
    // This means that commands such as tabhide in the config file
@@ -139,14 +252,18 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
       if (mainWindows_[i] != NULL)
       {
          visibleWindows_.push_back(i);
-#ifdef __DEBUG_PRINTS
-         windows_.Add(i);
-#else
-         if (i != (int) DebugConsole)
+
+         if ((true)
+#ifndef __DEBUG_PRINTS
+         && (i != (int) DebugConsole)
+#endif
+#ifndef TEST_ENABLED
+         && (i != (int) TestConsole)
+#endif
+         )
          {
             windows_.Add(i);
          }
-#endif
       }
    }
 
@@ -157,49 +274,101 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Ui::Search const
    mainWindows_[DebugConsole]->SetAutoScroll(true);
 
    // Register settings callbacks
-   settings_.RegisterCallback(Setting::TabBar,
-      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnTabSettingChange));
-   settings_.RegisterCallback(Setting::ProgressBar,
-      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnProgressSettingChange));
-   settings_.RegisterCallback(Setting::Mouse,
-      new Main::CallbackObject<Ui::Screen, bool>(*this, &Ui::Screen::OnMouseSettingChange));
+   settings_.RegisterCallback(Setting::TabBar,      [this] (bool Value) { OnTabSettingChange(Value); });
+   settings_.RegisterCallback(Setting::ProgressBar, [this] (bool Value) { OnProgressSettingChange(Value); });
+   settings_.RegisterCallback(Setting::Mouse,       [this] (bool Value) { OnMouseSettingChange(Value); });
 
    // If mouse support is turned on set it up
    SetupMouse(settings_.Get(Setting::Mouse));
+   CursesMutex.unlock();
+
+   // Register events
+   Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { InvalidateAll(); });
+
+   Main::Vimpc::EventHandler(Event::RequirePassword,  [this] (EventData const & Data)
+   {
+      PromptForPassword();
+   });
+
+   // Song window events
+   Main::Vimpc::EventHandler(Event::SearchResults, [this] (EventData const & Data)
+   {
+      Ui::SongWindow * const window = CreateSongWindow(Data.name);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+
+         if (song != NULL)
+         {
+            window->Buffer().Add(song);
+         }
+      }
+
+      Ui::SongSorter const sorter(settings_.Get(::Setting::Sort));
+      window->Buffer().Sort(sorter);
+      SetActiveAndVisible(GetWindowFromName(window->Name()));
+   });
+
+   Main::Vimpc::EventHandler(Event::PlaylistContents, [this] (EventData const & Data)
+   {
+      Ui::SongWindow * const window = CreateSongWindow("P:" + Data.name);
+
+      for (auto uri : Data.uris)
+      {
+         Mpc::Song * song = Main::Library().Song(uri);
+
+         if (song != NULL)
+         {
+            window->Buffer().Add(song);
+         }
+      }
+
+      SetActiveAndVisible(GetWindowFromName(window->Name()));
+   });
+
+   // Thread handling of input
+   inputThread_ = std::thread(QueueInput, commandWindow_);
 }
 
 Screen::~Screen()
 {
+   Running.store(false);
+   inputThread_.join();
+
+   CursesMutex.lock();
+
    delete pagerWindow_;
 
    delwin(tabWindow_);
    delwin(progressWindow_);
    delwin(statusWindow_);
+   delwin(commandWindow_);
 
-   for (WindowMap::iterator it = mainWindows_.begin(); it != mainWindows_.end(); ++it)
+   for (auto window : mainWindows_)
    {
-      delete it->second;
+      delete window.second;
    }
 
    endwin();
+
+   CursesMutex.unlock();
 }
 
 
 int32_t Screen::GetWindowFromName(std::string const & name) const
 {
-   WindowMap::const_iterator it = mainWindows_.begin();
+   int32_t index = Unknown;
 
-   int32_t window = Unknown;
-
-   for (; it != mainWindows_.end(); ++it)
+   for (auto window : mainWindows_)
    {
-      if ((it->second != NULL) && (Algorithm::iequals(name, it->second->Name()) == true))
+      if ((window.second != NULL) && (Algorithm::iequals(name, window.second->Name()) == true))
       {
-         window = it->first;
+         index = window.first;
       }
    }
 
-   return window;
+   return index;
 }
 
 
@@ -249,14 +418,6 @@ void Screen::Start()
              (addedWindows.find(id) == addedWindows.end()))
          {
             addedWindows[id] = true;
-
-#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-            if ((id == (int) Lists) && (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
-            {
-               continue;
-            }
-#endif
-
             visibleWindows.push_back(id);
          }
       }
@@ -270,7 +431,9 @@ void Screen::Start()
          SetActiveAndVisible(Playlist);
       }
 
+      CursesMutex.lock();
       wrefresh(statusWindow_);
+      CursesMutex.unlock();
    }
 
    ENSURE(started_ == true);
@@ -286,7 +449,7 @@ Ui::SongWindow * Screen::CreateSongWindow(std::string const & name)
       ++id;
    }
 
-   Ui::SongWindow * window = new SongWindow(settings_, *this, client_, search_, name);
+   Ui::SongWindow * window = new SongWindow(settings_, *this, client_, clientState_, search_, name);
    mainWindows_[id]        = window;
 
    return window;
@@ -296,7 +459,7 @@ Ui::SongWindow * Screen::CreateSongWindow(std::string const & name)
 Ui::InfoWindow * Screen::CreateInfoWindow(int32_t Id, std::string const & name, Mpc::Song * song)
 {
    SetVisible(Id, false);
-   Ui::InfoWindow * window = new InfoWindow(song->URI(), settings_, *this, client_, search_, name);
+   Ui::InfoWindow * window = new InfoWindow(song->URI(), settings_, *this, client_, clientState_, search_, name);
    mainWindows_[Id]        = window;
    return window;
 }
@@ -326,21 +489,22 @@ void Screen::DeleteModeWindow(ModeWindow * window)
 {
    bool found = false;
 
-   for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); ((it != modeWindows_.end()) && (found != true)); )
+   for (auto modewindow : modeWindows_)
    {
-      if (*it == window)
+      if (modewindow == window)
       {
-         found = true;
-         delete *it;
-         it = modeWindows_.erase(it);
-      }
-      else
-      {
-         ++it;
+         delete modewindow;
+         modeWindows_.remove(modewindow);
+         break;
       }
    }
 }
 
+
+void Screen::PromptForPassword()
+{
+   Error(ErrorNumber::Unknown, "You need a password");
+}
 
 PagerWindow * Screen::GetPagerWindow()
 {
@@ -379,6 +543,8 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
 {
    ClearStatus();
 
+   CursesMutex.lock();
+
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
@@ -405,11 +571,15 @@ void Screen::SetStatusLine(char const * const fmt, ...) const
       wattroff(statusWindow_, A_REVERSE);
    }
 
-   wnoutrefresh(statusWindow_);
+   wrefresh(statusWindow_);
+
+   CursesMutex.unlock();
 }
 
 void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
 {
+   CursesMutex.lock();
+
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
       wattron(statusWindow_, COLOR_PAIR(settings_.colours.StatusLine));
@@ -437,20 +607,22 @@ void Screen::MoveSetStatus(uint16_t x, char const * const fmt, ...) const
    }
 
    wrefresh(statusWindow_);
+
+   CursesMutex.unlock();
 }
 
 void Screen::SetProgress(double percent)
 {
-	if ((percent <= 1) && (percent >= 0))
-	{
-		progress_ = percent;
-	}
+   if ((percent <= 1) && (percent >= 0))
+   {
+      progress_ = percent;
+   }
 }
 
 
 void Screen::Align(Direction direction, uint32_t count)
 {
-   int32_t  selection  = ActiveWindow().CurrentLine();
+   int64_t  selection  = ActiveWindow().CurrentLine();
    uint32_t min        = ActiveWindow().FirstLine();
    uint32_t max        = MaxRows();
    uint32_t scrollLine = ActiveWindow().CurrentLine();
@@ -459,7 +631,7 @@ void Screen::Align(Direction direction, uint32_t count)
    {
       count = (count > min) ? min : count;
 
-      if (selection >= static_cast<int32_t>(min + max - count - 1))
+      if (selection >= static_cast<int64_t>(min + max - count - 1))
       {
          selection = min + max - count - 1;
       }
@@ -469,12 +641,12 @@ void Screen::Align(Direction direction, uint32_t count)
    }
    else if (direction == Down)
    {
-      if (selection <= static_cast<int32_t>(min + count))
+      if (selection <= static_cast<int64_t>(min + count))
       {
          selection = min + count;
       }
 
-      if (selection > static_cast<int32_t>(ActiveWindow().BufferSize() - max))
+      if (selection > static_cast<int64_t>(ActiveWindow().BufferSize() - max))
       {
          selection = ActiveWindow().BufferSize() - max;
       }
@@ -488,8 +660,8 @@ void Screen::Align(Direction direction, uint32_t count)
 
 void Screen::AlignTo(Location location, uint32_t line)
 {
-   int scrollLine = (line != 0) ? (line - 1) : ActiveWindow().CurrentLine();
-   int selection  = scrollLine;
+   int64_t scrollLine = (line != 0) ? (line - 1) : ActiveWindow().CurrentLine();
+   int64_t selection  = scrollLine;
 
    if (location == Bottom)
    {
@@ -519,7 +691,7 @@ void Screen::Scroll(int32_t count)
 
 void Screen::Scroll(Size size, Direction direction, uint32_t count)
 {
-   int32_t scrollCount = count;
+   int64_t scrollCount = count;
 
    if (size == FullPage)
    {
@@ -577,16 +749,27 @@ void Screen::Clear()
 
    if (window_ == Console)
    {
+      werase(mainWindow_);
       Update();
    }
+}
+
+void Screen::PrintModeWindow(Ui::ModeWindow * window)
+{
+   CursesMutex.lock();
+   window->Print(0);
+   CursesMutex.unlock();
 }
 
 void Screen::Update()
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
+      WindowMap::iterator it = mainWindows_.begin();
+
       Initialise(window_);
-      ActiveWindow().Erase();
+
+      werase(mainWindow_);
 
       // Only paint the tab bar if it is currently visible
       if (settings_.Get(Setting::TabBar) == true)
@@ -594,18 +777,20 @@ void Screen::Update()
          UpdateTabWindow();
       }
 
-		if (settings_.Get(Setting::ProgressBar) == true)
-		{
-			UpdateProgressWindow();
-		}
+      if (settings_.Get(Setting::ProgressBar) == true)
+      {
+         UpdateProgressWindow();
+      }
+
+      CursesMutex.lock();
 
       // Paint the main window
-		for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
-		{
-			ActiveWindow().Print(i);
-		}
+      for (uint32_t i = 0; (i < static_cast<uint32_t>(MaxRows())); ++i)
+      {
+         ActiveWindow().Print(i);
+      }
 
-      ActiveWindow().Refresh();
+      wnoutrefresh(mainWindow_);
 
       // Show the pager window if it is currently enabled
       if (pager_ == true)
@@ -621,14 +806,17 @@ void Screen::Update()
       }
 
       doupdate();
+
+      CursesMutex.unlock();
    }
 }
 
-void Screen::Redraw() const
+void Screen::Redraw()
 {
    // Keep track of which windows have been drawn atleast once
    drawn_[window_] = true;
    Redraw(window_);
+   Resize(true);
 }
 
 void Screen::Redraw(int32_t window) const
@@ -660,9 +848,7 @@ void Screen::Invalidate(int32_t window)
 
 void Screen::InvalidateAll()
 {
-   WindowMap::iterator it = mainWindows_.begin();
-
-   for (; (it != mainWindows_.end()); ++it)
+   for (auto it = mainWindows_.begin(); (it != mainWindows_.end()); ++it)
    {
       if (it->first < static_cast<int>(Dynamic))
       {
@@ -671,8 +857,8 @@ void Screen::InvalidateAll()
       else
       {
          SetVisible(it->first, false, false);
-			delete it->second;
-			mainWindows_.erase(it++);
+         delete it->second;
+         mainWindows_.erase(it++);
       }
    }
 }
@@ -685,6 +871,7 @@ bool Screen::Resize(bool forceResize)
    {
       WasWindowResized = true;
       WindowResized    = false;
+      CursesMutex.lock();
 
       // Get the window size with thanks to irssi
 #ifdef TIOCGWINSZ
@@ -737,7 +924,7 @@ bool Screen::Resize(bool forceResize)
 
          if (settings_.Get(Setting::ProgressBar) == true)
          {
-				statusline = 1;
+            statusline = 1;
             mainRows_--;
          }
 
@@ -752,10 +939,10 @@ bool Screen::Resize(bool forceResize)
          mvwin(statusWindow_,   maxRows_ - 2, 0);
          mvwin(progressWindow_, maxRows_ - 2 - statusline, 0);
 
-         for (std::vector<ModeWindow *>::iterator it = modeWindows_.begin(); (it != modeWindows_.end()); ++it)
+         for (auto modewindow : modeWindows_)
          {
-            (*it)->Resize(1, maxColumns_);
-            (*it)->Move(lastRow, 0);
+            modewindow->Resize(1, maxColumns_);
+            modewindow->Move(lastRow, 0);
          }
 
          mvwin(Ui::ErrorWindow::Instance().N_WINDOW(), lastRow, 0);
@@ -766,14 +953,16 @@ bool Screen::Resize(bool forceResize)
             maxRows_ += (lines - 1);
          }
 
+         wclear(mainWindow_);
+         wresize(mainWindow_, mainRows_, maxColumns_);
+         mvwin(mainWindow_, topline, 0);
+
          for (int i = 0; (i < MainWindowCount); ++i)
          {
             if (mainWindows_[i] != NULL)
             {
-               uint16_t CurrentLine = mainWindows_[i]->CurrentLine();
-               wclear(mainWindows_[i]->N_WINDOW());
+               uint32_t CurrentLine = mainWindows_[i]->CurrentLine();
                mainWindows_[i]->Resize(mainRows_, maxColumns_);
-               mainWindows_[i]->Move(topline, 0);
                mainWindows_[i]->ScrollTo(CurrentLine);
             }
          }
@@ -781,6 +970,7 @@ bool Screen::Resize(bool forceResize)
          Update();
          refresh();
       }
+      CursesMutex.unlock();
    }
 
    return WasWindowResized;
@@ -812,12 +1002,14 @@ uint32_t Screen::MaxColumns() const
    return maxColumns_;
 }
 
-uint32_t Screen::WaitForInput(bool HandleEscape) const
+void Screen::UpdateErrorDisplay() const
 {
    // \todo this doesn't seem to work if constructed
    // when the screen is constructed, find out why
    Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
    Ui::ResultWindow & resultWindow(Ui::ResultWindow::Instance());
+
+   CursesMutex.lock();
 
    if (errorWindow.HasError() == true)
    {
@@ -828,58 +1020,33 @@ uint32_t Screen::WaitForInput(bool HandleEscape) const
       resultWindow.Print(0);
    }
 
-#ifdef __DEBUG_PRINTS
-   if (rndCount_ > 0)
-   {
-      int rndInput = 26;
+   CursesMutex.unlock();
+}
 
-      while ((rndInput == 26) || (rndInput == 3)) //<C-Z> || <C-C>
-      {
-         rndInput = (rand() % (KEY_MAX + 1));
+void Screen::ClearErrorDisplay() const
+{
+   Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
+   Ui::ResultWindow & resultWindow(Ui::ResultWindow::Instance());
+   errorWindow.ClearError();
+   resultWindow.ClearResult();
+}
 
-         if ((rndInput != 26) && (rndInput != 3))
-         {
-            --rndCount_;
-            ungetch(rndInput);
-         }
-      }
-   }
-#endif
-
-   int32_t input = wgetch(commandWindow_);
-
-   if ((input == 27) && (HandleEscape == true))
-   {
-      wtimeout(commandWindow_, 0);
-
-      int escapeChar = wgetch(commandWindow_);
-
-      if ((escapeChar != ERR) && (escapeChar != 27))
-      {
-         input = escapeChar | (1 << 31);
-      }
-
-      wtimeout(commandWindow_, 100);
-   }
-
-   if (input != ERR)
-   {
-      // \todo make own function
-      errorWindow.ClearError();
-      resultWindow.ClearResult();
-   }
-
-   return input;
+uint32_t Screen::WaitForInput(uint32_t TimeoutMs, bool HandleEscape) const
+{
+   return ERR;
 }
 
 
 bool Screen::HandleMouseEvent()
 {
 #ifdef HAVE_MOUSE_SUPPORT
-   char buffer[64];
+   char     buffer[64];
+   wchar_t wbuffer[256];
 
    if (settings_.Get(Setting::Mouse) == true)
    {
+      CursesMutex.lock();
+
       MEVENT event;
 
       //! \TODO this seems to scroll quite slowly and not properly at all
@@ -889,23 +1056,26 @@ bool Screen::HandleMouseEvent()
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
-               int32_t x = 0;
-               int32_t i = 1;
+               int32_t  x = 0;
+               uint32_t i = 1;
 
-               for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
+               for (auto window : visibleWindows_)
                {
-                  std::string name = GetNameFromWindow(static_cast<int32_t>(*it));
-                  x += name.length() + 2;
+                  std::string const name = GetNameFromWindow(static_cast<int32_t>(window));
+                  size_t const mblength = mbstowcs(wbuffer, name.c_str(), (name.length() < 256) ? name.length() : 255);
+                  std::wstring const wname(wbuffer, mblength);
+
+                  x += wcswidth(wname.c_str(), mblength) + 2;
 
                   if (settings_.Get(Setting::WindowNumbers) == true)
                   {
-                     sprintf(buffer, "[%d]", i);
+                     sprintf(buffer, "[%u]", i);
                      x += strlen(buffer);
                   }
 
                   if (event.x < x)
                   {
-                     SetActiveAndVisible((static_cast<int32_t>(*it)));
+                     SetActiveAndVisible((static_cast<int32_t>(window)));
                      break;
                   }
 
@@ -919,6 +1089,7 @@ bool Screen::HandleMouseEvent()
                   SetActiveAndVisible(WindowSelect);
                }
             }
+            CursesMutex.unlock();
             return true;
          }
          else if ((event.y >= 0) && (event.y <= static_cast<int32_t>(MaxRows())))
@@ -942,13 +1113,16 @@ bool Screen::HandleMouseEvent()
          {
             if (((event.bstate & BUTTON1_CLICKED) == BUTTON1_CLICKED) || ((event.bstate & BUTTON1_DOUBLE_CLICKED) == BUTTON1_DOUBLE_CLICKED))
             {
-               OnProgressClicked(event.x); 
+               OnProgressClicked(event.x);
             }
+            CursesMutex.unlock();
             return true;
          }
 
          event_ = event;
       }
+
+      CursesMutex.unlock();
    }
    return false;
 #else
@@ -958,13 +1132,33 @@ bool Screen::HandleMouseEvent()
 
 void Screen::EnableRandomInput(int count)
 {
-   rndCount_ = count;
+   RndCount = count;
 }
 
 
 int32_t Screen::GetActiveWindow() const
 {
    return window_;
+}
+
+int32_t Screen::GetActiveWindowIndex() const
+{
+   int32_t currentIndex = -1;
+
+   for (uint32_t i = 0; ((i < visibleWindows_.size()) && (currentIndex == -1)); ++i)
+   {
+      if (visibleWindows_.at(i) == window_)
+      {
+         currentIndex = i;
+      }
+   }
+
+   return currentIndex;
+}
+
+int32_t Screen::GetPreviousWindow() const
+{
+   return previous_;
 }
 
 Ui::ScrollWindow & Screen::ActiveWindow() const
@@ -979,9 +1173,21 @@ Ui::ScrollWindow & Screen::Window(uint32_t window) const
    return assert_reference(it->second);
 }
 
-int32_t Screen::GetSelected(uint32_t window) const
+int64_t Screen::GetSelected(uint32_t window) const
 {
    return Window(window).CurrentLine();
+}
+
+Mpc::Song * Screen::GetSong(uint32_t window, uint32_t pos) const
+{
+   Ui::ScrollWindow & scrollWindow = Window(window);
+   Ui::SongWindow * songWindow = dynamic_cast<Ui::SongWindow *>(&scrollWindow);
+
+   if ((songWindow != NULL) && (songWindow->Buffer().Size() > pos))
+   {
+      return songWindow->Buffer().Get(pos);
+   }
+   return NULL;
 }
 
 void Screen::SetActiveWindowType(MainWindow window)
@@ -1015,16 +1221,7 @@ void Screen::SetActiveWindow(uint32_t window)
 
 void Screen::SetActiveWindow(Skip skip)
 {
-   int32_t currentIndex = -1;
-
-   for (uint32_t i = 0; ((i < visibleWindows_.size()) && (currentIndex == -1)); ++i)
-   {
-      if (visibleWindows_.at(i) == window_)
-      {
-         currentIndex = i;
-      }
-   }
-
+   int32_t const currentIndex = GetActiveWindowIndex();
    int32_t window = currentIndex + ((skip == Next) ? 1 : -1);
 
    if (window >= static_cast<int32_t>(visibleWindows_.size()))
@@ -1042,9 +1239,9 @@ void Screen::SetActiveWindow(Skip skip)
 
 bool Screen::IsVisible(int32_t window)
 {
-   for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+   for (auto win : visibleWindows_)
    {
-      if (visibleWindows_.at(i) == window)
+      if (win == window)
       {
          return true;
       }
@@ -1065,7 +1262,7 @@ void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
          bool previous = false;
          int32_t index = -1;
 
-         for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (previous == false)); ++it)
+         for (auto it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (previous == false)); ++it)
          {
             if (((*it) == previous_) && ((*it) != window))
             {
@@ -1074,6 +1271,7 @@ void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
 
             index++;
          }
+
          if (previous == true)
          {
             SetActiveWindow(index);
@@ -1088,14 +1286,14 @@ void Screen::SetVisible(int32_t window, bool visible, bool removeWindow)
          }
       }
 
-      for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      for (auto it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
       {
          if ((*it) == window)
          {
             found = true;
 
 #ifdef __DEBUG_PRINTS
-            if ((rndCount_ > 0) && (window < MainWindowCount))
+            if ((RndCount > 0) && (window < MainWindowCount))
             {
                break;
             }
@@ -1161,7 +1359,7 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
          position = visibleWindows_.size() - 1;
       }
 
-      for (std::vector<int32_t>::iterator it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
+      for (auto it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (found == false)); ++it)
       {
          if ((*it) == window)
          {
@@ -1170,9 +1368,8 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
          }
       }
 
-      std::vector<int32_t>::iterator it;
-
-      for (it = visibleWindows_.begin(); ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
+      auto it = visibleWindows_.begin();
+      for (; ((it != visibleWindows_.end()) && (pos < position)); ++it, ++pos) { }
 
       if (pos == position)
       {
@@ -1185,6 +1382,8 @@ void Screen::MoveWindow(int32_t window, uint32_t position)
 void Screen::SetupMouse(bool on) const
 {
 #ifdef HAVE_MOUSE_SUPPORT
+   CursesMutex.lock();
+
    if (on == true)
    {
       mousemask(ALL_MOUSE_EVENTS, NULL);
@@ -1193,12 +1392,16 @@ void Screen::SetupMouse(bool on) const
    {
       mousemask(0, NULL);
    }
+
+   CursesMutex.unlock();
 #endif
 }
 
 void Screen::ClearStatus() const
 {
    std::string BlankLine(maxColumns_, ' ');
+
+   CursesMutex.lock();
 
    werase(statusWindow_);
 
@@ -1221,11 +1424,15 @@ void Screen::ClearStatus() const
    {
       wattroff(statusWindow_, A_REVERSE);
    }
+
+   CursesMutex.unlock();
 }
 
 void Screen::UpdateTabWindow() const
 {
    std::string const BlankLine(maxColumns_, ' ');
+
+   CursesMutex.lock();
 
    werase(tabWindow_);
 
@@ -1235,12 +1442,12 @@ void Screen::UpdateTabWindow() const
    }
 
    mvwprintw(tabWindow_, 0, 0, BlankLine.c_str());
+   wmove(tabWindow_, 0, 0);
 
    std::string name   = "";
-   uint32_t    length = 0;
    uint32_t    count  = 0;
 
-   for (std::vector<int32_t>::const_iterator it = visibleWindows_.begin(); (it != visibleWindows_.end()); ++it)
+   for (auto window : visibleWindows_)
    {
       if (settings_.Get(Setting::ColourEnabled) == true)
       {
@@ -1248,9 +1455,9 @@ void Screen::UpdateTabWindow() const
       }
 
       wattron(tabWindow_, A_UNDERLINE);
-      name = GetNameFromWindow(static_cast<int32_t>(*it));
+      name = GetNameFromWindow(static_cast<int32_t>(window));
 
-      if (*it == window_)
+      if (window == window_)
       {
          if (settings_.Get(Setting::ColourEnabled) == true)
          {
@@ -1260,29 +1467,22 @@ void Screen::UpdateTabWindow() const
          wattron(tabWindow_, A_REVERSE | A_BOLD);
       }
 
-      wmove(tabWindow_, 0, length);
-
       if (settings_.Get(Setting::WindowNumbers) == true)
       {
          waddstr(tabWindow_, "[");
          wattron(tabWindow_, A_BOLD);
          wprintw(tabWindow_, "%d", count + 1);
 
-         if (*it != window_)
+         if (window != window_)
          {
             wattroff(tabWindow_, A_BOLD);
          }
 
          waddstr(tabWindow_, "]");
-
-         length += 3;
       }
 
       wprintw(tabWindow_, " %s ", name.c_str());
-
       wattroff(tabWindow_, A_REVERSE | A_BOLD);
-
-      length += name.size() + 2;
       ++count;
    }
 
@@ -1293,10 +1493,14 @@ void Screen::UpdateTabWindow() const
 
    wattroff(tabWindow_, A_UNDERLINE);
    wrefresh(tabWindow_);
+
+   CursesMutex.unlock();
 }
 
 void Screen::UpdateProgressWindow() const
 {
+   CursesMutex.lock();
+
    werase(progressWindow_);
 
    if (settings_.Get(Setting::ColourEnabled) == true)
@@ -1304,35 +1508,35 @@ void Screen::UpdateProgressWindow() const
       wattron(progressWindow_, COLOR_PAIR(settings_.colours.ProgressWindow));
    }
 
-	wmove(progressWindow_, 0, 0);
+   wmove(progressWindow_, 0, 0);
    whline(progressWindow_, 0, MaxColumns());
-	wmove(progressWindow_, 0, 0);
+   wmove(progressWindow_, 0, 0);
 
-	wattron(progressWindow_, A_BOLD);
+   wattron(progressWindow_, A_BOLD);
 
-	if ((progress_ * MaxColumns() - 1) > 0)
-	{
-		whline(progressWindow_, '=', (int) (progress_ * MaxColumns() - 1));
-		wmove(progressWindow_, 0, (int) (progress_ * MaxColumns() - 1));
-	}
-	if (progress_ > 0)
-	{
-		waddch(progressWindow_, '>');
-	}
+   if ((progress_ * MaxColumns() - 1) > 0)
+   {
+      whline(progressWindow_, '=', static_cast<int>(progress_ * MaxColumns() - 1));
+      wmove(progressWindow_, 0, static_cast<int>(progress_ * MaxColumns() - 1));
+   }
+   if (progress_ > 0)
+   {
+      waddch(progressWindow_, '>');
+   }
 
 
-	if (settings_.Get(Setting::ShowPercent) == true)
-	{
-		int32_t start = (MaxColumns() / 2) - 3;
+   if (settings_.Get(Setting::ShowPercent) == true)
+   {
+      uint32_t start = (MaxColumns() / 2) - 3;
 
-		if (start + 6 < MaxColumns())
-		{
-			wmove(progressWindow_, 0, start);
-			wprintw(progressWindow_, "[%3d%%]", (int) (progress_ * 100));
-		}
-	}
+      if (start + 6 < MaxColumns())
+      {
+         wmove(progressWindow_, 0, start);
+         wprintw(progressWindow_, "[%3d%%]", static_cast<int>(progress_ * 100));
+      }
+   }
 
-	wattroff(progressWindow_, A_BOLD);
+   wattroff(progressWindow_, A_BOLD);
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
@@ -1341,6 +1545,8 @@ void Screen::UpdateProgressWindow() const
 
    wattroff(progressWindow_, A_UNDERLINE);
    wrefresh(progressWindow_);
+
+   CursesMutex.unlock();
 }
 
 
@@ -1354,12 +1560,9 @@ void Screen::OnProgressClicked(int32_t x)
    if (settings_.Get(Setting::SeekBar) == true)
    {
       // Call any registered callbacks for a progress click
-      std::vector<ProgressCallback>::iterator it = pCallbacks_.begin();
-
-      for (; it != pCallbacks_.end(); ++it)
+      for (auto func : pCallbacks_)
       {
-         ProgressCallback functor = (*it);
-         (*functor)(((double) x / MaxColumns()));
+         (func)((static_cast<double>(x) / MaxColumns()));
       }
    }
 }
@@ -1386,6 +1589,14 @@ void Screen::OnMouseSettingChange(bool Value)
 
 void ResizeHandler(int i)
 {
+   WindowResized = true;
+}
+
+void ContinueHandler(int i)
+{
+   CursesMutex.lock();
+   raw();
+   CursesMutex.unlock();
    WindowResized = true;
 }
 /* vim: set sw=3 ts=3: */

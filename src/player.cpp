@@ -34,11 +34,12 @@
 
 using namespace Ui;
 
-Player::Player(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings) :
-   screen_  (screen),
-   client_  (client),
-   playlist_(Main::Playlist()),
-   settings_(settings)
+Player::Player(Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings) :
+   screen_      (screen),
+   client_      (client),
+   clientState_ (clientState),
+   playlist_    (Main::Playlist()),
+   settings_    (settings)
 {
 
 }
@@ -83,27 +84,27 @@ void Player::Quit()
 
 void Player::ToggleConsume()
 {
-   SetConsume(!client_.Consume());
+   client_.ToggleConsume();
 }
 
 void Player::ToggleCrossfade()
 {
-   SetCrossfade((client_.Crossfade() == 0));
+   client_.ToggleCrossfade();
 }
 
 void Player::ToggleRandom()
 {
-   SetRandom(!client_.Random());
+   client_.ToggleRandom();
 }
 
 void Player::ToggleRepeat()
 {
-   SetRepeat(!client_.Repeat());
+   client_.ToggleRepeat();
 }
 
 void Player::ToggleSingle()
 {
-   SetSingle(!client_.Single());
+   client_.ToggleSingle();
 }
 
 void Player::SetRandom(bool random)
@@ -162,7 +163,7 @@ void Player::SetOutput(Item::Collection collection, bool enable)
    }
    else if (collection == Item::All)
    {
-      for (int i = 0; i < Main::Outputs().Size(); ++i)
+      for (uint32_t i = 0; i < Main::Outputs().Size(); ++i)
       {
          Player::SetOutput(i, enable);
       }
@@ -174,7 +175,6 @@ void Player::SetOutput(uint32_t output, bool enable)
    if (output < Main::Outputs().Size())
    {
       client_.SetOutput(Main::Outputs().Get(output), enable);
-      Main::Outputs().Get(output)->SetEnabled(enable);
    }
 }
 
@@ -187,7 +187,7 @@ void Player::ToggleOutput(Item::Collection collection)
    }
    else if (collection == Item::All)
    {
-      for (int i = 0; i < Main::Outputs().Size(); ++i)
+      for (uint32_t i = 0; i < Main::Outputs().Size(); ++i)
       {
          Player::ToggleOutput(i);
       }
@@ -242,7 +242,7 @@ void Player::SkipSong(Skip skip, uint32_t count)
    // If consume or random we have to send a lot of next commands
    // rather than just skipping directly to the right song
    // this is slow and only works in small amounts
-   if ((client_.Random() == true) || (client_.Consume() == true) || (count == 1))
+   if ((clientState_.Random() == true) || (clientState_.Consume() == true) || (count == 1))
    {
       Mpc::CommandList list(client_, (count != 1));
 
@@ -269,15 +269,15 @@ void Player::SkipSong(Skip skip, uint32_t count)
          directionCount *= -1;
       }
 
-      int32_t song = GetCurrentSong() + directionCount;
+      int32_t song = GetCurrentSongPos() + directionCount;
 
-      if ((GetCurrentSong() + directionCount) < 0)
+      if (song < 0)
       {
          song = 0;
       }
-      else if ((GetCurrentSong() + directionCount) >= client_.TotalNumberOfSongs())
+      else if (song >= static_cast<int32_t>(clientState_.TotalNumberOfSongs()))
       {
-         song = client_.TotalNumberOfSongs() - 1;
+         song = clientState_.TotalNumberOfSongs() - 1;
       }
 
       client_.Play(song);
@@ -299,15 +299,15 @@ void Player::SkipArtist(Skip skip, uint32_t count)
 }
 
 
-uint32_t Player::GetCurrentSong() const
+int32_t Player::GetCurrentSongPos() const
 {
-   return client_.GetCurrentSong();
+   return clientState_.GetCurrentSongPos();
 }
 
 
 void Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction)
 {
-   int32_t skipResult = GetCurrentSong();
+   int32_t skipResult = GetCurrentSongPos();
 
    if (skipResult >= 0)
    {

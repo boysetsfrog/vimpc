@@ -22,10 +22,12 @@
 #define __UI__COMMAND
 
 #include <string>
+#include <thread>
 #include <map>
 
 #include "inputmode.hpp"
 #include "player.hpp"
+#include "test.hpp"
 
 namespace Main
 {
@@ -45,12 +47,12 @@ namespace Ui
       typedef void (Ui::Command::*CommandFunction)(std::string const &);
 
    public:
-      Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
+      Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
       ~Command();
 
    public:
       // Add a new command to the table
-      void AddCommand(std::string const & name, CommandFunction command, bool requiresConnection);
+      void AddCommand(std::string const & name, bool requiresConnection, bool hasRangeSupport, CommandFunction command);
 
       // Checks if there is any aliases defined for a command, recursively calling
       // until a proper command is found then executes that command
@@ -69,6 +71,12 @@ namespace Ui
       // Returns true if the given command requires an mpd connection
       bool RequiresConnection(std::string const & command);
 
+      // Returns true if the command can be used over a range
+      bool SupportsRange(std::string const & command);
+
+      // Whether a connect command has been run
+      bool ConnectionAttempt();
+
    public: // Ui::InputMode
       void Initialise(int input);
       bool Handle(int input);
@@ -77,7 +85,7 @@ namespace Ui
    private: //Ui::InputMode
       bool InputStringHandler(std::string input);
       char const * Prompt() const;
-		bool CheckConnected();
+      bool CheckConnected();
 
    private: //Ui::Player wrapper functions
       void ClearScreen(std::string const & arguments);
@@ -95,6 +103,7 @@ namespace Ui
       void Swap(std::string const & arguments);
       void Redraw(std::string const & arguments);
       void Stop(std::string const & arguments);
+      void Mute(std::string const & arguments);
       void Volume(std::string const & arguments);
 
    // Command only functions
@@ -123,7 +132,9 @@ namespace Ui
       //! Similar to echo but in the errror window
       void EchoError(std::string const & echo);
 
-      void Sleep(std::string const & seconds);
+      void Sleep(std::string const & expression);
+
+      void Substitute(std::string const & seconds);
 
    private:
       void Add(std::string const & arguments);
@@ -152,7 +163,7 @@ namespace Ui
       void FindGenre(std::string const & arguments);
       void FindSong(std::string const & arguments);
 
-		void PrintMappings(std::string tabname = "");
+      void PrintMappings(std::string tabname = "");
       void Map(std::string const & arguments);
       void Unmap(std::string const & arguments);
       void TabMap(std::string const & arguments);
@@ -172,7 +183,7 @@ namespace Ui
       template <Ui::Screen::MainWindow MAINWINDOW>
       void SetActiveAndVisible(std::string const & arguments);
 
-      typedef enum { First, Last, LocationCount } Location;
+      typedef enum { First, Last, Next, Previous, LocationCount } Location;
 
       template <Location LOCATION>
       void ChangeToWindow(std::string const & arguments);
@@ -187,28 +198,34 @@ namespace Ui
    private: // Debug only commands
       template <ClientFunction FUNCTION>
       void DebugClient(std::string const & arguments);
-      void DebugInputRandom(std::string const & arguments);
-      void DebugInputSequence(std::string const & arguments);
-      void DebugTestScreen(std::string const & arguments);
+
+   private: // Test only commands
+      void TestExecutor();
+      void Test(std::string const & arguments);
+      void TestInputRandom(std::string const & arguments);
+      void TestInputSequence(std::string const & arguments);
+      void TestScreen(std::string const & arguments);
+
+   protected:
+      // Splits the input into command and argument parts
+      //
+      // \param[in]  input     The string to split
+      // \param[out] range     The range to run commands over
+      // \param[out] command   The command part of the string
+      // \param[out] arguments The arguments from the string
+      void SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments);
+
+      // Splits the arguments based on the given delimeter
+      // \param[in]  input     The string to split
+      // \param[in]  delim     The delimiting character
+      std::vector<std::string> SplitArguments(std::string const & input, char delimeter = ' ');
 
    private:
       // Executes \p command using \p arguments
       //
       // \param[in] command   The command to execute
       // \param[in] arguments The arguments to pass to the command
-      bool ExecuteCommand(std::string command, std::string const & arguments);
-
-      // Splits the input into command and argument parts
-      //
-      // \param[in]  input     The string to split
-      // \param[out] command   The command part of the string
-      // \param[out] arguments The arguments from the string
-      void SplitCommand(std::string const & input, std::string & command, std::string & arguments);
-
-      // Splits the arguments based on the given delimeter
-      // \param[in]  input     The string to split
-      // \param[in]  delim     The delimiting character
-      std::vector<std::string> SplitArguments(std::string const & input, char delimeter = ' ');
+      bool ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments);
 
       // Handle the settings
       void Set(std::string const & arguments);
@@ -219,6 +236,7 @@ namespace Ui
 
       // Alias a command to a given string
       void Alias(std::string const & arguments);
+      void Unalias(std::string const & arguments);
 
       // Clears the current tab completion
       void ResetTabCompletion(int input);
@@ -228,34 +246,50 @@ namespace Ui
       std::string TabComplete(std::string const & command);
 
    private:
+      typedef struct
+      {
+         uint32_t    line;
+         uint32_t    count;
+         std::string command;
+         std::string arguments;
+      } CommandArgs;
+
+   private:
       typedef std::map<std::string, std::string>     AliasTable;
       typedef std::map<std::string, CommandFunction> CommandTable;
-
-      typedef std::pair<std::string, std::string>    CommandArgPair;
-      typedef std::vector<CommandArgPair>            CommandQueue;
-
-      typedef std::map<std::string, bool>            ConnectionMap;
-
+      typedef std::vector<CommandArgs>               CommandQueue;
+      typedef std::map<std::string, bool>            BoolMap;
       typedef std::vector<std::string>               TabCompTable;
 
    private:
       bool                 initTabCompletion_;
       bool                 forceCommand_;
       bool                 queueCommands_;
+      bool                 connectAttempt_;
+      uint32_t             count_;
+      int32_t              line_;
+      int32_t              currentLine_;
       AliasTable           aliasTable_;
       CommandTable         commandTable_;
       TabCompTable         settingsTable_;
       TabCompTable         loadTable_;
+      TabCompTable         addTable_;
       CommandQueue         commandQueue_;
-      ConnectionMap        requiresConnection_;
+      BoolMap              requiresConnection_;
+      BoolMap              supportsRange_;
       Main::Vimpc *        vimpc_;
       Ui::Search         & search_;
       Ui::Screen         & screen_;
       Mpc::Client        & client_;
+      Mpc::ClientState   & clientState_;
       Main::Settings     & settings_;
       Ui::Normal         & normalMode_;
 
-private:
+#ifdef HAVE_TEST_H
+      std::thread          testThread_;
+#endif
+
+   private:
       // Tab completion searching class
       template <typename T>
       class TabCompletionMatch

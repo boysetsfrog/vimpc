@@ -24,14 +24,18 @@
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
+#include "test.hpp"
+#include "window/debug.hpp"
 
+#include <mutex>
 #include <stdint.h>
 #include <string>
+#include <stdarg.h>
 
 //! Display an error window with the given error
-static void Error(uint32_t errorNumber, std::string errorString);
-static void ErrorString(uint32_t errorNumber);
-static void ErrorString(uint32_t errorNumber, std::string additional);
+void Error(uint32_t errorNumber, std::string errorString);
+void ErrorString(uint32_t errorNumber);
+void ErrorString(uint32_t errorNumber, std::string additional);
 
 // Errors cannot be added to the window directly
 // The Accessor functions defined above must be used
@@ -42,9 +46,10 @@ namespace Ui
       friend class Ui::Screen;
       friend void ::Error(uint32_t errorNumber, std::string errorString);
 
-   // Everything is private to prevent errors being set on the window
-   // directly without using the helper functions
-   private:
+   // Everything is protected to prevent errors being set on the window
+   // directly without using the helper functions, but allow test
+   // functions access
+   protected:
       static ErrorWindow & Instance()
       {
          static ErrorWindow errorWindow;
@@ -54,7 +59,6 @@ namespace Ui
       ErrorWindow() : ModeWindow(COLS, LINES), hasError_(false) { }
       ~ErrorWindow() { }
 
-   private:
       void Print(uint32_t line) const
       {
          if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
@@ -77,32 +81,6 @@ namespace Ui
    private:
       bool hasError_;
    };
-}
-
-void Error(uint32_t errorNumber, std::string errorString)
-{
-   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
-   {
-      Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
-      errorWindow.SetError(true);
-      errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
-   }
-}
-
-void ErrorString(uint32_t errorNumber)
-{
-   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
-   {
-      Error(errorNumber, ErrorStrings::Default[errorNumber]);
-   }
-}
-
-void ErrorString(uint32_t errorNumber, std::string additional)
-{
-   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
-   {
-      Error(errorNumber, ErrorStrings::Default[errorNumber] + ": " + additional);
-   }
 }
 
 #endif

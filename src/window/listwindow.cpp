@@ -23,7 +23,6 @@
 #include <pcrecpp.h>
 
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -41,16 +40,19 @@ ListWindow::ListWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc
    settings_        (settings),
    client_          (client),
    search_          (search),
-   lists_           (lists)
+   lists_           (&lists)
 {
    SetSupportsVisual(false);
 
-   typedef Main::CallbackObject<Ui::ListWindow , Mpc::Lists::BufferType> WindowCallbackObject;
-   typedef Main::CallbackObject<Mpc::Lists,      Mpc::Lists::BufferType> ListCallbackObject;
-
+   SoftRedrawOnSetting(Setting::IgnoreCaseSort);
+   SoftRedrawOnSetting(Setting::IgnoreTheSort);
    SoftRedrawOnSetting(Setting::Playlists);
 
-   lists_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::ListWindow::AdjustScroll));
+   Main::AllLists().AddCallback(Main::Buffer_Remove,  [this] (Mpc::Lists::BufferType line) { AdjustScroll(line); });
+   Main::MpdLists().AddCallback(Main::Buffer_Remove,  [this] (Mpc::Lists::BufferType line) { AdjustScroll(line); });
+   Main::FileLists().AddCallback(Main::Buffer_Remove, [this] (Mpc::Lists::BufferType line) { AdjustScroll(line); });
+
+   SoftRedraw();
 }
 
 ListWindow::~ListWindow()
@@ -65,10 +67,20 @@ void ListWindow::Redraw()
 
 void ListWindow::SoftRedraw()
 {
-   Clear();
-   client_.ForEachPlaylist(lists_, static_cast<void (Mpc::Lists::*)(Mpc::List)>(&Mpc::Lists::Add));
+   if (settings_.Get(Setting::Playlists) == Setting::PlaylistsAll)
+   {
+      lists_ = &Main::AllLists();
+   }
+   else if (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd)
+   {
+      lists_ = &Main::MpdLists();
+   }
+   else if (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles)
+   {
+      lists_ = &Main::FileLists();
+   }
 
-   lists_.Sort();
+   lists_->Sort();
    SetScrollLine(0);
    ScrollTo(0);
 }
@@ -94,7 +106,7 @@ void ListWindow::Print(uint32_t line) const
       }
 
       mvwhline(window,  line, 0, ' ', screen_.MaxColumns());
-      mvwaddstr(window, line, 1, lists_.Get(printLine).name_.c_str());
+      mvwaddstr(window, line, 1, lists_->Get(printLine).name_.c_str());
 
       wattroff(window, A_REVERSE);
 
@@ -125,9 +137,9 @@ void ListWindow::Right(Ui::Player & player, uint32_t count)
 
 void ListWindow::Confirm()
 {
-   if (lists_.Size() > CurrentLine())
+   if (lists_->Size() > CurrentLine())
    {
-      client_.LoadPlaylist(lists_.Get(CurrentLine()).path_);
+      client_.LoadPlaylist(lists_->Get(CurrentLine()).path_);
       client_.Play(0);
    }
 }
@@ -141,14 +153,14 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
 {
    int32_t colour = settings_.colours.Song;
 
-   if (line < lists_.Size())
+   if (line < lists_->Size())
    {
       if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
           (search_.HighlightSearch() == true))
       {
          pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(lists_.Get(line).name_) == true)
+         if (expression.FullMatch(lists_->Get(line).name_) == true)
          {
             colour = settings_.colours.SongMatch;
          }
@@ -167,27 +179,11 @@ void ListWindow::AdjustScroll(Mpc::List list)
 
 void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
-   Main::PlaylistTmp().Clear();
-
    for (uint32_t i = 0; i < count; ++i)
    {
-      if (i < Main::Lists().Size())
+      if (i < lists_->Size())
       {
-         client_.ForEachPlaylistSong(Main::Lists().Get(line +  i).path_, Main::PlaylistTmp(),
-                                    static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-      }
-   }
-
-   uint32_t total = Main::PlaylistTmp().Size();
-
-   if (total > 0)
-   {
-      Mpc::CommandList list(client_, (total > 1));
-
-      for (uint32_t i = 0; i < total; ++i)
-      {
-         Main::Playlist().Add(Main::PlaylistTmp().Get(i));
-         client_.Add(Main::PlaylistTmp().Get(i));
+         client_.AddSongsFromPlaylist(lists_->Get(line +  i).path_);
       }
    }
 
@@ -208,28 +204,9 @@ void ListWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
    for (uint32_t i = 0; i < count; ++i)
    {
-      if (i < Main::Lists().Size())
+      if (i < lists_->Size())
       {
-         client_.ForEachPlaylistSong(Main::Lists().Get(line +  i).path_, Main::PlaylistTmp(),
-                                    static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-      }
-   }
-
-   uint32_t total = Main::PlaylistTmp().Size();
-
-   if (total > 0)
-   {
-      Mpc::CommandList list(client_, (total > 1));
-
-      for (uint32_t i = 0; i < total; ++i)
-      {
-         int const PlaylistIndex = Main::Playlist().Index(Main::PlaylistTmp().Get(i));
-
-         if (PlaylistIndex >= 0)
-         {
-            client_.Delete(PlaylistIndex);
-            Main::Playlist().Remove(PlaylistIndex, 1);
-         }
+         client_.PlaylistContentsForRemove(lists_->Get(line +  i).path_);
       }
    }
 
@@ -250,12 +227,12 @@ void ListWindow::CropLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (line + i < BufferSize())
       {
-         client_.RemovePlaylist(Main::Lists().Get(line).path_);
-         Main::Lists().Remove(line, 1);
+         client_.RemovePlaylist(lists_->Get(line).path_);
+         lists_->Remove(line, 1);
       }
    }
 
-   Main::Lists().Sort();
+   lists_->Sort();
    SelectWindow::DeleteLine(line, count, scroll);
 }
 
@@ -269,21 +246,23 @@ void ListWindow::CropAllLines()
 
 void ListWindow::Edit()
 {
-   if (lists_.Size() > 0)
+   if (lists_->Size() > 0)
    {
-      Mpc::List const playlist(lists_.Get(CurrentLine()));
+      Mpc::List const playlist(lists_->Get(CurrentLine()));
+      client_.PlaylistContents(playlist.name_);
+   }
+}
 
-      SongWindow * window = screen_.CreateSongWindow("P:" + playlist.name_);
-      client_.ForEachPlaylistSong(playlist.path_, window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
+void ListWindow::ScrollToFirstMatch(std::string const & input)
+{
+   for (uint32_t i = 0; i < lists_->Size(); ++i)
+   {
+      Mpc::List const entry = lists_->Get(i);
 
-      if (window->BufferSize() > 0)
+      if ((Algorithm::imatch(entry.name_, input, settings_.Get(Setting::IgnoreTheSort), settings_.Get(Setting::IgnoreCaseSort)) == true))
       {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
-      }
-      else
-      {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         ErrorString(ErrorNumber::PlaylistEmpty);
+         ScrollTo(i);
+         break;
       }
    }
 }
@@ -292,6 +271,6 @@ void ListWindow::Edit()
 void ListWindow::Clear()
 {
    ScrollTo(0);
-   lists_.Clear();
+   lists_->Clear();
 }
 /* vim: set sw=3 ts=3: */

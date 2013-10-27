@@ -39,7 +39,7 @@ namespace Ui
    class Cursor
    {
    public:
-      Cursor(std::string & inputString);
+      Cursor(std::wstring & inputWString);
       ~Cursor();
 
    public:
@@ -49,10 +49,13 @@ namespace Ui
          CursorLeft,
          CursorRight,
          CursorStart,
-         CursorEnd
+         CursorEnd,
+         CursorPreviousSpace,
+         CursorNextSpace
       } CursorState;
 
       uint16_t Position() const;
+      uint16_t DisplayPosition() const;
       uint16_t UpdatePosition(CursorState newCursorState);
       void     SetPosition(uint16_t position);
       void     ResetCursorPosition();
@@ -61,9 +64,9 @@ namespace Ui
       uint16_t LimitCursorPosition(uint16_t position) const;
 
    private:
-      int           input_;
-      uint16_t      position_;
-      std::string & inputString_;
+      int            input_;
+      uint16_t       position_;
+      std::wstring & inputWString_;
    };
 
 
@@ -122,6 +125,10 @@ namespace Ui
    public:
       static bool InputIsValidCharacter(int input);
 
+   protected:
+      std::wstring stringtow(std::string & string);
+      std::string wtostring(std::wstring & string);
+
    private:
       template <Cursor::CursorState State>
       void MoveCursor();
@@ -133,9 +140,12 @@ namespace Ui
       void Deletion();
 
       void ClearBeforeCursor();
+      void ClearWordBeforeCursor();
 
    protected:
+      std::wstring     inputWString_;
       std::string      inputString_;
+      std::string      currentInput_;
       bool             backedOut_;
 
    private:

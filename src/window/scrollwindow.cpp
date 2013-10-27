@@ -23,14 +23,17 @@
 #include <iostream>
 
 #include "screen.hpp"
+#include "window/debug.hpp"
 
 using namespace Ui;
 
 ScrollWindow::ScrollWindow(Ui::Screen & screen, std::string name) :
-   Window     (screen.MaxRows(), screen.MaxColumns(), 1, 0),
    settings_  (Main::Settings::Instance()),
    screen_    (screen),
    name_      (name),
+   window_    (screen.W_MainWindow()),
+   rows_      (screen.MaxRows()),
+   cols_      (screen.MaxColumns()),
    scrollLine_(screen.MaxRows()),
    autoScroll_(false)
 {
@@ -57,7 +60,7 @@ void ScrollWindow::Print(uint32_t line) const
    bool escape    = false;
 
    std::string output   = "";
-   
+
    if (currentLine < WindowBuffer().Size())
    {
       output = WindowBuffer().PrintString(currentLine);
@@ -165,7 +168,7 @@ void ScrollWindow::Print(uint32_t line) const
                   {
                      wprintw(window, "%s", std::string(width, ' ').c_str());
                   }
-                  
+
                   wmove(window, line, Columns() - (stripped.size() - align));
                   break;
                }
@@ -190,11 +193,11 @@ void ScrollWindow::Print(uint32_t line) const
              default:
                break;
          }
-            
+
          i += 2;
 
       }
-      else if ((elided == false) || 
+      else if ((elided == false) ||
                (getcurx(window) < static_cast<int32_t>(Columns() - 3 - (stripped.size() - align))))
       {
          escape = false;
@@ -223,8 +226,11 @@ void ScrollWindow::Print(uint32_t line) const
 }
 
 
-void ScrollWindow::Resize(int rows, int columns)
+void ScrollWindow::Resize(uint32_t rows, uint32_t columns)
 {
+   rows_ = rows;
+   cols_ = columns;
+
    if ((scrollLine_ > rows) || (rows > scrollLine_))
    {
       scrollLine_ = FirstLine() + rows;
@@ -233,18 +239,16 @@ void ScrollWindow::Resize(int rows, int columns)
    {
       scrollLine_ = rows;
    }
-
-   Window::Resize(rows, columns);
 }
 
 
 void ScrollWindow::Scroll(int32_t scrollCount)
 {
-   uint16_t const newLine = (scrollLine_ + scrollCount);
+   int64_t const newLine = (scrollLine_ + scrollCount);
 
-   if (BufferSize() > Rows())
+   if (BufferSize() > static_cast<uint32_t>(Rows()))
    {
-      if (newLine < Rows())
+      if (newLine < static_cast<uint32_t>(Rows()))
       {
          scrollLine_ = Rows();
       }
@@ -259,17 +263,17 @@ void ScrollWindow::Scroll(int32_t scrollCount)
    }
 }
 
-void ScrollWindow::ScrollTo(uint16_t scrollLine)
+void ScrollWindow::ScrollTo(uint32_t scrollLine)
 {
    if (scrollLine > BufferSize())
    {
       scrollLine_ = BufferSize();
    }
-   else if (BufferSize() >= Rows())
+   else if (BufferSize() >= static_cast<uint32_t>(Rows()))
    {
       scrollLine_ = scrollLine + (Rows() / 2);
 
-      if (scrollLine_ < Rows())
+      if (scrollLine_ < static_cast<uint32_t>(Rows()))
       {
          scrollLine_ = Rows();
       }
@@ -298,9 +302,9 @@ bool ScrollWindow::Select(Position position, uint32_t count)
 {
    if (position == ScrollWindow::First)
    {
-      int32_t scroll = FirstLine() -1 + count;
+      int64_t scroll = FirstLine() -1 + count;
 
-      if (scroll > static_cast<int32_t>(LastLine()))
+      if (scroll > static_cast<int64_t>(LastLine()))
       {
          scroll = LastLine();
       }
@@ -309,9 +313,9 @@ bool ScrollWindow::Select(Position position, uint32_t count)
    }
    else if (position == ScrollWindow::Last)
    {
-      int32_t scroll = LastLine() - count;
+      int64_t scroll = LastLine() - count;
 
-      if (scroll < static_cast<int32_t>(FirstLine() + 1))
+      if (scroll < static_cast<int64_t>(FirstLine() + 1))
       {
          scroll = FirstLine() + 1;
       }
@@ -339,7 +343,7 @@ bool ScrollWindow::AutoScroll() const
 
 uint32_t ScrollWindow::FirstLine() const
 {
-   uint16_t result = 0;
+   uint32_t result = 0;
 
    if ((scrollLine_ - Rows()) > 0)
    {
@@ -354,12 +358,12 @@ void ScrollWindow::ResetScroll()
    scrollLine_ = Rows();
 }
 
-uint16_t ScrollWindow::ScrollLine() const
+uint32_t ScrollWindow::ScrollLine() const
 {
    return scrollLine_;
 }
 
-void ScrollWindow::SetScrollLine(uint16_t scrollLine)
+void ScrollWindow::SetScrollLine(uint32_t scrollLine)
 {
    scrollLine_ = scrollLine;
 }
@@ -367,14 +371,12 @@ void ScrollWindow::SetScrollLine(uint16_t scrollLine)
 
 void ScrollWindow::SoftRedrawOnSetting(Setting::ToggleSettings setting)
 {
-   settings_.RegisterCallback(setting,
-      new Main::CallbackObject<Ui::ScrollWindow, bool>(*this, &Ui::ScrollWindow::OnSettingChanged));
+   settings_.RegisterCallback(setting, [this] (bool Value) { OnSettingChanged(Value); });
 }
 
 void ScrollWindow::SoftRedrawOnSetting(Setting::StringSettings setting)
 {
-   settings_.RegisterCallback(setting,
-      new Main::CallbackObject<Ui::ScrollWindow, std::string>(*this, &Ui::ScrollWindow::OnSettingChanged));
+   settings_.RegisterCallback(setting, [this] (std::string Value) { OnSettingChanged(Value); });
 }
 
 int32_t ScrollWindow::DetermineColour(uint32_t line) const

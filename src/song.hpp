@@ -25,6 +25,9 @@
 #include <string>
 #include <mpd/song.h>
 
+#include <vector>
+#include <map>
+
 namespace Mpc
 {
    class LibraryEntry;
@@ -95,6 +98,9 @@ namespace Mpc
       void SetArtist(const char * artist);
       std::string const & Artist() const;
 
+      void SetAlbumArtist(const char * artist);
+      std::string const & AlbumArtist() const;
+
       void SetAlbum(const char * album);
       std::string const & Album() const;
 
@@ -107,6 +113,12 @@ namespace Mpc
       void SetURI(const char * uri);
       std::string const & URI() const;
 
+      void SetGenre(const char * genre);
+      std::string const & Genre() const;
+
+      void SetDate(const char * date);
+      std::string const & Date() const;
+
       void SetDuration(int32_t duration);
       int32_t Duration() const;
       std::string const & DurationString() const;
@@ -117,15 +129,41 @@ namespace Mpc
       std::string FormatString(std::string fmt) const;
       std::string ParseString(std::string::const_iterator &it, bool &valid) const;
 
+   public:
+      typedef std::string const & (Mpc::Song::*SongFunction)() const;
+      static std::map<char, SongFunction> SongInfo;
+      static void RepopulateSongFunctions();
+
+   private:
+      static std::vector<std::string> Artists;
+      static std::map<std::string, uint32_t> ArtistMap;
+
+      static std::vector<std::string> Albums;
+      static std::map<std::string, uint32_t> AlbumMap;
+
+      static std::vector<std::string> Tracks;
+      static std::map<std::string, uint32_t> TrackMap;
+
+      static std::vector<std::string> Genres;
+      static std::map<std::string, uint32_t> GenreMap;
+
+      static std::vector<std::string> Dates;
+      static std::map<std::string, uint32_t> DateMap;
+
+   private:
+      void Set(const char * newVal, int32_t & oldVal, std::vector<std::string> & Values, std::map<std::string, uint32_t> & Indexes);
+
    private:
       int32_t     reference_;
-      std::string artist_;
-      std::string album_;
-      std::string title_;
-      std::string track_;
-      std::string uri_;
-      std::string durationString_;
+      int32_t     artist_;
+      int32_t     albumArtist_;
+      int32_t     album_;
+      int32_t     track_;
+      int32_t     genre_;
+      int32_t     date_;
       int32_t     duration_;
+      std::string uri_;
+      std::string title_;
 
       mutable std::string lastFormat_;
       mutable std::string formatted_;

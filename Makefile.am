@@ -1,10 +1,16 @@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS} -I m4
 
-vimpc_CXXFLAGS = $(pcrecpp_CFLAGS) $(mpdclientCFLAGS) $(AM_CXXFLAGS)
-vimpc_LDADD    = $(pcrecpp_LIBS) $(mpdclient_LIBS)
+vimpc_CXXFLAGS = $(taglib_CLFAGS) $(pcrecpp_CFLAGS) $(mpdclientCFLAGS) $(AM_CXXFLAGS)
+vimpc_LDADD    = $(taglib_LIBS) $(pcrecpp_LIBS) $(mpdclient_LIBS)
 
-bin_PROGRAMS     = vimpc
+bin_PROGRAMS     = vimpc 
+
+if BUILD_TEST
+vimpc_CXXFLAGS += $(cppunit_CLFAGS)
+vimpc_LDADD    += $(cppunit_LIBS)
+endif
+
 man_MANS         = doc/vimpc.1
 doc_DATA         = doc/help.txt
 vimpc_SOURCES    = src/algorithm.cpp \
@@ -14,12 +20,13 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/buffers.cpp \
                    src/buffers.hpp \
                    src/callback.hpp \
+                   src/clientstate.cpp \
+                   src/clientstate.hpp \
                    src/colours.cpp \
                    src/colours.hpp \
                    src/config.hpp \
                    src/errorcodes.cpp \
                    src/errorcodes.hpp \
-                   src/main.cpp \
                    src/mpdclient.cpp \
                    src/mpdclient.hpp \
                    src/output.cpp \
@@ -58,8 +65,11 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/browsewindow.hpp \
                    src/window/console.cpp \
                    src/window/console.hpp \
+                   src/window/debug.cpp \
+                   src/window/debug.hpp \
                    src/window/directorywindow.cpp \
                    src/window/directorywindow.hpp \
+                   src/window/error.cpp \
                    src/window/error.hpp \
                    src/window/help.cpp \
                    src/window/help.hpp \
@@ -87,6 +97,16 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/window.cpp \
                    src/window/window.hpp \
                    src/window/windowselector.cpp \
-                   src/window/windowselector.hpp
+                   src/window/windowselector.hpp \
+                   src/main.cpp
+
+if BUILD_TEST
+vimpc_SOURCES     += src/test/algorithms.cpp \
+                     src/test/command.cpp \
+                     src/test/screen.cpp \
+                     src/test/settings.cpp
+endif
+
 
 dist_noinst_SCRIPTS = autogen.sh
+

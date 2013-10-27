@@ -23,10 +23,12 @@
 
 #include <map>
 
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
-namespace Ui   { class Mode; class Normal; }
+struct EventData;
+namespace Ui   { class Mode; class Normal; class Command; }
 namespace Main { class Settings; }
 
 namespace Main
@@ -64,11 +66,14 @@ namespace Main
 
       void ChangeMode(char input, std::string initial);
 
+      //! Change whether user events are handled
+      void HandleUserEvents(bool Enabled);
+
    public:
       static void SetRunning(bool isRunning);
-
-      //! Perform any required actions on a connect
-      void OnConnected();
+      static void CreateEvent(int Event, EventData const & Data);
+      static void EventHandler(int Event, std::function<void(EventData const &)> func);
+      static bool WaitForEvent(int Event, int TimeoutMs);
 
    private:
       //! Read input from the screen
@@ -84,6 +89,9 @@ namespace Main
       //! \todo Possibly template this kind of check?
       bool ModesAreInitialised();
 
+      // Update the screen
+      void Repaint();
+
    private:
       //! Change the currently active mode based on \p input
       void ChangeMode(int input);
@@ -98,13 +106,16 @@ namespace Main
       static bool Running;
 
    private:
-      ModeName       currentMode_;
-      Settings     & settings_;
-      Ui::Search   & search_;
-      Ui::Screen     screen_;
-      Mpc::Client    client_;
-      ModeTable      modeTable_;
-      Ui::Normal   & normalMode_;
+      ModeName          currentMode_;
+      Settings     &    settings_;
+      Ui::Search   &    search_;
+      Ui::Screen        screen_;
+      Mpc::Client       client_;
+      Mpc::ClientState  clientState_;
+      ModeTable         modeTable_;
+      Ui::Normal   &    normalMode_;
+      Ui::Command  &    commandMode_;
+      bool              userEvents_;
    };
 }
 

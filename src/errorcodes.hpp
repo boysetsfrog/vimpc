@@ -46,6 +46,9 @@
    X(NoSuchMark,            "Mark not set") \
    X(NoSuchMapping,         "No mapping found") \
    X(NameInUse,             "Name already in use") \
+   X(NotSet,                "Required setting not set") \
+   X(FileNotFound,          "File not found") \
+   X(NoRangeAllowed,        "No range allowed for command") \
    X(Unknown,               "Unknown")
 
 namespace ErrorNumber

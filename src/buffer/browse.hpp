@@ -22,7 +22,6 @@
 #define __MPC__BROWSE
 
 // Includes
-#include "callback.hpp"
 #include "settings.hpp"
 #include "song.hpp"
 
@@ -35,10 +34,6 @@ namespace Mpc
 
    class Browse : public Main::Buffer<Mpc::Song *>
    {
-   private:
-      typedef Main::CallbackObject<Mpc::Browse, Browse::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Browse::BufferType> CallbackFunction;
-
    public:
       Browse(bool IncrementReferences = false);
       ~Browse();

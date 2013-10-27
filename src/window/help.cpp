@@ -28,6 +28,7 @@
 #include "error.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
+#include "mode/search.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -39,9 +40,10 @@ char const * const HelpFile = "/help.txt";
 
 using namespace Ui;
 
-HelpWindow::HelpWindow(Main::Settings const & settings, Ui::Screen & screen) :
-   ScrollWindow     (screen, "help"),
+HelpWindow::HelpWindow(Main::Settings const & settings, Ui::Screen & screen, Ui::Search const & search) :
+   SelectWindow     (settings, screen, "help"),
    settings_        (settings),
+   search_          (search),
    help_            ()
 {
    LoadHelpFile();
@@ -69,6 +71,17 @@ void HelpWindow::Print(uint32_t line) const
    {
       std::string currentLine = help_.Get(FirstLine() + line);
 
+      if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+          (search_.HighlightSearch() == true))
+      {
+         pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+         if (expression.FullMatch(currentLine))
+         {
+            wattron(window, COLOR_PAIR(settings_.colours.SongMatch));
+         }
+      }
+
       if ((FirstLine() == 0) && (line == 0))
       {
          if (settings_.Get(Setting::ColourEnabled) == true)
@@ -88,7 +101,7 @@ void HelpWindow::Print(uint32_t line) const
 
       size_t const pos = currentLine.find('|');
 
-      if ((pos != std::string::npos) && 
+      if ((pos != std::string::npos) &&
          ((pos == 0) || (currentLine[pos - 1] != '\\')))
       {
          std::string firstHalf = currentLine.substr(0, currentLine.find_last_of('|') - 1);
@@ -97,15 +110,26 @@ void HelpWindow::Print(uint32_t line) const
          mvwaddstr(window, line, 0, firstHalf.c_str());
          waddstr(window, lastHalf.c_str());
       }
-      else if ((pos != std::string::npos) && 
+      else if ((pos != std::string::npos) &&
               ((pos > 0) && (currentLine[pos - 1] == '\\')))
       {
-         currentLine.erase(pos-1, 1); 
+         currentLine.erase(pos-1, 1);
          mvwaddstr(window, line, 0, currentLine.c_str());
       }
       else
       {
          mvwaddstr(window, line, 0, currentLine.c_str());
+      }
+
+      if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
+          (search_.HighlightSearch() == true))
+      {
+         pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+
+         if (expression.FullMatch(currentLine))
+         {
+            wattroff(window, COLOR_PAIR(settings_.colours.SongMatch));
+         }
       }
    }
 
@@ -122,6 +146,22 @@ void HelpWindow::Print(uint32_t line) const
 
 void HelpWindow::Confirm()
 {
+}
+
+void HelpWindow::Scroll(int32_t scrollCount)
+{
+   currentLine_ += scrollCount;
+   LimitCurrentSelection();
+   ScrollWindow::Scroll(scrollCount);
+}
+
+void HelpWindow::ScrollTo(uint32_t scrollLine)
+{
+   int64_t oldSelection = currentLine_;
+   currentLine_    = (static_cast<int64_t>(scrollLine));
+   LimitCurrentSelection();
+
+   ScrollWindow::ScrollTo(scrollLine);
 }
 
 

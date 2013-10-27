@@ -13,10 +13,14 @@ For detailed help information please type :help in vimpc.
 .SH OPTIONS
 .IP "-v, --version"
 Print the version of vimpc
-.IP "-h, --host" hostname
-Connect to an MPD instance on
+.IP "-h, --host [password@]<hostname|socket>"
+Connect to a running MPD instance on
 .BR hostname
-.IP "-p, --port" port
+or using the unix socket
+.BR socket
+with the password
+.BR password
+.IP "-p, --port <port>"
 Use
 .BR port
 to connect to mpd

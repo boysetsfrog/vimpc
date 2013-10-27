@@ -25,12 +25,12 @@
 
 using namespace Ui;
 
-ConsoleWindow::ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen, 
+ConsoleWindow::ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen,
                              std::string name, Console & console) :
    ScrollWindow(screen, name),
    console_    (console)
 {
-   console_.AddCallback(Main::Buffer_Add, new CallbackObject(*this, &Ui::ConsoleWindow::PerformAutoScroll));
+   console_.AddCallback(Main::Buffer_Add, [this] (Console::BufferType line) { PerformAutoScroll(line); });
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -49,7 +49,6 @@ void ConsoleWindow::PerformAutoScroll(Console::BufferType line)
 void ConsoleWindow::Clear()
 {
    console_.Clear();
-   werase(N_WINDOW());
    ResetScroll();
 }
 /* vim: set sw=3 ts=3: */

@@ -31,7 +31,7 @@
 
 // Forward Declarations
 namespace Main { class Settings; }
-namespace Mpc  { class Client; }
+namespace Mpc  { class Client; class ClientState; }
 namespace Ui   { class Search; }
 
 // Browse window class
@@ -40,7 +40,7 @@ namespace Ui
    class BrowseWindow : public Ui::SongWindow
    {
    public:
-      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Ui::Search const & search);
+      BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search);
       ~BrowseWindow();
 
    private:
@@ -55,15 +55,16 @@ namespace Ui
       Main::WindowBuffer const & WindowBuffer() const { return browse_; }
 
    private:
-      void    SoftRedraw();
-      void    Clear();
-      size_t  BufferSize() const   { return browse_.Size(); }
+      void      SoftRedraw();
+      void      Clear();
+      uint32_t  BufferSize() const   { return browse_.Size(); }
       Main::Buffer<Mpc::Song *> & Buffer() { return browse_; }
       Main::Buffer<Mpc::Song *> const & Buffer() const { return browse_; }
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
+      Mpc::ClientState &     clientState_;
       Ui::Search     const & search_;
       Mpc::Browse &          browse_;
    };

@@ -22,6 +22,7 @@
 
 #include "settings.hpp"
 #include "screen.hpp"
+#include "window/debug.hpp"
 
 using namespace Ui;
 
@@ -65,7 +66,7 @@ void SelectWindow::Print(uint32_t line) const
    }
 }
 
-void SelectWindow::Resize(int rows, int columns)
+void SelectWindow::Resize(uint32_t rows, uint32_t columns)
 {
    ScrollWindow::Resize(rows, columns);
 
@@ -93,7 +94,7 @@ void SelectWindow::Scroll(int32_t scrollCount)
    }
 }
 
-void SelectWindow::ScrollTo(uint16_t scrollLine)
+void SelectWindow::ScrollTo(uint32_t scrollLine)
 {
    int64_t oldSelection = currentLine_;
    currentLine_    = (static_cast<int64_t>(scrollLine));
@@ -117,7 +118,7 @@ void SelectWindow::ScrollTo(uint16_t scrollLine)
    }
 }
 
-uint16_t SelectWindow::CurrentLine() const
+uint32_t SelectWindow::CurrentLine() const
 {
    return currentLine_;
 }
@@ -196,7 +197,7 @@ void SelectWindow::LimitCurrentSelection()
    {
       currentLine_ = 0;
    }
-   else if ((currentLine_ >= static_cast<int32_t>(BufferSize())) && (BufferSize() > 0))
+   else if ((currentLine_ >= static_cast<int64_t>(BufferSize())) && (BufferSize() > 0))
    {
       currentLine_ = BufferSize() - 1;
    }

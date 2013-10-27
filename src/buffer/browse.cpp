@@ -31,8 +31,8 @@ Browse::Browse(bool IncrementReferences) :
 {
    if (IncrementReferences == true)
    {
-      AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
-      AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
+      AddCallback(Main::Buffer_Add,    [] (Mpc::Song * song) { Mpc::Song::IncrementReference(song); });
+      AddCallback(Main::Buffer_Remove, [] (Mpc::Song * song) { Mpc::Song::DecrementReference(song); });
    }
 }
 

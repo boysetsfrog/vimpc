@@ -21,25 +21,10 @@
 #ifndef __UI__DEBUG
 #define __UI__DEBUG
 
-#include "buffers.hpp"
-#include "window/console.hpp"
-
 #include <string>
 
 //! Display an error window with the given error
-static void Debug(std::string format, ...);
-
-void Debug(std::string format, ...)
-{
-#ifdef __DEBUG_PRINTS
-   char buffer[1024];
-   va_list args;
-   va_start(args, format);
-   vsprintf(buffer, format.c_str(), args);
-   Main::DebugConsole().Add(buffer);
-   va_end(args);
-#endif
-}
+void Debug(std::string format, ...);
 
 #endif
 /* vim: set sw=3 ts=3: */

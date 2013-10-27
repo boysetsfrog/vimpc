@@ -66,7 +66,7 @@ bool Output::Enabled() const
    return enabled_;
 }
 
-std::string Output::PrintString() const 
+std::string Output::PrintString() const
 {
    return "$H[" + std::string(enabled_ ? "$I*$D" : " ") + std::string("] $H") + name_;
 }

@@ -45,8 +45,10 @@ namespace Ui
       ListWindow(ListWindow & window);
       ListWindow & operator=(ListWindow & window);
 
-   public:
+   private:
       void Print(uint32_t line) const;
+
+   public:
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Confirm();
@@ -57,11 +59,11 @@ namespace Ui
       void AdjustScroll(Mpc::List list);
 
    public:
-      std::string SearchPattern(int32_t id) const
+      std::string SearchPattern(uint32_t id) const
       {
-         if (id < lists_.Size())
+         if (id < lists_->Size())
          {
-            return lists_.Get(id).name_;
+            return lists_->Get(id).name_;
          }
 
          return "";
@@ -75,21 +77,22 @@ namespace Ui
       void CropLine(uint32_t line, uint32_t count, bool scroll);
       void CropAllLines();
       void Edit();
+      void ScrollToFirstMatch(std::string const & input);
 
    protected:
-      Main::WindowBuffer const & WindowBuffer() const { return lists_; }
+      Main::WindowBuffer const & WindowBuffer() const { return *lists_; }
 
    private:
-      void    SoftRedraw();
-      void    Clear();
-      size_t  BufferSize() const { return lists_.Size(); }
-      int32_t DetermineColour(uint32_t line) const;
+      void     SoftRedraw();
+      void     Clear();
+      uint32_t BufferSize() const { return lists_->Size(); }
+      int32_t  DetermineColour(uint32_t line) const;
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
       Ui::Search     const & search_;
-      Mpc::Lists           & lists_;
+      Mpc::Lists           * lists_;
    };
 }
 

@@ -36,6 +36,7 @@ namespace Ui   { class DirectoryWindow; }
 namespace Mpc
 {
    class  Client;
+   class  ClientState;
    class  Directory;
    class  DirectoryEntry;
 
@@ -65,8 +66,8 @@ namespace Mpc
    class DirectoryComparator
    {
       public:
-      bool operator() (DirectoryEntry * i, DirectoryEntry * j) 
-      { 
+      bool operator() (DirectoryEntry * i, DirectoryEntry * j)
+      {
          if (i->name_ == "..")
          {
             return true;
@@ -77,7 +78,7 @@ namespace Mpc
          }
          else if (i->type_ == j->type_)
          {
-            return (i->name_ < j->name_); 
+            return (i->name_ < j->name_);
          }
          else if (i->type_ == PathType)
          {
@@ -88,7 +89,7 @@ namespace Mpc
             return false;
          }
 
-         return (i->name_ < j->name_); 
+         return (i->name_ < j->name_);
       };
    };
 
@@ -111,6 +112,7 @@ namespace Mpc
       static bool IsChildPath(std::string const & Parent, std::string const & Child);
       static std::string ParentPath(std::string const & Path);
 
+
    public:
       std::string CurrentDirectory();
       void ChangeDirectory(std::string New);
@@ -121,17 +123,17 @@ namespace Mpc
       void AddChild(std::string directory);
       void Add(Mpc::Song * song);
       void AddPlaylist(Mpc::List playlist);
-      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
-      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
+      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
       uint32_t TotalReferences(std::string const & Path) const
       {
          uint32_t Result = References(Path);
-         std::vector<std::string> Paths = ChildPaths(Path);
+         std::vector<std::string> const CPaths = ChildPaths(Path);
 
-         for (std::vector<std::string>::const_iterator it = Paths.begin(); it != Paths.end(); ++it)
+         for (auto CPath : CPaths)
          {
-            Result += References(*it);
+            Result += References(CPath);
          }
          return Result;
       }
@@ -139,12 +141,12 @@ namespace Mpc
       std::vector<Mpc::Song *> AllChildSongs(std::string const & Path) const
       {
          std::vector<Mpc::Song *> Result;
-         std::vector<std::string> Paths = ChildPaths(Path);
-         std::vector<Mpc::Song *> OwnSongs = Songs(Path);
+         std::vector<std::string> const CPaths = ChildPaths(Path);
+         std::vector<Mpc::Song *> const OwnSongs = Songs(Path);
 
-         for (std::vector<std::string>::const_iterator it = Paths.begin(); it != Paths.end(); ++it)
+         for (auto CPath : CPaths)
          {
-            std::vector<Mpc::Song *> Children = Songs(*it);
+            std::vector<Mpc::Song *> Children = Songs(CPath);
             Result.insert(Result.end(), Children.begin(), Children.end());
          }
 
@@ -158,10 +160,12 @@ namespace Mpc
          Main::Buffer<DirectoryEntry *>::Sort(sorter);
       }
 
+      std::vector<std::string> const & Paths() { return paths_; }
+
    private:
       void AddEntry(std::string fullPath);
-      void AddToPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry, int32_t position = -1);
-      void RemoveFromPlaylist(Mpc::Client & client, Mpc::DirectoryEntry const * const entry);
+      void AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::DirectoryEntry const * const entry, int32_t position = -1);
+      void RemoveFromPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::DirectoryEntry const * const entry);
       void DeleteEntry(DirectoryEntry * const entry);
 
       void AddedToPlaylist(std::string URI)
@@ -180,18 +184,15 @@ namespace Mpc
       std::vector<Mpc::Song *> Songs(std::string const & Path) const
       {
          static std::vector<Mpc::Song *> emptyvector;
-         std::map<std::string, std::vector<Mpc::Song *> >::const_iterator it = songs_.find(Path);
+         auto const it = songs_.find(Path);
          return (it != songs_.end()) ? it->second : emptyvector;
       }
       std::vector<std::string> ChildPaths(std::string const & Path) const
       {
          static std::vector<std::string> emptyvector;
-         std::map<std::string, std::vector<std::string> >::const_iterator it = children_.find(Path);
+         auto const it = children_.find(Path);
          return (it != children_.end()) ? it->second : emptyvector;
       }
-
-      typedef Main::CallbackObject<Mpc::Directory, Directory::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Directory::BufferType> CallbackFunction;
 
    private:
       std::vector<std::string>                         paths_;

@@ -23,7 +23,6 @@
 #include <pcrecpp.h>
 
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
@@ -39,10 +38,7 @@ OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen,
    search_          (search),
    outputs_         (outputs)
 {
-   typedef Main::CallbackObject<Ui::OutputWindow , Mpc::Outputs::BufferType> WindowCallbackObject;
-   typedef Main::CallbackObject<Mpc::Outputs,      Mpc::Outputs::BufferType> OutputCallbackObject;
-
-   outputs_.AddCallback(Main::Buffer_Remove, new WindowCallbackObject  (*this, &Ui::OutputWindow::AdjustScroll));
+   outputs_.AddCallback(Main::Buffer_Remove, [this] (Mpc::Outputs::BufferType line) { AdjustScroll(line); });
 }
 
 OutputWindow::~OutputWindow()
@@ -54,7 +50,7 @@ OutputWindow::~OutputWindow()
 void OutputWindow::Redraw()
 {
    Clear();
-   client_.ForEachOutput(outputs_, static_cast<void (Mpc::Outputs::*)(Mpc::Output *)>(&Mpc::Outputs::Add));
+   client_.GetAllOutputs();
    SoftRedraw();
 }
 
@@ -76,7 +72,6 @@ void OutputWindow::SetOutput(uint32_t line, bool enable, uint32_t count, bool sc
       if (line + i < BufferSize())
       {
          client_.SetOutput(outputs_.Get(line + i), enable);
-         outputs_.Get(line + i)->SetEnabled(enable);
       }
    }
 }

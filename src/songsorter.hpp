@@ -37,46 +37,12 @@ namespace Ui
       }
 
       public:
-      bool operator() (Mpc::Song * i, Mpc::Song * j) 
-      { 
+      bool operator() (Mpc::Song * i, Mpc::Song * j)
+      {
          // Sort based on print format
          if (format_ == "format")
          {
             return (i->FormatString(settings_.Get(Setting::SongFormat)) < j->FormatString(settings_.Get(Setting::SongFormat)));
-         }
-
-         // Sort based on position in library
-         else if (format_ == "library")
-         {
-            Mpc::LibraryEntry * iE = i->Entry();
-            Mpc::LibraryEntry * jE = j->Entry();
-
-            if ((iE != NULL) && (jE != NULL))
-            {
-               Mpc::LibraryEntry * iEp = iE->parent_;
-               Mpc::LibraryEntry * jEp = jE->parent_;
-
-               if ((iEp != NULL) && (jEp != NULL))
-               {
-                  Mpc::LibraryEntry * iEpp = iEp->parent_;
-                  Mpc::LibraryEntry * jEpp = jEp->parent_;
-
-                  if (iEpp != jEpp)
-                  {
-                     return *iEpp < *jEpp;
-                  }
-                  else if (iEp != jEp)
-                  {
-                     return *iEp < *jEp;
-                  }
-                  else
-                  {
-                     return *iE < *jE;
-                  }
-               }
-            }
-
-            Debug("No valid library entries during sort");
          }
 
          return (i->FormatString(settings_.Get(Setting::SongFormat)) < j->FormatString(settings_.Get(Setting::SongFormat)));

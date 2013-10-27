@@ -21,9 +21,9 @@
 #include "browsewindow.hpp"
 
 #include <pcrecpp.h>
+#include <future>
 
 #include "buffers.hpp"
-#include "callback.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
@@ -34,16 +34,18 @@
 
 using namespace Ui;
 
-BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Ui::Search const & search) :
-   SongWindow       (settings, screen, client, search, "browse"),
+BrowseWindow::BrowseWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Browse & browse, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
+   SongWindow       (settings, screen, client, clientState, search, "browse"),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    browse_          (browse)
 {
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
    SoftRedrawOnSetting(Setting::Sort);
+   SoftRedrawOnSetting(Setting::AlbumArtist);
 }
 
 BrowseWindow::~BrowseWindow()
@@ -52,28 +54,50 @@ BrowseWindow::~BrowseWindow()
 
 void BrowseWindow::Redraw()
 {
-   uint16_t currentLine = CurrentLine();
-   uint16_t scrollLine  = ScrollLine();
-
    Clear();
-   Main::CallbackObject<Ui::BrowseWindow, Mpc::Song * > callback(*this, &Ui::BrowseWindow::Add);
-   Main::Library().ForEachSong(&callback);
    SoftRedraw();
-
-   // If we are redrawing and can keep the same scroll point do so
-   // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
-   if (currentLine < browse_.Size())
-   {
-      SetScrollLine(scrollLine);
-      ScrollTo(currentLine);
-   }
 }
 
 void BrowseWindow::SoftRedraw()
 {
-   Ui::SongSorter const sorter(settings_.Get(::Setting::Sort));
-   Buffer().Sort(sorter);
-   ScrollTo(0);
+   std::string uri = "";
+
+   if (browse_.Size() > 0)
+   {
+      Mpc::Song * song = browse_.Get(CurrentLine());
+      uri = (song != NULL) ? song->URI() : "";
+   }
+
+   std::string const format = settings_.Get(::Setting::Sort);
+
+   if ((format == "library") || (browse_.Size() == 0))
+   {
+      Clear();
+      Main::Library().ForEachSong([this] (Mpc::Song * song) { Add(song); });
+   }
+
+   if (format != "library")
+   {
+      Ui::SongSorter const sorter(format);
+      Buffer().Sort(sorter);
+   }
+
+   // If we are redrawing and can keep the same scroll point do so
+   // otherwise if we are redrawing due to a new playlist load etc, we need to scroll to the start
+   if (uri != "")
+   {
+      for (int i = 0; i < browse_.Size(); ++i)
+      {
+         if ((browse_.Get(i) != NULL) && (browse_.Get(i)->URI() == uri))
+         {
+            ScrollTo(i);
+         }
+      }
+   }
+   else
+   {
+      ScrollTo(0);
+   }
 }
 
 void BrowseWindow::PrintId(uint32_t Id) const

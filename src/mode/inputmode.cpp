@@ -26,16 +26,17 @@
 #include "assert.hpp"
 #include "screen.hpp"
 #include "window/console.hpp"
+#include "window/debug.hpp"
 
 using namespace Ui;
 
 #define ESCAPE_KEY 27
 
 InputMode::InputMode(Ui::Screen & screen) :
-   inputString_       (""),
+   inputString_       (),
    backedOut_         (false),
    window_            (NULL),
-   cursor_            (inputString_),
+   cursor_            (inputWString_),
    screen_            (screen),
    initHistorySearch_ (true),
    saveToHistory_     (true),
@@ -44,7 +45,9 @@ InputMode::InputMode(Ui::Screen & screen) :
 {
    // Currently ctrl key combinations are 'X' - 'A' + 1 (for <C-X>)
    inputTable_[KEY_UP]        = &InputMode::SearchHistory<Up>;
+   inputTable_['P' - 'A' + 1] = &InputMode::SearchHistory<Up>;
    inputTable_[KEY_DOWN]      = &InputMode::SearchHistory<Down>;
+   inputTable_['N' - 'A' + 1] = &InputMode::SearchHistory<Down>;
    inputTable_[KEY_BACKSPACE] = &InputMode::Deletion<Cursor::CursorLeft>;
    inputTable_['H' - 'A' + 1] = &InputMode::Deletion<Cursor::CursorLeft>;
    inputTable_[0x7F]          = &InputMode::Deletion<Cursor::CursorLeft>;
@@ -53,10 +56,14 @@ InputMode::InputMode(Ui::Screen & screen) :
    inputTable_[KEY_LEFT]      = &InputMode::MoveCursor<Cursor::CursorLeft>;
    inputTable_[KEY_RIGHT]     = &InputMode::MoveCursor<Cursor::CursorRight>;
    inputTable_[KEY_HOME]      = &InputMode::MoveCursor<Cursor::CursorStart>;
+   inputTable_['A' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorStart>;
    inputTable_['B' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorStart>;
    inputTable_[KEY_END]       = &InputMode::MoveCursor<Cursor::CursorEnd>;
    inputTable_['E' - 'A' + 1] = &InputMode::MoveCursor<Cursor::CursorEnd>;
+   inputTable_[KEY_SLEFT]     = &InputMode::MoveCursor<Cursor::CursorPreviousSpace>;
+   inputTable_[KEY_SRIGHT]    = &InputMode::MoveCursor<Cursor::CursorNextSpace>;
    inputTable_['U' - 'A' + 1] = &InputMode::ClearBeforeCursor;
+   inputTable_['W' - 'A' + 1] = &InputMode::ClearWordBeforeCursor;
 }
 
 InputMode::~InputMode()
@@ -78,13 +85,14 @@ void InputMode::Initialise(int input)
 
    initHistorySearch_  = true;
 
+   inputWString_.clear();
    inputString_.clear();
+   currentInput_.clear();
 
    cursor_.ResetCursorPosition();
    window_->ShowCursor();
-   window_->SetCursorPosition(cursor_.Position());
    window_->SetLine(Prompt());
-   //Refresh();
+   window_->SetCursorPosition(cursor_.DisplayPosition());
 
    ENSURE(inputString_.empty() == true);
 }
@@ -97,12 +105,11 @@ void InputMode::Finalise(int input)
    }
 
    window_->HideCursor();
-   //Refresh();
 }
 
 void InputMode::Refresh()
 {
-   window_->Print(0);
+   screen_.PrintModeWindow(window_);
 }
 
 bool InputMode::Handle(int const input)
@@ -119,8 +126,8 @@ bool InputMode::Handle(int const input)
       saveToHistory_ = true;
       ResetHistory(input);
       GenerateInputString(input);
-      window_->SetCursorPosition(cursor_.Position());
       window_->SetLine("%s%s", Prompt(), inputString_.c_str());
+      window_->SetCursorPosition(cursor_.DisplayPosition());
    }
 
    return result;
@@ -133,8 +140,8 @@ bool InputMode::CausesModeToStart(int input) const
 
 bool InputMode::CausesModeToEnd(int input) const
 {
-   return ((((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_ == "") && (backedOut_)) ||
-           (input == ESCAPE_KEY) || 
+   return ((((input == KEY_BACKSPACE) || (input == 0x7F)) && (inputString_.empty() == true) && (backedOut_)) ||
+           (input == ESCAPE_KEY) ||
            (HasCompleteInput(input)));
 }
 
@@ -143,22 +150,22 @@ bool InputMode::CausesModeToEnd(int input) const
 {
    static std::vector<std::string> terminators;
 
-	if (terminators.empty() == true)
-	{
-		terminators.push_back("\n");
-		terminators.push_back("<C-M>");
-		terminators.push_back("<Enter>");
-		terminators.push_back("<Return>");
-		terminators.push_back("<CR>");
-	}
+   if (terminators.empty() == true)
+   {
+      terminators.push_back("\n");
+      terminators.push_back("<C-M>");
+      terminators.push_back("<Enter>");
+      terminators.push_back("<Return>");
+      terminators.push_back("<CR>");
+   }
 
    for (uint32_t i = 0; i < input.length(); ++i)
    {
-      for (std::vector<std::string>::iterator it = terminators.begin(); it != terminators.end(); ++it)
+      for (auto terminator : terminators)
       {
-         if (input.substr(i, (*it).length()) == (*it))
+         if (input.substr(i, terminator.length()) == terminator)
          {
-            return input.substr(0, i + ((keepTerminator == true) ? (*it).length() : 0));
+            return input.substr(0, i + ((keepTerminator == true) ? terminator.length() : 0));
          }
       }
    }
@@ -168,7 +175,8 @@ bool InputMode::CausesModeToEnd(int input) const
 
 bool InputMode::SetInputString(std::string input)
 {
-   inputString_ = SplitStringAtTerminator(input, false);
+   inputString_  = SplitStringAtTerminator(input, false);
+   inputWString_ = stringtow(inputString_);
 
    if (inputString_ != input)
    {
@@ -178,9 +186,9 @@ bool InputMode::SetInputString(std::string input)
    }
    else
    {
+      cursor_.SetPosition(inputWString_.length() + PromptSize);
       window_->SetLine(std::string(Prompt()) + inputString_);
-      window_->SetCursorPosition(inputString_.length() + PromptSize);
-      cursor_.SetPosition(inputString_.length() + PromptSize);
+      window_->SetCursorPosition(cursor_.DisplayPosition());
    }
 
    return false;
@@ -201,8 +209,24 @@ void InputMode::GenerateInputString(int input)
    else if (InputIsValidCharacter(input) == true)
    {
       int64_t const cursorPosition = (cursor_.Position() - PromptSize);
-      inputString_.insert(static_cast<std::string::size_type>(cursorPosition), 1, static_cast<char>(input));
-      cursor_.UpdatePosition(Cursor::CursorRight);
+
+      if (((static_cast<char>(input) & 0xc0)) != 0x80)
+      {
+         currentInput_.clear();
+      }
+
+      wchar_t wide;
+      currentInput_.append(1, static_cast<char>(input));
+      mbtowc(NULL, NULL, 0);
+      int length = mbtowc(&wide, currentInput_.c_str(), currentInput_.length());
+
+      if (length > 0)
+      {
+         inputWString_.insert(static_cast<std::wstring::size_type>(cursorPosition), 1, wide);
+         inputString_ = wtostring(inputWString_);
+         cursor_.UpdatePosition(Cursor::CursorRight);
+         currentInput_.clear();
+      }
    }
 }
 
@@ -294,12 +318,11 @@ std::string InputMode::SearchHistory(Direction direction, std::string const & in
    return result;
 }
 
-
 bool InputMode::InputIsValidCharacter(int input)
 {
-   return (input < std::numeric_limits<char>::max())
-       && (input != ESCAPE_KEY)
-       && (input != '\n');
+   return (input < std::numeric_limits<unsigned char>::max()) &&
+          (input != ESCAPE_KEY) &&
+          (input != '\n');
 }
 
 
@@ -312,7 +335,8 @@ void InputMode::MoveCursor()
 template <InputMode::Direction Dir>
 void InputMode::SearchHistory()
 {
-   inputString_ = SearchHistory(Dir, inputString_);
+   inputString_  = SearchHistory(Dir, inputString_);
+   inputWString_ = stringtow(inputString_);
    cursor_.UpdatePosition(Cursor::CursorEnd);
 }
 
@@ -327,9 +351,10 @@ void InputMode::Deletion()
 
       if ((cursorPosition - cursorMovement) >= 0)
       {
-         inputString_.erase((cursorPosition - cursorMovement), 1);
+         inputWString_.erase((cursorPosition - cursorMovement), 1);
+         inputString_ = wtostring(inputWString_);
       }
-      
+
       cursor_.UpdatePosition(State);
 
       backedOut_ = false;
@@ -342,17 +367,68 @@ void InputMode::Deletion()
 
 void InputMode::ClearBeforeCursor()
 {
-   inputString_.erase(0, cursor_.Position() - 1);
+   inputWString_.erase(0, cursor_.Position() - 1);
+   inputString_ = wtostring(inputWString_);
    cursor_.UpdatePosition(Cursor::CursorStart);
+}
+
+void InputMode::ClearWordBeforeCursor()
+{
+   int previousSpace = inputWString_.find_last_of(' ', cursor_.Position() - 2);
+
+   if (previousSpace != -1)
+   {
+      inputWString_.erase(previousSpace, cursor_.Position() - (1 + previousSpace));
+      inputString_ = wtostring(inputWString_);
+      cursor_.SetPosition(1 + previousSpace);
+   }
+   else
+   {
+      ClearBeforeCursor();
+   }
+}
+
+std::wstring InputMode::stringtow(std::string & string)
+{
+   std::wstring result = L"";
+
+   if (string.length() > 0)
+   {
+      wchar_t * wbuffer = new wchar_t[string.length() + 1];
+      size_t const mblength = mbstowcs(wbuffer, string.c_str(), string.length());
+
+      if (mblength != static_cast<size_t>(-1))
+      {
+         result = std::wstring(wbuffer, mblength);
+      }
+
+      delete[] wbuffer;
+   }
+
+   return result;
+}
+
+std::string InputMode::wtostring(std::wstring & string)
+{
+   if (string.length() > 0)
+   {
+      char * buffer = new char[string.length() * sizeof(wchar_t) + 1];
+      wcstombs(buffer, string.c_str(), string.length() * sizeof(wchar_t));
+      std::string result = buffer;
+      delete[] buffer;
+      return result;
+   }
+
+   return "";
 }
 
 
 // Helper Classes
 // CURSOR
-Cursor::Cursor(std::string & inputString) :
+Cursor::Cursor(std::wstring & inputWString) :
    input_       (0),
    position_    (PromptSize),
-   inputString_ (inputString)
+   inputWString_(inputWString)
 {
 }
 
@@ -365,10 +441,24 @@ uint16_t Cursor::Position() const
    return position_;
 }
 
+uint16_t Cursor::DisplayPosition() const
+{
+   int pos = 0;
+
+   for (int i = 0; i < position_ - PromptSize; ++i)
+   {
+      pos += wcwidth(inputWString_[i]);
+   }
+
+   return pos + PromptSize;
+}
+
 uint16_t Cursor::UpdatePosition(CursorState newCursorState)
 {
    uint16_t const minCursorPosition = PromptSize;
-   uint16_t const maxCursorPosition = (inputString_.size() + PromptSize);
+   uint16_t const maxCursorPosition = (inputWString_.size() + PromptSize);
+
+   int previousSpace, nextSpace;
 
    //Determine where the cursor should move to
    switch (newCursorState)
@@ -392,6 +482,16 @@ uint16_t Cursor::UpdatePosition(CursorState newCursorState)
       case CursorNoMovement:
          break;
 
+      case CursorPreviousSpace:
+         previousSpace = inputWString_.find_last_of(' ', position_ - 2);
+         position_ = previousSpace != -1 ? 1 + previousSpace : minCursorPosition;
+         break;
+
+      case CursorNextSpace:
+         nextSpace = inputWString_.find_first_of(' ', position_);
+         position_ = nextSpace != -1 ? 1 + nextSpace : maxCursorPosition;
+         break;
+
       default:
          ASSERT(false);
          break;
@@ -404,14 +504,7 @@ uint16_t Cursor::UpdatePosition(CursorState newCursorState)
 
 void Cursor::SetPosition(uint16_t position)
 {
-   if (position > inputString_.size() + PromptSize)
-   {
-      position = inputString_.size() + PromptSize;
-   }
-   else
-   {
-      position_ = position;
-   }
+   position_ = LimitCursorPosition(position);
 }
 
 void Cursor::ResetCursorPosition()
@@ -422,14 +515,14 @@ void Cursor::ResetCursorPosition()
 uint16_t Cursor::LimitCursorPosition(uint16_t position) const
 {
    uint16_t const minCursorPosition = PromptSize;
-   uint16_t const maxCursorPosition = (inputString_.size() + PromptSize);
+   uint16_t const maxCursorPosition = (inputWString_.size() + PromptSize);
 
    //Ensure that the cursor is in a valid range
-   if (position_ < minCursorPosition)
+   if (position < minCursorPosition)
    {
       position = minCursorPosition;
    }
-   else if (position_ > maxCursorPosition)
+   else if (position > maxCursorPosition)
    {
       position = maxCursorPosition;
    }

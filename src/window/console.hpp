@@ -33,7 +33,7 @@ namespace Ui
    class ConsoleWindow : public Ui::ScrollWindow
    {
    public:
-      ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen, 
+      ConsoleWindow(Main::Settings const & settings, Ui::Screen & screen,
                     std::string name, Console & console);
       ~ConsoleWindow();
 
@@ -45,9 +45,6 @@ namespace Ui
 
    protected:
       Main::WindowBuffer const & WindowBuffer() const { return console_; }
-
-   private:
-      typedef Main::CallbackObject<Ui::ConsoleWindow, Console::BufferType> CallbackObject;
 
    private:
       Console & console_;

@@ -24,7 +24,6 @@
 // Includes
 #include "buffers.hpp"
 #include "buffer.hpp"
-#include "callback.hpp"
 #include "library.hpp"
 #include "song.hpp"
 
@@ -33,19 +32,15 @@ namespace Mpc
 {
    class Playlist : public Main::Buffer<Mpc::Song *>
    {
-   private:
-      typedef Main::CallbackObject<Mpc::Playlist, Playlist::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Playlist::BufferType> CallbackFunction;
-
    public:
       Playlist(bool IncrementReferences = false) :
          settings_(Main::Settings::Instance())
       {
          if (IncrementReferences == true)
          {
-            AddCallback(Main::Buffer_Add,    new CallbackFunction(&Mpc::Song::IncrementReference));
-            AddCallback(Main::Buffer_Remove, new CallbackFunction(&Mpc::Song::DecrementReference));
-            AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Mpc::Playlist::DeleteSong));
+            AddCallback(Main::Buffer_Add,    [] (Mpc::Song * song) { Mpc::Song::IncrementReference(song); });
+            AddCallback(Main::Buffer_Remove, [] (Mpc::Song * song) { Mpc::Song::DecrementReference(song); });
+            AddCallback(Main::Buffer_Remove, [this] (Mpc::Song * song) { DeleteSong(song); });
          }
       }
       ~Playlist()
@@ -63,19 +58,22 @@ namespace Mpc
 
       std::string String(uint32_t position) const      { return Get(position)->FormatString(settings_.Get(Setting::SongFormat)); }
       std::string PrintString(uint32_t position) const
-      { 
+      {
          std::string out("");
 
-         if (settings_.Get(Setting::PlaylistNumbers) == true)
+         if (position < Size())
          {
-            out += "$H[$I$L$D]$H ";   
-         }
-         else
-         {
-            out = " ";
-         }
+            if (settings_.Get(Setting::PlaylistNumbers) == true)
+            {
+               out += "$H[$I$L$D]$H ";
+            }
+            else
+            {
+               out = " ";
+            }
 
-         out += Get(position)->FormatString(settings_.Get(Setting::SongFormat)); 
+            out += Get(position)->FormatString(settings_.Get(Setting::SongFormat));
+         }
          return out;
       }
 
