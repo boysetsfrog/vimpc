@@ -352,7 +352,7 @@ std::string Song::FormatString(std::string fmt) const
    SongInfo['n'] = &Mpc::Song::Track;
    SongInfo['f'] = &Mpc::Song::URI;
 
-   if (Main::Settings().Instance().Get(Setting::AlbumArtist) == true)
+   if (Main::Settings::Instance().Get(Setting::AlbumArtist) == true)
    {
       SongInfo['a'] = &Mpc::Song::AlbumArtist;
       SongInfo['A'] = &Mpc::Song::AlbumArtist;
