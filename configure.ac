@@ -7,8 +7,9 @@ AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CXX
 
 # Need to check this directory on bsd systems
-CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+CPPFLAGS="$CPPFLAGS -I/usr/local/include -I/opt/local/include"
 CXXFLAGS="$CXXFLAGS -D__STRICT_ANSI__"
+LDFLAGS="$LDFLAGS -L/opt/local/lib"
 
 AC_CHECK_HEADERS(sys/ioctl.h termios.h)
 
