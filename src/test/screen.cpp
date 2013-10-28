@@ -63,7 +63,7 @@ void ScreenTester::TestChangeWindow()
    int32_t PreviousWindow = screen_.GetActiveWindow();
 
    // Cycle through every window using the index in the tab bar
-   for (uint32_t i = 0; i < WindowCount; ++i)
+   for (int i = 0; i < WindowCount; ++i)
    {
       PreviousWindow = screen_.GetActiveWindow();
       screen_.SetActiveWindow(i);

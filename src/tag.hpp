@@ -34,6 +34,11 @@ namespace Mpc
 {
    namespace Tag
    {
+      void SetArtist(Mpc::Song * song, std::string const & filePath, const char * artist);
+      void SetTitle(Mpc::Song * song, std::string const & filePath, const char * title);
+      void SetTrack(Mpc::Song * song, std::string const & filePath, const char * track);
+      void SetAlbum(Mpc::Song * song, std::string const & filePath, const char * album);
+
 #ifdef TAG_SUPPORT
       void SetArtist(Mpc::Song * song, std::string const & filePath, const char * artist)
       {

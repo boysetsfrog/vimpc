@@ -20,6 +20,7 @@
 
 #include "normal.hpp"
 
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "buffer/library.hpp"
 #include "buffer/playlist.hpp"
@@ -49,8 +50,8 @@
 
 using namespace Ui;
 
-Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search) :
-   Player           (screen, client, settings),
+Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search) :
+   Player           (screen, client, clientState, settings),
    window_          (NULL),
    actionCount_     (0),
    lastAction_      (""),
@@ -63,6 +64,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    search_          (search),
    screen_          (screen),
    client_          (client),
+   clientState_     (clientState),
    playlist_        (Main::Playlist()),
    settings_        (settings)
 {
@@ -75,7 +77,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["c"]       = &Normal::ClearScreen;
 
    // Player
-   actionTable_["p"]       = &Normal::Pause;
+   actionTable_["p"]       = &Normal::PlayPause;
    actionTable_["s"]       = &Normal::Stop;
    actionTable_["<BS>"]    = &Normal::Stop;
    actionTable_["<Space>"] = &Normal::Pause;
@@ -161,8 +163,9 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<ScrollWheelUp>"]   = &Normal::Scroll<-6>;
    actionTable_["<ScrollWheelDown>"] = &Normal::Scroll<6>;
 
-   actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
-   actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
+	// Handled by queue input handler now
+   //actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
+   //actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
    // Editting
    actionTable_["<C-A>"]   = &Normal::Move<Relative, 1>;
@@ -242,13 +245,13 @@ void Normal::Initialise(int input)
 void Normal::Finalise(int input)
 {
    input_ = "";
-   window_->Print(0);
+   screen_.PrintModeWindow(window_);
 }
 
 void Normal::Refresh()
 {
    DisplayModeLine();
-   window_->Print(0);
+   screen_.PrintModeWindow(window_);
 }
 
 bool Normal::Handle(int input)
@@ -437,10 +440,10 @@ bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> &
                KeyMapVector = mapTable_[input];
             }
 
-            for (std::vector<KeyMapItem>::iterator it = KeyMapVector.begin(); it != KeyMapVector.end(); ++it)
+            for (auto newitem : KeyMapVector)
             {
                // \todo If there is a count before this bunch of stuff is mapped that won't work
-               KeyMap.push_back(*it);
+               KeyMap.push_back(newitem);
             }
          }
 
@@ -484,14 +487,14 @@ bool Normal::CheckTableForInput(T table, std::string const & toMap, std::string 
 {
    uint32_t max = 0;
 
-   for (typename T::iterator it = table.begin(); (it != table.end()); ++it)
+   for (auto entry : table)
    {
-      if ((it->first == toMap.substr(0, it->first.length())) && (it->first.length() >= max))
+      if ((entry.first == toMap.substr(0, entry.first.length())) && (entry.first.length() >= max))
       {
-         if (max < it->first.length())
+         if (max < entry.first.length())
          {
-            result = it->first;
-            max    = it->first.length();
+            result = entry.first;
+            max    = entry.first.length();
          }
       }
    }
@@ -504,22 +507,22 @@ bool Normal::Handle(std::string input, int count)
    bool inMap    = false;
    bool complete = true;
 
-   for (MapTable::const_iterator it = windowMap_[screen_.GetActiveWindow()].begin(); it != windowMap_[screen_.GetActiveWindow()].end(); ++it)
+   for (auto entry : windowMap_[screen_.GetActiveWindow()])
    {
-      if (it->first.substr(0, input.size()) == input)
+      if (entry.first.substr(0, input.size()) == input)
       {
-         complete = (it->first == input) && complete;
+         complete = (entry.first == input) && complete;
          inMap    = true;
       }
    }
 
    if (inMap == false)
    {
-      for (MapTable::const_iterator it = mapTable_.begin(); it != mapTable_.end(); ++it)
+      for (auto entry : mapTable_)
       {
-         if (it->first.substr(0, input.size()) == input)
+         if (entry.first.substr(0, input.size()) == input)
          {
-            complete = (it->first == input) && complete;
+            complete = (entry.first == input) && complete;
             inMap    = true;
          }
       }
@@ -533,12 +536,12 @@ bool Normal::Handle(std::string input, int count)
    {
       ptrToMember actionFunc = NULL;
 
-      for (ActionTable::const_iterator it = actionTable_.begin(); it != actionTable_.end(); ++it)
+      for (auto action : actionTable_)
       {
-         if (it->first.substr(0, input.size()) == input)
+         if (action.first.substr(0, input.size()) == input)
          {
-            complete   = (it->first == input) && complete;
-            actionFunc = it->second;
+            complete   = (action.first == input) && complete;
+            actionFunc = action.second;
          }
       }
 
@@ -578,10 +581,8 @@ bool Normal::RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count)
    bool complete      = false;
    bool specificCount = wasSpecificCount_;
 
-   for (std::vector<KeyMapItem>::const_iterator it = KeyMap.begin(); it != KeyMap.end(); ++it)
+   for (auto item : KeyMap)
    {
-      KeyMapItem item = (*it);
-
       uint32_t param = (item.count_ > 0) ? item.count_ : 1;
 
       if (wasSpecificCount_ == false)
@@ -663,7 +664,7 @@ std::string Normal::InputCharToString(int input) const
    else
    {
 #endif
-      std::map<int, std::string>::const_iterator it = conversionTable.find(input);
+      auto it = conversionTable.find(input);
 
       if (it != conversionTable.end())
       {
@@ -671,7 +672,7 @@ std::string Normal::InputCharToString(int input) const
       }
       else
       {
-         result += (char) input;
+         result += static_cast<char>(input);
 
          // Alt key combinations
          if ((input & (1 << 31)) != 0)
@@ -696,6 +697,7 @@ std::string Normal::InputCharToString(int input) const
 std::string Normal::MouseInputToString() const
 {
 #ifdef HAVE_MOUSE_SUPPORT
+   //! \TODO this seems to scroll quite slowly and not properly at all
    static std::map<uint32_t, std::string> conversionTable;
 
    if (conversionTable.empty() == true)
@@ -713,14 +715,11 @@ std::string Normal::MouseInputToString() const
 
    MEVENT event = screen_.LastMouseEvent();
 
-   //! \TODO this seems to scroll quite slowly and not properly at all
-   std::map<uint32_t, std::string>::const_iterator it = conversionTable.begin();
-
-   for (; it != conversionTable.end(); ++it)
+   for (auto conv : conversionTable)
    {
-      if ((it->first & event.bstate) == it->first)
+      if ((conv.first & event.bstate) == conv.first)
       {
-         return it->second;
+         return conv.second;
       }
    }
 
@@ -732,6 +731,18 @@ std::string Normal::MouseInputToString() const
 void Normal::ClearScreen(uint32_t count)
 {
    Player::ClearScreen();
+}
+
+void Normal::PlayPause(uint32_t count)
+{
+   if (clientState_.CurrentState() == "Stopped")
+   {
+     client_.Play(0);
+   }
+   else
+   {
+      Player::Pause();
+   }
 }
 
 void Normal::Pause(uint32_t count)
@@ -774,18 +785,7 @@ void Normal::Single(uint32_t count)
 template <int Delta>
 void Normal::ChangeVolume(uint32_t count)
 {
-   int CurrentVolume = client_.Volume() + (count * Delta);
-
-   if (CurrentVolume < 0)
-   {
-      CurrentVolume = 0;
-   }
-   else if (CurrentVolume > 100)
-   {
-      CurrentVolume = 100;
-   }
-
-   Player::Volume(CurrentVolume);
+   client_.DeltaVolume(count * Delta);
 }
 
 template <Ui::Player::Location LOCATION>
@@ -828,7 +828,8 @@ void Normal::Confirm(uint32_t count)
       confirmTable[Ui::Screen::Playlist]     = &Normal::PlaySelected;
    }
 
-   WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+   WindowActionTable::const_iterator it =
+      confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
    if (it != confirmTable.end())
    {
@@ -913,7 +914,7 @@ void Normal::ToggleOutput(uint32_t count)
    {
       int32_t output = screen_.GetSelected(Ui::Screen::Outputs);
 
-      for (int i = 0; i < count; ++i)
+      for (uint32_t i = 0; i < count; ++i)
       {
          Player::ToggleOutput(output + i);
       }
@@ -948,14 +949,15 @@ void Normal::Add(uint32_t count)
 {
    static WindowActionTable confirmTable;
 
-   if (client_.Connected())
+   if (clientState_.Connected())
    {
       if (confirmTable.size() == 0)
       {
          confirmTable[Ui::Screen::Outputs] = &Normal::SetOutput<COLLECTION, true>;
       }
 
-      WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+      WindowActionTable::const_iterator it =
+         confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
       if (it != confirmTable.end())
       {
@@ -983,14 +985,15 @@ void Normal::Delete(uint32_t count)
 {
    static WindowActionTable confirmTable;
 
-   if (client_.Connected())
+   if (clientState_.Connected())
    {
       if (confirmTable.size() == 0)
       {
          confirmTable[Ui::Screen::Outputs]  = &Normal::SetOutput<COLLECTION, false>;
       }
 
-      WindowActionTable::const_iterator it = confirmTable.find((Ui::Screen::MainWindow) screen_.GetActiveWindow());
+      WindowActionTable::const_iterator it =
+         confirmTable.find(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow()));
 
       if (it != confirmTable.end())
       {
@@ -1037,8 +1040,6 @@ void Normal::PasteBuffer(uint32_t count)
          for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
          {
             client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
-            Main::Playlist().Add(Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
-
             position++;
          }
       }
@@ -1092,7 +1093,8 @@ void Normal::ScrollToCurrent(uint32_t line)
 template <int8_t OFFSET>
 void Normal::Scroll(uint32_t count)
 {
-   screen_.Scroll(OFFSET * count);
+   int32_t scroll = OFFSET * count;
+   screen_.Scroll(scroll);
 }
 
 template <Screen::Size SIZE, Screen::Direction DIRECTION>
@@ -1321,7 +1323,7 @@ std::string Normal::ScrollString()
       currentScroll += .005;
       scrollStream << (screen_.ActiveWindow().CurrentLine() + 1) << "/" << screen_.ActiveWindow().BufferSize() << " -- ";
 
-      if (screen_.ActiveWindow().BufferSize() > static_cast<int32_t>(screen_.MaxRows()))
+      if (screen_.ActiveWindow().BufferSize() > screen_.MaxRows())
       {
          if (currentScroll <= .010)
          {
@@ -1343,12 +1345,13 @@ std::string Normal::ScrollString()
 
 std::string Normal::StateString()
 {
-   std::string toggles   = "";
-   std::string random    = (client_.Random() == true) ? "random, " : "";
-   std::string repeat    = (client_.Repeat() == true) ? "repeat, " : "";
-   std::string single    = (client_.Single() == true) ? "single, " : "";
-   std::string consume   = (client_.Consume() == true) ? "consume, " : "";
-   std::string crossfade = (client_.Crossfade() > 0) ? "crossfade, " : "";
+   std::string toggles = "";
+
+   std::string const random    = (clientState_.Random() == true) ? "random, " : "";
+   std::string const repeat    = (clientState_.Repeat() == true) ? "repeat, " : "";
+   std::string const single    = (clientState_.Single() == true) ? "single, " : "";
+   std::string const consume   = (clientState_.Consume() == true) ? "consume, " : "";
+   std::string const crossfade = (clientState_.Crossfade() > 0) ? "crossfade, " : "";
 
    if ((random != "") || (repeat != "") || (single != "") || (consume != "") || (crossfade != ""))
    {
@@ -1360,21 +1363,21 @@ std::string Normal::StateString()
 
    std::string volume = "";
 
-   if (client_.Volume() != -1)
+   if (clientState_.Volume() != -1)
    {
       char vol[8];
-      snprintf(vol, 8, "%d", client_.Volume());
+      snprintf(vol, 8, "%d", clientState_.Volume());
       volume += " [Volume: " + std::string(vol) + "%]";
    }
 
    std::string updating = "";
 
-   if (client_.IsUpdating() == true)
+   if (clientState_.IsUpdating() == true)
    {
       updating += " [Updating]";
    }
 
-   std::string const currentState("[State: " + client_.CurrentState() + "]" + volume + toggles + updating);
+   std::string const currentState("[State: " + clientState_.CurrentState() + "]" + volume + toggles + updating);
    return currentState;
 }
 /* vim: set sw=3 ts=3: */

@@ -23,24 +23,36 @@
 
 // Includes
 #include "buffer.hpp"
-#include "callback.hpp"
+#include "events.hpp"
 #include "output.hpp"
+#include "vimpc.hpp"
 
 // Outputs
 namespace Mpc
 {
    class Outputs : public Main::Buffer<Mpc::Output *>
    {
-   private:
-      typedef Main::CallbackObject<Mpc::Outputs, Outputs::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Outputs::BufferType> CallbackFunction;
-
    public:
       Outputs()
       {
+         Main::Vimpc::EventHandler(Event::OutputEnabled,  [this] (EventData const & Data) 
+            { Debug("OutputEnabled %d", Data.id); SetOutput(Data.id, true); });
+         Main::Vimpc::EventHandler(Event::OutputDisabled, [this] (EventData const & Data) 
+            { Debug("OutputDisabled %d", Data.id); SetOutput(Data.id, false); });
       }
       ~Outputs()
       {
+      }
+
+      void SetOutput(uint32_t id, bool enabled)
+      {
+         for (unsigned int i = 0; i < Size(); ++i)
+         {
+            if (Get(i)->Id() == id)
+            {
+               Get(i)->SetEnabled(enabled);
+            }
+         }
       }
 
       std::string String(uint32_t position) const      { return Get(position)->PrintString(); }

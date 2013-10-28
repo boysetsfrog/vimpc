@@ -31,13 +31,15 @@ namespace Ui
    class InfoWindow : public SongWindow
    {
    public:
-      InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name = "Unknown");
+      InfoWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name = "Unknown");
       virtual ~InfoWindow();
 
-   public:
+   private:
       void Print(uint32_t line) const;
+
+   public:
       uint32_t Current() const              { return CurrentLine(); };
-      std::string SearchPattern(int32_t id) const { return ""; }
+      std::string SearchPattern(uint32_t id) const { return ""; }
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
@@ -53,7 +55,6 @@ namespace Ui
 
    private:
       std::string m_URI;
-      Ui::Screen & screen;
    };
 }
 

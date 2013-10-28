@@ -27,13 +27,15 @@
 #include "test.hpp"
 #include "window/debug.hpp"
 
+#include <mutex>
 #include <stdint.h>
 #include <string>
+#include <stdarg.h>
 
 //! Display an error window with the given error
-static void Error(uint32_t errorNumber, std::string errorString);
-static void ErrorString(uint32_t errorNumber);
-static void ErrorString(uint32_t errorNumber, std::string additional);
+void Error(uint32_t errorNumber, std::string errorString);
+void ErrorString(uint32_t errorNumber);
+void ErrorString(uint32_t errorNumber, std::string additional);
 
 // Errors cannot be added to the window directly
 // The Accessor functions defined above must be used
@@ -79,34 +81,6 @@ namespace Ui
    private:
       bool hasError_;
    };
-}
-
-void Error(uint32_t errorNumber, std::string errorString)
-{
-   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
-   {
-      Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
-      errorWindow.SetError(true);
-      errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
-   }
-}
-
-void ErrorString(uint32_t errorNumber)
-{
-   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
-   {
-      Error(errorNumber, ErrorStrings::Default[errorNumber]);
-      Debug("ERROR E%d: %s", errorNumber, ErrorStrings::Default[errorNumber].c_str());
-   }
-}
-
-void ErrorString(uint32_t errorNumber, std::string additional)
-{
-   if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
-   {
-      Error(errorNumber, ErrorStrings::Default[errorNumber] + ": " + additional);
-      Debug("ERROR E%d: %s", errorNumber, std::string(ErrorStrings::Default[errorNumber] + ": " + additional).c_str());
-   }
 }
 
 #endif

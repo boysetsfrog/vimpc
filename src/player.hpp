@@ -38,6 +38,7 @@ namespace Main
 namespace Mpc
 {
    class Client;
+   class ClientState;
    class Playlist;
 }
 
@@ -53,7 +54,7 @@ namespace Ui
    class Player
    {
    public:
-      Player(Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings);
+      Player(Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings);
       virtual ~Player() = 0;
 
    protected: //Commands which may be called by the mode
@@ -136,7 +137,7 @@ namespace Ui
       //! Returns the currently playing song's id
       //!
       //! \return Id of currently playing song
-      uint32_t GetCurrentSongPos() const;
+      int32_t GetCurrentSongPos() const;
 
    private:
       void     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);
@@ -149,10 +150,11 @@ namespace Ui
       void HandleAutoScroll();
 
    private:
-      Ui::Screen     & screen_;
-      Mpc::Client    & client_;
-      Mpc::Playlist  & playlist_;
-      Main::Settings & settings_;
+      Ui::Screen &        screen_;
+      Mpc::Client &       client_;
+      Mpc::ClientState &  clientState_;
+      Mpc::Playlist  &    playlist_;
+      Main::Settings &    settings_;
    };
 
 }

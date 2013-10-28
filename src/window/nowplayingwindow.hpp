@@ -15,11 +15,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   statswindow.hpp - class representing a window that can scroll
+   nowplayingwindow.hpp - class representing a window that can scroll
    */
 
-#ifndef __UI__STATSWINDOW
-#define __UI__STATSWINDOW
+#ifndef __UI__NOWPLAYINGWINDOW
+#define __UI__NOWPLAYINGWINDOW
 
 #include "scrollwindow.hpp"
 
@@ -27,11 +27,11 @@ namespace Ui
 {
    class Screen;
 
-   class StatsWindow : public ScrollWindow
+   class NowPlayingWindow : public ScrollWindow
    {
    public:
-      StatsWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name = "stats");
-      virtual ~StatsWindow();
+      NowPlayingWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name = "nowplaying");
+      virtual ~NowPlayingWindow();
 
    public:
       void Print(uint32_t line) const;

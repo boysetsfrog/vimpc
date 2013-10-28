@@ -22,6 +22,7 @@
 #define __UI__COMMAND
 
 #include <string>
+#include <thread>
 #include <map>
 
 #include "inputmode.hpp"
@@ -46,7 +47,7 @@ namespace Ui
       typedef void (Ui::Command::*CommandFunction)(std::string const &);
 
    public:
-      Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
+      Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode);
       ~Command();
 
    public:
@@ -72,6 +73,9 @@ namespace Ui
 
       // Returns true if the command can be used over a range
       bool SupportsRange(std::string const & command);
+
+      // Whether a connect command has been run
+      bool ConnectionAttempt();
 
    public: // Ui::InputMode
       void Initialise(int input);
@@ -196,6 +200,7 @@ namespace Ui
       void DebugClient(std::string const & arguments);
 
    private: // Test only commands
+      void TestExecutor();
       void Test(std::string const & arguments);
       void TestInputRandom(std::string const & arguments);
       void TestInputSequence(std::string const & arguments);
@@ -259,6 +264,7 @@ namespace Ui
       bool                 initTabCompletion_;
       bool                 forceCommand_;
       bool                 queueCommands_;
+      bool                 connectAttempt_;
       uint32_t             count_;
       int32_t              line_;
       int32_t              currentLine_;
@@ -274,8 +280,13 @@ namespace Ui
       Ui::Search         & search_;
       Ui::Screen         & screen_;
       Mpc::Client        & client_;
+      Mpc::ClientState   & clientState_;
       Main::Settings     & settings_;
       Ui::Normal         & normalMode_;
+
+#ifdef HAVE_TEST_H
+      std::thread          testThread_;
+#endif
 
    private:
       // Tab completion searching class

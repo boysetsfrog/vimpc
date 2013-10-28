@@ -21,7 +21,7 @@
 #include "librarywindow.hpp"
 
 #include "buffers.hpp"
-#include "callback.hpp"
+#include "clientstate.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
@@ -36,10 +36,11 @@
 
 using namespace Ui;
 
-LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Ui::Search const & search) :
+LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
    SelectWindow     (settings, screen, "library"),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    library_         (library)
 {
@@ -47,6 +48,7 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
    SoftRedrawOnSetting(Setting::IgnoreTheGroup);
    SoftRedrawOnSetting(Setting::ExpandArtists);
+   SoftRedrawOnSetting(Setting::AlbumArtist);
 }
 
 LibraryWindow::~LibraryWindow()
@@ -64,8 +66,7 @@ void LibraryWindow::SoftRedraw()
 {
    // The library needs to be completely collapsed before sorting as the sort cannot compare different types
    // so we mark everything as collapsed then remove anything that is not an artist from the buffer
-   Main::CallbackFunction<Mpc::LibraryEntry *> Callback(&Mpc::MarkUnexpanded);
-   library_.ForEachParent(&Callback);
+   library_.ForEachParent([] (Mpc::LibraryEntry * entry) { Mpc::MarkUnexpanded(entry); });
 
    for (unsigned int i = 0; i < library_.Size(); )
    {
@@ -99,7 +100,7 @@ void LibraryWindow::SoftRedraw()
 uint32_t LibraryWindow::Current() const
 {
    int32_t current         = CurrentLine();
-   int32_t currentSongId   = client_.GetCurrentSongPos();
+   int32_t currentSongId   = clientState_.GetCurrentSongPos();
    Mpc::Song * currentSong = NULL;
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
@@ -126,7 +127,7 @@ uint32_t LibraryWindow::Current() const
    return current;
 }
 
-std::string LibraryWindow::SearchPattern(int32_t id) const
+std::string LibraryWindow::SearchPattern(uint32_t id) const
 {
    //! \todo add a search that searches in collapsed songs and
    //! expands things as necessary
@@ -169,93 +170,7 @@ void LibraryWindow::Clear()
 
 void LibraryWindow::Print(uint32_t line) const
 {
-#if 0
-   std::string const BlankLine(screen_.MaxColumns(), ' ');
-
-   uint32_t printLine = (line + FirstLine());
-   WINDOW * window    = N_WINDOW();
-
-   if ((line + FirstLine()) < BufferSize())
-   {
-      int32_t colour = DetermineSongColour(library_.Get(printLine));
-
-      if (IsSelected(printLine) == true)
-      {
-         if (settings_.Get(Setting::ColourEnabled) == true)
-         {
-            wattron(window, COLOR_PAIR(colour));
-         }
-
-         wattron(window, A_REVERSE);
-      }
-
-      if (library_.Get(printLine)->type_ == Mpc::ArtistType)
-      {
-         wattron(window, A_BOLD);
-      }
-
-      mvwprintw(window, line, 0, BlankLine.c_str());
-
-      uint8_t expandCol = 1;
-
-      if ((library_.Get(printLine)->type_ == Mpc::AlbumType) || (library_.Get(printLine)->type_ == Mpc::ArtistType))
-      {
-         if (library_.Get(printLine)->type_ == Mpc::AlbumType)
-         {
-            expandCol += 3;
-         }
-
-         if (settings_.Get(Setting::ColourEnabled) == true)
-         {
-            wattron(window, COLOR_PAIR(colour));
-         }
-
-         wmove(window, line, expandCol);
-
-         if (library_.Get(printLine)->type_ == Mpc::ArtistType)
-         {
-            waddstr(window, library_.Get(printLine)->artist_.c_str());
-         }
-         else if (library_.Get(printLine)->type_ == Mpc::AlbumType)
-         {
-            waddstr(window, library_.Get(printLine)->album_.c_str());
-         }
-
-         if (settings_.Get(Setting::ColourEnabled) == true)
-         {
-            wattroff(window, COLOR_PAIR(colour));
-         }
-      }
-      else if ((library_.Get(printLine)->type_ == Mpc::SongType) && (library_.Get(printLine)->song_ != NULL))
-      {
-         expandCol += 6;
-         wmove(window, line, expandCol);
-
-         if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(printLine) == false))
-         {
-            wattron(window, COLOR_PAIR(REDONDEFAULT));
-         }
-
-         wprintw(window, "%5s | " , library_.Get(printLine)->song_->Track().c_str());
-
-         if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(printLine) == false))
-         {
-            wattroff(window, COLOR_PAIR(REDONDEFAULT));
-         }
-
-         waddstr(window, library_.Get(printLine)->song_->FormatString(settings_.Get(Setting::LibraryFormat)).c_str());
-      }
-
-      wattroff(window, A_BOLD | A_REVERSE);
-
-      if (settings_.Get(Setting::ColourEnabled) == true)
-      {
-         wattroff(window, COLOR_PAIR(colour));
-      }
-   }
-   #else
    SelectWindow::Print(line);
-   #endif
 }
 
 void LibraryWindow::Left(Ui::Player & player, uint32_t count)
@@ -347,7 +262,7 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
 
@@ -358,12 +273,12 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
       if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
       {
-         Mpc::CommandList list(client_, (Positions.size() > 1));
+         Mpc::CommandList list(client_, true);
          ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::AddToPlaylist);
       }
       else
       {
-         Mpc::CommandList list(client_, (Positions.size() > 1));
+         Mpc::CommandList list(client_, true);
          ForPositions(Positions.rbegin(), Positions.rend(), &Mpc::Library::AddToPlaylist);
       }
    }
@@ -373,7 +288,7 @@ void LibraryWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 
 void LibraryWindow::AddAllLines()
 {
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       client_.AddAllSongs();
    }
@@ -410,7 +325,7 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       scroll = false;
    }
 
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       std::vector<uint32_t> Positions = PositionVector(line, count, (pos1 != pos2));
 
@@ -419,7 +334,7 @@ void LibraryWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
          ScrollTo(line);
       }
 
-      Mpc::CommandList list(client_, (Positions.size() > 1));
+      Mpc::CommandList list(client_, true);
       ForPositions(Positions.begin(), Positions.end(), &Mpc::Library::RemoveFromPlaylist);
    }
 
@@ -450,10 +365,11 @@ void LibraryWindow::Edit()
 
          SongWindow * window = screen_.CreateSongWindow("L:" + title);
 
-         Main::CallbackObject<Ui::SongWindow, Mpc::Song * > callback(*window, &Ui::SongWindow::Add);
-
          // Do not need to sort as this ensures it will be sorted in the same order as the library
-         Main::Library().ForEachChild(CurrentLine(), &callback);
+         // Separated function out into variable as compile fails on g++ 4.7.2
+         // if passed directly to function using the lambda
+         std::function<void (Mpc::Song * song)> function = [&window] (Mpc::Song * song) { window->Add(song); };
+         Main::Library().ForEachChild(CurrentLine(), function);
 
          if (window->BufferSize() > 0)
          {
@@ -528,7 +444,7 @@ void LibraryWindow::ForPositions(T start, T end, LibraryFunction function)
 {
    for (T it = start; it != end; ++it)
    {
-      (library_.*function)(Mpc::Song::Single, client_, *it);
+      (library_.*function)(Mpc::Song::Single, client_, clientState_, *it);
    }
 }
 
@@ -541,7 +457,7 @@ int32_t LibraryWindow::DetermineColour(uint32_t line) const
    {
       Mpc::LibraryEntry const * const entry = library_.Get(line + FirstLine());
 
-      if ((entry->song_ != NULL) && (entry->song_->URI() == client_.GetCurrentSongURI()))
+      if ((entry->song_ != NULL) && (entry->song_->URI() == clientState_.GetCurrentSongURI()))
       {
          colour = settings_.colours.CurrentSong;
       }

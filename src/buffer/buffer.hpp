@@ -23,10 +23,11 @@
 
 #include <map>
 #include <stdint.h>
+#include <functional>
+#include <algorithm>
 #include <vector>
 
 #include "assert.hpp"
-#include "callback.hpp"
 #include "window/window.hpp"
 
 namespace Item
@@ -62,7 +63,8 @@ namespace Main
    class BufferImpl : public WindowBuffer, private std::vector<T>
    {
    private:
-      typedef std::vector<Main::CallbackInterface<T> *> CallbackList;
+      typedef std::function<void (T)>         CallbackFunction;
+      typedef std::vector<CallbackFunction>   CallbackList;
       typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
 
    public:
@@ -70,16 +72,7 @@ namespace Main
 
    public:
       BufferImpl<T>() { }
-      ~BufferImpl<T>()
-      {
-         for (typename CallbackMap::iterator it = callback_.begin(); (it != callback_.end()); ++it)
-         {
-            for (typename CallbackList::const_iterator jt = it->second.begin(); (jt != it->second.end()); ++jt)
-            {
-               delete *jt;
-            }
-         }
-      }
+      virtual ~BufferImpl<T>() { }
 
    private:
       BufferImpl<T>(BufferImpl<T> const & buffer);
@@ -88,7 +81,8 @@ namespace Main
    public:
       T const & Get(uint32_t position) const
       {
-         return BufferImpl<T>::at(position);
+         T const & Result = BufferImpl<T>::at(position);
+         return Result;
       }
 
       void Add(T entry)
@@ -157,7 +151,7 @@ namespace Main
          }
       }
 
-      void ForEach(uint32_t position, uint32_t count, CallbackInterface<T> * callback) const
+      void ForEach(uint32_t position, uint32_t count, std::function<void (T)> callback) const
       {
          uint32_t pos = 0;
          typename BufferImpl<T>::const_iterator it;
@@ -195,7 +189,13 @@ namespace Main
       {
          // We need to remove one by one to ensure
          // that the callback is called at the right time
-         Remove(0, Size());
+         for (auto it = BufferImpl<T>::begin(); (it != BufferImpl<T>::end()); ++it)
+         {
+            Callback(Buffer_Remove, *it);
+         }
+
+         BufferImpl<T>::clear();
+
          ENSURE(Size() == 0);
       }
 
@@ -205,7 +205,7 @@ namespace Main
       }
 
    public:
-      void AddCallback(BufferCallbackEvent event, CallbackInterface<T> * callback)
+      void AddCallback(BufferCallbackEvent event, CallbackFunction callback)
       {
          callback_[event].push_back(callback);
       }
@@ -213,13 +213,13 @@ namespace Main
    private:
       void Callback(BufferCallbackEvent event, T & param) const
       {
-         typename CallbackMap::const_iterator entry = callback_.find(event);
+         auto const it = callback_.find(event);
 
-         if (entry != callback_.end())
+         if (it != callback_.end())
          {
-            for (typename CallbackList::const_iterator it = entry->second.begin(); (it != entry->second.end()); ++it)
+            for (auto func : it->second)
             {
-               (*(*it))(param);
+               (func)(param);
             }
          }
       }

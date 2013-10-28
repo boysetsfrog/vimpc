@@ -25,6 +25,8 @@
 #include <algorithm>
 #include <pcrecpp.h>
 #include <sstream>
+#include <atomic>
+#include <condition_variable>
 
 #ifdef HAVE_TAGLIB_H
 #include <taglib/tag.h>
@@ -59,13 +61,21 @@
 
 using namespace Ui;
 
+static std::atomic<bool>                  Running(true);
+static std::atomic<int>                   QueueCount(0);
+static std::list<std::string>             Queue;
+static std::mutex                         QueueMutex;
+static std::condition_variable            Condition;
+
+
 // COMMANDS
-Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
+Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Main::Settings & settings, Ui::Search & search, Ui::Normal & normalMode) :
    InputMode           (screen),
-   Player              (screen, client, settings),
+   Player              (screen, client, clientState, settings),
    initTabCompletion_  (true),
    forceCommand_       (false),
    queueCommands_      (false),
+   connectAttempt_     (false),
    count_              (0),
    line_               (-1),
    currentLine_        (-1),
@@ -75,8 +85,12 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    search_             (search),
    screen_             (screen),
    client_             (client),
+   clientState_        (clientState),
    settings_           (settings),
    normalMode_         (normalMode)
+#ifdef HAVE_TEST_H
+   ,testThread_         (std::thread(&Command::TestExecutor, this))
+#endif
 {
    // \todo find a away to add aliases to tab completion
    // Command, RequiresConnection, SupportsRange, Function
@@ -169,7 +183,8 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("outputs",     false, true, &Command::SetActiveAndVisible<Ui::Screen::Outputs>);
    AddCommand("lists",       false, true, &Command::SetActiveAndVisible<Ui::Screen::Lists>);
    AddCommand("windowselect",false, true, &Command::SetActiveAndVisible<Ui::Screen::WindowSelect>);
-   AddCommand("stats",       false, true, &Command::SetActiveAndVisible<Ui::Screen::Stats>);
+   AddCommand("nowplaying",  false, true, &Command::SetActiveAndVisible<Ui::Screen::NowPlaying>);
+   AddCommand("stats",       false, true, &Command::SetActiveAndVisible<Ui::Screen::NowPlaying>);
 
    AddCommand("load",       true,  false, &Command::LoadPlaylist);
    AddCommand("save",       true,  false, &Command::SavePlaylist);
@@ -182,7 +197,6 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 #ifdef __DEBUG_PRINTS
    AddCommand("debug-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>);
    AddCommand("debug-client-getmeta",true,  false, &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>);
-   AddCommand("debug-client-idle",   true,  false, &Command::DebugClient<&Mpc::Client::IdleMode>);
 #endif
 
 #ifdef TEST_ENABLED
@@ -194,16 +208,22 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
 #endif
 
    // Add all settings to command table to provide tab completion
-   std::vector<std::string> const AllSettings = settings_.AvailableSettings();
-
-   for (uint32_t i = 0; i < AllSettings.size(); ++i)
+   for (auto setting : settings_.AvailableSettings())
    {
-      settingsTable_.push_back("set " + AllSettings.at(i));
+      settingsTable_.push_back("set " + setting);
    }
+
+   // Register for events
+   Main::Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data) { ExecuteQueuedCommands(); });
 }
 
 Command::~Command()
 {
+   Running = false;
+
+#ifdef HAVE_TEST_H
+   testThread_.join();
+#endif
 }
 
 
@@ -281,11 +301,11 @@ bool Command::ExecuteCommand(std::string const & input)
 
             if (intcount >= lineint)
             {
-               count = (intcount <= 0) ? 0 : (uint32_t) (intcount - lineint) + 1;
+               count = (intcount <= 0) ? 0 : static_cast<uint32_t>((intcount - lineint) + 1);
             }
             else
             {
-               count = (intcount <= 0) ? 0 : (uint32_t) (lineint - intcount) + 1;
+               count = (intcount <= 0) ? 0 : static_cast<uint32_t>((lineint - intcount) + 1);
                line = (intcount > 1) ? intcount : 1;
             }
          }
@@ -347,10 +367,10 @@ void Command::SetQueueCommands(bool enabled)
 
 void Command::ExecuteQueuedCommands()
 {
-   for (CommandQueue::const_iterator it = commandQueue_.begin(); it != commandQueue_.end(); ++it)
+   for (auto command : commandQueue_)
    {
-      Debug("Executing queued command :%u,%u %s %s", __func__, (*it).line, (*it).count, (*it).command.c_str(), (*it).arguments.c_str());
-      ExecuteCommand((*it).line, (*it).count, (*it).command, (*it).arguments);
+      Debug("Executing queued command :%u,%u %s %s", command.line, command.count, command.command.c_str(), command.arguments.c_str());
+      ExecuteCommand(command.line, command.count, command.command, command.arguments);
    }
 
    commandQueue_.clear();
@@ -411,8 +431,17 @@ void Command::Play(std::string const & arguments)
    }
    else if (args.size() == 1)
    {
-      int32_t const SongId = atoi(args[0].c_str()) - 1;
-      Player::Play(SongId);
+      int32_t SongId = atoi(args[0].c_str()) - 1;
+      SongId = (SongId == -1) ? 0 : SongId;
+
+      if (SongId >= 0)
+      {
+         Player::Play(SongId);
+      }
+      else
+      {
+         ErrorString(ErrorNumber::InvalidParameter, "invalid song id");
+      }
    }
    else
    {
@@ -422,7 +451,7 @@ void Command::Play(std::string const & arguments)
 
 bool Command::CheckConnected()
 {
-   if (client_.Connected() == false)
+   if (clientState_.Connected() == false)
    {
       ErrorString(ErrorNumber::ClientNoConnection);
       return false;
@@ -477,13 +506,11 @@ void Command::Delete(std::string const & arguments)
          uint32_t pos2 = atoi(args[1].c_str()) - 1;
 
          client_.Delete(pos1, pos2 + 1);
-         Main::Playlist().Remove(((pos1 < pos2) ? pos1 : pos2), ((pos1 < pos2) ? pos2 - pos1 : pos1 - pos2) + 1);
       }
       else if (args.size() == 1)
       {
          // Delete the song at given position
          client_.Delete(atoi(args[0].c_str()) - 1);
-         Main::Playlist().Remove(atoi(args[0].c_str()) - 1, 1);
       }
       else
       {
@@ -574,7 +601,7 @@ void Command::Mute(std::string const & arguments)
 
 void Command::Volume(std::string const & arguments)
 {
-   uint32_t const Vol = (uint32_t) atoi(arguments.c_str());
+   uint32_t const Vol = static_cast<uint32_t>(atoi(arguments.c_str()));
 
    if (Vol <= 100)
    {
@@ -586,6 +613,11 @@ void Command::Volume(std::string const & arguments)
    }
 }
 
+
+bool Command::ConnectionAttempt()
+{
+   return connectAttempt_;
+}
 
 void Command::Connect(std::string const & arguments)
 {
@@ -604,6 +636,8 @@ void Command::Connect(std::string const & arguments)
       }
 
       client_.Connect(hostname, port);
+
+      connectAttempt_ = true;
    }
 }
 
@@ -619,7 +653,14 @@ void Command::Reconnect(std::string const & arguments)
 
 void Command::Password(std::string const & password)
 {
-   client_.Password(password.c_str());
+   if (password == "")
+   {
+      screen_.PromptForPassword();
+   }
+   else
+   {
+      client_.Password(password.c_str());
+   }
 }
 
 void Command::Echo(std::string const & echo)
@@ -668,7 +709,7 @@ void Command::Substitute(std::string const & expression)
 
    if (settings_.Get(Setting::LocalMusicDir) != "")
    {
-      for (int i = 0; i < count_; ++i)
+      for (uint32_t i = 0; i < count_; ++i)
       {
          Mpc::Song * const song = screen_.GetSong(screen_.ActiveWindow().CurrentLine() + i);
 
@@ -750,16 +791,14 @@ void Command::Output(std::string const & arguments)
       if (rangeAllowed == false)
       {
          client_.SetOutput(Main::Outputs().Get(output), (ON == true));
-         Main::Outputs().Get(output)->SetEnabled((ON == true));
       }
       else
       {
-         for (int i = 0; (i < count_); ++i)
+         for (int i = 0; (i < static_cast<int>(count_)); ++i)
          {
             if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
             {
                client_.SetOutput(Main::Outputs().Get(output + i), (ON == true));
-               Main::Outputs().Get(output + i)->SetEnabled((ON == true));
             }
          }
       }
@@ -802,9 +841,9 @@ void Command::ToggleOutput(std::string const & arguments)
       }
       else
       {
-         for (int i = 0; (i < count_); ++i)
+         for (uint32_t i = 0; (i < count_); ++i)
          {
-            if ((output + i < static_cast<int32_t>(Main::Outputs().Size())) && (output + i >= 0))
+            if (output + i < Main::Outputs().Size())
             {
                Player::ToggleOutput(output + i);
             }
@@ -833,12 +872,6 @@ void Command::SavePlaylist(std::string const & arguments)
 {
    if (arguments != "")
    {
-      if (Main::Lists().Index(Mpc::List(arguments)) == -1)
-      {
-         Main::Lists().Add(arguments);
-         Main::Lists().Sort();
-      }
-
       client_.SavePlaylist(arguments);
    }
    else
@@ -863,38 +896,11 @@ void Command::Find(std::string const & arguments)
 {
    if (forceCommand_ == true)
    {
-      Main::PlaylistTmp().Clear();
-      client_.ForEachSearchResult(Main::PlaylistTmp(), static_cast<void (Mpc::Playlist::*)(Mpc::Song *)>(&Mpc::Playlist::Add));
-
-      if (Main::PlaylistTmp().Size() == 0)
-      {
-         ErrorString(ErrorNumber::FindNoResults);
-      }
-      else
-      {
-         Mpc::CommandList list(client_);
-
-         for (uint32_t i = 0; i < Main::PlaylistTmp().Size(); ++i)
-         {
-            client_.Add(Main::PlaylistTmp().Get(i));
-            Main::Playlist().Add(Main::PlaylistTmp().Get(i));
-         }
-      }
+      client_.AddAllSearchResults();
    }
    else
    {
-      SongWindow * const window = screen_.CreateSongWindow(arguments);
-      client_.ForEachSearchResult(window->Buffer(), static_cast<void (Main::Buffer<Mpc::Song *>::*)(Mpc::Song *)>(&Mpc::Browse::Add));
-
-      if (window->BufferSize() > 0)
-      {
-         screen_.SetActiveAndVisible(screen_.GetWindowFromName(window->Name()));
-      }
-      else
-      {
-         screen_.SetVisible(screen_.GetWindowFromName(window->Name()), false);
-         ErrorString(ErrorNumber::FindNoResults);
-      }
+      client_.SearchResults(arguments);
    }
 }
 
@@ -939,14 +945,12 @@ void Command::PrintMappings(std::string tabname)
 
    if (mappings.size() > 0)
    {
-      Ui::Normal::MapNameTable::const_iterator it = mappings.begin();
-
       PagerWindow * const pager = screen_.GetPagerWindow();
       pager->Clear();
 
-      for (; it != mappings.end(); ++it)
+      for (auto mapping : mappings)
       {
-         pager->AddLine(it->first + "   " + it->second);
+         pager->AddLine(mapping.first + "   " + mapping.second);
       }
 
       screen_.ShowPagerWindow();
@@ -1106,7 +1110,7 @@ void Command::Move(std::string const & arguments)
       int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
       int32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
 
-      if (position1 >= screen_.ActiveWindow().BufferSize() - 1)
+      if (position1 >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
       {
          position1 = Main::Playlist().Size();
       }
@@ -1115,7 +1119,7 @@ void Command::Move(std::string const & arguments)
          position1 = 1;
       }
 
-      if (position2 >= screen_.ActiveWindow().BufferSize() - 1)
+      if (position2 >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
       {
          position2 = Main::Playlist().Size();
       }
@@ -1124,7 +1128,8 @@ void Command::Move(std::string const & arguments)
          position2 = 1;
       }
 
-      if ((position1 < Main::Playlist().Size()) && (position2 <= Main::Playlist().Size()))
+      if ((position1 <  static_cast<int32_t>(Main::Playlist().Size())) &&
+          (position2 <= static_cast<int32_t>(Main::Playlist().Size())))
       {
          client_.Move(position1 - 1, position2 - 1);
 
@@ -1243,6 +1248,10 @@ void Command::ChangeToWindow(std::string const & arguments)
       case Last:
          active = screen_.VisibleWindows() - 1;
          break;
+
+      case LocationCount:
+      default:
+         break;
    }
 
    screen_.SetActiveWindow(active);
@@ -1339,43 +1348,72 @@ void Command::DebugClient(std::string const & arguments)
    (client_.*func)();
 }
 
-void Command::Test(std::string const & arguments)
+void Command::TestExecutor()
 {
-#ifdef HAVE_TEST_H
-   CPPUNIT_NS::TestResult testresult;
-   CPPUNIT_NS::TestResultCollector collectedresults;
-   testresult.addListener(&collectedresults);
-   CPPUNIT_NS::TestRunner testrunner;
-
-   if ((arguments == "") || (arguments == "all"))
+   while (Running.load() == true)
    {
-      Main::TestConsole().Add("Running all tests...");
-      testrunner.addTest(CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest());
-   }
-   else
-   {
-      Main::TestConsole().Add("Running test " + arguments + "...");
-      CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry(arguments);
-      testrunner.addTest(registry.makeTest());
-   }
-   testrunner.run(testresult);
+      std::unique_lock<std::mutex> Lock(QueueMutex);
 
-   std::stringstream outStream;
-   CPPUNIT_NS::TextOutputter textoutput(&collectedresults, outStream);
-   textoutput.write();
-
-   std::string output;
-
-   while (!outStream.eof())
-   {
-      std::getline(outStream, output);
-
-      if (output != "")
+      if ((Queue.empty() == false) ||
+          (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
       {
-         Main::TestConsole().Add(output);
+         if (Queue.empty() == false)
+         {
+            std::string arguments = Queue.front();
+            Queue.pop_front();
+            Lock.unlock();
+
+#ifdef HAVE_TEST_H
+            Main::Tester::Instance().Vimpc->HandleUserEvents(false);
+
+            CPPUNIT_NS::TestResult testresult;
+            CPPUNIT_NS::TestResultCollector collectedresults;
+            testresult.addListener(&collectedresults);
+            CPPUNIT_NS::TestRunner testrunner;
+
+            if ((arguments == "") || (arguments == "all"))
+            {
+               Main::TestConsole().Add("Running all tests...");
+               testrunner.addTest(CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest());
+            }
+            else
+            {
+               Main::TestConsole().Add("Running test " + arguments + "...");
+               CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry(arguments);
+               testrunner.addTest(registry.makeTest());
+            }
+            testrunner.run(testresult);
+
+            std::stringstream outStream;
+            CPPUNIT_NS::TextOutputter textoutput(&collectedresults, outStream);
+            textoutput.write();
+
+            std::string output;
+
+            while (!outStream.eof())
+            {
+               std::getline(outStream, output);
+
+               if (output != "")
+               {
+                  EventData Data; Data.name = output;
+                  Main::Vimpc::CreateEvent(Event::TestResult, Data);
+               }
+            }
+
+            Main::Tester::Instance().Vimpc->HandleUserEvents(true);
+   #endif
+         }
       }
    }
-#endif
+}
+
+void Command::Test(std::string const & arguments)
+{
+   std::unique_lock<std::mutex> Lock(QueueMutex);
+   Queue.push_back(arguments);
+   Condition.notify_all();
+   QueueCount.store(Queue.size());
 }
 
 void Command::TestInputRandom(std::string const & arguments)
@@ -1421,12 +1459,12 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
 
    if (matchingCommand == false)
    {
-      for (CommandTable::const_iterator it = commandTable_.begin(); it != commandTable_.end(); ++it)
+      for (auto cmd : commandTable_)
       {
-         if (command.compare(it->first.substr(0, command.length())) == 0)
+         if (command.compare(cmd.first.substr(0, command.length())) == 0)
          {
             ++validCommandCount;
-            commandToExecute = it->first;
+            commandToExecute = cmd.first;
          }
       }
 
@@ -1457,14 +1495,14 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
          return true;
       }
 
-      if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (client_.Connected() == true))
+      if ((RequiresConnection(commandToExecute) == false) || (queueCommands_ == false) || (clientState_.Connected() == true))
       {
          count_ = (count <= 0) ? 1 : count;
          CommandTable::const_iterator const it = commandTable_.find(commandToExecute);
          CommandFunction const commandFunction = it->second;
          (*this.*commandFunction)(arguments);
       }
-      else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (client_.Connected() == false)))
+      else if ((RequiresConnection(commandToExecute) == true) && ((queueCommands_ == true) && (clientState_.Connected() == false)))
       {
          CommandArgs commandArgs;
          commandArgs.line      = line;
@@ -1529,23 +1567,20 @@ void Command::Set(std::string const & arguments)
    }
    else
    {
-      std::vector<std::string> settings  = settings_.AvailableSettings();
-      std::vector<std::string>::iterator it = settings.begin();
-
       PagerWindow * pager = screen_.GetPagerWindow();
       pager->Clear();
 
-      for (; it != settings.end(); ++it)
+      for (auto setting : settings_.AvailableSettings())
       {
-         if ((((*it).size() < 2) || ((*it).substr(0, 2) != "no")) &&
-             (settings_.GetBool(*it) == true))
+         if (((setting.size() < 2) || (setting.substr(0, 2) != "no")) &&
+             (settings_.Get<bool>(setting) == true))
          {
-            pager->AddLine(*it);
+            pager->AddLine(setting);
          }
-         else if (settings_.GetString(*it) != "")
+         else if (settings_.Get<std::string>(setting) != "")
          {
-            std::string const value = settings_.GetString(*it);
-            pager->AddLine(*it + "=" + value);
+            std::string const value = settings_.Get<std::string>(setting);
+            pager->AddLine(setting + "=" + value);
          }
       }
 
@@ -1560,12 +1595,12 @@ void Command::Mpc(std::string const & arguments)
    char   port[8];
 
    // \todo redirect stderr results into the console window too
-   snprintf(port, 8, "%u", client_.Port());
+   snprintf(port, 8, "%u", clientState_.Port());
 
    // Ensure that we use the same mpd_host and port for mpc that
    // we are using but still allow the person running the command
    // to do -h and -p flags
-   std::string const command("MPD_HOST=" + client_.Hostname() + " MPD_PORT=" + std::string(port) +
+   std::string const command("MPD_HOST=" + clientState_.Hostname() + " MPD_PORT=" + std::string(port) +
                              " mpc " + arguments + " 2>&1");
 
    Main::Console().Add("> mpc " + arguments);
@@ -1630,10 +1665,10 @@ std::string Command::TabComplete(std::string const & command)
       screen_.Initialise(Ui::Screen::Directory);
       screen_.Initialise(Ui::Screen::Lists);
 
-      for (uint32_t i = 0; i < Main::Lists().Size(); ++i)
+      for (uint32_t i = 0; i < Main::MpdLists().Size(); ++i)
       {
-         loadTable_.push_back("load " + Main::Lists().Get(i).name_);
-         loadTable_.push_back("edit " + Main::Lists().Get(i).name_);
+         loadTable_.push_back("load " + Main::MpdLists().Get(i).name_);
+         loadTable_.push_back("edit " + Main::MpdLists().Get(i).name_);
       }
 
       std::vector<std::string> const & paths = Main::Directory().Paths();

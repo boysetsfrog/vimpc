@@ -20,6 +20,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/buffers.cpp \
                    src/buffers.hpp \
                    src/callback.hpp \
+                   src/clientstate.cpp \
+                   src/clientstate.hpp \
                    src/colours.cpp \
                    src/colours.hpp \
                    src/config.hpp \
@@ -63,8 +65,11 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/browsewindow.hpp \
                    src/window/console.cpp \
                    src/window/console.hpp \
+                   src/window/debug.cpp \
+                   src/window/debug.hpp \
                    src/window/directorywindow.cpp \
                    src/window/directorywindow.hpp \
+                   src/window/error.cpp \
                    src/window/error.hpp \
                    src/window/help.cpp \
                    src/window/help.hpp \
@@ -89,8 +94,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/selectwindow.cpp \
                    src/window/songwindow.hpp \
                    src/window/songwindow.cpp \
-                   src/window/statswindow.hpp \
-                   src/window/statswindow.cpp \
+                   src/window/nowplayingwindow.hpp \
+                   src/window/nowplayingwindow.cpp \
                    src/window/window.cpp \
                    src/window/window.hpp \
                    src/window/windowselector.cpp \

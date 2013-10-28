@@ -15,10 +15,10 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   statswindow.cpp - class representing a scrollable ncurses window
+   nowplayingwindow.cpp - class representing a scrollable ncurses window
    */
 
-#include "statswindow.hpp"
+#include "nowplayingwindow.hpp"
 
 #include <iostream>
 
@@ -27,17 +27,17 @@
 
 using namespace Ui;
 
-StatsWindow::StatsWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name) :
+NowPlayingWindow::NowPlayingWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name) :
    ScrollWindow    (screen, name)
 {
    Redraw();
 }
 
-StatsWindow::~StatsWindow()
+NowPlayingWindow::~NowPlayingWindow()
 {
 }
 
-void StatsWindow::Print(uint32_t line) const
+void NowPlayingWindow::Print(uint32_t line) const
 {
    if (line == 0)
    {
@@ -51,7 +51,7 @@ void StatsWindow::Print(uint32_t line) const
 }
 
 
-void StatsWindow::Redraw()
+void NowPlayingWindow::Redraw()
 {
 }
 /* vim: set sw=3 ts=3: */

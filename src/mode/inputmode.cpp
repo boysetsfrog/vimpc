@@ -93,7 +93,6 @@ void InputMode::Initialise(int input)
    window_->ShowCursor();
    window_->SetLine(Prompt());
    window_->SetCursorPosition(cursor_.DisplayPosition());
-   //Refresh();
 
    ENSURE(inputString_.empty() == true);
 }
@@ -106,12 +105,11 @@ void InputMode::Finalise(int input)
    }
 
    window_->HideCursor();
-   //Refresh();
 }
 
 void InputMode::Refresh()
 {
-   window_->Print(0);
+   screen_.PrintModeWindow(window_);
 }
 
 bool InputMode::Handle(int const input)
@@ -163,11 +161,11 @@ bool InputMode::CausesModeToEnd(int input) const
 
    for (uint32_t i = 0; i < input.length(); ++i)
    {
-      for (std::vector<std::string>::iterator it = terminators.begin(); it != terminators.end(); ++it)
+      for (auto terminator : terminators)
       {
-         if (input.substr(i, (*it).length()) == (*it))
+         if (input.substr(i, terminator.length()) == terminator)
          {
-            return input.substr(0, i + ((keepTerminator == true) ? (*it).length() : 0));
+            return input.substr(0, i + ((keepTerminator == true) ? terminator.length() : 0));
          }
       }
    }
@@ -212,7 +210,7 @@ void InputMode::GenerateInputString(int input)
    {
       int64_t const cursorPosition = (cursor_.Position() - PromptSize);
 
-      if (((char) input & 0xc0) != 0x80)
+      if (((static_cast<char>(input) & 0xc0)) != 0x80)
       {
          currentInput_.clear();
       }
@@ -220,7 +218,7 @@ void InputMode::GenerateInputString(int input)
       wchar_t wide;
       currentInput_.append(1, static_cast<char>(input));
       mbtowc(NULL, NULL, 0);
-      int length = mbtowc(&wide, currentInput_.c_str(), currentInput_.length()); 
+      int length = mbtowc(&wide, currentInput_.c_str(), currentInput_.length());
 
       if (length > 0)
       {
@@ -392,16 +390,22 @@ void InputMode::ClearWordBeforeCursor()
 
 std::wstring InputMode::stringtow(std::string & string)
 {
+   std::wstring result = L"";
+
    if (string.length() > 0)
    {
       wchar_t * wbuffer = new wchar_t[string.length() + 1];
       size_t const mblength = mbstowcs(wbuffer, string.c_str(), string.length());
-      std::wstring result = std::wstring(wbuffer, mblength);
+
+      if (mblength != static_cast<size_t>(-1))
+      {
+         result = std::wstring(wbuffer, mblength);
+      }
+
       delete[] wbuffer;
-      return result;
    }
 
-   return L"";
+   return result;
 }
 
 std::string InputMode::wtostring(std::wstring & string)

@@ -31,7 +31,9 @@
 #include "window/pagerwindow.hpp"
 #include "window/scrollwindow.hpp"
 
+#include <list>
 #include <string>
+#include <thread>
 
 // Changed to being on by default
 // will need to check ncurses properly
@@ -46,6 +48,7 @@ namespace Main
 namespace Mpc
 {
    class Client;
+   class ClientState;
    class Song;
 }
 
@@ -80,10 +83,10 @@ namespace Ui
    class Screen
    {
    public:
-      typedef Main::CallbackInterface<double> * ProgressCallback;
+      typedef std::function<void (double)> ProgressCallback;
 
    public:
-      Screen(Main::Settings & settings, Mpc::Client & client, Search const & search);
+      Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState & clientState, Search const & search);
       ~Screen();
 
    private:
@@ -106,7 +109,7 @@ namespace Ui
          Browse,
          Directory,
          Playlist,
-         Stats,
+         NowPlaying,
          WindowSelect,
          MainWindowCount,
 
@@ -159,6 +162,9 @@ namespace Ui
       ModeWindow * CreateModeWindow();
       void DeleteModeWindow(ModeWindow * window);
 
+      // Prompt for a password from the user
+      void PromptForPassword();
+
       // Pager window used to display maps, settings, etc
       PagerWindow * GetPagerWindow();
       void ShowPagerWindow();
@@ -195,11 +201,14 @@ namespace Ui
       // Clear the console window
       void Clear();
 
+      // Print the mode window
+      void PrintModeWindow(Ui::ModeWindow * window);
+
       // Reprint the currently active main window
       void Update();
 
       // Reinitialise the given main window, ie rebuild playlist, library, etc
-      void Redraw() const;
+      void Redraw();
       void Redraw(int32_t window) const;
       void Initialise(int32_t window) const;
       void Invalidate(int32_t window);
@@ -213,8 +222,10 @@ namespace Ui
       uint32_t MaxRows()      const;
       uint32_t MaxColumns()   const;
       uint32_t TotalRows()    const;
-      uint32_t WaitForInput(bool HandleEscape = true) const;
+      uint32_t WaitForInput(uint32_t TimeoutMs, bool HandleEscape = true) const;
 
+		void UpdateErrorDisplay() const;
+		void ClearErrorDisplay() const;
       bool HandleMouseEvent();
 
       void EnableRandomInput(int count);
@@ -222,6 +233,8 @@ namespace Ui
 #ifdef HAVE_MOUSE_SUPPORT
       MEVENT LastMouseEvent() { return event_; }
 #endif
+
+      WINDOW * W_MainWindow() { return mainWindow_; }
 
    public:
       // Access the active window
@@ -235,8 +248,8 @@ namespace Ui
       int32_t GetPreviousWindow() const;
 
       // Access the selected item in a particular window
-      int32_t GetSelected(uint32_t window) const;
-      int32_t GetActiveSelected() const { return GetSelected(GetActiveWindow()); }
+      int64_t GetSelected(uint32_t window) const;
+      int64_t GetActiveSelected() const { return GetSelected(GetActiveWindow()); }
 
       // Access a song based on a particular window
       Mpc::Song * GetSong(uint32_t window, uint32_t pos) const;
@@ -254,7 +267,7 @@ namespace Ui
       void SetVisible(int32_t window, bool visible, bool removeWindow = true);
 
       uint32_t VisibleWindows() { return visibleWindows_.size(); }
-      
+
       // Show a given window and make it active
       void SetActiveAndVisible(int32_t window);
 
@@ -265,11 +278,12 @@ namespace Ui
       // Register a callback to occur when progress bar is clicked
       void RegisterProgressCallback(ProgressCallback callback);
 
+      void UpdateProgressWindow() const;
+
    private:
       void SetupMouse(bool on) const;
       void ClearStatus() const;
       void UpdateTabWindow() const;
-      void UpdateProgressWindow() const;
 
    private:
       void OnProgressClicked(int32_t);
@@ -283,14 +297,17 @@ namespace Ui
       int32_t    window_;
       int32_t    previous_;
       WindowMap  mainWindows_;
+      WINDOW *   mainWindow_;
       WINDOW *   statusWindow_;
       WINDOW *   tabWindow_;
       WINDOW *   progressWindow_;
       WINDOW *   commandWindow_;
       PagerWindow * pagerWindow_;
 
+		std::thread	inputThread_;
+
       std::vector<int32_t>      visibleWindows_;
-      std::vector<ModeWindow *> modeWindows_;
+      std::list<ModeWindow *>   modeWindows_;
       mutable std::map<int32_t, bool> drawn_;
 
       std::vector<ProgressCallback> pCallbacks_;
@@ -301,7 +318,6 @@ namespace Ui
       int32_t   maxRows_;
       int32_t   mainRows_;
       int32_t   maxColumns_;
-      mutable int32_t   rndCount_;
 
 #ifdef HAVE_MOUSE_SUPPORT
       MEVENT    event_;
@@ -310,6 +326,7 @@ namespace Ui
       Ui::Windows        windows_;
       Main::Settings &   settings_;
       Mpc::Client &      client_;
+      Mpc::ClientState & clientState_;
       Ui::Search const & search_;
    };
 }

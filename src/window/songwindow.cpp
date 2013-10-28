@@ -23,7 +23,7 @@
 #include <pcrecpp.h>
 
 #include "buffers.hpp"
-#include "callback.hpp"
+#include "clientstate.hpp"
 #include "errorcodes.hpp"
 #include "mpdclient.hpp"
 #include "settings.hpp"
@@ -38,10 +38,11 @@
 
 using namespace Ui;
 
-SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Ui::Search const & search, std::string name) :
+SongWindow::SongWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name) :
    SelectWindow     (settings, screen, name),
    settings_        (settings),
    client_          (client),
+   clientState_     (clientState),
    search_          (search),
    browse_          ()
 {
@@ -64,22 +65,20 @@ void SongWindow::AddToPlaylist(uint32_t position)
    if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
    {
       if ((settings_.Get(Setting::AddPosition) == Setting::AddEnd) ||
-          (client_.GetCurrentSongPos() == -1))
+          (clientState_.GetCurrentSongPos() == -1))
       {
-         Main::Playlist().Add(Buffer().Get(position));
          client_.Add(*(Buffer().Get(position)));
       }
       else
       {
-         Main::Playlist().Add(Buffer().Get(position), client_.GetCurrentSongPos() + 1);
-         client_.Add(*(Buffer().Get(position)), client_.GetCurrentSongPos() + 1);
+         client_.Add(*(Buffer().Get(position)), clientState_.GetCurrentSongPos() + 1);
       }
    }
 }
 
-std::string SongWindow::SearchPattern(int32_t id) const
+std::string SongWindow::SearchPattern(uint32_t id) const
 {
-   if ((id >= 0) && (id < Buffer().Size()))
+   if (id < Buffer().Size())
    {
       return Buffer().Get(id)->FormatString(settings_.Get(Setting::SongFormat));
    }
@@ -166,7 +165,15 @@ void SongWindow::Confirm()
          AddLine(pos1, count, false);
       }
 
-      client_.Play(static_cast<uint32_t>(Main::Playlist().Size() - (pos2 - pos1 + 1)));
+
+      if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
+      {
+         client_.Play(static_cast<uint32_t>(Main::Playlist().Size()));
+      }
+      else
+      {
+         client_.Play(static_cast<uint32_t>(clientState_.GetCurrentSongPos() + 1));
+      }
    }
 
    SelectWindow::Confirm();
@@ -175,7 +182,7 @@ void SongWindow::Confirm()
 uint32_t SongWindow::Current() const
 {
    int32_t current       = CurrentLine();
-   int32_t currentSongId = client_.GetCurrentSongPos();
+   int32_t currentSongId = clientState_.GetCurrentSongPos();
 
    if ((currentSongId >= 0) && (currentSongId < static_cast<int32_t>(Main::Playlist().Size())))
    {
@@ -199,7 +206,7 @@ uint32_t SongWindow::Playlist(int count) const
    {
       if ((count > 0) && (line >= 0) && (Buffer().Size() > 0))
       {
-         for (int32_t i = CurrentLine() + 1; i < BufferSize(); ++i)
+         for (uint32_t i = CurrentLine() + 1; i < BufferSize(); ++i)
          {
             if (Buffer().Get(i)->Reference() > 0)
             {
@@ -236,7 +243,7 @@ uint32_t SongWindow::Playlist(int count) const
 
 void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
 {
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       int64_t pos1, pos2;
       uint32_t const posCount = GetPositions(pos1, pos2);
@@ -248,17 +255,29 @@ void SongWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
       }
 
       {
-         Mpc::CommandList list(client_, (count > 1));
 
          if (settings_.Get(Setting::AddPosition) == Setting::AddEnd)
          {
+            std::vector<Mpc::Song *> songs;
+
             for (uint32_t i = 0; i < count; ++i)
             {
-               AddToPlaylist(line + i);
+               //AddToPlaylist(line + i);
+               uint32_t const position = line + i;
+
+               if ((position < BufferSize()) && (Buffer().Get(position) != NULL))
+               {
+                  songs.push_back(Buffer().Get(position));
+               }
             }
+
+            Debug("Queueing up a client add of %d songs", songs.size());
+            client_.Add(songs);
          }
          else
          {
+            Mpc::CommandList list(client_, (count > 1));
+
             for (int32_t i = count - 1; i >= 0; --i)
             {
                AddToPlaylist(line + i);
@@ -300,7 +319,7 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
       Main::PlaylistPasteBuffer().Clear();
    }
 
-   if (client_.Connected() == true)
+   if (clientState_.Connected() == true)
    {
       int64_t pos1, pos2;
       uint32_t const posCount = GetPositions(pos1, pos2);
@@ -324,8 +343,8 @@ void SongWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
 
                if (index >= 0)
                {
+                  Debug("Calling delete on %s", Main::Playlist().Get(index)->URI().c_str());
                   client_.Delete(index);
-                  Main::Playlist().Remove(index, 1);
                }
             }
          }
@@ -373,19 +392,18 @@ void SongWindow::ScrollToFirstMatch(std::string const & input)
 
 void SongWindow::Save(std::string const & name)
 {
-   if (Main::Lists().Index(Mpc::List(name)) == -1)
+   if (Main::MpdLists().Index(Mpc::List(name)) == -1)
    {
       client_.CreatePlaylist(name);
 
-      Mpc::CommandList list(client_);
-
-      for (unsigned int i = 0; i < BufferSize(); ++i)
       {
-         client_.AddToNamedPlaylist(name, Buffer().Get(i));
-      }
+         Mpc::CommandList list(client_);
 
-      Main::Lists().Add(name);
-      Main::Lists().Sort();
+         for (unsigned int i = 0; i < BufferSize(); ++i)
+         {
+            client_.AddToNamedPlaylist(name, Buffer().Get(i));
+         }
+      }
    }
    else
    {
@@ -431,11 +449,11 @@ int32_t SongWindow::DetermineColour(uint32_t line) const
 
    if (song != NULL)
    {
-      if ((song->URI() == client_.GetCurrentSongURI()))
+      if ((song->URI() == clientState_.GetCurrentSongURI()))
       {
          colour = settings_.colours.CurrentSong;
       }
-      else if (client_.SongIsInQueue(*song))
+      else if (song->Reference() != 0)
       {
          colour = settings_.colours.FullAdd;
       }

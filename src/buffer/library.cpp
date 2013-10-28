@@ -22,9 +22,12 @@
 
 #include "algorithm.hpp"
 #include "browse.hpp"
+#include "clientstate.hpp"
 #include "directory.hpp"
+#include "events.hpp"
 #include "mpdclient.hpp"
 #include "playlist.hpp"
+#include "vimpc.hpp"
 
 #include <algorithm>
 
@@ -38,7 +41,20 @@ Library::Library() :
    lastAlbumEntry_ (NULL),
    lastArtistEntry_(NULL)
 {
-   AddCallback(Main::Buffer_Remove, new CallbackObject(*this, &Library::CheckIfVariousRemoved));
+   AddCallback(Main::Buffer_Remove, [this] (LibraryEntry * const entry) { CheckIfVariousRemoved(entry); });
+
+   Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Sort(); });
+   
+   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value) 
+   { 
+      // Clear the cached format prints for every song
+      for (auto song : uriMap_)
+      {
+         song.second->FormatString("");
+      }
+
+      RecreateLibraryFromURIs();
+   });
 }
 
 Library::~Library()
@@ -52,6 +68,9 @@ void Library::Clear(bool Delete)
    lastArtistEntry_  = NULL;
 
    Main::Playlist().Clear();
+
+   // \todo investigate this, adds considerable overhead in callgrind
+   Main::Browse().Clear();
 
    uriMap_.clear();
 
@@ -68,10 +87,48 @@ void Library::Clear(bool Delete)
    }
 }
 
+void Library::RecreateLibraryFromURIs()
+{
+   // collapse everything
+   ForEachParent([] (Mpc::LibraryEntry * entry) { Mpc::MarkUnexpanded(entry); });
+
+   // clear the songs
+   std::function<void (LibraryEntry *)> function = [this] (LibraryEntry * entry) { entry->song_ = NULL; };
+
+   for (int i = 0; i < Size(); ++i)
+   {
+      ForEachChild(i, function);
+   }
+
+   // get rid of every entry
+   while (Size() > 0)
+   {
+      int const Pos = Size() - 1;
+      LibraryEntry * entry = Get(Pos);
+      Remove(Pos, 1);
+
+      if (entry->parent_ == NULL)
+      {
+         delete entry;
+      }
+   }
+
+   for (auto song : uriMap_)
+   {
+      Add(song.second);
+   }
+}
+
 void Library::Add(Mpc::Song * song)
 {
-   std::string const artist = song->Artist();
+   std::string artist = song->Artist();
    std::string const album  = song->Album();
+   std::string const albumartist = song->AlbumArtist();
+
+   if ((settings_.Get(Setting::AlbumArtist) == true) && (albumartist != "Unknown Artist"))
+   {
+      artist = albumartist;
+   }
 
    CreateVariousArtist();
 
@@ -90,9 +147,9 @@ void Library::Add(Mpc::Song * song)
 
          for (i = 0;
               ((i < Size()) &&
-               ((Algorithm::imatch(Get(i)->artist_, artist,
-                                   settings_.Get(Setting::IgnoreTheGroup), true) == false) ||
-                (Get(i)->type_ != Mpc::ArtistType)));
+               ((Get(i)->type_ != Mpc::ArtistType) ||
+                (Algorithm::imatch(Get(i)->artist_, artist,
+                                   settings_.Get(Setting::IgnoreTheGroup), true) == false)));
                ++i);
 
          if (i < Size())
@@ -105,12 +162,13 @@ void Library::Add(Mpc::Song * song)
          }
       }
 
-      for (Mpc::LibraryEntryVector::iterator it = lastArtistEntry_->children_.begin(); ((it != lastArtistEntry_->children_.end()) && (lastAlbumEntry_ == NULL)); ++it)
+      for (auto entry : lastArtistEntry_->children_)
       {
-         if ((Algorithm::iequals((*it)->album_, album) == true) &&
-               ((*it)->type_ == Mpc::AlbumType))
+         if ((entry->type_ == Mpc::AlbumType) &&
+             (Algorithm::iequals(entry->album_, album) == true))
          {
-            lastAlbumEntry_ = (*it);
+            lastAlbumEntry_ = entry;
+            break;
          }
       }
 
@@ -121,12 +179,13 @@ void Library::Add(Mpc::Song * song)
          lastArtistEntry_->children_.push_back(lastAlbumEntry_);
       }
    }
-   else if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
-           (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
-           (Algorithm::imatch(lastAlbumEntry_->album_, album,
-              settings_.Get(Setting::IgnoreTheGroup), true) == false) &&
-           (lastArtistEntry_ != variousArtist_) &&
-           (lastArtistEntry_->children_.back() == lastAlbumEntry_))
+
+   if ((lastArtistEntry_ != NULL) && (lastAlbumEntry_ != NULL) &&
+       (lastArtistEntry_ != variousArtist_) &&
+       (lastArtistEntry_->children_.back() == lastAlbumEntry_) &&
+       (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
+       (Algorithm::imatch(lastArtistEntry_->artist_, artist,
+           settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
       lastArtistEntry_->children_.pop_back();
 
@@ -229,23 +288,23 @@ void Library::Sort(LibraryEntry * entry)
    {
        std::sort(entry->children_.begin(), entry->children_.end(), entryComparator);
 
-       for (LibraryEntryVector::iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
+       for (auto child : entry->children_)
        {
-          if ((*it)->children_.empty() == false)
+          if (child->children_.empty() == false)
           {
-             Sort(*it);
+             Sort(child);
           }
        }
    }
 }
 
-void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
+void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position)
 {
    if (position < Size())
    {
       if (Collection == Mpc::Song::Single)
       {
-         AddToPlaylist(client, Get(position));
+         AddToPlaylist(client, clientState, Get(position));
       }
       else
       {
@@ -253,13 +312,13 @@ void Library::AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & 
 
          for (uint32_t i = 0; i < Size(); ++i)
          {
-            AddToPlaylist(client, Get(i));
+            AddToPlaylist(client, clientState, Get(i));
          }
       }
    }
 }
 
-void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position)
+void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position)
 {
    if (position < Size())
    {
@@ -279,25 +338,22 @@ void Library::RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Clie
    }
 }
 
-void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position)
+void Library::AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::LibraryEntry const * const entry, int32_t position)
 {
    if ((entry->type_ == Mpc::SongType) && (entry->song_ != NULL))
    {
       if (position != -1)
       {
-         Main::Playlist().Add(entry->song_, position);
          client.Add(*(entry->song_), position);
       }
       else if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddEnd) ||
-          (client.GetCurrentSongPos() == -1))
+               (clientState.GetCurrentSongPos() == -1))
       {
-         Main::Playlist().Add(entry->song_);
          client.Add(*(entry->song_));
       }
       else
       {
-         Main::Playlist().Add(entry->song_, client.GetCurrentSongPos() + 1);
-         client.Add(*(entry->song_), client.GetCurrentSongPos() + 1);
+         client.Add(*(entry->song_), clientState.GetCurrentSongPos() + 1);
       }
    }
    else
@@ -305,14 +361,14 @@ void Library::AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * cons
       int current = -1;
 
       if ((Main::Settings::Instance().Get(Setting::AddPosition) == Setting::AddNext) &&
-          (client.GetCurrentSongPos() != -1))
+          (clientState.GetCurrentSongPos() != -1))
       {
-         current = client.GetCurrentSongPos() + 1;
+         current = clientState.GetCurrentSongPos() + 1;
       }
 
-      for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
+      for (auto child : entry->children_)
       {
-         AddToPlaylist(client, (*it), current);
+         AddToPlaylist(client, clientState, child, current);
 
          if (current != -1)
          {
@@ -331,65 +387,64 @@ void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const *
       if (PlaylistIndex >= 0)
       {
          client.Delete(PlaylistIndex);
-         Main::Playlist().Remove(PlaylistIndex, 1);
       }
    }
    else
    {
-      for (Mpc::LibraryEntryVector::const_iterator it = entry->children_.begin(); it != entry->children_.end(); ++it)
+      for (auto child : entry->children_)
       {
-         RemoveFromPlaylist(client, (*it));
+         RemoveFromPlaylist(client, child);
       }
    }
 }
 
-void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const
+void Library::ForEachChild(uint32_t index, std::function<void (Mpc::Song *)> callback) const
 {
-   for (Mpc::LibraryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
+   for (auto child : Get(index)->children_)
    {
-      if ((*it)->type_ == AlbumType)
+      if (child->type_ == AlbumType)
       {
-         for (Mpc::LibraryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
+         for (auto child2 : child->children_)
          {
-            (*callback)((*jt)->song_);
+            (callback)(child2->song_);
          }
       }
-      else if ((*it)->type_ == SongType)
+      else if (child->type_ == SongType)
       {
-         (*callback)((*it)->song_);
+         (callback)(child->song_);
       }
    }
 }
 
-void Library::ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const
+void Library::ForEachChild(uint32_t index, std::function<void (Mpc::LibraryEntry *)> callback) const
 {
-   for (Mpc::LibraryEntryVector::iterator it = Get(index)->children_.begin(); (it != Get(index)->children_.end()); ++it)
+   for (auto child : Get(index)->children_)
    {
-      if ((*it)->type_ == AlbumType)
+      if (child->type_ == AlbumType)
       {
-         for (Mpc::LibraryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
+         for (auto child2 : child->children_)
          {
-            (*callback)(*jt);
+            (callback)(child2);
          }
       }
 
-      (*callback)(*it);
+      (callback)(child);
    }
 }
 
-void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
+void Library::ForEachSong(std::function<void (Mpc::Song *)> callback) const
 {
    for (uint32_t i = 0; i < Size(); ++i)
    {
       if (Get(i)->type_ == ArtistType)
       {
-         for (Mpc::LibraryEntryVector::iterator it = Get(i)->children_.begin(); (it != Get(i)->children_.end()); ++it)
+         for (auto child : Get(i)->children_)
          {
-            if ((*it)->type_ == AlbumType)
+            if (child->type_ == AlbumType)
             {
-               for (Mpc::LibraryEntryVector::iterator jt = (*it)->children_.begin(); (jt != (*it)->children_.end()); ++jt)
+               for (auto child2 : child->children_)
                {
-                  (*callback)((*jt)->song_);
+                  (callback)(child2->song_);
                }
             }
          }
@@ -397,21 +452,21 @@ void Library::ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const
    }
 }
 
-void Library::ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const
+void Library::ForEachParent(std::function<void (Mpc::LibraryEntry *)> callback) const
 {
    for (uint32_t i = 0; i < Size(); ++i)
    {
       if (Get(i)->type_ == ArtistType)
       {
-         for (Mpc::LibraryEntryVector::iterator it = Get(i)->children_.begin(); (it != Get(i)->children_.end()); ++it)
+         for (auto child : Get(i)->children_)
          {
-            if ((*it)->type_ == AlbumType)
+            if (child->type_ == AlbumType)
             {
-               (*callback)(*it);
+               (callback)(child);
             }
          }
 
-         (*callback)(Get(i));
+         (callback)(Get(i));
       }
    }
 }
@@ -425,9 +480,9 @@ void Library::Expand(uint32_t line)
    {
       Get(line)->expanded_ = true;
 
-      for (Mpc::LibraryEntryVector::iterator it = Get(line)->children_.begin(); it != Get(line)->children_.end(); ++it)
+      for (auto child : Get(line)->children_)
       {
-         Add(*it, ++position);
+         Add(child, ++position);
       }
    }
 }
@@ -446,10 +501,11 @@ void Library::Collapse(uint32_t line)
    if (Index(entryToCollapse) >= 0)
    {
       uint32_t Pos = Index(entryToCollapse);
-      Main::CallbackInterface<LibraryEntry *> * callback = new CallbackObject(*this, &Library::RemoveAndUnexpand);
-      ForEachChild(Pos, callback);
-      delete callback;
 
+      // Separated function out into variable as compile fails on g++ 4.7.2
+      // if passed directly to function using the lambda
+      std::function<void (LibraryEntry *)> function = [this] (LibraryEntry * exp) { RemoveAndUnexpand(exp); };
+      ForEachChild(Pos, function);
       entryToCollapse->expanded_ = false;
    }
 }
@@ -457,38 +513,46 @@ void Library::Collapse(uint32_t line)
 
 std::string Library::String(uint32_t position) const
 {
-   if (Get(position)->type_ == Mpc::ArtistType)
+   Mpc::EntryType const type = Get(position)->type_;
+
+   std::string Result = "";
+
+   if (type == Mpc::ArtistType)
    {
-      return Get(position)->artist_;
+      Result = Get(position)->artist_;
    }
-   else if (Get(position)->type_ == Mpc::AlbumType)
+   else if (type == Mpc::AlbumType)
    {
-      return Get(position)->album_;
+      Result = Get(position)->album_;
    }
-   else if (Get(position)->type_ == Mpc::SongType)
+   else if (type == Mpc::SongType)
    {
-      return Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
+      Result = Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
 
-   return "";
+   return Result;
 }
 
 std::string Library::PrintString(uint32_t position) const
 {
-   if (Get(position)->type_ == Mpc::ArtistType)
+   Mpc::EntryType const type = Get(position)->type_;
+
+   std::string Result = "";
+
+   if (type == Mpc::ArtistType)
    {
-      return "$B " + Get(position)->artist_ + "$R$B";
+      Result = "$B " + Get(position)->artist_ + "$R$B";
    }
-   else if (Get(position)->type_ == Mpc::AlbumType)
+   else if (type == Mpc::AlbumType)
    {
-      return "    " + Get(position)->album_;
+      Result = "    " + Get(position)->album_;
    }
-   else if (Get(position)->type_ == Mpc::SongType)
+   else if (type == Mpc::SongType)
    {
-      return "       " + Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
+      Result = "       " + Get(position)->song_->FormatString(settings_.Get(Setting::LibraryFormat));
    }
 
-   return "";
+   return Result;
 }
 
 

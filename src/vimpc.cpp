@@ -28,28 +28,48 @@
 #include "assert.hpp"
 #include "buffers.hpp"
 #include "config.hpp"
+#include "events.hpp"
 #include "settings.hpp"
+#include "song.hpp"
 #include "test.hpp"
-#include "window/error.hpp"
 
-#include <sys/time.h>
+#include "buffer/directory.hpp"
+#include "buffer/outputs.hpp"
+#include "buffer/playlist.hpp"
+#include "window/error.hpp"
+#include "window/songwindow.hpp"
+
+#include <atomic>
+#include <list>
 #include <unistd.h>
+#include <condition_variable>
 
 using namespace Main;
+
+typedef std::pair<int32_t, EventData>  EventPair;
+static std::list<EventPair>            Queue;
+static std::mutex                      QueueMutex;
+static std::condition_variable         Condition;
+static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
+
+static std::map<int, std::list<std::condition_variable *> > WaitConditions;
+static std::mutex EventMutex;
 
 bool Vimpc::Running = true;
 
 // \todo the coupling and requirements on the way everything needs to be constructed is awful
 // this really needs to be fixed and the coupling removed
 Vimpc::Vimpc() :
-   currentMode_ (Normal),
-   settings_    (Main::Settings::Instance()),
-   search_      (*(new Ui::Search (screen_, client_, settings_))),
-   screen_      (settings_, client_, search_),
-   client_      (this, settings_, screen_),
-   modeTable_   (),
-   normalMode_  (*(new Ui::Normal (this, screen_, client_, settings_, search_))),
-   commandMode_ (*(new Ui::Command(this, screen_, client_, settings_, search_, normalMode_)))
+   currentMode_      (Normal),
+   settings_         (Main::Settings::Instance()),
+   search_           (*(new Ui::Search (screen_, client_, settings_))),
+   screen_           (settings_, client_, clientState_, search_),
+   client_           (this, settings_, screen_),
+   clientState_      (this, settings_, screen_),
+   modeTable_        (),
+   normalMode_       (*(new Ui::Normal (this, screen_, client_, clientState_, settings_, search_))),
+   commandMode_      (*(new Ui::Command(this, screen_, client_, clientState_, settings_, search_, normalMode_))),
+   userEvents_       (true)
 {
 
    modeTable_[Command] = &commandMode_;
@@ -59,24 +79,65 @@ Vimpc::Vimpc() :
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
 
+   // All the events that cause repaints
+   Vimpc::EventHandler(Event::Connected,        [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::CommandListSend,  [this] (EventData const & Data) { Repaint(); });
+
+   Vimpc::EventHandler(Event::OutputEnabled,    [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::OutputDisabled,   [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::QueueUpdate,      [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::Output,           [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::TestResult,       [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::NewPlaylist,      [this] (EventData const & Data) { Repaint(); });
+
+   // When we change the album artist we need to repopulate the print functions in the song
+   // this is an optimisation, if you check the setting for every song print to determine
+   // whether to use the albumartist or the artist it is a huge overhead, so we don't
+   // we also need to clear the format cache, this occurs in a library callback
+   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value) 
+   { 
+      Mpc::Song::RepopulateSongFunctions(); 
+   });
+
 #ifdef TEST_ENABLED
+   Main::Tester::Instance().Vimpc   = this;
    Main::Tester::Instance().Screen  = &screen_;
    Main::Tester::Instance().Command = &commandMode_;
    Main::Tester::Instance().Client  = &client_;
+   Main::Tester::Instance().ClientState = &clientState_;
 #endif
 }
 
 Vimpc::~Vimpc()
 {
-   for (ModeTable::iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
+   for (auto mode : modeTable_)
    {
-      delete (it->second);
-      it->second = NULL;
+      delete (mode.second);
+      mode.second = NULL;
    }
 }
 
 void Vimpc::Run(std::string hostname, uint16_t port)
 {
+   int input = ERR;
+
+   // Keyboard input event handler
+   Vimpc::EventHandler(Event::Input, [&input] (EventData const & Data)
+   {
+      input = Data.input;
+   });
+
+   // Refresh the mode after a status update
+   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data) 
+   { 
+      if (screen_.PagerIsVisible() == false)
+      {
+         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+         mode.Refresh();
+      }
+   });
+
    // Set up the display
    {
       Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
@@ -96,97 +157,96 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    if (configExecutionResult == true)
    {
       // If we didn't connect to a host from the config file, just connect to the default
-      if (client_.Connected() == false)
+      if (commandMode_.ConnectionAttempt() == false)
       {
          client_.Connect(hostname, port);
       }
 
-      client_.DisplaySongInformation();
       screen_.Update();
-
-      // If we still have no connection, report an error
-      if (client_.Connected() == false)
-      {
-         Error(ErrorNumber::ClientNoConnection, "Failed to connect to server, please ensure it is running and type :connect <server> [port]");
-      }
-      else
-      {
-         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-         mode.Refresh();
-      }
-
       commandMode_.SetQueueCommands(false);
-
-      struct timeval start, end;
-      gettimeofday(&start, NULL);
 
       // The main loop
       while (Running == true)
       {
-         static long updateTime = 0;
-         bool clientUpdate = false;
+         screen_.UpdateErrorDisplay();
 
-         int input = Input();
+         {
+            std::unique_lock<std::mutex> Lock(QueueMutex);
 
-         if ((input != ERR) && (screen_.PagerIsVisible() == true)
+            if ((Queue.empty() == false) ||
+               (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+            {
+               EventPair const Event = Queue.front();
+               Queue.pop_front();
+               Lock.unlock();
+
+               if ((userEvents_ == false) && 
+                   (Event.second.user == true))
+               {
+                  Debug("Discarding user event");
+                  continue;
+               }
+
+               for (auto func : Handler[Event.first])
+               {
+                  func(Event.second);
+               }
+
+               for (auto cond : WaitConditions[Event.first])
+               {
+                  cond->notify_all();
+               }
+            }
+         }
+
+         if (input != ERR)
+         {
+            screen_.ClearErrorDisplay();
+
+            if ((screen_.PagerIsVisible() == true)
 #ifdef HAVE_MOUSE_SUPPORT
-            && (input != KEY_MOUSE)
+               && (input != KEY_MOUSE)
 #endif
             )
-         {
-            if (screen_.PagerIsFinished() == true)
             {
-               screen_.HidePagerWindow();
+               if (screen_.PagerIsFinished() == true)
+               {
+                  screen_.HidePagerWindow();
+               }
+               else
+               {
+                  screen_.PagerWindowNext();
+               }
             }
             else
             {
-               screen_.PagerWindowNext();
-            }
-         }
-         else if (input != ERR)
-         {
-            Handle(input);
-         }
-
-         gettimeofday(&end,   NULL);
-
-         long const seconds  = end.tv_sec  - start.tv_sec;
-         long const useconds = end.tv_usec - start.tv_usec;
-         long const mtime    = (seconds * 1000 + (useconds/1000.0)) + 0.5;
-
-         updateTime += mtime;
-         client_.IncrementTime(mtime);
-
-         if ((input == ERR) &&
-             (((client_.TimeSinceUpdate() > 900) && (settings_.Get(::Setting::Polling) == true)) ||
-              ((settings_.Get(::Setting::Polling) == false) && (client_.HadEvents() == true))))
-         {
-            client_.UpdateStatus();
-            clientUpdate = true;
-         }
-
-         gettimeofday(&start, NULL);
-
-         if ((input != ERR) || (screen_.Resize() == true) || (clientUpdate == true) || ((updateTime >= 250) && (input == ERR)))
-         {
-            clientUpdate = false;
-            updateTime = 0;
-            Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-            client_.DisplaySongInformation();
-            client_.UpdateDisplay();
-            screen_.Update();
-
-            if (screen_.PagerIsVisible() == false)
-            {
-               mode.Refresh();
+               Handle(input);
             }
          }
 
-         if ((input == ERR) && (client_.IsIdle() == false))
+         bool const Resize = screen_.Resize();
+
+         if ((input != ERR) || (Resize == true))
          {
-            client_.IdleMode();
+            Repaint();
          }
+
+         input = ERR;
       }
+   }
+}
+
+void Vimpc::Repaint()
+{
+   Debug("Doing the screen update");
+
+   screen_.Update();
+   clientState_.DisplaySongInformation();
+
+   if (screen_.PagerIsVisible() == false)
+   {
+      Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+      mode.Refresh();
    }
 }
 
@@ -218,15 +278,15 @@ Vimpc::ModeName Vimpc::ModeAfterInput(ModeName mode, int input) const
    // Must be in normal mode to be able to enter any other mode
    else
    {
-      for (ModeTable::const_iterator it = modeTable_.begin(); (it != modeTable_.end()); ++it)
+      for (auto nmode : modeTable_)
       {
-         if (it->first != Normal)
+         if (nmode.first != Normal)
          {
-            Ui::Mode const & nextMode = assert_reference(it->second);
+            Ui::Mode const & nextMode = assert_reference(nmode.second);
 
             if (nextMode.CausesModeToStart(input) == true)
             {
-               newMode = it->first;
+               newMode = nmode.first;
             }
          }
       }
@@ -259,21 +319,52 @@ void Vimpc::ChangeMode(char input, std::string initial)
    }
 }
 
+void Vimpc::HandleUserEvents(bool Enabled)
+{
+   userEvents_ = Enabled;
+}
+
 
 /* static */ void Vimpc::SetRunning(bool isRunning)
 {
    Running = isRunning;
 }
 
+/* static */ void Vimpc::CreateEvent(int Event, EventData const & Data)
+{
+   std::unique_lock<std::mutex> Lock(QueueMutex);
+   Queue.push_back(std::make_pair(Event, Data));
+   Condition.notify_all();
+}
+
+/* static */ void Vimpc::EventHandler(int Event, std::function<void(EventData const &)> func)
+{
+   Handler[Event].push_back(func);
+}
+
+/* static */ bool Vimpc::WaitForEvent(int Event, int TimeoutMs)
+{
+   std::unique_lock<std::mutex> EventLock(EventMutex);
+
+   std::condition_variable * WaitCondition = new std::condition_variable();
+   WaitConditions[Event].push_back(WaitCondition);
+
+   bool const Result = (WaitCondition->wait_for(EventLock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout);
+
+   WaitConditions[Event].remove(WaitCondition);
+   delete WaitCondition;
+   EventLock.unlock();
+   return Result; 
+}
 
 int Vimpc::Input() const
 {
    if (currentMode_ == Normal)
    {
-      return screen_.WaitForInput(!normalMode_.WaitingForMoreInput());
+      return screen_.WaitForInput(250, !normalMode_.WaitingForMoreInput());
    }
 
-   return screen_.WaitForInput();
+   return screen_.WaitForInput(250);
 }
 
 void Vimpc::Handle(int input)
@@ -308,11 +399,6 @@ void Vimpc::Handle(int input)
    }
 }
 
-void Vimpc::OnConnected()
-{
-   commandMode_.ExecuteQueuedCommands();
-   CurrentMode().Refresh();
-}
 
 bool Vimpc::HandleMouse()
 {
@@ -323,9 +409,9 @@ bool Vimpc::ModesAreInitialised()
 {
    bool result = true;
 
-   for (ModeTable::iterator it = modeTable_.begin(); ((it != modeTable_.end()) && (result == true)); ++it)
+   for (auto mode : modeTable_)
    {
-      result = (it->second != NULL);
+      result = (mode.second == NULL) ? false : result;
    }
 
    return result;

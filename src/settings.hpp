@@ -21,12 +21,13 @@
 #ifndef __MAIN__SETTINGS
 #define __MAIN__SETTINGS
 
-#include "callback.hpp"
 #include "colours.hpp"
 #include "test.hpp"
 
 #include <string>
 #include <map>
+#include <mutex>
+#include <vector>
 
 // Create an enum entry, name and value for each setting
 // X(enum-entry, setting-name, default-value)
@@ -83,7 +84,7 @@
    /* Sort based on song format */ \
    X(Sort,             "sort", "format", "format|library") \
    /* Connection Timeout in seconds */ \
-   X(Timeout,          "timeout", "15", "\\d+") \
+   X(Timeout,          "timeout", "30", "\\d+") \
    /* Startup window */ \
    X(Window,           "window",  "help", ".*") \
    /* Startup windows */ \
@@ -111,6 +112,9 @@
 class Setting
 {
 public:
+   // Provide access to default values through settings table
+   static std::string Default;
+
    // Use for add position comparisons
    static std::string AddEnd;
    static std::string AddNext;
@@ -162,8 +166,6 @@ namespace Main
    class Settings
    {
       public:
-         typedef Main::CallbackInterface<bool> *          BoolCallback;
-         typedef Main::CallbackInterface<std::string> *   StringCallback;
          Colours colours;
 
       public:
@@ -192,37 +194,23 @@ namespace Main
          std::string Name(Setting::StringSettings setting) const;
 
          //! Register a callback to be called when a setting is changed
-         void RegisterCallback(Setting::ToggleSettings setting, BoolCallback callback);
-         void RegisterCallback(Setting::StringSettings setting, StringCallback callback);
+         void RegisterCallback(Setting::ToggleSettings setting, std::function<void (bool)> callback);
+         void RegisterCallback(Setting::StringSettings setting, std::function<void (std::string)> callback);
 
          //! Turn the callbacks on and off
-         void EnableCallbacks();         
-         void DisableCallbacks();         
+         void EnableCallbacks();
+         void DisableCallbacks();
 
       public:
          //! Set/Get whether or not to connect if asked to in config
          void SetSkipConfigConnects(bool val);
          bool SkipConfigConnects() const;
 
-      public:
          void SetColour(std::string property, std::string colour);
 
          //! Get the value for the given \p setting
-         bool GetBool(std::string setting) const
-         {
-            BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
-            return ((it != toggleTable_.end()) && (it->second->Get()));
-         }
-
-         std::string GetString(std::string setting) const
-         {
-            StringSettingsTable::const_iterator it = stringTable_.find(setting);
-            if (it != stringTable_.end())
-            {
-               return (it->second->Get());
-            }
-            return "";
-         }
+         template <typename T>
+         inline T Get(std::string setting) const;
 
       protected:
          //! Set the value of a particular setting
@@ -230,22 +218,36 @@ namespace Main
          void Set(Setting::StringSettings setting, std::string value);
 
          //! Set the value for the given \p setting
-         void SetBool(std::string setting, bool value)
+         inline void SetValue(std::string setting, bool value)
          {
-            BoolSettingsTable::const_iterator it = toggleTable_.find(setting);
-            if ((it != toggleTable_.end())) { it->second->Set(value); }
+            SetValue(setting, value, toggleTable_);
          }
 
-         void SetString(std::string setting, std::string value)
+         inline void SetValue(std::string setting, std::string value)
          {
-            StringSettingsTable::const_iterator it = stringTable_.find(setting);
-            if (it != stringTable_.end())
-            {
-               (it->second->Set(value));
-            }
+            SetValue(setting, value, stringTable_);
          }
 
       private:
+         template <class T>
+         auto GetValue(std::string setting, T table) const -> decltype (table.at(Setting::Default)->Get())
+         {
+            mutex_.lock();
+            auto const it = table.find(setting);
+            auto const Result = (it != table.end()) ? (it->second->Get()) : table.at(Setting::Default)->Get();
+            mutex_.unlock();
+            return Result;
+         }
+
+         template <class T, class U>
+         void SetValue(std::string setting, T value, U const & table)
+         {
+            mutex_.lock();
+            auto const it = table.find(setting);
+            if (it != table.end()) { (it->second->Set(value)); }
+            mutex_.unlock();
+         }
+
          //! Used to handle settings that require very specific paramters
          void SetSpecificSetting(std::string setting, std::string arguments);
 
@@ -257,8 +259,11 @@ namespace Main
          typedef std::map<std::string, SettingValue<bool> * > BoolSettingsTable;
          BoolSettingsTable    toggleTable_;
 
+         typedef std::vector<SettingValue<bool> * > BoolVector;
+         BoolVector           toggleVector_;
+
          // Callbacks for on/off settings
-         typedef std::map<Setting::ToggleSettings, std::vector<BoolCallback> > BoolCallbackTable;
+         typedef std::map<Setting::ToggleSettings, std::vector<std::function<void (bool)> > > BoolCallbackTable;
          BoolCallbackTable    tCallbackTable_;
 
          // Used to validate string settings against a regex pattern
@@ -269,15 +274,32 @@ namespace Main
          typedef std::map<std::string, SettingValue<std::string> * > StringSettingsTable;
          StringSettingsTable  stringTable_;
 
+         typedef std::vector<SettingValue<std::string> * > StringVector;
+         StringVector         stringVector_;
+
          // Callbacks for string style settings
-         typedef std::map<Setting::StringSettings, std::vector<StringCallback> > StringCallbackTable;
+         typedef std::map<Setting::StringSettings, std::vector<std::function<void (std::string)> > > StringCallbackTable;
          StringCallbackTable  sCallbackTable_;
 
          typedef std::map<std::string, int> ColorNameTable;
          ColorNameTable       colourTable_;
 
          bool                 enabled_;
+
+         mutable std::recursive_mutex mutex_;
    };
+
+   template <>
+   inline bool Settings::Get<bool>(std::string setting) const
+   {
+      return GetValue(setting, toggleTable_);
+   }
+
+   template <>
+   inline std::string Settings::Get<std::string>(std::string setting) const
+   {
+      return GetValue(setting, stringTable_);
+   }
 }
 
 #endif

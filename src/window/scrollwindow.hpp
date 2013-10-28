@@ -29,8 +29,10 @@ namespace Ui
 {
    class Screen;
 
-   class ScrollWindow : public Window
+   class ScrollWindow
    {
+      friend class Ui::Screen;
+
    public:
       ScrollWindow(Ui::Screen & screen, std::string name = "Unknown");
       virtual ~ScrollWindow();
@@ -44,18 +46,26 @@ namespace Ui
          PositionCount
       } Position;
 
-   public:
+   protected:
       virtual void Print(uint32_t line) const;
-      virtual void Resize(int rows, int columns);
+      virtual void Resize(uint32_t rows, uint32_t columns);
+      virtual void Redraw() {}
+
+   public:
+      virtual void Left(Ui::Player & player, uint32_t count) { }
+      virtual void Right(Ui::Player & player, uint32_t count) { }
+      virtual void Click() { }
+      virtual void Confirm() { }
+
       virtual void Scroll(int32_t scrollCount);
-      virtual void ScrollTo(uint16_t scrollLine);
+      virtual void ScrollTo(uint32_t scrollLine);
       virtual void ScrollToFirstMatch(std::string const & input) { }
       virtual void ScrollToCurrent() { }
       virtual void ResetSelection() {}
 
       virtual uint32_t Current() const           { return CurrentLine(); };
       virtual uint32_t Playlist(int count) const { return Current(); };
-      virtual std::string SearchPattern(int32_t id) const { return ""; }
+      virtual std::string SearchPattern(uint32_t id) const { return ""; }
 
    public:
       virtual void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
@@ -70,7 +80,7 @@ namespace Ui
       virtual void Save(std::string const & name) {}
 
    public:
-      virtual size_t BufferSize() const { return WindowBuffer().Size(); }
+      virtual uint32_t BufferSize() const { return WindowBuffer().Size(); }
 
    public:
       std::string const & Name() const;
@@ -84,12 +94,20 @@ namespace Ui
       virtual bool IsSelected(uint32_t line) const { return false; }
       uint32_t FirstLine()   const;
       uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() : ScrollLine(); }
-      virtual  uint16_t CurrentLine() const { return FirstLine(); }
+      virtual  uint32_t CurrentLine() const { return FirstLine(); }
+
+      int32_t Rows() const { return rows_; }
+      int32_t Columns() const { return cols_; }
+
+
+   protected:
+      WINDOW * N_WINDOW() const { return window_; }
 
    protected:
       void ResetScroll();
-      void SetScrollLine(uint16_t scrollLine);
-      uint16_t ScrollLine() const;
+
+      uint32_t ScrollLine() const;
+      void SetScrollLine(uint32_t scrollLine);
 
    protected:
       void SoftRedrawOnSetting(Setting::ToggleSettings setting);
@@ -106,7 +124,10 @@ namespace Ui
       Main::Settings &           settings_;
       Ui::Screen &               screen_;
       std::string                name_;
-      uint16_t                   scrollLine_;
+      WINDOW *                   window_;
+      int32_t                    rows_;
+      int32_t                    cols_;
+      uint32_t                   scrollLine_;
       bool                       autoScroll_;
    };
 }

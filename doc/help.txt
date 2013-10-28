@@ -71,7 +71,7 @@
    [count] +                | increase volume
    [count] -                | decrease volume
 
-           p                | toggle pause on/off
+           p                | toggle pause on/off, or if stopped start playing
            s, backspace     | stop playback
 
            C                | toggle consume

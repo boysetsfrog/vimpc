@@ -26,6 +26,7 @@
 #include "settings.hpp"
 #include "song.hpp"
 
+#include <mutex>
 #include <vector>
 
 namespace Ui   { class LibraryWindow; }
@@ -33,6 +34,7 @@ namespace Ui   { class LibraryWindow; }
 namespace Mpc
 {
    class  Client;
+   class  ClientState;
    class  Library;
    class  LibraryEntry;
 
@@ -101,11 +103,11 @@ namespace Mpc
 
          song_ = NULL;
 
-         for (LibraryEntryVector::iterator it = children_.begin(); it != children_.end(); ++it)
+         for (auto child : children_)
          {
-            if ((*it) && ((*it)->Parent() == this))
+            if ((child) && (child->Parent() == this))
             {
-               delete *it;
+               delete child;
             }
          }
 
@@ -220,17 +222,17 @@ namespace Mpc
       void Sort();
       void Sort(LibraryEntry * entry);
       void Add(Mpc::Song * song);
-      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
-      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      void AddToPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
+      void RemoveFromPlaylist(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
       void CreateVariousArtist();
       Mpc::LibraryEntry * CreateArtistEntry(std::string artist);
       Mpc::LibraryEntry * CreateAlbumEntry(Mpc::Song * song);
 
-      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::Song *> * callback) const;
-      void ForEachChild(uint32_t index, Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
-      void ForEachSong(Main::CallbackInterface<Mpc::Song *> * callback) const;
-      void ForEachParent(Main::CallbackInterface<Mpc::LibraryEntry *> * callback) const;
+      void ForEachChild(uint32_t index, std::function<void (Mpc::Song *)> callback) const;
+      void ForEachChild(uint32_t index, std::function<void (Mpc::LibraryEntry *)> callback) const;
+      void ForEachSong(std::function<void (Mpc::Song *)> callback) const;
+      void ForEachParent(std::function<void (Mpc::LibraryEntry *)> callback) const;
 
    public:
       void Expand(uint32_t line);
@@ -240,17 +242,16 @@ namespace Mpc
       std::string PrintString(uint32_t position) const;
 
    private:
-      void AddToPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry, int32_t position = -1);
+      void RecreateLibraryFromURIs();
+
+      void AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientState, Mpc::LibraryEntry const * const entry, int32_t position = -1);
       void RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const * const entry);
       void DeleteEntry(LibraryEntry * const entry);
       void CheckIfVariousRemoved(LibraryEntry * const entry);
       void RemoveAndUnexpand(LibraryEntry * const entry);
 
-      typedef Main::CallbackObject<Mpc::Library, Library::BufferType> CallbackObject;
-      typedef Main::CallbackFunction<Library::BufferType> CallbackFunction;
-
    private:
-      Main::Settings const & settings_;
+      Main::Settings & settings_;
       std::map<std::string, Mpc::Song *> uriMap_;
       Mpc::LibraryEntry * variousArtist_;
       Mpc::LibraryEntry * lastAlbumEntry_;

@@ -24,6 +24,8 @@
 #include "buffers.hpp"
 #include "output.hpp"
 #include "test.hpp"
+#include "vimpc.hpp"
+
 #include "buffer/outputs.hpp"
 #include "mode/command.hpp"
 #include "window/debug.hpp"
@@ -47,7 +49,8 @@ public:
       settings_(Main::Settings::Instance()),
       commandMode_(*Main::Tester::Instance().Command),
       screen_(*Main::Tester::Instance().Screen),
-      client_(*Main::Tester::Instance().Client) 
+      client_(*Main::Tester::Instance().Client),
+      clientState_(*Main::Tester::Instance().ClientState)
       { }
 
 public:
@@ -68,11 +71,12 @@ private:
    void ActiveWindow(std::string window, Ui::Screen::MainWindow);
 
 private:
-   Main::Settings & settings_;
-   Ui::Command    & commandMode_;
-   Ui::Screen     & screen_;
-   Mpc::Client    & client_;
-   int32_t          window_;
+   Main::Settings   & settings_;
+   Ui::Command      & commandMode_;
+   Ui::Screen       & screen_;
+   Mpc::Client      & client_;
+   Mpc::ClientState & clientState_;
+   int32_t            window_;
 };
 
 void CommandTester::setUp()
@@ -157,7 +161,7 @@ void CommandTester::TabCommands()
 
    // Ensure that we change to the last tab
    commandMode_.ExecuteCommand("tablast");
-   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == (screen_.VisibleWindows() - 1));
+   CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == static_cast<int32_t>(screen_.VisibleWindows() - 1));
 
    // Ensure that we can move the current tab to position 0 and back
    screen_.SetActiveAndVisible(window_);
@@ -179,16 +183,16 @@ void CommandTester::TabCommands()
    bool     visible = true;
    int32_t  window  = window_;
 
-   if (window_ >= (int32_t) Ui::Screen::MainWindowCount)
+   if (window_ >= static_cast<int32_t>(Ui::Screen::MainWindowCount))
    {
       visible = screen_.IsVisible(Ui::Screen::TestConsole);
       screen_.SetActiveAndVisible(Ui::Screen::TestConsole);
       window = Ui::Screen::TestConsole;
    }
 
-   if (screen_.GetActiveWindow() < (int32_t) Ui::Screen::MainWindowCount)
+   if (screen_.GetActiveWindow() < static_cast<int32_t>(Ui::Screen::MainWindowCount))
    {
-      std::string name = screen_.GetNameFromWindow(screen_.GetActiveWindow());
+      std::string wname = screen_.GetNameFromWindow(screen_.GetActiveWindow());
       screen_.SetActiveAndVisible(window);
 
       // Test closing the current tab
@@ -207,7 +211,7 @@ void CommandTester::TabCommands()
       // Test hiding/closing a tab by name
       screen_.SetActiveWindow(0);
       CPPUNIT_ASSERT(screen_.GetActiveWindowIndex() == 0);
-      commandMode_.ExecuteCommand("tabhide " + name);
+      commandMode_.ExecuteCommand("tabhide " + wname);
       CPPUNIT_ASSERT(screen_.IsVisible(window) == false);
 
       // If we didn't close the active tab we should not
@@ -256,50 +260,71 @@ void CommandTester::ActiveWindow(std::string window, Ui::Screen::MainWindow main
    // Make sure that the correct windows are opened
    bool visible = screen_.IsVisible(main);
    commandMode_.ExecuteCommand(window);
-   CPPUNIT_ASSERT((Ui::Screen::MainWindow) screen_.GetActiveWindow() == main);
+   CPPUNIT_ASSERT(static_cast<Ui::Screen::MainWindow>(screen_.GetActiveWindow() == main));
    CPPUNIT_ASSERT(screen_.IsVisible(main) == true);
    screen_.SetVisible(main, visible);
 }
 
 void CommandTester::StateCommands()
 {
-   bool    Random    = client_.Random();
-   bool    Single    = client_.Single();
-   bool    Consume   = client_.Consume();
-   bool    Repeat    = client_.Repeat();
-   int32_t Crossfade = client_.Crossfade();
-   int32_t Volume    = client_.Volume();
-   std::string State = client_.CurrentState();
+   bool    Random    = clientState_.Random();
+   bool    Single    = clientState_.Single();
+   bool    Consume   = clientState_.Consume();
+   bool    Repeat    = clientState_.Repeat();
+   int32_t Crossfade = clientState_.Crossfade();
+   int32_t Volume    = clientState_.Volume();
+   std::string State = clientState_.CurrentState();
 
    // Test that all the states are toggled
    commandMode_.ExecuteCommand("random");
-   CPPUNIT_ASSERT(Random != client_.Random());
+   Main::Vimpc::WaitForEvent(Event::Random, 5000);
+   CPPUNIT_ASSERT(Random != clientState_.Random());
+
    commandMode_.ExecuteCommand("repeat");
-   CPPUNIT_ASSERT(Repeat != client_.Repeat());
+   Main::Vimpc::WaitForEvent(Event::Repeat, 5000);
+   CPPUNIT_ASSERT(Repeat != clientState_.Repeat());
+
    commandMode_.ExecuteCommand("single");
-   CPPUNIT_ASSERT(Single != client_.Single());
+   Main::Vimpc::WaitForEvent(Event::Single, 5000);
+   CPPUNIT_ASSERT(Single != clientState_.Single());
+
    commandMode_.ExecuteCommand("consume");
-   CPPUNIT_ASSERT(Consume != client_.Consume());
+   Main::Vimpc::WaitForEvent(Event::Consume, 5000);
+   CPPUNIT_ASSERT(Consume != clientState_.Consume());
 
    // Test that all the states are turned on
    commandMode_.ExecuteCommand("random on");
-   CPPUNIT_ASSERT(client_.Random() == true);
+   Main::Vimpc::WaitForEvent(Event::Random, 5000);
+   CPPUNIT_ASSERT(clientState_.Random() == true);
+
    commandMode_.ExecuteCommand("repeat on");
-   CPPUNIT_ASSERT(client_.Repeat() == true);
+   Main::Vimpc::WaitForEvent(Event::Repeat, 5000);
+   CPPUNIT_ASSERT(clientState_.Repeat() == true);
+
    commandMode_.ExecuteCommand("single on");
-   CPPUNIT_ASSERT(client_.Single() == true);
+   Main::Vimpc::WaitForEvent(Event::Single, 5000);
+   CPPUNIT_ASSERT(clientState_.Single() == true);
+
    commandMode_.ExecuteCommand("consume on");
-   CPPUNIT_ASSERT(client_.Consume() == true);
+   Main::Vimpc::WaitForEvent(Event::Consume, 5000);
+   CPPUNIT_ASSERT(clientState_.Consume() == true);
 
    // Test that all the states are turned off
    commandMode_.ExecuteCommand("random off");
-   CPPUNIT_ASSERT(client_.Random() == false);
+   Main::Vimpc::WaitForEvent(Event::Random, 5000);
+   CPPUNIT_ASSERT(clientState_.Random() == false);
+
    commandMode_.ExecuteCommand("repeat off");
-   CPPUNIT_ASSERT(client_.Repeat() == false);
+   Main::Vimpc::WaitForEvent(Event::Repeat, 5000);
+   CPPUNIT_ASSERT(clientState_.Repeat() == false);
+
    commandMode_.ExecuteCommand("single off");
-   CPPUNIT_ASSERT(client_.Single() == false);
+   Main::Vimpc::WaitForEvent(Event::Single, 5000);
+   CPPUNIT_ASSERT(clientState_.Single() == false);
+
    commandMode_.ExecuteCommand("consume off");
-   CPPUNIT_ASSERT(client_.Consume() == false);
+   Main::Vimpc::WaitForEvent(Event::Consume, 5000);
+   CPPUNIT_ASSERT(clientState_.Consume() == false);
 
    // Restore their original values
    client_.SetRandom((Random == true));
@@ -307,35 +332,46 @@ void CommandTester::StateCommands()
    client_.SetSingle((Single == true));
    client_.SetConsume((Consume == true));
 
+   client_.WaitForCompletion();
+
    // If we are currently playing, pause before we go
    // messing about with the volume
    if (Algorithm::iequals(State, "playing") == true)
    {
-      client_.Pause(); 
+      client_.Pause();
    }
 
    // \TODO TBD: need to ensure that outputs are enabled
    //       before doing this test
    // Try min, max, mid and invalid volumes
    Ui::ErrorWindow::Instance().ClearError();
+
    commandMode_.ExecuteCommand("volume 0");
-   CPPUNIT_ASSERT(client_.Volume() == 0);
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
+   CPPUNIT_ASSERT(clientState_.Volume() == 0);
+
    commandMode_.ExecuteCommand("volume 100");
-   CPPUNIT_ASSERT(client_.Volume() == 100);
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
+   CPPUNIT_ASSERT(clientState_.Volume() == 100);
+
    commandMode_.ExecuteCommand("volume 50");
-   CPPUNIT_ASSERT(client_.Volume() == 50);
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
+   CPPUNIT_ASSERT(clientState_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
+
    commandMode_.ExecuteCommand("volume 500");
-   CPPUNIT_ASSERT(client_.Volume() == 50);
+   Main::Vimpc::WaitForEvent(Event::Volume, 500);
+   CPPUNIT_ASSERT(clientState_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
 
    client_.SetVolume(Volume);
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
 
    // Set mpd to whatever state it was in before
    if (Algorithm::iequals(State, "playing") == true)
    {
-      client_.Pause(); 
+      client_.Pause();
    }
 }
 
@@ -352,39 +388,46 @@ void CommandTester::OutputCommands()
 
    std::map<int32_t, bool> outputs;
 
-   for (int i = 0; i < outputCount; ++i) 
+   for (int i = 0; i < outputCount; ++i)
    {
       outputs[i] = Main::Outputs().Get(i)->Enabled();
 
       // Ensure that the selected outputs are enabled/disabled
       screen_.ScrollTo(i);
       commandMode_.ExecuteCommand("enable");
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
+
       commandMode_.ExecuteCommand("disable");
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
 
       // Ensure that enable using the id works
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "enable %d", i);
       commandMode_.ExecuteCommand(Buffer);
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
 
       // Ensure that disable using the id works
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "disable %d", i);
       commandMode_.ExecuteCommand(Buffer);
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
 
       // Ensure that a line based command enables the correct output
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "%denable", i+1);
       commandMode_.ExecuteCommand(Buffer);
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
 
       // Ensure that a line based command disables the correct output
       screen_.ScrollTo(outputCount);
       snprintf(Buffer, 128, "%ddisable", i+1);
       commandMode_.ExecuteCommand(Buffer);
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 5000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
    }
 
@@ -392,31 +435,39 @@ void CommandTester::OutputCommands()
    snprintf(Buffer, 128, "%d,%denable", 1, outputCount);
    commandMode_.ExecuteCommand(Buffer);
 
-   // \TODO TBD: range based enable, disable are not implemented
-    
-   for (int i = 0; i < outputCount; ++i) 
+   for (int i = 0; i < outputCount; ++i)
    {
+      Main::Vimpc::WaitForEvent(Event::OutputEnabled, 1000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == true);
    }
- 
+
    snprintf(Buffer, 128, "%d,%ddisable", 1, outputCount);
    commandMode_.ExecuteCommand(Buffer);
 
-   for (int i = 0; i < outputCount; ++i) 
+   for (int i = 0; i < outputCount; ++i)
    {
+      Main::Vimpc::WaitForEvent(Event::OutputDisabled, 1000);
       CPPUNIT_ASSERT(Main::Outputs().Get(i)->Enabled() == false);
    }
-   
+
    // \TODO TBD: test visual selection enable/disable
 
    // Restore outputs to their initial state
-   for (int i = 0; i < outputCount; ++i) 
+   for (int i = 0; i < outputCount; ++i)
    {
-      Main::Outputs().Get(i)->SetEnabled(outputs[i]);
+      if (outputs[i] == true)
+      {
+         client_.EnableOutput(Main::Outputs().Get(i));
+      }
+      else
+      {
+         client_.DisableOutput(Main::Outputs().Get(i));
+      }
    }
- 
+
+   client_.WaitForCompletion();
    screen_.ScrollTo(currentLine);
-   screen_.SetVisible(Ui::Screen::Outputs, visible);   
+   screen_.SetVisible(Ui::Screen::Outputs, visible);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommandTester);

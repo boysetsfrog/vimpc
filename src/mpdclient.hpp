@@ -21,6 +21,9 @@
 #ifndef __MPC__CLIENT
 #define __MPC__CLIENT
 
+#include <thread>
+#include <functional>
+
 #include <mpd/client.h>
 
 #include "output.hpp"
@@ -82,7 +85,6 @@ namespace Mpc
 
       private:
          bool          condition_;
-         bool          list_;
          Mpc::Client & client_;
    };
 
@@ -94,6 +96,10 @@ namespace Mpc
       Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
       ~Client();
 
+   public:
+      void QueueCommand(std::function<void()> const & function);
+      void WaitForCompletion();
+
    private:
       Client(Client & client);
       Client & operator=(Client & client);
@@ -101,13 +107,10 @@ namespace Mpc
    public:
       // Mpd Connections
       void Connect(std::string const & hostname = "", uint16_t port = 0, uint32_t timeout_ms = 0);
+      void ConnectImpl(std::string const & hostname = "", uint16_t port = 0, uint32_t timeout_ms = 0);
       void Disconnect();
       void Reconnect();
       void Password(std::string const & password);
-
-      std::string Hostname();
-      uint16_t Port();
-      bool Connected() const;
 
    public:
       // Playback functions
@@ -122,29 +125,22 @@ namespace Mpc
 
    public:
       // Toggle settings
-      bool Random();
       void SetRandom(bool random);
-
-      bool Single();
       void SetSingle(bool single);
-
-      bool Consume();
       void SetConsume(bool consume);
-
-      bool Repeat();
       void SetRepeat(bool repeat);
-
-      int32_t Crossfade();
       void SetCrossfade(bool crossfade);
       void SetCrossfade(uint32_t crossfade);
-
-      int32_t Volume();
       void SetVolume(uint32_t volume);
-
       void SetMute(bool mute);
-      bool Mute();
+      void DeltaVolume(int32_t Delta);
 
-      bool IsUpdating();
+      // Toggle settings
+      void ToggleRandom();
+      void ToggleSingle();
+      void ToggleConsume();
+      void ToggleRepeat();
+      void ToggleCrossfade();
 
    public:
       // Playlist editing
@@ -160,6 +156,10 @@ namespace Mpc
       void RemovePlaylist(std::string const & name);
       void AddToNamedPlaylist(std::string const & name, Mpc::Song * song);
 
+      void AddSongsFromPlaylist(std::string const & name);
+      void PlaylistContents(std::string const & name);
+      void PlaylistContentsForRemove(std::string const & name);
+
    public:
       // Outputs
       void SetOutput(Mpc::Output * output, bool enable);
@@ -169,14 +169,15 @@ namespace Mpc
    public:
       // Queue manipulation
       void Add(Mpc::Song * song);
-      uint32_t Add(Mpc::Song & song);
-      uint32_t Add(Mpc::Song & song, uint32_t position);
-      uint32_t AddAllSongs();
+      void Add(std::vector<Mpc::Song *> song);
+      void Add(Mpc::Song & song);
+      void Add(Mpc::Song & song, uint32_t position);
+      void AddAllSongs();
 
       //! This add is only used by a command when a full uri is specified
       //! it should not be used to add songs from the library, you should use the
       //! versions above for that purpose
-      uint32_t Add(std::string const & URI);
+      void Add(std::string const & URI);
 
       // Call after all songs have been added
       void AddComplete();
@@ -192,74 +193,42 @@ namespace Mpc
       void SearchAlbum(std::string const & search, bool exact = false);
       void SearchGenre(std::string const & search, bool exact = false);
       void SearchSong(std::string const & search, bool exact = false);
-
-   public:
-      // Mpd Status
-      std::string CurrentState();
-      std::string GetCurrentSongURI() ;
-
-      int32_t  GetCurrentSongPos();
-      uint32_t TotalNumberOfSongs();
-
-      bool SongIsInQueue(Mpc::Song const & song) const;
-      void DisplaySongInformation();
+      void AddAllSearchResults();
+      void SearchResults(std::string const & name);
 
    public:
       // Database state
       void Rescan(std::string const & Path);
       void Update(std::string const & Path);
-      void IncrementTime(long time);
-      long TimeSinceUpdate();
-      void IdleMode();
-      bool IsIdle();
-      bool IsCommandList();
       void StartCommandList();
       void SendCommandList();
-      bool HadEvents();
       void UpdateCurrentSong();
       void UpdateStatus(bool ExpectUpdate = false);
-      void UpdateDisplay();
+      void QueueMetaChanges();
 
    public:
-      //! \todo port these over to using the callback object
-      template <typename Object>
-      void ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *));
-
-      template <typename Object>
-      void ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachDirectory(Object & object, void (Object::*callBack)(std::string));
-
-      template <typename Object>
-      void ForEachPlaylistSong(std::string Playlist, Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachPlaylist(Object & object, void (Object::*callBack)(Mpc::List));
-
-      template <typename Object>
-      void ForEachPlaylistEntity(Object & object, void (Object::*callBack)(Mpc::List));
-
-      template <typename Object>
-      void ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song *));
-
-      template <typename Object>
-      void ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *));
-
+      void GetAllOutputs();
       void GetAllMetaInformation();
       void GetAllMetaFromRoot();
 
    private:
+      bool Connected() const;
+      void IncrementTime(long time);
+      void StateEvent();
+      void CheckForEvents();
+      void IdleMode();
+      void ExitIdleMode();
+      void ClientQueueExecutor(Mpc::Client * client);
+      void SetStateAndEvent(int, bool & state, bool value);
+
+   private:
       void ClearCommand();
-      bool Command(bool InputCommand);
+      bool IsPasswordRequired();
+      void Initialise();
 
    private:
       unsigned int QueueVersion();
-      void UpdateCurrentSongPosition();
-      Song * CreateSong(uint32_t id, mpd_song const * const, bool songInLibrary = true) const;
+      Song * CreateSong(mpd_song const * const) const;
 
    private:
       void GetVersion();
@@ -278,8 +247,8 @@ namespace Mpc
       uint32_t                versionMinor_;
       uint32_t                versionPatch_;
       long                    timeSinceUpdate_;
-      long                    timeSinceSong_;
       bool                    retried_;
+      bool                    ready_;
 
       uint32_t                volume_;
       uint32_t                mVolume_;
@@ -299,248 +268,21 @@ namespace Mpc
       struct mpd_song *       currentSong_;
       struct mpd_status *     currentStatus_;
       int32_t                 currentSongId_;
+      uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;
       std::string             currentState_;
 
       Ui::Screen &            screen_;
       int                     queueVersion_;
+      int                     oldVersion_;
       bool                    forceUpdate_;
       bool                    listMode_;
       bool                    idleMode_;
-      bool                    hadEvents_;
+      bool                    queueUpdate_;
 
-      std::vector<Mpc::Song *> songs_;
-      std::vector<std::string> paths_;
-      std::vector<Mpc::List>   playlists_;
-      std::vector<Mpc::List>   playlistsOld_;
+		std::thread	            clientThread_;
+
    };
-
-   //
-   template <typename Object>
-   void Client::ForEachQueuedSong(Object & object, void (Object::*callBack)(Mpc::Song *))
-   {
-      ClearCommand();
-
-      if (Connected() == true)
-      {
-         Debug("Client::List queue meta data");
-         mpd_send_list_queue_meta(connection_);
-
-         mpd_song * nextSong = mpd_recv_song(connection_);
-
-         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-         {
-            Song * song = Main::Library().Song(mpd_song_get_uri(nextSong));
-
-            if (song == NULL)
-            {
-               song = CreateSong(-1, nextSong);
-            }
-
-            if (song != NULL)
-            {
-               (object.*callBack)(song);
-            }
-
-            mpd_song_free(nextSong);
-         }
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachQueuedSongChanges(uint32_t oldVersion, Object & object, void (Object::*callBack)(uint32_t, Mpc::Song *))
-   {
-      ClearCommand();
-
-      if (Connected() == true)
-      {
-         Debug("Client::List queue meta data changes");
-         mpd_send_queue_changes_meta(connection_, oldVersion);
-
-         mpd_song * nextSong = mpd_recv_song(connection_);
-
-         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-         {
-            uint32_t const position = mpd_song_get_pos(nextSong);
-            Song *         song     = Main::Library().Song(mpd_song_get_uri(nextSong));
-
-            if (song == NULL)
-            {
-               song = CreateSong(-1, nextSong, false);
-            }
-
-            if (song != NULL)
-            {
-               (object.*callBack)(position, song);
-            }
-
-            mpd_song_free(nextSong);
-         }
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachLibrarySong(Object & object, void (Object::*callBack)(Mpc::Song * ))
-   {
-      for (std::vector<Mpc::Song *>::iterator it = songs_.begin(); it != songs_.end(); ++it)
-      {
-         (object.*callBack)(*it);
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachDirectory(Object & object, void (Object::*callBack)(std::string))
-   {
-      for (std::vector<std::string>::iterator it = paths_.begin(); it != paths_.end(); ++it)
-      {
-         (object.*callBack)(*it);
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachPlaylistSong(std::string playlist, Object & object, void (Object::*callBack)(Mpc::Song * ))
-   {
-      ClearCommand();
-
-      if (Connected() == true)
-      {
-         Debug("Client::List songs in playlist %s", playlist.c_str());
-         mpd_send_list_playlist(connection_, playlist.c_str());
-
-         mpd_song * nextSong = mpd_recv_song(connection_);
-
-         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-         {
-            Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
-
-            if (song != NULL)
-            {
-               (object.*callBack)(song);
-            }
-
-            mpd_song_free(nextSong);
-         }
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachPlaylist(Object & object, void (Object::*callBack)(Mpc::List))
-   {
-#if LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
-      {
-         ClearCommand();
-
-         if (Connected() == true)
-         {
-            Debug("Client::Request playlists");
-
-            if (mpd_send_list_playlists(connection_))
-            {
-               mpd_playlist * nextPlaylist = mpd_recv_playlist(connection_);
-
-               for(; nextPlaylist != NULL; nextPlaylist = mpd_recv_playlist(connection_))
-               {
-                  std::string const playlist = mpd_playlist_get_path(nextPlaylist);
-                  (object.*callBack)(Mpc::List(playlist));
-                  mpd_playlist_free(nextPlaylist);
-               }
-            }
-
-            mpd_connection_clear_error(connection_);
-         }
-      }
-#endif
-
-#if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
-      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsMpd))
-      {
-         for (std::vector<Mpc::List>::iterator it = playlistsOld_.begin(); it != playlistsOld_.end(); ++it)
-         {
-            (object.*callBack)(*it);
-         }
-      }
-#endif
-
-      if ((settings_.Get(Setting::Playlists) == Setting::PlaylistsAll) ||
-         (settings_.Get(Setting::Playlists) == Setting::PlaylistsFiles))
-      {
-         for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
-         {
-            (object.*callBack)(*it);
-         }
-      }
-   }
-
-   //
-   template <typename Object>
-   void Client::ForEachPlaylistEntity(Object & object, void (Object::*callBack)(Mpc::List))
-   {
-      for (std::vector<Mpc::List>::iterator it = playlists_.begin(); it != playlists_.end(); ++it)
-      {
-         (object.*callBack)(*it);
-      }
-   }
-
-   // Requires search to be prepared before calling
-   template <typename Object>
-   void Client::ForEachSearchResult(Object & object, void (Object::*callBack)(Mpc::Song * ))
-   {
-      if (Connected())
-      {
-         // Start the search
-         Debug("Client::Commit search");
-         mpd_search_commit(connection_);
-
-         // Recv the songs and do some callbacks
-         mpd_song * nextSong = mpd_recv_song(connection_);
-
-         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-         {
-            Song * const song = Main::Library().Song(mpd_song_get_uri(nextSong));
-
-            if (song != NULL)
-            {
-               (object.*callBack)(song);
-            }
-
-            mpd_song_free(nextSong);
-         }
-      }
-   }
-
-   template <typename Object>
-   void Client::ForEachOutput(Object & object, void (Object::*callBack)(Mpc::Output *))
-   {
-      ClearCommand();
-
-      if (Connected() == true)
-      {
-         Debug("Client::Get outputs");
-         mpd_send_outputs(connection_);
-
-         mpd_output * next = mpd_recv_output(connection_);
-
-         for (; next != NULL; next = mpd_recv_output(connection_))
-         {
-            Mpc::Output * output = new Mpc::Output(mpd_output_get_id(next));
-
-            output->SetEnabled(mpd_output_get_enabled(next));
-            output->SetName(mpd_output_get_name(next));
-
-            (object.*callBack)(output);
-
-            mpd_output_free(next);
-         }
-      }
-   }
 }
 
 #endif

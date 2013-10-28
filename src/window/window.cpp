@@ -44,35 +44,13 @@ Window::~Window()
    delwin(window_);
 }
 
-void Window::Left(Ui::Player & player, uint32_t count)
-{
-
-}
-
-void Window::Right(Ui::Player & player, uint32_t count)
-{
-
-}
-
-void Window::Click()
-{
-}
-
-void Window::Confirm()
-{
-}
-
-void Window::Redraw()
-{
-
-}
 
 void Window::Move(int row, int column)
 {
    mvwin(N_WINDOW(), row, column);
 }
 
-void Window::Resize(int rows, int columns)
+void Window::Resize(uint32_t rows, uint32_t columns)
 {
    rows_ = rows;
    cols_ = columns;

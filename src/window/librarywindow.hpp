@@ -28,7 +28,7 @@
 #include <map>
 
 namespace Main { class Settings; }
-namespace Mpc  { class Client; }
+namespace Mpc  { class Client; class ClientState; }
 
 namespace Ui
 {
@@ -37,18 +37,20 @@ namespace Ui
    class LibraryWindow : public Ui::SelectWindow
    {
    private:
-      typedef void (Mpc::Library::*LibraryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      typedef void (Mpc::Library::*LibraryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
    public:
-      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Ui::Search const & search);
+      LibraryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Library & library, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search);
       ~LibraryWindow();
 
    private:
       LibraryWindow(LibraryWindow & library);
       LibraryWindow & operator=(LibraryWindow & library);
 
-   public:
+   private:
       void Print(uint32_t line) const;
+
+   public:
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Click();
@@ -58,7 +60,7 @@ namespace Ui
       uint32_t Current() const;
 
    public:
-      std::string SearchPattern(int32_t id) const;
+      std::string SearchPattern(uint32_t id) const;
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
@@ -80,14 +82,15 @@ namespace Ui
       void ForPositions(T start, T end, LibraryFunction function);
 
    private:
-      void    SoftRedraw();
-      void    Clear();
-      size_t  BufferSize() const { return library_.Size(); }
-      int32_t DetermineColour(uint32_t line) const;
+      void      SoftRedraw();
+      void      Clear();
+      uint32_t  BufferSize() const { return library_.Size(); }
+      int32_t   DetermineColour(uint32_t line) const;
 
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
+      Mpc::ClientState     & clientState_;
       Ui::Search     const & search_;
       Mpc::Library         & library_;
    };

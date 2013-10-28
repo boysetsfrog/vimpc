@@ -20,24 +20,21 @@
 
 #include "algorithm.hpp"
 
-std::string PrepString(std::string const & s1, bool ignoreLeadingThe, bool caseInsensitive);
+#include <strings.h>
 
-std::string PrepString(std::string const & s1, bool ignoreLeadingThe, bool caseInsensitive)
+std::string PrepString(std::string const & s1, bool ignoreLeadingThe);
+
+std::string PrepString(std::string const & s1, bool ignoreLeadingThe)
 {
-	std::string Result = s1;
-
 	if (ignoreLeadingThe == true)
 	{
+	   std::string Result = s1;
       static const pcrecpp::RE exp = pcrecpp::RE("\\s*[tT][hH][eE]\\s+");
       exp.Replace("", &Result);
+      return Result;
 	}
 
-	if (caseInsensitive == true)
-	{
-		std::transform(Result.begin(), Result.end(), Result.begin(), ::tolower);
-	}
-
-	return Result;
+	return s1;
 }
 
 bool Algorithm::isLower(std::string const & s1)
@@ -52,15 +49,20 @@ bool Algorithm::isUpper(std::string const & s1)
 
 bool Algorithm::icompare(std::string const & s1, std::string const & s2, bool ignoreLeadingThe, bool caseInsensitive)
 {
-	std::string const lower1(PrepString(s1, ignoreLeadingThe, caseInsensitive));
-	std::string const lower2(PrepString(s2, ignoreLeadingThe, caseInsensitive));
+	std::string const lower1(PrepString(s1, ignoreLeadingThe));
+	std::string const lower2(PrepString(s2, ignoreLeadingThe));
+
+   if (caseInsensitive == true)
+   {
+      return (strcasecmp(lower1.c_str(), lower2.c_str()) < 0);
+   }
 	return (lower1 < lower2);
 }
 
 bool Algorithm::imatch(std::string const & s1, std::string const & s2, bool ignoreLeadingThe, bool caseInsensitive)
 {
-	std::string lower1(PrepString(s1, ignoreLeadingThe, caseInsensitive));
-	std::string lower2(PrepString(s2, ignoreLeadingThe, caseInsensitive));
+	std::string lower1(PrepString(s1, ignoreLeadingThe));
+	std::string lower2(PrepString(s2, ignoreLeadingThe));
 
 	if (lower1.size() > lower2.size())
 	{
@@ -70,19 +72,19 @@ bool Algorithm::imatch(std::string const & s1, std::string const & s2, bool igno
 	{
 		lower2 = lower2.substr(0, lower1.length());
 	}
-	return (lower1 == lower2);
+
+   if (caseInsensitive == true)
+   {
+      return (strcasecmp(lower1.c_str(), lower2.c_str()) == 0);
+   }
+
+   return (lower1 == lower2);
 }
 
 
 bool Algorithm::iequals(std::string const & s1, std::string const & s2)
 {
-	std::string lower1(s1);
-	std::string lower2(s2);
-
-	std::transform(lower1.begin(), lower1.end(), lower1.begin(), ::tolower);
-	std::transform(lower2.begin(), lower2.end(), lower2.begin(), ::tolower);
-
-	return (lower1 == lower2);
+	return (strcasecmp(s1.c_str(), s2.c_str()) == 0);
 }
 
 bool Algorithm::isNumeric(std::string const & s1)

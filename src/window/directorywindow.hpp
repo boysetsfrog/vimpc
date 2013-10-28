@@ -28,7 +28,7 @@
 #include <map>
 
 namespace Main { class Settings; }
-namespace Mpc  { class Client; }
+namespace Mpc  { class Client; class ClientState; }
 
 namespace Ui
 {
@@ -37,18 +37,20 @@ namespace Ui
    class DirectoryWindow : public Ui::SelectWindow
    {
    private:
-      typedef void (Mpc::Directory::*DirectoryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, uint32_t position);
+      typedef void (Mpc::Directory::*DirectoryFunction)(Mpc::Song::SongCollection Collection, Mpc::Client & client, Mpc::ClientState & clientState, uint32_t position);
 
    public:
-      DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Ui::Search const & search);
+      DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search);
       ~DirectoryWindow();
 
    private:
       DirectoryWindow(DirectoryWindow & library);
       DirectoryWindow & operator=(DirectoryWindow & library);
 
-   public:
+   private:
       void Print(uint32_t line) const;
+
+   public:
       void Left(Ui::Player & player, uint32_t count);
       void Right(Ui::Player & player, uint32_t count);
       void Click();
@@ -58,7 +60,7 @@ namespace Ui
       uint32_t Current() const;
 
    public:
-      std::string SearchPattern(int32_t id) const;
+      std::string SearchPattern(uint32_t id) const;
 
    public:
       void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true);
@@ -71,8 +73,8 @@ namespace Ui
       void ScrollToFirstMatch(std::string const & input);
       void ScrollToCurrent();
       void Scroll(int32_t scrollCount);
-      void ScrollTo(uint16_t scrollLine);
-      size_t BufferSize() const;
+      void ScrollTo(uint32_t scrollLine);
+      uint32_t BufferSize() const;
 
    protected:
       void LimitCurrentSelection();
@@ -91,6 +93,7 @@ namespace Ui
    private:
       Main::Settings const & settings_;
       Mpc::Client          & client_;
+      Mpc::ClientState &     clientState_;
       Ui::Search     const & search_;
       Mpc::Directory &       directory_;
    };

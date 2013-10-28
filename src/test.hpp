@@ -28,7 +28,7 @@
 #endif
 
 namespace Ui
-{ 
+{
    class Command;
    class Screen;
 }
@@ -36,10 +36,13 @@ namespace Ui
 namespace Mpc
 {
    class Client;
+   class ClientState;
 }
 
 namespace Main
 {
+   class Vimpc;
+
    class Tester
    {
       protected:
@@ -54,9 +57,11 @@ namespace Main
          }
 
       #ifdef TEST_ENABLED
+         Main::Vimpc * Vimpc;
          Ui::Screen *  Screen;
-         Ui::Command * Command;   
+         Ui::Command * Command;
          Mpc::Client * Client;
+         Mpc::ClientState * ClientState;
       #endif
    };
 }

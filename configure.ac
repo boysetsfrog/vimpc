@@ -8,6 +8,7 @@ AC_PROG_CXX
 
 # Need to check this directory on bsd systems
 CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+CXXFLAGS="$CXXFLAGS -D__STRICT_ANSI__"
 
 AC_CHECK_HEADERS(sys/ioctl.h termios.h)
 
@@ -36,6 +37,13 @@ if test x$HAVE_CURS != xyes; then
 fi
 
 LIBS="$LIBS $CURSES_LIB"
+
+AX_PTHREAD([AC_DEFINE(HAVE_PTHREAD,1,[Define if you have POSIX threads libraries and header files.])],
+            [AC_MSG_ERROR(vimpc requires pthread library)])
+
+CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
+CXXFLAGS="$PTHREAD_CFLAGS $CXXFLAGS"
+CC="$PTHREAD_CC"]
 
 PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
 
@@ -79,6 +87,18 @@ AC_CHECK_HEADER(cppunit/Test.h,
                 [AC_MSG_ERROR(libcppunit-dev library is required)])
 fi
 
+profiler_default="no"
+AC_ARG_ENABLE(profiler, [ --enable-profiler=[no/yes] turn on/off profiler support [default=$profiler_default]],, enable_profiler=$profiler_default)
+
+AM_CONDITIONAL([BUILD_PROFILER], [test x$enable_profiler = xyes])
+
+if test "x$enable_profiler" = "xyes"; then
+AC_DEFINE_UNQUOTED(PROFILER_ENABLED, "1", "Define to 1 if profiler support is enabled")
+
+LIBS="$LIBS -lprofiler"
+fi
+
+
 AC_CHECK_HEADER(mpd/client.h,
                 [],
                 [AC_MSG_ERROR(mpdclient-dev library is required)])
@@ -92,10 +112,7 @@ AC_MSG_CHECKING(whether to enable debugging)
 debug_default="no"
 AC_ARG_ENABLE(debug, [ --enable-debug=[no/yes] turn on debugging [default=$debug_default]],, enable_debug=$debug_default)
 if test "x$enable_debug" = "xyes"; then
-   CXXFLAGS=""
-   CPPFLAGS="$CPPFLAGS -g -pg \\
-            -D__DEBUG_PRINTS  \\
-            -D__DEBUG_ASSERT"
+   CPPFLAGS="$CPPFLAGS -g -D__DEBUG_PRINTS -D__DEBUG_ASSERT"
    AC_MSG_RESULT(yes)
 else
    AC_MSG_RESULT(no)
@@ -104,6 +121,8 @@ fi
 if test "x$enable_debug" = "xyes"; then
    AC_CHECK_HEADER(execinfo.h, [AC_DEFINE_UNQUOTED(HAVE_EXECINFO_H,1,Define to 1 if there is an <execinfo.h> header file)],[])
 fi
+
+AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 
 AC_MSG_CHECKING(whether to enable warnings)
 warn_default="no"

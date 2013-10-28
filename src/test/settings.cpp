@@ -70,19 +70,19 @@ void SettingsTester::setUp()
    Ui::ResultWindow::Instance().ClearResult();
    settings_.DisableCallbacks();
 
-   for (int i = 0; i < (int) Setting::ToggleCount; ++i)
+   for (int i = 0; i < static_cast<int>(Setting::ToggleCount); ++i)
    {
-      boolvalues_[settings_.Name((Setting::ToggleSettings) i)] 
-         = settings_.Get((Setting::ToggleSettings) i);
+      boolvalues_[settings_.Name(static_cast<Setting::ToggleSettings>(i))] 
+         = settings_.Get(static_cast<Setting::ToggleSettings>(i));
    }
 }
 
 void SettingsTester::tearDown()
 {
-   for (int i = 0; i < (int) Setting::ToggleCount; ++i)
+   for (int i = 0; i < static_cast<int>(Setting::ToggleCount); ++i)
    {
-      settings_.Set((Setting::ToggleSettings) i, 
-         boolvalues_[settings_.Name((Setting::ToggleSettings) i)]);
+      settings_.Set(static_cast<Setting::ToggleSettings>(i), 
+         boolvalues_[settings_.Name(static_cast<Setting::ToggleSettings>(i))]);
    }
 
    settings_.EnableCallbacks();
@@ -260,11 +260,11 @@ bool SettingsTester::IsToggleOff()
 
 bool SettingsTester::AreToggleValuesDisplayedCorrectly()
 {
-   for (int i = 0; i < (int) Setting::ToggleCount; ++i)
+   for (int i = 0; i < static_cast<int>(Setting::ToggleCount); ++i)
    {
       // Run :set <setting>? to have the setting printed
       Ui::ResultWindow::Instance().ClearResult();
-      settings_.Set(settings_.Name((Setting::ToggleSettings) i) + "?");
+      settings_.Set(settings_.Name(static_cast<Setting::ToggleSettings>(i)) + "?");
 
       // Ensure that there are no errors but that there is a printed result
       CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
@@ -277,13 +277,13 @@ bool SettingsTester::AreToggleValuesDisplayedCorrectly()
 
       // Ensure settings turned on are printed as <setting> those off are
       // printed as <nosetting>
-      if (settings_.Get((Setting::ToggleSettings) i) == true)
+      if (settings_.Get(static_cast<Setting::ToggleSettings>(i)) == true)
       {
-         CPPUNIT_ASSERT(settings_.Name((Setting::ToggleSettings) i) == Result);
+         CPPUNIT_ASSERT(settings_.Name(static_cast<Setting::ToggleSettings>(i)) == Result);
       }
       else
       {
-         CPPUNIT_ASSERT(("no" + settings_.Name((Setting::ToggleSettings) i)) == Result);
+         CPPUNIT_ASSERT(("no" + settings_.Name(static_cast<Setting::ToggleSettings>(i))) == Result);
       }
    }
 
