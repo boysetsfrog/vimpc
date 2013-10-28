@@ -4,7 +4,8 @@ Version 0.09.0
 - Added tab completion for :add command
 - Added progress/seek bar
 - Support for lists with older libmpdclient versions
-
+- Add 'albumartist' setting to use albumartist tag instead of artist
+- Fixed bug limiting window selection to line 65535
 
 Version 0.08.1
 -------------

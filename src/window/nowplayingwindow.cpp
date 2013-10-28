@@ -22,13 +22,15 @@
 
 #include <iostream>
 
+#include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
 
 using namespace Ui;
 
-NowPlayingWindow::NowPlayingWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name) :
-   ScrollWindow    (screen, name)
+NowPlayingWindow::NowPlayingWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::ClientState & clientState, std::string name) :
+   ScrollWindow    (screen, name),
+   clientState_    (clientState)
 {
    Redraw();
 }
@@ -47,6 +49,8 @@ void NowPlayingWindow::Print(uint32_t line) const
       {
          mvwhline(window, i, 0, ' ', screen_.MaxColumns());
       }
+
+      wprintw(window, "%d", clientState_.Stats()->artists_);
    }
 }
 

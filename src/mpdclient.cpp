@@ -2092,6 +2092,18 @@ void Client::GetAllMetaInformation()
          Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
          mpd_song_free(nextSong);
       }
+
+      mpd_stats * stats = mpd_run_stats(connection_);
+
+      if (stats != NULL)
+      {
+         Mpc::Stats * clientStats = new Mpc::Stats(stats);
+
+         EventData Data; Data.stats = clientStats;
+         Main::Vimpc::CreateEvent(Event::MpdStats, Data);
+
+         mpd_stats_free(stats);
+      }
    }
 
    if (Connected() == true)

@@ -48,6 +48,8 @@ namespace Ui
 // \todo cache all the values that we can
 namespace Mpc
 {
+   class Stats;
+
    class ClientState
    {
    public:
@@ -79,6 +81,7 @@ namespace Mpc
       // Mpd Status
       std::string CurrentState() const ;
       std::string GetCurrentSongURI() const;
+      Mpc::Stats const * Stats() const { return stats_; }
 
       uint32_t TotalNumberOfSongs();
       int32_t  GetCurrentSongPos();
@@ -114,6 +117,7 @@ namespace Mpc
       uint32_t                elapsed_;
 
       mpd_song *              currentSong_;
+      Mpc::Stats *            stats_;
       int32_t                 currentSongId_;
       uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;

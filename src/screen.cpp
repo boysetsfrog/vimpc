@@ -240,7 +240,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    mainWindows_[Directory]    = new Ui::DirectoryWindow (settings, *this, Main::Directory(), client, clientState, search);
    mainWindows_[Lists]        = new Ui::ListWindow      (settings, *this, Main::AllLists(),  client, search);
    mainWindows_[Playlist]     = new Ui::PlaylistWindow  (settings, *this, Main::Playlist(),  client, clientState, search);
-   mainWindows_[NowPlaying]   = new Ui::NowPlayingWindow(settings, *this);
+   mainWindows_[NowPlaying]   = new Ui::NowPlayingWindow(settings, *this, clientState);
    mainWindows_[WindowSelect] = new Ui::WindowSelector  (settings, *this, windows_, search);
 
    // Commands must be read through a window that is always visible

@@ -69,6 +69,7 @@
    X(Update) \
    X(UpdateComplete) \
    X(RequirePassword) \
+   X(MpdStats) \
    X(IdleMode) \
    X(StopIdleMode) \
    X(Unknown)
@@ -77,6 +78,7 @@ namespace Mpc
 {
    class Output;
    class Song;
+   class Stats;
 };
 
 namespace Event
@@ -109,6 +111,7 @@ struct EventData
    std::string clientstate;
    Mpc::Song * song;
    Mpc::Output * output;
+   Mpc::Stats * stats;
    mpd_song *  currentSong;
 
    std::vector<std::string> uris;

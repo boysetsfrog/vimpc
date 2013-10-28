@@ -54,6 +54,7 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    elapsed_              (0),
 
    currentSong_          (NULL),
+   stats_                (NULL),
    currentSongId_        (-1),
    totalNumberOfSongs_   (0),
    currentState_         ("Disconnected")
@@ -205,6 +206,17 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       this->currentState_ = Data.clientstate;
       EventData EData;
       Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
+   });
+
+   Main::Vimpc::EventHandler(Event::MpdStats, [this] (EventData const & Data)
+   {
+      if (stats_ != NULL)
+      {
+         delete stats_;
+         stats_ = NULL;
+      }
+
+      stats_ = Data.stats;
    });
 }
 

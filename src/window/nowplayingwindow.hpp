@@ -30,7 +30,7 @@ namespace Ui
    class NowPlayingWindow : public ScrollWindow
    {
    public:
-      NowPlayingWindow(Main::Settings const & settings, Ui::Screen & screen, std::string name = "nowplaying");
+      NowPlayingWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::ClientState & clientState, std::string name = "nowplaying");
       virtual ~NowPlayingWindow();
 
    public:
@@ -43,8 +43,8 @@ namespace Ui
       Main::WindowBuffer const & WindowBuffer() const { return buffer_; }
 
    private:
-   Main::Buffer<std::string> buffer_;
-
+      Main::Buffer<std::string> buffer_;
+      Mpc::ClientState const &  clientState_;
    };
 }
 
