@@ -1415,7 +1415,9 @@ void Client::Delete(uint32_t position)
    {
       ClearCommand();
 
-      if ((Connected() == true) && (totalNumberOfSongs_ > 0))
+      // There might be an add in the queue, so we can't use the totalNumberOfSongs_ to determine
+      // whether or not to do a delete
+      if (Connected() == true) // && (totalNumberOfSongs_ > 0))
       {
          Debug("Client::Delete position %u", position);
          mpd_send_delete(connection_, position);
@@ -1440,7 +1442,9 @@ void Client::Delete(uint32_t position1, uint32_t position2)
 {
    QueueCommand([this, position1, position2] ()
    {
-      if ((Connected() == true) && (totalNumberOfSongs_ > 0))
+      // There might be an add in the queue, so we can't use the totalNumberOfSongs_ to determine
+      // whether or not to do a delete
+      if (Connected() == true) // && (totalNumberOfSongs_ > 0))
       {
          // Only use range if MPD is >= 0.16
          if ((versionMajor_ == 0) && (versionMinor_ < 16))
