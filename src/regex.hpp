@@ -27,8 +27,9 @@ namespace Regex
    {
       public:
         RE(std::string exp) :
-            exp_    (exp),
-            re_     (NULL)
+            exp_     (exp),
+            compiled_(""),
+            re_      (NULL)
         {
         }
 
@@ -44,7 +45,46 @@ namespace Regex
       public:
         bool Matches(std::string match) const
         {
-            Compile();
+            Compile(exp_);
+            return IsMatch(match);
+         }
+
+         bool CompleteMatch(std::string match) const
+         {
+            Compile("(?:" + exp_ + ")\\z");
+            return IsMatch(match);
+         }
+
+      private:
+         void Compile(std::string toCompile) const
+         {
+            const char *error;
+            int erroffset;
+
+            if (toCompile != compiled_)
+            {
+                if (re_ != NULL)
+                {
+                    pcre_free(re_);
+                    re_ = NULL;
+                }
+
+                if (re_ == NULL)
+                {
+                    Debug("Doing PCRE compilation on %s", exp_.c_str());
+                    re_ = pcre_compile(toCompile.c_str(), 0, &error, &erroffset, NULL);
+                    compiled_ = toCompile;
+                }
+
+                if (re_ == NULL)
+                {
+                    Debug("PCRE compilation failed at offset %d: %s\n", erroffset, error);
+                }
+            }
+         }
+
+         bool IsMatch(std::string match) const
+         {
             int ovector[30];
 
             int rc = pcre_exec(re_, NULL, match.c_str(), match.length(), 0, 0, ovector, 30);
@@ -64,28 +104,11 @@ namespace Regex
             }
 
             return (rc >= 1);
-        }
-
-      private:
-         void Compile() const
-         {
-            const char *error;
-            int erroffset;
-
-            if (re_ == NULL)
-            {
-                Debug("Doing PCRE compilation on %s", exp_.c_str());
-                re_ = pcre_compile(exp_.c_str(), 0, &error, &erroffset, NULL);
-            }
-
-            if (re_ == NULL)
-            {
-                Debug("PCRE compilation failed at offset %d: %s\n", erroffset, error);
-            }
          }
 
       private:
-         std::string const exp_;
-         mutable pcre *    re_;
+         std::string const   exp_;
+         mutable std::string compiled_;
+         mutable pcre *      re_;
    };
 }

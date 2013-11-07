@@ -410,8 +410,8 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
       // Validate the arguments using regex defined in settings table
       if (filterTable_.find(setting) != filterTable_.end())
       {
-         pcrecpp::RE const filterCheck(filterTable_[setting]);
-         ValidSetting = (filterCheck.FullMatch(arguments));
+         Regex::RE const filterCheck(filterTable_[setting]);
+         ValidSetting = (filterCheck.CompleteMatch(arguments));
       }
 
       if (ValidSetting == true)
