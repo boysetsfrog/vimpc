@@ -401,15 +401,18 @@ void Screen::Start()
       ClearStatus();
 
       // Mark the default windows as visible
-      pcrecpp::StringPiece visible = settings_.Get(Setting::Windows);
-      pcrecpp::RE csv("([^,]+),?");
+      Regex::RE csv("([^,]+),?");
       std::string window;
+
+      std::string visible = settings_.Get(Setting::Windows);
 
       std::vector<int32_t>    visibleWindows;
       std::map<int32_t, bool> addedWindows;
 
-      while (csv.Consume(&visible, &window))
+      while (csv.Capture(visible, &window))
       {
+         visible = visible.substr(window.size());
+
          int32_t id = GetWindowFromName(window);
 
          if ((id != static_cast<int32_t>(Unknown)) &&
