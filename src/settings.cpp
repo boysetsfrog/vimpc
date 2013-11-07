@@ -27,10 +27,11 @@
 #include "window/result.hpp"
 
 #include <algorithm>
-#include <pcrecpp.h>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
+
+#include "regex.hpp"
 
 using namespace Main;
 
@@ -129,7 +130,7 @@ std::vector<std::string> Settings::AvailableSettings() const
 
 void Settings::Set(std::string const & input)
 {
-   pcrecpp::RE const printCheck ("^.*\\?$");
+   Regex::RE const printCheck ("^.*\\?$");
 
    std::string       setting, arguments;
    std::stringstream settingStream(input);
@@ -137,7 +138,7 @@ void Settings::Set(std::string const & input)
    std::getline(settingStream, setting,   ' ');
    std::getline(settingStream, arguments, '\n');
 
-   bool const print (printCheck.FullMatch(setting.c_str()));
+   bool const print (printCheck.Matches(setting.c_str()));
 
    // If the setting is followed by '?' then
    // Show the current value of the setting rather than changing it
@@ -457,14 +458,14 @@ void Settings::SetSpecificSetting(std::string setting, std::string arguments)
 
 void Settings::SetSingleSetting(std::string setting)
 {
-   pcrecpp::RE const toggleCheck("^.*!$");
-   pcrecpp::RE const offCheck   ("^no.*");
+   Regex::RE const toggleCheck("^.*!$");
+   Regex::RE const offCheck   ("^no.*");
 
    // If the setting is followed by '!' toggle it's current value
-   bool const toggle(toggleCheck.FullMatch(setting.c_str()));
+   bool const toggle(toggleCheck.Matches(setting.c_str()));
 
    // If the setting is prefixed "no" turn the setting off
-   bool const off   (offCheck.FullMatch(setting.c_str()));
+   bool const off   (offCheck.Matches(setting.c_str()));
 
    // Remove any extra characters from the settings name
    if (toggle == true)

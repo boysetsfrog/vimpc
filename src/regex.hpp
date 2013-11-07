@@ -28,18 +28,64 @@ namespace Regex
       public:
         RE(std::string exp) :
             exp_    (exp),
-            pcrecpp_(exp)
+            re_     (NULL)
         {
+        }
+
+        ~RE()
+        {
+            if (re_ != NULL)
+            {
+                pcre_free(re_);
+                re_ = NULL;
+            }
         }
 
       public:
-        bool FullMatch(std::string match) const
+        bool Matches(std::string match) const
         {
-            return pcrecpp_.FullMatch(match);
+            Compile();
+            int ovector[30];
+
+            int rc = pcre_exec(re_, NULL, match.c_str(), match.length(), 0, 0, ovector, 30);
+
+            if (rc <= 0)
+            {
+                if (rc == 0)
+                {
+                    Debug("Regex ovector is insufficient\n");
+                }
+                else if (rc != PCRE_ERROR_NOMATCH)
+                {
+                    Debug("Regex rc error %d\n", rc);
+                }
+
+                return false;
+            }
+
+            return (rc >= 1);
         }
 
       private:
+         void Compile() const
+         {
+            const char *error;
+            int erroffset;
+
+            if (re_ == NULL)
+            {
+                Debug("Doing PCRE compilation on %s", exp_.c_str());
+                re_ = pcre_compile(exp_.c_str(), 0, &error, &erroffset, NULL);
+            }
+
+            if (re_ == NULL)
+            {
+                Debug("PCRE compilation failed at offset %d: %s\n", erroffset, error);
+            }
+         }
+
+      private:
          std::string const exp_;
-         pcrecpp::RE const pcrecpp_;
+         mutable pcre *    re_;
    };
 }

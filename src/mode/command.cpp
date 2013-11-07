@@ -23,7 +23,6 @@
 #include <unistd.h>
 
 #include <algorithm>
-#include <pcrecpp.h>
 #include <sstream>
 #include <atomic>
 #include <condition_variable>
@@ -261,7 +260,7 @@ void Command::AddCommand(std::string const & name, bool requiresConnection, bool
 
 bool Command::ExecuteCommand(std::string const & input)
 {
-   pcrecpp::RE const blankCommand("^\\s*$");
+   Regex::RE   const blankCommand("^\\s*$");
    pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
    pcrecpp::RE const rangeSplit("(^\\d*),?(\\d*)$");
 
@@ -320,14 +319,14 @@ bool Command::ExecuteCommand(std::string const & input)
       {
          fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
 
-         if (blankCommand.FullMatch(commandString) == false)
+         if (blankCommand.Matches(commandString) == false)
          {
             ExecuteCommand(commandString);
          }
       }
 
       // The last command does not need a ';'
-      if (blankCommand.FullMatch(fullCommand) == false)
+      if (blankCommand.Matches(fullCommand) == false)
       {
          ExecuteCommand(fullCommand);
       }
@@ -1441,9 +1440,9 @@ void Command::TestScreen(std::string const & arguments)
 
 bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command, std::string const & arguments)
 {
-   pcrecpp::RE const forceCheck("^.*!$");
+   Regex::RE const forceCheck("^.*!$");
 
-   forceCommand_ = (forceCheck.FullMatch(command));
+   forceCommand_ = (forceCheck.Matches(command));
 
    if (forceCommand_ == true)
    {

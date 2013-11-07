@@ -58,7 +58,7 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
          {
             std::getline(inputStream, input);
 
-            if ((input != "") && (commentCheck.FullMatch(input.c_str()) == false))
+            if ((input != "") && (commentCheck.Matches(input.c_str()) == false))
             {
                handler.ExecuteCommand(input);
             }
