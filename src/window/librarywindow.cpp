@@ -24,6 +24,7 @@
 #include "clientstate.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
+#include "regex.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
 #include "songwindow.hpp"
@@ -32,7 +33,6 @@
 #include "mode/search.hpp"
 
 #include <algorithm>
-#include <pcrecpp.h>
 
 using namespace Ui;
 
@@ -464,11 +464,11 @@ int32_t LibraryWindow::DetermineColour(uint32_t line) const
       else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
                (search_.HighlightSearch() == true))
       {
-         pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+         Regex::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (((entry->type_ == Mpc::ArtistType) && (expression.FullMatch(entry->artist_) == true)) ||
-             ((entry->type_ == Mpc::AlbumType)  && (expression.FullMatch(entry->album_) == true)) ||
-             ((entry->type_ == Mpc::SongType)   && (expression.FullMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
+         if (((entry->type_ == Mpc::ArtistType) && (expression.CompleteMatch(entry->artist_) == true)) ||
+             ((entry->type_ == Mpc::AlbumType)  && (expression.CompleteMatch(entry->album_) == true)) ||
+             ((entry->type_ == Mpc::SongType)   && (expression.CompleteMatch(entry->song_->FormatString(settings_.Get(Setting::LibraryFormat))) == true)))
          {
             colour = settings_.colours.SongMatch;
          }

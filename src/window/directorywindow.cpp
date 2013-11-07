@@ -25,6 +25,7 @@
 #include "clientstate.hpp"
 #include "error.hpp"
 #include "mpdclient.hpp"
+#include "regex.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
 #include "songwindow.hpp"
@@ -34,7 +35,6 @@
 #include "window/debug.hpp"
 
 #include <algorithm>
-#include <pcrecpp.h>
 
 using namespace Ui;
 
@@ -533,9 +533,9 @@ int32_t DirectoryWindow::DetermineSongColour(Mpc::DirectoryEntry const * const e
    else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
             (search_.HighlightSearch() == true))
    {
-      pcrecpp::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+      Regex::RE expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-      if (expression.FullMatch(entry->name_) == true)
+      if (expression.CompleteMatch(entry->name_) == true)
       {
          colour = settings_.colours.SongMatch;
       }

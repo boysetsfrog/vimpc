@@ -21,6 +21,9 @@
 #include <pcre.h>
 #include <pcrecpp.h>
 
+#ifndef __REGEX__RE
+#define __REGEX__RE
+
 namespace Regex
 {
    typedef enum
@@ -69,3 +72,5 @@ namespace Regex
          Regex::Options const opt_;
    };
 }
+
+#endif

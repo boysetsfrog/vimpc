@@ -20,10 +20,9 @@
 
 #include "listwindow.hpp"
 
-#include <pcrecpp.h>
-
 #include "buffers.hpp"
 #include "mpdclient.hpp"
+#include "regex.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
 
@@ -158,9 +157,9 @@ int32_t ListWindow::DetermineColour(uint32_t line) const
       if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
           (search_.HighlightSearch() == true))
       {
-         pcrecpp::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+         Regex::RE expression (".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(lists_->Get(line).name_) == true)
+         if (expression.CompleteMatch(lists_->Get(line).name_) == true)
          {
             colour = settings_.colours.SongMatch;
          }

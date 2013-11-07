@@ -20,7 +20,6 @@
 
 #include "browsewindow.hpp"
 
-#include <pcrecpp.h>
 #include <future>
 
 #include "buffers.hpp"

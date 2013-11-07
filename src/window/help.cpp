@@ -74,9 +74,9 @@ void HelpWindow::Print(uint32_t line) const
       if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
           (search_.HighlightSearch() == true))
       {
-         pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+         Regex::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(currentLine))
+         if (expression.CompleteMatch(currentLine))
          {
             wattron(window, COLOR_PAIR(settings_.colours.SongMatch));
          }
@@ -124,9 +124,9 @@ void HelpWindow::Print(uint32_t line) const
       if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
           (search_.HighlightSearch() == true))
       {
-         pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+         Regex::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(currentLine))
+         if (expression.CompleteMatch(currentLine))
          {
             wattroff(window, COLOR_PAIR(settings_.colours.SongMatch));
          }

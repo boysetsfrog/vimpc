@@ -28,7 +28,6 @@
 #include "window/error.hpp"
 
 #include <iostream>
-#include <pcrecpp.h>
 
 using namespace Ui;
 
@@ -131,7 +130,7 @@ std::string Search::LastSearchString() const
    return StripFlags(lastSearch_);
 }
 
-pcrecpp::RE_Options Search::LastSearchOptions() const
+Regex::Options Search::LastSearchOptions() const
 {
    return GetOptions(lastSearch_);
 }
@@ -232,13 +231,13 @@ Search::Direction Search::GetDirectionForInput(int input) const
 bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t & count)
 {
    // see :help pattern-overview for full descriptions of what should be supported
-   pcrecpp::RE   expression(".*" + StripFlags(search) + ".*", GetOptions(search));
-   bool          found     (false);
+   Regex::RE   expression(".*" + StripFlags(search) + ".*", GetOptions(search));
+   bool        found     (false);
 
    //std::string songDescription(screen_.PlaylistWindow().GetSong(songId)->PlaylistDescription());
    std::string searchPattern(screen_.ActiveWindow().SearchPattern(songId));
 
-   if (expression.FullMatch(searchPattern.c_str()) == true)
+   if (expression.CompleteMatch(searchPattern.c_str()) == true)
    {
       screen_.ScrollTo(songId);
 
@@ -249,34 +248,34 @@ bool Search::CheckForMatch(std::string const & search, int32_t songId, uint32_t 
    return found;
 }
 
-pcrecpp::RE_Options Search::GetOptions(const std::string & search) const
+Regex::Options Search::GetOptions(const std::string & search) const
 {
-   pcrecpp::RE_Options opt;
+   int opt = Regex::None;
 
    if ((settings_.Get(Setting::IgnoreCaseSearch) == true) && (settings_.Get(Setting::SmartCase) == true))
    {
       if (Algorithm::isLower(search) == true)
       {
-         opt.set_caseless(true);
+         opt |= Regex::CaseInsensitive;
       }
    }
    else if (settings_.Get(Setting::IgnoreCaseSearch) == true)
    {
-      opt.set_caseless(true);
+      opt |= Regex::CaseInsensitive;
    }
 
    if (search.find("\\c") != string::npos)
    {
-      opt.set_caseless(true);
+      opt |= Regex::CaseInsensitive;
    }
    else if (search.find("\\C") != string::npos)
    {
-      opt.set_caseless(false);
+      opt &= ~Regex::CaseInsensitive;
    }
 
-   opt.set_utf8(true);
+   opt |= Regex::UTF8;
 
-   return opt;
+   return (static_cast<Regex::Options>(opt));
 }
 
 std::string Search::StripFlags(std::string search) const

@@ -24,10 +24,10 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <pcrecpp.h>
 
 #include "inputmode.hpp"
 #include "player.hpp"
+#include "regex.hpp"
 #include "window/modewindow.hpp"
 
 namespace Main
@@ -69,7 +69,7 @@ namespace Ui
 
    public:
       std::string LastSearchString() const;
-      pcrecpp::RE_Options LastSearchOptions() const;
+      Regex::Options LastSearchOptions() const;
       bool SearchResult(Skip skip, uint32_t count);
 
       void SetHighlightSearch(bool highlight) { highlight_ = highlight; }
@@ -83,7 +83,7 @@ namespace Ui
       Direction GetDirectionForInput(int input) const;
       bool CheckForMatch(std::string const & search, int32_t songId, uint32_t & count);
 
-      pcrecpp::RE_Options GetOptions(const std::string & search) const;
+      Regex::Options GetOptions(const std::string & search) const;
       std::string StripFlags(std::string) const;
 
    private: //Ui::InputMode

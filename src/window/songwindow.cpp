@@ -20,12 +20,11 @@
 
 #include "songwindow.hpp"
 
-#include <pcrecpp.h>
-
 #include "buffers.hpp"
 #include "clientstate.hpp"
 #include "errorcodes.hpp"
 #include "mpdclient.hpp"
+#include "regex.hpp"
 #include "settings.hpp"
 #include "screen.hpp"
 
@@ -460,9 +459,9 @@ int32_t SongWindow::DetermineColour(uint32_t line) const
       else if ((search_.LastSearchString() != "") && (settings_.Get(Setting::HighlightSearch) == true) &&
                (search_.HighlightSearch() == true))
       {
-         pcrecpp::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
+         Regex::RE const expression(".*" + search_.LastSearchString() + ".*", search_.LastSearchOptions());
 
-         if (expression.FullMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
+         if (expression.CompleteMatch(song->FormatString(settings_.Get(Setting::SongFormat))))
          {
             colour = settings_.colours.SongMatch;
          }
