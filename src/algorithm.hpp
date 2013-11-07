@@ -24,7 +24,8 @@
 #include <algorithm>
 
 #include <string>
-#include <pcrecpp.h>
+
+#include "regex.hpp"
 
 namespace Algorithm
 {

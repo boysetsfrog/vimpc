@@ -18,9 +18,9 @@
    settings.cpp - tests for settings code
    */
 
-#include <pcrecpp.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "regex.hpp"
 #include "settings.hpp"
 #include "window/debug.hpp"
 #include "window/error.hpp"
@@ -185,8 +185,10 @@ void SettingsTester::TestStringSetting()
    std::string setting, value;
    std::string result = Ui::ResultWindow::Instance().GetResult();
 
-   pcrecpp::RE const strip("^\\s*([^\\s=]*)=(.*)$");
-   strip.FullMatch(result.c_str(), &setting, &value);
+   Regex::RE const strip("^\\s*([^\\s=]*)=(.*)$");
+   strip.Capture(result.c_str(), &setting, &value);
+
+   Debug("before the fail %s %s", setting.c_str(), value.c_str());
 
    CPPUNIT_ASSERT((setting == "add") && (value == "next"));
 
@@ -199,7 +201,7 @@ void SettingsTester::TestStringSetting()
    // Ensure that the add setting is still printed the same as before
    // i.e. that it has not changed
    result = Ui::ResultWindow::Instance().GetResult();
-   strip.FullMatch(result.c_str(), &setting, &value);
+   strip.Capture(result.c_str(), &setting, &value);
    CPPUNIT_ASSERT((setting == "add") && (value == "next"));
 
    // Set the add setting back to normal
@@ -272,8 +274,8 @@ bool SettingsTester::AreToggleValuesDisplayedCorrectly()
 
       std::string Result = Ui::ResultWindow::Instance().GetResult();
 
-      pcrecpp::RE const strip("^\\s*([^\\s]*)$");
-      strip.FullMatch(Result.c_str(), &Result);
+      Regex::RE const strip("^\\s*([^\\s]*)$");
+      strip.Capture(Result.c_str(), &Result);
 
       // Ensure settings turned on are printed as <setting> those off are
       // printed as <nosetting>
