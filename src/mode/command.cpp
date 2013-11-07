@@ -45,6 +45,7 @@
 #include "algorithm.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
+#include "regex.hpp"
 #include "settings.hpp"
 #include "tag.hpp"
 #include "vimpc.hpp"

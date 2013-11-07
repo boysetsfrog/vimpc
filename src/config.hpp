@@ -22,8 +22,9 @@
 #define __MAIN__CONFIG
 
 #include <fstream>
-#include <pcrecpp.h>
 #include <stdlib.h>
+
+#include "regex.hpp"
 
 namespace Main
 {
@@ -39,7 +40,7 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
    static char const * const home        = "HOME";
    static bool configCommandsExecuted    = false;
 
-   pcrecpp::RE const commentCheck("^\\s*\".*");
+   Regex::RE const commentCheck("^\\s*\".*");
 
    if (configCommandsExecuted == false)
    {
