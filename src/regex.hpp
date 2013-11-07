@@ -23,92 +23,49 @@
 
 namespace Regex
 {
+   typedef enum
+   {
+      None            = 0,
+      CaseInsensitive = PCRE_CASELESS,
+      UTF8            = PCRE_UTF8
+   } Options;
+
    class RE
    {
       public:
-        RE(std::string exp) :
-            exp_     (exp),
-            compiled_(""),
-            re_      (NULL)
-        {
-        }
-
-        ~RE()
-        {
-            if (re_ != NULL)
-            {
-                pcre_free(re_);
-                re_ = NULL;
-            }
-        }
+         RE(std::string exp);
+         RE(std::string exp, Regex::Options opt);
+         ~RE();
 
       public:
-        bool Matches(std::string match) const
-        {
+         inline bool Matches(std::string match) const
+         {
             Compile(exp_);
             return IsMatch(match);
          }
 
-         bool CompleteMatch(std::string match) const
+         inline bool CompleteMatch(std::string match) const
          {
             Compile("(?:" + exp_ + ")\\z");
             return IsMatch(match);
          }
 
+         bool Capture(std::string match, 
+                      std::string * arg1,        std::string * arg2 = NULL, 
+                      std::string * arg3 = NULL, std::string * arg4 = NULL,
+                      std::string * arg5 = NULL, std::string * arg6 = NULL, 
+                      std::string * arg7 = NULL, std::string * arg8 = NULL) const;
+
       private:
-         void Compile(std::string toCompile) const
-         {
-            const char *error;
-            int erroffset;
-
-            if (toCompile != compiled_)
-            {
-                if (re_ != NULL)
-                {
-                    pcre_free(re_);
-                    re_ = NULL;
-                }
-
-                if (re_ == NULL)
-                {
-                    Debug("Doing PCRE compilation on %s", exp_.c_str());
-                    re_ = pcre_compile(toCompile.c_str(), 0, &error, &erroffset, NULL);
-                    compiled_ = toCompile;
-                }
-
-                if (re_ == NULL)
-                {
-                    Debug("PCRE compilation failed at offset %d: %s\n", erroffset, error);
-                }
-            }
-         }
-
-         bool IsMatch(std::string match) const
-         {
-            int ovector[30];
-
-            int rc = pcre_exec(re_, NULL, match.c_str(), match.length(), 0, 0, ovector, 30);
-
-            if (rc <= 0)
-            {
-                if (rc == 0)
-                {
-                    Debug("Regex ovector is insufficient\n");
-                }
-                else if (rc != PCRE_ERROR_NOMATCH)
-                {
-                    Debug("Regex rc error %d\n", rc);
-                }
-
-                return false;
-            }
-
-            return (rc >= 1);
-         }
+         void Compile(std::string toCompile) const;
+         bool IsMatch(std::string match) const;
+         void ErrorPrint(int rc) const;
+         void Free() const;
 
       private:
          std::string const   exp_;
          mutable std::string compiled_;
          mutable pcre *      re_;
+         Regex::Options const opt_;
    };
 }

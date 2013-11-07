@@ -260,9 +260,9 @@ void Command::AddCommand(std::string const & name, bool requiresConnection, bool
 
 bool Command::ExecuteCommand(std::string const & input)
 {
-   Regex::RE   const blankCommand("^\\s*$");
-   pcrecpp::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
-   pcrecpp::RE const rangeSplit("(^\\d*),?(\\d*)$");
+   Regex::RE const blankCommand("^\\s*$");
+   Regex::RE const multipleCommands("^(\\s*([^;]+)\\s*;\\s*).*$");
+   Regex::RE const rangeSplit("(^\\d*),?(\\d*)$");
 
    std::string matchString, commandString;
    std::string range, command, arguments;
@@ -285,7 +285,7 @@ bool Command::ExecuteCommand(std::string const & input)
    if (range != "")
    {
       std::string rangeLine, rangeCount;
-      rangeSplit.FullMatch(range.c_str(), &rangeLine, &rangeCount);
+      rangeSplit.Capture(range.c_str(), &rangeLine, &rangeCount);
 
       if ((Algorithm::isNumeric(rangeLine) == true) && (rangeLine != ""))
       {
@@ -311,13 +311,13 @@ bool Command::ExecuteCommand(std::string const & input)
    }
 
    // If there are multiple commands we need to run them all
-   if ((multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true) &&
-       (command != "alias")) // In the case of alias we don't actually want to run the commands
+   // But in the case of alias we don't actually want to run the commands
+   if ((multipleCommands.Matches(fullCommand) == true) && (command != "alias")) 
    {
       // There are multiple commands seperated by ';' we have to handle each one
-      while (multipleCommands.FullMatch(fullCommand.c_str(), &matchString, &commandString) == true)
+      while (multipleCommands.Capture(fullCommand, &matchString, &commandString) == true)
       {
-         fullCommand = fullCommand.substr(matchString.size(), fullCommand.size());
+         fullCommand = fullCommand.substr(matchString.size());
 
          if (blankCommand.Matches(commandString) == false)
          {
@@ -715,8 +715,8 @@ void Command::Substitute(std::string const & expression)
          {
             std::string path = settings_.Get(Setting::LocalMusicDir) + "/" + song->URI();
 
-            pcrecpp::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
-            split.FullMatch(expression.c_str(), &match, &substitution, &options);
+            Regex::RE const split("^/([^/]*)/([^/]*)/([^/]*)\n?$");
+            split.Capture(expression.c_str(), &match, &substitution, &options);
 
             if (options.empty() == false)
             {
@@ -1533,8 +1533,8 @@ bool Command::ExecuteCommand(uint32_t line, uint32_t count, std::string command,
 
 void Command::SplitCommand(std::string const & input, std::string & range, std::string & command, std::string & arguments)
 {
-   pcrecpp::RE const split("^([\\d,]*)?([^ /]*) ?(/?[^\n]*)\n?$");
-   split.FullMatch(input.c_str(), &range, &command, &arguments);
+   Regex::RE const split("^([\\d,]*)?([^ /]*) ?(/?[^\n]*)\n?$");
+   split.Capture(input.c_str(), &range, &command, &arguments);
 }
 
 std::vector<std::string> Command::SplitArguments(std::string const & input, char delimeter)

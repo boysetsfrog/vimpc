@@ -34,6 +34,7 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/player.cpp \
                    src/player.hpp \
                    src/project.hpp \
+                   src/regex.cpp \
                    src/regex.hpp \
                    src/screen.cpp \
                    src/screen.hpp \
