@@ -131,7 +131,11 @@ namespace Mpc
          uint32_t Result = References(Path);
          std::vector<std::string> const CPaths = ChildPaths(Path);
 
+#ifdef USE_BOOST_FOREACH
+         BOOST_FOREACH(auto CPath, CPaths)
+#else
          for (auto CPath : CPaths)
+#endif
          {
             Result += References(CPath);
          }
@@ -144,7 +148,11 @@ namespace Mpc
          std::vector<std::string> const CPaths = ChildPaths(Path);
          std::vector<Mpc::Song *> const OwnSongs = Songs(Path);
 
+#ifdef USE_BOOST_FOREACH
+         BOOST_FOREACH(auto CPath, CPaths)
+#else
          for (auto CPath : CPaths)
+#endif
          {
             std::vector<Mpc::Song *> Children = Songs(CPath);
             Result.insert(Result.end(), Children.begin(), Children.end());
