@@ -176,11 +176,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             UniqueLock<Mutex> Lock(QueueMutex);
 
             if ((Queue.empty() == false) ||
-#ifdef USE_BOOST_THREAD
-               (Condition.timed_wait(Lock, boost::posix_time::milliseconds(100)) != false))
-#else
-               (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
-#endif
+               (ConditionWait(Condition, Lock, 100) != false))
             {
                EventPair const Event = Queue.front();
                Queue.pop_front();
@@ -355,11 +351,7 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
    WaitConditions[Event].push_back(WaitCondition);
 
-#ifdef USE_BOOST_THREAD
-   bool const Result = (WaitCondition->timed_wait(EventLock,  boost::posix_time::milliseconds(TimeoutMs)) != false);
-#else
-   bool const Result = (WaitCondition->wait_for(EventLock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout);
-#endif
+   bool const Result = (ConditionWait(*WaitCondition, EventLock, TimeoutMs));
 
    WaitConditions[Event].remove(WaitCondition);
    delete WaitCondition;

@@ -1351,11 +1351,7 @@ void Command::TestExecutor()
       UniqueLock<Mutex> Lock(QueueMutex);
 
       if ((Queue.empty() == false) ||
-#ifdef USE_BOOST_THREAD
-          (Condition.timed_wait(Lock, boost::posix_time::milliseconds(250)) != false))
-#else
-          (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
-#endif
+          (ConditionWait(Condition, Lock, 250) != false))
       {
          if (Queue.empty() == false)
          {

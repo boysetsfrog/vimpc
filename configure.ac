@@ -70,6 +70,25 @@ AC_CHECK_HEADER(taglib/taglib.h,
                 [AC_MSG_ERROR(taglib-dev library is required)])
 fi
 
+boost_default="no"
+AC_ARG_ENABLE(boost, [ --enable-boost=[no/yes] turn on/off boost support [default=$boost_default]],, enable_boost=$boost_default)
+if test "x$enable_boost" = "xyes"; then
+AC_DEFINE_UNQUOTED(BOOST_SUPPORT, "1", "Define to 1 if boost support enabled")
+
+AC_CHECK_HEADER(boost/thread.hpp,
+                [AC_DEFINE_UNQUOTED(HAVE_BOOST_THREAD,1,Define to 1 if <boost/thread.hpp> header file)],
+                [AC_MSG_ERROR(boostthread-dev library is required)])
+
+AC_CHECK_HEADER(boost/foreach.hpp,
+                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
+                [AC_MSG_ERROR(boost-dev library is required)])
+
+
+CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FOREACH"
+LDFLAGS="$LDFLAGS -lboost_thread"
+fi
+
+
 test_default="no"
 AC_ARG_ENABLE(test, [ --enable-test=[no/yes] turn on/off test support [default=$test_default]],, enable_test=$test_default)
 
@@ -142,7 +161,7 @@ else
 fi
 
 
-CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FOREACH -DHELP_DIRECTORY='\"$docdir\"'"
+CPPFLAGS="$CPPFLAGS -DHELP_DIRECTORY='\"$docdir\"'"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -42,6 +42,12 @@ typedef boost::recursive_mutex    RecursiveMutex;
 typedef boost::condition_variable ConditionVariable;
 #define Atomic(X) X
 #define UniqueLock boost::unique_lock
+
+template <typename T>
+bool ConditionWait(ConditionVariable & Condition, UniqueLock<T> & Lock, int TimeoutMs)
+{
+   return Condition.timed_wait(Lock, boost::posix_time::milliseconds(TimeoutMs));
+}
 #else
 typedef std::thread               Thread;
 typedef std::mutex                Mutex;
@@ -49,6 +55,12 @@ typedef std::recursive_mutex      RecursiveMutex;
 typedef std::condition_variable   ConditionVariable;
 #define Atomic(X) std::atomic<X>
 #define UniqueLock std::unique_lock
+
+template <typename T>
+bool ConditionWait(ConditionVariable & Condition, UniqueLock<T> & Lock, int TimeoutMs)
+{
+   return (Condition.wait_for(Lock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout);
+}
 #endif
 
 #ifdef USE_BOOST_FOREACH
@@ -56,6 +68,7 @@ typedef std::condition_variable   ConditionVariable;
 #else
 #define FOREACH(X, Y) for (X : Y)
 #endif
+
 
 #endif
 
