@@ -22,14 +22,26 @@
 
 #include "buffers.hpp"
 
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
 #include <mutex>
+#endif
+
+
+
 #include <stdio.h>
 #include <stdarg.h>
 
 void Debug(std::string format, ...)
 {
 #ifdef __DEBUG_PRINTS
+
+#ifdef USE_BOOST_THREAD
+   static boost::mutex DebugMutex;
+#else
    static std::mutex DebugMutex;
+#endif
 
    DebugMutex.lock();
    char buffer[1024];
