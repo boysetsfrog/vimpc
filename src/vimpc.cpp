@@ -20,6 +20,8 @@
 
 #include "vimpc.hpp"
 
+#include "compiler.hpp"
+
 #include "mode/mode.hpp"
 #include "mode/normal.hpp"
 #include "mode/command.hpp"
@@ -39,21 +41,21 @@
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 
-#include <atomic>
 #include <list>
 #include <unistd.h>
-#include <condition_variable>
 
 using namespace Main;
 
 typedef std::pair<int32_t, EventData>  EventPair;
-static std::list<EventPair>            Queue;
-static std::mutex                      QueueMutex;
-static std::condition_variable         Condition;
-static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
 
-static std::map<int, std::list<std::condition_variable *> > WaitConditions;
-static std::mutex EventMutex;
+static std::list<EventPair>            Queue;
+static std::map<int, std::vector<FUNCTION<void(EventData const &)> > > Handler;
+
+static Mutex               EventMutex;
+static Mutex               QueueMutex;
+static ConditionVariable   Condition;
+
+static std::map<int, std::list<ConditionVariable *> > WaitConditions;
 
 bool Vimpc::Running = true;
 
@@ -95,9 +97,9 @@ Vimpc::Vimpc() :
    // this is an optimisation, if you check the setting for every song print to determine
    // whether to use the albumartist or the artist it is a huge overhead, so we don't
    // we also need to clear the format cache, this occurs in a library callback
-   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value) 
-   { 
-      Mpc::Song::RepopulateSongFunctions(); 
+   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value)
+   {
+      Mpc::Song::RepopulateSongFunctions();
    });
 
 #ifdef TEST_ENABLED
@@ -129,8 +131,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    });
 
    // Refresh the mode after a status update
-   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data) 
-   { 
+   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data)
+   {
       if (screen_.PagerIsVisible() == false)
       {
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
@@ -171,16 +173,16 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          screen_.UpdateErrorDisplay();
 
          {
-            std::unique_lock<std::mutex> Lock(QueueMutex);
+            UniqueLock<Mutex> Lock(QueueMutex);
 
             if ((Queue.empty() == false) ||
-               (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+               (ConditionWait(Condition, Lock, 100) != false))
             {
                EventPair const Event = Queue.front();
                Queue.pop_front();
                Lock.unlock();
 
-               if ((userEvents_ == false) && 
+               if ((userEvents_ == false) &&
                    (Event.second.user == true))
                {
                   Debug("Discarding user event");
@@ -332,29 +334,29 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
 /* static */ void Vimpc::CreateEvent(int Event, EventData const & Data)
 {
-   std::unique_lock<std::mutex> Lock(QueueMutex);
+   UniqueLock<Mutex> Lock(QueueMutex);
    Queue.push_back(std::make_pair(Event, Data));
    Condition.notify_all();
 }
 
-/* static */ void Vimpc::EventHandler(int Event, std::function<void(EventData const &)> func)
+/* static */ void Vimpc::EventHandler(int Event, FUNCTION<void(EventData const &)> func)
 {
    Handler[Event].push_back(func);
 }
 
 /* static */ bool Vimpc::WaitForEvent(int Event, int TimeoutMs)
 {
-   std::unique_lock<std::mutex> EventLock(EventMutex);
+   UniqueLock<Mutex> EventLock(QueueMutex);
+   ConditionVariable * WaitCondition = new ConditionVariable();
 
-   std::condition_variable * WaitCondition = new std::condition_variable();
    WaitConditions[Event].push_back(WaitCondition);
 
-   bool const Result = (WaitCondition->wait_for(EventLock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout);
+   bool const Result = (ConditionWait(*WaitCondition, EventLock, TimeoutMs));
 
    WaitConditions[Event].remove(WaitCondition);
    delete WaitCondition;
    EventLock.unlock();
-   return Result; 
+   return Result;
 }
 
 int Vimpc::Input() const

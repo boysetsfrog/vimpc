@@ -21,11 +21,10 @@
 #ifndef __MPC__CLIENT
 #define __MPC__CLIENT
 
-#include <thread>
-#include <functional>
 
 #include <mpd/client.h>
 
+#include "compiler.hpp"
 #include "output.hpp"
 #include "screen.hpp"
 #include "buffers.hpp"
@@ -97,7 +96,7 @@ namespace Mpc
       ~Client();
 
    public:
-      void QueueCommand(std::function<void()> const & function);
+      void QueueCommand(FUNCTION<void()> const & function);
       void WaitForCompletion();
 
    private:
@@ -279,9 +278,7 @@ namespace Mpc
       bool                    listMode_;
       bool                    idleMode_;
       bool                    queueUpdate_;
-
-		std::thread	            clientThread_;
-
+		Thread	               clientThread_;
    };
 }
 

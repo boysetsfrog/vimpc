@@ -24,11 +24,8 @@
 #include <sys/ioctl.h>
 #endif
 
-#include <atomic>
 #include <csignal>
-#include <chrono>
 #include <list>
-#include <mutex>
 #include <poll.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -75,9 +72,8 @@ using namespace Ui;
 bool WindowResized = false;
 int32_t RndCount   = 0;
 
-static std::atomic<bool> Running(true);
-
-static std::recursive_mutex CursesMutex;
+static Atomic(bool)   Running(true);
+static RecursiveMutex CursesMutex;
 
 extern "C" void ResizeHandler(int);
 extern "C" void ContinueHandler(int);
@@ -123,7 +119,7 @@ void QueueInput(WINDOW * inputWindow)
    fds.fd = 1;
    fds.events = POLLIN;
 
-   while (Running.load() == true)
+   while (Running == true)
    {
    #ifdef __DEBUG_PRINTS
       if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
@@ -328,12 +324,12 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    });
 
    // Thread handling of input
-   inputThread_ = std::thread(QueueInput, commandWindow_);
+   inputThread_ = Thread(QueueInput, commandWindow_);
 }
 
 Screen::~Screen()
 {
-   Running.store(false);
+   Running = false;
    inputThread_.join();
 
    CursesMutex.lock();
@@ -1563,7 +1559,7 @@ void Screen::OnProgressClicked(int32_t x)
    if (settings_.Get(Setting::SeekBar) == true)
    {
       // Call any registered callbacks for a progress click
-      for (auto func : pCallbacks_)
+      FOREACH (auto func, pCallbacks_)
       {
          (func)((static_cast<double>(x) / MaxColumns()));
       }

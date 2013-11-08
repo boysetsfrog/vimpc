@@ -20,8 +20,6 @@
 
 #include "browsewindow.hpp"
 
-#include <future>
-
 #include "buffers.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"

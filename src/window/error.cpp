@@ -20,15 +20,18 @@
 
 #include "error.hpp"
 
+#include "compiler.hpp"
+
+
 void Error(uint32_t errorNumber, std::string errorString)
 {
-   static std::mutex ErrorMutex;
+   static Mutex ErrorMutex;
 
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
       ErrorMutex.lock();
       Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
-      
+
       if (errorWindow.HasError() == false)
       {
          errorWindow.SetError(true);

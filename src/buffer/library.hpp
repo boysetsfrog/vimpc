@@ -26,7 +26,6 @@
 #include "settings.hpp"
 #include "song.hpp"
 
-#include <mutex>
 #include <vector>
 
 namespace Ui   { class LibraryWindow; }
@@ -103,7 +102,7 @@ namespace Mpc
 
          song_ = NULL;
 
-         for (auto child : children_)
+         FOREACH(auto child, children_)
          {
             if ((child) && (child->Parent() == this))
             {
@@ -229,10 +228,10 @@ namespace Mpc
       Mpc::LibraryEntry * CreateArtistEntry(std::string artist);
       Mpc::LibraryEntry * CreateAlbumEntry(Mpc::Song * song);
 
-      void ForEachChild(uint32_t index, std::function<void (Mpc::Song *)> callback) const;
-      void ForEachChild(uint32_t index, std::function<void (Mpc::LibraryEntry *)> callback) const;
-      void ForEachSong(std::function<void (Mpc::Song *)> callback) const;
-      void ForEachParent(std::function<void (Mpc::LibraryEntry *)> callback) const;
+      void ForEachChild(uint32_t index, FUNCTION<void (Mpc::Song *)> callback) const;
+      void ForEachChild(uint32_t index, FUNCTION<void (Mpc::LibraryEntry *)> callback) const;
+      void ForEachSong(FUNCTION<void (Mpc::Song *)> callback) const;
+      void ForEachParent(FUNCTION<void (Mpc::LibraryEntry *)> callback) const;
 
    public:
       void Expand(uint32_t line);

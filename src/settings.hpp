@@ -21,12 +21,13 @@
 #ifndef __MAIN__SETTINGS
 #define __MAIN__SETTINGS
 
+#include "compiler.hpp"
+
 #include "colours.hpp"
 #include "test.hpp"
 
 #include <string>
 #include <map>
-#include <mutex>
 #include <vector>
 
 // Create an enum entry, name and value for each setting
@@ -194,8 +195,8 @@ namespace Main
          std::string Name(Setting::StringSettings setting) const;
 
          //! Register a callback to be called when a setting is changed
-         void RegisterCallback(Setting::ToggleSettings setting, std::function<void (bool)> callback);
-         void RegisterCallback(Setting::StringSettings setting, std::function<void (std::string)> callback);
+         void RegisterCallback(Setting::ToggleSettings setting, FUNCTION<void (bool)> callback);
+         void RegisterCallback(Setting::StringSettings setting, FUNCTION<void (std::string)> callback);
 
          //! Turn the callbacks on and off
          void EnableCallbacks();
@@ -263,7 +264,7 @@ namespace Main
          BoolVector           toggleVector_;
 
          // Callbacks for on/off settings
-         typedef std::map<Setting::ToggleSettings, std::vector<std::function<void (bool)> > > BoolCallbackTable;
+         typedef std::map<Setting::ToggleSettings, std::vector<FUNCTION<void (bool)> > > BoolCallbackTable;
          BoolCallbackTable    tCallbackTable_;
 
          // Used to validate string settings against a regex pattern
@@ -278,7 +279,7 @@ namespace Main
          StringVector         stringVector_;
 
          // Callbacks for string style settings
-         typedef std::map<Setting::StringSettings, std::vector<std::function<void (std::string)> > > StringCallbackTable;
+         typedef std::map<Setting::StringSettings, std::vector<FUNCTION<void (std::string)> > > StringCallbackTable;
          StringCallbackTable  sCallbackTable_;
 
          typedef std::map<std::string, int> ColorNameTable;
@@ -286,7 +287,7 @@ namespace Main
 
          bool                 enabled_;
 
-         mutable std::recursive_mutex mutex_;
+         mutable RecursiveMutex mutex_;
    };
 
    template <>

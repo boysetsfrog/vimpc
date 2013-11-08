@@ -23,6 +23,7 @@
 
 #include "algorithm.hpp"
 #include "buffer.hpp"
+#include "compiler.hpp"
 #include "settings.hpp"
 #include "song.hpp"
 
@@ -131,7 +132,7 @@ namespace Mpc
          uint32_t Result = References(Path);
          std::vector<std::string> const CPaths = ChildPaths(Path);
 
-         for (auto CPath : CPaths)
+         FOREACH(auto CPath, CPaths)
          {
             Result += References(CPath);
          }
@@ -144,7 +145,7 @@ namespace Mpc
          std::vector<std::string> const CPaths = ChildPaths(Path);
          std::vector<Mpc::Song *> const OwnSongs = Songs(Path);
 
-         for (auto CPath : CPaths)
+         FOREACH(auto CPath, CPaths)
          {
             std::vector<Mpc::Song *> Children = Songs(CPath);
             Result.insert(Result.end(), Children.begin(), Children.end());

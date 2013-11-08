@@ -24,8 +24,6 @@
 
 #include <algorithm>
 #include <sstream>
-#include <atomic>
-#include <condition_variable>
 
 #ifdef HAVE_TAGLIB_H
 #include <taglib/tag.h>
@@ -61,11 +59,11 @@
 
 using namespace Ui;
 
-static std::atomic<bool>                  Running(true);
-static std::atomic<int>                   QueueCount(0);
 static std::list<std::string>             Queue;
-static std::mutex                         QueueMutex;
-static std::condition_variable            Condition;
+
+static Atomic(bool)                       Running(true);
+static Mutex                              QueueMutex;
+static ConditionVariable                  Condition;
 
 
 // COMMANDS
@@ -89,7 +87,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    settings_           (settings),
    normalMode_         (normalMode)
 #ifdef HAVE_TEST_H
-   ,testThread_         (std::thread(&Command::TestExecutor, this))
+   ,testThread_        (Thread(&Command::TestExecutor, this))
 #endif
 {
    // \todo find a away to add aliases to tab completion
@@ -1339,21 +1337,21 @@ void Command::SetColour(std::string const & arguments)
    }
 }
 
-template <Ui::Command::ClientFunction FUNCTION>
+template <Ui::Command::ClientFunction FUNC>
 void Command::DebugClient(std::string const & arguments)
 {
-   Ui::Command::ClientFunction func = FUNCTION;
+   Ui::Command::ClientFunction func = FUNC;
    (client_.*func)();
 }
 
 void Command::TestExecutor()
 {
-   while (Running.load() == true)
+   while (Running == true)
    {
-      std::unique_lock<std::mutex> Lock(QueueMutex);
+      UniqueLock<Mutex> Lock(QueueMutex);
 
       if ((Queue.empty() == false) ||
-          (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
+          (ConditionWait(Condition, Lock, 250) != false))
       {
          if (Queue.empty() == false)
          {
@@ -1408,10 +1406,9 @@ void Command::TestExecutor()
 
 void Command::Test(std::string const & arguments)
 {
-   std::unique_lock<std::mutex> Lock(QueueMutex);
+   UniqueLock<Mutex> Lock(QueueMutex);
    Queue.push_back(arguments);
    Condition.notify_all();
-   QueueCount.store(Queue.size());
 }
 
 void Command::TestInputRandom(std::string const & arguments)

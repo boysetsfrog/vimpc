@@ -27,7 +27,6 @@
 #include "test.hpp"
 #include "window/debug.hpp"
 
-#include <mutex>
 #include <stdint.h>
 #include <string>
 #include <stdarg.h>

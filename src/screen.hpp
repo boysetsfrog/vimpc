@@ -33,7 +33,6 @@
 
 #include <list>
 #include <string>
-#include <thread>
 
 // Changed to being on by default
 // will need to check ncurses properly
@@ -83,7 +82,7 @@ namespace Ui
    class Screen
    {
    public:
-      typedef std::function<void (double)> ProgressCallback;
+      typedef FUNCTION<void (double)> ProgressCallback;
 
    public:
       Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState & clientState, Search const & search);
@@ -303,7 +302,7 @@ namespace Ui
       WINDOW *   commandWindow_;
       PagerWindow * pagerWindow_;
 
-		std::thread	inputThread_;
+		Thread	  inputThread_;
 
       std::vector<int32_t>      visibleWindows_;
       std::list<ModeWindow *>   modeWindows_;

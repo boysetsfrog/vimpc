@@ -72,7 +72,7 @@ namespace Main
    public:
       static void SetRunning(bool isRunning);
       static void CreateEvent(int Event, EventData const & Data);
-      static void EventHandler(int Event, std::function<void(EventData const &)> func);
+      static void EventHandler(int Event, FUNCTION<void(EventData const &)> func);
       static bool WaitForEvent(int Event, int TimeoutMs);
 
    private:

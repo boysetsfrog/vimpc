@@ -21,12 +21,9 @@
 #ifndef __MPC__CLIENTSTATE
 #define __MPC__CLIENTSTATE
 
-#include <thread>
-#include <functional>
-#include <mutex>
-
 #include <mpd/client.h>
 
+#include "compiler.hpp"
 #include "output.hpp"
 #include "screen.hpp"
 #include "buffers.hpp"

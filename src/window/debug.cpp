@@ -21,15 +21,16 @@
 #include "window/debug.hpp"
 
 #include "buffers.hpp"
+#include "compiler.hpp"
 
-#include <mutex>
 #include <stdio.h>
 #include <stdarg.h>
 
 void Debug(std::string format, ...)
 {
 #ifdef __DEBUG_PRINTS
-   static std::mutex DebugMutex;
+
+   static Mutex DebugMutex;
 
    DebugMutex.lock();
    char buffer[1024];
