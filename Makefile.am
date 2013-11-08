@@ -24,6 +24,7 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/clientstate.hpp \
                    src/colours.cpp \
                    src/colours.hpp \
+                   src/compiler.hpp \
                    src/config.hpp \
                    src/errorcodes.cpp \
                    src/errorcodes.hpp \

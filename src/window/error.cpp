@@ -20,19 +20,12 @@
 
 #include "error.hpp"
 
-#ifdef USE_BOOST_THREAD
-#include <boost/thread.hpp>
-#else
-#include <mutex>
-#endif
+#include "compiler.hpp"
+
 
 void Error(uint32_t errorNumber, std::string errorString)
 {
-#ifdef USE_BOOST_THREAD
-   static boost::mutex ErrorMutex;
-#else
-   static std::mutex ErrorMutex;
-#endif
+   static Mutex ErrorMutex;
 
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {

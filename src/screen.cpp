@@ -32,13 +32,6 @@
 #include <unistd.h>
 #include <wchar.h>
 
-#ifndef USE_BOOST_THREAD
-#include <atomic>
-#include <chrono>
-#include <mutex>
-#else
-#endif
-
 #include "algorithm.hpp"
 #include "buffers.hpp"
 #include "clientstate.hpp"
@@ -79,13 +72,8 @@ using namespace Ui;
 bool WindowResized = false;
 int32_t RndCount   = 0;
 
-#ifdef USE_BOOST_THREAD
-static bool Running(true);
-static boost::recursive_mutex CursesMutex;
-#else
-static std::atomic<bool> Running(true);
-static std::recursive_mutex CursesMutex;
-#endif
+static Atomic(bool)   Running(true);
+static RecursiveMutex CursesMutex;
 
 extern "C" void ResizeHandler(int);
 extern "C" void ContinueHandler(int);
@@ -336,11 +324,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    });
 
    // Thread handling of input
-#ifdef USE_BOOST_THREAD
-   inputThread_ = boost::thread(QueueInput, commandWindow_);
-#else
-   inputThread_ = std::thread(QueueInput, commandWindow_);
-#endif
+   inputThread_ = Thread(QueueInput, commandWindow_);
 }
 
 Screen::~Screen()

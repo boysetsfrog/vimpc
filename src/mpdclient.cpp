@@ -39,14 +39,6 @@
 #include <signal.h>
 #include <sys/types.h>
 
-#ifndef USE_BOOST_THREAD
-#include <atomic>
-#include <mutex>
-#else
-#include <chrono>
-#include <condition_variable>
-#endif
-
 using namespace Mpc;
 
 #define MPDCOMMAND
@@ -55,19 +47,11 @@ using namespace Mpc;
 
 static std::list<std::function<void()> >  Queue;
 
-#ifdef USE_BOOST_THREAD
-static boost::mutex                       QueueMutex;
-static boost::condition_variable          Condition;
+static Atomic(bool)                       Running(true);
+static Atomic(int)                        QueueCount(0);
+static Mutex                              QueueMutex;
+static ConditionVariable                  Condition;
 
-static bool                               Running(true);
-static int                                QueueCount(0);
-#else
-static std::mutex                         QueueMutex;
-static std::condition_variable            Condition;
-
-static std::atomic<bool>                  Running(true);
-static std::atomic<int>                   QueueCount(0);
-#endif
 
 // Helper functions
 uint32_t Mpc::SecondsToMinutes(uint32_t duration)
@@ -148,11 +132,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    listMode_             (false),
    idleMode_             (false),
    queueUpdate_          (false),
-#ifdef USE_BOOST_THREAD
-   clientThread_         (boost::thread(&Client::ClientQueueExecutor, this, this))
-#else
-   clientThread_         (std::thread(&Client::ClientQueueExecutor, this, this))
-#endif
+   clientThread_         (Thread(&Client::ClientQueueExecutor, this, this))
 {
    screen_.RegisterProgressCallback([this] (double Value) { SeekToPercent(Value); });
 
@@ -197,12 +177,7 @@ Client::~Client()
 
 void Client::QueueCommand(std::function<void()> const & function)
 {
-#ifdef USE_BOOST_THREAD
-   boost::unique_lock<boost::mutex> Lock(QueueMutex);
-#else
-   std::unique_lock<std::mutex> Lock(QueueMutex);
-#endif
-
+   UniqueLock<Mutex> Lock(QueueMutex);
    Queue.push_back(function);
    Condition.notify_all();
    QueueCount = Queue.size();
@@ -1928,11 +1903,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
       gettimeofday(&start, NULL);
 
       {
-#ifdef USE_BOOST_THREAD
-         boost::unique_lock<boost::mutex> Lock(QueueMutex);
-#else
-         std::unique_lock<std::mutex> Lock(QueueMutex);
-#endif
+         UniqueLock<Mutex> Lock(QueueMutex);
 
          if ((Queue.empty() == false) ||
 #ifdef USE_BOOST_THREAD
@@ -1959,11 +1930,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
       }
 
       {
-#ifdef USE_BOOST_THREAD
-         boost::unique_lock<boost::mutex> Lock(QueueMutex);
-#else
-         std::unique_lock<std::mutex> Lock(QueueMutex);
-#endif
+         UniqueLock<Mutex> Lock(QueueMutex);
 
          if ((Queue.empty() == true) && (listMode_ == false))
          {

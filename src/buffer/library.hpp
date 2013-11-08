@@ -102,11 +102,7 @@ namespace Mpc
 
          song_ = NULL;
 
-#ifdef USE_BOOST_FOREACH
-         BOOST_FOREACH(auto child, children_)
-#else
-         for (auto child : children_)
-#endif
+         FOREACH(auto child, children_)
          {
             if ((child) && (child->Parent() == this))
             {

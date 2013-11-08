@@ -26,11 +26,6 @@
 #include <pcrecpp.h>
 #include <sstream>
 
-#ifndef USE_BOOST_THREAD
-#include <atomic>
-#include <condition_variable>
-#endif
-
 #ifdef HAVE_TAGLIB_H
 #include <taglib/tag.h>
 #include <taglib/taglib.h>
@@ -66,15 +61,9 @@ using namespace Ui;
 
 static std::list<std::string>             Queue;
 
-#ifdef USE_BOOST_THREAD
-static bool                               Running(true);
-static boost::mutex                       QueueMutex;
-static boost::condition_variable          Condition;
-#else
-static std::atomic<bool>                  Running(true);
-static std::mutex                         QueueMutex;
-static std::condition_variable            Condition;
-#endif
+static Atomic(bool)                       Running(true);
+static Mutex                              QueueMutex;
+static ConditionVariable                  Condition;
 
 
 // COMMANDS
@@ -98,11 +87,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    settings_           (settings),
    normalMode_         (normalMode)
 #ifdef HAVE_TEST_H
-#ifdef USE_BOOST_THREAD
-   ,testThread_         (boost::thread(&Command::TestExecutor, this))
-#else
-   ,testThread_         (std::thread(&Command::TestExecutor, this))
-#endif
+   ,testThread_        (Thread(&Command::TestExecutor, this))
 #endif
 {
    // \todo find a away to add aliases to tab completion
@@ -1363,11 +1348,7 @@ void Command::TestExecutor()
 {
    while (Running == true)
    {
-#ifdef USE_BOOST_THREAD
-      boost::unique_lock<boost::mutex> Lock(QueueMutex);
-#else
-      std::unique_lock<std::mutex> Lock(QueueMutex);
-#endif
+      UniqueLock<Mutex> Lock(QueueMutex);
 
       if ((Queue.empty() == false) ||
 #ifdef USE_BOOST_THREAD
@@ -1429,12 +1410,7 @@ void Command::TestExecutor()
 
 void Command::Test(std::string const & arguments)
 {
-#ifdef USE_BOOST_THREAD
-   boost::unique_lock<boost::mutex> Lock(QueueMutex);
-#else
-   std::unique_lock<std::mutex> Lock(QueueMutex);
-#endif
-
+   UniqueLock<Mutex> Lock(QueueMutex);
    Queue.push_back(arguments);
    Condition.notify_all();
 }

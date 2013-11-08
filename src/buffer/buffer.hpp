@@ -27,11 +27,8 @@
 #include <algorithm>
 #include <vector>
 
-#ifdef USE_BOOST_FOREACH
-#include <boost/foreach.hpp>
-#endif
-
 #include "assert.hpp"
+#include "compiler.hpp"
 #include "window/window.hpp"
 
 namespace Item
@@ -221,11 +218,7 @@ namespace Main
 
          if (it != callback_.end())
          {
-#ifdef USE_BOOST_FOREACH
-            BOOST_FOREACH(auto func, it->second)
-#else
-            for (auto func : it->second)
-#endif
+            FOREACH(auto func, it->second)
             {
                (func)(param);
             }

@@ -20,6 +20,8 @@
 
 #include "vimpc.hpp"
 
+#include "compiler.hpp"
+
 #include "mode/mode.hpp"
 #include "mode/normal.hpp"
 #include "mode/command.hpp"
@@ -42,12 +44,6 @@
 #include <list>
 #include <unistd.h>
 
-#ifdef USE_BOOST_THREAD
-#include <boost/thread.hpp>
-#else
-#include <condition_variable>
-#endif
-
 using namespace Main;
 
 typedef std::pair<int32_t, EventData>  EventPair;
@@ -55,19 +51,11 @@ typedef std::pair<int32_t, EventData>  EventPair;
 static std::list<EventPair>            Queue;
 static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
 
-#ifdef USE_BOOST_THREAD
-static boost::mutex               EventMutex;
-static boost::mutex               QueueMutex;
-static boost::condition_variable  Condition;
+static Mutex               EventMutex;
+static Mutex               QueueMutex;
+static ConditionVariable   Condition;
 
-static std::map<int, std::list<boost::condition_variable *> > WaitConditions;
-#else
-static std::mutex                 EventMutex;
-static std::mutex                 QueueMutex;
-static std::condition_variable    Condition;
-
-static std::map<int, std::list<std::condition_variable *> >   WaitConditions;
-#endif
+static std::map<int, std::list<ConditionVariable *> > WaitConditions;
 
 bool Vimpc::Running = true;
 
@@ -185,11 +173,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          screen_.UpdateErrorDisplay();
 
          {
-#ifdef USE_BOOST_THREAD
-            boost::unique_lock<boost::mutex> Lock(QueueMutex);
-#else
-            std::unique_lock<std::mutex> Lock(QueueMutex);
-#endif
+            UniqueLock<Mutex> Lock(QueueMutex);
 
             if ((Queue.empty() == false) ||
 #ifdef USE_BOOST_THREAD
@@ -354,12 +338,7 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
 /* static */ void Vimpc::CreateEvent(int Event, EventData const & Data)
 {
-#ifdef USE_BOOST_THREAD
-   boost::unique_lock<boost::mutex> Lock(QueueMutex);
-#else
-   std::unique_lock<std::mutex> Lock(QueueMutex);
-#endif
-
+   UniqueLock<Mutex> Lock(QueueMutex);
    Queue.push_back(std::make_pair(Event, Data));
    Condition.notify_all();
 }
@@ -371,13 +350,8 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
 /* static */ bool Vimpc::WaitForEvent(int Event, int TimeoutMs)
 {
-#ifdef USE_BOOST_THREAD
-   boost::unique_lock<boost::mutex> EventLock(QueueMutex);
-   boost::condition_variable * WaitCondition = new boost::condition_variable();
-#else
-   std::unique_lock<std::mutex> EventLock(EventMutex);
-   std::condition_variable * WaitCondition = new std::condition_variable();
-#endif
+   UniqueLock<Mutex> EventLock(QueueMutex);
+   ConditionVariable * WaitCondition = new ConditionVariable();
 
    WaitConditions[Event].push_back(WaitCondition);
 
