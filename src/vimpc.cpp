@@ -42,18 +42,33 @@
 #include <atomic>
 #include <list>
 #include <unistd.h>
+
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
 #include <condition_variable>
+#endif
 
 using namespace Main;
 
 typedef std::pair<int32_t, EventData>  EventPair;
+
 static std::list<EventPair>            Queue;
-static std::mutex                      QueueMutex;
-static std::condition_variable         Condition;
 static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
 
-static std::map<int, std::list<std::condition_variable *> > WaitConditions;
-static std::mutex EventMutex;
+#ifdef USE_BOOST_THREAD
+static boost::mutex               EventMutex;
+static boost::mutex               QueueMutex;
+static boost::condition_variable  Condition;
+
+static std::map<int, std::list<boost::condition_variable *> > WaitConditions;
+#else
+static std::mutex                 EventMutex;
+static std::mutex                 QueueMutex;
+static std::condition_variable    Condition;
+
+static std::map<int, std::list<std::condition_variable *> >   WaitConditions;
+#endif
 
 bool Vimpc::Running = true;
 
@@ -95,9 +110,9 @@ Vimpc::Vimpc() :
    // this is an optimisation, if you check the setting for every song print to determine
    // whether to use the albumartist or the artist it is a huge overhead, so we don't
    // we also need to clear the format cache, this occurs in a library callback
-   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value) 
-   { 
-      Mpc::Song::RepopulateSongFunctions(); 
+   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value)
+   {
+      Mpc::Song::RepopulateSongFunctions();
    });
 
 #ifdef TEST_ENABLED
@@ -129,8 +144,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    });
 
    // Refresh the mode after a status update
-   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data) 
-   { 
+   Vimpc::EventHandler(Event::StatusUpdate, [this] (EventData const & Data)
+   {
       if (screen_.PagerIsVisible() == false)
       {
          Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
@@ -171,16 +186,24 @@ void Vimpc::Run(std::string hostname, uint16_t port)
          screen_.UpdateErrorDisplay();
 
          {
+#ifdef USE_BOOST_THREAD
+            boost::unique_lock<boost::mutex> Lock(QueueMutex);
+#else
             std::unique_lock<std::mutex> Lock(QueueMutex);
+#endif
 
             if ((Queue.empty() == false) ||
+#ifdef USE_BOOST_THREAD
+               (Condition.timed_wait(Lock, boost::posix_time::milliseconds(100)) != false))
+#else
                (Condition.wait_for(Lock, std::chrono::milliseconds(100)) != std::cv_status::timeout))
+#endif
             {
                EventPair const Event = Queue.front();
                Queue.pop_front();
                Lock.unlock();
 
-               if ((userEvents_ == false) && 
+               if ((userEvents_ == false) &&
                    (Event.second.user == true))
                {
                   Debug("Discarding user event");
@@ -332,7 +355,12 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
 /* static */ void Vimpc::CreateEvent(int Event, EventData const & Data)
 {
+#ifdef USE_BOOST_THREAD
+   boost::unique_lock<boost::mutex> Lock(QueueMutex);
+#else
    std::unique_lock<std::mutex> Lock(QueueMutex);
+#endif
+
    Queue.push_back(std::make_pair(Event, Data));
    Condition.notify_all();
 }
@@ -344,17 +372,26 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
 /* static */ bool Vimpc::WaitForEvent(int Event, int TimeoutMs)
 {
+#ifdef USE_BOOST_THREAD
+   boost::unique_lock<boost::mutex> EventLock(QueueMutex);
+   boost::condition_variable * WaitCondition = new boost::condition_variable();
+#else
    std::unique_lock<std::mutex> EventLock(EventMutex);
-
    std::condition_variable * WaitCondition = new std::condition_variable();
+#endif
+
    WaitConditions[Event].push_back(WaitCondition);
 
+#ifdef USE_BOOST_THREAD
+   bool const Result = (WaitCondition->timed_wait(EventLock,  boost::posix_time::milliseconds(TimeoutMs)) != false);
+#else
    bool const Result = (WaitCondition->wait_for(EventLock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout);
+#endif
 
    WaitConditions[Event].remove(WaitCondition);
    delete WaitCondition;
    EventLock.unlock();
-   return Result; 
+   return Result;
 }
 
 int Vimpc::Input() const
