@@ -24,8 +24,6 @@
 #include <sys/ioctl.h>
 #endif
 
-
-#include <atomic>
 #include <csignal>
 #include <list>
 #include <poll.h>
@@ -35,8 +33,10 @@
 #include <wchar.h>
 
 #ifndef USE_BOOST_THREAD
+#include <atomic>
 #include <chrono>
 #include <mutex>
+#else
 #endif
 
 #include "algorithm.hpp"
@@ -79,11 +79,11 @@ using namespace Ui;
 bool WindowResized = false;
 int32_t RndCount   = 0;
 
-static std::atomic<bool> Running(true);
-
 #ifdef USE_BOOST_THREAD
+static bool Running(true);
 static boost::recursive_mutex CursesMutex;
 #else
+static std::atomic<bool> Running(true);
 static std::recursive_mutex CursesMutex;
 #endif
 
@@ -131,7 +131,7 @@ void QueueInput(WINDOW * inputWindow)
    fds.fd = 1;
    fds.events = POLLIN;
 
-   while (Running.load() == true)
+   while (Running == true)
    {
    #ifdef __DEBUG_PRINTS
       if (RndCount > 0) { RandomCharacterInput(); --RndCount; }
@@ -345,7 +345,7 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
 
 Screen::~Screen()
 {
-   Running.store(false);
+   Running = false;
    inputThread_.join();
 
    CursesMutex.lock();

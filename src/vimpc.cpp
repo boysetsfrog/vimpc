@@ -39,7 +39,6 @@
 #include "window/error.hpp"
 #include "window/songwindow.hpp"
 
-#include <atomic>
 #include <list>
 #include <unistd.h>
 

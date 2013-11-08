@@ -35,12 +35,12 @@
 #include <poll.h>
 #include <unistd.h>
 
-#include <atomic>
 #include <list>
 #include <signal.h>
 #include <sys/types.h>
 
 #ifndef USE_BOOST_THREAD
+#include <atomic>
 #include <mutex>
 #else
 #include <chrono>
@@ -55,15 +55,18 @@ using namespace Mpc;
 
 static std::list<std::function<void()> >  Queue;
 
-static std::atomic<bool>                  Running(true);
-static std::atomic<int>                   QueueCount(0);
-
 #ifdef USE_BOOST_THREAD
 static boost::mutex                       QueueMutex;
 static boost::condition_variable          Condition;
+
+static bool                               Running(true);
+static int                                QueueCount(0);
 #else
 static std::mutex                         QueueMutex;
 static std::condition_variable            Condition;
+
+static std::atomic<bool>                  Running(true);
+static std::atomic<int>                   QueueCount(0);
 #endif
 
 // Helper functions
@@ -173,7 +176,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
 
 Client::~Client()
 {
-   Running.store(false);
+   Running = false;
 
    clientThread_.join();
 
@@ -202,17 +205,17 @@ void Client::QueueCommand(std::function<void()> const & function)
 
    Queue.push_back(function);
    Condition.notify_all();
-   QueueCount.store(Queue.size());
+   QueueCount = Queue.size();
 }
 
 void Client::WaitForCompletion()
 {
-   int Count = QueueCount.load();
+   int Count = QueueCount;
 
    while (Count != 0)
    {
       usleep(20 * 1000);
-      Count = QueueCount.load();
+      Count = QueueCount;
    }
 }
 
@@ -1915,7 +1918,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
    struct timeval start, end;
    gettimeofday(&start, NULL);
 
-   while (Running.load() == true)
+   while (Running == true)
    {
       gettimeofday(&end,   NULL);
       long const seconds  = end.tv_sec  - start.tv_sec;
@@ -1948,7 +1951,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
                function();
 
                Lock.lock();
-               QueueCount.store(Queue.size());
+               QueueCount = Queue.size();
                Lock.unlock();
                continue;
             }

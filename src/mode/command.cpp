@@ -25,9 +25,9 @@
 #include <algorithm>
 #include <pcrecpp.h>
 #include <sstream>
-#include <atomic>
 
 #ifndef USE_BOOST_THREAD
+#include <atomic>
 #include <condition_variable>
 #endif
 
@@ -64,14 +64,14 @@
 
 using namespace Ui;
 
-static std::atomic<bool>                  Running(true);
-static std::atomic<int>                   QueueCount(0);
 static std::list<std::string>             Queue;
 
 #ifdef USE_BOOST_THREAD
+static bool                               Running(true);
 static boost::mutex                       QueueMutex;
 static boost::condition_variable          Condition;
 #else
+static std::atomic<bool>                  Running(true);
 static std::mutex                         QueueMutex;
 static std::condition_variable            Condition;
 #endif
@@ -1361,7 +1361,7 @@ void Command::DebugClient(std::string const & arguments)
 
 void Command::TestExecutor()
 {
-   while (Running.load() == true)
+   while (Running == true)
    {
 #ifdef USE_BOOST_THREAD
       boost::unique_lock<boost::mutex> Lock(QueueMutex);
@@ -1437,7 +1437,6 @@ void Command::Test(std::string const & arguments)
 
    Queue.push_back(arguments);
    Condition.notify_all();
-   QueueCount.store(Queue.size());
 }
 
 void Command::TestInputRandom(std::string const & arguments)
