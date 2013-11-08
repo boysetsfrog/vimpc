@@ -26,8 +26,13 @@
 
 #include <string>
 #include <map>
-#include <mutex>
 #include <vector>
+
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
+#include <mutex>
+#endif
 
 // Create an enum entry, name and value for each setting
 // X(enum-entry, setting-name, default-value)
@@ -286,7 +291,11 @@ namespace Main
 
          bool                 enabled_;
 
+#ifdef USE_BOOST_THREAD
+         mutable boost::recursive_mutex mutex_;
+#else
          mutable std::recursive_mutex mutex_;
+#endif
    };
 
    template <>

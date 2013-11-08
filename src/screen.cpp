@@ -24,16 +24,20 @@
 #include <sys/ioctl.h>
 #endif
 
+
 #include <atomic>
 #include <csignal>
-#include <chrono>
 #include <list>
-#include <mutex>
 #include <poll.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <wchar.h>
+
+#ifndef USE_BOOST_THREAD
+#include <chrono>
+#include <mutex>
+#endif
 
 #include "algorithm.hpp"
 #include "buffers.hpp"
@@ -77,7 +81,11 @@ int32_t RndCount   = 0;
 
 static std::atomic<bool> Running(true);
 
+#ifdef USE_BOOST_THREAD
+static boost::recursive_mutex CursesMutex;
+#else
 static std::recursive_mutex CursesMutex;
+#endif
 
 extern "C" void ResizeHandler(int);
 extern "C" void ContinueHandler(int);
@@ -328,7 +336,11 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    });
 
    // Thread handling of input
+#ifdef USE_BOOST_THREAD
+   inputThread_ = boost::thread(QueueInput, commandWindow_);
+#else
    inputThread_ = std::thread(QueueInput, commandWindow_);
+#endif
 }
 
 Screen::~Screen()

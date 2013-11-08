@@ -20,15 +20,25 @@
 
 #include "error.hpp"
 
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
+#include <mutex>
+#endif
+
 void Error(uint32_t errorNumber, std::string errorString)
 {
+#ifdef USE_BOOST_THREAD
+   static boost::mutex ErrorMutex;
+#else
    static std::mutex ErrorMutex;
+#endif
 
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
       ErrorMutex.lock();
       Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
-      
+
       if (errorWindow.HasError() == false)
       {
          errorWindow.SetError(true);

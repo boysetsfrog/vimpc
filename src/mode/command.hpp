@@ -22,8 +22,13 @@
 #define __UI__COMMAND
 
 #include <string>
-#include <thread>
 #include <map>
+
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
+#include <thread>
+#endif
 
 #include "inputmode.hpp"
 #include "player.hpp"
@@ -285,7 +290,11 @@ namespace Ui
       Ui::Normal         & normalMode_;
 
 #ifdef HAVE_TEST_H
+#ifdef USE_BOOST_THREAD
+      boost::thread        testThread_;
+#else
       std::thread          testThread_;
+#endif
 #endif
 
    private:

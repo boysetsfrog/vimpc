@@ -26,7 +26,6 @@
 #include "settings.hpp"
 #include "song.hpp"
 
-#include <mutex>
 #include <vector>
 
 namespace Ui   { class LibraryWindow; }

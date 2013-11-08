@@ -21,7 +21,12 @@
 #ifndef __MPC__CLIENT
 #define __MPC__CLIENT
 
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
 #include <thread>
+#endif
+
 #include <functional>
 
 #include <mpd/client.h>
@@ -280,7 +285,11 @@ namespace Mpc
       bool                    idleMode_;
       bool                    queueUpdate_;
 
+#ifdef USE_BOOST_THREAD
+		boost::thread	         clientThread_;
+#else
 		std::thread	            clientThread_;
+#endif
 
    };
 }

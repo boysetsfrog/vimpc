@@ -26,7 +26,10 @@
 #include <pcrecpp.h>
 #include <sstream>
 #include <atomic>
+
+#ifndef USE_BOOST_THREAD
 #include <condition_variable>
+#endif
 
 #ifdef HAVE_TAGLIB_H
 #include <taglib/tag.h>
@@ -64,8 +67,14 @@ using namespace Ui;
 static std::atomic<bool>                  Running(true);
 static std::atomic<int>                   QueueCount(0);
 static std::list<std::string>             Queue;
+
+#ifdef USE_BOOST_THREAD
+static boost::mutex                       QueueMutex;
+static boost::condition_variable          Condition;
+#else
 static std::mutex                         QueueMutex;
 static std::condition_variable            Condition;
+#endif
 
 
 // COMMANDS
@@ -89,7 +98,11 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    settings_           (settings),
    normalMode_         (normalMode)
 #ifdef HAVE_TEST_H
+#ifdef USE_BOOST_THREAD
+   ,testThread_         (boost::thread(&Command::TestExecutor, this))
+#else
    ,testThread_         (std::thread(&Command::TestExecutor, this))
+#endif
 #endif
 {
    // \todo find a away to add aliases to tab completion
@@ -1350,10 +1363,18 @@ void Command::TestExecutor()
 {
    while (Running.load() == true)
    {
+#ifdef USE_BOOST_THREAD
+      boost::unique_lock<boost::mutex> Lock(QueueMutex);
+#else
       std::unique_lock<std::mutex> Lock(QueueMutex);
+#endif
 
       if ((Queue.empty() == false) ||
+#ifdef USE_BOOST_THREAD
+          (Condition.timed_wait(Lock, boost::posix_time::milliseconds(250)) != false))
+#else
           (Condition.wait_for(Lock, std::chrono::milliseconds(250)) != std::cv_status::timeout))
+#endif
       {
          if (Queue.empty() == false)
          {
@@ -1408,7 +1429,12 @@ void Command::TestExecutor()
 
 void Command::Test(std::string const & arguments)
 {
+#ifdef USE_BOOST_THREAD
+   boost::unique_lock<boost::mutex> Lock(QueueMutex);
+#else
    std::unique_lock<std::mutex> Lock(QueueMutex);
+#endif
+
    Queue.push_back(arguments);
    Condition.notify_all();
    QueueCount.store(Queue.size());

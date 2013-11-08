@@ -33,7 +33,12 @@
 
 #include <list>
 #include <string>
+
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#else
 #include <thread>
+#endif
 
 // Changed to being on by default
 // will need to check ncurses properly
@@ -303,7 +308,11 @@ namespace Ui
       WINDOW *   commandWindow_;
       PagerWindow * pagerWindow_;
 
-		std::thread	inputThread_;
+#ifdef USE_BOOST_THREAD
+		boost::thread	inputThread_;
+#else
+		std::thread	   inputThread_;
+#endif
 
       std::vector<int32_t>      visibleWindows_;
       std::list<ModeWindow *>   modeWindows_;
