@@ -294,14 +294,14 @@ std::string Settings::Name(::Setting::StringSettings setting) const
 }
 
 
-void Settings::RegisterCallback(Setting::ToggleSettings setting, std::function<void (bool)> callback)
+void Settings::RegisterCallback(Setting::ToggleSettings setting, FUNCTION<void (bool)> callback)
 {
    mutex_.lock();
    tCallbackTable_[setting].push_back(callback);
    mutex_.unlock();
 }
 
-void Settings::RegisterCallback(Setting::StringSettings setting, std::function<void (std::string)> callback)
+void Settings::RegisterCallback(Setting::StringSettings setting, FUNCTION<void (std::string)> callback)
 {
    mutex_.lock();
    sCallbackTable_[setting].push_back(callback);

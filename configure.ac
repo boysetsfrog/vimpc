@@ -83,9 +83,13 @@ AC_CHECK_HEADER(boost/foreach.hpp,
                 [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
                 [AC_MSG_ERROR(boost-dev library is required)])
 
+AC_CHECK_HEADER(boost/functional.hpp,
+                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
+                [AC_MSG_ERROR(boost-dev library is required)])
 
-CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FOREACH"
-LDFLAGS="$LDFLAGS -lboost_thread"
+
+CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREACH"
+LDFLAGS="$LDFLAGS -lboost_thread -lboost_system"
 fi
 
 

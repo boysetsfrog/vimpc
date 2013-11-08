@@ -93,7 +93,7 @@ void Library::RecreateLibraryFromURIs()
    ForEachParent([] (Mpc::LibraryEntry * entry) { Mpc::MarkUnexpanded(entry); });
 
    // clear the songs
-   std::function<void (LibraryEntry *)> function = [this] (LibraryEntry * entry) { entry->song_ = NULL; };
+   FUNCTION<void (LibraryEntry *)> function = [this] (LibraryEntry * entry) { entry->song_ = NULL; };
 
    for (int i = 0; i < Size(); ++i)
    {
@@ -398,7 +398,7 @@ void Library::RemoveFromPlaylist(Mpc::Client & client, Mpc::LibraryEntry const *
    }
 }
 
-void Library::ForEachChild(uint32_t index, std::function<void (Mpc::Song *)> callback) const
+void Library::ForEachChild(uint32_t index, FUNCTION<void (Mpc::Song *)> callback) const
 {
    for (auto child : Get(index)->children_)
    {
@@ -416,7 +416,7 @@ void Library::ForEachChild(uint32_t index, std::function<void (Mpc::Song *)> cal
    }
 }
 
-void Library::ForEachChild(uint32_t index, std::function<void (Mpc::LibraryEntry *)> callback) const
+void Library::ForEachChild(uint32_t index, FUNCTION<void (Mpc::LibraryEntry *)> callback) const
 {
    for (auto child : Get(index)->children_)
    {
@@ -432,7 +432,7 @@ void Library::ForEachChild(uint32_t index, std::function<void (Mpc::LibraryEntry
    }
 }
 
-void Library::ForEachSong(std::function<void (Mpc::Song *)> callback) const
+void Library::ForEachSong(FUNCTION<void (Mpc::Song *)> callback) const
 {
    for (uint32_t i = 0; i < Size(); ++i)
    {
@@ -452,7 +452,7 @@ void Library::ForEachSong(std::function<void (Mpc::Song *)> callback) const
    }
 }
 
-void Library::ForEachParent(std::function<void (Mpc::LibraryEntry *)> callback) const
+void Library::ForEachParent(FUNCTION<void (Mpc::LibraryEntry *)> callback) const
 {
    for (uint32_t i = 0; i < Size(); ++i)
    {
@@ -504,7 +504,7 @@ void Library::Collapse(uint32_t line)
 
       // Separated function out into variable as compile fails on g++ 4.7.2
       // if passed directly to function using the lambda
-      std::function<void (LibraryEntry *)> function = [this] (LibraryEntry * exp) { RemoveAndUnexpand(exp); };
+      FUNCTION<void (LibraryEntry *)> function = [this] (LibraryEntry * exp) { RemoveAndUnexpand(exp); };
       ForEachChild(Pos, function);
       entryToCollapse->expanded_ = false;
    }

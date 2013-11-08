@@ -35,6 +35,12 @@
 #include <thread>
 #endif
 
+#ifdef USE_BOOST_FUNCTIONAL
+#include <boost/functional.hpp>
+#else
+#include <functional>
+#endif
+
 #ifdef USE_BOOST_THREAD
 typedef boost::thread             Thread;
 typedef boost::mutex              Mutex;
@@ -61,6 +67,12 @@ bool ConditionWait(ConditionVariable & Condition, UniqueLock<T> & Lock, int Time
 {
    return (Condition.wait_for(Lock, std::chrono::milliseconds(TimeoutMs)) != std::cv_status::timeout);
 }
+#endif
+
+#ifdef USE_BOOST_FUNCTIONAL
+#define FUNCTION boost::function
+#else
+#define FUNCTION std::function
 #endif
 
 #ifdef USE_BOOST_FOREACH

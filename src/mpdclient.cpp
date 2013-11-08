@@ -45,7 +45,7 @@ using namespace Mpc;
 //#define _DEBUG_ASSERT_ON_ERROR
 //#define _DEBUG_BREAK_ON_ERROR
 
-static std::list<std::function<void()> >  Queue;
+static std::list<FUNCTION<void()> >  Queue;
 
 static Atomic(bool)                       Running(true);
 static Atomic(int)                        QueueCount(0);
@@ -175,7 +175,7 @@ Client::~Client()
    DeleteConnection();
 }
 
-void Client::QueueCommand(std::function<void()> const & function)
+void Client::QueueCommand(FUNCTION<void()> const & function)
 {
    UniqueLock<Mutex> Lock(QueueMutex);
    Queue.push_back(function);
@@ -1910,7 +1910,7 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
          {
             if (Queue.empty() == false)
             {
-               std::function<void()> function = Queue.front();
+               FUNCTION<void()> function = Queue.front();
                Queue.pop_front();
                Lock.unlock();
 

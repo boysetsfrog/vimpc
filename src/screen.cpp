@@ -1556,7 +1556,7 @@ void Screen::OnProgressClicked(int32_t x)
    if (settings_.Get(Setting::SeekBar) == true)
    {
       // Call any registered callbacks for a progress click
-      for (auto func : pCallbacks_)
+      FOREACH (auto func, pCallbacks_)
       {
          (func)((static_cast<double>(x) / MaxColumns()));
       }

@@ -23,7 +23,6 @@
 
 #include <map>
 #include <stdint.h>
-#include <functional>
 #include <algorithm>
 #include <vector>
 
@@ -64,7 +63,7 @@ namespace Main
    class BufferImpl : public WindowBuffer, private std::vector<T>
    {
    private:
-      typedef std::function<void (T)>         CallbackFunction;
+      typedef FUNCTION<void (T)>         CallbackFunction;
       typedef std::vector<CallbackFunction>   CallbackList;
       typedef std::map<BufferCallbackEvent, CallbackList> CallbackMap;
 
@@ -152,7 +151,7 @@ namespace Main
          }
       }
 
-      void ForEach(uint32_t position, uint32_t count, std::function<void (T)> callback) const
+      void ForEach(uint32_t position, uint32_t count, FUNCTION<void (T)> callback) const
       {
          uint32_t pos = 0;
          typename BufferImpl<T>::const_iterator it;

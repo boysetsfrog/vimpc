@@ -22,8 +22,6 @@
 #define __MPC__CLIENT
 
 
-#include <functional>
-
 #include <mpd/client.h>
 
 #include "compiler.hpp"
@@ -98,7 +96,7 @@ namespace Mpc
       ~Client();
 
    public:
-      void QueueCommand(std::function<void()> const & function);
+      void QueueCommand(FUNCTION<void()> const & function);
       void WaitForCompletion();
 
    private:

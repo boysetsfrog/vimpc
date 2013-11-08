@@ -1337,10 +1337,10 @@ void Command::SetColour(std::string const & arguments)
    }
 }
 
-template <Ui::Command::ClientFunction FUNCTION>
+template <Ui::Command::ClientFunction FUNC>
 void Command::DebugClient(std::string const & arguments)
 {
-   Ui::Command::ClientFunction func = FUNCTION;
+   Ui::Command::ClientFunction func = FUNC;
    (client_.*func)();
 }
 

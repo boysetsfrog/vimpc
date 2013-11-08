@@ -82,7 +82,7 @@ namespace Ui
    class Screen
    {
    public:
-      typedef std::function<void (double)> ProgressCallback;
+      typedef FUNCTION<void (double)> ProgressCallback;
 
    public:
       Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState & clientState, Search const & search);

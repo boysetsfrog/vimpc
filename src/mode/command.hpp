@@ -196,7 +196,7 @@ namespace Ui
       void SetColour(std::string const & arguments);
 
    private: // Debug only commands
-      template <ClientFunction FUNCTION>
+      template <ClientFunction FUNC>
       void DebugClient(std::string const & arguments);
 
    private: // Test only commands

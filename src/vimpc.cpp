@@ -49,7 +49,7 @@ using namespace Main;
 typedef std::pair<int32_t, EventData>  EventPair;
 
 static std::list<EventPair>            Queue;
-static std::map<int, std::vector<std::function<void(EventData const &)> > > Handler;
+static std::map<int, std::vector<FUNCTION<void(EventData const &)> > > Handler;
 
 static Mutex               EventMutex;
 static Mutex               QueueMutex;
@@ -339,7 +339,7 @@ void Vimpc::HandleUserEvents(bool Enabled)
    Condition.notify_all();
 }
 
-/* static */ void Vimpc::EventHandler(int Event, std::function<void(EventData const &)> func)
+/* static */ void Vimpc::EventHandler(int Event, FUNCTION<void(EventData const &)> func)
 {
    Handler[Event].push_back(func);
 }
