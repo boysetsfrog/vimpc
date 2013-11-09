@@ -31,6 +31,53 @@ else
     AC_MSG_RESULT(no)
 fi
 
+AX_PTHREAD([AC_DEFINE(HAVE_PTHREAD,1,[Define if you have POSIX threads libraries and header files.])],
+            [AC_MSG_ERROR(vimpc requires pthread library)])
+
+CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
+CXXFLAGS="$PTHREAD_CFLAGS $CXXFLAGS"
+CC="$PTHREAD_CC"]
+
+AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
+
+boost_default="no"
+
+AC_CHECK_HEADER(atomic, [], [boost_default="yes"])
+AC_CHECK_HEADER(functional, [], [boost_default="yes"])
+AC_CHECK_HEADER(thread, [], [boost_default="yes"])
+
+AC_MSG_CHECKING(whether to enable boost automatically)
+if test "x$boost_default" = "xyes"; then
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+
+AC_ARG_ENABLE(boost, [ --enable-boost=[no/yes] turn on/off boost support [default=$boost_default]],, enable_boost=$boost_default)
+if test "x$enable_boost" = "xyes"; then
+AC_DEFINE_UNQUOTED(BOOST_SUPPORT, "1", "Define to 1 if boost support enabled")
+
+AX_BOOST_BASE([], [], [AC_MSG_ERROR(vimpc requires boost library)])
+AX_BOOST_SYSTEM([], [], [AC_MSG_ERROR(vimpc requires boost system library)])
+AX_BOOST_THREAD([], [], [AC_MSG_ERROR(vimpc requires boost thread library)])
+
+AC_CHECK_HEADER(boost/thread.hpp,
+                [AC_DEFINE_UNQUOTED(HAVE_BOOST_THREAD,1,Define to 1 if <boost/thread.hpp> header file)],
+                [AC_MSG_ERROR(boostthread-dev library is required)])
+
+AC_CHECK_HEADER(boost/foreach.hpp,
+                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
+                [AC_MSG_ERROR(boost-dev library is required)])
+
+AC_CHECK_HEADER(boost/functional.hpp,
+                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
+                [AC_MSG_ERROR(boost-dev library is required)])
+
+
+CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREACH"
+LIBS="$LIBS $BOOST_SYSTEM_LIB $BOOST_THREAD_LIB"
+fi
+
 MP_WITH_CURSES
 HAVE_CURS=$mp_cv_curses
 if test x$HAVE_CURS != xyes; then
@@ -38,13 +85,6 @@ if test x$HAVE_CURS != xyes; then
 fi
 
 LIBS="$LIBS $CURSES_LIB"
-
-AX_PTHREAD([AC_DEFINE(HAVE_PTHREAD,1,[Define if you have POSIX threads libraries and header files.])],
-            [AC_MSG_ERROR(vimpc requires pthread library)])
-
-CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
-CXXFLAGS="$PTHREAD_CFLAGS $CXXFLAGS"
-CC="$PTHREAD_CC"]
 
 PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
 
@@ -69,29 +109,6 @@ AC_CHECK_HEADER(taglib/taglib.h,
                 [AC_DEFINE_UNQUOTED(HAVE_TAGLIB_H,1,Define to 1 if <taglib.h> header file)],
                 [AC_MSG_ERROR(taglib-dev library is required)])
 fi
-
-boost_default="no"
-AC_ARG_ENABLE(boost, [ --enable-boost=[no/yes] turn on/off boost support [default=$boost_default]],, enable_boost=$boost_default)
-if test "x$enable_boost" = "xyes"; then
-AC_DEFINE_UNQUOTED(BOOST_SUPPORT, "1", "Define to 1 if boost support enabled")
-
-AC_CHECK_HEADER(boost/thread.hpp,
-                [AC_DEFINE_UNQUOTED(HAVE_BOOST_THREAD,1,Define to 1 if <boost/thread.hpp> header file)],
-                [AC_MSG_ERROR(boostthread-dev library is required)])
-
-AC_CHECK_HEADER(boost/foreach.hpp,
-                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
-                [AC_MSG_ERROR(boost-dev library is required)])
-
-AC_CHECK_HEADER(boost/functional.hpp,
-                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
-                [AC_MSG_ERROR(boost-dev library is required)])
-
-
-CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREACH"
-LDFLAGS="$LDFLAGS -lboost_thread -lboost_system"
-fi
-
 
 test_default="no"
 AC_ARG_ENABLE(test, [ --enable-test=[no/yes] turn on/off test support [default=$test_default]],, enable_test=$test_default)
@@ -145,8 +162,6 @@ fi
 if test "x$enable_debug" = "xyes"; then
    AC_CHECK_HEADER(execinfo.h, [AC_DEFINE_UNQUOTED(HAVE_EXECINFO_H,1,Define to 1 if there is an <execinfo.h> header file)],[])
 fi
-
-AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 
 AC_MSG_CHECKING(whether to enable warnings)
 warn_default="no"
