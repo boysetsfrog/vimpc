@@ -31,14 +31,6 @@ else
     AC_MSG_RESULT(no)
 fi
 
-MP_WITH_CURSES
-HAVE_CURS=$mp_cv_curses
-if test x$HAVE_CURS != xyes; then
-      AC_MSG_ERROR([vimpc requires the curses or ncurses library. Please install before compiling vimpc.])
-fi
-
-LIBS="$LIBS $CURSES_LIB"
-
 AX_PTHREAD([AC_DEFINE(HAVE_PTHREAD,1,[Define if you have POSIX threads libraries and header files.])],
             [AC_MSG_ERROR(vimpc requires pthread library)])
 
@@ -46,31 +38,21 @@ CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
 CXXFLAGS="$PTHREAD_CFLAGS $CXXFLAGS"
 CC="$PTHREAD_CC"]
 
-PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
-
-AC_SUBST(pcrecpp_LIBS)
-AC_SUBST(pcrecpp_CFLAGS)
-
-AC_CHECK_HEADER(pcrecpp.h,
-                [],
-                [AC_MSG_ERROR(libpcre-dev library is required)])
-
-taglib_default="yes"
-AC_ARG_ENABLE(taglib, [ --enable-taglib=[no/yes] turn on/off taglib support [default=$taglib_default]],, enable_taglib=$taglib_default)
-if test "x$enable_taglib" = "xyes"; then
-AC_DEFINE_UNQUOTED(TAG_SUPPORT, "1", "Define to 1 if tag support enabled")
-
-PKG_CHECK_MODULES(taglib, taglib)
-
-AC_SUBST(taglib_LIBS)
-AC_SUBST(taglib_CFLAGS)
-
-AC_CHECK_HEADER(taglib/taglib.h,
-                [AC_DEFINE_UNQUOTED(HAVE_TAGLIB_H,1,Define to 1 if <taglib.h> header file)],
-                [AC_MSG_ERROR(taglib-dev library is required)])
-fi
+AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 
 boost_default="no"
+
+AC_CHECK_HEADER(atomic, [], [boost_default="yes"])
+AC_CHECK_HEADER(functional, [], [boost_default="yes"])
+AC_CHECK_HEADER(thread, [], [boost_default="yes"])
+
+AC_MSG_CHECKING(whether to enable boost automatically)
+if test "x$boost_default" = "xyes"; then
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+
 AC_ARG_ENABLE(boost, [ --enable-boost=[no/yes] turn on/off boost support [default=$boost_default]],, enable_boost=$boost_default)
 if test "x$enable_boost" = "xyes"; then
 AC_DEFINE_UNQUOTED(BOOST_SUPPORT, "1", "Define to 1 if boost support enabled")
@@ -96,6 +78,37 @@ CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREAC
 LIBS="$LIBS $BOOST_SYSTEM_LIB $BOOST_THREAD_LIB"
 fi
 
+MP_WITH_CURSES
+HAVE_CURS=$mp_cv_curses
+if test x$HAVE_CURS != xyes; then
+      AC_MSG_ERROR([vimpc requires the curses or ncurses library. Please install before compiling vimpc.])
+fi
+
+LIBS="$LIBS $CURSES_LIB"
+
+PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
+
+AC_SUBST(pcrecpp_LIBS)
+AC_SUBST(pcrecpp_CFLAGS)
+
+AC_CHECK_HEADER(pcrecpp.h,
+                [],
+                [AC_MSG_ERROR(libpcre-dev library is required)])
+
+taglib_default="yes"
+AC_ARG_ENABLE(taglib, [ --enable-taglib=[no/yes] turn on/off taglib support [default=$taglib_default]],, enable_taglib=$taglib_default)
+if test "x$enable_taglib" = "xyes"; then
+AC_DEFINE_UNQUOTED(TAG_SUPPORT, "1", "Define to 1 if tag support enabled")
+
+PKG_CHECK_MODULES(taglib, taglib)
+
+AC_SUBST(taglib_LIBS)
+AC_SUBST(taglib_CFLAGS)
+
+AC_CHECK_HEADER(taglib/taglib.h,
+                [AC_DEFINE_UNQUOTED(HAVE_TAGLIB_H,1,Define to 1 if <taglib.h> header file)],
+                [AC_MSG_ERROR(taglib-dev library is required)])
+fi
 
 test_default="no"
 AC_ARG_ENABLE(test, [ --enable-test=[no/yes] turn on/off test support [default=$test_default]],, enable_test=$test_default)
@@ -149,8 +162,6 @@ fi
 if test "x$enable_debug" = "xyes"; then
    AC_CHECK_HEADER(execinfo.h, [AC_DEFINE_UNQUOTED(HAVE_EXECINFO_H,1,Define to 1 if there is an <execinfo.h> header file)],[])
 fi
-
-AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 
 AC_MSG_CHECKING(whether to enable warnings)
 warn_default="no"
