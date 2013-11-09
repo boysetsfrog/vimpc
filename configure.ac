@@ -75,6 +75,10 @@ AC_ARG_ENABLE(boost, [ --enable-boost=[no/yes] turn on/off boost support [defaul
 if test "x$enable_boost" = "xyes"; then
 AC_DEFINE_UNQUOTED(BOOST_SUPPORT, "1", "Define to 1 if boost support enabled")
 
+AX_BOOST_BASE([], [], [AC_MSG_ERROR(vimpc requires boost library)])
+AX_BOOST_SYSTEM([], [], [AC_MSG_ERROR(vimpc requires boost system library)])
+AX_BOOST_THREAD([], [], [AC_MSG_ERROR(vimpc requires boost thread library)])
+
 AC_CHECK_HEADER(boost/thread.hpp,
                 [AC_DEFINE_UNQUOTED(HAVE_BOOST_THREAD,1,Define to 1 if <boost/thread.hpp> header file)],
                 [AC_MSG_ERROR(boostthread-dev library is required)])
@@ -89,7 +93,7 @@ AC_CHECK_HEADER(boost/functional.hpp,
 
 
 CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREACH"
-LDFLAGS="$LDFLAGS -lboost_thread -lboost_system"
+LIBS="$LIBS $BOOST_SYSTEM_LIB $BOOST_THREAD_LIB"
 fi
 
 
