@@ -1,10 +1,22 @@
 Version 0.09.0
 -------------
-- Added 'gm' to move a song to a given position
-- Added tab completion for :add command
-- Added progress/seek bar
+- Add 'albumartist' setting to use AlbumArtist instead of Artist
+- Add tab completion for :add command
+- Add progress/seek bar
+- Add 'gm' to move a song to a given position
+- Add :mute command
+- Add :unalias command
+- Add :substitute (:s) command for basic tag editting
+- Add support for ranges on some ex mode commands
+- Add ability to map keys to <Nop>
+- UTF8 support in exmode and searching
+- Threaded client access and keyboard input
+- Add optional support for boost instead of C++11 libraries
+- Reduced requirement on pcrecpp to just pcre instead
 - Support for lists with older libmpdclient versions
-
+- Bug Fix: connecting to host with password on all commands failed badly
+- Bug Fix: windows were limited to 65535 lines
+- Performance improvements
 
 Version 0.08.1
 -------------
