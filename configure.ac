@@ -42,16 +42,15 @@ AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 
 boost_default="no"
 
-AC_CHECK_HEADER(atomic, [], [boost_default="yes"])
-AC_CHECK_HEADER(functional, [], [boost_default="yes"])
-AC_CHECK_HEADER(thread, [], [boost_default="yes"])
-
 AC_MSG_CHECKING(whether to enable boost automatically)
-if test "x$boost_default" = "xyes"; then
-   AC_MSG_RESULT(yes)
-else
-   AC_MSG_RESULT(no)
-fi
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <functional>] 
+                                    [#include <atomic>] 
+                                    [#include <thread>]], 
+                                   [[std::thread thread; std::function<void()> function; std::atomic<bool> atom;]])],
+	AC_MSG_RESULT([no]),
+	[boost_default="yes"
+    AC_MSG_RESULT([yes])]
+)
 
 AC_ARG_ENABLE(boost, [ --enable-boost=[no/yes] turn on/off boost support [default=$boost_default]],, enable_boost=$boost_default)
 if test "x$enable_boost" = "xyes"; then
@@ -69,13 +68,25 @@ AC_CHECK_HEADER(boost/foreach.hpp,
                 [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
                 [AC_MSG_ERROR(boost-dev library is required)])
 
-AC_CHECK_HEADER(boost/functional.hpp,
-                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FOREACH,1,Define to 1 if <boost/foreach.hpp> header file)],
+AC_CHECK_HEADER(boost/function.hpp,
+                [AC_DEFINE_UNQUOTED(HAVE_BOOST_FUNCTION,1,Define to 1 if <boost/function.hpp> header file)],
                 [AC_MSG_ERROR(boost-dev library is required)])
 
 
 CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREACH"
 LIBS="$LIBS $BOOST_SYSTEM_LIB $BOOST_THREAD_LIB"
+
+AC_MSG_CHECKING([whether compiler supports lambda functions])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <boost/function.hpp>]], [[int a = 5; boost::function<int(int)> f = [&a](int b) { return a + b; }; f(8);]])],
+	AC_MSG_RESULT([yes]),
+	AC_MSG_RESULT([no])
+		AC_MSG_ERROR([[Your compiler doesn't seem to support lambda functions, please upgrade (GCC >= 4.6)]]))
+else
+AC_MSG_CHECKING([whether compiler supports lambda functions])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <functional>]], [[int a = 5; std::function<int(int)> f = [&a](int b) { return a + b; }; f(8);]])],
+	AC_MSG_RESULT([yes]),
+	AC_MSG_RESULT([no])
+		AC_MSG_ERROR([[Your compiler doesn't seem to support lambda functions, please upgrade (GCC >= 4.6)]]))
 fi
 
 MP_WITH_CURSES
