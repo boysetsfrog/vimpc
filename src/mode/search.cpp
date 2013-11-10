@@ -264,11 +264,11 @@ Regex::Options Search::GetOptions(const std::string & search) const
       opt |= Regex::CaseInsensitive;
    }
 
-   if (search.find("\\c") != string::npos)
+   if (search.find("\\c") != std::string::npos)
    {
       opt |= Regex::CaseInsensitive;
    }
-   else if (search.find("\\C") != string::npos)
+   else if (search.find("\\C") != std::string::npos)
    {
       opt &= ~Regex::CaseInsensitive;
    }
@@ -286,12 +286,12 @@ std::string Search::StripFlags(std::string search) const
 
    //! \todo this is a hack we should really just loop
    //! over the input once and remove all flags
-   while ((found = Result.find("\\c")) != string::npos)
+   while ((found = Result.find("\\c")) != std::string::npos)
    {
       Result.erase(found, 2);
    }
 
-   while ((found = Result.find("\\C")) != string::npos)
+   while ((found = Result.find("\\C")) != std::string::npos)
    {
       Result.erase(found, 2);
    }

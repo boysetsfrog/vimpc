@@ -960,7 +960,7 @@ void Command::PrintMappings(std::string tabname)
 
 void Command::Map(std::string const & arguments)
 {
-   if ((arguments.find(" ") != string::npos))
+   if ((arguments.find(" ") != std::string::npos))
    {
       std::string const key     = arguments.substr(0, arguments.find(" "));
       std::string const mapping = arguments.substr(arguments.find(" ") + 1);
@@ -1101,7 +1101,7 @@ void Command::Move(std::string const & arguments)
 {
    screen_.Initialise(Ui::Screen::Playlist);
 
-   if ((arguments.find(" ") != string::npos))
+   if ((arguments.find(" ") != std::string::npos))
    {
       int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
       int32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
@@ -1160,7 +1160,7 @@ void Command::Swap(std::string const & arguments)
 {
    screen_.Initialise(Ui::Screen::Playlist);
 
-   if ((arguments.find(" ") != string::npos))
+   if ((arguments.find(" ") != std::string::npos))
    {
       std::string const position1 = arguments.substr(0, arguments.find(" "));
       std::string const position2 = arguments.substr(arguments.find(" ") + 1);
@@ -1286,7 +1286,7 @@ void Command::MoveWindow(std::string const & arguments)
 
 void Command::RenameWindow(std::string const & arguments)
 {
-   if ((arguments.find(" ") != string::npos))
+   if ((arguments.find(" ") != std::string::npos))
    {
       std::string oldname = arguments.substr(0, arguments.find(" "));
       std::string newname = arguments.substr(arguments.find(" ") + 1);
@@ -1324,7 +1324,7 @@ void Command::RenameWindow(std::string const & arguments)
 
 void Command::SetColour(std::string const & arguments)
 {
-   if ((arguments.find(" ") != string::npos))
+   if ((arguments.find(" ") != std::string::npos))
    {
       std::string oldname = arguments.substr(0, arguments.find(" "));
       std::string newname = arguments.substr(arguments.find(" ") + 1);

@@ -18,8 +18,9 @@
    regex.hpp - C++ wrapper around pcre and/or other regex libraries
 */
 
+#include <string>
+
 #include <pcre.h>
-#include <pcrecpp.h>
 
 #ifndef __REGEX__RE
 #define __REGEX__RE
