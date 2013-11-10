@@ -9,6 +9,7 @@ Version 0.09.0
 - Add :substitute (:s) command for basic tag editting
 - Add support for ranges on some ex mode commands
 - Add ability to map keys to <Nop>
+- UTF8 support in exmode and searching
 - Threaded client access and keyboard input
 - Add optional support for boost instead of C++11 libraries
 - Reduced requirement on pcrecpp to just pcre instead
