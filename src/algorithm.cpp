@@ -29,7 +29,7 @@ std::string PrepString(std::string const & s1, bool ignoreLeadingThe)
 	if (ignoreLeadingThe == true)
 	{
 	   std::string Result = s1;
-      static const Regex::RE exp = Regex::RE("\\s*[tT][hH][eE]\\s+");
+      static const Regex::RE exp = Regex::RE("^\\s*[tT][hH][eE]\\s+");
       exp.Replace("", Result);
       return Result;
 	}

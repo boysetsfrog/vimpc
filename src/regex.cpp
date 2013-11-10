@@ -124,9 +124,32 @@ bool RE::Capture(std::string match,
 }
 
 
-bool RE::Replace(std::string substition, std::string & valueString) const
+bool RE::Replace(std::string substitution, std::string & valueString) const
 {
-   return true;
+   Compile(exp_);
+
+   int const vecsize = 24;
+   int ovector[vecsize];
+
+   int rc = pcre_exec(re_, NULL, valueString.c_str(), valueString.length(), 0, 0, ovector, vecsize);
+
+   ErrorPrint(rc);
+
+   if (rc == 0)
+   {
+      rc = vecsize / 3;
+   }
+
+   if (rc >= 1)
+   {
+      --rc;
+      int const off = 0;
+      Debug("Replacing %s in %s with %s", exp_.c_str(), valueString.c_str(), substitution.c_str());
+      valueString.replace(ovector[off], ovector[off + 1] - ovector[off], substitution);
+      return true;
+   }
+
+   return false;
 }
 
 bool RE::IsMatch(std::string match) const
