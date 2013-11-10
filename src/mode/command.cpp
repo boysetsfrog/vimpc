@@ -730,14 +730,14 @@ void Command::Substitute(std::string const & expression)
                      match = ".*";
                   }
 
-                  pcrecpp::RE const check(match);
+                  Regex::RE const check(match);
                   std::string value = ((*song).*readFunction)();
 
-                  if (check.PartialMatch(value) == true)
+                  if (check.Matches(value) == true)
                   {
                      if (jt != modifyFunctions.end())
                      {
-                        check.Replace(substitution, &value);
+                        check.Replace(substitution, value);
                         EditFunction editFunction = jt->second;
                         (*editFunction)(song, path, value.c_str());
 

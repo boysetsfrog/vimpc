@@ -124,6 +124,11 @@ bool RE::Capture(std::string match,
 }
 
 
+bool RE::Replace(std::string substition, std::string & valueString) const
+{
+   return true;
+}
+
 bool RE::IsMatch(std::string match) const
 {
    int const vecsize = 12;

@@ -97,12 +97,12 @@ fi
 
 LIBS="$LIBS $CURSES_LIB"
 
-PKG_CHECK_MODULES(pcrecpp, libpcrecpp)
+PKG_CHECK_MODULES(pcre, libpcre)
 
-AC_SUBST(pcrecpp_LIBS)
-AC_SUBST(pcrecpp_CFLAGS)
+AC_SUBST(pcre_LIBS)
+AC_SUBST(pcre_CFLAGS)
 
-AC_CHECK_HEADER(pcrecpp.h,
+AC_CHECK_HEADER(pcre.h,
                 [],
                 [AC_MSG_ERROR(libpcre-dev library is required)])
 

@@ -126,7 +126,7 @@ int32_t Song::Reference() const
 
 /* static */ void Song::SwapThe(std::string & String)
 {
-   if (pcrecpp::RE("^\\s*[tT][hH][eE]\\s+").Replace("", &String))
+   if (Regex::RE("^\\s*[tT][hH][eE]\\s+").Replace("", String))
    {
       String += ", The";
    }

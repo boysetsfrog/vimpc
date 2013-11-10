@@ -59,6 +59,8 @@ namespace Regex
                       std::string * arg5 = NULL, std::string * arg6 = NULL, 
                       std::string * arg7 = NULL, std::string * arg8 = NULL) const;
 
+         bool Replace(std::string substition, std::string & valueString) const;
+
       private:
          void Compile(std::string toCompile) const;
          bool IsMatch(std::string match) const;
