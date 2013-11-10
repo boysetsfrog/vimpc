@@ -19,8 +19,8 @@
    */
 
 #include "clientstate.hpp"
-#include "mpdclient.hpp"
 
+#include "mpdclient.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
 #include "events.hpp"

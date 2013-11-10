@@ -21,6 +21,7 @@
 #include <string>
 
 #include <pcre.h>
+#include <string.h>
 
 #ifndef __REGEX__RE
 #define __REGEX__RE
