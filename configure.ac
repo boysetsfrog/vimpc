@@ -80,13 +80,13 @@ AC_MSG_CHECKING([whether compiler supports lambda functions])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <boost/function.hpp>]], [[int a = 5; boost::function<int(int)> f = [&a](int b) { return a + b; }; f(8);]])],
 	AC_MSG_RESULT([yes]),
 	AC_MSG_RESULT([no])
-		AC_MSG_ERROR([[Your compiler doesn't seem to support lambda functions, please upgrade (GCC >= 4.6)]]))
+		AC_MSG_ERROR([[Your compiler doesn't seem to support lambda functions, please upgrade (G++ >= 4.6)]]))
 else
 AC_MSG_CHECKING([whether compiler supports lambda functions])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <functional>]], [[int a = 5; std::function<int(int)> f = [&a](int b) { return a + b; }; f(8);]])],
 	AC_MSG_RESULT([yes]),
 	AC_MSG_RESULT([no])
-		AC_MSG_ERROR([[Your compiler doesn't seem to support lambda functions, please upgrade (GCC >= 4.6)]]))
+		AC_MSG_ERROR([[Your compiler doesn't seem to support lambda functions, please upgrade (G++ >= 4.6)]]))
 fi
 
 MP_WITH_CURSES
