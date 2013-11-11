@@ -17,7 +17,6 @@ compile_test ()
 {
     FLAGS=$@
 
-    echo ""
     echo "Running configure $FLAGS... "
 
     RESULT=`eval ./configure $FLAGS 2>&1`
@@ -61,24 +60,30 @@ compile_sets ()
 }
 
 echo "Default compiler..."
+echo "------------------------------"
 compile_sets
 
 echo "Default g++ as compiler..."
+echo "------------------------------"
 export CXX=g++ 
 compile_sets
 
 echo "g++ 4.6 as compiler..."
+echo "------------------------------"
 export CXX=$GCC46 LDFLAGS="-L$GCC46_LIB" 
 compile_sets
 
 echo "g++ 4.7 as compiler..."
+echo "------------------------------"
 export CXX=$GCC47 LDFLAGS="-L$GCC47_LIB" 
 compile_sets
 
 echo "clang++ as compiler..."
+echo "------------------------------"
 export CC=clang CXX=clang++ 
 compile_sets
 
 echo "clang++ with libc++ as compiler..."
+echo "------------------------------"
 export CC=clang CXX=clang++ CXXFLAGS="-stdlib=libc++" LDFLAGS="-lc++abi"
 compile_sets
