@@ -194,10 +194,14 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                   func(Event.second);
                }
 
+               Lock.lock();
+
                for (auto cond : WaitConditions[Event.first])
                {
                   cond->notify_all();
                }
+
+               Lock.unlock();
             }
          }
 

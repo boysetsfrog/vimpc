@@ -23,6 +23,8 @@
 
 #include <map>
 
+#include "compiler.hpp"
+
 #include "clientstate.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
@@ -115,7 +117,7 @@ namespace Main
       ModeTable         modeTable_;
       Ui::Normal   &    normalMode_;
       Ui::Command  &    commandMode_;
-      bool              userEvents_;
+      Atomic(bool)      userEvents_;
    };
 }
 
