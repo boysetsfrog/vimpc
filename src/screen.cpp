@@ -768,7 +768,9 @@ void Screen::Update()
 
       Initialise(window_);
 
+      CursesMutex.lock();
       werase(mainWindow_);
+      CursesMutex.unlock();
 
       // Only paint the tab bar if it is currently visible
       if (settings_.Get(Setting::TabBar) == true)
