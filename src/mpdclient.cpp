@@ -45,11 +45,9 @@ using namespace Mpc;
 //#define _DEBUG_ASSERT_ON_ERROR
 //#define _DEBUG_BREAK_ON_ERROR
 
-static std::list<FUNCTION<void()> >  Queue;
-
-static Atomic(bool)                       Running(true);
-static Atomic(int)                        QueueCount(0);
+static std::list<FUNCTION<void()> >       Queue;
 static Mutex                              QueueMutex;
+static Atomic(bool)                       Running(true);
 static ConditionVariable                  Condition;
 
 
@@ -180,17 +178,19 @@ void Client::QueueCommand(FUNCTION<void()> const & function)
    UniqueLock<Mutex> Lock(QueueMutex);
    Queue.push_back(function);
    Condition.notify_all();
-   QueueCount = Queue.size();
 }
 
 void Client::WaitForCompletion()
 {
-   int Count = QueueCount;
+   QueueMutex.lock();
+   int Count = Queue.size();
+   QueueMutex.unlock();
 
    while (Count != 0)
    {
       usleep(20 * 1000);
-      Count = QueueCount;
+      UniqueLock<Mutex> Lock(QueueMutex);
+      Count = Queue.size();
    }
 }
 
@@ -1916,10 +1916,6 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
 
                ExitIdleMode();
                function();
-
-               Lock.lock();
-               QueueCount = Queue.size();
-               Lock.unlock();
                continue;
             }
          }
@@ -2473,8 +2469,12 @@ void Client::QueueMetaChanges()
             mpd_song_free(nextSong);
          }
 
-         if (QueueCount == 0)
+         QueueMutex.lock();
+
+         if (Queue.size() == 0)
          {
+            QueueMutex.unlock();
+
             oldVersion_  = queueVersion_;
             queueUpdate_ = false;
             Main::Vimpc::CreateEvent(Event::PlaylistQueueReplace, Data);
@@ -2482,6 +2482,10 @@ void Client::QueueMetaChanges()
             EventData QueueData;
             Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
             UpdateCurrentSong();
+         }
+         else
+         {
+            QueueMutex.unlock();
          }
       }
       else
