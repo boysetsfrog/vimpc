@@ -194,14 +194,14 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                   func(Event.second);
                }
 
-               Lock.lock();
+               EventMutex.lock();
 
                for (auto cond : WaitConditions[Event.first])
                {
                   cond->notify_all();
                }
 
-               Lock.unlock();
+               EventMutex.unlock();
             }
          }
 
@@ -350,7 +350,7 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
 /* static */ bool Vimpc::WaitForEvent(int Event, int TimeoutMs)
 {
-   UniqueLock<Mutex> EventLock(QueueMutex);
+   UniqueLock<Mutex> EventLock(EventMutex);
    ConditionVariable * WaitCondition = new ConditionVariable();
 
    WaitConditions[Event].push_back(WaitCondition);
@@ -359,7 +359,6 @@ void Vimpc::HandleUserEvents(bool Enabled)
 
    WaitConditions[Event].remove(WaitCondition);
    delete WaitCondition;
-   EventLock.unlock();
    return Result;
 }
 
