@@ -21,6 +21,8 @@
 #ifndef __UI__RESULT
 #define __UI__RESULT
 
+#include "compiler.hpp"
+
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
@@ -53,23 +55,47 @@ namespace Ui
       ResultWindow() : ModeWindow(COLS, LINES), hasResult_(false) { }
       ~ResultWindow() { }
 
-      void ClearResult()              { hasResult_ = false; }
-      bool HasResult() const          { return hasResult_; }
-      void SetResult(bool hasResult)  { hasResult_ = hasResult; }
-      std::string GetResult()         { return result_; }
+      void ClearResult() { SetResult(false); }
+
+      bool HasResult() const
+      {
+         ResultMutex.lock();
+         bool const hasResult = hasResult_;
+         ResultMutex.unlock();
+         return hasResult;
+      }
+
+      void SetResult(bool hasResult)
+      {
+         ResultMutex.lock();
+         hasResult_ = hasResult;
+         ResultMutex.unlock();
+      }
+
+      std::string GetResult()
+      {
+         ResultMutex.lock();
+         std::string const result = result_;
+         ResultMutex.unlock();
+         return result;
+      }
 
    private:
-      bool        hasResult_;
-      std::string result_;
+      bool                   hasResult_;
+      std::string            result_;
+      mutable RecursiveMutex ResultMutex;
    };
 }
 
 void Result(std::string result)
 {
    Ui::ResultWindow & window(Ui::ResultWindow::Instance());
+
+   window.ResultMutex.lock();
    window.SetResult(true);
    window.SetLine("%s", result.c_str());
    window.result_ = result;
+   window.ResultMutex.unlock();
 }
 
 #endif

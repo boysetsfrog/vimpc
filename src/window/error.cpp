@@ -20,17 +20,14 @@
 
 #include "error.hpp"
 
-#include "compiler.hpp"
-
 
 void Error(uint32_t errorNumber, std::string errorString)
 {
-   static Mutex ErrorMutex;
-
    if ((errorNumber != 0) && (errorNumber < (static_cast<uint32_t>(ErrorNumber::ErrorCount))))
    {
-      ErrorMutex.lock();
       Ui::ErrorWindow & errorWindow(Ui::ErrorWindow::Instance());
+
+      errorWindow.ErrorMutex.lock();
 
       if (errorWindow.HasError() == false)
       {
@@ -38,7 +35,7 @@ void Error(uint32_t errorNumber, std::string errorString)
          errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
       }
 
-      ErrorMutex.unlock();
+      errorWindow.ErrorMutex.unlock();
    }
 }
 

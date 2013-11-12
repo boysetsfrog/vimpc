@@ -21,6 +21,8 @@
 #ifndef __UI__ERROR
 #define __UI__ERROR
 
+#include "compiler.hpp"
+
 #include "errorcodes.hpp"
 #include "settings.hpp"
 #include "modewindow.hpp"
@@ -60,6 +62,8 @@ namespace Ui
 
       void Print(uint32_t line) const
       {
+         ErrorMutex.lock();
+
          if (Main::Settings::Instance().Get(Setting::ColourEnabled) == true)
          {
             wattron(N_WINDOW(), COLOR_PAIR(Main::Settings::Instance().colours.Error) | A_BOLD);
@@ -71,14 +75,30 @@ namespace Ui
          {
             wattroff(N_WINDOW(), COLOR_PAIR(Main::Settings::Instance().colours.Error) | A_BOLD);
          }
+
+         ErrorMutex.unlock();
       }
 
-      void ClearError()             { hasError_ = false; }
-      bool HasError() const         { return hasError_; }
-      void SetError(bool hasError)  { hasError_ = hasError; }
+      void ClearError() { SetError(false); }
+
+      bool HasError() const
+      {
+         ErrorMutex.lock();
+         bool const hasError = hasError_;
+         ErrorMutex.unlock();
+         return hasError;
+      }
+
+      void SetError(bool hasError)
+      {
+         ErrorMutex.lock();
+         hasError_ = hasError;
+         ErrorMutex.unlock();
+      }
 
    private:
-      bool hasError_;
+      bool                   hasError_;
+      mutable RecursiveMutex ErrorMutex;
    };
 }
 
