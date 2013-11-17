@@ -302,11 +302,13 @@ void ClientState::DisplaySongInformation()
    {
       if (currentSong_ != NULL)
       {
+         char const * const cartist  = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
+         char const * const ctitle   = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
          uint32_t     const duration = mpd_song_get_duration(currentSong_);
          uint32_t     const elapsed  = elapsed_;
          uint32_t     const remain   = (duration > elapsed) ? duration - elapsed : 0;
-         std::string  const artist   = mpd_song_get_tag(currentSong_, MPD_TAG_ARTIST, 0);
-         std::string  const title    = mpd_song_get_tag(currentSong_, MPD_TAG_TITLE, 0);
+         std::string  const artist   = (cartist != NULL) ? cartist : "";
+         std::string  const title    = (ctitle != NULL) ? ctitle : "";
 
          screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSongPos() + 1, artist.c_str(), title.c_str());
 
