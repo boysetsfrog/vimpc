@@ -205,6 +205,7 @@ namespace Ui
       void TestInputRandom(std::string const & arguments);
       void TestInputSequence(std::string const & arguments);
       void TestScreen(std::string const & arguments);
+      void TestResize(std::string const & arguments);
 
    protected:
       // Splits the input into command and argument parts

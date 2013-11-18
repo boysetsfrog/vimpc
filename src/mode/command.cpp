@@ -199,6 +199,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("test-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::TestConsole>);
    AddCommand("test",               false, false, &Command::Test);
    AddCommand("test-screen",        false, false, &Command::TestScreen);
+   AddCommand("test-resize",        false, false, &Command::TestResize);
    AddCommand("test-input-random",  true,  false, &Command::TestInputRandom);
    AddCommand("test-input-seq",     true,  false, &Command::TestInputSequence);
 #endif
@@ -310,7 +311,7 @@ bool Command::ExecuteCommand(std::string const & input)
 
    // If there are multiple commands we need to run them all
    // But in the case of alias we don't actually want to run the commands
-   if ((multipleCommands.Matches(fullCommand) == true) && (command != "alias")) 
+   if ((multipleCommands.Matches(fullCommand) == true) && (command != "alias"))
    {
       // There are multiple commands seperated by ';' we have to handle each one
       while (multipleCommands.Capture(fullCommand, &matchString, &commandString) == true)
@@ -1432,6 +1433,16 @@ void Command::TestScreen(std::string const & arguments)
    screen_.ScrollTo(screen_.ActiveWindow().Current());
    screen_.ActiveWindow().ScrollTo(0);
    screen_.Invalidate(screen_.GetActiveWindow());
+}
+
+void Command::TestResize(std::string const & arguments)
+{
+   std::vector<std::string> args = SplitArguments(arguments);
+
+   if (args.size() == 2)
+   {
+      screen_.Resize(true, atoi(args[0].c_str()), atoi(args[1].c_str()));
+   }
 }
 
 

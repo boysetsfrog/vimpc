@@ -213,7 +213,7 @@ namespace Ui
       void InvalidateAll();
 
       // Handle a screen resize
-      bool Resize(bool forceResize = false);
+      bool Resize(bool forceResize = false, int rows = -1, int cols = -1);
 
    public:
       //! \TODO this functions need a refactor/rename

@@ -864,7 +864,7 @@ void Screen::InvalidateAll()
    }
 }
 
-bool Screen::Resize(bool forceResize)
+bool Screen::Resize(bool forceResize, int rows, int cols)
 {
    bool WasWindowResized = false;
 
@@ -890,6 +890,15 @@ bool Screen::Resize(bool forceResize)
       maxRows_    = LINES;
       maxColumns_ = COLS;
 #endif
+
+      //! Allows for overriding the resize to a specific dimension
+      //! this is useful to test resizing without having to actually
+      //! resize the terminal window repeatedly
+      if ((rows != -1) && (cols != -1))
+      {
+         maxRows_    = rows;
+         maxColumns_ = cols;
+      }
 
       if (maxRows_ >= 0)
       {
