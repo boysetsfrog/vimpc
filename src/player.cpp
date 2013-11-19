@@ -257,8 +257,6 @@ void Player::SkipSong(Skip skip, uint32_t count)
             client_.Next();
          }
       }
-
-      HandleAutoScroll();
    }
    else
    {

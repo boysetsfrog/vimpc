@@ -71,7 +71,8 @@ Vimpc::Vimpc() :
    modeTable_        (),
    normalMode_       (*(new Ui::Normal (this, screen_, client_, clientState_, settings_, search_))),
    commandMode_      (*(new Ui::Command(this, screen_, client_, clientState_, settings_, search_, normalMode_))),
-   userEvents_       (true)
+   userEvents_       (true),
+   requireRepaint_   (false)
 {
 
    modeTable_[Command] = &commandMode_;
@@ -81,17 +82,7 @@ Vimpc::Vimpc() :
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
 
-   // All the events that cause repaints
-   Vimpc::EventHandler(Event::Connected,        [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::CommandListSend,  [this] (EventData const & Data) { Repaint(); });
-
-   Vimpc::EventHandler(Event::OutputEnabled,    [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::OutputDisabled,   [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::QueueUpdate,      [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::Output,           [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::TestResult,       [this] (EventData const & Data) { Repaint(); });
-   Vimpc::EventHandler(Event::NewPlaylist,      [this] (EventData const & Data) { Repaint(); });
+   Vimpc::EventHandler(Event::Repaint, [this] (EventData const & Data) { SetRepaint(true); });
 
    // When we change the album artist we need to repopulate the print functions in the song
    // this is an optimisation, if you check the setting for every song print to determine
@@ -232,9 +223,17 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          bool const Resize = screen_.Resize();
 
-         if ((input != ERR) || (Resize == true))
+         QueueMutex.lock();
+
+         if (((input != ERR) || (Resize == true)) ||
+              ((requireRepaint_ == true) && (Queue.empty() == false)))
          {
+            QueueMutex.unlock();
             Repaint();
+         }
+         else
+         {
+            QueueMutex.unlock();
          }
 
          input = ERR;
@@ -242,9 +241,16 @@ void Vimpc::Run(std::string hostname, uint16_t port)
    }
 }
 
+void Vimpc::SetRepaint(bool requireRepaint)
+{
+   requireRepaint_ = requireRepaint;
+}
+
 void Vimpc::Repaint()
 {
    Debug("Doing the screen update");
+
+   requireRepaint_ = false;
 
    screen_.Update();
    clientState_.DisplaySongInformation();

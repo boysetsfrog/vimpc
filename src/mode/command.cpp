@@ -1395,6 +1395,7 @@ void Command::TestExecutor()
                {
                   EventData Data; Data.name = output;
                   Main::Vimpc::CreateEvent(Event::TestResult, Data);
+                  Main::Vimpc::CreateEvent(Event::Repaint,   Data);
                }
             }
 

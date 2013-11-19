@@ -91,6 +91,9 @@ namespace Main
       //! \todo Possibly template this kind of check?
       bool ModesAreInitialised();
 
+      // Flag that a repaint is required
+      void SetRepaint(bool requireRepaint);
+
       // Update the screen
       void Repaint();
 
@@ -118,6 +121,7 @@ namespace Main
       Ui::Normal   &    normalMode_;
       Ui::Command  &    commandMode_;
       Atomic(bool)      userEvents_;
+      bool              requireRepaint_;
    };
 }
 

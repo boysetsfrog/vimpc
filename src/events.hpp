@@ -35,6 +35,7 @@
    X(ChangeHost) \
    X(Elapsed) \
    X(StatusUpdate) \
+   X(Repaint) \
    X(CurrentSongId) \
    X(CurrentSong) \
    X(QueueUpdate) \

@@ -106,6 +106,8 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    {
       this->currentSongId_ = Data.id;
       DisplaySongInformation();
+
+      Main::Vimpc::CreateEvent(Event::Repaint, Data);
    });
 
    Main::Vimpc::EventHandler(Event::Elapsed, [this] (EventData const & Data)
@@ -125,6 +127,8 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       currentSong_    = Data.currentSong;
       currentSongURI_ = (currentSong_ != NULL) ? mpd_song_get_uri(currentSong_) : "";
       DisplaySongInformation();
+
+      Main::Vimpc::CreateEvent(Event::Repaint, Data);
    });
 
    Main::Vimpc::EventHandler(Event::Random, [this] (EventData const & Data)

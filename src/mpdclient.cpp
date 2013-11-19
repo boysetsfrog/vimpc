@@ -292,6 +292,7 @@ void Client::ConnectImpl(std::string const & hostname, uint16_t port, uint32_t t
 
       EventData Data;
       Main::Vimpc::CreateEvent(Event::Connected, Data);
+      Main::Vimpc::CreateEvent(Event::Repaint,   Data);
 
       GetVersion();
 
@@ -955,6 +956,7 @@ void Client::CreatePlaylist(std::string const & name)
          {
             EventData Data; Data.name = name;
             Main::Vimpc::CreateEvent(Event::NewPlaylist, Data);
+            Main::Vimpc::CreateEvent(Event::Repaint,   Data);
          }
 
          Debug("Client::Send clear playlist %s", name.c_str());
@@ -1216,6 +1218,7 @@ void Client::EnableOutput(Mpc::Output * output)
          {
             EventData Data; Data.id = Id;
             Main::Vimpc::CreateEvent(Event::OutputEnabled, Data);
+            Main::Vimpc::CreateEvent(Event::Repaint,   Data);
          }
       }
       else
@@ -1241,6 +1244,7 @@ void Client::DisableOutput(Mpc::Output * output)
          {
             EventData Data; Data.id = Id;
             Main::Vimpc::CreateEvent(Event::OutputDisabled, Data);
+            Main::Vimpc::CreateEvent(Event::Repaint,   Data);
          }
       }
       else
@@ -1298,6 +1302,7 @@ void Client::Add(std::vector<Mpc::Song *> songs)
 
                EventData Data;
                Main::Vimpc::CreateEvent(Event::CommandListSend, Data);
+               Main::Vimpc::CreateEvent(Event::Repaint,   Data);
             }
             else
             {
@@ -2124,6 +2129,7 @@ void Client::GetAllMetaInformation()
    {
       EventData Data;
       Main::Vimpc::CreateEvent(Event::AllMetaDataReady, Data);
+      Main::Vimpc::CreateEvent(Event::Repaint,   Data);
    }
 
 #if !LIBMPDCLIENT_CHECK_VERSION(2,5,0)
@@ -2153,6 +2159,7 @@ void Client::GetAllOutputs()
 
             EventData Data; Data.output = output;
             Main::Vimpc::CreateEvent(Event::Output, Data);
+            Main::Vimpc::CreateEvent(Event::Repaint,   Data);
 
             mpd_output_free(next);
          }
@@ -2238,6 +2245,7 @@ void Client::SendCommandList()
             listMode_ = false;
             EventData Data;
             Main::Vimpc::CreateEvent(Event::CommandListSend, Data);
+            Main::Vimpc::CreateEvent(Event::Repaint,   Data);
          }
          else
          {
@@ -2407,6 +2415,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
 
                EventData Data;
                Main::Vimpc::CreateEvent(Event::UpdateComplete, Data);
+               Main::Vimpc::CreateEvent(Event::Repaint,   Data);
             }
 
             queueVersion_ = version;
@@ -2481,6 +2490,7 @@ void Client::QueueMetaChanges()
 
             EventData QueueData;
             Main::Vimpc::CreateEvent(Event::QueueUpdate, QueueData);
+
             UpdateCurrentSong();
          }
          else
