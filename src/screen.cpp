@@ -70,6 +70,7 @@ using namespace Ui;
 
 
 bool WindowResized = false;
+bool Continue      = true;
 int32_t RndCount   = 0;
 
 static Atomic(bool)   Running(true);
@@ -126,6 +127,18 @@ void QueueInput(WINDOW * inputWindow)
       else
       {
    #endif
+
+      if (Continue == true)
+      {
+         Continue = false;
+
+         CursesMutex.lock();
+         raw();
+         noecho();
+         keypad(inputWindow, true);
+         wtimeout(inputWindow, -1);
+         CursesMutex.unlock();
+      }
 
       if (poll(&fds, 1, 250) <= 0)
       {
@@ -1605,8 +1618,9 @@ void ResizeHandler(int i)
 void ContinueHandler(int i)
 {
    CursesMutex.lock();
-   raw();
+   refresh();
    CursesMutex.unlock();
+   Continue = true;
    WindowResized = true;
 }
 /* vim: set sw=3 ts=3: */
