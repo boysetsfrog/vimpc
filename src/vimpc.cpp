@@ -169,30 +169,33 @@ void Vimpc::Run(std::string hostname, uint16_t port)
             if ((Queue.empty() == false) ||
                (ConditionWait(Condition, Lock, 100) != false))
             {
-               EventPair const Event = Queue.front();
-               Queue.pop_front();
-               Lock.unlock();
-
-               if ((userEvents_ == false) &&
-                   (Event.second.user == true))
+               if (Queue.empty() == false)
                {
-                  Debug("Discarding user event");
-                  continue;
+                  EventPair const Event = Queue.front();
+                  Queue.pop_front();
+                  Lock.unlock();
+
+                  if ((userEvents_ == false) &&
+                     (Event.second.user == true))
+                  {
+                     Debug("Discarding user event");
+                     continue;
+                  }
+
+                  for (auto func : Handler[Event.first])
+                  {
+                     func(Event.second);
+                  }
+
+                  EventMutex.lock();
+
+                  for (auto cond : WaitConditions[Event.first])
+                  {
+                     cond->notify_all();
+                  }
+
+                  EventMutex.unlock();
                }
-
-               for (auto func : Handler[Event.first])
-               {
-                  func(Event.second);
-               }
-
-               EventMutex.lock();
-
-               for (auto cond : WaitConditions[Event.first])
-               {
-                  cond->notify_all();
-               }
-
-               EventMutex.unlock();
             }
          }
 

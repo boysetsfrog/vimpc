@@ -155,37 +155,40 @@ void QueueInput(WINDOW * inputWindow)
 
       if (input != ERR)
       {
-         if (input == INPUT_SIGINT) //<C-C>
+         if (input != KEY_RESIZE)
          {
-            std::raise(SIGINT);
-         }
-         else if (input == INPUT_SIGSTOP) //<C-Z>
-         {
-            std::raise(SIGSTOP);
-         }
-         else
-         {
-            //if ((input == INPUT_ESCAPE) && (HandleEscape == true))
-            if (input == INPUT_ESCAPE)
+            if (input == INPUT_SIGINT) //<C-C>
             {
-               CursesMutex.lock();
-               wtimeout(inputWindow, 0);
-
-               int escapeChar = wgetch(inputWindow);
-
-               if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
+               std::raise(SIGINT);
+            }
+            else if (input == INPUT_SIGSTOP) //<C-Z>
+            {
+               std::raise(SIGSTOP);
+            }
+         else
+            {
+               //if ((input == INPUT_ESCAPE) && (HandleEscape == true))
+               if (input == INPUT_ESCAPE)
                {
-                  input = escapeChar | (1 << 31);
+                  CursesMutex.lock();
+                  wtimeout(inputWindow, 0);
+
+                  int escapeChar = wgetch(inputWindow);
+
+                  if ((escapeChar != ERR) && (escapeChar != INPUT_ESCAPE))
+                  {
+                     input = escapeChar | (1 << 31);
+                  }
+
+                  wtimeout(inputWindow, -1);
+                  CursesMutex.unlock();
                }
 
-               wtimeout(inputWindow, -1);
-               CursesMutex.unlock();
+               EventData Data;
+               Data.user  = true;
+               Data.input = input;
+               Main::Vimpc::CreateEvent(Event::Input, Data);
             }
-
-            EventData Data;
-            Data.user  = true;
-            Data.input = input;
-            Main::Vimpc::CreateEvent(Event::Input, Data);
          }
       }
    }
