@@ -776,12 +776,20 @@ void Screen::PrintModeWindow(Ui::ModeWindow * window)
    CursesMutex.unlock();
 }
 
+void Screen::HideCursor()
+{
+   CursesMutex.lock();
+   curs_set(0);
+   CursesMutex.unlock();
+}
+
 void Screen::Update()
 {
    if ((started_ == true) && (mainWindows_[window_] != NULL))
    {
       WindowMap::iterator it = mainWindows_.begin();
 
+      HideCursor();
       Initialise(window_);
 
       CursesMutex.lock();

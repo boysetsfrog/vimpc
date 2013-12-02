@@ -20,6 +20,7 @@
 
 #include "clientstate.hpp"
 
+#include "mode/mode.hpp"
 #include "mpdclient.hpp"
 #include "assert.hpp"
 #include "buffers.hpp"
@@ -302,6 +303,8 @@ void ClientState::DisplaySongInformation()
 {
    static char durationStr[128];
 
+   screen_.HideCursor();
+
    if ((Connected() == true) && (CurrentState() != "Stopped"))
    {
       if (currentSong_ != NULL)
@@ -347,6 +350,8 @@ void ClientState::DisplaySongInformation()
    {
       screen_.UpdateProgressWindow();
    }
+
+   vimpc_->CurrentMode().Refresh();
 }
 
 

@@ -202,6 +202,9 @@ namespace Ui
       // Print the mode window
       void PrintModeWindow(Ui::ModeWindow * window);
 
+      // Hide the mode cursor
+      void HideCursor();
+
       // Reprint the currently active main window
       void Update();
 
