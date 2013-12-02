@@ -208,9 +208,12 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
 
    // Align the text to a location on the screen
    actionTable_["z."]        = &Normal::AlignTo<Screen::Centre>;
+   actionTable_["zz"]        = &Normal::AlignTo<Screen::Centre>;
    actionTable_["z<Enter>"]  = &Normal::AlignTo<Screen::Top>;
    actionTable_["z<Return>"] = &Normal::AlignTo<Screen::Top>;
+   actionTable_["zt"]        = &Normal::AlignTo<Screen::Top>;
    actionTable_["z-"]        = &Normal::AlignTo<Screen::Bottom>;
+   actionTable_["zb"]        = &Normal::AlignTo<Screen::Bottom>;
 
    // Support for Z{Z,Q}
    actionTable_["ZZ"]        = &Normal::Quit;

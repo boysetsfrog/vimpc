@@ -33,8 +33,11 @@
    [count] M                | select the middle visible line
    [count] L                | select the bottom visible line - [count]
    [count] z<Enter>         | selected line (or [count]) to display at the top
+   [count] zt               | selected line (or [count]) to display at the top
    [count] z.               | selected line (or [count]) to display in centres
+   [count] zz               | selected line (or [count]) to display in centres
    [count] z-               | selected line (or [count]) to display at the bottom
+   [count] zb               | selected line (or [count]) to display at the bottom
    [count] .                | repeat the last normal mode action [count] times
 
 
@@ -44,6 +47,9 @@
    [count] gt               | next window/tab, or to window/tab number [count]
    [count] gT               | previous window/tab, or back [count] windows/tabs
            Alt+<number>     | change to the given window/tab number
+
+           ZZ               | quit vimpc
+           ZQ               | quit vimpc
 
  MARKS:
            m<Key>           | set a mark called <Key>
