@@ -354,6 +354,11 @@ std::string Song::FormatString(std::string fmt) const
    SongInfo['n'] = &Mpc::Song::Track;
    SongInfo['f'] = &Mpc::Song::URI;
 
+   SongInfo['r'] = &Mpc::Song::Artist;
+   SongInfo['R'] = &Mpc::Song::Artist;
+   SongInfo['m'] = &Mpc::Song::AlbumArtist;
+   SongInfo['M'] = &Mpc::Song::AlbumArtist;
+
    if (Main::Settings::Instance().Get(Setting::AlbumArtist) == true)
    {
       SongInfo['a'] = &Mpc::Song::AlbumArtist;
@@ -406,13 +411,16 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
          }
          else if ((*it == 'a') || (*it == 'A') ||
                   (*it == 'b') || (*it == 'B') ||
+                  (*it == 'r') || (*it == 'R') ||
+                  (*it == 'm') || (*it == 'M') ||
                   (*it == 'l') || (*it == 't') ||
                   (*it == 'n') || (*it == 'f'))
          {
             SongFunction Function = SongInfo[*it];
             std::string val = (*this.*Function)();
 
-            if ((*it == 'B') || (*it == 'A'))
+            if ((*it == 'B') || (*it == 'A') ||
+                (*it == 'R') || (*it == 'M'))
             {
                SwapThe(val);
             }

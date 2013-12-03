@@ -458,8 +458,12 @@
  the settings songformat and libraryformat respectively. The formatting
  of these strings is based upon those of ncmpcpp.
 
-    %a  - Artist
-    %A  - Artist, but swap "The Band" to "Band, The"
+    %a  - Artist or AlbumArtist (based on albumartist setting)
+    %A  - Artist or AlbumArtist, but swap "The Band" to "Band, The"
+    %r  - Artist 
+    %R  - Artist, but swap "The Band" to "Band, The"
+    %m  - AlbumArtist 
+    %M  - AlbumArtist, but swap "The Band" to "Band, The"
     %b  - Album
     %B  - Album, but swap "The Album" to "Album, The"
     %t  - Song title
