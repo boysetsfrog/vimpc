@@ -143,24 +143,29 @@ bool Search::SearchResult(Skip skip, uint32_t count)
 
 bool Search::SearchResult(Skip skip, std::string const & search, int32_t line, uint32_t count, bool raiseError)
 {
-   Direction direction = direction_;
+   bool found = false;
 
-   if (skip == Previous)
+   if (screen_.GetActiveWindow() != Screen::DebugConsole)
    {
-      direction = SwapDirection(direction);
-   }
+      Direction direction = direction_;
 
-   bool const found = SearchWindow(direction, search, line, count);
-
-   if (found == false)
-   {
-      if (raiseError == true)
+      if (skip == Previous)
       {
-         ErrorString(ErrorNumber::SearchNoResults, search);
+         direction = SwapDirection(direction);
       }
-      else
+
+      found = SearchWindow(direction, search, line, count);
+
+      if (found == false)
       {
-         screen_.ScrollTo(currentLine_);
+         if (raiseError == true)
+         {
+            ErrorString(ErrorNumber::SearchNoResults, search);
+         }
+         else
+         {
+            screen_.ScrollTo(currentLine_);
+         }
       }
    }
 

@@ -1062,7 +1062,10 @@ void Normal::Select(uint32_t count)
 template <Ui::Search::Skip SKIP>
 void Normal::SearchResult(uint32_t count)
 {
-   search_.SearchResult(SKIP, count);
+   if (screen_.GetActiveWindow() != Screen::DebugConsole)
+   {
+      search_.SearchResult(SKIP, count);
+   }
 }
 
 
