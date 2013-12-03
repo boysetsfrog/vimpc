@@ -351,7 +351,10 @@ void ClientState::DisplaySongInformation()
       screen_.UpdateProgressWindow();
    }
 
-   vimpc_->CurrentMode().Refresh();
+   if (screen_.PagerIsVisible() == false)
+   {
+      vimpc_->CurrentMode().Refresh();
+   }
 }
 
 
