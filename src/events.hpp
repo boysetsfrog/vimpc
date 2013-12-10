@@ -33,6 +33,7 @@
    X(Disconnected) \
    X(CurrentState) \
    X(ChangeHost) \
+   X(Continue) \
    X(Elapsed) \
    X(StatusUpdate) \
    X(Repaint) \

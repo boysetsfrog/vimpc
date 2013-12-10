@@ -138,6 +138,9 @@ void QueueInput(WINDOW * inputWindow)
          keypad(inputWindow, true);
          wtimeout(inputWindow, -1);
          CursesMutex.unlock();
+
+         EventData Data;
+         Main::Vimpc::CreateEvent(Event::Continue, Data);
       }
 
       if (poll(&fds, 1, 250) <= 0)
@@ -295,6 +298,11 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    CursesMutex.unlock();
 
    // Register events
+   Main::Vimpc::EventHandler(Event::Continue,  [this] (EventData const & Data)
+   {
+      SetupMouse(settings_.Get(Setting::Mouse));
+   });
+
    Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { InvalidateAll(); });
 
    Main::Vimpc::EventHandler(Event::RequirePassword,  [this] (EventData const & Data)
