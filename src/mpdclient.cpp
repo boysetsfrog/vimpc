@@ -399,6 +399,7 @@ void Client::Play(uint32_t const playId)
             Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
 
             state_ = MPD_STATE_PLAY;
+            elapsed_ = 0;
             timeSinceUpdate_ = 0;
             StateEvent();
          }
