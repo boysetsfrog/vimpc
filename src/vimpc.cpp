@@ -87,7 +87,7 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::CurrentSongId, [this] (EventData const & Data)
    {
-      normalMode_.HandleAutoScroll();
+      //normalMode_.HandleAutoScroll();
    });
 
 
