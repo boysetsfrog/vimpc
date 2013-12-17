@@ -130,6 +130,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    listMode_             (false),
    idleMode_             (false),
    queueUpdate_          (false),
+   autoscroll_           (false),
    clientThread_         (Thread(&Client::ClientQueueExecutor, this, this))
 {
    screen_.RegisterProgressCallback([this] (double Value) { SeekToPercent(Value); });
@@ -398,6 +399,9 @@ void Client::Play(uint32_t const playId)
             EventData IdData; IdData.id = currentSongId_;
             Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
 
+            autoscroll_ = false;
+            Main::Vimpc::CreateEvent(Event::Autoscroll,    IdData);
+
             state_ = MPD_STATE_PLAY;
             elapsed_ = 0;
             timeSinceUpdate_ = 0;
@@ -490,6 +494,8 @@ void Client::Next()
       {
          Debug("Client::Next song");
          mpd_send_next(connection_);
+
+         autoscroll_ = true;
       }
       else
       {
@@ -508,6 +514,8 @@ void Client::Previous()
       {
          Debug("Client::Previous song");
          mpd_send_previous(connection_);
+
+         autoscroll_ = true;
       }
       else
       {
@@ -1886,6 +1894,12 @@ void Client::UpdateCurrentSong()
 
    EventData IdData; IdData.id = currentSongId_;
    Main::Vimpc::CreateEvent(Event::CurrentSongId, IdData);
+
+   if (autoscroll_ == true)
+   {
+      Main::Vimpc::CreateEvent(Event::Autoscroll, IdData);
+      autoscroll_ = false;
+   }
 
    if (currentSong_ != NULL)
    {

@@ -68,6 +68,7 @@
    X(TestResult) \
    X(PlaylistContents) \
    X(PlaylistContentsForRemove) \
+   X(Autoscroll) \
    X(Update) \
    X(UpdateComplete) \
    X(RequirePassword) \

@@ -85,9 +85,9 @@ Vimpc::Vimpc() :
    Vimpc::EventHandler(Event::Repaint, [this] (EventData const & Data) { SetRepaint(true); });
 
 
-   Vimpc::EventHandler(Event::CurrentSongId, [this] (EventData const & Data)
+   Vimpc::EventHandler(Event::Autoscroll, [this] (EventData const & Data)
    {
-      //normalMode_.HandleAutoScroll();
+      normalMode_.HandleAutoScroll();
    });
 
 
