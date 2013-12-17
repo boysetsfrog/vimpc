@@ -280,8 +280,6 @@ void Player::SkipSong(Skip skip, uint32_t count)
 
       client_.Play(song);
    }
-
-   HandleAutoScroll();
 }
 
 void Player::SkipAlbum(Skip skip, uint32_t count)
@@ -319,8 +317,6 @@ void Player::SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInf
 
       client_.Play(skipResult);
    }
-
-   HandleAutoScroll();
 }
 
 uint32_t Player::NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction)
@@ -404,9 +400,12 @@ uint32_t Player::First(Mpc::Song const * const song, uint32_t position, Mpc::Son
 
 void Player::HandleAutoScroll()
 {
-   if (settings_.Get(Setting::AutoScroll) == true)
+   if (screen_.GetActiveWindow() == Screen::Playlist)
    {
-      screen_.ScrollTo(Screen::Current);
+      if (settings_.Get(Setting::AutoScroll) == true)
+      {
+         screen_.ScrollTo(Screen::Current);
+      }
    }
 }
 

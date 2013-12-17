@@ -84,6 +84,13 @@ Vimpc::Vimpc() :
 
    Vimpc::EventHandler(Event::Repaint, [this] (EventData const & Data) { SetRepaint(true); });
 
+
+   Vimpc::EventHandler(Event::CurrentSongId, [this] (EventData const & Data)
+   {
+      normalMode_.HandleAutoScroll();
+   });
+
+
    // When we change the album artist we need to repopulate the print functions in the song
    // this is an optimisation, if you check the setting for every song print to determine
    // whether to use the albumartist or the artist it is a huge overhead, so we don't

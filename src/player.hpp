@@ -133,6 +133,11 @@ namespace Ui
       //! \param count Number of artists to skip
       void SkipArtist(Skip skip, uint32_t count);
 
+   public:
+      //! Based upon the auto scroll setting, will determine whether to
+      //! scroll the screen after a skip has been performed
+      void HandleAutoScroll();
+
    protected:
       //! Returns the currently playing song's id
       //!
@@ -143,11 +148,6 @@ namespace Ui
       void     SkipSongByInformation(Skip skip, uint32_t count, Mpc::Song::SongInformationFunction songFunction);
       uint32_t NextSongByInformation(uint32_t startSong, Skip skip, Mpc::Song::SongInformationFunction songFunction);
       uint32_t First(Mpc::Song const * const song, uint32_t position, Mpc::Song::SongInformationFunction songFunction);
-
-   private:
-      //! Based upon the auto scroll setting, will determine whether to
-      //! scroll the screen after a skip has been performed
-      void HandleAutoScroll();
 
    private:
       Ui::Screen &        screen_;
