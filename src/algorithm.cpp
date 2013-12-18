@@ -87,6 +87,19 @@ bool Algorithm::iequals(std::string const & s1, std::string const & s2)
 	return (strcasecmp(s1.c_str(), s2.c_str()) == 0);
 }
 
+bool Algorithm::iequals(std::string const & s1, std::string const & s2, bool ignoreLeadingThe, bool caseInsensitive)
+{
+	std::string lower1(PrepString(s1, ignoreLeadingThe));
+	std::string lower2(PrepString(s2, ignoreLeadingThe));
+
+   if (caseInsensitive == true)
+   {
+      return (strcasecmp(lower1.c_str(), lower2.c_str()) == 0);
+   }
+
+   return (lower1 == lower2);
+}
+
 bool Algorithm::isNumeric(std::string const & s1)
 {
 	for (unsigned int i = 0; i < s1.size(); ++i)

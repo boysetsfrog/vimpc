@@ -44,9 +44,9 @@ Library::Library() :
    AddCallback(Main::Buffer_Remove, [this] (LibraryEntry * const entry) { CheckIfVariousRemoved(entry); });
 
    Main::Vimpc::EventHandler(Event::AllMetaDataReady, [this] (EventData const & Data) { Sort(); });
-   
-   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value) 
-   { 
+
+   settings_.RegisterCallback(Setting::AlbumArtist, [this] (bool Value)
+   {
       // Clear the cached format prints for every song
       for (auto song : uriMap_)
       {
@@ -133,7 +133,7 @@ void Library::Add(Mpc::Song * song)
    CreateVariousArtist();
 
    if ((lastAlbumEntry_ == NULL) ||
-       (Algorithm::imatch(lastAlbumEntry_->album_, album,
+       (Algorithm::iequals(lastAlbumEntry_->album_, album,
                           settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
       lastAlbumEntry_  = NULL;
@@ -148,7 +148,7 @@ void Library::Add(Mpc::Song * song)
          for (i = 0;
               ((i < Size()) &&
                ((Get(i)->type_ != Mpc::ArtistType) ||
-                (Algorithm::imatch(Get(i)->artist_, artist,
+                (Algorithm::iequals(Get(i)->artist_, artist,
                                    settings_.Get(Setting::IgnoreTheGroup), true) == false)));
                ++i);
 
@@ -184,7 +184,7 @@ void Library::Add(Mpc::Song * song)
        (lastArtistEntry_ != variousArtist_) &&
        (lastArtistEntry_->children_.back() == lastAlbumEntry_) &&
        (Algorithm::iequals(lastAlbumEntry_->album_, album)  == true) &&
-       (Algorithm::imatch(lastArtistEntry_->artist_, artist,
+       (Algorithm::iequals(lastArtistEntry_->artist_, artist,
            settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
       lastArtistEntry_->children_.pop_back();

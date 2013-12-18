@@ -36,6 +36,7 @@ namespace Algorithm
    bool icompare(std::string const & s1, std::string const & s2, bool ignoreLeadingThe = false, bool caseInsensitive = true);
    bool imatch(std::string const & s1, std::string const & s2, bool ignoreLeadingThe, bool caseInsensitive);
    bool iequals(std::string const & s1, std::string const & s2);
+   bool iequals(std::string const & s1, std::string const & s2, bool ignoreLeadingThe, bool caseInsensitive);
 
    bool isNumeric(std::string const & s1);
 }
