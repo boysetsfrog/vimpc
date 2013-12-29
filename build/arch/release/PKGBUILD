@@ -1,14 +1,14 @@
 # Maintainer: Nathan Sweetman <nathan.sweetman@gmail.com>
 pkgname=vimpc
 pkgver=0.09.0
-pkgrel=1
+pkgrel=3
 epoch=
 pkgdesc="ncurses based MPD client with vi-like key bindings"
 arch=('i686' 'x86_64')
 url="https://sourceforge.net/projects/vimpc/"
 license=('GPL3')
 groups=()
-depends=('libmpdclient' 'ncurses' 'pcre')
+depends=('libmpdclient' 'ncurses' 'pcre' 'taglib')
 makedepends=()
 checkdepends=()
 optdepends=()
@@ -21,7 +21,7 @@ install=
 changelog=
 source=(http://downloads.sourceforge.net/project/vimpc/Release%20$pkgver/$pkgname-$pkgver.tar.gz)
 noextract=()
-md5sums=('c215357d574142d795875ee02902add0')
+md5sums=('10f1da0157f8f4309b4102d5e3fc4d84')
 
 build() {
   cd "$srcdir/$pkgname"
