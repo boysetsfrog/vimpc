@@ -2174,10 +2174,13 @@ void Client::GetAllOutputs()
 
             EventData Data; Data.output = output;
             Main::Vimpc::CreateEvent(Event::Output, Data);
-            Main::Vimpc::CreateEvent(Event::Repaint,   Data);
 
             mpd_output_free(next);
          }
+
+         Debug("Client::Get outputs complete");
+         EventData Data;
+         Main::Vimpc::CreateEvent(Event::Repaint,Data);
       }
    });
 }

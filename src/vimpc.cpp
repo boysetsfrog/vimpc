@@ -82,8 +82,7 @@ Vimpc::Vimpc() :
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
 
-   Vimpc::EventHandler(Event::Repaint, [this] (EventData const & Data) { SetRepaint(true); });
-
+   Vimpc::EventHandler(Event::Repaint, [this] (EventData const & Data) { Debug("Repaint event"); SetRepaint(true); });
 
    Vimpc::EventHandler(Event::Autoscroll, [this] (EventData const & Data)
    {
@@ -235,8 +234,7 @@ void Vimpc::Run(std::string hostname, uint16_t port)
 
          QueueMutex.lock();
 
-         if (((input != ERR) || (Resize == true)) ||
-              ((requireRepaint_ == true) && (Queue.empty() == false)))
+         if (((input != ERR) || (Resize == true)) || (requireRepaint_ == true))
          {
             QueueMutex.unlock();
             Repaint();

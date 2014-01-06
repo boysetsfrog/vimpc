@@ -1236,12 +1236,6 @@ void Screen::SetActiveWindowType(MainWindow window)
 {
    previous_ = window_;
    window_   = window;
-
-   if (drawn_[window_] == false)
-   {
-      Redraw(window_);
-   }
-
    Update();
 }
 
@@ -1251,11 +1245,6 @@ void Screen::SetActiveWindow(uint32_t window)
    {
       previous_ = window_;
       window_   = visibleWindows_.at(window);
-   }
-
-   if (drawn_[window_] == false)
-   {
-      Redraw(window_);
    }
 
    Update();

@@ -38,6 +38,7 @@ OutputWindow::OutputWindow(Main::Settings const & settings, Ui::Screen & screen,
    outputs_         (outputs)
 {
    outputs_.AddCallback(Main::Buffer_Remove, [this] (Mpc::Outputs::BufferType line) { AdjustScroll(line); });
+   outputs_.AddCallback(Main::Buffer_Add,    [this] (Mpc::Outputs::BufferType line) { SoftRedraw(); });
 }
 
 OutputWindow::~OutputWindow()
@@ -48,19 +49,23 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::Redraw()
 {
+   Debug("Output redraw");
    Clear();
    client_.GetAllOutputs();
    SoftRedraw();
+   Debug("Output redraw complete");
 }
 
 void OutputWindow::SoftRedraw()
 {
+   Debug("Output softredraw");
    Ui::OutputComparator sorter;
 
    outputs_.Main::Buffer<Mpc::Output *>::Sort(sorter);
 
    SetScrollLine(0);
    ScrollTo(0);
+   Debug("Output softredraw complete");
 }
 
 

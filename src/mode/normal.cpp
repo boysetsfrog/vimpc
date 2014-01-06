@@ -68,10 +68,6 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    playlist_        (Main::Playlist()),
    settings_        (settings)
 {
-   // \todo these key bindings are pretty bad
-   //       i will probably need to make them more specific
-   //       to the tab/window or more modal or something
-
    // \todo display current count somewhere ?
    actionTable_["."]       = &Normal::RepeatLastAction;
    actionTable_["c"]       = &Normal::ClearScreen;
@@ -167,7 +163,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    //actionTable_["<C-Z>"]   = &Normal::SendSignal<SIGTSTP>;
    //actionTable_["<C-C>"]   = &Normal::SendSignal<SIGINT>;
 
-   // Editting
+   // Editing
    actionTable_["<C-A>"]   = &Normal::Move<Relative, 1>;
    actionTable_["<C-X>"]   = &Normal::Move<Relative, -1>;
 
@@ -647,7 +643,7 @@ std::string Normal::InputCharToString(int input) const
       conversionTable['\t']          = "<Tab>";
       conversionTable[';']           = "<sc>";
 
-      // Add F1 - F12  into the converstion table
+      // Add F1 - F12  into the conversion table
       for (int i = 0; i <= 12; ++i)
       {
          sprintf(key, "<F%d>", i);
