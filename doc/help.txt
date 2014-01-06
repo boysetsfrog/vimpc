@@ -205,6 +205,9 @@
    Similar to command/ex mode in vi/vim.
    Command mode is entered with the ':' key.
 
+   Multiple commands can be specified if they are separated with ';'
+    i.e :consume on; play 1
+
    NOTE: Any commands prefixed in this help with:
            '*' support tab completion
            '@' support a line number, range or both
@@ -441,7 +444,8 @@
     <BS>                    | Backspace key
     <Tab>                   | Tab key
     <Del>                   | Delete key
-    <lt>                    | Less than symbol
+    <lt>                    | Less than symbol '<'
+    <sc>                    | Semicolon symbol ';'
     <F1>, <F2>, etc         | Function keys
     <ScrollWheelUp>         | Scroll Wheel up
     <ScrollWheelDown>       | Scroll Wheel down
