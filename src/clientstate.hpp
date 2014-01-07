@@ -60,6 +60,7 @@ namespace Mpc
       std::string Hostname();
       uint16_t Port();
       bool Connected() const;
+      bool IsSocketFile() const;
 
    public:
       // Toggle settings

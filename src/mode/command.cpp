@@ -190,6 +190,9 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("write",      true,  false, &Command::SavePlaylist);
    AddCommand("toplaylist", true,  false, &Command::ToPlaylist);
 
+   // Local socket commands
+   AddCommand("localadd",   true,  true,  &Command::AddFile);
+
 #ifdef __DEBUG_PRINTS
    AddCommand("debug-console",       false, false, &Command::SetActiveAndVisible<Ui::Screen::DebugConsole>);
    AddCommand("debug-client-getmeta",true,  false, &Command::DebugClient<&Mpc::Client::GetAllMetaInformation>);
@@ -475,6 +478,19 @@ void Command::Add(std::string const & arguments)
       }
 
       client_.AddComplete();
+   }
+}
+
+void Command::AddFile(std::string const & arguments)
+{
+   if (arguments != "")
+   {
+      // Add a local filesystem song
+      Add("file://" + arguments);
+   }
+   else
+   {
+      Add("");
    }
 }
 

@@ -142,6 +142,8 @@ namespace Ui
       void Delete(std::string const & arguments);
       void DeleteAll(std::string const & arguments);
 
+      void AddFile(std::string const & arguments);
+
       template <int Delta>
       void Seek(std::string const & arguments);
       void SeekTo(std::string const & arguments);

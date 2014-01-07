@@ -278,6 +278,7 @@
    addall                   | add all songs to the playlist
  @ delete [pos1] [pos2]     | delete selected songs, songs at [pos1], or [pos1] to [pos2]
    deleteall                | delete all songs in the playlist
+   localadd <path>          | if connected via a filesystem socket, adds a song using <path>
    move <pos1> <pos2>       | move song from <pos1> to <pos2>
    shuffle                  | shuffle the playlist
    swap <pos1> <pos2>       | swap songs in <pos1> and <pos2>

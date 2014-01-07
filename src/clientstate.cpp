@@ -232,6 +232,11 @@ bool ClientState::Connected() const
    return connected_;
 }
 
+bool ClientState::IsSocketFile() const
+{
+   return ((hostname_.length() > 1) && (hostname_[0] == '/'));
+}
+
 bool ClientState::Random() const
 {
    return random_;
