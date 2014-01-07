@@ -183,6 +183,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    // Library
    actionTable_["o"]       = &Normal::Expand;
    actionTable_["u"]       = &Normal::Collapse;
+   actionTable_["zo"]      = &Normal::Expand;
+   actionTable_["zc"]      = &Normal::Collapse;
 
    // Jumping
    actionTable_["gg"]      = &Normal::ScrollTo<Screen::Specific, Screen::Top>;
