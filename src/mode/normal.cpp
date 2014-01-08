@@ -672,6 +672,23 @@ std::string Normal::PerformMapSubtitutions(std::string input) const
          sprintf(value, "<F%d>", i);
          conversionTable[std::string(key)] = std::string(value);
       }
+
+      // Alt key combinations
+      for (char i = 0; i < 127; ++i)
+      {
+         sprintf(key, "<a-%c>", i);
+         sprintf(value, "<A-%c>", i);
+         conversionTable[std::string(key)] = std::string(value);
+      }
+
+      // Ctrl key combinations
+      for (char i = 0; i < 127; ++i)
+      {
+         sprintf(key, "<c-%c>", i);
+         sprintf(value, "<C-%c>", toupper(i));
+         conversionTable[std::string(key)] = std::string(value);
+      }
+
    }
 
    Regex::RE const regex("^([^<]*(<?[^>]*>?)).*$");
