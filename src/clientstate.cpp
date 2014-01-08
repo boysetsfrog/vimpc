@@ -296,7 +296,14 @@ std::string ClientState::GetCurrentSongURI() const
 
 int32_t ClientState::GetCurrentSongPos()
 {
-   return currentSongId_;
+   if (currentState_ != "Stopped")
+   {
+      return currentSongId_;
+   }
+   else
+   {
+      return -1;
+   }
 }
 
 uint32_t ClientState::TotalNumberOfSongs()
