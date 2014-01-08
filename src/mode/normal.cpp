@@ -703,11 +703,21 @@ std::string Normal::PerformMapSubtitutions(std::string input) const
       inputReplace = inputReplace.substr(matchString.size());
 
       Regex::RE check(mapping);
-      std::transform(mapping.begin(), mapping.end(), mapping.begin(), ::tolower);
 
-      if (conversionTable.find(mapping) != conversionTable.end())
+      // Special case handling for alt keys, as A-y and A-Y are indeed quite different
+      if ((mapping.length() > 3) &&
+          ((mapping.substr(0, 3) == "<A-") || (mapping.substr(0, 3) == "<a-")))
       {
-         mapping = conversionTable[mapping];
+         mapping.replace(0, 3, "<A-");
+      }
+      else
+      {
+         std::transform(mapping.begin(), mapping.end(), mapping.begin(), ::tolower);
+
+         if (conversionTable.find(mapping) != conversionTable.end())
+         {
+            mapping = conversionTable[mapping];
+         }
       }
 
       check.Replace(mapping, input);
