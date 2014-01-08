@@ -92,6 +92,9 @@ namespace Ui
       // entry in the key map
       void HandleMap(std::string input, int count);
 
+      // Convert all special keys, like <Space>, etc into a standard, expect case form
+      std::string PerformMapSubtitutions(std::string input) const;
+
       // Convert an input character into it's escaped string name
       std::string InputCharToString(int input) const;
 

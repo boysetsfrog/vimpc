@@ -336,6 +336,9 @@ void Normal::Map(std::string key, std::string mapping)
 {
    std::vector<KeyMapItem> KeyMap;
 
+   // Ensure that the key is specified in a uniform manner
+   key = PerformMapSubtitutions(key);
+
    bool const valid = CreateKeyMap(mapping, KeyMap);
 
    if (valid == true)
@@ -352,6 +355,9 @@ void Normal::Map(std::string key, std::string mapping)
 void Normal::WindowMap(int window, std::string key, std::string mapping, bool store)
 {
    std::vector<KeyMapItem> KeyMap;
+
+   // Ensure that the key is specified in a uniform manner
+   key = PerformMapSubtitutions(key);
 
    bool const valid = CreateKeyMap(mapping, KeyMap, window);
 
@@ -395,10 +401,18 @@ bool Normal::CreateKeyMap(std::string const & mapping, std::vector<KeyMapItem> &
       }
       else
       {
-         std::string const toMap = mapping.substr(i);
          std::string input;
+         std::string toMap = mapping.substr(i);
 
          bool inWindowMap = false;
+
+         // If this is a normal mode mapping ensure that the keys being mapped
+         // are specified in the correct way, i.e replace <sPace> with <Space>
+         // but do not do this if we are in an input mode
+         if (vimpc_->ModeAfterInput(Main::Vimpc::Normal, toMap.at(0)) == Main::Vimpc::Normal)
+         {
+            toMap = PerformMapSubtitutions(toMap);
+         }
 
          if (window >= 0)
          {
@@ -617,6 +631,72 @@ bool Normal::RunKeyMap(std::vector<KeyMapItem> const & KeyMap, int count)
 
    wasSpecificCount_ = specificCount;
    return complete;
+}
+
+std::string Normal::PerformMapSubtitutions(std::string input) const
+{
+   static std::map<std::string, std::string> conversionTable;
+   static char key[32];
+   static char value[32];
+
+   // \TODO these conversion table things need tidying up
+   // and properly use a variable for the strings since they are shared
+   if (conversionTable.size() == 0)
+   {
+      conversionTable["<nop>"]       = "<Nop>";
+      conversionTable["<esc>"]       = "<Esc>";
+      conversionTable["<pageup>"]    = "<PageUp>";
+      conversionTable["<pagedown>"]  = "<PageDown>";
+      conversionTable["<home>"]      = "<Home>";
+      conversionTable["<end>"]       = "<End>";
+      conversionTable["<left>"]      = "<Left>";
+      conversionTable["<right>"]     = "<Right>";
+      conversionTable["<down>"]      = "<Down>";
+      conversionTable["<up>"]        = "<Up>";
+      conversionTable["<del>"]       = "<Del>";
+      conversionTable["<bs>"]        = "<BS>";
+      conversionTable["<space>"]     = "<Space>";
+      conversionTable["<bs>"]        = "<BS>";
+      conversionTable["<enter>"]     = "<Enter>";
+      conversionTable["<return>"]    = "<Return>";
+      conversionTable["<lt>"]        = "<lt>";
+      conversionTable["<tab>"]       = "<Tab>";
+      conversionTable["<sc>"]        = "<sc>";
+      conversionTable["<cr>"]        = "<CR>";
+      conversionTable["<c-m>"]       = "<C-M>";
+
+      // Add F1 - F12  into the conversion table
+      for (int i = 0; i <= 12; ++i)
+      {
+         sprintf(key, "<f%d>", i);
+         sprintf(value, "<F%d>", i);
+         conversionTable[std::string(key)] = std::string(value);
+      }
+   }
+
+   Regex::RE const regex("^([^<]*(<?[^>]*>?)).*$");
+
+   std::string inputReplace(input);
+   std::string mapping, matchString;
+
+   // Correct all special key names to be in a uniform, consistent and pretty way
+   // i.e this replaces <sPaCe> with <Space>, etc
+   while ((inputReplace.size() > 0) && (regex.Capture(inputReplace, &matchString, &mapping) == true))
+   {
+      inputReplace = inputReplace.substr(matchString.size());
+
+      Regex::RE check(mapping);
+      std::transform(mapping.begin(), mapping.end(), mapping.begin(), ::tolower);
+
+      if (conversionTable.find(mapping) != conversionTable.end())
+      {
+         mapping = conversionTable[mapping];
+      }
+
+      check.Replace(mapping, input);
+   }
+
+   return input;
 }
 
 std::string Normal::InputCharToString(int input) const

@@ -25,7 +25,7 @@
 
 #define ERRORCODES \
    X(Invalid, "") \
-   X(CommandAmbiguous,      "Command is ambigous, please be more specific") \
+   X(CommandAmbiguous,      "Command is ambiguous, please be more specific") \
    X(ClientError,           "MPD Error") \
    X(ClientNoConnection,    "Not Connected") \
    X(CommandNonexistant,    "Command not found") \
@@ -37,7 +37,7 @@
    X(HelpFileNonexistant,   "Unable to open help file") \
    X(NoParameter,           "Expected a parameter") \
    X(InvalidParameter,      "Invalid parameter") \
-   X(UnknownOption,         "Unkown Option") \
+   X(UnknownOption,         "Unknown Option") \
    X(NoOutput,              "No such output") \
    X(PlaylistEmpty,         "Playlist: empty") \
    X(SearchNoResults,       "Pattern not found") \
