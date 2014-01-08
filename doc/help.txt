@@ -244,6 +244,7 @@
 
  CONNECTING:
    connect [host] [port]    | connects to [host] [port] or to the default
+   connect <path>           | connect to a socket at <path>
    disconnect               | disconnect from host
    password <password>      | authenticate to mpd using <password>
    reconnect                | reconnect to host last connected to
