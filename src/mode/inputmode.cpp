@@ -24,6 +24,7 @@
 #include <algorithm>
 
 #include "assert.hpp"
+#include "algorithm.hpp"
 #include "screen.hpp"
 #include "window/console.hpp"
 #include "window/debug.hpp"
@@ -163,7 +164,9 @@ bool InputMode::CausesModeToEnd(int input) const
    {
       for (auto terminator : terminators)
       {
-         if (input.substr(i, terminator.length()) == terminator)
+         std::string text = input.substr(i, terminator.length());
+
+         if (Algorithm::iequals(text, terminator) == true)
          {
             return input.substr(0, i + ((keepTerminator == true) ? terminator.length() : 0));
          }
