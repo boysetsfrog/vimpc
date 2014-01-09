@@ -49,7 +49,6 @@
    X(AllMetaDataReady) \
    X(NewPlaylist) \
    X(PlaylistAdd) \
-   X(PlaylistReplace) \
    X(PlaylistQueueReplace) \
    X(Output) \
    X(OutputEnabled) \
@@ -95,7 +94,12 @@ namespace Event
 
 struct EventData
 {
-   EventData() : user(false) { }
+   EventData() :
+      user  (false),
+      song  (NULL),
+      output(NULL),
+      currentSong(NULL)
+         { }
 
    int32_t  input;
    int32_t  count;
@@ -115,7 +119,7 @@ struct EventData
    mpd_song *  currentSong;
 
    std::vector<std::string> uris;
-   std::vector<std::pair<int32_t, std::string> > posuri;
+   std::vector<std::pair<int32_t, std::pair<Mpc::Song *, std::string> > > posuri;
 };
 
 #endif

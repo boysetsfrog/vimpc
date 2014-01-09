@@ -2105,8 +2105,17 @@ void Client::GetAllMetaInformation()
 
       for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
       {
-         EventData Data; Data.uri = mpd_song_get_uri(nextSong); Data.pos1 = -1;
+         EventData Data; Data.song = NULL; Data.uri = mpd_song_get_uri(nextSong); Data.pos1 = -1;
+
+         // Handle "virtual" songs embedded within files
+         if (mpd_song_get_end(nextSong) != 0)
+         {
+            Song * const newSong = CreateSong(nextSong);
+            Data.song = newSong;
+         }
+
          Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
+
          mpd_song_free(nextSong);
       }
    }
@@ -2459,6 +2468,7 @@ Song * Client::CreateSong(mpd_song const * const song) const
    newSong->SetGenre      (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
    newSong->SetDate       (mpd_song_get_tag(song, MPD_TAG_DATE, 0));
    newSong->SetDuration   (mpd_song_get_duration(song));
+   newSong->SetVirtualEnd (mpd_song_get_end(song));
 
    return newSong;
 }
@@ -2491,8 +2501,16 @@ void Client::QueueMetaChanges()
 
          for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
          {
+            Song * newSong = NULL;
+
+            // Handle "virtual" songs embedded within files
+            if (mpd_song_get_end(nextSong) != 0)
+            {
+               newSong = CreateSong(nextSong);
+            }
+
             //Debug("Change: %d %s", mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong));
-            Data.posuri.push_back(std::make_pair(mpd_song_get_pos(nextSong), mpd_song_get_uri(nextSong)));
+            Data.posuri.push_back(std::make_pair(mpd_song_get_pos(nextSong), std::make_pair(newSong, mpd_song_get_uri(nextSong))));
             mpd_song_free(nextSong);
          }
 

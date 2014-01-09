@@ -123,6 +123,9 @@ namespace Mpc
       int32_t Duration() const;
       std::string const & DurationString() const;
 
+      void SetVirtualEnd(int32_t end);
+      int32_t VirtualEnd() const;
+
       void SetEntry(LibraryEntry * entry);
       LibraryEntry * Entry() const;
 
@@ -162,6 +165,7 @@ namespace Mpc
       int32_t     genre_;
       int32_t     date_;
       int32_t     duration_;
+      int32_t     virtualEnd_;
       std::string uri_;
       std::string title_;
 

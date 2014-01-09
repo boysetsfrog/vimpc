@@ -65,13 +65,13 @@ Mpc::Playlist & Main::Playlist()
    if (p_buffer == NULL)
    {
       p_buffer = new Mpc::Playlist(true);
-      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data)
          { Main::Playlist().Clear(); });
 
       //
       Main::Vimpc::EventHandler(Event::PlaylistAdd, [] (EventData const & Data)
          {
-            Mpc::Song * song = Main::Library().Song(Data.uri);
+            Mpc::Song * song = (Data.song != NULL) ? Data.song : Main::Library().Song(Data.uri);
 
             if (song == NULL)
             {
@@ -93,12 +93,12 @@ Mpc::Playlist & Main::Playlist()
          {
             for (auto pair : Data.posuri)
             {
-               Mpc::Song * song = Main::Library().Song(pair.second);
+               Mpc::Song * song = (pair.second.first != NULL) ? pair.second.first : Main::Library().Song(pair.second.second);
 
                if (song == NULL)
                {
                   song = new Mpc::Song();
-                  song->SetURI(pair.second.c_str());
+                  song->SetURI(pair.second.second.c_str());
                }
 
                Main::Playlist().Replace(pair.first, song);
@@ -116,7 +116,7 @@ Mpc::Playlist & Main::PlaylistPasteBuffer()
    if (pt_buffer == NULL)
    {
       pt_buffer = new Mpc::Playlist();
-      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data)
          { Main::PlaylistPasteBuffer().Clear(); });
    }
    return *pt_buffer;
@@ -145,9 +145,9 @@ Mpc::Library & Main::Library()
    if (l_buffer == NULL)
    {
       l_buffer = new Mpc::Library();
-      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data)
          { Main::Library().Clear(); });
-      Main::Vimpc::EventHandler(Event::DatabaseSong,  [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::DatabaseSong,  [] (EventData const & Data)
          { Main::Library().Add(Data.song); });
    }
    return *l_buffer;
@@ -158,9 +158,9 @@ Mpc::Directory & Main::Directory()
    if (dir_buffer == NULL)
    {
       dir_buffer = new Mpc::Directory();
-      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data)
          { Main::Directory().Clear(true); });
-      Main::Vimpc::EventHandler(Event::DatabaseSong,  [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::DatabaseSong,  [] (EventData const & Data)
          { Main::Directory().Add(Data.song); });
       Main::Vimpc::EventHandler(Event::DatabasePath, [] (EventData const & Data)
          { Main::Directory().Add(Data.uri); });
@@ -175,7 +175,7 @@ Mpc::Lists & Main::FileLists()
    if (f_buffer == NULL)
    {
       f_buffer = new Mpc::Lists();
-      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data)
          { Main::FileLists().Clear(); });
       Main::Vimpc::EventHandler(Event::DatabaseListFile, [] (EventData const & Data)
          { Mpc::List const list(Data.uri, Data.name); Main::FileLists().Add(list); });
@@ -188,7 +188,7 @@ Mpc::Lists & Main::MpdLists()
    if (m_buffer == NULL)
    {
       m_buffer = new Mpc::Lists();
-      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data)
          { Main::MpdLists().Clear(); });
       Main::Vimpc::EventHandler(Event::DatabaseList, [] (EventData const & Data)
          { Mpc::List const list(Data.name); Main::MpdLists().Add(list); });
@@ -209,7 +209,7 @@ Mpc::Lists & Main::AllLists()
    if (i_buffer == NULL)
    {
       i_buffer = new Mpc::Lists();
-      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data) 
+      Main::Vimpc::EventHandler(Event::ClearDatabase, [] (EventData const & Data)
          { Main::AllLists().Clear(); });
       Main::Vimpc::EventHandler(Event::DatabaseListFile, [] (EventData const & Data)
          { Mpc::List const list(Data.uri, Data.name); Main::AllLists().Add(list); });

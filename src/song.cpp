@@ -62,6 +62,7 @@ Song::Song() :
    genre_     (-1),
    date_      (-1),
    duration_  (0),
+   virtualEnd_(0),
    uri_       (""),
    title_     (""),
    lastFormat_(""),
@@ -303,6 +304,16 @@ void Song::SetDuration(int32_t duration)
 int32_t Song::Duration() const
 {
    return duration_;
+}
+
+void Song::SetVirtualEnd(int32_t end)
+{
+   virtualEnd_ = end;
+}
+
+int32_t Song::VirtualEnd() const
+{
+   return virtualEnd_;
 }
 
 void Song::SetEntry(LibraryEntry * entry)
