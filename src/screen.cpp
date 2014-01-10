@@ -334,9 +334,15 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
    {
       Ui::SongWindow * const window = CreateSongWindow("P:" + Data.name);
 
-      for (auto uri : Data.uris)
+      for (auto pair : Data.posuri)
       {
-         Mpc::Song * song = Main::Library().Song(uri);
+         Mpc::Song * song = (pair.second.first != NULL) ? pair.second.first : Main::Library().Song(pair.second.second);
+
+         if (song == NULL)
+         {
+            song = new Mpc::Song();
+            song->SetURI(pair.second.second.c_str());
+         }
 
          if (song != NULL)
          {

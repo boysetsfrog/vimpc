@@ -1085,13 +1085,11 @@ void Client::PlaylistContents(std::string const & name)
 
       if (Connected() == true)
       {
-         Debug("Client::Add songs from playlist %s", name.c_str());
+         Debug("Client::Playlist contents from playlist %s", name.c_str());
 
          mpd_send_list_playlist(connection_, name.c_str());
 
          mpd_song * nextSong = mpd_recv_song(connection_);
-
-         std::vector<std::string> URIs;
 
          if (nextSong == NULL)
          {
@@ -1099,13 +1097,22 @@ void Client::PlaylistContents(std::string const & name)
          }
          else
          {
+            EventData Data; Data.name = name;
+
             for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
             {
-               URIs.push_back(mpd_song_get_uri(nextSong));
-               mpd_song_free(nextSong);
+	       Song * newSong = NULL;
+
+	       // Handle "virtual" songs embedded within files
+	       if (mpd_song_get_end(nextSong) != 0)
+	       {
+		  newSong = CreateSong(nextSong);
+	       }
+
+	       Data.posuri.push_back(std::make_pair(0, std::make_pair(newSong, mpd_song_get_uri(nextSong))));
+	       mpd_song_free(nextSong);
             }
 
-            EventData Data; Data.name = name; Data.uris = URIs;
             Main::Vimpc::CreateEvent(Event::PlaylistContents, Data);
          }
       }
