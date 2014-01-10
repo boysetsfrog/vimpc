@@ -1020,6 +1020,24 @@ void Client::LoadPlaylist(std::string const & name)
    });
 }
 
+void Client::AppendPlaylist(std::string const & name)
+{
+   QueueCommand([this, name] ()
+   {
+      ClearCommand();
+
+      if (Connected() == true)
+      {
+         Debug("Client::Send load %s", name.c_str());
+         mpd_run_load(connection_, name.c_str());
+      }
+      else
+      {
+         ErrorString(ErrorNumber::ClientNoConnection);
+      }
+   });
+}
+
 void Client::RemovePlaylist(std::string const & name)
 {
    QueueCommand([this, name] ()
@@ -1058,80 +1076,6 @@ void Client::AddToNamedPlaylist(std::string const & name, Mpc::Song * song)
    });
 }
 
-
-void Client::AddSongsFromPlaylist(std::string const & name)
-{
-   QueueCommand([this, name] ()
-   {
-      ClearCommand();
-
-      if (Connected() == true)
-      {
-         bool listmode = listMode_;
-
-         if (listMode_ == true)
-         {
-            Debug("Client::Add songs from playlist - end command list");
-
-            if (mpd_command_list_end(connection_) == true)
-            {
-               listMode_ = false;
-            }
-         }
-
-         Debug("Client::Add songs from playlist %s", name.c_str());
-
-         mpd_send_list_playlist(connection_, name.c_str());
-
-         mpd_song * nextSong = mpd_recv_song(connection_);
-
-         std::vector<std::string> URIs;
-
-         for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
-         {
-            URIs.push_back(mpd_song_get_uri(nextSong));
-            mpd_song_free(nextSong);
-         }
-
-         ClearCommand();
-
-         if (Connected() == true)
-         {
-            EventData Data; Data.pos1 = -1;
-
-            if (mpd_command_list_begin(connection_, false) == true)
-            {
-               for (auto uri : URIs)
-               {
-                  mpd_send_add(connection_, uri.c_str());
-                  Data.uri = uri;
-                  Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
-               }
-
-               if (mpd_command_list_end(connection_) != true)
-               {
-                  CheckError();
-               }
-            }
-            else
-            {
-               CheckError();
-            }
-         }
-
-         if (listmode == true)
-         {
-            Debug("Client::Add songs from playlist - resume command list");
-            ClearCommand();
-
-            if (mpd_command_list_begin(connection_, false) == true)
-            {
-               listMode_ = true;
-            }
-         }
-      }
-   });
-}
 
 void Client::PlaylistContents(std::string const & name)
 {

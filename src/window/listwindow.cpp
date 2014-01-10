@@ -182,7 +182,7 @@ void ListWindow::AddLine(uint32_t line, uint32_t count, bool scroll)
    {
       if (i < lists_->Size())
       {
-         client_.AddSongsFromPlaylist(lists_->Get(line +  i).path_);
+         client_.AppendPlaylist(lists_->Get(line +  i).path_);
       }
    }
 

@@ -286,7 +286,7 @@ void Directory::AddToPlaylist(Mpc::Client & client, Mpc::ClientState & clientSta
    else if (entry->type_ == Mpc::PlaylistType)
    {
       std::string const path((entry->path_ == "") ? "" : entry->path_ + "/");
-      client.AddSongsFromPlaylist(path + entry->name_);
+      client.AppendPlaylist(path + entry->name_);
    }
    else if (entry->type_ == Mpc::PathType)
    {
