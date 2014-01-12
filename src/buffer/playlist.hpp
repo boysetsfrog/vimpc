@@ -41,6 +41,8 @@ namespace Mpc
             AddCallback(Main::Buffer_Add,    [] (Mpc::Song * song) { Mpc::Song::IncrementReference(song); });
             AddCallback(Main::Buffer_Remove, [] (Mpc::Song * song) { Mpc::Song::DecrementReference(song); });
             AddCallback(Main::Buffer_Remove, [this] (Mpc::Song * song) { DeleteSong(song); });
+            AddCallback(Main::Buffer_Replace, [] (Mpc::Song * song) { Mpc::Song::DecrementReference(song); });
+            AddCallback(Main::Buffer_Replace, [this] (Mpc::Song * song) { DeleteSong(song); });
          }
       }
       ~Playlist()

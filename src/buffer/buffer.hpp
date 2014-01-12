@@ -45,7 +45,8 @@ namespace Main
    typedef enum
    {
       Buffer_Add,
-      Buffer_Remove
+      Buffer_Remove,
+      Buffer_Replace
    } BufferCallbackEvent;
 
 
@@ -95,7 +96,7 @@ namespace Main
       {
          if (index < Size())
          {
-            Callback(Buffer_Remove, BufferImpl<T>::at(index));
+            Callback(Buffer_Replace, BufferImpl<T>::at(index));
             BufferImpl<T>::at(index) = entry;
             Callback(Buffer_Add, entry);
          }
