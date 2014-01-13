@@ -31,9 +31,12 @@ namespace Ui
    {
       public:
       SongSorter(std::string sortFormat) :
-         settings_(Main::Settings::Instance()),
-         format_  (sortFormat)
+         settings_  (Main::Settings::Instance()),
+         format_    (sortFormat),
+         ignoreCase_(settings_.Get(Setting::IgnoreCaseSort)),
+         ignoreThe_ (settings_.Get(Setting::IgnoreTheSort))
       {
+
       }
 
       public:
@@ -42,14 +45,16 @@ namespace Ui
          // Sort based on print format
          if (format_ == "format")
          {
-            return (i->FormatString(settings_.Get(Setting::SongFormat)) < j->FormatString(settings_.Get(Setting::SongFormat)));
+            return Algorithm::icompare(i->FormatString(settings_.Get(Setting::SongFormat)), j->FormatString(settings_.Get(Setting::SongFormat)), ignoreThe_, ignoreCase_);
          }
 
-         return (i->FormatString(settings_.Get(Setting::SongFormat)) < j->FormatString(settings_.Get(Setting::SongFormat)));
+        return Algorithm::icompare(i->FormatString(settings_.Get(Setting::SongFormat)), j->FormatString(settings_.Get(Setting::SongFormat)), ignoreThe_, ignoreCase_);
       };
 
       private:
          Main::Settings const & settings_;
          std::string    const   format_;
+         bool           const   ignoreCase_;
+         bool           const   ignoreThe_;
    };
 }
