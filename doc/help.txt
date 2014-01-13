@@ -123,7 +123,7 @@
    [count] d, del           | delete songs
    [count] h, Left          | seek back [count] seconds
    [count] l, Right         | seek forward [count] seconds
-           P                | re-insert songs that were just deleted
+           P                | paste songs that were deleted/cut
            e                | information about selected song
    [count] Ctrl+a           | move song down [count]
    [count] Ctrl+x           | move song up [count]
