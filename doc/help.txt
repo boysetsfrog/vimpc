@@ -77,8 +77,12 @@
    [count] +                | increase volume
    [count] -                | decrease volume
 
-           p                | toggle pause on/off, or if stopped start playing
-           s, backspace     | stop playback
+           <Space>          | toggle pause on/off, or if stopped start playing
+                            | NOTE: this used to be performed by 'p'
+                            | to get the old behaviour, use the following maps
+                            |    :map p <Space>
+                            |    :map <Space> :pause<CR>
+           s, <BS>          | stop playback
 
            C                | toggle consume
            T                | toggle crossfade
@@ -123,7 +127,8 @@
    [count] d, del           | delete songs
    [count] h, Left          | seek back [count] seconds
    [count] l, Right         | seek forward [count] seconds
-           P                | paste songs that were deleted/cut
+           p                | paste/put deleted/cut songs below the current line
+           P                | paste/put deleted/cut songs above the current line
            e                | information about selected song
    [count] Ctrl+a           | move song down [count]
    [count] Ctrl+x           | move song up [count]

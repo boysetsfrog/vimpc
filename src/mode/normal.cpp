@@ -73,10 +73,9 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["c"]       = &Normal::ClearScreen;
 
    // Player
-   actionTable_["p"]       = &Normal::PlayPause;
    actionTable_["s"]       = &Normal::Stop;
    actionTable_["<BS>"]    = &Normal::Stop;
-   actionTable_["<Space>"] = &Normal::Pause;
+   actionTable_["<Space>"] = &Normal::PlayPause;
 
    actionTable_["C"]       = &Normal::Consume;
    actionTable_["T"]       = &Normal::Crossfade;
@@ -115,10 +114,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["x"]       = &Normal::Crop<Mpc::Song::Single>;
    actionTable_["X"]       = &Normal::Crop<Mpc::Song::All>;
    actionTable_["<Del>"]   = &Normal::Delete<Item::Single>;
-
-   // ! \todo this is a bit dodgy, is there a better key for this?
-   //         we need a paste above and paste below
-   actionTable_["P"]       = &Normal::PasteBuffer;
+   actionTable_["p"]       = &Normal::PasteBuffer<Normal::Below>;
+   actionTable_["P"]       = &Normal::PasteBuffer<Normal::Above>;
 
    // Navigation
    actionTable_["<Nop>"]   = &Normal::DoNothing;
@@ -1136,9 +1133,11 @@ void Normal::Crop(uint32_t count)
    }
 }
 
+template <Normal::PastePosition POSITION>
 void Normal::PasteBuffer(uint32_t count)
 {
-   uint32_t position = 0;
+   uint32_t const startpos = ((POSITION == Normal::Above) || (Main::Playlist().Size() == 0)) ? 0 : 1;
+   uint32_t position = startpos;
 
    Mpc::CommandList list(client_);
 
@@ -1152,6 +1151,11 @@ void Normal::PasteBuffer(uint32_t count)
             position++;
          }
       }
+   }
+
+   if ((Main::PlaylistPasteBuffer().Size() > 0) && (startpos == 1))
+   {
+      screen_.Scroll(1);
    }
 }
 

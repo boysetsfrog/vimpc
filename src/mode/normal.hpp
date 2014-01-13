@@ -158,6 +158,9 @@ namespace Ui
       template <Mpc::Song::SongCollection COLLECTION>
       void Crop(uint32_t count);
 
+      typedef enum { Above, Below } PastePosition;
+
+      template <PastePosition POSITION>
       void PasteBuffer(uint32_t count);
 
    private: //Selecting
