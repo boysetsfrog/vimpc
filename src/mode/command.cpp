@@ -1141,7 +1141,8 @@ void Command::Move(std::string const & arguments)
          position2 = 1;
       }
 
-      if ((position1 <= static_cast<int32_t>(Main::Playlist().Size())) &&
+      if ((Main::Playlist().Size() > 0) &&
+          (position1 <= static_cast<int32_t>(Main::Playlist().Size())) &&
           (position2 <= static_cast<int32_t>(Main::Playlist().Size())))
       {
          client_.Move(position1 - 1, position2 - 1);
