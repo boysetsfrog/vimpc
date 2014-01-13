@@ -1123,7 +1123,7 @@ void Command::Move(std::string const & arguments)
       int32_t position1 = atoi(arguments.substr(0, arguments.find(" ")).c_str());
       int32_t position2 = atoi(arguments.substr(arguments.find(" ") + 1).c_str());
 
-      if (position1 >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
+      if (position1 > static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
       {
          position1 = Main::Playlist().Size();
       }
@@ -1132,7 +1132,7 @@ void Command::Move(std::string const & arguments)
          position1 = 1;
       }
 
-      if (position2 >= static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
+      if (position2 > static_cast<int32_t>(screen_.ActiveWindow().BufferSize() - 1))
       {
          position2 = Main::Playlist().Size();
       }
