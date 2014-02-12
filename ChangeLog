@@ -1,3 +1,19 @@
+Version 0.09.1
+-------------
+
+- Honor sortignorecase and sortignorethe settings in browse window when using sort set to format
+- Fix crash on move with invalid parameters
+- Ensure move positions work correctly at the edge cases
+- Fixed broken pasting of songs into playlist with 'P'
+- Basic and initial support for embedded cue sheets
+- Made specifying of mappings case insensitive
+- Add :localadd command to add files when using filesystem socket
+- Show URI in status bar if song title is unknown
+- Add bindings zo and zc to open and close library expansions
+- Fix bug where outputs window was not painted correctly when first opened
+- Added <sc> to be used to map ';' to another key
+
+
 Version 0.09.0
 -------------
 - Add 'albumartist' setting to use AlbumArtist instead of Artist
