@@ -115,9 +115,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["X"]       = &Normal::Crop<Mpc::Song::All>;
    actionTable_["<Del>"]   = &Normal::Delete<Item::Single>;
 
-   // ! \todo this is a bit dodgy, is there a better key for this?
-   //         we need a paste above and paste below
-   actionTable_["P"]       = &Normal::PasteBuffer;
+   actionTable_["P"]       = &Normal::PasteBuffer<0>;
+   actionTable_["p"]       = &Normal::PasteBuffer<1>;
 
    // Navigation
    actionTable_["<Nop>"]   = &Normal::DoNothing;
@@ -1135,10 +1134,9 @@ void Normal::Crop(uint32_t count)
    }
 }
 
+template <int BELOW>
 void Normal::PasteBuffer(uint32_t count)
 {
-   uint32_t position = 0;
-
    Mpc::CommandList list(client_);
 
    if (screen_.GetActiveWindow() == Screen::Playlist)
@@ -1147,8 +1145,8 @@ void Normal::PasteBuffer(uint32_t count)
       {
          for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
          {
-            client_.Add(*Main::PlaylistPasteBuffer().Get(j), screen_.ActiveWindow().CurrentLine() + position);
-            position++;
+            client_.Add(*Main::PlaylistPasteBuffer().Get(j),
+                        screen_.ActiveWindow().CurrentLine() + j + BELOW);
          }
       }
    }
