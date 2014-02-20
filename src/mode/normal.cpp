@@ -73,10 +73,9 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["c"]       = &Normal::ClearScreen;
 
    // Player
-   actionTable_["p"]       = &Normal::PlayPause;
    actionTable_["s"]       = &Normal::Stop;
    actionTable_["<BS>"]    = &Normal::Stop;
-   actionTable_["<Space>"] = &Normal::Pause;
+   actionTable_["<Space>"] = &Normal::PlayPause;
 
    actionTable_["C"]       = &Normal::Consume;
    actionTable_["T"]       = &Normal::Crossfade;
