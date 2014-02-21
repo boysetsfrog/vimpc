@@ -114,9 +114,8 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["x"]       = &Normal::Crop<Mpc::Song::Single>;
    actionTable_["X"]       = &Normal::Crop<Mpc::Song::All>;
    actionTable_["<Del>"]   = &Normal::Delete<Item::Single>;
-
-   actionTable_["P"]       = &Normal::PasteBuffer<0>;
-   actionTable_["p"]       = &Normal::PasteBuffer<1>;
+   actionTable_["p"]       = &Normal::PasteBuffer<Screen::Down>;
+   actionTable_["P"]       = &Normal::PasteBuffer<Screen::Up>;
 
    // Navigation
    actionTable_["<Nop>"]   = &Normal::DoNothing;
@@ -1134,9 +1133,11 @@ void Normal::Crop(uint32_t count)
    }
 }
 
-template <int BELOW>
+template <Screen::Direction DIRECTION>
 void Normal::PasteBuffer(uint32_t count)
 {
+   uint32_t direction = Main::Playlist().Size() == 0 ? 0 : DIRECTION;
+
    Mpc::CommandList list(client_);
 
    if (screen_.GetActiveWindow() == Screen::Playlist)
@@ -1146,9 +1147,11 @@ void Normal::PasteBuffer(uint32_t count)
          for (uint32_t j = 0; j < Main::PlaylistPasteBuffer().Size(); ++j)
          {
             client_.Add(*Main::PlaylistPasteBuffer().Get(j),
-                        screen_.ActiveWindow().CurrentLine() + j + BELOW);
+                        screen_.ActiveWindow().CurrentLine() + j + direction);
          }
       }
+
+      screen_.Scroll(Main::PlaylistPasteBuffer().Size() * count * direction);
    }
 }
 
