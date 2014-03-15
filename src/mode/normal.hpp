@@ -158,6 +158,7 @@ namespace Ui
       template <Mpc::Song::SongCollection COLLECTION>
       void Crop(uint32_t count);
 
+      template <Screen::Direction DIRECTION>
       void PasteBuffer(uint32_t count);
 
    private: //Selecting
