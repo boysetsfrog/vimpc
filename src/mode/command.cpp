@@ -885,6 +885,7 @@ void Command::SavePlaylist(std::string const & arguments)
 {
    if (arguments != "")
    {
+      client_.RemovePlaylist(arguments);
       client_.SavePlaylist(arguments);
    }
    else
