@@ -1713,13 +1713,6 @@ void Client::IncrementTime(long time)
       {
          UpdateStatus();
       }
-      else if ((currentSong_ != NULL) &&
-               (mpd_song_get_duration(currentSong_) > 0) &&
-               (elapsed_ >= mpd_song_get_duration(currentSong_)))
-      {
-         elapsed_ = 0;
-         UpdateStatus();
-      }
    }
    else
    {
