@@ -119,6 +119,9 @@ namespace Mpc
       void SetDate(const char * date);
       std::string const & Date() const;
 
+      void SetDisc(const char * disc);
+      std::string const & Disc() const;
+
       void SetDuration(int32_t duration);
       int32_t Duration() const;
       std::string const & DurationString() const;
@@ -153,6 +156,9 @@ namespace Mpc
       static std::vector<std::string> Dates;
       static std::map<std::string, uint32_t> DateMap;
 
+      static std::vector<std::string> Discs;
+      static std::map<std::string, uint32_t> DiscMap;
+
    private:
       void Set(const char * newVal, int32_t & oldVal, std::vector<std::string> & Values, std::map<std::string, uint32_t> & Indexes);
 
@@ -164,6 +170,7 @@ namespace Mpc
       int32_t     track_;
       int32_t     genre_;
       int32_t     date_;
+      int32_t     disc_;
       int32_t     duration_;
       int32_t     virtualEnd_;
       std::string uri_;

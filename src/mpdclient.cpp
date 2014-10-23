@@ -2411,6 +2411,7 @@ Song * Client::CreateSong(mpd_song const * const song) const
    newSong->SetURI        (mpd_song_get_uri(song));
    newSong->SetGenre      (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
    newSong->SetDate       (mpd_song_get_tag(song, MPD_TAG_DATE, 0));
+   newSong->SetDisc       (mpd_song_get_tag(song, MPD_TAG_DISC, 0));
    newSong->SetDuration   (mpd_song_get_duration(song));
    newSong->SetVirtualEnd (mpd_song_get_end(song));
 

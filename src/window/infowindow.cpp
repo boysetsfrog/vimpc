@@ -99,12 +99,17 @@ void InfoWindow::Print(uint32_t line) const
          wprintw(window, "%s", song->Date().c_str());
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 12, 0, " Playlist    : ");
+         mvwaddstr(window, 11, 0, " Disc        : ");
+         wattroff(window, A_BOLD);
+         wprintw(window, "%s", song->Disc().c_str());
+
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 13, 0, " Playlist    : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%s", (song->Reference() > 0) ? "Yes" : "No");
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 13, 0, " Position    : ");
+         mvwaddstr(window, 14, 0, " Position    : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%d", Main::Playlist().Index(song) + 1);
 
