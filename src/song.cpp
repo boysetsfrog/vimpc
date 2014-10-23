@@ -364,6 +364,7 @@ std::string Song::FormatString(std::string fmt) const
    SongInfo['t'] = &Mpc::Song::Title;
    SongInfo['n'] = &Mpc::Song::Track;
    SongInfo['f'] = &Mpc::Song::URI;
+   SongInfo['d'] = &Mpc::Song::Date;
 
    SongInfo['r'] = &Mpc::Song::Artist;
    SongInfo['R'] = &Mpc::Song::Artist;
@@ -425,7 +426,8 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
                   (*it == 'r') || (*it == 'R') ||
                   (*it == 'm') || (*it == 'M') ||
                   (*it == 'l') || (*it == 't') ||
-                  (*it == 'n') || (*it == 'f'))
+                  (*it == 'n') || (*it == 'f') ||
+                  (*it == 'd'))
          {
             SongFunction Function = SongInfo[*it];
             std::string val = (*this.*Function)();
