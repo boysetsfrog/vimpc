@@ -85,7 +85,9 @@ namespace Mpc
          {
             uint32_t track    = atoi(song_->Track().c_str());
             uint32_t rhsTrack = atoi(rhs.song_->Track().c_str());
-            comparison = (track < rhsTrack);
+            uint32_t disc     = atoi(song_->Disc().c_str());
+            uint32_t rhsDisc  = atoi(rhs.song_->Disc().c_str());
+            comparison = ((track < rhsTrack) && (disc <= rhsDisc));
          }
 
          return comparison;
