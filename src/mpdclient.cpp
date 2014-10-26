@@ -1336,9 +1336,7 @@ void Client::AddAllSongs()
       if (Connected() == true)
       {
          Debug("Client::Add all songs");
-         Main::Library().ForEachSong([this] (Mpc::Song * song) {
-            Add(song->URI().c_str());
-         });
+         mpd_send_add(connection_, "");
       }
       else
       {
