@@ -1336,7 +1336,7 @@ void Client::AddAllSongs()
       if (Connected() == true)
       {
          Debug("Client::Add all songs");
-         mpd_send_add(connection_, "/");
+         mpd_send_add(connection_, "");
       }
       else
       {
@@ -1711,13 +1711,6 @@ void Client::IncrementTime(long time)
 
       if ((poll == true) && (timeSinceUpdate_ > 900))
       {
-         UpdateStatus();
-      }
-      else if ((currentSong_ != NULL) &&
-               (mpd_song_get_duration(currentSong_) > 0) &&
-               (elapsed_ >= mpd_song_get_duration(currentSong_)))
-      {
-         elapsed_ = 0;
          UpdateStatus();
       }
    }
@@ -2411,6 +2404,7 @@ Song * Client::CreateSong(mpd_song const * const song) const
    newSong->SetURI        (mpd_song_get_uri(song));
    newSong->SetGenre      (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
    newSong->SetDate       (mpd_song_get_tag(song, MPD_TAG_DATE, 0));
+   newSong->SetDisc       (mpd_song_get_tag(song, MPD_TAG_DISC, 0));
    newSong->SetDuration   (mpd_song_get_duration(song));
    newSong->SetVirtualEnd (mpd_song_get_end(song));
 

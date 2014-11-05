@@ -59,7 +59,7 @@
            g'<Key>          | as above
            g`<Key>          | as above
 
-   Default marks are created for A - Z. These marks will allow you to
+   Default marks are created for a - z. These marks will allow you to
    instantly jump to the first entry in the current window that begins
    with the corresponding letter. ie. 'A will jump to the first entry
    starting with A. (browse, directory, library and list windows only)
@@ -468,14 +468,16 @@
 
     %a  - Artist or AlbumArtist (based on albumartist setting)
     %A  - Artist or AlbumArtist, but swap "The Band" to "Band, The"
-    %r  - Artist 
+    %r  - Artist
     %R  - Artist, but swap "The Band" to "Band, The"
-    %m  - AlbumArtist 
+    %m  - AlbumArtist
     %M  - AlbumArtist, but swap "The Band" to "Band, The"
     %b  - Album
     %B  - Album, but swap "The Album" to "Album, The"
     %t  - Song title
+    %d  - Date
     %n  - Track number
+    %c  - Disc number
     %l  - Duration
     %f  - Filename/URI
 

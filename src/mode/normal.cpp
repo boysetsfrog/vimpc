@@ -1271,7 +1271,7 @@ void Normal::GotoMark(std::string const & input)
 
    // Marks A-Z jump to the first line starting
    // with that letter
-   if ((input[0] >= 'A') && (input[0] <= 'Z'))
+   if ((input[0] >= 'a') && (input[0] <= 'z'))
    {
       screen_.ScrollToAZ(input);
    }
