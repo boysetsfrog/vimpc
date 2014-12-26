@@ -156,6 +156,7 @@ namespace Ui
    private:
       void LoadPlaylist(std::string const & arguments);
       void SavePlaylist(std::string const & arguments);
+      void OverwritePlaylist(std::string const & arguments);
       void ToPlaylist(std::string const & arguments);
 
       void Find(std::string const & arguments);
