@@ -66,7 +66,7 @@ Vimpc::Vimpc() :
    settings_         (Main::Settings::Instance()),
    search_           (*(new Ui::Search (screen_, client_, settings_))),
    screen_           (settings_, client_, clientState_, search_),
-   client_           (this, settings_, screen_),
+   client_           (this, settings_, Main::AllLists(), screen_),
    clientState_      (this, settings_, screen_),
    modeTable_        (),
    normalMode_       (*(new Ui::Normal (this, screen_, client_, clientState_, settings_, search_))),

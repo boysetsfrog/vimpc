@@ -92,7 +92,7 @@ namespace Mpc
       friend class Mpc::CommandList;
 
    public:
-      Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen);
+      Client(Main::Vimpc * vimpc, Main::Settings & settings, Mpc::Lists & lists, Ui::Screen & screen);
       ~Client();
 
    public:
@@ -149,6 +149,7 @@ namespace Mpc
 
    public:
       // Playlist management
+      bool HasPlaylist(std::string const & name);
       void CreatePlaylist(std::string const & name);
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
@@ -270,6 +271,8 @@ namespace Mpc
       uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;
       std::string             currentState_;
+
+      Mpc::Lists           * lists_;
 
       Ui::Screen &            screen_;
       int                     queueVersion_;

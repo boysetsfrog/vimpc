@@ -27,6 +27,7 @@
 #include "vimpc.hpp"
 
 #include "buffer/playlist.hpp"
+#include "buffer/list.hpp"
 #include "mode/mode.hpp"
 #include "window/error.hpp"
 
@@ -87,7 +88,7 @@ CommandList::~CommandList()
 
 
 // Mpc::Client Implementation
-Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & screen) :
+Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Mpc::Lists & lists, Ui::Screen & screen) :
    vimpc_                (vimpc),
    settings_             (settings),
    connection_           (NULL),
@@ -122,6 +123,8 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Screen & scre
    totalNumberOfSongs_   (0),
    currentSongURI_       (""),
    currentState_         ("Disconnected"),
+
+   lists_                (&lists),
 
    screen_               (screen),
    queueVersion_         (-1),
@@ -978,6 +981,17 @@ void Client::CreatePlaylist(std::string const & name)
    });
 }
 
+bool Client::HasPlaylist(std::string const & name)
+{
+   for (int i=0; i < lists_->Size(); i++) {
+      if (lists_->Get(i).name_.c_str() == name)
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
 void Client::SavePlaylist(std::string const & name)
 {
    QueueCommand([this, name] ()
@@ -986,8 +1000,14 @@ void Client::SavePlaylist(std::string const & name)
 
       if (Connected() == true)
       {
-         Debug("Client::Send save %s", name.c_str());
 
+         if (HasPlaylist(name))
+         {
+            Debug("Client::Send remove %s", name.c_str());
+            mpd_run_rm(connection_, name.c_str());
+         }
+
+         Debug("Client::Send save %s", name.c_str());
          if (mpd_run_save(connection_, name.c_str()) == true)
          {
             EventData Data; Data.name = name;
