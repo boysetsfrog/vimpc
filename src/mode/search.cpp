@@ -316,6 +316,12 @@ char const * Search::Prompt() const
 
 bool Search::InputStringHandler(std::string input)
 {
+   // No search pattern entered, exit search
+   if (input == "")
+   {
+      return false;
+   }
+
    lastSearch_  = input;
    hasSearched_ = true;
    Debug("Search for: %s", input.c_str());
