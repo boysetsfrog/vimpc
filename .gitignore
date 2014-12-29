@@ -11,6 +11,7 @@ configure
 depcomp
 install-sh
 missing
+src/**/vimpc-*.o
 src/.deps/
 src/.dirstamp
 src/buffer/.deps/
