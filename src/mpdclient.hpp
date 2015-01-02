@@ -150,6 +150,8 @@ namespace Mpc
    public:
       // Playlist management
       bool HasPlaylist(std::string const & name);
+      bool HasLoadedPlaylist();
+      void SaveLoadedPlaylist();
       void CreatePlaylist(std::string const & name);
       void SavePlaylist(std::string const & name);
       void LoadPlaylist(std::string const & name);
@@ -272,7 +274,8 @@ namespace Mpc
       std::string             currentSongURI_;
       std::string             currentState_;
 
-      Mpc::Lists           * lists_;
+      Mpc::Lists *            lists_;
+      std::string             loadedList_;
 
       Ui::Screen &            screen_;
       int                     queueVersion_;

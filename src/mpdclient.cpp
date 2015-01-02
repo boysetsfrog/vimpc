@@ -125,6 +125,7 @@ Client::Client(Main::Vimpc * vimpc, Main::Settings & settings, Mpc::Lists & list
    currentState_         ("Disconnected"),
 
    lists_                (&lists),
+   loadedList_           (""),
 
    screen_               (screen),
    queueVersion_         (-1),
@@ -992,6 +993,23 @@ bool Client::HasPlaylist(std::string const & name)
    return false;
 }
 
+bool Client::HasLoadedPlaylist()
+{
+   return loadedList_ != "";
+}
+
+void Client::SaveLoadedPlaylist()
+{
+   if (Client::HasLoadedPlaylist())
+   {
+      Client::SavePlaylist(loadedList_);
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoPlaylistLoaded);
+   }
+}
+
 void Client::SavePlaylist(std::string const & name)
 {
    QueueCommand([this, name] ()
@@ -1032,6 +1050,7 @@ void Client::LoadPlaylist(std::string const & name)
          mpd_run_clear(connection_);
          Debug("Client::Send load %s", name.c_str());
          mpd_run_load(connection_, name.c_str());
+         loadedList_ = name;
       }
       else
       {
@@ -1050,6 +1069,7 @@ void Client::AppendPlaylist(std::string const & name)
       {
          Debug("Client::Send load %s", name.c_str());
          mpd_run_load(connection_, name.c_str());
+         loadedList_ = name;
       }
       else
       {

@@ -887,9 +887,13 @@ void Command::SavePlaylist(std::string const & arguments)
    {
       client_.SavePlaylist(arguments);
    }
+   else if (client_.HasLoadedPlaylist())
+   {
+      client_.SaveLoadedPlaylist();
+   }
    else
    {
-      ErrorString(ErrorNumber::NoParameter);
+      ErrorString(ErrorNumber::NoPlaylistLoaded);
    }
 }
 

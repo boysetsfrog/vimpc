@@ -37,6 +37,7 @@
    X(HelpFileNonexistant,   "Unable to open help file") \
    X(NoParameter,           "Expected a parameter") \
    X(InvalidParameter,      "Invalid parameter") \
+   X(NoPlaylistLoaded,      "Parameter missing or no playlist loaded") \
    X(UnknownOption,         "Unknown Option") \
    X(NoOutput,              "No such output") \
    X(PlaylistEmpty,         "Playlist: empty") \
