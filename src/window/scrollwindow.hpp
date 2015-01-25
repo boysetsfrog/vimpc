@@ -77,6 +77,7 @@ namespace Ui
       virtual void Edit() {}
       virtual void Escape() {}
       virtual void Visual() {}
+      virtual void Lyrics() {}
       virtual void Save(std::string const & name) {}
 
    public:

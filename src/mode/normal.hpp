@@ -141,6 +141,7 @@ namespace Ui
 
    private:
       void PlaySelected(uint32_t count);
+      void Lyrics(uint32_t count);
 
    private:
       template <Item::Collection COLLECTION>

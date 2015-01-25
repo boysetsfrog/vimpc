@@ -50,6 +50,7 @@
 #include "window/infowindow.hpp"
 #include "window/librarywindow.hpp"
 #include "window/listwindow.hpp"
+#include "window/lyricswindow.hpp"
 #include "window/outputwindow.hpp"
 #include "window/playlistwindow.hpp"
 #include "window/result.hpp"
@@ -478,12 +479,19 @@ Ui::SongWindow * Screen::CreateSongWindow(std::string const & name)
    return window;
 }
 
-
 Ui::InfoWindow * Screen::CreateInfoWindow(int32_t Id, std::string const & name, Mpc::Song * song)
 {
    SetVisible(Id, false);
    Ui::InfoWindow * window = new InfoWindow(song->URI(), settings_, *this, client_, clientState_, search_, name);
    mainWindows_[Id]        = window;
+   return window;
+}
+
+Ui::LyricsWindow * Screen::CreateLyricsWindow(int32_t Id, std::string const & name, Mpc::Song * song)
+{
+   SetVisible(Id, false);
+   Ui::LyricsWindow * window = new LyricsWindow(song->URI(), settings_, *this, client_, clientState_, search_, name);
+   mainWindows_[Id]          = window;
    return window;
 }
 
@@ -500,6 +508,15 @@ void Screen::CreateSongInfoWindow(Mpc::Song * song)
    }
 }
 
+void Screen::CreateSongLyricsWindow(Mpc::Song * song)
+{
+   if (song != NULL)
+   {
+      LyricsWindow * window = CreateLyricsWindow(Lyrics, "lyrics", song);
+
+      SetActiveAndVisible(GetWindowFromName(window->Name()));
+   }
+}
 
 ModeWindow * Screen::CreateModeWindow()
 {

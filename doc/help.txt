@@ -125,6 +125,7 @@
    [count] l, Right         | seek forward [count] seconds
            P                | paste songs that were deleted/cut
            e                | information about selected song
+           y                | lyrics for selected song
    [count] Ctrl+a           | move song down [count]
    [count] Ctrl+x           | move song up [count]
    [count] gm               | move song to position [count]
@@ -137,6 +138,7 @@
    [count] a                | add songs to playlist
    [count] d, del           | delete songs
            e                | information about selected song
+           y                | lyrics for selected song
            <Enter>          | append the song to the playlist and play it
 
  LISTS:
@@ -170,6 +172,7 @@
            zc               | collapse selection
            zo               | expand selection
            e                | view artist/album songs in a new window
+           y                | lyrics for selected song
            <Enter>          | clear playlist, add song/album/artist and play it
 
  DIRECTORY:
@@ -180,6 +183,7 @@
            h, Left          | go up one directory
            l, Right         | change into selected directory
            e                | information about selected song
+           y                | lyrics for selected song
            <Enter>          | append the song to the playlist and play it
                             | or navigate into the selected directory
 

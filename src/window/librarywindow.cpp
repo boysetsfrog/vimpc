@@ -387,6 +387,19 @@ void LibraryWindow::Edit()
    }
 }
 
+void LibraryWindow::Lyrics()
+{
+   if (CurrentLine() < library_.Size())
+   {
+      Mpc::LibraryEntry * entry = library_.Get(CurrentLine());
+
+      if (entry->type_ == Mpc::SongType)
+      {
+         screen_.CreateSongLyricsWindow(entry->song_);
+      }
+   }
+}
+
 
 void LibraryWindow::ScrollToFirstMatch(std::string const & input)
 {

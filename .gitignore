@@ -24,4 +24,5 @@ src/stamp-h1
 src/test/.deps/
 src/window/.deps/
 src/window/.dirstamp
+src/tags
 vimpc

@@ -70,6 +70,7 @@ namespace Ui
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void DeleteAllLines();
       void Edit();
+      void Lyrics();
       void ScrollToFirstMatch(std::string const & input);
 
    protected:

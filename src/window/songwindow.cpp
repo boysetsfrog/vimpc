@@ -372,6 +372,14 @@ void SongWindow::Edit()
    }
 }
 
+void SongWindow::Lyrics()
+{
+   if (CurrentLine() < BufferSize())
+   {
+      Mpc::Song * song(Buffer().Get(CurrentLine()));
+      screen_.CreateSongLyricsWindow(song);
+   }
+}
 
 void SongWindow::ScrollToFirstMatch(std::string const & input)
 {

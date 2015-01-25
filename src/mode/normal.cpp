@@ -173,6 +173,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    //
    actionTable_["q"]       = &Normal::Close;
    actionTable_["e"]       = &Normal::Edit;
+   actionTable_["y"]       = &Normal::Lyrics;
    actionTable_["v"]       = &Normal::Visual;
    actionTable_["V"]       = &Normal::Visual;
    actionTable_["<C-V>"]   = &Normal::Visual;
@@ -995,6 +996,11 @@ void Normal::Close(uint32_t count)
 void Normal::Edit(uint32_t count)
 {
    screen_.ActiveWindow().Edit();
+}
+
+void Normal::Lyrics(uint32_t count)
+{
+   screen_.ActiveWindow().Lyrics();
 }
 
 void Normal::Visual(uint32_t count)

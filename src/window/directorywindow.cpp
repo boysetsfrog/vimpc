@@ -454,6 +454,19 @@ void DirectoryWindow::Edit()
    }
 }
 
+void DirectoryWindow::Lyrics()
+{
+   if (CurrentLine() < directory_.Size())
+   {
+      Mpc::DirectoryEntry * entry = directory_.Get(CurrentLine());
+
+      if (entry->type_ == Mpc::SongType)
+      {
+         screen_.CreateSongLyricsWindow(entry->song_);
+      }
+   }
+}
+
 
 void DirectoryWindow::ScrollToFirstMatch(std::string const & input)
 {

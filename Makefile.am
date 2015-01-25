@@ -1,8 +1,8 @@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS  = ${ACLOCAL_FLAGS} -I m4
 
-vimpc_CXXFLAGS = $(taglib_CLFAGS) $(pcre_CFLAGS) $(mpdclientCFLAGS) $(AM_CXXFLAGS)
-vimpc_LDADD    = $(taglib_LIBS) $(pcre_LIBS) $(mpdclient_LIBS)
+vimpc_CXXFLAGS = $(taglib_CLFAGS) $(pcre_CFLAGS) $(mpdclientCFLAGS) $(AM_CXXFLAGS) $(curl_CFLAGS)
+vimpc_LDADD    = $(taglib_LIBS) $(pcre_LIBS) $(mpdclient_LIBS) $(curl_LIBS)
 
 bin_PROGRAMS     = vimpc 
 
@@ -28,6 +28,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/config.hpp \
                    src/errorcodes.cpp \
                    src/errorcodes.hpp \
+                   src/lyricsfetcher.cpp \
+                   src/lyricsfetcher.hpp \
                    src/mpdclient.cpp \
                    src/mpdclient.hpp \
                    src/output.cpp \
@@ -82,6 +84,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/librarywindow.hpp \
                    src/window/listwindow.cpp \
                    src/window/listwindow.hpp \
+                   src/window/lyricswindow.cpp \
+                   src/window/lyricswindow.hpp \
                    src/window/modewindow.cpp \
                    src/window/modewindow.hpp \
                    src/window/outputwindow.cpp \

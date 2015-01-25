@@ -72,7 +72,6 @@ AC_CHECK_HEADER(boost/function.hpp,
                 [AC_DEFINE_UNQUOTED(HAVE_BOOST_FUNCTION,1,Define to 1 if <boost/function.hpp> header file)],
                 [AC_MSG_ERROR(boost-dev library is required)])
 
-
 CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREACH"
 LIBS="$LIBS $BOOST_SYSTEM_LIB $BOOST_THREAD_LIB"
 
@@ -105,6 +104,25 @@ AC_SUBST(pcre_CFLAGS)
 AC_CHECK_HEADER(pcre.h,
                 [],
                 [AC_MSG_ERROR(libpcre-dev library is required)])
+
+lyrics_default="yes"
+AC_ARG_ENABLE(lyrics, [ --enable-lyrics=[no/yes] turn on/off lyric fetching support [default=$lyrics_default]],, enable_lyrics=$lyrics_default)
+if test "x$enable_lyrics" = "xyes"; then
+AC_DEFINE_UNQUOTED(LYRICS_SUPPORT, "1", "Define to 1 if lyrics support enabled")
+
+PKG_CHECK_MODULES(curl, libcurl)
+
+AC_SUBST(curl_LIBS)
+AC_SUBST(curl_CFLAGS)
+
+AC_CHECK_HEADER(curl/curl.h,
+                [AC_DEFINE_UNQUOTED(HAVE_CURL_CURL_H,1,Define to 1 if <curl.h> header file)],
+                [AC_MSG_ERROR(libcurl library is required)])
+
+AC_CHECK_HEADERS([boost/regex.hpp], , AC_MSG_ERROR(boost/regex.hpp is missing))
+AC_CHECK_LIB(boost_regex$BOOST_LIB_SUFFIX, main, LDFLAGS="$LDFLAGS -lboost_regex$BOOST_LIB_SUFFIX",
+             AC_MSG_ERROR([no boost.regex library found]))
+fi
 
 taglib_default="yes"
 AC_ARG_ENABLE(taglib, [ --enable-taglib=[no/yes] turn on/off taglib support [default=$taglib_default]],, enable_taglib=$taglib_default)
