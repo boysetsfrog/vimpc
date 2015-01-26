@@ -22,10 +22,10 @@
 #include <cstring>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/regex.hpp>
 
 #include "project.hpp"
 #include "lyricsfetcher.hpp"
+#include "regex.hpp"
 
 namespace Curl
 {
@@ -121,12 +121,17 @@ LyricsFetcher::Result LyricsFetcher::fetch(const std::string &artist, const std:
 
 std::vector<std::string> LyricsFetcher::getContent(const char *regex_, const std::string &data)
 {
+	std::string match;
+	std::string input = data.c_str();
 	std::vector<std::string> result;
-	boost::regex rx(regex_);
-	auto first = boost::sregex_iterator(data.begin(), data.end(), rx);
-	auto last = boost::sregex_iterator();
-	for (; first != last; ++first)
-		result.push_back(first->str(1));
+	Regex::RE regex(regex_);
+
+	while (regex.Capture(input, &match))
+	{
+		result.push_back(match);
+		regex.Replace("", input);
+	}
+
 	return result;
 }
 
@@ -246,7 +251,11 @@ bool GoogleLyricsFetcher::isURLOk(const std::string &url)
 void Sing365Fetcher::postProcess(std::string &data)
 {
 	// throw away ad
-	data = boost::regex_replace(data, boost::regex("<div.*</div>"), "");
+	Regex::RE regex("<div.*</div>");
+	while (regex.Matches(data))
+	{
+		data = regex.Replace("", data);
+	}
 	LyricsFetcher::postProcess(data);
 }
 

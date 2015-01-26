@@ -21,8 +21,6 @@
 #ifndef LYRICS_FETCHER_H
 #define LYRICS_FETCHER_H
 
-/* #ifdef HAVE_CURL_CURL_H */
-
 #include <curl/curl.h>
 #include <string>
 
@@ -145,7 +143,5 @@ extern LyricsFetcher *lyricsPlugins[];
 std::string unescapeHtmlUtf8(const std::string &s);
 
 void stripHtmlTags(std::string &s);
-
-/* #endif // HAVE_CURL_CURL_H */
 
 #endif // LYRICS_FETCHER_H

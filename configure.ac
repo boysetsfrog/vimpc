@@ -118,10 +118,6 @@ AC_SUBST(curl_CFLAGS)
 AC_CHECK_HEADER(curl/curl.h,
                 [AC_DEFINE_UNQUOTED(HAVE_CURL_CURL_H,1,Define to 1 if <curl.h> header file)],
                 [AC_MSG_ERROR(libcurl library is required)])
-
-AC_CHECK_HEADERS([boost/regex.hpp], , AC_MSG_ERROR(boost/regex.hpp is missing))
-AC_CHECK_LIB(boost_regex$BOOST_LIB_SUFFIX, main, LDFLAGS="$LDFLAGS -lboost_regex$BOOST_LIB_SUFFIX",
-             AC_MSG_ERROR([no boost.regex library found]))
 fi
 
 taglib_default="yes"
