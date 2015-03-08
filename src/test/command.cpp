@@ -360,7 +360,7 @@ void CommandTester::StateCommands()
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == false);
 
    commandMode_.ExecuteCommand("volume 500");
-   Main::Vimpc::WaitForEvent(Event::Volume, 500);
+   Main::Vimpc::WaitForEvent(Event::Volume, 5000);
    CPPUNIT_ASSERT(clientState_.Volume() == 50);
    CPPUNIT_ASSERT(Ui::ErrorWindow::Instance().HasError() == true);
    Ui::ErrorWindow::Instance().ClearError();
