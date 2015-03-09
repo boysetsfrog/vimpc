@@ -82,7 +82,7 @@ Vimpc::Vimpc() :
    ENSURE(modeTable_.size()     == ModeCount);
    ENSURE(ModesAreInitialised() == true);
 
-   Vimpc::EventHandler(Event::Repaint, [this] (EventData const & Data) { Debug("Repaint event"); SetRepaint(true); });
+   Vimpc::EventHandler(Event::Repaint, [this] (EventData const & Data) { SetRepaint(true); });
 
    Vimpc::EventHandler(Event::Autoscroll, [this] (EventData const & Data)
    {
@@ -201,6 +201,8 @@ void Vimpc::Run(std::string hostname, uint16_t port)
                   }
 
                   EventMutex.unlock();
+
+                  Debug("Event triggered: " + EventStrings::Default[Event.first]);
                }
             }
          }
@@ -256,8 +258,6 @@ void Vimpc::SetRepaint(bool requireRepaint)
 
 void Vimpc::Repaint()
 {
-   Debug("Doing the screen update");
-
    requireRepaint_ = false;
 
    screen_.Update();
@@ -343,7 +343,6 @@ void Vimpc::HandleUserEvents(bool Enabled)
 {
    userEvents_ = Enabled;
 }
-
 
 /* static */ void Vimpc::SetRunning(bool isRunning)
 {

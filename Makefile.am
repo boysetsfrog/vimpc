@@ -28,6 +28,8 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/config.hpp \
                    src/errorcodes.cpp \
                    src/errorcodes.hpp \
+                   src/events.cpp \
+                   src/events.hpp \
                    src/lyricsfetcher.cpp \
                    src/lyricsfetcher.hpp \
                    src/mpdclient.cpp \

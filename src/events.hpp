@@ -27,53 +27,52 @@
 #include "song.hpp"
 
 #define EVENTS \
-   X(Input) /* Keyboard input event */ \
-   \
-   X(Connected) \
-   X(Disconnected) \
-   X(CurrentState) \
-   X(ChangeHost) \
-   X(Continue) \
-   X(Elapsed) \
-   X(StatusUpdate) \
-   X(Repaint) \
-   X(CurrentSongId) \
-   X(CurrentSong) \
-   X(QueueUpdate) \
-   X(QueueChangesStart) \
-   X(ClearDatabase) \
-   X(DatabaseList) \
-   X(DatabaseListFile) \
-   X(DatabasePath) \
-   X(DatabaseSong) \
-   X(AllMetaDataReady) \
-   X(NewPlaylist) \
-   X(PlaylistAdd) \
-   X(PlaylistQueueReplace) \
-   X(Output) \
-   X(OutputEnabled) \
-   X(OutputDisabled) \
-   X(CommandListSend) \
-   X(Random) \
-   X(Single) \
-   X(Consume) \
-   X(Repeat) \
-   X(Crossfade) \
-   X(CrossfadeTime) \
-   X(Mute) \
-   X(Volume) \
-   X(TotalSongCount) \
-   X(SearchResults) \
-   X(TestResult) \
-   X(PlaylistContents) \
-   X(PlaylistContentsForRemove) \
-   X(Autoscroll) \
-   X(Update) \
-   X(UpdateComplete) \
-   X(RequirePassword) \
-   X(IdleMode) \
-   X(StopIdleMode) \
-   X(Unknown)
+   X(Input, "Input") /* Keyboard input event */ \
+   X(Connected, "Connected") \
+   X(Disconnected, "Disconnected") \
+   X(CurrentState, "CurrentState") \
+   X(ChangeHost, "ChangeHost") \
+   X(Continue, "Continue") \
+   X(Elapsed, "Elapsed") \
+   X(StatusUpdate, "StatusUpdate") \
+   X(Repaint, "Repaint") \
+   X(CurrentSongId, "CurrentSongId") \
+   X(CurrentSong, "CurrentSong") \
+   X(QueueUpdate, "QueueUpdate") \
+   X(QueueChangesStart, "QueueChangesStart") \
+   X(ClearDatabase, "ClearDatabase") \
+   X(DatabaseList, "DatabaseList") \
+   X(DatabaseListFile, "DatabaseListFile") \
+   X(DatabasePath, "DatabasePath") \
+   X(DatabaseSong, "DatabaseSong") \
+   X(AllMetaDataReady, "AllMetaDataReady") \
+   X(NewPlaylist, "NewPlaylist") \
+   X(PlaylistAdd, "PlaylistAdd") \
+   X(PlaylistQueueReplace, "PlaylistQueueReplace") \
+   X(Output, "Output") \
+   X(OutputEnabled, "OutputEnabled") \
+   X(OutputDisabled, "OutputDisabled") \
+   X(CommandListSend, "CommandListSend") \
+   X(Random, "Random") \
+   X(Single, "Single") \
+   X(Consume, "Consume") \
+   X(Repeat, "Repeat") \
+   X(Crossfade, "Crossfade") \
+   X(CrossfadeTime, "CrossfadeTime") \
+   X(Mute, "Mute") \
+   X(Volume, "Volume") \
+   X(TotalSongCount, "TotalSongCount") \
+   X(SearchResults, "SearchResults") \
+   X(TestResult, "TestResult") \
+   X(PlaylistContents, "PlaylistContents") \
+   X(PlaylistContentsForRemove, "PlaylistContentsForRemove") \
+   X(Autoscroll, "Autoscroll") \
+   X(Update, "Update") \
+   X(UpdateComplete, "UpdateComplete") \
+   X(RequirePassword, "RequirePassword") \
+   X(IdleMode, "IdleMode") \
+   X(StopIdleMode, "StopIdleMode") \
+   X(Unknown, "Unknown")
 
 namespace Mpc
 {
@@ -85,12 +84,18 @@ namespace Event
 {
    enum
    {
-#define X(Number) Number,
+#define X(Number, String) Number,
       EVENTS
 #undef X
       EventCount
    };
 }
+
+class EventStrings
+{
+public:
+   static std::string Default[];
+};
 
 struct EventData
 {
