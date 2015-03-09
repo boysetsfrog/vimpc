@@ -55,10 +55,10 @@ namespace Regex
             return IsMatch(match);
          }
 
-         bool Capture(std::string match, 
-                      std::string * arg1,        std::string * arg2 = NULL, 
+         bool Capture(std::string match,
+                      std::string * arg1,        std::string * arg2 = NULL,
                       std::string * arg3 = NULL, std::string * arg4 = NULL,
-                      std::string * arg5 = NULL, std::string * arg6 = NULL, 
+                      std::string * arg5 = NULL, std::string * arg6 = NULL,
                       std::string * arg7 = NULL, std::string * arg8 = NULL) const;
 
          bool Replace(std::string substitution, std::string & valueString) const;

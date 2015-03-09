@@ -72,10 +72,10 @@ void RE::Compile(std::string toCompile) const
    }
 }
 
-bool RE::Capture(std::string match, 
-                 std::string * arg1, std::string * arg2, 
+bool RE::Capture(std::string match,
+                 std::string * arg1, std::string * arg2,
                  std::string * arg3, std::string * arg4,
-                 std::string * arg5, std::string * arg6, 
+                 std::string * arg5, std::string * arg6,
                  std::string * arg7, std::string * arg8) const
 {
    Compile(exp_);
@@ -91,7 +91,7 @@ bool RE::Capture(std::string match,
    int rc = pcre_exec(re_, NULL, match.c_str(), match.length(), 0, 0, ovector, vecsize);
 
    ErrorPrint(rc);
-   
+
    for (int i = 0; i < 7; ++i)
    {
       if (args[i] != NULL)
@@ -119,7 +119,7 @@ bool RE::Capture(std::string match,
          }
       }
    }
-   
+
    return (rc >= 1);
 }
 

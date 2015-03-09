@@ -30,7 +30,7 @@ class ScreenTester : public CppUnit::TestFixture
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   ScreenTester() 
+   ScreenTester()
       : screen_(*Main::Tester::Instance().Screen) { }
 
 public:
@@ -87,9 +87,9 @@ void ScreenTester::TestChangeWindow()
 
       // Ensure that previous is set correctly
       CPPUNIT_ASSERT(screen_.GetPreviousWindow() == PreviousWindow);
-   }  
+   }
 
-   // Test that cycling through all windows returns to start 
+   // Test that cycling through all windows returns to start
    CPPUNIT_ASSERT(screen_.GetActiveWindow() == StartWindow);
 
    // Cycle through all windows using :tabprevious
@@ -101,9 +101,9 @@ void ScreenTester::TestChangeWindow()
 
       // Ensure that previous is set correctly
       CPPUNIT_ASSERT(screen_.GetPreviousWindow() == PreviousWindow);
-   }  
+   }
 
-   // Test that cycling through all windows returns to start 
+   // Test that cycling through all windows returns to start
    CPPUNIT_ASSERT(screen_.GetActiveWindow() == StartWindow);
 
    // Check that going to absolute window works

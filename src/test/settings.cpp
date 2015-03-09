@@ -60,7 +60,7 @@ protected:
    bool AreToggleValuesDisplayedCorrectly();
 
 private:
-   Main::Settings & settings_; 
+   Main::Settings & settings_;
    std::map<std::string, bool> boolvalues_;
 };
 
@@ -72,7 +72,7 @@ void SettingsTester::setUp()
 
    for (int i = 0; i < static_cast<int>(Setting::ToggleCount); ++i)
    {
-      boolvalues_[settings_.Name(static_cast<Setting::ToggleSettings>(i))] 
+      boolvalues_[settings_.Name(static_cast<Setting::ToggleSettings>(i))]
          = settings_.Get(static_cast<Setting::ToggleSettings>(i));
    }
 }
@@ -81,7 +81,7 @@ void SettingsTester::tearDown()
 {
    for (int i = 0; i < static_cast<int>(Setting::ToggleCount); ++i)
    {
-      settings_.Set(static_cast<Setting::ToggleSettings>(i), 
+      settings_.Set(static_cast<Setting::ToggleSettings>(i),
          boolvalues_[settings_.Name(static_cast<Setting::ToggleSettings>(i))]);
    }
 
@@ -216,7 +216,7 @@ void SettingsTester::TestStringSetting()
 
 bool SettingsTester::IsToggleDefaultValues()
 {
-   return 
+   return
    (
 #define X(a, b, c) settings_.Get(Setting::a) == c &&
       TOGGLE_SETTINGS
@@ -227,7 +227,7 @@ bool SettingsTester::IsToggleDefaultValues()
 
 bool SettingsTester::IsNotToggleDefaultValues()
 {
-   return 
+   return
    (
 #define X(a, b, c) settings_.Get(Setting::a) == !c &&
       TOGGLE_SETTINGS
@@ -239,7 +239,7 @@ bool SettingsTester::IsNotToggleDefaultValues()
 
 bool SettingsTester::IsToggleOn()
 {
-   return 
+   return
    (
 #define X(a, b, c) settings_.Get(Setting::a) == true &&
       TOGGLE_SETTINGS
@@ -250,7 +250,7 @@ bool SettingsTester::IsToggleOn()
 
 bool SettingsTester::IsToggleOff()
 {
-   return 
+   return
    (
 #define X(a, b, c) settings_.Get(Setting::a) == false &&
       TOGGLE_SETTINGS

@@ -113,7 +113,7 @@ void AlgorithmTester::isNumeric()
    CPPUNIT_ASSERT(Algorithm::isNumeric("99999")   == true);
    CPPUNIT_ASSERT(Algorithm::isNumeric("@#$#@")   == false);
    CPPUNIT_ASSERT(Algorithm::isNumeric("abcddef") == false);
-   CPPUNIT_ASSERT(Algorithm::isNumeric("123.45")  == false); //We do not support floats 
+   CPPUNIT_ASSERT(Algorithm::isNumeric("123.45")  == false); //We do not support floats
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AlgorithmTester);

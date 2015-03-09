@@ -93,7 +93,7 @@ void Directory::ChangeDirectory(std::string New)
 
    for (auto song : songs)
    {
-      Mpc::DirectoryEntry * const entry = 
+      Mpc::DirectoryEntry * const entry =
          new Mpc::DirectoryEntry(Mpc::SongType, FileFromURI(song->URI()), directory_, song);
       Add(entry);
    }
@@ -104,7 +104,7 @@ void Directory::ChangeDirectory(std::string New)
 
       for (auto playlist : playlists)
       {
-         Mpc::DirectoryEntry * const entry = 
+         Mpc::DirectoryEntry * const entry =
             new Mpc::DirectoryEntry(Mpc::PlaylistType, FileFromURI(playlist), directory_);
          Add(entry);
       }
