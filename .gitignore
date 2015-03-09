@@ -22,6 +22,7 @@ src/mode/.deps/
 src/mode/.dirstamp
 src/stamp-h1
 src/test/.deps/
+src/test/.dirstamp
 src/window/.deps/
 src/window/.dirstamp
 src/tags
