@@ -300,32 +300,33 @@ void ScrollWindow::SetName(std::string const & name)
 
 bool ScrollWindow::Select(Position position, uint32_t count)
 {
+   int64_t scroll = CurrentLine();
+
    if (position == ScrollWindow::First)
    {
-      int64_t scroll = FirstLine() -1 + count;
+      scroll = (FirstLine() - 1) + count;
 
       if (scroll > static_cast<int64_t>(LastLine()))
       {
          scroll = LastLine();
       }
-
-      ScrollTo(scroll);
    }
    else if (position == ScrollWindow::Last)
    {
-      int64_t scroll = LastLine() - count;
+      scroll = (LastLine() + 1) - count;
 
-      if (scroll < static_cast<int64_t>(FirstLine() + 1))
+      if (scroll < static_cast<int64_t>(FirstLine()))
       {
-         scroll = FirstLine() + 1;
+         scroll = FirstLine();
       }
 
-      ScrollTo(scroll);
    }
    else if (position == ScrollWindow::Middle)
    {
-      ScrollTo(FirstLine() + ((LastLine() - FirstLine() - 1) / 2) );
+      scroll = FirstLine() + ((LastLine() - FirstLine()) / 2);
    }
+
+   ScrollTo(scroll);
 
    return true;
 }

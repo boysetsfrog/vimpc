@@ -94,7 +94,7 @@ namespace Ui
    public:
       virtual bool IsSelected(uint32_t line) const { return false; }
       uint32_t FirstLine()   const;
-      uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() : ScrollLine(); }
+      uint32_t LastLine()    const { return (BufferSize() < ScrollLine()) ? BufferSize() - 1 : ScrollLine() - 1; }
       virtual  uint32_t CurrentLine() const { return FirstLine(); }
 
       int32_t Rows() const { return rows_; }

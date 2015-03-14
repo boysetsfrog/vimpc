@@ -100,11 +100,7 @@ void SelectWindow::ScrollTo(uint32_t scrollLine)
    currentLine_    = (static_cast<int64_t>(scrollLine));
    LimitCurrentSelection();
 
-   if ((currentLine_ == LastLine()) && (currentLine_ - oldSelection == 1))
-   {
-      ScrollWindow::Scroll(1);
-   }
-   else if ((currentLine_ == scrollLine_ - screen_.MaxRows()) && (currentLine_ - oldSelection == -1))
+   if ((currentLine_ == scrollLine_ - screen_.MaxRows()) && (currentLine_ - oldSelection == -1))
    {
       ScrollWindow::Scroll(-1);
    }
