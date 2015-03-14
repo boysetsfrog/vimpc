@@ -186,6 +186,15 @@ void ScreenTester::TestAlignTo() // z<CR>, z-, z.
 
    CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 0);
    CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows);
+
+   screen_.AlignTo(Ui::Screen::Location::Top, 2); // zt with count
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 1);
+
+   screen_.AlignTo(Ui::Screen::Location::Bottom, (rows * 2) + 1); // zb with count
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() == (rows * 2));
+
+   screen_.AlignTo(Ui::Screen::Location::Centre, rows + 1); // zz with count
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
 }
 
 void ScreenTester::TestSelect() // H, L, M
