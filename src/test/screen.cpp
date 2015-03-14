@@ -23,6 +23,7 @@
 #include "screen.hpp"
 #include "test.hpp"
 #include "window/debug.hpp"
+#include "window/scrollwindow.hpp"
 
 class ScreenTester : public CppUnit::TestFixture
 {
@@ -31,6 +32,7 @@ class ScreenTester : public CppUnit::TestFixture
 
    CPPUNIT_TEST(TestAlign);
    CPPUNIT_TEST(TestAlignTo);
+   CPPUNIT_TEST(TestSelect);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -46,6 +48,7 @@ protected:
    void TestChangeWindow();
    void TestAlign();
    void TestAlignTo();
+   void TestSelect();
 
 private:
    Ui::Screen & screen_;
@@ -183,6 +186,78 @@ void ScreenTester::TestAlignTo() // z<CR>, z-, z.
 
    CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 0);
    CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows);
+}
+
+void ScreenTester::TestSelect() // H, L, M
+{
+   screen_.SetActiveAndVisible(Ui::Screen::MainWindow::Browse);
+
+   int32_t rows = screen_.MaxRows();
+   int32_t halfRows = (rows + 1) / 2;
+   int32_t bufferSize = screen_.ActiveWindow().BufferSize();
+
+   screen_.ScrollTo(rows);
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, 1); // H
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine());
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Middle, 1); // M
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == rows - 1);
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, 1); // L
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine());
+
+   // H and L with a count
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, 5);
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine() + 4);
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, 5);
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine() - 4);
+
+   // H and L with out of bounds count
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, rows);
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine());
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, rows);
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine());
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, rows + 1);
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine());
+
+   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, rows + 1);
+
+   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine());
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ScreenTester);
