@@ -15,8 +15,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   algorithms.cpp - tests for algorithms code
-   */
+   screen.cpp - tests for the screen class
+*/
 
 #include <cppunit/extensions/HelperMacros.h>
 
