@@ -159,6 +159,10 @@ void SelectWindow::Visual()
    }
 }
 
+bool SelectWindow::InVisualMode()
+{
+   return visualMode_;
+}
 
 bool SelectWindow::IsSelected(uint32_t line) const
 {

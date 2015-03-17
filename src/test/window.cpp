@@ -24,42 +24,62 @@
 #include "test.hpp"
 #include "window/debug.hpp"
 #include "window/scrollwindow.hpp"
+#include "window/songwindow.hpp"
 
 class WindowTester : public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(WindowTester);
-   CPPUNIT_TEST(Test);
+   CPPUNIT_TEST(VisualTest);
 
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   WindowTester()
-      : screen_(*Main::Tester::Instance().Screen) { }
+   WindowTester() :
+      screen_(*Main::Tester::Instance().Screen) { }
 
 public:
    void setUp();
    void tearDown();
 
 protected:
-   void Test();
+   void VisualTest();
 
 private:
    Ui::Screen & screen_;
-   int32_t      window_;
+   Ui::SongWindow * window_;
+   int32_t windowId_;
 };
 
 void WindowTester::setUp()
 {
-   window_ = screen_.GetActiveWindow();
+   window_ = screen_.CreateSongWindow("test");
+   Main::Library().ForEachSong([this] (Mpc::Song * song) { window_->Add(song); });
+   windowId_ = screen_.GetWindowFromName(window_->Name());
+   screen_.SetActiveAndVisible(windowId_);
 }
 
 void WindowTester::tearDown()
 {
-   screen_.SetActiveAndVisible(window_);
+   window_->Clear();
+   screen_.SetVisible(windowId_, false);
 }
 
-void WindowTester::Test()
+void WindowTester::VisualTest()
 {
+   window_->Visual(); // v
+   screen_.ScrollTo(9); // 10G
+
+   CPPUNIT_ASSERT(window_->InVisualMode());
+   CPPUNIT_ASSERT(window_->CurrentSelection().first == 0);
+   CPPUNIT_ASSERT(window_->CurrentSelection().second == 9);
+
+   window_->Visual(); //v
+   CPPUNIT_ASSERT(window_->InVisualMode() == false);
+
+   window_->ResetSelection(); // gv
+   CPPUNIT_ASSERT(window_->InVisualMode());
+   CPPUNIT_ASSERT(window_->CurrentSelection().first == 0);
+   CPPUNIT_ASSERT(window_->CurrentSelection().second == 9);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WindowTester);
