@@ -24,6 +24,7 @@
 #include "test.hpp"
 #include "window/debug.hpp"
 #include "window/scrollwindow.hpp"
+#include "window/songwindow.hpp"
 
 class ScreenTester : public CppUnit::TestFixture
 {
@@ -52,17 +53,22 @@ protected:
 
 private:
    Ui::Screen & screen_;
-   int32_t      window_;
+   Ui::SongWindow * window_;
+   int32_t windowId_;
 };
 
 void ScreenTester::setUp()
 {
-   window_ = screen_.GetActiveWindow();
+   window_ = screen_.CreateSongWindow("test");
+   Main::Library().ForEachSong([this] (Mpc::Song * song) { window_->Add(song); });
+   windowId_ = screen_.GetWindowFromName(window_->Name());
+   screen_.SetActiveAndVisible(windowId_);
 }
 
 void ScreenTester::tearDown()
 {
-   screen_.SetActiveAndVisible(window_);
+   window_->Clear();
+   screen_.SetVisible(windowId_, false);
 }
 
 // Test that cycles through all the windows
@@ -123,150 +129,144 @@ void ScreenTester::TestChangeWindow()
 
 void ScreenTester::TestAlign() // ^E, ^Y
 {
-   screen_.SetActiveAndVisible(Ui::Screen::MainWindow::Browse);
-
    int32_t rows = screen_.MaxRows();
-   int32_t bufferSize = screen_.ActiveWindow().BufferSize();
+   int32_t bufferSize = window_->BufferSize();
 
    screen_.ScrollTo(0);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 0);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows);
+   CPPUNIT_ASSERT(window_->FirstLine() == 0);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == rows);
 
    screen_.Align(Ui::Screen::Direction::Down, 3);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 3);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows + 3);
+   CPPUNIT_ASSERT(window_->FirstLine() == 3);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == rows + 3);
 
    screen_.Align(Ui::Screen::Direction::Up, 2);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1== rows + 1);
+   CPPUNIT_ASSERT(window_->FirstLine() == 1);
+   CPPUNIT_ASSERT(window_->LastLine() + 1== rows + 1);
 
    screen_.Align(Ui::Screen::Direction::Up, 2);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 0);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows);
+   CPPUNIT_ASSERT(window_->FirstLine() == 0);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == rows);
 
    screen_.Scroll(bufferSize);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == bufferSize - rows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == bufferSize);
+   CPPUNIT_ASSERT(window_->FirstLine() == bufferSize - rows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == bufferSize);
 }
 
 void ScreenTester::TestAlignTo() // z<CR>, z-, z.
 {
-   screen_.SetActiveAndVisible(Ui::Screen::MainWindow::Browse);
-
    int32_t rows = screen_.MaxRows();
    int32_t halfRows = (rows + 1) / 2;
-   int32_t bufferSize = screen_.ActiveWindow().BufferSize();
+   int32_t bufferSize = window_->BufferSize();
 
    screen_.ScrollTo(rows);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
 
    screen_.AlignTo(Ui::Screen::Location::Top, 0); // zt or z<CR>
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows * 2);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == rows * 2);
 
    screen_.AlignTo(Ui::Screen::Location::Bottom, 0); // zb or z-
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows + 1);
+   CPPUNIT_ASSERT(window_->FirstLine() == 1);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == rows + 1);
 
    screen_.AlignTo(Ui::Screen::Location::Centre, 0); // zz or z.
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
 
    screen_.AlignTo(Ui::Screen::Location::Specific, 1); // 1G or gg
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 0);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == rows);
+   CPPUNIT_ASSERT(window_->FirstLine() == 0);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == rows);
 
    screen_.AlignTo(Ui::Screen::Location::Top, 2); // zt with count
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == 1);
+   CPPUNIT_ASSERT(window_->FirstLine() == 1);
 
    screen_.AlignTo(Ui::Screen::Location::Bottom, (rows * 2) + 1); // zb with count
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() == (rows * 2));
+   CPPUNIT_ASSERT(window_->LastLine() == (rows * 2));
 
    screen_.AlignTo(Ui::Screen::Location::Centre, rows + 1); // zz with count
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
 }
 
 void ScreenTester::TestSelect() // H, L, M
 {
-   screen_.SetActiveAndVisible(Ui::Screen::MainWindow::Browse);
-
    int32_t rows = screen_.MaxRows();
    int32_t halfRows = (rows + 1) / 2;
-   int32_t bufferSize = screen_.ActiveWindow().BufferSize();
+   int32_t bufferSize = window_->BufferSize();
 
    screen_.ScrollTo(rows);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, 1); // H
+   window_->Select(Ui::ScrollWindow::Position::First, 1); // H
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine());
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().FirstLine());
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Middle, 1); // M
+   window_->Select(Ui::ScrollWindow::Position::Middle, 1); // M
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == rows - 1);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == rows - 1);
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, 1); // L
+   window_->Select(Ui::ScrollWindow::Position::Last, 1); // L
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine());
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().LastLine());
 
    // H and L with a count
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, 5);
+   window_->Select(Ui::ScrollWindow::Position::First, 5);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine() + 4);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().FirstLine() + 4);
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, 5);
+   window_->Select(Ui::ScrollWindow::Position::Last, 5);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine() - 4);
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().LastLine() - 4);
 
    // H and L with out of bounds count
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, rows);
+   window_->Select(Ui::ScrollWindow::Position::First, rows);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine());
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().LastLine());
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, rows);
+   window_->Select(Ui::ScrollWindow::Position::Last, rows);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine());
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().FirstLine());
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::First, rows + 1);
+   window_->Select(Ui::ScrollWindow::Position::First, rows + 1);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().LastLine());
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().LastLine());
 
-   screen_.ActiveWindow().Select(Ui::ScrollWindow::Position::Last, rows + 1);
+   window_->Select(Ui::ScrollWindow::Position::Last, rows + 1);
 
-   CPPUNIT_ASSERT(screen_.ActiveWindow().FirstLine() == rows - halfRows);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().LastLine() + 1 == (rows + halfRows) - 1);
-   CPPUNIT_ASSERT(screen_.ActiveWindow().CurrentLine() == screen_.ActiveWindow().FirstLine());
+   CPPUNIT_ASSERT(window_->FirstLine() == rows - halfRows);
+   CPPUNIT_ASSERT(window_->LastLine() + 1 == (rows + halfRows) - 1);
+   CPPUNIT_ASSERT(window_->CurrentLine() == screen_.ActiveWindow().FirstLine());
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ScreenTester);
