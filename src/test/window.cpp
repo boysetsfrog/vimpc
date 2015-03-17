@@ -80,6 +80,16 @@ void WindowTester::VisualTest()
    CPPUNIT_ASSERT(window_->InVisualMode());
    CPPUNIT_ASSERT(window_->CurrentSelection().first == 0);
    CPPUNIT_ASSERT(window_->CurrentSelection().second == 9);
+
+   window_->SwitchVisualEnd();
+   CPPUNIT_ASSERT(window_->InVisualMode());
+   CPPUNIT_ASSERT(window_->CurrentSelection().first == 9);
+   CPPUNIT_ASSERT(window_->CurrentSelection().second == 0);
+
+   window_->SwitchVisualEnd();
+   CPPUNIT_ASSERT(window_->InVisualMode());
+   CPPUNIT_ASSERT(window_->CurrentSelection().first == 0);
+   CPPUNIT_ASSERT(window_->CurrentSelection().second == 9);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WindowTester);
