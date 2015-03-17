@@ -159,6 +159,25 @@ void SelectWindow::Visual()
    }
 }
 
+void SelectWindow::SwitchVisualEnd()
+{
+   if (visualMode_ && currentSelection_.first != currentSelection_.second)
+   {
+      if (currentSelection_.first == currentLine_)
+      {
+         currentLine_ = currentSelection_.second;
+         currentSelection_.second = currentSelection_.first;
+         currentSelection_.first = currentLine_;
+      }
+      else
+      {
+         currentLine_ = currentSelection_.first;
+         currentSelection_.first = currentSelection_.second;
+         currentSelection_.second = currentLine_;
+      }
+   }
+}
+
 bool SelectWindow::InVisualMode()
 {
    return visualMode_;

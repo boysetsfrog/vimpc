@@ -138,6 +138,7 @@ namespace Ui
       void Close(uint32_t count);
       void Edit(uint32_t count);
       void Visual(uint32_t count);
+      void SwitchVisualEnd(uint32_t count);
 
    private:
       void PlaySelected(uint32_t count);

@@ -52,6 +52,7 @@ namespace Ui
       void DeleteLine(uint32_t line, uint32_t count = 1, bool scroll = true);
       void Escape();
       void Visual();
+      void SwitchVisualEnd();
       bool InVisualMode();
       void SetSupportsVisual(bool enable) { supportsVisual_ = enable; }
 

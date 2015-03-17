@@ -109,6 +109,7 @@
            D                | delete all songs in window from the playlist
            X                | delete all songs from the selected line to the end
            v, V             | enter visual selection mode
+           o                | go to the other end of the visual selection
            gv               | reselect the last visual selected songs
            gp               | scroll forward to a song that is in the playlist
            gP               | scroll backward to a song that is in the playlist

@@ -129,7 +129,7 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["<CR>"]    = &Normal::Confirm;
    actionTable_["<LeftMouse>"] = &Normal::Click;
    actionTable_["<2-LeftMouse>"] = &Normal::Confirm;
-   actionTable_["W"]     = &Normal::SetActiveAndVisible<Ui::Screen::WindowSelect>;
+   actionTable_["W"]       = &Normal::SetActiveAndVisible<Ui::Screen::WindowSelect>;
 
    // Searching
    actionTable_["N"]       = &Normal::SearchResult<Search::Previous>;
@@ -177,10 +177,9 @@ Normal::Normal(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client, M
    actionTable_["v"]       = &Normal::Visual;
    actionTable_["V"]       = &Normal::Visual;
    actionTable_["<C-V>"]   = &Normal::Visual;
+   actionTable_["o"]       = &Normal::SwitchVisualEnd;
 
    // Library
-   actionTable_["o"]       = &Normal::Expand;
-   actionTable_["u"]       = &Normal::Collapse;
    actionTable_["zo"]      = &Normal::Expand;
    actionTable_["zc"]      = &Normal::Collapse;
 
@@ -1006,6 +1005,11 @@ void Normal::Lyrics(uint32_t count)
 void Normal::Visual(uint32_t count)
 {
    screen_.ActiveWindow().Visual();
+}
+
+void Normal::SwitchVisualEnd(uint32_t count)
+{
+   screen_.ActiveWindow().SwitchVisualEnd();
 }
 
 
