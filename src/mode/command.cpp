@@ -120,7 +120,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("normal",     true,  false, &Command::Normal);
    AddCommand("password",   true,  false, &Command::Password);
    AddCommand("pause",      true,  false, &Command::Pause);
-   AddCommand("play",       true,  true,  &Command::Play);
+   AddCommand("play",       true,  false,  &Command::Play);
    AddCommand("q",          false, false, &Command::Quit);
    AddCommand("qall",       false, false, &Command::QuitAll);
    AddCommand("quit",       false, false, &Command::Quit);
@@ -140,11 +140,11 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("substitute", false, true,  &Command::Substitute);
    AddCommand("s",          false, true,  &Command::Substitute);
 #endif
-   AddCommand("swap",       true,  true,  &Command::Swap);
+   AddCommand("swap",       true,  false,  &Command::Swap);
    AddCommand("stop",       true,  false, &Command::Stop);
    AddCommand("toggle",     true,  true,  &Command::ToggleOutput);
    AddCommand("unalias",    false, false, &Command::Unalias);
-   AddCommand("volume",     true,  true,  &Command::Volume);
+   AddCommand("volume",     true,  false,  &Command::Volume);
 
    AddCommand("map",        false, false, &Command::Map);
    AddCommand("unmap",      false, false, &Command::Unmap);
@@ -172,15 +172,15 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("next",       true,  false, &Command::SkipSong<Player::Next>);
    AddCommand("previous",   true,  false, &Command::SkipSong<Player::Previous>);
 
-   AddCommand("browse",      false, true, &Command::SetActiveAndVisible<Ui::Screen::Browse>);
-   AddCommand("console",     false, true, &Command::SetActiveAndVisible<Ui::Screen::Console>);
-   AddCommand("help",        true,  true, &Command::SetActiveAndVisible<Ui::Screen::Help>);
-   AddCommand("library",     true,  true, &Command::SetActiveAndVisible<Ui::Screen::Library>);
-   AddCommand("directory",   true,  true, &Command::SetActiveAndVisible<Ui::Screen::Directory>);
-   AddCommand("playlist",    true,  true, &Command::SetActiveAndVisible<Ui::Screen::Playlist>);
-   AddCommand("outputs",     true,  true, &Command::SetActiveAndVisible<Ui::Screen::Outputs>);
-   AddCommand("lists",       true,  true, &Command::SetActiveAndVisible<Ui::Screen::Lists>);
-   AddCommand("windowselect",false, true, &Command::SetActiveAndVisible<Ui::Screen::WindowSelect>);
+   AddCommand("browse",      false, false, &Command::SetActiveAndVisible<Ui::Screen::Browse>);
+   AddCommand("console",     false, false, &Command::SetActiveAndVisible<Ui::Screen::Console>);
+   AddCommand("help",        true,  false, &Command::SetActiveAndVisible<Ui::Screen::Help>);
+   AddCommand("library",     true,  false, &Command::SetActiveAndVisible<Ui::Screen::Library>);
+   AddCommand("directory",   true,  false, &Command::SetActiveAndVisible<Ui::Screen::Directory>);
+   AddCommand("playlist",    true,  false, &Command::SetActiveAndVisible<Ui::Screen::Playlist>);
+   AddCommand("outputs",     true,  false, &Command::SetActiveAndVisible<Ui::Screen::Outputs>);
+   AddCommand("lists",       true,  false, &Command::SetActiveAndVisible<Ui::Screen::Lists>);
+   AddCommand("windowselect",false, false, &Command::SetActiveAndVisible<Ui::Screen::WindowSelect>);
 
    AddCommand("load",       true,  false, &Command::LoadPlaylist);
    AddCommand("save",       true,  false, &Command::SavePlaylist);
