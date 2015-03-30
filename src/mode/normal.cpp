@@ -640,28 +640,6 @@ std::string Normal::PerformMapSubtitutions(std::string input) const
    // and properly use a variable for the strings since they are shared
    if (conversionTable.size() == 0)
    {
-      conversionTable["<nop>"]       = "<Nop>";
-      conversionTable["<esc>"]       = "<Esc>";
-      conversionTable["<pageup>"]    = "<PageUp>";
-      conversionTable["<pagedown>"]  = "<PageDown>";
-      conversionTable["<home>"]      = "<Home>";
-      conversionTable["<end>"]       = "<End>";
-      conversionTable["<left>"]      = "<Left>";
-      conversionTable["<right>"]     = "<Right>";
-      conversionTable["<down>"]      = "<Down>";
-      conversionTable["<up>"]        = "<Up>";
-      conversionTable["<del>"]       = "<Del>";
-      conversionTable["<bs>"]        = "<BS>";
-      conversionTable["<space>"]     = "<Space>";
-      conversionTable["<bs>"]        = "<BS>";
-      conversionTable["<enter>"]     = "<Enter>";
-      conversionTable["<return>"]    = "<Return>";
-      conversionTable["<lt>"]        = "<lt>";
-      conversionTable["<tab>"]       = "<Tab>";
-      conversionTable["<sc>"]        = "<sc>";
-      conversionTable["<cr>"]        = "<CR>";
-      conversionTable["<c-m>"]       = "<C-M>";
-
       // Add F1 - F12  into the conversion table
       for (int i = 0; i <= 12; ++i)
       {
@@ -685,6 +663,27 @@ std::string Normal::PerformMapSubtitutions(std::string input) const
          sprintf(value, "<C-%c>", toupper(i));
          conversionTable[std::string(key)] = std::string(value);
       }
+
+      conversionTable["<nop>"]       = "<Nop>";
+      conversionTable["<esc>"]       = "<Esc>";
+      conversionTable["<pageup>"]    = "<PageUp>";
+      conversionTable["<pagedown>"]  = "<PageDown>";
+      conversionTable["<home>"]      = "<Home>";
+      conversionTable["<end>"]       = "<End>";
+      conversionTable["<left>"]      = "<Left>";
+      conversionTable["<right>"]     = "<Right>";
+      conversionTable["<down>"]      = "<Down>";
+      conversionTable["<up>"]        = "<Up>";
+      conversionTable["<del>"]       = "<Del>";
+      conversionTable["<bs>"]        = "<BS>";
+      conversionTable["<space>"]     = "<Space>";
+      conversionTable["<enter>"]     = "<Enter>";
+      conversionTable["<return>"]    = "<Return>";
+      conversionTable["<lt>"]        = "<lt>";
+      conversionTable["<tab>"]       = "<Tab>";
+      conversionTable["<sc>"]        = "<sc>";
+      conversionTable["<cr>"]        = "<CR>";
+      conversionTable["<c-h>"]       = "<BS>";
 
    }
 
