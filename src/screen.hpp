@@ -56,7 +56,9 @@ namespace Ui
    class ConsoleWindow;
    class InfoWindow;
    class LibraryWindow;
+#ifdef LYRICS_SUPPORT
    class LyricsWindow;
+#endif
    class PlaylistWindow;
    class Search;
    class SongWindow;
@@ -114,7 +116,9 @@ namespace Ui
 
          Unknown,
          SongInfo,
+#ifdef LYRICS_SUPPORT
          Lyrics,
+#endif
          Dynamic //Anything above dynamic is a dynamic window
       } MainWindow;
 
@@ -155,10 +159,12 @@ namespace Ui
       // Create a new song window, usually used for search results
       Ui::SongWindow * CreateSongWindow(std::string const & name);
       Ui::InfoWindow * CreateInfoWindow(int32_t Id, std::string const & name, Mpc::Song * song = NULL);
-      Ui::LyricsWindow * CreateLyricsWindow(int32_t Id, std::string const & name, Mpc::Song * song = NULL);
-
       void CreateSongInfoWindow(Mpc::Song * song = NULL);
+
+#ifdef LYRICS_SUPPORT
+      Ui::LyricsWindow * CreateLyricsWindow(int32_t Id, std::string const & name, Mpc::Song * song = NULL);
       void CreateSongLyricsWindow(Mpc::Song * song = NULL);
+#endif
 
       // Create a new window used to display information specific to the currently active mode
       ModeWindow * CreateModeWindow();

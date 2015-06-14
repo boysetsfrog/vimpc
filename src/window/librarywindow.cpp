@@ -387,6 +387,7 @@ void LibraryWindow::Edit()
    }
 }
 
+#ifdef LYRICS_SUPPORT
 void LibraryWindow::Lyrics()
 {
    if (CurrentLine() < library_.Size())
@@ -399,7 +400,7 @@ void LibraryWindow::Lyrics()
       }
    }
 }
-
+#endif
 
 void LibraryWindow::ScrollToFirstMatch(std::string const & input)
 {

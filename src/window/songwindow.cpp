@@ -372,6 +372,7 @@ void SongWindow::Edit()
    }
 }
 
+#ifdef LYRICS_SUPPORT
 void SongWindow::Lyrics()
 {
    if (CurrentLine() < BufferSize())
@@ -380,6 +381,7 @@ void SongWindow::Lyrics()
       screen_.CreateSongLyricsWindow(song);
    }
 }
+#endif
 
 void SongWindow::ScrollToFirstMatch(std::string const & input)
 {

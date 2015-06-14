@@ -30,8 +30,6 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/errorcodes.hpp \
                    src/events.cpp \
                    src/events.hpp \
-                   src/lyricsfetcher.cpp \
-                   src/lyricsfetcher.hpp \
                    src/mpdclient.cpp \
                    src/mpdclient.hpp \
                    src/output.cpp \
@@ -86,8 +84,6 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/librarywindow.hpp \
                    src/window/listwindow.cpp \
                    src/window/listwindow.hpp \
-                   src/window/lyricswindow.cpp \
-                   src/window/lyricswindow.hpp \
                    src/window/modewindow.cpp \
                    src/window/modewindow.hpp \
                    src/window/outputwindow.cpp \
@@ -108,6 +104,13 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/window/windowselector.cpp \
                    src/window/windowselector.hpp \
                    src/main.cpp
+
+if LYRICS_SUPPORT
+vimpc_SOURCES     += src/lyricsfetcher.cpp \
+                     src/lyricsfetcher.hpp \
+                     src/window/lyricswindow.cpp \
+                     src/window/lyricswindow.hpp
+endif
 
 if BUILD_TEST
 vimpc_SOURCES     += src/test/algorithms.cpp \

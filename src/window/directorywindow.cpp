@@ -454,6 +454,7 @@ void DirectoryWindow::Edit()
    }
 }
 
+#ifdef LYRICS_SUPPORT
 void DirectoryWindow::Lyrics()
 {
    if (CurrentLine() < directory_.Size())
@@ -466,6 +467,7 @@ void DirectoryWindow::Lyrics()
       }
    }
 }
+#endif
 
 
 void DirectoryWindow::ScrollToFirstMatch(std::string const & input)

@@ -107,6 +107,9 @@ AC_CHECK_HEADER(pcre.h,
 
 lyrics_default="yes"
 AC_ARG_ENABLE(lyrics, [ --enable-lyrics=[no/yes] turn on/off lyric fetching support [default=$lyrics_default]],, enable_lyrics=$lyrics_default)
+
+AM_CONDITIONAL([LYRICS_SUPPORT], [test x$enable_lyrics = xyes])
+
 if test "x$enable_lyrics" = "xyes"; then
 AC_DEFINE_UNQUOTED(LYRICS_SUPPORT, "1", "Define to 1 if lyrics support enabled")
 

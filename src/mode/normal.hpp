@@ -142,7 +142,9 @@ namespace Ui
 
    private:
       void PlaySelected(uint32_t count);
+#ifdef LYRICS_SUPPORT
       void Lyrics(uint32_t count);
+#endif
 
    private:
       template <Item::Collection COLLECTION>

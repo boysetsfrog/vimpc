@@ -78,7 +78,9 @@ namespace Ui
       virtual void Escape() {}
       virtual void Visual() {}
       virtual void SwitchVisualEnd() {}
+#ifdef LYRICS_SUPPORT
       virtual void Lyrics() {}
+#endif
       virtual void Save(std::string const & name) {}
 
    public:

@@ -50,12 +50,15 @@
 #include "window/infowindow.hpp"
 #include "window/librarywindow.hpp"
 #include "window/listwindow.hpp"
-#include "window/lyricswindow.hpp"
 #include "window/outputwindow.hpp"
 #include "window/playlistwindow.hpp"
 #include "window/result.hpp"
 #include "window/songwindow.hpp"
 #include "window/windowselector.hpp"
+
+#ifdef LYRICS_SUPPORT
+#include "window/lyricswindow.hpp"
+#endif
 
 #if (NCURSES_MOUSE_VERSION <= 1)
 #ifndef BUTTON5_PRESSED
@@ -487,14 +490,6 @@ Ui::InfoWindow * Screen::CreateInfoWindow(int32_t Id, std::string const & name, 
    return window;
 }
 
-Ui::LyricsWindow * Screen::CreateLyricsWindow(int32_t Id, std::string const & name, Mpc::Song * song)
-{
-   SetVisible(Id, false);
-   Ui::LyricsWindow * window = new LyricsWindow(song->URI(), settings_, *this, client_, clientState_, search_, name);
-   mainWindows_[Id]          = window;
-   return window;
-}
-
 void Screen::CreateSongInfoWindow(Mpc::Song * song)
 {
    if (song != NULL)
@@ -508,6 +503,15 @@ void Screen::CreateSongInfoWindow(Mpc::Song * song)
    }
 }
 
+#ifdef LYRICS_SUPPORT
+Ui::LyricsWindow * Screen::CreateLyricsWindow(int32_t Id, std::string const & name, Mpc::Song * song)
+{
+   SetVisible(Id, false);
+   Ui::LyricsWindow * window = new LyricsWindow(song->URI(), settings_, *this, client_, clientState_, search_, name);
+   mainWindows_[Id]          = window;
+   return window;
+}
+
 void Screen::CreateSongLyricsWindow(Mpc::Song * song)
 {
    if (song != NULL)
@@ -517,6 +521,7 @@ void Screen::CreateSongLyricsWindow(Mpc::Song * song)
       SetActiveAndVisible(GetWindowFromName(window->Name()));
    }
 }
+#endif
 
 ModeWindow * Screen::CreateModeWindow()
 {
