@@ -99,6 +99,7 @@ namespace Ui
       Mpc::ClientState &     clientState_;
       Ui::Search     const & search_;
       Mpc::Directory &       directory_;
+      uint32_t               selectedDirectory_;
    };
 }
 #endif

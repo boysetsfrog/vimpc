@@ -39,12 +39,13 @@
 using namespace Ui;
 
 DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & screen, Mpc::Directory & directory, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search) :
-   SelectWindow     (settings, screen, "directory"),
-   settings_        (settings),
-   client_          (client),
-   clientState_     (clientState),
-   search_          (search),
-   directory_       (directory)
+   SelectWindow       (settings, screen, "directory"),
+   settings_          (settings),
+   client_            (client),
+   clientState_       (clientState),
+   search_            (search),
+   directory_         (directory),
+   selectedDirectory_ (0)
 {
    SoftRedrawOnSetting(Setting::ShowPath);
    SoftRedrawOnSetting(Setting::ShowLists);
@@ -288,7 +289,15 @@ void DirectoryWindow::Left(Ui::Player & player, uint32_t count)
       if (directory_.Get(0)->name_ == "..")
       {
          directory_.ChangeDirectory(*directory_.Get(0));
-         ScrollTo(0);
+
+         if (directory_.Get(0)->name_ != "..")
+         {
+            ScrollTo(selectedDirectory_);
+         }
+         else
+         {
+            ScrollTo(0);
+         }
       }
    }
 }
@@ -297,6 +306,11 @@ void DirectoryWindow::Right(Ui::Player & player, uint32_t count)
 {
    if (CurrentLine() < directory_.Size())
    {
+      if (directory_.Get(0)->name_ != "..")
+      {
+         selectedDirectory_ = CurrentLine();
+      }
+
       directory_.ChangeDirectory(*directory_.Get(CurrentLine()));
       ScrollTo(0);
    }
