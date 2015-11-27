@@ -543,39 +543,60 @@ template <int Delta>
 void Command::Seek(std::string const & arguments)
 {
    uint32_t time = 0;
+   int min = 0, sec = 0;
    size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
       std::string minutes = arguments.substr(0, pos);
       std::string seconds = arguments.substr(pos + 1);
-      time = (atoi(minutes.c_str()) * 60) + atoi(seconds.c_str());
+      min = atoi(minutes.c_str());
+      sec = atoi(seconds.c_str());
    }
    else
    {
-      time = atoi(arguments.c_str());
+      sec = atoi(arguments.c_str());
    }
-
-   Player::Seek(Delta * time);
+   
+   if (min < 0 || sec < 0)
+   {
+      ErrorString(ErrorNumber::InvalidParameter);
+   }
+   else
+   {
+      time = static_cast<uint32_t>( (min * 60) + sec );
+      Player::Seek(Delta * time);
+   }
 }
 
 void Command::SeekTo(std::string const & arguments)
 {
    uint32_t time = 0;
+   int min = 0, sec = 0;
    size_t const pos = arguments.find_first_of(":");
 
    if (pos != std::string::npos)
    {
       std::string minutes = arguments.substr(0, pos);
       std::string seconds = arguments.substr(pos + 1);
-      time = (atoi(minutes.c_str()) * 60) + atoi(seconds.c_str());
+      min = atoi(minutes.c_str()); // use int type so we can look for a 
+                                   // negative seek value
+      sec = atoi(seconds.c_str());
    }
    else
    {
-      time = atoi(arguments.c_str());
+      sec = atoi(arguments.c_str());
    }
 
-   Player::SeekTo(time);
+   if (min < 0 || sec < 0)
+   {
+      ErrorString(ErrorNumber::InvalidParameter);
+   }
+   else
+   {
+      time = static_cast<uint32_t>( (min * 60) + sec );
+      Player::SeekTo(time);
+   }
 }
 
 void Command::Quit(std::string const & arguments)

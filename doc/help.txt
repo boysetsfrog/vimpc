@@ -268,7 +268,8 @@
 
    volume [0-100]           | set the volume
 
-   seek <time>              | seek to <time>
+   seek <time>              | seek to <time>, where <time> is of the form
+                            |    <mm:ss>, <:ss>, or <ss>
    seek+ <time>             | seek forward <time>
    seek- <time>             | seek backward <time>
 
