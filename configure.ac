@@ -105,7 +105,7 @@ AC_CHECK_HEADER(pcre.h,
                 [],
                 [AC_MSG_ERROR(libpcre-dev library is required)])
 
-lyrics_default="yes"
+lyrics_default="no"
 AC_ARG_ENABLE(lyrics, [ --enable-lyrics=[no/yes] turn on/off lyric fetching support [default=$lyrics_default]],, enable_lyrics=$lyrics_default)
 
 AM_CONDITIONAL([LYRICS_SUPPORT], [test x$enable_lyrics = xyes])
