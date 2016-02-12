@@ -2486,8 +2486,9 @@ void Client::QueueMetaChanges()
          {
             Song * newSong = NULL;
 
-            // Handle "virtual" songs embedded within files
-            if (mpd_song_get_end(nextSong) != 0)
+         if ((Main::Library().Song(Data.uri) == NULL) ||
+             // Handle "virtual" songs embedded within files
+             (mpd_song_get_end(nextSong) != 0))
             {
                newSong = CreateSong(nextSong);
             }
