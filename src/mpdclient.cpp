@@ -2077,6 +2077,8 @@ void Client::GetAllMetaInformation()
       }
    }
 
+   songs.clear();
+
    if (Connected() == true)
    {
       Debug("Client::List queue meta data");
@@ -2088,17 +2090,37 @@ void Client::GetAllMetaInformation()
       {
          EventData Data; Data.song = NULL; Data.uri = mpd_song_get_uri(nextSong); Data.pos1 = -1;
 
-         if ((Main::Library().Song(Data.uri) == NULL) ||
+         if (((settings_.Get(Setting::ListAllMeta) == false) &&
+              (Main::Library().Song(Data.uri) == NULL)) ||
              // Handle "virtual" songs embedded within files
              (mpd_song_get_end(nextSong) != 0))
          {
             Song * const newSong = CreateSong(nextSong);
             Data.song = newSong;
+
+            if (settings_.Get(Setting::ListAllMeta) == false) {
+               songs.push_back(newSong);
+            }
          }
 
          Main::Vimpc::CreateEvent(Event::PlaylistAdd, Data);
 
          mpd_song_free(nextSong);
+      }
+   }
+
+   if (settings_.Get(Setting::ListAllMeta) == false) {
+      if (Connected() == true)
+      {
+         // Songs, paths, lists, etc are collated and the events created this way
+         // because mpd seems to disconnect you if you take to long to recv entities
+         for (auto song : songs)
+         {
+            // Pre cache the print of the song
+            (void) song->FormatString(SongFormat);
+            EventData Data; Data.song = song;
+            Main::Vimpc::CreateEvent(Event::DatabaseSong, Data);
+         }
       }
    }
 
@@ -2486,9 +2508,10 @@ void Client::QueueMetaChanges()
          {
             Song * newSong = NULL;
 
-         if ((Main::Library().Song(Data.uri) == NULL) ||
-             // Handle "virtual" songs embedded within files
-             (mpd_song_get_end(nextSong) != 0))
+            if (((settings_.Get(Setting::ListAllMeta) == false) &&
+                 (Main::Library().Song(Data.uri) == NULL)) ||
+                // Handle "virtual" songs embedded within files
+                (mpd_song_get_end(nextSong) != 0))
             {
                newSong = CreateSong(nextSong);
             }
