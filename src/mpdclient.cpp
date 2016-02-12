@@ -2003,47 +2003,51 @@ void Client::GetAllMetaInformation()
       Main::Vimpc::CreateEvent(Event::ClearDatabase, DBData);
 
       Debug("Client::Get all meta information");
-      mpd_send_list_all_meta(connection_, NULL);
 
-      mpd_entity * nextEntity = mpd_recv_entity(connection_);
-
-      for(; nextEntity != NULL; nextEntity = mpd_recv_entity(connection_))
+      if ((settings_.Get(Setting::ListAllMeta) == true))
       {
-         if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_SONG)
-         {
-            mpd_song const * const nextSong = mpd_entity_get_song(nextEntity);
+          mpd_send_list_all_meta(connection_, NULL);
 
-            if (nextSong != NULL)
-            {
-               Song * const newSong = CreateSong(nextSong);
-               songs.push_back(newSong);
-            }
-         }
-         else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_DIRECTORY)
-         {
-            mpd_directory const * const nextDirectory = mpd_entity_get_directory(nextEntity);
-            paths.push_back(std::string(mpd_directory_get_path(nextDirectory)));
-         }
-         else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_PLAYLIST)
-         {
-            mpd_playlist const * const nextPlaylist = mpd_entity_get_playlist(nextEntity);
+          mpd_entity * nextEntity = mpd_recv_entity(connection_);
 
-            if (nextPlaylist != NULL)
-            {
-               std::string const path = mpd_playlist_get_path(nextPlaylist);
-               std::string name = path;
+          for(; nextEntity != NULL; nextEntity = mpd_recv_entity(connection_))
+          {
+             if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_SONG)
+             {
+                mpd_song const * const nextSong = mpd_entity_get_song(nextEntity);
 
-               if (name.find("/") != std::string::npos)
-               {
-                  name = name.substr(name.find_last_of("/") + 1);
-               }
+                if (nextSong != NULL)
+                {
+                   Song * const newSong = CreateSong(nextSong);
+                   songs.push_back(newSong);
+                }
+             }
+             else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_DIRECTORY)
+             {
+                mpd_directory const * const nextDirectory = mpd_entity_get_directory(nextEntity);
+                paths.push_back(std::string(mpd_directory_get_path(nextDirectory)));
+             }
+             else if (mpd_entity_get_type(nextEntity) == MPD_ENTITY_TYPE_PLAYLIST)
+             {
+                mpd_playlist const * const nextPlaylist = mpd_entity_get_playlist(nextEntity);
 
-               lists.push_back(std::make_pair(name, path));
-            }
-         }
+                if (nextPlaylist != NULL)
+                {
+                   std::string const path = mpd_playlist_get_path(nextPlaylist);
+                   std::string name = path;
 
-         mpd_entity_free(nextEntity);
-      }
+                   if (name.find("/") != std::string::npos)
+                   {
+                      name = name.substr(name.find_last_of("/") + 1);
+                   }
+
+                   lists.push_back(std::make_pair(name, path));
+                }
+             }
+
+             mpd_entity_free(nextEntity);
+          }
+       }
    }
 
    ClearCommand();

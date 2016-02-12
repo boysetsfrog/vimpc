@@ -45,6 +45,7 @@
    X(IgnoreCaseSort,   "sortignorecase", true)  /* Turn off case sensitivity on sorting */\
    X(IgnoreTheSort,    "sortignorethe",  false) /* Ignore 'the' when sorting */ \
    X(IncrementalSearch,"incsearch",      false) /* Search for results whilst typing */ \
+   X(ListAllMeta,      "listallmeta",    true)  /* Get all meta data */ \
    X(Mouse,            "mouse",          true)  /* Handle mouse keys */ \
    X(Polling,          "polling",        false) /* Poll for status updates */ \
    X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
