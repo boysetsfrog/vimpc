@@ -111,23 +111,27 @@ int32_t Song::Reference() const
 
 /* static */ void Song::IncrementReference(Song * song)
 {
-   song->reference_ += 1;
+   if (song) {
+       song->reference_ += 1;
 
-   if ((song->entry_ != NULL) && (song->reference_ == 1))
-   {
-      song->entry_->AddedToPlaylist();
-      Main::Directory().AddedToPlaylist(song->URI());
+       if ((song->entry_ != NULL) && (song->reference_ == 1))
+       {
+          song->entry_->AddedToPlaylist();
+          Main::Directory().AddedToPlaylist(song->URI());
+       }
    }
 }
 
 /* static */ void Song::DecrementReference(Song * song)
 {
-   song->reference_ -= 1;
+   if (song) {
+      song->reference_ -= 1;
 
-   if ((song->entry_ != NULL) && (song->reference_ == 0))
-   {
-      song->entry_->RemovedFromPlaylist();
-      Main::Directory().RemovedFromPlaylist(song->URI());
+      if ((song->entry_ != NULL) && (song->reference_ == 0))
+      {
+          song->entry_->RemovedFromPlaylist();
+          Main::Directory().RemovedFromPlaylist(song->URI());
+      }
    }
 }
 

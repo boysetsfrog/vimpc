@@ -94,27 +94,34 @@ void LyricsWindow::Print(uint32_t line) const
 void LyricsWindow::LoadLyrics()
 {
    Mpc::Song * song = Main::Library().Song(m_URI);
-   std::string artist = Curl::escape(song->Artist());
-   std::string title = Curl::escape(song->Title());
-   LyricsFetcher::Result result;
+   
+   if (song) {
+       std::string artist = Curl::escape(song->Artist());
+       std::string title = Curl::escape(song->Title());
+       LyricsFetcher::Result result;
 
-   lyrics_.Add("Lyrics:");
+       lyrics_.Add("Lyrics:");
 
-   for (LyricsFetcher **plugin = lyricsPlugins; *plugin != 0; ++plugin)
-   {
-      result = (*plugin)->fetch(artist, title);
-      if (result.first == true)
-         break;
-   }
+       for (LyricsFetcher **plugin = lyricsPlugins; *plugin != 0; ++plugin)
+       {
+          result = (*plugin)->fetch(artist, title);
+          if (result.first == true)
+             break;
+       }
 
-   if (result.first == true)
-   {
-      std::stringstream stream(result.second);
-      std::string line;
-      while (std::getline(stream, line))
-      {
-         lyrics_.Add(line);
-      }
+       if (result.first == true)
+       {
+          std::stringstream stream(result.second);
+          std::string line;
+          while (std::getline(stream, line))
+          {
+             lyrics_.Add(line);
+          }
+       }
+       else
+       {
+          lyrics_.Add("No lyrics were found.");
+       }
    }
    else
    {
