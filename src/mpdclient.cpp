@@ -2088,8 +2088,9 @@ void Client::GetAllMetaInformation()
       {
          EventData Data; Data.song = NULL; Data.uri = mpd_song_get_uri(nextSong); Data.pos1 = -1;
 
-         // Handle "virtual" songs embedded within files
-         if (mpd_song_get_end(nextSong) != 0)
+         if ((Main::Library().Song(Data.uri) == NULL) ||
+             // Handle "virtual" songs embedded within files
+             (mpd_song_get_end(nextSong) != 0))
          {
             Song * const newSong = CreateSong(nextSong);
             Data.song = newSong;
