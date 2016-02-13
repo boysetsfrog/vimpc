@@ -214,11 +214,11 @@ namespace Main
          template <typename T>
          inline T Get(std::string setting) const;
 
-      protected:
          //! Set the value of a particular setting
          void Set(Setting::ToggleSettings setting, bool value);
          void Set(Setting::StringSettings setting, std::string value);
 
+      protected:
          //! Set the value for the given \p setting
          inline void SetValue(std::string setting, bool value)
          {

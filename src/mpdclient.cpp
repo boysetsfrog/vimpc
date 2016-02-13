@@ -1946,6 +1946,8 @@ void Client::ClientQueueExecutor(Mpc::Client * client)
 
 void Client::ClearCommand()
 {
+	error_ = false;
+
    if ((listMode_ == false) && (idleMode_ == false) && (Connected() == true))
    {
       Debug("Client::Finish the response");
@@ -2051,6 +2053,14 @@ void Client::GetAllMetaInformation()
    }
 
    ClearCommand();
+
+	if (error_)
+	{
+		 Debug("List all failed, disabling\n");
+		 Error(ErrorNumber::ErrorClear, "");
+		 ErrorString(ErrorNumber::ClientNoMeta, "not supported on server");
+		 settings_.Set(Setting::ListAllMeta, false);
+	}
 
    if (Connected() == true)
    {
@@ -2586,8 +2596,9 @@ bool Client::CheckError()
 #elif defined(_DEBUG_BREAK_ON_ERROR)
          BREAKPOINT
 #endif
+			error_ = true;
 
-         bool ClearError = mpd_connection_clear_error(connection_);
+         bool const ClearError = mpd_connection_clear_error(connection_);
 
          if (ClearError == false)
          {

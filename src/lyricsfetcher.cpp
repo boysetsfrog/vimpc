@@ -119,7 +119,7 @@ LyricsFetcher::Result LyricsFetcher::fetch(const std::string &artist, const std:
 	return result;
 }
 
-std::vector<std::string> LyricsFetcher::getContent(const char *regex_, const std::string &data)
+std::vector<std::string> LyricsFetcher::getContent(std::string regex_, const std::string &data)
 {
 	std::string match;
 	std::string input = data.c_str();

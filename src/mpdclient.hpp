@@ -286,6 +286,8 @@ namespace Mpc
       bool                    queueUpdate_;
       bool                    autoscroll_;
 		Thread	               clientThread_;
+
+      bool                    error_;
    };
 }
 

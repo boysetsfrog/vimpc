@@ -27,6 +27,7 @@
    X(Invalid, "") \
    X(CommandAmbiguous,      "Command is ambiguous, please be more specific") \
    X(ClientError,           "MPD Error") \
+   X(ClientNoMeta,          "Disabling database") \
    X(ClientNoConnection,    "Not Connected") \
    X(CommandNonexistant,    "Command not found") \
    X(CouldNotMapKeys,       "Failed to map the specified keys") \
@@ -50,6 +51,7 @@
    X(NotSet,                "Required setting not set") \
    X(FileNotFound,          "File not found") \
    X(NoRangeAllowed,        "No range allowed for command") \
+   X(ErrorClear,            "Clear all other errors") \
    X(Unknown,               "Unknown")
 
 namespace ErrorNumber

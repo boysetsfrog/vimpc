@@ -29,7 +29,11 @@ void Error(uint32_t errorNumber, std::string errorString)
 
       errorWindow.ErrorMutex.lock();
 
-      if (errorWindow.HasError() == false)
+		if (errorNumber == ErrorNumber::ErrorClear) 
+		{
+			errorWindow.ClearError();
+	   } 
+		else if (errorWindow.HasError() == false)
       {
          errorWindow.SetError(true);
          errorWindow.SetLine("E%d: %s", errorNumber, errorString.c_str());
