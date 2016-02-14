@@ -46,6 +46,16 @@ RE::~RE()
    Free();
 }
 
+
+/* static */ void RE::Trim(std::string & input)
+{
+	Regex::RE start("^\\s+");
+	Regex::RE end("\\s+$");
+
+	start.Replace("", input);
+	end.Replace("", input);
+}
+
 void RE::Compile(std::string toCompile) const
 {
    char const * error;

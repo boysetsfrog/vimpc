@@ -115,6 +115,7 @@ endif
 if BUILD_TEST
 vimpc_SOURCES     += src/test/algorithms.cpp \
                      src/test/command.cpp \
+                     src/test/regex.cpp \
                      src/test/screen.cpp \
                      src/test/settings.cpp \
                      src/test/window.cpp

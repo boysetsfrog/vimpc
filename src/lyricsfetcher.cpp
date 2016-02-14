@@ -21,7 +21,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/trim.hpp>
 
 #include "project.hpp"
 #include "lyricsfetcher.hpp"
@@ -140,7 +139,7 @@ std::vector<std::string> LyricsFetcher::getContent(std::string regex_, const std
 void LyricsFetcher::postProcess(std::string &data)
 {
 	stripHtmlTags(data);
-	boost::trim(data);
+	Regex::RE::Trim(data);
 }
 
 /***********************************************************************/
@@ -183,7 +182,7 @@ LyricsFetcher::Result LyricwikiFetcher::fetch(const std::string &artist, const s
 		{
 			boost::replace_all(*it, "<br />", "\n");
 			stripHtmlTags(*it);
-			boost::trim(*it);
+			Regex::RE::Trim(*it);
 			if (!it->empty())
 			{
 				data += *it;

@@ -43,6 +43,9 @@ namespace Regex
          ~RE();
 
       public:
+			static void Trim(std::string & input);
+
+		public:
          inline bool Matches(std::string match) const
          {
             Compile(exp_);
