@@ -36,7 +36,7 @@ namespace Curl
 		return result;
 	}
 
-	CURLcode perform(std::string &data, const std::string &URL, const std::string &referer, unsigned timeout)
+	CURLcode perform(std::string &data, const std::string &URL, const std::string &referer, bool follow_redirect, unsigned timeout)
 	{
 		CURLcode result;
 		CURL *c = curl_easy_init();
@@ -46,6 +46,8 @@ namespace Curl
 		curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, timeout);
 		curl_easy_setopt(c, CURLOPT_NOSIGNAL, 1);
 		curl_easy_setopt(c, CURLOPT_USERAGENT, "vimpc");
+	   if (follow_redirect)
+		curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, 1L);
 		if (!referer.empty())
 			curl_easy_setopt(c, CURLOPT_REFERER, referer.c_str());
 		result = curl_easy_perform(c);
@@ -151,7 +153,7 @@ LyricsFetcher::Result LyricwikiFetcher::fetch(const std::string &artist, const s
 		result.first = false;
 
 		std::string data;
-		CURLcode code = Curl::perform(data, result.second);
+		CURLcode code = Curl::perform(data, result.second, "", true);
 
 		if (code != CURLE_OK)
 		{
