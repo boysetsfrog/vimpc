@@ -36,7 +36,8 @@ void Debug(std::string format, ...)
    char buffer[1024];
    va_list args;
    va_start(args, format);
-   vsprintf(buffer, format.c_str(), args);
+   vsnprintf(buffer, 1023, format.c_str(), args);
+	buffer[1023] = '\0';
    Main::DebugConsole().Add(buffer);
    va_end(args);
    DebugMutex.unlock();

@@ -58,6 +58,7 @@ namespace Regex
             return IsMatch(match);
          }
 
+
          bool Capture(std::string match,
                       std::string * arg1,        std::string * arg2 = NULL,
                       std::string * arg3 = NULL, std::string * arg4 = NULL,
@@ -65,6 +66,18 @@ namespace Regex
                       std::string * arg7 = NULL, std::string * arg8 = NULL) const;
 
          bool Replace(std::string substitution, std::string & valueString) const;
+
+			inline bool ReplaceAll(std::string substitution, std::string & valueString) const
+			{
+				bool replaced = false;
+
+				while (Replace(substitution, valueString)) 
+				{
+					replaced = true;
+				}
+
+				return replaced;
+			}
 
       private:
          void Compile(std::string toCompile) const;

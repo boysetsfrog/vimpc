@@ -18,9 +18,10 @@
  *   51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.              *
  ***************************************************************************/
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <boost/algorithm/string/replace.hpp>
+#include <vector>
 
 #include "project.hpp"
 #include "lyricsfetcher.hpp"
@@ -82,9 +83,13 @@ LyricsFetcher::Result LyricsFetcher::fetch(const std::string &artist, const std:
 	Result result;
 	result.first = false;
 
+	Regex::RE artist_exp("%artist%");
+	Regex::RE title_exp("%title%");
+
 	std::string url = urlTemplate();
-	boost::replace_all(url, "%artist%", artist);
-	boost::replace_all(url, "%title%", title);
+
+	artist_exp.ReplaceAll(artist, url);
+	title_exp.ReplaceAll(title, url);
 
 	std::string data;
 	CURLcode code = Curl::perform(data, url);
@@ -149,8 +154,9 @@ LyricsFetcher::Result LyricwikiFetcher::fetch(const std::string &artist, const s
 	LyricsFetcher::Result result = LyricsFetcher::fetch(artist, title);
 	if (result.first == true)
 	{
-		result.first = false;
+		Regex::RE br("<br />");
 
+		result.first = false;
 		std::string data;
 		CURLcode code = Curl::perform(data, result.second, "", true);
 
@@ -180,7 +186,8 @@ LyricsFetcher::Result LyricwikiFetcher::fetch(const std::string &artist, const s
 		data.clear();
 		for (auto it = lyrics.begin(); it != lyrics.end(); ++it)
 		{
-			boost::replace_all(*it, "<br />", "\n");
+			br.ReplaceAll("\n", *it);
+
 			stripHtmlTags(*it);
 			Regex::RE::Trim(*it);
 			if (!it->empty())
@@ -255,7 +262,7 @@ void Sing365Fetcher::postProcess(std::string &data)
 	Regex::RE regex("<div.*</div>");
 	while (regex.Matches(data))
 	{
-		data = regex.Replace("", data);
+		regex.Replace("", data);
 	}
 	LyricsFetcher::postProcess(data);
 }
@@ -267,8 +274,12 @@ void MetrolyricsFetcher::postProcess(std::string &data)
 	// some of lyrics have both \n chars and <br />, html tags
 	// are always present whereas \n chars are not, so we need to
 	// throw them away to avoid having line breaks doubled.
-	boost::replace_all(data, "&#10;", "");
-	boost::replace_all(data, "<br />", "\n");
+	Regex::RE end("&#10;");
+	Regex::RE br("<br />");
+
+	end.ReplaceAll("", data);
+	br.ReplaceAll("\n", data);
+
 	data = unescapeHtmlUtf8(data);
 	LyricsFetcher::postProcess(data);
 }
@@ -328,16 +339,23 @@ std::string unescapeHtmlUtf8(const std::string &data)
 
 void stripHtmlTags(std::string &s)
 {
+	Regex::RE single("&#039;");
+	Regex::RE amp("&amp;");
+	Regex::RE quot("&quot;");
+	Regex::RE nbsp("&nbsp;");
+
 	bool erase = 0;
 	for (size_t i = s.find("<"); i != std::string::npos; i = s.find("<"))
 	{
 		size_t j = s.find(">", i)+1;
 		s.replace(i, j-i, "");
 	}
-	boost::replace_all(s, "&#039;", "'");
-	boost::replace_all(s, "&amp;", "&");
-	boost::replace_all(s, "&quot;", "\"");
-	boost::replace_all(s, "&nbsp;", " ");
+
+	single.ReplaceAll("'", s);
+	amp.ReplaceAll("&", s);
+	quot.ReplaceAll("\"", s);
+	nbsp.ReplaceAll(" ", s);
+
 	for (size_t i = 0; i < s.length(); ++i)
 	{
 		if (erase)

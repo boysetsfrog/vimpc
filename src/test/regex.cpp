@@ -26,6 +26,7 @@ class RegexTester : public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(RegexTester);
    CPPUNIT_TEST(trim);
+   CPPUNIT_TEST(replaceAll);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -37,6 +38,7 @@ public:
 
 protected:
    void trim();
+   void replaceAll();
 
 private:
 };
@@ -63,6 +65,15 @@ void RegexTester::trim()
 	Regex::RE::Trim(data);
    CPPUNIT_ASSERT((data == "word"));
 
+}
+
+void RegexTester::replaceAll()
+{
+	Regex::RE regex("a");
+	std::string data = "ababa";
+	regex.ReplaceAll("j", data);
+
+   CPPUNIT_ASSERT((data == "jbjbj"));
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION(RegexTester);
