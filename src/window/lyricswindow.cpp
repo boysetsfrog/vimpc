@@ -109,10 +109,10 @@ void LyricsWindow::LyricsLoaded()
 {
 	Clear();
 
-	lyrics_.Add("Lyrics:");
-
 	if (Main::LyricsLoader::Instance().Loaded()) 
 	{
+		lyrics_.Add(Main::LyricsLoader::Instance().Artist() + " - " + Main::LyricsLoader::Instance().Title());
+
 		if (Main::LyricsBuffer().Size() > 0) 
 		{
 			for (int i = 0; i < Main::LyricsBuffer().Size(); ++i)
