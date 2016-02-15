@@ -63,11 +63,14 @@ LyricsLoader::~LyricsLoader()
 
 void LyricsLoader::SongChanged(EventData const & Data)
 {
-   std::string const artist = mpd_song_get_tag(Data.currentSong, MPD_TAG_ARTIST, 0);
-   std::string const title  = mpd_song_get_tag(Data.currentSong, MPD_TAG_TITLE, 0);
-   std::string const uri    = mpd_song_get_uri(Data.currentSong);
+   if (Data.currentSong) 
+   {
+       std::string const artist = mpd_song_get_tag(Data.currentSong, MPD_TAG_ARTIST, 0);
+       std::string const title  = mpd_song_get_tag(Data.currentSong, MPD_TAG_TITLE, 0);
+       std::string const uri    = mpd_song_get_uri(Data.currentSong);
 
-   Load(artist, title, uri);
+       Load(artist, title, uri);
+    }
 }
 
 void LyricsLoader::Load(Mpc::Song * song)
