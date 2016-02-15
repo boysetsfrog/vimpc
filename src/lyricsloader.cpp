@@ -42,12 +42,12 @@ LyricsLoader & LyricsLoader::Instance()
 }
 
 LyricsLoader::LyricsLoader() :
-	loaded_				 (false),
-	loading_				 (false),
-	artist_				 (""),
-	title_				 (""),
-	uri_  				 (""),
-	lyrics_				 (Main::LyricsBuffer()),
+   loaded_            (false),
+   loading_           (false),
+   artist_            (""),
+   title_             (""),
+   uri_               (""),
+   lyrics_            (Main::LyricsBuffer()),
    lyricsThread_      (Thread(&LyricsLoader::LyricsQueueExecutor, this, this))
 {
    Vimpc::EventHandler(Event::CurrentSong, [this] (EventData const & Data) { SongChanged(Data); });
@@ -55,41 +55,43 @@ LyricsLoader::LyricsLoader() :
 
 LyricsLoader::~LyricsLoader()
 {
-	Running = false;
+   Running = false;
    Condition.notify_all();
-
-	lyricsThread_.join();
+   lyricsThread_.join();
 }
 
 void LyricsLoader::SongChanged(EventData const & Data)
 {
-   if (Data.currentSong) 
+   if ((Main::Settings::Instance().Get(Setting::AutoLyrics) == true))
    {
-       std::string const artist = mpd_song_get_tag(Data.currentSong, MPD_TAG_ARTIST, 0);
-       std::string const title  = mpd_song_get_tag(Data.currentSong, MPD_TAG_TITLE, 0);
-       std::string const uri    = mpd_song_get_uri(Data.currentSong);
+       if (Data.currentSong) 
+       {
+           std::string const artist = mpd_song_get_tag(Data.currentSong, MPD_TAG_ARTIST, 0);
+           std::string const title  = mpd_song_get_tag(Data.currentSong, MPD_TAG_TITLE, 0);
+           std::string const uri    = mpd_song_get_uri(Data.currentSong);
 
-       Load(artist, title, uri);
-    }
+           Load(artist, title, uri);
+        }
+   }
 }
 
 void LyricsLoader::Load(Mpc::Song * song)
 {
-	if (song) {
+   if (song) {
       Load(song->Artist(), song->Title(), song->URI());
    }
 }
 
 void LyricsLoader::Load(std::string artist, std::string title, std::string uri)
 {
-	UniqueLock<Mutex> Lock(QueueMutex);
+   UniqueLock<Mutex> Lock(QueueMutex);
 
-	Debug("Called to load lyrics");
-	
+   Debug("Called to load lyrics");
+   
    if (((loaded_ == false) || (loading_ == false)) &&
        ((artist != artist_) || (title != title_) || (uri != uri_)))
    {
-   	Queue.clear();
+      Queue.clear();
 
       loaded_  = false;
       loading_ = true;
@@ -100,66 +102,66 @@ void LyricsLoader::Load(std::string artist, std::string title, std::string uri)
       Debug("Notifying lyrics loader");
       Condition.notify_all();
    }
-	else
-	{
-		Debug("Didn't do an update, already loaded");
-	}
+   else
+   {
+      Debug("Didn't do an update, already loaded");
+   }
 }
 
 void LyricsLoader::LyricsQueueExecutor(Main::LyricsLoader * loader)
 {
    while (Running == true)
    {
-		UniqueLock<Mutex> Lock(QueueMutex);
+      UniqueLock<Mutex> Lock(QueueMutex);
 
-		if ((Queue.empty() == false) ||
-			 (ConditionWait(Condition, Lock, 250) != false))
-		{
-			if (Queue.empty() == false)
-			{
-				Queue.pop_front();
-				Lock.unlock();
-				loaded_  = false;
-				loading_ = true;
+      if ((Queue.empty() == false) ||
+          (ConditionWait(Condition, Lock, 250) != false))
+      {
+         if (Queue.empty() == false)
+         {
+            Queue.pop_front();
+            Lock.unlock();
+            loaded_  = false;
+            loading_ = true;
 
-				// \todo wait on the queue
-				std::string const artist = Curl::escape(artist_);
-				std::string const title  = Curl::escape(title_);
-				LyricsFetcher::Result result;
+            // \todo wait on the queue
+            std::string const artist = Curl::escape(artist_);
+            std::string const title  = Curl::escape(title_);
+            LyricsFetcher::Result result;
 
-				Debug("Attempting to find lyrics");
+            Debug("Attempting to find lyrics");
 
-				for (LyricsFetcher **plugin = lyricsPlugins; *plugin != 0; ++plugin)
-				{
-					result = (*plugin)->fetch(artist, title);
+            for (LyricsFetcher **plugin = lyricsPlugins; *plugin != 0; ++plugin)
+            {
+               result = (*plugin)->fetch(artist, title);
 
-					if (result.first == true)
-						break;
-				}
+               if (result.first == true)
+                  break;
+            }
 
-				lyrics_.Clear();
+            lyrics_.Clear();
 
-				if (result.first == true)
-				{
-					std::stringstream stream(result.second);
-					std::string line;
-					Debug("Found lyrics");
+            if (result.first == true)
+            {
+               std::stringstream stream(result.second);
+               std::string line;
+               Debug("Found lyrics");
 
-					while (std::getline(stream, line))
-					{
-						lyrics_.Add(line);
-					}
-				}
+               while (std::getline(stream, line))
+               {
+                  lyrics_.Add(line);
+               }
+            }
 
-				loaded_  = true;
+            loaded_  = true;
 
             EventData Data;
-				Main::Vimpc::CreateEvent(Event::LyricsLoaded, Data);
-				Main::Vimpc::CreateEvent(Event::Repaint,      Data);
-				continue;
-			}
-		}
+            Main::Vimpc::CreateEvent(Event::LyricsLoaded, Data);
+            Main::Vimpc::CreateEvent(Event::Repaint,      Data);
+            continue;
+         }
+      }
 
-		loading_ = false;
+      loading_ = false;
    }
 }
