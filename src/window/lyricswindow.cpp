@@ -112,6 +112,7 @@ void LyricsWindow::LyricsLoaded()
 	if (Main::LyricsLoader::Instance().Loaded()) 
 	{
 		lyrics_.Add(Main::LyricsLoader::Instance().Artist() + " - " + Main::LyricsLoader::Instance().Title());
+		lyrics_.Add("");
 
 		if (Main::LyricsBuffer().Size() > 0) 
 		{
