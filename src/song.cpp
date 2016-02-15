@@ -431,6 +431,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
       {
          *++it;
          result += ParseString(it, valid);
+         valid = true;
       }
       else if (*it == '}')
       {
