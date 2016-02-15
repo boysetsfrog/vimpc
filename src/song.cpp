@@ -447,6 +447,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
       }
       else if (*it == '|')
       {
+         valid = (valid) ? tmp_valid : valid;
          valid = !valid;
       }
       else if (*it == '%')
