@@ -366,8 +366,6 @@ std::string const & Song::DurationString() const
 
 std::string Song::FormatString(std::string fmt) const
 {
-   bool valid;
-
    if (lastFormat_ == fmt)
    {
       return formatted_;
@@ -375,8 +373,7 @@ std::string Song::FormatString(std::string fmt) const
 
    lastFormat_ = fmt;
    std::string::const_iterator it = fmt.begin();
-   valid = true;
-   formatted_ = ParseString(it, valid);
+   formatted_ = ParseString(it, true);
 
    return formatted_;
 }
@@ -409,7 +406,7 @@ std::string Song::FormatString(std::string fmt) const
    }
 }
 
-std::string Song::ParseString(std::string::const_iterator & it, bool & valid) const
+std::string Song::ParseString(std::string::const_iterator & it, bool valid) const
 {
    std::string result;
    bool tmp_valid = false;
@@ -430,8 +427,12 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
       else if (*it == '{')
       {
          *++it;
+         uint32_t len = result.length();
          result += ParseString(it, valid);
-         valid = true;
+
+         if (result.length() != len) {
+             valid = true;
+         }
       }
       else if (*it == '}')
       {

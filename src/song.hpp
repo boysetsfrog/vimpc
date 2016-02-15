@@ -133,7 +133,7 @@ namespace Mpc
       LibraryEntry * Entry() const;
 
       std::string FormatString(std::string fmt) const;
-      std::string ParseString(std::string::const_iterator &it, bool &valid) const;
+      std::string ParseString(std::string::const_iterator &it, bool valid) const;
 
    public:
       typedef std::string const & (Mpc::Song::*SongFunction)() const;
