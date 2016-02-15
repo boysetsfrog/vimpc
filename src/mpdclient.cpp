@@ -1121,6 +1121,8 @@ void Client::PlaylistContents(std::string const & name)
 {
    QueueCommand([this, name] ()
    {
+      std::string const SongFormat = settings_.Get(Setting::SongFormat);
+
       ClearCommand();
 
       if (Connected() == true)
@@ -1141,6 +1143,20 @@ void Client::PlaylistContents(std::string const & name)
          {
             for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
             {
+               if ((settings_.Get(Setting::ListAllMeta) == false))
+               {
+                   Mpc::Song * song = Main::Library().Song(mpd_song_get_uri(nextSong));
+
+                   if (song == NULL)
+                   {
+                       song = CreateSong(nextSong);
+                       // Pre cache the print of the song
+                       (void) song->FormatString(SongFormat);
+                       EventData Data; Data.song = song;
+                       Main::Vimpc::CreateEvent(Event::DatabaseSong, Data);
+                   }
+               }
+
                URIs.push_back(mpd_song_get_uri(nextSong));
                mpd_song_free(nextSong);
             }
@@ -1621,6 +1637,8 @@ void Client::SearchResults(std::string const & name)
 {
    QueueCommand([this, name] ()
    {
+      std::string const SongFormat = settings_.Get(Setting::SongFormat);
+
       if (Connected())
       {
          Mpc::Song Song;
@@ -1642,6 +1660,20 @@ void Client::SearchResults(std::string const & name)
 
             for (; nextSong != NULL; nextSong = mpd_recv_song(connection_))
             {
+               if ((settings_.Get(Setting::ListAllMeta) == false))
+               {
+                   Mpc::Song * song = Main::Library().Song(mpd_song_get_uri(nextSong));
+
+                   if (song == NULL)
+                   {
+                       song = CreateSong(nextSong);
+                       // Pre cache the print of the song
+                       (void) song->FormatString(SongFormat);
+                       EventData Data; Data.song = song;
+                       Main::Vimpc::CreateEvent(Event::DatabaseSong, Data);
+                   }
+               }
+
                Data.uris.push_back(mpd_song_get_uri(nextSong));
                mpd_song_free(nextSong);
             }
