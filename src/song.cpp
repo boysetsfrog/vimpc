@@ -430,8 +430,13 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
          uint32_t len = result.length();
          result += ParseString(it, valid);
 
-         if (result.length() != len) {
-             valid = true;
+         if (result.length() != len) 
+         {
+             tmp_valid = true;
+         }
+         else 
+         {
+             tmp_valid = false;
          }
       }
       else if (*it == '}')
