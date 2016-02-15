@@ -26,6 +26,7 @@
 
 #include "buffers.hpp"
 #include "compiler.hpp"
+#include "events.hpp"
 #include "song.hpp"
 #include "lyricsfetcher.hpp"
 #include "buffer/buffer.hpp"
@@ -43,6 +44,10 @@ namespace Main
 
 		public:
 			void Load(Mpc::Song * song);
+
+      private:
+         void SongChanged(EventData const & Data);
+         void Load(std::string artist, std::string title, std::string uri);
 
 		public:
 			std::string Artist()    { return artist_; }

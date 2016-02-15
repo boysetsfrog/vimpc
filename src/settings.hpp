@@ -35,6 +35,7 @@
 #define TOGGLE_SETTINGS \
    X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
    X(AutoUpdate,       "autoupdate",     true)  /* Automatically update after file edits */ \
+   X(AutoLyrics,       "autolyrics",     false) /* Automatically get lyrics for the playing song */ \
    X(AlbumArtist,      "albumartist",    true)  /* Use the album artist tag if there is one */ \
    X(BrowseNumbers,    "browsenumbers",  false) /* Show numbers in the browse window */ \
    X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \

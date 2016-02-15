@@ -25,7 +25,6 @@
 #include <sstream>
 #include <string>
 
-#include "events.hpp"
 #include "vimpc.hpp"
 #include "window/debug.hpp"
 
@@ -51,6 +50,7 @@ LyricsLoader::LyricsLoader() :
 	lyrics_				 (Main::LyricsBuffer()),
    lyricsThread_      (Thread(&LyricsLoader::LyricsQueueExecutor, this, this))
 {
+   Vimpc::EventHandler(Event::CurrentSong, [this] (EventData const & Data) { SongChanged(Data); });
 }
 
 LyricsLoader::~LyricsLoader()
@@ -61,29 +61,42 @@ LyricsLoader::~LyricsLoader()
 	lyricsThread_.join();
 }
 
+void LyricsLoader::SongChanged(EventData const & Data)
+{
+   std::string const artist = mpd_song_get_tag(Data.currentSong, MPD_TAG_ARTIST, 0);
+   std::string const title  = mpd_song_get_tag(Data.currentSong, MPD_TAG_TITLE, 0);
+   std::string const uri    = mpd_song_get_uri(Data.currentSong);
+
+   Load(artist, title, uri);
+}
 
 void LyricsLoader::Load(Mpc::Song * song)
 {
-	UniqueLock<Mutex> Lock(QueueMutex);
+	if (song) {
+      Load(song->Artist(), song->Title(), song->URI());
+   }
+}
 
-	Queue.clear();
+void LyricsLoader::Load(std::string artist, std::string title, std::string uri)
+{
+	UniqueLock<Mutex> Lock(QueueMutex);
 
 	Debug("Called to load lyrics");
 	
-	if (song) {
-		if (((loaded_ == false) || (loading_ == false)) &&
-			 ((song->Artist() != artist_) || (song->Title() != title_) || (song->URI() != uri_)))
-		{
-			loaded_  = false;
-			loading_ = true;
-			artist_ = song->Artist();
-			title_  = song->Title();
-			uri_    = song->URI();
-			Queue.push_back(uri_);
-			Debug("Notifying lyrics loader");
-			Condition.notify_all();
-		}
-	}
+   if (((loaded_ == false) || (loading_ == false)) &&
+       ((artist != artist_) || (title != title_) || (uri != uri_)))
+   {
+   	Queue.clear();
+
+      loaded_  = false;
+      loading_ = true;
+      artist_ = artist;
+      title_  = title;
+      uri_    = uri;
+      Queue.push_back(uri_);
+      Debug("Notifying lyrics loader");
+      Condition.notify_all();
+   }
 	else
 	{
 		Debug("Didn't do an update, already loaded");

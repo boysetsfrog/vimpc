@@ -548,6 +548,7 @@
    On/Off Settings:
    -----------------------
    albumartist          | use the albumartist in preference to artist
+   autolyrics           | automatically fetch lyrics as the songs change
    autoscroll           | automatically scroll when skipping songs
    autoupdate           | automatically update mpd after tag changes
    browsenumbers        | display id numbers next to songs in the browse window
@@ -557,6 +558,7 @@
    hlsearch             | highlight search results
    ignorecase           | case insensitive searching
    incsearch            | search for results as you are typing
+   listallmeta          | download all meta information to construct the library
    local-music-dir      | location on the client computer of music files
    mouse                | turn mouse support on
    polling              | poll mpd for status updates rather than using idle mode
