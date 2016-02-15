@@ -412,6 +412,7 @@ std::string Song::FormatString(std::string fmt) const
 std::string Song::ParseString(std::string::const_iterator & it, bool & valid) const
 {
    std::string result;
+   bool tmp_valid = false;
 
    if (SongInfo.empty() == true)
    {
@@ -433,6 +434,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
       }
       else if (*it == '}')
       {
+         valid = (valid) ? tmp_valid : valid;
          if (valid) break;
          else return "";
       }
@@ -466,16 +468,13 @@ std::string Song::ParseString(std::string::const_iterator & it, bool & valid) co
 
             if ((val == "") || (val.substr(0, strlen("Unknown")) == "Unknown"))
             {
-               valid = false;
+               result += val;
             }
             else
             {
+               tmp_valid = true;
                result += val;
             }
-         }
-         else
-         {
-            valid = false;
          }
       }
       else
