@@ -23,8 +23,10 @@
 
 #include <vector>
 
+#include "buffers.hpp"
 #include "lyricsfetcher.hpp"
 #include "song.hpp"
+
 #include "buffer/buffer.hpp"
 #include "window/selectwindow.hpp"
 
@@ -56,13 +58,13 @@ namespace Ui
    private:
       void Clear();
       void LoadLyrics();
+      void LyricsLoaded();
 
    private:
-      std::string m_URI;
+      std::string 			  m_URI;
       Main::Settings const & settings_;
       Ui::Search     const & search_;
-      typedef Main::Buffer<std::string> LyricsBuffer;
-      LyricsBuffer lyrics_;
+      Main::Lyrics 	        lyrics_;
    };
 }
 

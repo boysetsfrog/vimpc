@@ -24,6 +24,7 @@
 #include "buffer/buffer.hpp"
 #include <iostream>
 
+
 namespace Mpc
 {
    class Playlist;
@@ -41,6 +42,8 @@ namespace Ui
 
 namespace Main
 {
+	typedef Main::Buffer<std::string> Lyrics;
+
    void Delete();
 
    Mpc::Playlist  & Playlist();
@@ -56,6 +59,7 @@ namespace Main
    Ui::Console    & Console();
    Ui::Console    & DebugConsole();
    Ui::Console    & TestConsole();
+	Main::Lyrics   & LyricsBuffer();
 }
 
 #endif

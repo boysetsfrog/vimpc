@@ -42,6 +42,7 @@ static Mpc::Outputs *   o_buffer    = NULL;
 static Ui::Console *    c_buffer    = NULL;
 static Ui::Console *    d_buffer    = NULL;
 static Ui::Console *    x_buffer    = NULL;
+static Main::Lyrics *   y_buffer    = NULL;
 
 void Main::Delete()
 {
@@ -58,6 +59,7 @@ void Main::Delete()
    delete c_buffer;
    delete d_buffer;
    delete x_buffer;
+   delete y_buffer;
 }
 
 Mpc::Playlist & Main::Playlist()
@@ -265,5 +267,14 @@ Ui::Console & Main::TestConsole()
          { Main::TestConsole().Add(Data.name); });
    }
    return *x_buffer;
+}
+
+Main::Lyrics & Main::LyricsBuffer()
+{
+   if (y_buffer == NULL)
+   {
+      y_buffer = new Main::Lyrics();
+   }
+   return *y_buffer;
 }
 /* vim: set sw=3 ts=3: */

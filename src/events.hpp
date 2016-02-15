@@ -27,8 +27,8 @@
 #include "song.hpp"
 
 #define EVENTS \
-   X(Input, "Input") /* Keyboard input event */ \
-   X(Connected, "Connected") \
+   X(Input,  "Input") /* Keyboard input event */ \
+   X(Connected,  "Connected") \
    X(Disconnected, "Disconnected") \
    X(CurrentState, "CurrentState") \
    X(ChangeHost, "ChangeHost") \
@@ -72,6 +72,7 @@
    X(RequirePassword, "RequirePassword") \
    X(IdleMode, "IdleMode") \
    X(StopIdleMode, "StopIdleMode") \
+   X(LyricsLoaded, "LyricsLoaded") \
    X(Unknown, "Unknown")
 
 namespace Mpc

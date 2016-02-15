@@ -20,14 +20,18 @@
 
 #include "lyricswindow.hpp"
 
+#include "events.hpp"
+#include "lyricsloader.hpp"
 #include "mpdclient.hpp"
 #include "screen.hpp"
+#include "vimpc.hpp"
 #include "buffer/playlist.hpp"
 #include "mode/search.hpp"
 
 #include <sstream>
 
 using namespace Ui;
+using namespace Main;
 
 LyricsWindow::LyricsWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name) :
    SelectWindow     (settings, screen, name),
@@ -36,6 +40,9 @@ LyricsWindow::LyricsWindow(std::string const & URI, Main::Settings const & setti
    search_          (search),
    lyrics_          ()
 {
+   Vimpc::EventHandler(Event::LyricsLoaded, [this] (EventData const & Data) { Redraw(); });
+
+	LoadLyrics();
    Redraw();
 }
 
@@ -94,39 +101,34 @@ void LyricsWindow::Print(uint32_t line) const
 void LyricsWindow::LoadLyrics()
 {
    Mpc::Song * song = Main::Library().Song(m_URI);
-   
-   if (song) {
-       std::string artist = Curl::escape(song->Artist());
-       std::string title = Curl::escape(song->Title());
-       LyricsFetcher::Result result;
+	Main::LyricsLoader::Instance().Load(song);
+	LyricsLoaded();
+}
 
-       lyrics_.Add("Lyrics:");
+void LyricsWindow::LyricsLoaded()
+{
+	Clear();
 
-       for (LyricsFetcher **plugin = lyricsPlugins; *plugin != 0; ++plugin)
-       {
-          result = (*plugin)->fetch(artist, title);
-          if (result.first == true)
-             break;
-       }
+	lyrics_.Add("Lyrics:");
 
-       if (result.first == true)
-       {
-          std::stringstream stream(result.second);
-          std::string line;
-          while (std::getline(stream, line))
-          {
-             lyrics_.Add(line);
-          }
-       }
-       else
-       {
-          lyrics_.Add("No lyrics were found.");
-       }
-   }
-   else
-   {
-      lyrics_.Add("No lyrics were found.");
-   }
+	if (Main::LyricsLoader::Instance().Loaded()) 
+	{
+		if (Main::LyricsBuffer().Size() > 0) 
+		{
+			for (int i = 0; i < Main::LyricsBuffer().Size(); ++i)
+			{
+				lyrics_.Add(Main::LyricsBuffer().Get(i));
+			}
+		}
+		else
+		{
+      	lyrics_.Add("No lyrics were found.");
+		}
+	}
+	else
+	{
+		lyrics_.Add("Loading...");
+	}
 }
 
 void LyricsWindow::Edit()
@@ -137,8 +139,8 @@ void LyricsWindow::Edit()
 
 void LyricsWindow::Redraw()
 {
-   Clear();
-   LoadLyrics();
+   LyricsLoaded();
+	ScrollTo(0);
 }
 
 void LyricsWindow::Clear()

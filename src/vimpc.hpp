@@ -37,6 +37,9 @@ namespace Main
 {
    class Vimpc
    {
+		static std::string LyricsArtist;
+		static std::string LyricsTitle;
+
    public:
       Vimpc();
       ~Vimpc();

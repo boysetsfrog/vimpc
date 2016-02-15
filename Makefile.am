@@ -106,7 +106,9 @@ vimpc_SOURCES    = src/algorithm.cpp \
                    src/main.cpp
 
 if LYRICS_SUPPORT
-vimpc_SOURCES     += src/lyricsfetcher.cpp \
+vimpc_SOURCES     += src/lyricsloader.cpp \
+                     src/lyricsloader.hpp \
+						   src/lyricsfetcher.cpp \
                      src/lyricsfetcher.hpp \
                      src/window/lyricswindow.cpp \
                      src/window/lyricswindow.hpp
