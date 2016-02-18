@@ -34,7 +34,7 @@ using namespace Ui;
 using namespace Main;
 
 LyricsWindow::LyricsWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name) :
-   SelectWindow     (settings, screen, name),
+   ScrollWindow     (screen, name),
    m_URI            (URI),
    settings_        (settings),
    search_          (search),
@@ -42,7 +42,7 @@ LyricsWindow::LyricsWindow(std::string const & URI, Main::Settings const & setti
 {
    Vimpc::EventHandler(Event::LyricsLoaded, [this] (EventData const & Data) { Redraw(); });
 
-	LoadLyrics();
+   LoadLyrics();
    Redraw();
 }
 
@@ -141,7 +141,7 @@ void LyricsWindow::Edit()
 void LyricsWindow::Redraw()
 {
    LyricsLoaded();
-	ScrollTo(0);
+   ScrollTo(0);
 }
 
 void LyricsWindow::Clear()
@@ -151,17 +151,11 @@ void LyricsWindow::Clear()
 
 void LyricsWindow::Scroll(int32_t scrollCount)
 {
-   currentLine_ += scrollCount;
-   LimitCurrentSelection();
    ScrollWindow::Scroll(scrollCount);
 }
 
 void LyricsWindow::ScrollTo(uint32_t scrollLine)
 {
-   int64_t oldSelection = currentLine_;
-   currentLine_    = (static_cast<int64_t>(scrollLine));
-   LimitCurrentSelection();
-
    ScrollWindow::ScrollTo(scrollLine);
 }
 
