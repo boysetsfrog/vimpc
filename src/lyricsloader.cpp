@@ -145,11 +145,18 @@ void LyricsLoader::LyricsQueueExecutor(Main::LyricsLoader * loader)
             {
                std::stringstream stream(result.second);
                std::string line;
+               std::string last_line = "";
                Debug("Found lyrics");
 
                while (std::getline(stream, line))
                {
+                  if ((line == last_line) && (last_line == ""))
+                  {
+                      continue;
+                  }
+
                   lyrics_.Add(line);
+                  last_line = line;
                }
             }
 
