@@ -33,40 +33,41 @@
 // Create an enum entry, name and value for each setting
 // X(enum-entry, setting-name, default-value)
 #define TOGGLE_SETTINGS \
-   X(AutoScroll,       "autoscroll",     true)  /* Automatically scroll to playing song */ \
-   X(AutoUpdate,       "autoupdate",     true)  /* Automatically update after file edits */ \
-   X(AutoLyrics,       "autolyrics",     false) /* Automatically get lyrics for the playing song */ \
-   X(AlbumArtist,      "albumartist",    true)  /* Use the album artist tag if there is one */ \
-   X(BrowseNumbers,    "browsenumbers",  false) /* Show numbers in the browse window */ \
-   X(ColourEnabled,    "colour",         true)  /* Determine if we should use colours */ \
-   X(ExpandArtists,    "expand-artists", false) /* Expand artists in the library window by default */ \
-   X(HighlightSearch,  "hlsearch",       true)  /* Show search results in a different colour */ \
-   X(IgnoreTheGroup,   "groupignorethe", false) /* Ignore 'the' when grouping the same artist into library */ \
-   X(IgnoreCaseSearch, "ignorecase",     false) /* Turn off case sensitivity on searching */ \
-   X(IgnoreCaseSort,   "sortignorecase", true)  /* Turn off case sensitivity on sorting */\
-   X(IgnoreTheSort,    "sortignorethe",  false) /* Ignore 'the' when sorting */ \
-   X(IncrementalSearch,"incsearch",      false) /* Search for results whilst typing */ \
-   X(ListAllMeta,      "listallmeta",    true)  /* Get all meta data */ \
-   X(Mouse,            "mouse",          true)  /* Handle mouse keys */ \
-   X(Polling,          "polling",        false) /* Poll for status updates */ \
-   X(PlaylistNumbers,  "playlistnumbers",true)  /* Show id next to each song in the playlist */ \
-   X(PlayOnAdd,        "playonadd",      false) /* If mpd is stopped play after first add */ \
-   X(ProgressBar,      "progressbar",    true)  /* Show the progress bar */ \
-   X(Reconnect,        "reconnect",      true)  /* Reconnect to server when connection drops */ \
-   X(ScrollOnAdd,      "scrollonadd",    true)  /* Auto scroll down after song added */ \
-   X(ScrollOnDelete,   "scrollondelete", true)  /* Auto scroll down after song delete */ \
-   X(SearchWrap,       "searchwrap",     true)  /* Determine whether to wrap searching */ \
-   X(SeekBar,          "seekbar",        true)  /* Mouse click on progress bar causes a seek */ \
-   X(ShowPath,         "showpath",       true)  /* Show current path in directory window */ \
-   X(ShowPercent,      "showpercent",    true)  /* Show percentage on the progress bar */ \
-   X(ShowLists,        "showlists",      true)  /* Show playlists in directory window */ \
-   X(SingleQuit,       "singlequit",     false) /* Quit the entire application not just close a tab */ \
-   X(SongNumbers,      "songnumbers",    true)  /* Show id numbers next to songs in any window */ \
-   X(SmartCase,        "smartcase",      false) /* Case sensitivy enabled when upper case char is used */  \
-   X(StopOnQuit,       "stoponquit",     false) /* Stop playing when we quit */ \
-   X(TabBar,           "tabbar",         true)  /* Show the tab bar */ \
-   X(TimeRemaining,    "timeremaining",  false) /* Show time left rather than time elapsed */ \
-   X(WindowNumbers,    "windownumbers",  false) /* Window numbers next to each window in the tab list */
+   X(AutoScroll,       "autoscroll",      true)  /* Automatically scroll to playing song */ \
+   X(AutoUpdate,       "autoupdate",      true)  /* Automatically update after file edits */ \
+   X(AutoLyrics,       "autolyrics",      false) /* Automatically get lyrics for the playing song */ \
+   X(AutoScrollLyrics, "autoscrolllyrics",false) /* Automatically scroll lyrics for the playing song */ \
+   X(AlbumArtist,      "albumartist",     true)  /* Use the album artist tag if there is one */ \
+   X(BrowseNumbers,    "browsenumbers",   false) /* Show numbers in the browse window */ \
+   X(ColourEnabled,    "colour",          true)  /* Determine if we should use colours */ \
+   X(ExpandArtists,    "expand-artists",  false) /* Expand artists in the library window by default */ \
+   X(HighlightSearch,  "hlsearch",        true)  /* Show search results in a different colour */ \
+   X(IgnoreTheGroup,   "groupignorethe",  false) /* Ignore 'the' when grouping the same artist into library */ \
+   X(IgnoreCaseSearch, "ignorecase",      false) /* Turn off case sensitivity on searching */ \
+   X(IgnoreCaseSort,   "sortignorecase",  true)  /* Turn off case sensitivity on sorting */\
+   X(IgnoreTheSort,    "sortignorethe",   false) /* Ignore 'the' when sorting */ \
+   X(IncrementalSearch,"incsearch",       false) /* Search for results whilst typing */ \
+   X(ListAllMeta,      "listallmeta",     true)  /* Get all meta data */ \
+   X(Mouse,            "mouse",           true)  /* Handle mouse keys */ \
+   X(Polling,          "polling",         false) /* Poll for status updates */ \
+   X(PlaylistNumbers,  "playlistnumbers", true)  /* Show id next to each song in the playlist */ \
+   X(PlayOnAdd,        "playonadd",       false) /* If mpd is stopped play after first add */ \
+   X(ProgressBar,      "progressbar",     true)  /* Show the progress bar */ \
+   X(Reconnect,        "reconnect",       true)  /* Reconnect to server when connection drops */ \
+   X(ScrollOnAdd,      "scrollonadd",     true)  /* Auto scroll down after song added */ \
+   X(ScrollOnDelete,   "scrollondelete",  true)  /* Auto scroll down after song delete */ \
+   X(SearchWrap,       "searchwrap",      true)  /* Determine whether to wrap searching */ \
+   X(SeekBar,          "seekbar",         true)  /* Mouse click on progress bar causes a seek */ \
+   X(ShowPath,         "showpath",        true)  /* Show current path in directory window */ \
+   X(ShowPercent,      "showpercent",     true)  /* Show percentage on the progress bar */ \
+   X(ShowLists,        "showlists",       true)  /* Show playlists in directory window */ \
+   X(SingleQuit,       "singlequit",      false) /* Quit the entire application not just close a tab */ \
+   X(SongNumbers,      "songnumbers",     true)  /* Show id numbers next to songs in any window */ \
+   X(SmartCase,        "smartcase",       false) /* Case sensitivy enabled when upper case char is used */  \
+   X(StopOnQuit,       "stoponquit",      false) /* Stop playing when we quit */ \
+   X(TabBar,           "tabbar",          true)  /* Show the tab bar */ \
+   X(TimeRemaining,    "timeremaining",   false) /* Show time left rather than time elapsed */ \
+   X(WindowNumbers,    "windownumbers",   false) /* Window numbers next to each window in the tab list */
 
 // X(enum-entry, setting-name, default-value, regex-filter)
 #define STRING_SETTINGS \

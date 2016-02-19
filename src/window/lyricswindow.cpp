@@ -42,6 +42,12 @@ LyricsWindow::LyricsWindow(std::string const & URI, Main::Settings const & setti
 {
    Vimpc::EventHandler(Event::LyricsLoaded, [this] (EventData const & Data) { Redraw(); });
 
+   Vimpc::EventHandler(Event::LyricsPercent, [this] (EventData const & Data) 
+   { 
+       uint32_t end = (lyrics_.Size() > Rows()) ? lyrics_.Size()- Rows() : 0;
+       this->ScrollTo((2*end*Data.value)/100); 
+   });
+
    LoadLyrics();
    Redraw();
 }
@@ -101,35 +107,35 @@ void LyricsWindow::Print(uint32_t line) const
 void LyricsWindow::LoadLyrics()
 {
    Mpc::Song * song = Main::Library().Song(m_URI);
-	Main::LyricsLoader::Instance().Load(song);
-	LyricsLoaded();
+   Main::LyricsLoader::Instance().Load(song);
+   LyricsLoaded();
 }
 
 void LyricsWindow::LyricsLoaded()
 {
-	Clear();
+   Clear();
 
-	if (Main::LyricsLoader::Instance().Loaded()) 
-	{
-		lyrics_.Add(Main::LyricsLoader::Instance().Artist() + " - " + Main::LyricsLoader::Instance().Title());
-		lyrics_.Add("");
+   if (Main::LyricsLoader::Instance().Loaded()) 
+   {
+      lyrics_.Add(Main::LyricsLoader::Instance().Artist() + " - " + Main::LyricsLoader::Instance().Title());
+      lyrics_.Add("");
 
-		if (Main::LyricsBuffer().Size() > 0) 
-		{
-			for (int i = 0; i < Main::LyricsBuffer().Size(); ++i)
-			{
-				lyrics_.Add(Main::LyricsBuffer().Get(i));
-			}
-		}
-		else
-		{
-      	lyrics_.Add("No lyrics were found.");
-		}
-	}
-	else
-	{
-		lyrics_.Add("Loading...");
-	}
+      if (Main::LyricsBuffer().Size() > 0) 
+      {
+         for (int i = 0; i < Main::LyricsBuffer().Size(); ++i)
+         {
+            lyrics_.Add(Main::LyricsBuffer().Get(i));
+         }
+      }
+      else
+      {
+         lyrics_.Add("No lyrics were found.");
+      }
+   }
+   else
+   {
+      lyrics_.Add("Loading...");
+   }
 }
 
 void LyricsWindow::Edit()

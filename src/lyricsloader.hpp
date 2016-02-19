@@ -42,32 +42,35 @@ namespace Main
          LyricsLoader();
          ~LyricsLoader();
 
-		public:
-			void Load(Mpc::Song * song);
+      public:
+         void Load(Mpc::Song * song);
 
       private:
          void SongChanged(EventData const & Data);
-         void Load(std::string artist, std::string title, std::string uri);
+         void ElapsedUpdate(uint32_t elapsed);
+         void Load(std::string artist, std::string title, std::string uri, uint32_t duration);
 
-		public:
-			std::string Artist()    { return artist_; }
-			std::string Title()     { return title_; }
-			std::string URI()       { return uri_; }
-			bool		   Loaded()    { return loaded_; }
-			bool		   IsLoading() { return loading_; }
+      public:
+         std::string  Artist()    { return artist_; }
+         std::string  Title()     { return title_; }
+         std::string  URI()       { return uri_; }
+         bool         Loaded()    { return loaded_; }
+         bool         IsLoading() { return loading_; }
 
-		private:
-			void LyricsQueueExecutor(Main::LyricsLoader * loader);
+      private:
+         void LyricsQueueExecutor(Main::LyricsLoader * loader);
 
-		private:
-			bool				loaded_;
-			bool				loading_;
-			std::string    artist_;
-			std::string    title_;
-			std::string    uri_;
-			Main::Lyrics & lyrics_;
-			Thread	      lyricsThread_;
-	};
+      private:
+         bool           loaded_;
+         bool           loading_;
+         uint32_t       percent_;
+         uint32_t       duration_;
+         std::string    artist_;
+         std::string    title_;
+         std::string    uri_;
+         Main::Lyrics & lyrics_;
+         Thread         lyricsThread_;
+   };
 
 }
 

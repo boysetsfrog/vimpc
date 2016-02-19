@@ -73,6 +73,7 @@
    X(IdleMode, "IdleMode") \
    X(StopIdleMode, "StopIdleMode") \
    X(LyricsLoaded, "LyricsLoaded") \
+   X(LyricsPercent, "LyricsPercent") \
    X(Unknown, "Unknown")
 
 namespace Mpc

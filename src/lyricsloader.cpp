@@ -28,12 +28,12 @@
 #include "vimpc.hpp"
 #include "window/debug.hpp"
 
-using namespace Main;
-
 static std::list<std::string>             Queue;
 static Mutex                              QueueMutex;
 static Atomic(bool)                       Running(true);
 static ConditionVariable                  Condition;
+
+using namespace Main;
 
 LyricsLoader & LyricsLoader::Instance()
 {
@@ -50,7 +50,16 @@ LyricsLoader::LyricsLoader() :
    lyrics_            (Main::LyricsBuffer()),
    lyricsThread_      (Thread(&LyricsLoader::LyricsQueueExecutor, this, this))
 {
-   Vimpc::EventHandler(Event::CurrentSong, [this] (EventData const & Data) { SongChanged(Data); });
+   Vimpc::EventHandler(Event::CurrentSong, [this] (EventData const & Data) 
+   { 
+       SongChanged(Data); 
+   });
+
+   Vimpc::EventHandler(Event::Elapsed, [this] (EventData const & Data)
+   {
+      ElapsedUpdate(Data.value);
+   });
+
 }
 
 LyricsLoader::~LyricsLoader()
@@ -69,20 +78,43 @@ void LyricsLoader::SongChanged(EventData const & Data)
            std::string const artist = mpd_song_get_tag(Data.currentSong, MPD_TAG_ARTIST, 0);
            std::string const title  = mpd_song_get_tag(Data.currentSong, MPD_TAG_TITLE, 0);
            std::string const uri    = mpd_song_get_uri(Data.currentSong);
+           uint32_t  const duration = mpd_song_get_duration(Data.currentSong);
 
-           Load(artist, title, uri);
+           Load(artist, title, uri, duration);
         }
+   }
+}
+
+void LyricsLoader::ElapsedUpdate(uint32_t elapsed)
+{
+   if ((Main::Settings::Instance().Get(Setting::AutoLyrics) == true) &&
+       (Main::Settings::Instance().Get(Setting::AutoScrollLyrics) == true))
+   {
+       if (duration_ > 0) {
+           uint32_t percent = (((elapsed*100)/duration_)/10);
+
+           percent *= 10;
+
+           if (percent > percent_)
+           {
+                EventData Data;
+                Data.value = percent;
+                percent_   = percent;
+                Main::Vimpc::CreateEvent(Event::LyricsPercent, Data);
+                Main::Vimpc::CreateEvent(Event::Repaint,       Data);
+           }
+       }
    }
 }
 
 void LyricsLoader::Load(Mpc::Song * song)
 {
    if (song) {
-      Load(song->Artist(), song->Title(), song->URI());
+      Load(song->Artist(), song->Title(), song->URI(), song->Duration());
    }
 }
 
-void LyricsLoader::Load(std::string artist, std::string title, std::string uri)
+void LyricsLoader::Load(std::string artist, std::string title, std::string uri, uint32_t duration)
 {
    UniqueLock<Mutex> Lock(QueueMutex);
 
@@ -95,9 +127,11 @@ void LyricsLoader::Load(std::string artist, std::string title, std::string uri)
 
       loaded_  = false;
       loading_ = true;
-      artist_ = artist;
-      title_  = title;
-      uri_    = uri;
+      artist_  = artist;
+      title_   = title;
+      uri_     = uri;
+      duration_= duration;
+      percent_ = 0;
       Queue.push_back(uri_);
       Debug("Notifying lyrics loader");
       Condition.notify_all();

@@ -285,7 +285,7 @@ namespace Mpc
       bool                    idleMode_;
       bool                    queueUpdate_;
       bool                    autoscroll_;
-		Thread	               clientThread_;
+      Thread                  clientThread_;
 
       bool                    error_;
    };
