@@ -112,13 +112,13 @@ namespace Ui
          Directory,
          Playlist,
          WindowSelect,
-         MainWindowCount,
-
-         Unknown,
-         SongInfo,
 #ifdef LYRICS_SUPPORT
          Lyrics,
 #endif
+         SongInfo,
+         MainWindowCount,
+
+         Unknown,
          Dynamic //Anything above dynamic is a dynamic window
       } MainWindow;
 
