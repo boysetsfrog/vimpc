@@ -116,6 +116,10 @@ void LyricsLoader::Load(Mpc::Song * song)
 
 void LyricsLoader::Load(std::string artist, std::string title, std::string uri, uint32_t duration)
 {
+   Regex::RE titleStrip(Main::Settings::Instance().Get(Setting::LyricsStrip));
+
+   titleStrip.ReplaceAll("", title);
+
    UniqueLock<Mutex> Lock(QueueMutex);
 
    Debug("Called to load lyrics");

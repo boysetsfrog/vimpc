@@ -81,6 +81,8 @@
    X(LibraryFormat,    "libraryformat", "$I%n \\| $D$H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
    /* Library format string */ \
    X(LocalMusicDir,    "local-music-dir", "", ".*") \
+   /* Lyrics strip regex */ \
+   X(LyricsStrip,      "lyricsstrip", "(\\s*(R|r)emaster\\w*)|(\\s*-)", ".*") \
    /* Lists to show in the lists window */ \
    X(Playlists,        "playlists", "mpd", "all|mpd|files") \
    /* Song format string */ \

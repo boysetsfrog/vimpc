@@ -561,6 +561,7 @@
    incsearch            | search for results as you are typing
    listallmeta          | download all meta information to construct the library
    local-music-dir      | location on the client computer of music files
+   lyricstrip           | regular expression to strip from title for lyric search
    mouse                | turn mouse support on
    polling              | poll mpd for status updates rather than using idle mode
    playlistnumbers      | display id numbers next to songs in the playlist
