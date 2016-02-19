@@ -35,7 +35,7 @@ namespace Ui   { class Search; }
 
 namespace Ui
 {
-   class LyricsWindow : public Ui::ScrollWindow
+   class LyricsWindow : public Ui::SelectWindow
    {
    public:
       LyricsWindow(std::string const & URI, Main::Settings const & settings, Ui::Screen & screen, Mpc::Client & client, Mpc::ClientState & clientState, Ui::Search const & search, std::string name = "Unknown");
