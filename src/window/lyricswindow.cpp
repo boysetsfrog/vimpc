@@ -44,8 +44,8 @@ LyricsWindow::LyricsWindow(std::string const & URI, Main::Settings const & setti
 
    Vimpc::EventHandler(Event::LyricsPercent, [this] (EventData const & Data) 
    { 
-       uint32_t end = (lyrics_.Size() > Rows()) ? lyrics_.Size()- Rows() : 0;
-       this->ScrollTo((2*end*Data.value)/100); 
+       uint32_t end = lyrics_.Size();
+       this->ScrollTo(FirstLine() + (end*Data.value)/100); 
    });
 
    LoadLyrics();

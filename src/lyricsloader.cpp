@@ -95,7 +95,7 @@ void LyricsLoader::ElapsedUpdate(uint32_t elapsed)
 
            percent *= 10;
 
-           if (percent > percent_)
+           if (percent != percent_)
            {
                 EventData Data;
                 Data.value = percent;
