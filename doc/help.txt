@@ -550,6 +550,7 @@
    albumartist          | use the albumartist in preference to artist
    autolyrics           | automatically fetch lyrics as the songs change
    autoscroll           | automatically scroll when skipping songs
+   autoscrolllyrics     | estimate to scroll lyrics as percents of song complete
    autoupdate           | automatically update mpd after tag changes
    browsenumbers        | display id numbers next to songs in the browse window
    colour               | enable or disable colours
