@@ -82,7 +82,7 @@
    /* Library format string */ \
    X(LocalMusicDir,    "local-music-dir", "", ".*") \
    /* Lyrics strip regex */ \
-   X(LyricsStrip,      "lyricsstrip", "(\\s*(R|r)emaster\\w*)|(\\s*-.*)", ".*") \
+   X(LyricsStrip,      "lyricsstrip", "(\\s*(R|r)emaster\\w*)|(\\s+-.*)", ".*") \
    /* Lists to show in the lists window */ \
    X(Playlists,        "playlists", "mpd", "all|mpd|files") \
    /* Song format string */ \
