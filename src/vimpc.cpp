@@ -260,13 +260,16 @@ void Vimpc::Repaint()
 {
    requireRepaint_ = false;
 
-   screen_.Update();
-   clientState_.DisplaySongInformation();
-
-   if (screen_.PagerIsVisible() == false)
+   if (Running)
    {
-      Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
-      mode.Refresh();
+      screen_.Update();
+      clientState_.DisplaySongInformation();
+
+      if (screen_.PagerIsVisible() == false)
+      {
+         Ui::Mode & mode = assert_reference(modeTable_[currentMode_]);
+         mode.Refresh();
+      }
    }
 }
 
