@@ -401,7 +401,7 @@ void ClientState::DisplaySongInformation()
                      SecondsToMinutes(duration), RemainingSeconds(duration));
          }
 
-         if ((strlen(titleStr) > screen_.MaxColumns() - 7 - strlen(durationStr)) &&
+         if ((strlen(titleStr) >= screen_.MaxColumns() - 7 - strlen(durationStr)) &&
              (settings_.Get(Setting::ScrollStatus) == true))
          {
             snprintf(statusStr, 1536, "%s  |  %s", titleStr, titleStr);
