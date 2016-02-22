@@ -75,6 +75,7 @@
    X(LyricsLoaded, "LyricsLoaded") \
    X(LyricsPercent, "LyricsPercent") \
    X(DisplaySongInfo, "DisplaySongInfo") \
+   X(DatabaseEnabled, "DatabaseEnabled") \
    X(Unknown, "Unknown")
 
 namespace Mpc

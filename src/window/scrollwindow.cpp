@@ -35,7 +35,8 @@ ScrollWindow::ScrollWindow(Ui::Screen & screen, std::string name) :
    rows_      (screen.MaxRows()),
    cols_      (screen.MaxColumns()),
    scrollLine_(screen.MaxRows()),
-   autoScroll_(false)
+   autoScroll_(false),
+   enabled_   (true)
 {
 }
 

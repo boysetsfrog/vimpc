@@ -2086,13 +2086,17 @@ void Client::GetAllMetaInformation()
 
    ClearCommand();
 
-	if (error_)
-	{
-		 Debug("List all failed, disabling\n");
-		 Error(ErrorNumber::ErrorClear, "");
-		 ErrorString(ErrorNumber::ClientNoMeta, "not supported on server");
-		 settings_.Set(Setting::ListAllMeta, false);
-	}
+   if (error_)
+   {
+       Debug("List all failed, disabling\n");
+       Error(ErrorNumber::ErrorClear, "");
+       ErrorString(ErrorNumber::ClientNoMeta, "not supported on server");
+       settings_.Set(Setting::ListAllMeta, false);
+   }
+
+   EventData DatabaseEvent;
+   DatabaseEvent.state = (settings_.Get(Setting::ListAllMeta));
+   Main::Vimpc::CreateEvent(Event::DatabaseEnabled, DatabaseEvent);
 
    if (Connected() == true)
    {
@@ -2628,7 +2632,7 @@ bool Client::CheckError()
 #elif defined(_DEBUG_BREAK_ON_ERROR)
          BREAKPOINT
 #endif
-			error_ = true;
+         error_ = true;
 
          bool const ClearError = mpd_connection_clear_error(connection_);
 

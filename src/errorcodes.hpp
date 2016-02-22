@@ -52,6 +52,7 @@
    X(FileNotFound,          "File not found") \
    X(NoRangeAllowed,        "No range allowed for command") \
    X(ErrorClear,            "Clear all other errors") \
+   X(WindowDisabled,        "Window not supported and is disabled") \
    X(Unknown,               "Unknown")
 
 namespace ErrorNumber

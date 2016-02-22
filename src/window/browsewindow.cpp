@@ -22,9 +22,12 @@
 
 #include "buffers.hpp"
 #include "mpdclient.hpp"
+#include "events.hpp"
 #include "screen.hpp"
 #include "settings.hpp"
 #include "songsorter.hpp"
+#include "vimpc.hpp"
+
 #include "buffer/library.hpp"
 #include "mode/search.hpp"
 #include "window/console.hpp"

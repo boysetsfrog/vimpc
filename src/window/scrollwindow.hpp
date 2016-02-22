@@ -67,6 +67,10 @@ namespace Ui
       virtual uint32_t Playlist(int count) const { return Current(); };
       virtual std::string SearchPattern(uint32_t id) const { return ""; }
 
+      bool IsEnabled() { return enabled_; }
+      void Disable()   { enabled_ = false; }
+      void Enable()    { enabled_ = true; }
+
    public:
       virtual void AddLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
       virtual void AddAllLines() {}
@@ -133,6 +137,7 @@ namespace Ui
       int32_t                    cols_;
       uint32_t                   scrollLine_;
       bool                       autoScroll_;
+      bool                       enabled_;
    };
 }
 

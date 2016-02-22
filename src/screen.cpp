@@ -351,6 +351,19 @@ Screen::Screen(Main::Settings & settings, Mpc::Client & client, Mpc::ClientState
       SetActiveAndVisible(GetWindowFromName(window->Name()));
    });
 
+   Main::Vimpc::EventHandler(Event::DatabaseEnabled,  [this] (EventData const & Data)
+   {
+      if (Data.state)
+      {
+         mainWindows_[Browse]->Enable();
+      } 
+      else
+      {
+         mainWindows_[Browse]->Disable();
+         SetVisible(Browse, false);
+      }
+   });
+
    // Thread handling of input
    inputThread_ = Thread(QueueInput, commandWindow_);
 }
@@ -1382,14 +1395,22 @@ void Screen::SetActiveAndVisible(int32_t window)
 {
    if ((mainWindows_[window] != NULL) && (window != static_cast<int32_t>(Unknown)))
    {
-      SetVisible(window, true);
-
-      for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+      if (mainWindows_[window]->IsEnabled()) 
       {
-         if (visibleWindows_.at(i) == window)
-         {
-            SetActiveWindow(i);
-         }
+          SetVisible(window, true);
+
+          for (uint32_t i = 0; i < visibleWindows_.size(); ++i)
+          {
+             if (visibleWindows_.at(i) == window)
+             {
+                SetActiveWindow(i);
+             }
+          }
+      }
+      else
+      {
+          SetVisible(window, false);
+          ErrorString(ErrorNumber::WindowDisabled);
       }
    }
 }
