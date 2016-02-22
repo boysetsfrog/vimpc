@@ -570,6 +570,7 @@
    reconnect            | automatically reconnect if the connection drops
    scrollonadd          | scroll down one line after adding a song
    scrollondelete       | scroll down one line after deleting a song
+   scrollstatus         | scroll song titles in the status line
    seekbar              | mouse click on progress bar causes a seek
    searchwrap           | wrap search results when using n/N
    showlists            | include playlists in the directory window

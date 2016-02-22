@@ -56,6 +56,7 @@
    X(Reconnect,        "reconnect",       true)  /* Reconnect to server when connection drops */ \
    X(ScrollOnAdd,      "scrollonadd",     true)  /* Auto scroll down after song added */ \
    X(ScrollOnDelete,   "scrollondelete",  true)  /* Auto scroll down after song delete */ \
+   X(ScrollStatus,     "scrollstatus",    true)  /* Scroll long status lines */ \
    X(SearchWrap,       "searchwrap",      true)  /* Determine whether to wrap searching */ \
    X(SeekBar,          "seekbar",         true)  /* Mouse click on progress bar causes a seek */ \
    X(ShowPath,         "showpath",        true)  /* Show current path in directory window */ \

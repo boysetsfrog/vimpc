@@ -108,14 +108,20 @@ namespace Mpc
       bool                    single_;
       bool                    consume_;
       bool                    crossfade_;
+      bool                    running_;
+      bool                    newSong_;
+      bool                    scrollingStatus_;
       uint32_t                crossfadeTime_;
       uint32_t                elapsed_;
+      uint32_t                titlePos_;
+      uint32_t                waitTime_;
 
       mpd_song *              currentSong_;
       int32_t                 currentSongId_;
       uint32_t                totalNumberOfSongs_;
       std::string             currentSongURI_;
       std::string             currentState_;
+      std::string             lastTitleStr_;
    };
 }
 

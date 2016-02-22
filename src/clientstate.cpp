@@ -51,13 +51,19 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    single_               (false),
    consume_              (false),
    crossfade_            (false),
+   running_              (true),
+   newSong_              (false),
+   scrollingStatus_      (false),
    crossfadeTime_        (0),
    elapsed_              (0),
+   titlePos_             (0),
+   waitTime_             (150),
 
    currentSong_          (NULL),
    currentSongId_        (-1),
    totalNumberOfSongs_   (0),
-   currentState_         ("Disconnected")
+   currentState_         ("Disconnected"),
+   lastTitleStr_         ("")
 {
    Main::Vimpc::EventHandler(Event::Connected, [this] (EventData const & Data)
    {
@@ -93,6 +99,11 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
    });
 
    Main::Vimpc::EventHandler(Event::ClearDatabase, [this] (EventData const & Data)
+   {
+      DisplaySongInformation();
+   });
+
+   Main::Vimpc::EventHandler(Event::DisplaySongInfo, [this] (EventData const & Data)
    {
       DisplaySongInformation();
    });
@@ -211,10 +222,45 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       EventData EData;
       Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
    });
+
+   std::thread([this]() {
+      while (this->running_)
+      {
+         std::this_thread::sleep_for(std::chrono::milliseconds(this->waitTime_));
+
+         if (this->newSong_)
+         {
+            this->titlePos_ = 0;
+
+            if (this->scrollingStatus_  == true)
+            {
+               this->waitTime_ = 2500;
+            }
+
+            this->newSong_  = false;
+         }
+         else if (this->CurrentState() != "Stopped") 
+         {
+            if (this->scrollingStatus_ == true)
+            {
+               this->titlePos_++;
+               EventData EData;
+               Main::Vimpc::CreateEvent(Event::DisplaySongInfo, EData);
+            }
+            this->waitTime_ = 150;
+         } 
+         else
+         {
+            this->titlePos_ = 0;
+            this->waitTime_ = 150;
+         }
+      }
+   }).detach();
 }
 
 ClientState::~ClientState()
 {
+   running_ = false;
 }
 
 std::string ClientState::Hostname()
@@ -314,6 +360,8 @@ uint32_t ClientState::TotalNumberOfSongs()
 void ClientState::DisplaySongInformation()
 {
    static char durationStr[128];
+   static char titleStr[512];
+   static char statusStr[1536];
 
    screen_.HideCursor();
 
@@ -333,28 +381,62 @@ void ClientState::DisplaySongInformation()
 
          if (title != "")
          {
-            screen_.SetStatusLine("[%5u] %s - %s", GetCurrentSongPos() + 1, artist.c_str(), title.c_str());
+            snprintf(titleStr, 512, "%s - %s", artist.c_str(), title.c_str());
          }
          else
          {
-            screen_.SetStatusLine("[%5u] %s", GetCurrentSongPos() + 1, uri.c_str());
+            snprintf(titleStr, 512, "%s", uri.c_str());
          }
 
          if (settings_.Get(Setting::TimeRemaining) == false)
          {
-            snprintf(durationStr, 127, "[%d:%.2d/%d:%.2d]",
+            snprintf(durationStr, 127, " [%d:%.2d/%d:%.2d]",
                      SecondsToMinutes(elapsed),  RemainingSeconds(elapsed),
                      SecondsToMinutes(duration), RemainingSeconds(duration));
          }
          else
          {
-            snprintf(durationStr, 127, "[-%d:%.2d/%d:%.2d]",
+            snprintf(durationStr, 127, " [-%d:%.2d/%d:%.2d]",
                      SecondsToMinutes(remain),  RemainingSeconds(remain),
                      SecondsToMinutes(duration), RemainingSeconds(duration));
          }
 
+         if ((strlen(titleStr) > screen_.MaxColumns() - 7 - strlen(durationStr)) &&
+             (settings_.Get(Setting::ScrollStatus) == true))
+         {
+            snprintf(statusStr, 1536, "%s  |  %s", titleStr, titleStr);
+            scrollingStatus_ = true;
+         }
+         else
+         {
+            titlePos_ = 0;
+            scrollingStatus_ = false;
+            snprintf(statusStr, 512, "%s", titleStr);
+         }
+
+         std::string const currentTitle = titleStr;
+
+         if (lastTitleStr_ != currentTitle)
+         {
+            if (scrollingStatus_ == true) 
+            {
+               newSong_ = true;
+            }
+
+            titlePos_ = 0;
+         }
+
+         lastTitleStr_ = currentTitle;
+
+         screen_.SetStatusLine("[%5u] %s", GetCurrentSongPos() + 1, &statusStr[titlePos_]);
+
          screen_.MoveSetStatus(screen_.MaxColumns() - strlen(durationStr), "%s", durationStr);
          screen_.SetProgress(static_cast<double>(elapsed) / duration);
+
+         if (settings_.Get(Setting::ScrollStatus) == true)
+         {
+            titlePos_ %= (strlen(titleStr) + strlen("  |  "));
+         }
       }
       else
       {
