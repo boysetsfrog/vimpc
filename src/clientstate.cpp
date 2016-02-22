@@ -223,7 +223,7 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
    });
 
-   std::thread([this]() {
+   updateThread_ = std::thread([this]() {
       while (this->running_)
       {
          std::this_thread::sleep_for(std::chrono::milliseconds(this->waitTime_));
@@ -255,12 +255,13 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
             this->waitTime_ = 150;
          }
       }
-   }).detach();
+   });
 }
 
 ClientState::~ClientState()
 {
    running_ = false;
+   updateThread_.join();
 }
 
 std::string ClientState::Hostname()

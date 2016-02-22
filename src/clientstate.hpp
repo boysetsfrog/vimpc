@@ -122,6 +122,7 @@ namespace Mpc
       std::string             currentSongURI_;
       std::string             currentState_;
       std::string             lastTitleStr_;
+      std::thread             updateThread_; 
    };
 }
 
