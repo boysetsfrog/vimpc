@@ -51,7 +51,7 @@ namespace Ui
       void CropLine(uint32_t line, uint32_t count = 1, bool scroll = true) {}
       void CropAllLines() {}
       void DeleteAllLines() {}
-      void Save(std::string const & name) {}
+      void Save(std::string const & name);
 
    private:
       std::string m_URI;

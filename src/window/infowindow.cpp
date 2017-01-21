@@ -129,6 +129,11 @@ void InfoWindow::DeleteLine(uint32_t line, uint32_t count, bool scroll)
    SongWindow::DeleteLine(0, 1, false);
 }
 
+void InfoWindow::Save(std::string const & name)
+{
+   SongWindow::Save(name);
+}
+
 void InfoWindow::Edit()
 {
    int const InfoWindowId = screen_.GetActiveWindow();
