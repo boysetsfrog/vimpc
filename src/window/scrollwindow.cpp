@@ -24,6 +24,7 @@
 
 #include "screen.hpp"
 #include "window/debug.hpp"
+#include <cassert>
 
 using namespace Ui;
 
@@ -82,6 +83,7 @@ void ScrollWindow::Print(uint32_t line) const
       }
       else if ((output[i] == '$') && ((i + 1) < output.size()))
       {
+			uint32_t eat = 2;
          if (output[i + 1] == 'E')
          {
             elided = true;
@@ -90,11 +92,13 @@ void ScrollWindow::Print(uint32_t line) const
          {
             align = j;
          }
+         else if (output[i + 1] == 'A') // The align argument has two digits of argument which --as the $X tokens themselv-- shall not be printed
+         {
+				eat +=2;
+         }
 
-         std::string next = "";
-         stripped.replace(j, 2, next);
-         j += next.size();
-         i += 2;
+         stripped.erase(j, eat);
+         i += eat;
       }
       else
       {
@@ -189,6 +193,35 @@ void ScrollWindow::Print(uint32_t line) const
 
                      highlight = !highlight;
                   }
+						break;
+               }
+            case 'A':
+					if(i+3 < output.size()) // The token "$A50" has two more characters assigned
+               {
+						assert(('0' <= output[i+2]) && (output[i+2] <= '9'));
+						assert(('0' <= output[i+3]) && (output[i+3] <= '9'));
+						uint32_t percentage = (output[i + 2]-'0')*10 + (output[i + 3]-'0');
+
+						uint32_t new_position = (Columns()*percentage)/100;
+						uint32_t old_position = getcurx(window);
+						i += 2; // This increase of i is due to the two extra characters
+
+						if(new_position > old_position)
+						{
+							std::string filler(new_position-getcurx(window), ' ');
+							wprintw(window, "%s", filler.c_str());
+						}
+						else if(new_position > 4 && elided)
+						{
+							wmove(window, getcury(window), new_position-3);
+							wprintw(window, "...");
+						}
+						else
+						{
+							wmove(window, getcury(window), new_position);
+						}
+
+						break;
                }
 
              default:
