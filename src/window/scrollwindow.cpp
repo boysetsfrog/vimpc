@@ -171,7 +171,7 @@ void ScrollWindow::Print(uint32_t line) const
 
                   if (width > 0)
                   {
-                     wprintw(window, "%s", std::string(width, ' ').c_str());
+                     wprintw(window, "%s", std::string(width, settings_.Get(Setting::SongFillChar).front()).c_str());
                   }
 
                   wmove(window, line, Columns() - (stripped.size() - align));
@@ -208,8 +208,7 @@ void ScrollWindow::Print(uint32_t line) const
 
 						if(new_position > old_position)
 						{
-							std::string filler(new_position-getcurx(window), ' ');
-							wprintw(window, "%s", filler.c_str());
+							wprintw(window, "%s", std::string(new_position-getcurx(window), settings_.Get(Setting::SongFillChar).front()).c_str());
 						}
 						else if(new_position > 4 && elided)
 						{

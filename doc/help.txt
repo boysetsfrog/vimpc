@@ -494,6 +494,9 @@
     {,}   - Will only display contents between { and } if not empty
     \|     - Alternative to use if prior entry is blank
 
+The setting songfillchar is used to fill up space due to alignment when
+rendering a song. The default setting is ' '.
+
  Examples:
     The default song format is: "{%a - %t}\|{%f}$E$R $H[$H%l$H]$H"
     This displays artist - title if they both exist otherwise
