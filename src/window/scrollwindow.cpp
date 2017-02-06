@@ -47,7 +47,7 @@ ScrollWindow::~ScrollWindow()
 
 
 void ScrollWindow::Print(uint32_t line) const
-
+{
    WINDOW * window = N_WINDOW();
 
    bool highlight = true;
