@@ -472,26 +472,30 @@
  the settings songformat and libraryformat respectively. The formatting
  of these strings is based upon those of ncmpcpp.
 
-    %a  - Artist or AlbumArtist (based on albumartist setting)
-    %A  - Artist or AlbumArtist, but swap "The Band" to "Band, The"
-    %r  - Artist
-    %R  - Artist, but swap "The Band" to "Band, The"
-    %m  - AlbumArtist
-    %M  - AlbumArtist, but swap "The Band" to "Band, The"
-    %b  - Album
-    %B  - Album, but swap "The Album" to "Album, The"
-    %t  - Song title
-    %d  - Date
-    %n  - Track number
-    %c  - Disc number
-    %l  - Duration
-    %f  - Filename/URI
+    %a    - Artist or AlbumArtist (based on albumartist setting)
+    %A    - Artist or AlbumArtist, but swap "The Band" to "Band, The"
+    %r    - Artist
+    %R    - Artist, but swap "The Band" to "Band, The"
+    %m    - AlbumArtist
+    %M    - AlbumArtist, but swap "The Band" to "Band, The"
+    %b    - Album
+    %B    - Album, but swap "The Album" to "Album, The"
+    %t    - Song title
+    %d    - Date
+    %n    - Track number
+    %c    - Disc number
+    %l    - Duration
+    %f    - Filename/URI
 
-    $R  - Begin right alignment
-    $E  - Add ellipsis for trimmed text (must be before right align)
-    $H  - Toggle highlight color off/on
-    {,} - Will only display contents between { and } if not empty
-    \|   - Alternative to use if prior entry is blank
+    $Axx  - Align following parts at xx% from the left of the screen
+    $R    - Begin right alignment
+    $E    - Add ellipsis for trimmed text (must be before right align)
+    $H    - Toggle highlight color off/on
+    {,}   - Will only display contents between { and } if not empty
+    \|     - Alternative to use if prior entry is blank
+
+The setting songfillchar is used to fill up space due to alignment when
+rendering a song. The default setting is ' '.
 
  Examples:
     The default song format is: "{%a - %t}\|{%f}$E$R $H[$H%l$H]$H"
