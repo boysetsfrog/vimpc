@@ -188,6 +188,7 @@ Command::Command(Main::Vimpc * vimpc, Ui::Screen & screen, Mpc::Client & client,
    AddCommand("edit",       true,  false, &Command::LoadPlaylist);
    AddCommand("w",          true,  false, &Command::SavePlaylist);
    AddCommand("write",      true,  false, &Command::SavePlaylist);
+   AddCommand("overwrite",  true,  false, &Command::OverwritePlaylist);
    AddCommand("toplaylist", true,  false, &Command::ToPlaylist);
 
    // Local socket commands
@@ -915,6 +916,19 @@ void Command::SavePlaylist(std::string const & arguments)
    else
    {
       ErrorString(ErrorNumber::NoPlaylistLoaded);
+   }
+}
+
+void Command::OverwritePlaylist(std::string const & arguments)
+{
+   if (arguments != "")
+   {
+      client_.RemovePlaylist(arguments);
+      client_.SavePlaylist(arguments);
+   }
+   else
+   {
+      ErrorString(ErrorNumber::NoParameter);
    }
 }
 
