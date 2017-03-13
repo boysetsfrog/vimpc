@@ -20,6 +20,8 @@ Type `:help` in the client or see `doc/help.txt` for more details.
     * pcre
     * libncursesw
     * taglib (can be disabled with ./configure --enable-taglib=no)
+    * libcurl
+    * libboost
 
 > NOTE: On debian you will also require the *-dev packages. All Debian
 > dependencies can be installed with the following command:
@@ -27,7 +29,7 @@ Type `:help` in the client or see `doc/help.txt` for more details.
     sudo apt-get install build-essential autoconf \
         libmpdclient2 libmpdclient-dev libpcre3 libpcre3-dev \
         libncursesw5 libncursesw5-dev libncurses5-dev \
-        libtagc0 libtagc0-dev
+        libtagc0 libtagc0-dev libcurl4-openssl-dev libboost-dev
 
 ## License
 
