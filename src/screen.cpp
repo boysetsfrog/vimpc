@@ -790,6 +790,7 @@ void Screen::ScrollTo(Location location, uint32_t line)
    scroll[PlaylistNext] = ActiveWindow().Playlist(1);
    scroll[PlaylistPrev] = ActiveWindow().Playlist(-1);
    scroll[Specific]     = line - 1;
+   srand(time(0));
    scroll[Random]       = (ActiveWindow().BufferSize() > 0) ? (rand() % ActiveWindow().BufferSize()) : 0;
 
    ScrollTo(scroll[location]);
