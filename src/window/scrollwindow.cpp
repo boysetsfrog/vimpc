@@ -226,7 +226,7 @@ void ScrollWindow::Resize(uint32_t rows, uint32_t columns)
 
 void ScrollWindow::Scroll(int32_t scrollCount)
 {
-   int64_t const newLine = (scrollLine_ + scrollCount);
+   int64_t const newLine = static_cast<int64_t>(scrollLine_) + scrollCount;
 
    if (BufferSize() > static_cast<uint32_t>(Rows()))
    {
