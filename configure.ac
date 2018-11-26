@@ -96,6 +96,8 @@ fi
 
 LIBS="$LIBS $CURSES_LIB"
 
+AC_SEARCH_LIBS([keypad], [tinfow tinfo])
+
 PKG_CHECK_MODULES(pcre, libpcre)
 
 AC_SUBST(pcre_LIBS)
