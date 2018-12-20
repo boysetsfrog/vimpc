@@ -165,9 +165,9 @@ LyricsFetcher::Result LyricwikiFetcher::fetch(const std::string &artist, const s
 			result.second = curl_easy_strerror(code);
 			return result;
 		}
-
-		auto lyrics = getContent("<div class='lyricbox'><script>.*?</script>(.*?)<!--", data);
-
+		
+		auto lyrics = getContent("<div class='lyricbox'>(.*?)</div>", data);
+		
 		if (lyrics.empty())
 		{
 			result.second = msgNotFound;
@@ -215,13 +215,14 @@ LyricsFetcher::Result GoogleLyricsFetcher::fetch(const std::string &artist, cons
 {
 	Result result;
 	result.first = false;
-
-	std::string search_str = artist;
+	
+	std::string search_str;
+    search_str = "lyrics";
+	search_str += "+";
+	search_str += artist;
 	search_str += "+";
 	search_str += title;
-	search_str += "+%2B";
-	search_str += siteKeyword();
-
+	
 	std::string google_url = "http://www.google.com/search?hl=en&ie=UTF-8&oe=UTF-8&q=";
 	google_url += search_str;
 	google_url += "&btnI=I%27m+Feeling+Lucky";
