@@ -196,6 +196,7 @@ namespace Ui
 
    private: // Colour configuration
       void SetColour(std::string const & arguments);
+      void SetColour(std::string const & property, std::string const & arguments);
 
    private: // Debug only commands
       template <ClientFunction FUNC>

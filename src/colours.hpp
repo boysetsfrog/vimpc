@@ -21,6 +21,10 @@
 #ifndef __MAIN__COLOURS
 #define __MAIN__COLOURS
 
+#define BACKGROUND(X) (16 + (16 * X))
+#define BOLD(X) (8 + X)
+#define COLOR_DEFAULT -1
+
 #include "wincurses.h"
 
 namespace Main
@@ -28,29 +32,6 @@ namespace Main
    class Colours
    {
       public:
-      typedef enum {
-         NONE,
-         STATUSLINE,
-         ERRORLINE,
-         DEFAULT_ON_BLACK,
-         DEFAULT_ON_WHITE,
-         DEFAULT_ON_RED,
-         DEFAULT_ON_GREEN,
-         DEFAULT_ON_YELLOW,
-         DEFAULT_ON_BLUE,
-         DEFAULT_ON_MAGENTA,
-         DEFAULT_ON_CYAN,
-         BLACK_ON_DEFAULT,
-         WHITE_ON_DEFAULT,
-         RED_ON_DEFAULT,
-         GREEN_ON_DEFAULT,
-         YELLOW_ON_DEFAULT,
-         BLUE_ON_DEFAULT,
-         MAGENTA_ON_DEFAULT,
-         CYAN_ON_DEFAULT,
-         DEFAULT
-      } ColourPairs;
-
       int Song;
       int SongId;
       int Directory;

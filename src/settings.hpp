@@ -100,23 +100,23 @@
    X(Windows,          "windows", "help,lists,library,browse,playlist", ".*")
 
 #define COLOUR_SETTINGS \
-   X(colours.DEFAULT_ON_BLACK, "blackbg" ) \
-   X(colours.DEFAULT_ON_WHITE, "whitebg" ) \
-   X(colours.DEFAULT_ON_RED, "redbg" ) \
-   X(colours.DEFAULT_ON_GREEN, "greenbg" ) \
-   X(colours.DEFAULT_ON_YELLOW, "yellowbg" ) \
-   X(colours.DEFAULT_ON_BLUE, "bluebg" ) \
-   X(colours.DEFAULT_ON_MAGENTA, "magentabg" ) \
-   X(colours.DEFAULT_ON_CYAN, "cyanbg" ) \
-   X(colours.BLACK_ON_DEFAULT, "blackfg" ) \
-   X(colours.WHITE_ON_DEFAULT, "whitefg" ) \
-   X(colours.RED_ON_DEFAULT, "redfg" ) \
-   X(colours.GREEN_ON_DEFAULT, "greenfg" ) \
-   X(colours.YELLOW_ON_DEFAULT, "yellowfg" ) \
-   X(colours.BLUE_ON_DEFAULT, "bluefg" ) \
-   X(colours.MAGENTA_ON_DEFAULT, "magentafg" ) \
-   X(colours.CYAN_ON_DEFAULT, "cyanfg" ) \
-   X(colours.DEFAULT, "default" )
+   X(COLOR_DEFAULT, "default" ) \
+   X(COLOR_BLACK, "black" ) \
+   X(COLOR_RED, "red" ) \
+   X(COLOR_GREEN, "green" ) \
+   X(COLOR_YELLOW, "yellow" ) \
+   X(COLOR_BLUE, "blue" ) \
+   X(COLOR_MAGENTA, "magenta" ) \
+   X(COLOR_CYAN, "cyan" ) \
+   X(COLOR_WHITE, "white" ) \
+   X(BOLD(COLOR_BLACK), "bold_black" ) \
+   X(BOLD(COLOR_RED), "bold_red" ) \
+   X(BOLD(COLOR_GREEN), "bold_green" ) \
+   X(BOLD(COLOR_YELLOW), "bold_yellow" ) \
+   X(BOLD(COLOR_BLUE), "bold_blue" ) \
+   X(BOLD(COLOR_MAGENTA), "bold_magenta" ) \
+   X(BOLD(COLOR_CYAN), "bold_cyan" ) \
+   X(BOLD(COLOR_WHITE), "bold_white" )
 
 class Setting
 {
@@ -215,7 +215,7 @@ namespace Main
          void SetSkipConfigConnects(bool val);
          bool SkipConfigConnects() const;
 
-         void SetColour(std::string property, std::string colour);
+         void SetColour(std::string property, std::string bg, std::string fg);
 
          //! Get the value for the given \p setting
          template <typename T>

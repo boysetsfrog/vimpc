@@ -386,10 +386,11 @@
  * set <setting>            | sets a configurable setting, see SETTINGS section
 
  HIGHLIGHTING:
-   hi <property> <color>    | highlight a property with a color
-                            | standard term colors are available
-                            | and specified as greenfg or redbg, etc.
-                            | Ex: hi status blackbg
+   hi <prop> <bg> <fg>      | highlight a property with colors
+                            | standard 16 term colors are available
+                            | and specified as default, red, green, etc.
+                            | for bold colors use the prefix bold_
+                            | Ex: hi status default bold_white
 
    Properties:
    --------------------------

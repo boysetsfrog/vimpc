@@ -340,47 +340,52 @@ bool Settings::SkipConfigConnects() const
    return skipValue;
 }
 
-void Settings::SetColour(std::string property, std::string colour)
+void Settings::SetColour(std::string property, std::string bg, std::string fg)
 {
    mutex_.lock();
+
+   if (fg == "default")
+      fg = "white";
+   int b = colourTable_[bg];
+   int f = colourTable_[fg];
 
    if (colourTable_.find(colour) != colourTable_.end())
    {
       if (property == "song") {
-         colours.Song = colourTable_[colour];
+         colours.Song = BACKGROUND(b) + f;
       }
       else if (property == "id") {
-         colours.SongId = colourTable_[colour];
+         colours.SongId = BACKGROUND(b) + f;
       }
       else if (property == "dir") {
-         colours.Directory = colourTable_[colour];
+         colours.Directory = BACKGROUND(b) + f;
       }
       else if (property == "current") {
-         colours.CurrentSong = colourTable_[colour];
+         colours.CurrentSong = BACKGROUND(b) + f;
       }
       else if (property == "match") {
-         colours.SongMatch = colourTable_[colour];
+         colours.SongMatch = BACKGROUND(b) + f;
       }
       else if (property == "partial") {
-         colours.PartialAdd = colourTable_[colour];
+         colours.PartialAdd = BACKGROUND(b) + f;
       }
       else if (property == "full") {
-         colours.FullAdd = colourTable_[colour];
+         colours.FullAdd = BACKGROUND(b) + f;
       }
       else if (property == "pager") {
-         colours.PagerStatus = colourTable_[colour];
+         colours.PagerStatus = BACKGROUND(b) + f;
       }
       else if (property == "error") {
-         colours.Error = colourTable_[colour];
+         colours.Error = BACKGROUND(b) + f;
       }
       else if (property == "status") {
-         colours.StatusLine = colourTable_[colour];
+         colours.StatusLine = BACKGROUND(b) + f;
       }
       else if (property == "tab") {
-         colours.TabWindow = colourTable_[colour];
+         colours.TabWindow = BACKGROUND(b) + f;
       }
       else if (property == "progress") {
-         colours.ProgressWindow = colourTable_[colour];
+         colours.ProgressWindow = BACKGROUND(b) + f;
       }
       else
       {

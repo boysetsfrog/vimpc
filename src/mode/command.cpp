@@ -1367,12 +1367,19 @@ void Command::RenameWindow(std::string const & arguments)
 
 void Command::SetColour(std::string const & arguments)
 {
-   if ((arguments.find(" ") != std::string::npos))
-   {
-      std::string oldname = arguments.substr(0, arguments.find(" "));
-      std::string newname = arguments.substr(arguments.find(" ") + 1);
+   std::string range, property, args;
+   SplitCommand(arguments, range, property, args);
 
-      settings_.SetColour(oldname, newname);
+   SetColour(property, arguments);
+}
+
+void Command::SetColour(std::string const & property, std::string const & arguments)
+{
+   std::vector<std::string> args = SplitArguments(arguments);
+
+   if (args.size() == 3)
+   {
+      settings_.SetColour(property, args[1], args[2]);
    }
    else
    {
