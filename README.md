@@ -5,7 +5,9 @@ vimpc provides an alternative to other mpd clients (such as ncmpc and ncmpcpp) t
 
 Type `:help` in the client or see `doc/help.txt` for more details.
 
-![Screenshot](/doc/screenshot.png "Screenshot")
+![Color Support](/doc/screenshot.png "Color Support")
+
+![Library](/doc/screenshot_library.png "Library")
 
 ## Installation
 
