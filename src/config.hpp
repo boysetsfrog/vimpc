@@ -36,8 +36,6 @@ namespace Main
 
 bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
 {
-   static char const * const vimpcrcFile = "/.vimpcrc";
-   static char const * const home        = "HOME";
    static bool configCommandsExecuted    = false;
 
    Regex::RE const commentCheck("^\\s*\".*");
@@ -46,11 +44,17 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
    {
       configCommandsExecuted = true;
 
-      std::string configFile(getenv(home));
-      configFile.append(vimpcrcFile);
+      static char const * const home_dir = getenv("HOME");
+      static char const * const xdg_config_dir = getenv("XDG_CONFIG_DIR");
+      std::string configFile;
 
-      std::string   input;
-      std::ifstream inputStream(configFile.c_str());
+      if (xdg_config_dir != NULL)
+         configFile = std::string(xdg_config_dir).append("/vimpc/vimpcrc");
+      else
+         configFile = std::string(home_dir).append("/.vimpcrc");
+
+      std::ifstream inputStream(configFile);
+      std::string input;
 
       if (inputStream)
       {
