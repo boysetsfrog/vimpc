@@ -342,6 +342,12 @@ bool Settings::SkipConfigConnects() const
 
 void Settings::SetColour(std::string property, std::string bg, std::string fg)
 {
+   if (colourTable_.find(bg) == colourTable_.end() ||
+       colourTable_.find(fg) == colourTable_.end() ) {
+      ErrorString(ErrorNumber::UnknownOption, bg + " " + fg);
+      return;
+   }
+
    mutex_.lock();
 
    if (fg == "default")
@@ -349,56 +355,44 @@ void Settings::SetColour(std::string property, std::string bg, std::string fg)
    int b = colourTable_[bg];
    int f = colourTable_[fg];
 
-   if (colourTable_.find(colour) != colourTable_.end())
-   {
-      if (property == "song") {
-         colours.Song = BACKGROUND(b) + f;
-      }
-      else if (property == "id") {
-         colours.SongId = BACKGROUND(b) + f;
-      }
-      else if (property == "dir") {
-         colours.Directory = BACKGROUND(b) + f;
-      }
-      else if (property == "current") {
-         colours.CurrentSong = BACKGROUND(b) + f;
-      }
-      else if (property == "match") {
-         colours.SongMatch = BACKGROUND(b) + f;
-      }
-      else if (property == "partial") {
-         colours.PartialAdd = BACKGROUND(b) + f;
-      }
-      else if (property == "full") {
-         colours.FullAdd = BACKGROUND(b) + f;
-      }
-      else if (property == "pager") {
-         colours.PagerStatus = BACKGROUND(b) + f;
-      }
-      else if (property == "error") {
-         colours.Error = BACKGROUND(b) + f;
-      }
-      else if (property == "status") {
-         colours.StatusLine = BACKGROUND(b) + f;
-      }
-      else if (property == "tab") {
-         colours.TabWindow = BACKGROUND(b) + f;
-      }
-      else if (property == "progress") {
-         colours.ProgressWindow = BACKGROUND(b) + f;
-      }
-      else
-      {
-         mutex_.unlock();
-         ErrorString(ErrorNumber::UnknownOption, property);
-         return;
-      }
+   if (property == "song") {
+      colours.Song = BACKGROUND(b) + f;
    }
-   else
-   {
-      mutex_.unlock();
-      ErrorString(ErrorNumber::UnknownOption, colour);
-      return;
+   else if (property == "id") {
+      colours.SongId = BACKGROUND(b) + f;
+   }
+   else if (property == "dir") {
+      colours.Directory = BACKGROUND(b) + f;
+   }
+   else if (property == "current") {
+      colours.CurrentSong = BACKGROUND(b) + f;
+   }
+   else if (property == "match") {
+      colours.SongMatch = BACKGROUND(b) + f;
+   }
+   else if (property == "partial") {
+      colours.PartialAdd = BACKGROUND(b) + f;
+   }
+   else if (property == "full") {
+      colours.FullAdd = BACKGROUND(b) + f;
+   }
+   else if (property == "pager") {
+      colours.PagerStatus = BACKGROUND(b) + f;
+   }
+   else if (property == "error") {
+      colours.Error = BACKGROUND(b) + f;
+   }
+   else if (property == "status") {
+      colours.StatusLine = BACKGROUND(b) + f;
+   }
+   else if (property == "tab") {
+      colours.TabWindow = BACKGROUND(b) + f;
+   }
+   else if (property == "progress") {
+      colours.ProgressWindow = BACKGROUND(b) + f;
+   }
+   else {
+      ErrorString(ErrorNumber::UnknownOption, property);
    }
 
    mutex_.unlock();
