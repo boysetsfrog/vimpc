@@ -554,7 +554,7 @@ rendering a song. The default setting is ' '.
    -----------------------
    albumartist          | use the albumartist in preference to artist
    autolyrics           | automatically fetch lyrics as the songs change
-   autoscroll           | automatically scroll when skipping songs
+   autoscroll           | automatically scroll playlist when songs change
    autoscrolllyrics     | estimate to scroll lyrics as percents of song complete
    autoupdate           | automatically update mpd after tag changes
    browsenumbers        | display id numbers next to songs in the browse window
