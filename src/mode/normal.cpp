@@ -809,7 +809,8 @@ std::string Normal::MouseInputToString() const
 
    if (conversionTable.empty() == true)
    {
-#if (NCURSES_MOUSE_VERSION <= 1)
+#ifdef BUTTON5_PRESSED // New versions of Curses only support BUTTON5
+                       // for down scroll
       conversionTable[BUTTON5_PRESSED]        = "<ScrollWheelDown>";
 #endif
       conversionTable[BUTTON2_PRESSED]        = "<ScrollWheelDown>";
