@@ -2448,6 +2448,7 @@ void Client::UpdateStatus(bool ExpectUpdate)
                   (mpd_status_get_elapsed_time(currentStatus_) < mpdelapsed_) ||
                   (mpd_status_get_elapsed_time(currentStatus_) <= 3))))
             {
+               autoscroll_ = true;
                UpdateCurrentSong();
             }
 
