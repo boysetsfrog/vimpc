@@ -57,6 +57,7 @@ void Directory::ChangeDirectory(std::string New)
       if (path == New)
       {
          found = true;
+         break;
       }
    }
 

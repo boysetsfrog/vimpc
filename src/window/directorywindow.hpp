@@ -26,6 +26,7 @@
 #include "window/selectwindow.hpp"
 
 #include <map>
+#include <stack>
 
 namespace Main { class Settings; }
 namespace Mpc  { class Client; class ClientState; }
@@ -100,6 +101,7 @@ namespace Ui
       Ui::Search     const & search_;
       Mpc::Directory &       directory_;
       uint32_t               selectedDirectory_;
+      std::stack<uint32_t>   selection_;
    };
 }
 #endif

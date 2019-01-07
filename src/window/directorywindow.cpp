@@ -44,8 +44,7 @@ DirectoryWindow::DirectoryWindow(Main::Settings const & settings, Ui::Screen & s
    client_            (client),
    clientState_       (clientState),
    search_            (search),
-   directory_         (directory),
-   selectedDirectory_ (0)
+   directory_         (directory)
 {
    SoftRedrawOnSetting(Setting::ShowPath);
    SoftRedrawOnSetting(Setting::ShowLists);
@@ -286,19 +285,9 @@ void DirectoryWindow::Left(Ui::Player & player, uint32_t count)
 {
    if (CurrentLine() < directory_.Size())
    {
-      if (directory_.Get(0)->name_ == "..")
-      {
-         directory_.ChangeDirectory(*directory_.Get(0));
-
-         if (directory_.Get(0)->name_ != "..")
-         {
-            ScrollTo(selectedDirectory_);
-         }
-         else
-         {
-            ScrollTo(0);
-         }
-      }
+      directory_.ChangeDirectory(*directory_.Get(0));
+      ScrollTo(selection_.top());
+      selection_.pop();
    }
 }
 
@@ -306,9 +295,14 @@ void DirectoryWindow::Right(Ui::Player & player, uint32_t count)
 {
    if (CurrentLine() < directory_.Size())
    {
-      if (directory_.Get(0)->name_ != "..")
+      if (directory_.Get(CurrentLine())->name_ != "..")
       {
-         selectedDirectory_ = CurrentLine();
+         selection_.push(CurrentLine());
+      }
+      else
+      {
+         Left(player, count);
+         return;
       }
 
       directory_.ChangeDirectory(*directory_.Get(CurrentLine()));
