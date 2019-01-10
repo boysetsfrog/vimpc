@@ -94,6 +94,7 @@ namespace Mpc
       static void IncrementReference(Song * song);
       static void DecrementReference(Song * song);
       static void SwapThe(std::string & String);
+      static void AddSlashes(std::string & String);
 
       void SetArtist(const char * artist);
       std::string const & Artist() const;

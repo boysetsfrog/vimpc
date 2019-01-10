@@ -145,6 +145,16 @@ int32_t Song::Reference() const
    }
 }
 
+void Song::AddSlashes(std::string & String)
+{
+   std::string const find = "$";
+   std::string const replace = "\\$";
+   for(std::string::size_type i = 0; (i = String.find(find, i)) != std::string::npos;)
+   {
+      String.replace(i, find.length(), replace);
+      i += replace.length();
+   }
+}
 
 
 void Song::Set(const char * newVal, int32_t & oldVal, std::vector<std::string> & Values, std::map<std::string, uint32_t> & Indexes)
@@ -430,11 +440,11 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
          uint32_t len = result.length();
          result += ParseString(it, valid);
 
-         if (result.length() != len) 
+         if (result.length() != len)
          {
              tmp_valid = true;
          }
-         else 
+         else
          {
              tmp_valid = false;
          }
@@ -467,6 +477,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
          {
             SongFunction Function = SongInfo[*it];
             std::string val = (*this.*Function)();
+            AddSlashes(val);
 
             if ((*it == 'B') || (*it == 'A') ||
                 (*it == 'R') || (*it == 'M'))
