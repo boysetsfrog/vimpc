@@ -541,7 +541,15 @@ std::string Library::PrintString(uint32_t position) const
 
    if (type == Mpc::ArtistType)
    {
-      Result = "$B " + Get(position)->artist_ + "$R$B";
+      std::string artist(Get(position)->artist_);
+      std::string const find = "$";
+      std::string const replace = "\\$";
+      for(std::string::size_type i = 0; (i = artist.find(find, i)) != std::string::npos;)
+      {
+         artist.replace(i, find.length(), replace);
+         i += replace.length();
+      }
+      Result = "$B " + artist + "$R$B";
    }
    else if (type == Mpc::AlbumType)
    {
