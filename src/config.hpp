@@ -45,7 +45,7 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
       configCommandsExecuted = true;
 
       static char const * const home_dir = getenv("HOME");
-      static char const * const xdg_config_dir = getenv("XDG_CONFIG_DIR");
+      static char const * const xdg_config_dir = getenv("XDG_CONFIG_HOME");
       std::string configFile;
 
       if (xdg_config_dir != NULL)
