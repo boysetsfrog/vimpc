@@ -53,15 +53,15 @@ void ScrollWindow::Print(uint32_t line) const
    bool highlight = true;
    bool elided    = false;
    bool bold      = false;
-	bool songid    = false;
+   bool songid    = false;
 
    uint32_t const currentLine(FirstLine() + line);
 
    if (currentLine >= WindowBuffer().Size())
-	{
+   {
       //mvwprintw(window, line, 0, std::string(Columns(), ' ').c_str());
-		return;
-	}
+      return;
+   }
 
    std::string output = WindowBuffer().PrintString(currentLine);
 
@@ -73,138 +73,138 @@ void ScrollWindow::Print(uint32_t line) const
 
 
    for (uint32_t i = 0; i < output.size(); i++)
-	{
-		switch(output[i])
-		{
-			case '\\':
-				i++; // \ should be followed by another letter so lets peek it
-				if(i < output.size()) wprintw(window, "%c", output[i]);
-				break;
-			case '$':
-				i++; // $ should be followed by another letter so lets peek it
-				if(i < output.size()) switch(output[i])
-         	{
-         	   case 'L':	// Print the song index
-         	      wprintw(window, "%5d", FirstLine() + line + 1);
-         	      break;
+   {
+      switch(output[i])
+      {
+         case '\\':
+            i++; // \ should be followed by another letter so lets peek it
+            if(i < output.size()) wprintw(window, "%c", output[i]);
+            break;
+         case '$':
+            i++; // $ should be followed by another letter so lets peek it
+            if(i < output.size()) switch(output[i])
+            {
+               case 'L':   // Print the song index
+                  wprintw(window, "%5d", FirstLine() + line + 1);
+                  break;
 
-         	   case 'B':
-						bold ? wattroff(window, A_BOLD) : wattron(window, A_BOLD);
-         	      bold = !bold;
-         	      break;
+               case 'B':
+                  bold ? wattroff(window, A_BOLD) : wattron(window, A_BOLD);
+                  bold = !bold;
+                  break;
 
-         	   case 'H':
-						if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
-						{
-							highlight ? wattroff(window, COLOR_PAIR(DetermineColour(line))) : wattron(window, COLOR_PAIR(DetermineColour(line)));
-							highlight = !highlight;
-						}
-						break;
+               case 'H':
+                  if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
+                  {
+                     highlight ? wattroff(window, COLOR_PAIR(DetermineColour(line))) : wattron(window, COLOR_PAIR(DetermineColour(line)));
+                     highlight = !highlight;
+                  }
+                  break;
 
-         	   case 'I':	// $I and $D control the highlight for the song index printing. The only seem to appear there and it seems ...
-					case 'D':	// ...asimple toggle is enough. TODO: Discuss is we can completely remove one of the tokens
-         	      if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
-         	      {
-         	         songid ? wattron(window, COLOR_PAIR(settings_.colours.Song)) : wattron(window, COLOR_PAIR(settings_.colours.SongId));
-							songid = !songid;
-         	      }
-         	      break;
+               case 'I':   // $I and $D control the highlight for the song index printing. The only seem to appear there and it seems ...
+               case 'D':   // ...asimple toggle is enough. TODO: Discuss is we can completely remove one of the tokens
+                  if ((settings_.Get(Setting::ColourEnabled) == true) && (IsSelected(FirstLine() + line) == false))
+                  {
+                     songid ? wattron(window, COLOR_PAIR(settings_.colours.Song)) : wattron(window, COLOR_PAIR(settings_.colours.SongId));
+                     songid = !songid;
+                  }
+                  break;
 
-         	   case 'E':
-						elided = true;
-						break;
+               case 'E':
+                  elided = true;
+                  break;
 
-					case 'R':
-						{
-							// Lets see how long the right-aligned part is...
-							uint32_t length = 0;
-							for(uint32_t j=i; (j < output.size()); j++)
-							{
-								// Everything except $x and the backslash in \x is printed, so we should count it in the length calculation
-								(output[j] != '$' && output[j] != '\\') && length++;
+               case 'R':
+                  {
+                     // Lets see how long the right-aligned part is...
+                     uint32_t length = 0;
+                     for(uint32_t j=i; (j < output.size()); j++)
+                     {
+                        // Everything except $x and the backslash in \x is printed, so we should count it in the length calculation
+                        (output[j] != '$' && output[j] != '\\') && length++;
 
-								// If there is a \\ in the code, the length must in increase
-								(output[j] == '\\' && ((j+1) < output.size()) && output[j+1] == '\\') && length++;
+                        // If there is a \\ in the code, the length must in increase
+                        (output[j] == '\\' && ((j+1) < output.size()) && output[j+1] == '\\') && length++;
 
-								// We don't care what there is after the $, so skip it
-								(output[j] == '$') && j++;
-							}
+                        // We don't care what there is after the $, so skip it
+                        (output[j] == '$') && j++;
+                     }
 
-							// ... and then move so that we can print it nicely.
-							uint32_t new_position = Columns() - length+1;
-							if(new_position > getcurx(window))
-							{
-								wprintw(window, "%s", std::string(new_position-getcurx(window), settings_.Get(Setting::SongFillChar).front()).c_str());
-							}
-							else if(new_position > 4 && elided)
-							{
-								wmove(window, line, new_position-3);
-								wprintw(window, "...");
-							}
-							else
-							{
-								wmove(window, line, new_position);
-							}
-						}
-						break;
+                     // ... and then move so that we can print it nicely.
+                     uint32_t new_position = Columns() - length+1;
+                     if(new_position > getcurx(window))
+                     {
+                        wprintw(window, "%s", std::string(new_position-getcurx(window), settings_.Get(Setting::SongFillChar).front()).c_str());
+                     }
+                     else if(new_position > 4 && elided)
+                     {
+                        wmove(window, line, new_position-3);
+                        wprintw(window, "...");
+                     }
+                     else
+                     {
+                        wmove(window, line, new_position);
+                     }
+                  }
+                  break;
 
-         	   case 'A':
-						if(i+2 < output.size()) // The token "$A50" has two more characters assigned
-         	      {
-							assert(('0' <= output[i+1]) && (output[i+1] <= '9'));
-							assert(('0' <= output[i+2]) && (output[i+2] <= '9'));
-							uint32_t percentage = (output[i+1]-'0')*10 + (output[i+2]-'0');
+               case 'A':
+                  if(i+2 < output.size()) // The token "$A50" has two more characters assigned
+                  {
+                     assert(('0' <= output[i+1]) && (output[i+1] <= '9'));
+                     assert(('0' <= output[i+2]) && (output[i+2] <= '9'));
+                     uint32_t percentage = (output[i+1]-'0')*10 + (output[i+2]-'0');
 
-							// Move to the proper tabstop position.
-							uint32_t new_position = (Columns()*percentage)/100;
-							if(new_position > getcurx(window))
-							{
-								wprintw(window, "%s", std::string(new_position-getcurx(window), settings_.Get(Setting::SongFillChar).front()).c_str());
-							}
-							else if(new_position > 4 && elided)
-							{
-								wmove(window, line, new_position-3);
-								wprintw(window, "...");
-							}
-							else
-							{
-								wmove(window, line, new_position);
-							}
+                     // Move to the proper tabstop position.
+                     uint32_t new_position = (Columns()*percentage)/100;
+                     if(new_position > getcurx(window))
+                     {
+                        wprintw(window, "%s", std::string(new_position-getcurx(window), settings_.Get(Setting::SongFillChar).front()).c_str());
+                     }
+                     else if(new_position > 4 && elided)
+                     {
+                        wmove(window, line, new_position-3);
+                        wprintw(window, "...");
+                     }
+                     else
+                     {
+                        wmove(window, line, new_position);
+                     }
 
-							i += 2; // This skip of i is due to the two extra characters
-         	      }
-						break;
+                     i += 2; // This skip of i is due to the two extra characters
+                  }
+                  break;
 
-         	    default:
-						wprintw(window, "%c", output[i]);
-         	      break;
-         	}
-				//}}}
+                default:
+                  wprintw(window, "%c", output[i]);
+                  break;
+            }
+            //}}}
 
-				break;
+            break;
 
-			default:
-				{
-					// Speed up the rendering by printing as much as possible in one go
-					uint32_t j;
-					for(j=i; (j < output.size()) && (output[j] != '\\') && (output[j] != '$'); j++); // Find the first part we cannot print in one go...
-					waddnstr(window, &output[i], j-i);                                               // ... and print up till there.
-					i+=j-i-1;
-				}
-				break;
-		}
-	}
+         default:
+            {
+               // Speed up the rendering by printing as much as possible in one go
+               uint32_t j;
+               for(j=i; (j < output.size()) && (output[j] != '\\') && (output[j] != '$'); j++); // Find the first part we cannot print in one go...
+               waddnstr(window, &output[i], j-i);                                               // ... and print up till there.
+               i+=j-i-1;
+            }
+            break;
+      }
+   }
 
-	// Reset the highlight and bold if they are set
+   // Reset the highlight and bold if they are set
    settings_.Get(Setting::ColourEnabled) && highlight && wattroff(window, COLOR_PAIR(DetermineColour(line)));
-	bold && wattroff(window, A_BOLD);
+   bold && wattroff(window, A_BOLD);
 
-	// Finish the line
-	const int32_t curx = getcurx(window);
-	const int32_t remaining_space = Columns()-curx;
-	curx && remaining_space && wprintw(window, "%s", std::string(remaining_space, ' ').c_str());
+   // Finish the line
+   const int32_t curx = getcurx(window);
+   const int32_t remaining_space = Columns()-curx;
+   curx && remaining_space && wprintw(window, "%s", std::string(remaining_space, ' ').c_str());
 
-	return;
+   return;
 }
 
 
