@@ -1,7 +1,7 @@
 " Configuration of vimpc is done using vimpc commands
 " these can include commands which require an mpd connection
 "
-" Copy this file to ~/.vimpcrc to use it
+" Copy this file to $XDG_CONFIG_HOME/vimpc/vimpcrc to use it
 "
 " NB: Comments are very basic and must be on their own line
 echo Parsing config file
