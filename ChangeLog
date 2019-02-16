@@ -1,3 +1,11 @@
+Version 0.09.2
+-------------
+
+- Fix lyrics fetching
+- Allow XDG base configuration folder
+- Various bugfixes
+
+
 Version 0.09.1
 -------------
 
