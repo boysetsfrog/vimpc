@@ -2,9 +2,19 @@ Version 0.09.2
 -------------
 
 - Fix lyrics fetching
-- Allow XDG base configuration folder
-- Various bugfixes
-
+- Allow XDG base configuration folder (https://github.com/boysetsfrog/vimpc/issues/56)
+- Fix down wheel scroll with newer ncurses versions (https://github.com/boysetsfrog/vimpc/pull/77)
+- Trigger autoscroll every time the current song is updated (https://github.com/boysetsfrog/vimpc/pull/79)
+- Link against tinfow or tinfo if needed (https://github.com/boysetsfrog/vimpc/issues/80)
+- Fix integer overflow with negative scrolling (https://github.com/boysetsfrog/vimpc/pull/78)
+- Make scroll to random line non-deterministic (https://github.com/boysetsfrog/vimpc/pull/75)
+- Adding support for a $Axx token in the songformat that allows to have the following text aligned to xx percent of the screen. (https://github.com/boysetsfrog/vimpc/pull/71)
+- Update shortcut and description for `toggle pause` (https://github.com/boysetsfrog/vimpc/pull/72)
+- Exit search when no input given (https://github.com/boysetsfrog/vimpc/issues/53)
+- Include disk numbers (https://github.com/boysetsfrog/vimpc/issues/38)
+- Add date to format options (https://github.com/boysetsfrog/vimpc/issues/46)
+- Default markers are now a-z (https://github.com/boysetsfrog/vimpc/issues/43)
+- Playlist editing with cut/paste (https://github.com/boysetsfrog/vimpc/issues/36)
 
 Version 0.09.1
 -------------
