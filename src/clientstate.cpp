@@ -223,10 +223,10 @@ ClientState::ClientState(Main::Vimpc * vimpc, Main::Settings & settings, Ui::Scr
       Main::Vimpc::CreateEvent(Event::StatusUpdate, EData);
    });
 
-   updateThread_ = std::thread([this]() {
+   updateThread_ = Thread([this]() {
       while (this->running_)
       {
-         std::this_thread::sleep_for(std::chrono::milliseconds(this->waitTime_));
+         ThisThread::sleep_for(Chrono::milliseconds(this->waitTime_));
 
          if (this->newSong_)
          {
