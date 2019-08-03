@@ -57,6 +57,7 @@ if test "x$enable_boost" = "xyes"; then
 AC_DEFINE_UNQUOTED(BOOST_SUPPORT, "1", "Define to 1 if boost support enabled")
 
 AX_BOOST_BASE([], [], [AC_MSG_ERROR(vimpc requires boost library)])
+AX_BOOST_CHRONO([], [], [AC_MSG_ERROR(vimpc requires boost chrono library)])
 AX_BOOST_SYSTEM([], [], [AC_MSG_ERROR(vimpc requires boost system library)])
 AX_BOOST_THREAD([], [], [AC_MSG_ERROR(vimpc requires boost thread library)])
 
@@ -73,7 +74,7 @@ AC_CHECK_HEADER(boost/function.hpp,
                 [AC_MSG_ERROR(boost-dev library is required)])
 
 CPPFLAGS="$CPPFLAGS -DUSE_BOOST_THREAD -DUSE_BOOST_FUNCTIONAL -DUSE_BOOST_FOREACH"
-LIBS="$LIBS $BOOST_SYSTEM_LIB $BOOST_THREAD_LIB"
+LIBS="$LIBS $BOOST_CHRONO_LIB $BOOST_SYSTEM_LIB $BOOST_THREAD_LIB"
 
 AC_MSG_CHECKING([whether compiler supports lambda functions])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <boost/function.hpp>]], [[int a = 5; boost::function<int(int)> f = [&a](int b) { return a + b; }; f(8);]])],

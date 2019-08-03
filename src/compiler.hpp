@@ -47,6 +47,8 @@ typedef boost::mutex              Mutex;
 typedef boost::recursive_mutex    RecursiveMutex;
 typedef boost::condition_variable ConditionVariable;
 #define Atomic(X) X
+#define Chrono boost::chrono
+#define ThisThread boost::this_thread
 #define UniqueLock boost::unique_lock
 
 template <typename T>
@@ -60,6 +62,8 @@ typedef std::mutex                Mutex;
 typedef std::recursive_mutex      RecursiveMutex;
 typedef std::condition_variable   ConditionVariable;
 #define Atomic(X) std::atomic<X>
+#define Chrono std::chrono
+#define ThisThread std::this_thread
 #define UniqueLock std::unique_lock
 
 template <typename T>
