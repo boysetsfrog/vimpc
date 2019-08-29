@@ -614,7 +614,7 @@ rendering a song. The default setting is ' '.
  CONFIGURATION FILE
  --------------------------------------------------
 
- The config file ~/.vimpcrc is a file containing vimpc commands
+ The config file $XDG_CONIFG_HOME/vimpc/vimpcrc is a file containing vimpc commands
  (without the preceeding : ). These commands can change mpd settings
  such as "consume on" as well as vimpc specific settings
  like "set nocolour".

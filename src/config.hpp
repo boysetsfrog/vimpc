@@ -15,7 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-   config.hpp - parses .vimpcrc file and executes commands
+   config.hpp - parses vimpcrc file and executes commands
    */
 
 #ifndef __MAIN__CONFIG
@@ -34,6 +34,12 @@ namespace Main
    }
 }
 
+
+bool fexists(const std::string& filename) {
+   std::ifstream ifile(filename.c_str());
+	return (bool)ifile;
+}
+
 bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
 {
    static bool configCommandsExecuted    = false;
@@ -47,11 +53,25 @@ bool Main::Config::ExecuteConfigCommands(Ui::Command & handler)
       static char const * const home_dir = getenv("HOME");
       static char const * const xdg_config_dir = getenv("XDG_CONFIG_HOME");
       std::string configFile;
+      std::string xdgPath;
 
-      if (xdg_config_dir != NULL)
-         configFile = std::string(xdg_config_dir).append("/vimpc/vimpcrc");
-      else
-         configFile = std::string(home_dir).append("/.vimpcrc");
+      if (xdg_config_dir)
+      {
+         xdgPath = std::string(xdg_config_dir).append("/vimpc/vimpcrc");
+      }
+      std::string configPath = std::string(home_dir).append("/.config/vimpc/vimpcrc");
+      std::string fallback = std::string(home_dir).append("/.vimpcrc");
+      if (xdg_config_dir != NULL && fexists(xdgPath)) {
+         configFile = xdgPath;
+      }
+      else if (fexists(configPath))
+      {
+         configFile = configPath;
+      }
+      else if (fexists(fallback))
+      {
+         configFile = fallback;
+      }
 
       std::ifstream inputStream(configFile);
       std::string input;
