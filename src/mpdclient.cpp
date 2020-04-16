@@ -2136,8 +2136,8 @@ void Client::GetAllMetaInformation()
       {
          EventData Data; Data.song = NULL; Data.uri = mpd_song_get_uri(nextSong); Data.pos1 = -1;
 
-         if (((settings_.Get(Setting::ListAllMeta) == false) &&
-              (Main::Library().Song(Data.uri) == NULL)) ||
+         if ((settings_.Get(Setting::ListAllMeta) == false) ||
+             (Main::Library().Song(Data.uri) == NULL) ||
              // Handle "virtual" songs embedded within files
              (mpd_song_get_end(nextSong) != 0))
          {
@@ -2510,11 +2510,13 @@ Song * Client::CreateSong(mpd_song const * const song) const
 
    //Debug("Alloc a song %d %d", count, sizeof(Song));
 
-   newSong->SetArtist     (mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
+   newSong->SetArtist     (mpd_song_get_tag(song, MPD_TAG_ARTIST,  0));
    newSong->SetAlbumArtist(mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0));
-   newSong->SetAlbum      (mpd_song_get_tag(song, MPD_TAG_ALBUM,  0));
-   newSong->SetTitle      (mpd_song_get_tag(song, MPD_TAG_TITLE,  0));
-   newSong->SetTrack      (mpd_song_get_tag(song, MPD_TAG_TRACK,  0));
+   newSong->SetAlbum      (mpd_song_get_tag(song, MPD_TAG_ALBUM,   0));
+   newSong->SetTitle      (mpd_song_get_tag(song, MPD_TAG_TITLE,   0));
+   newSong->SetTrack      (mpd_song_get_tag(song, MPD_TAG_TRACK,   0));
+   newSong->SetName       (mpd_song_get_tag(song, MPD_TAG_NAME,    0));
+   newSong->SetComment    (mpd_song_get_tag(song, MPD_TAG_COMMENT, 0));
    newSong->SetURI        (mpd_song_get_uri(song));
    newSong->SetGenre      (mpd_song_get_tag(song, MPD_TAG_GENRE, 0));
    newSong->SetDate       (mpd_song_get_tag(song, MPD_TAG_DATE, 0));

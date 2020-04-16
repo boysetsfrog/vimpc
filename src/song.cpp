@@ -26,14 +26,16 @@
 #include "buffer/directory.hpp"
 #include "buffer/library.hpp"
 
-const std::string UnknownArtist = "Unknown Artist";
-const std::string UnknownAlbum  = "Unknown Album";
-const std::string UnknownTitle  = "Unknown";
-const std::string UnknownURI    = "Unknown";
-const std::string UnknownGenre  = "Unknown";
-const std::string UnknownTrack  = "";
-const std::string UnknownDate   = "Unknown";
-const std::string UnknownDisc   = "";
+const std::string UnknownArtist  = "Unknown Artist";
+const std::string UnknownAlbum   = "Unknown Album";
+const std::string UnknownTitle   = "Unknown";
+const std::string UnknownName    = "Unknown";
+const std::string UnknownComment = "Unknown";
+const std::string UnknownURI     = "Unknown";
+const std::string UnknownGenre   = "Unknown";
+const std::string UnknownTrack   = "";
+const std::string UnknownDate    = "Unknown";
+const std::string UnknownDisc    = "";
 
 std::vector<std::string> Mpc::Song::Artists;
 std::map<std::string, uint32_t> Mpc::Song::ArtistMap;
@@ -70,6 +72,8 @@ Song::Song() :
    virtualEnd_  (0),
    uri_         (""),
    title_       (""),
+   name_        (""),
+   comment_     (""),
    lastFormat_  (""),
    formatted_   (""),
    entry_       (NULL)
@@ -87,6 +91,8 @@ Song::Song(Song const & song) :
    duration_    (song.duration_),
    uri_         (song.URI()),
    title_       (song.Title()),
+   name_        (song.Name()),
+   comment_     (song.Comment()),
    lastFormat_  (song.lastFormat_),
    formatted_   (song.formatted_)
 {
@@ -251,6 +257,44 @@ std::string const & Song::Title() const
    return title_;
 }
 
+void Song::SetName(const char * name)
+{
+   lastFormat_ = "";
+
+   if (name != NULL)
+   {
+      name_ = name;
+   }
+   else
+   {
+      name_ = UnknownName;
+   }
+}
+
+std::string const & Song::Name() const
+{
+   return name_;
+}
+
+void Song::SetComment(const char * comment)
+{
+   lastFormat_ = "";
+
+   if (comment != NULL)
+   {
+      comment_ = comment;
+   }
+   else
+   {
+      comment_ = UnknownComment;
+   }
+}
+
+std::string const & Song::Comment() const
+{
+   return comment_;
+}
+
 void Song::SetTrack(const char * track)
 {
    Set(track, track_, Tracks, TrackMap);
@@ -395,9 +439,11 @@ std::string Song::FormatString(std::string fmt) const
    SongInfo['l'] = &Mpc::Song::DurationString;
    SongInfo['t'] = &Mpc::Song::Title;
    SongInfo['n'] = &Mpc::Song::Track;
+   SongInfo['N'] = &Mpc::Song::Name;
    SongInfo['f'] = &Mpc::Song::URI;
    SongInfo['d'] = &Mpc::Song::Date;
    SongInfo['c'] = &Mpc::Song::Disc;
+   SongInfo['C'] = &Mpc::Song::Comment;
 
    SongInfo['r'] = &Mpc::Song::Artist;
    SongInfo['R'] = &Mpc::Song::Artist;
@@ -472,8 +518,9 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
                   (*it == 'r') || (*it == 'R') ||
                   (*it == 'm') || (*it == 'M') ||
                   (*it == 'l') || (*it == 't') ||
-                  (*it == 'n') || (*it == 'f') ||
-                  (*it == 'd') || (*it == 'c'))
+                  (*it == 'n') || (*it == 'N') ||
+                  (*it == 'f') || (*it == 'd') ||
+                  (*it == 'c') || (*it == 'C'))
          {
             SongFunction Function = SongInfo[*it];
             std::string val = (*this.*Function)();

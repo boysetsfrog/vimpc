@@ -108,6 +108,12 @@ namespace Mpc
       void SetTitle(const char * title);
       std::string const & Title() const;
 
+      void SetName(const char * name);
+      std::string const & Name() const;
+
+      void SetComment(const char * comment);
+      std::string const & Comment() const;
+
       void SetTrack(const char * track);
       std::string const & Track() const;
 
@@ -176,6 +182,8 @@ namespace Mpc
       int32_t     virtualEnd_;
       std::string uri_;
       std::string title_;
+      std::string name_;
+      std::string comment_;
 
       mutable std::string lastFormat_;
       mutable std::string formatted_;
