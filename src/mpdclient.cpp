@@ -2136,8 +2136,8 @@ void Client::GetAllMetaInformation()
       {
          EventData Data; Data.song = NULL; Data.uri = mpd_song_get_uri(nextSong); Data.pos1 = -1;
 
-         if ((settings_.Get(Setting::ListAllMeta) == false) ||
-             (Main::Library().Song(Data.uri) == NULL) ||
+         if (((settings_.Get(Setting::ListAllMeta) == false) ||
+              (Main::Library().Song(Data.uri) == NULL)) ||
              // Handle "virtual" songs embedded within files
              (mpd_song_get_end(nextSong) != 0))
          {
@@ -2557,7 +2557,7 @@ void Client::QueueMetaChanges()
          {
             Song * newSong = NULL;
 
-            if (((settings_.Get(Setting::ListAllMeta) == false) &&
+            if (((settings_.Get(Setting::ListAllMeta) == false) ||
                  (Main::Library().Song(Data.uri) == NULL)) ||
                 // Handle "virtual" songs embedded within files
                 (mpd_song_get_end(nextSong) != 0))
