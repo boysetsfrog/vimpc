@@ -466,6 +466,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
 {
    std::string result;
    bool tmp_valid = false;
+   bool parse_next = true;
 
    if (SongInfo.empty() == true)
    {
@@ -484,15 +485,18 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
       {
          *++it;
          uint32_t len = result.length();
-         result += ParseString(it, valid);
+         result += ParseString(it, valid && parse_next);
 
-         if (result.length() != len)
+         if (parse_next)
          {
-             tmp_valid = true;
-         }
-         else
-         {
-             tmp_valid = false;
+            if (result.length() != len)
+            {
+                tmp_valid = true;
+            }
+            else
+            {
+                tmp_valid = false;
+            }
          }
       }
       else if (*it == '}')
@@ -503,8 +507,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
       }
       else if (*it == '|')
       {
-         valid = (valid) ? tmp_valid : valid;
-         valid = !valid;
+         parse_next = !tmp_valid;
       }
       else if (*it == '%')
       {
