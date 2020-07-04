@@ -285,9 +285,11 @@ void DirectoryWindow::Left(Ui::Player & player, uint32_t count)
 {
    if (CurrentLine() < directory_.Size())
    {
-      directory_.ChangeDirectory(*directory_.Get(0));
-      ScrollTo(selection_.top());
-      selection_.pop();
+      if (directory_.CurrentDirectory() != "") {
+         directory_.ChangeDirectory(*directory_.Get(0));
+         ScrollTo(selection_.top());
+         selection_.pop();
+      }
    }
 }
 
