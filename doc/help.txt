@@ -485,6 +485,8 @@
     %d    - Date
     %n    - Track number
     %c    - Disc number
+    %N    - Song name. This is not the song title.
+    %C    - Comment
     %l    - Duration
     %f    - Filename/URI
 
@@ -499,7 +501,7 @@ The setting songfillchar is used to fill up space due to alignment when
 rendering a song. The default setting is ' '.
 
  Examples:
-    The default song format is: "{%a - %t}\|{%f}$E$R $H[$H%l$H]$H"
+    The default song format is: "{{%a - }%t}\|{%N}\|{%f}$E$R $H[$H%l$H]$H"
     This displays artist - title if they both exist otherwise
     displays the filename and displays the duration aligned
     to the right. The $H ensures that [ and ] will not change

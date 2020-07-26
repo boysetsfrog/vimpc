@@ -87,7 +87,7 @@
    /* Lists to show in the lists window */ \
    X(Playlists,        "playlists", "mpd", "all|mpd|files") \
    /* Song format string */ \
-   X(SongFormat,       "songformat", "{{%a - }%t}|{%f}$E$R $H[$H%l$H]$H", ".*") \
+   X(SongFormat,       "songformat", "{{%a - }%t}|{%N}|{%f}$E$R $H[$H%l$H]$H", ".*") \
    /* Song format fill character */ \
    X(SongFillChar,       "songfillchar", " ", ".") \
    /* Sort based on song format */ \
