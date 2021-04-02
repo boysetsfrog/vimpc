@@ -1029,21 +1029,15 @@ void Command::TabMap(std::string const & arguments)
 
 void Command::TabMap(std::string const & tabname, std::string const & arguments)
 {
-   std::vector<std::string> args = SplitArguments(arguments);
-
-   if (args.size() == 2)
+   if ((arguments.find(" ") != std::string::npos))
    {
-      std::string const key     = args[0];
-      std::string const mapping = args[1];
+      std::string const key     = arguments.substr(0, arguments.find(" "));
+      std::string const mapping = arguments.substr(arguments.find(" ") + 1);
       normalMode_.WindowMap(screen_.GetWindowFromName(tabname), key, mapping);
    }
-   else if (args.size() == 0)
+   else if (arguments == "")
    {
       PrintMappings(tabname);
-   }
-   else
-   {
-      Error(ErrorNumber::InvalidParameter, "Unexpected Arguments");
    }
 }
 
