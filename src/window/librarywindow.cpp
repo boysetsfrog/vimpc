@@ -46,6 +46,7 @@ LibraryWindow::LibraryWindow(Main::Settings const & settings, Ui::Screen & scree
 {
    SoftRedrawOnSetting(Setting::IgnoreCaseSort);
    SoftRedrawOnSetting(Setting::IgnoreTheSort);
+   SoftRedrawOnSetting(Setting::SortAlbumDate);
    SoftRedrawOnSetting(Setting::IgnoreTheGroup);
    SoftRedrawOnSetting(Setting::ExpandArtists);
    SoftRedrawOnSetting(Setting::AlbumArtist);

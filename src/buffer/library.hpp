@@ -48,6 +48,7 @@ namespace Mpc
          type_    (SongType),
          artist_  (""),
          album_   (""),
+         date_    (""),
          song_    (NULL),
          expanded_(false),
          children_(),
@@ -79,7 +80,14 @@ namespace Mpc
          }
          else if (type_ == AlbumType)
          {
-            comparison = Algorithm::icompare(album_, rhs.album_, settings.Get(Setting::IgnoreTheSort), settings.Get(Setting::IgnoreCaseSort));
+            if (settings.Get(Setting::SortAlbumDate))
+            {
+               comparison = Algorithm::icompare(date_, rhs.date_);
+            }
+            else
+            {
+               comparison = Algorithm::icompare(album_, rhs.album_, settings.Get(Setting::IgnoreTheSort), settings.Get(Setting::IgnoreCaseSort));
+            }
          }
          else if ((song_ != NULL) && (rhs.song_ != NULL))
          {
@@ -87,7 +95,7 @@ namespace Mpc
             uint32_t rhsTrack = atoi(rhs.song_->Track().c_str());
             uint32_t disc     = atoi(song_->Disc().c_str());
             uint32_t rhsDisc  = atoi(rhs.song_->Disc().c_str());
-            comparison = ((track < rhsTrack) && (disc <= rhsDisc));
+            comparison = disc != rhsDisc ? disc < rhsDisc : track < rhsTrack;
          }
 
          return comparison;
@@ -197,6 +205,7 @@ namespace Mpc
       EntryType          type_;
       std::string        artist_;
       std::string        album_;
+      std::string        date_;
       Mpc::Song *        song_;
       bool               expanded_;
       LibraryEntryVector children_;
