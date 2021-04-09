@@ -110,6 +110,7 @@ namespace Mpc
 
       void SetTrack(const char * track);
       std::string const & Track() const;
+      std::string const & ZeroPaddedTrack() const;
 
       void SetURI(const char * uri);
       std::string const & URI() const;
@@ -119,6 +120,7 @@ namespace Mpc
 
       void SetDate(const char * date);
       std::string const & Date() const;
+      std::string const & Year() const;
 
       void SetDisc(const char * disc);
       std::string const & Disc() const;

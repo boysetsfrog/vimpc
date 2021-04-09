@@ -266,6 +266,23 @@ std::string const & Song::Track() const
    return UnknownTrack;
 }
 
+std::string const & Song::ZeroPaddedTrack() const
+{
+   static std::string Result;
+
+   std::string track = Track();
+   if (track.length() == 1)
+   {
+      Result = "0" + track;
+   }
+   else
+   {
+      Result = track;
+   }
+
+   return Result;
+}
+
 void Song::SetURI(const char * uri)
 {
    lastFormat_ = "";
@@ -313,6 +330,24 @@ std::string const & Song::Date() const
    }
 
    return UnknownDate;
+}
+
+std::string const & Song::Year() const
+{
+   static std::string Result;
+   static const Regex::RE year_re("^[0-9]{4}");
+
+   std::string date = Date();
+   if (year_re.Matches(date))
+   {
+      Result = date.substr(0, 4);
+   }
+   else
+   {
+      Result = UnknownDate;
+   }
+
+   return Result;
 }
 
 void Song::SetDisc(const char * disc)
@@ -395,8 +430,10 @@ std::string Song::FormatString(std::string fmt) const
    SongInfo['l'] = &Mpc::Song::DurationString;
    SongInfo['t'] = &Mpc::Song::Title;
    SongInfo['n'] = &Mpc::Song::Track;
+   SongInfo['N'] = &Mpc::Song::ZeroPaddedTrack;
    SongInfo['f'] = &Mpc::Song::URI;
    SongInfo['d'] = &Mpc::Song::Date;
+   SongInfo['y'] = &Mpc::Song::Year;
    SongInfo['c'] = &Mpc::Song::Disc;
 
    SongInfo['r'] = &Mpc::Song::Artist;
@@ -473,7 +510,8 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
                   (*it == 'm') || (*it == 'M') ||
                   (*it == 'l') || (*it == 't') ||
                   (*it == 'n') || (*it == 'f') ||
-                  (*it == 'd') || (*it == 'c'))
+                  (*it == 'd') || (*it == 'c') ||
+                  (*it == 'y') || (*it == 'N'))
          {
             SongFunction Function = SongInfo[*it];
             std::string val = (*this.*Function)();

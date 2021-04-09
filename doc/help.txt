@@ -483,7 +483,9 @@
     %B    - Album, but swap "The Album" to "Album, The"
     %t    - Song title
     %d    - Date
+    %y    - Year
     %n    - Track number
+    %N    - Track number zero padded to two digits
     %c    - Disc number
     %l    - Duration
     %f    - Filename/URI
@@ -586,6 +588,7 @@ rendering a song. The default setting is ' '.
    songnumbers          | display id numbers next to songs in other windows
    sortignorecase       | ignore case when sorting
    sortignorethe        | ignore the prefix 'the' when sorting
+   sortalbumdate        | sort albums in the library by date
    stoponquit           | automatically stop playback when vimpc is quit
    tabbar               | whether or not to show the tab bar
    timeremaining        | display the time remaining rather than elapsed
@@ -596,6 +599,8 @@ rendering a song. The default setting is ' '.
    add <where>          | set where to add songs to the playlist
                         | either "end" or "next" (defaults to end)
    libraryformat <fmt>  | set the format to print songs in the library
+                        | set PRINT FORMATS section
+   albumformat <fmt>    | set the format to print albums in the library
                         | set PRINT FORMATS section
    playlists <option>   | set which playlists to include in the lists window
                         | "mpd", "files" or "all" (defaults to mpd)
