@@ -220,8 +220,8 @@ void DirectoryWindow::Print(uint32_t line) const
 
       wattron(window, A_BOLD);
       std::string const Directory = "/" + directory_.CurrentDirectory();
-      mvwprintw(window, line, 0, BlankLine.c_str());
-      mvwprintw(window, line, 1, Directory.c_str());
+      mvwprintw(window, line, 0, "%s", BlankLine.c_str());
+      mvwprintw(window, line, 1, "%s", Directory.c_str());
       wattroff(window, A_BOLD);
 
       if (settings_.Get(Setting::ColourEnabled) == true)
@@ -250,7 +250,7 @@ void DirectoryWindow::Print(uint32_t line) const
             wattron(window, A_REVERSE);
          }
 
-         mvwprintw(window, line, 0, BlankLine.c_str());
+         mvwprintw(window, line, 0, "%s", BlankLine.c_str());
 
          uint8_t expandCol = 1;
 
@@ -276,7 +276,7 @@ void DirectoryWindow::Print(uint32_t line) const
       }
       else
       {
-         mvwprintw(window, line, 0, BlankLine.c_str());
+         mvwprintw(window, line, 0, "%s", BlankLine.c_str());
       }
    }
 }

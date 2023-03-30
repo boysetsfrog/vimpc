@@ -117,7 +117,7 @@ void ListWindow::Print(uint32_t line) const
    else
    {
       std::string const BlankLine(Columns(), ' ');
-      mvwprintw(window, line, 0, BlankLine.c_str());
+      mvwprintw(window, line, 0, "%s", BlankLine.c_str());
    }
 #else
    SelectWindow::Print(line);

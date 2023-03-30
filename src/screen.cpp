@@ -1489,7 +1489,7 @@ void Screen::ClearStatus() const
       wattron(statusWindow_, A_REVERSE);
    }
 
-   mvwprintw(statusWindow_, 0, 0, BlankLine.c_str());
+   mvwprintw(statusWindow_, 0, 0, "%s", BlankLine.c_str());
 
    if (settings_.Get(Setting::ColourEnabled) == true)
    {
@@ -1516,7 +1516,7 @@ void Screen::UpdateTabWindow() const
       wattron(tabWindow_, COLOR_PAIR(settings_.colours.TabWindow));
    }
 
-   mvwprintw(tabWindow_, 0, 0, BlankLine.c_str());
+   mvwprintw(tabWindow_, 0, 0, "%s", BlankLine.c_str());
    wmove(tabWindow_, 0, 0);
 
    std::string name   = "";
