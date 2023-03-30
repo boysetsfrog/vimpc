@@ -234,8 +234,6 @@ void LibraryWindow::Confirm()
    if (CurrentLine() < library_.Size())
    {
       client_.Clear();
-      Main::Playlist().Clear();
-
       AddLine(CurrentLine(), 1, false);
       client_.Play(0);
    }
