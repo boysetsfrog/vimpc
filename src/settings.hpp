@@ -46,6 +46,7 @@
    X(IgnoreCaseSearch, "ignorecase",      false) /* Turn off case sensitivity on searching */ \
    X(IgnoreCaseSort,   "sortignorecase",  true)  /* Turn off case sensitivity on sorting */\
    X(IgnoreTheSort,    "sortignorethe",   false) /* Ignore 'the' when sorting */ \
+   X(SortAlbumDate,    "sortalbumdate",   false) /* Sort albums in the library by date */ \
    X(IncrementalSearch,"incsearch",       false) /* Search for results whilst typing */ \
    X(ListAllMeta,      "listallmeta",     true)  /* Get all meta data */ \
    X(Mouse,            "mouse",           true)  /* Handle mouse keys */ \

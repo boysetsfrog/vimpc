@@ -124,13 +124,12 @@ void Library::Add(Mpc::Song * song)
    std::string artist = song->Artist();
    std::string const album  = song->Album();
    std::string const albumartist = song->AlbumArtist();
+   std::string const date = song->Date();
 
    if ((settings_.Get(Setting::AlbumArtist) == true) && (albumartist != "Unknown Artist"))
    {
       artist = albumartist;
    }
-
-   CreateVariousArtist();
 
    if ((lastAlbumEntry_ == NULL) ||
        (Algorithm::iequals(lastAlbumEntry_->album_, album,
@@ -187,6 +186,8 @@ void Library::Add(Mpc::Song * song)
        (Algorithm::iequals(lastArtistEntry_->artist_, artist,
            settings_.Get(Setting::IgnoreTheGroup), true) == false))
    {
+      CreateVariousArtist();
+
       lastArtistEntry_->children_.pop_back();
 
       if (lastArtistEntry_->children_.size() == 0)
@@ -208,6 +209,7 @@ void Library::Add(Mpc::Song * song)
    entry->expanded_ = true;
    entry->artist_   = artist;
    entry->album_    = album;
+   entry->date_     = date;
    entry->song_     = song;
    entry->type_     = Mpc::SongType;
    entry->parent_   = lastAlbumEntry_;
@@ -251,6 +253,7 @@ Mpc::LibraryEntry * Library::CreateAlbumEntry(Mpc::Song * song)
    entry->expanded_ = false;
    entry->artist_   = song->Artist();
    entry->album_    = song->Album();
+   entry->date_     = song->Date();
    entry->type_     = Mpc::AlbumType;
    return entry;
 }
@@ -553,7 +556,7 @@ std::string Library::PrintString(uint32_t position) const
    }
    else if (type == Mpc::AlbumType)
    {
-      Result = "    " + Get(position)->album_;
+      Result = "    " + Get(position)->children_.front()->song_->FormatString(settings_.Get(Setting::AlbumFormat));
    }
    else if (type == Mpc::SongType)
    {
