@@ -365,8 +365,6 @@ void Client::Reconnect()
 
 void Client::Password(std::string const & password)
 {
-   QueueCommand([this, password] ()
-   {
       ClearCommand();
 
       if (Connected() == true)
@@ -378,7 +376,6 @@ void Client::Password(std::string const & password)
       {
          ErrorString(ErrorNumber::ClientNoConnection);
       }
-   });
 }
 
 bool Client::Connected() const
