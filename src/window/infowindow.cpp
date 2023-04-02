@@ -84,32 +84,42 @@ void InfoWindow::Print(uint32_t line) const
          wprintw(window, "%s", song->Title().c_str());
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 8, 0, " Duration    : ");
+         mvwaddstr(window, 8, 0, " Name        : ");
+         wattroff(window, A_BOLD);
+         wprintw(window, "%s", song->Name().c_str());
+
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 9, 0, " Duration    : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%d:%.2d", Mpc::SecondsToMinutes(song->Duration()), Mpc::RemainingSeconds(song->Duration()));
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 9, 0, " Genre       : ");
+         mvwaddstr(window, 10, 0, " Genre       : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%s", song->Genre().c_str());
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 10, 0, " Date        : ");
+         mvwaddstr(window, 11, 0, " Comment     : ");
+         wattroff(window, A_BOLD);
+         wprintw(window, "%s", song->Comment().c_str());
+
+         wattron(window, A_BOLD);
+         mvwaddstr(window, 12, 0, " Date        : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%s", song->Date().c_str());
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 11, 0, " Disc        : ");
+         mvwaddstr(window, 13, 0, " Disc        : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%s", song->Disc().c_str());
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 13, 0, " Playlist    : ");
+         mvwaddstr(window, 14, 0, " Playlist    : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%s", (song->Reference() > 0) ? "Yes" : "No");
 
          wattron(window, A_BOLD);
-         mvwaddstr(window, 14, 0, " Position    : ");
+         mvwaddstr(window, 15, 0, " Position    : ");
          wattroff(window, A_BOLD);
          wprintw(window, "%d", Main::Playlist().Index(song) + 1);
 
