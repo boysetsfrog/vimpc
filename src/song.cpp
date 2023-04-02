@@ -26,14 +26,16 @@
 #include "buffer/directory.hpp"
 #include "buffer/library.hpp"
 
-const std::string UnknownArtist = "Unknown Artist";
-const std::string UnknownAlbum  = "Unknown Album";
-const std::string UnknownTitle  = "Unknown";
-const std::string UnknownURI    = "Unknown";
-const std::string UnknownGenre  = "Unknown";
-const std::string UnknownTrack  = "";
-const std::string UnknownDate   = "Unknown";
-const std::string UnknownDisc   = "";
+const std::string UnknownArtist  = "Unknown Artist";
+const std::string UnknownAlbum   = "Unknown Album";
+const std::string UnknownTitle   = "Unknown";
+const std::string UnknownURI     = "Unknown";
+const std::string UnknownGenre   = "Unknown";
+const std::string UnknownTrack   = "";
+const std::string UnknownName    = "Unknown";
+const std::string UnknownComment = "Unknown";
+const std::string UnknownDate    = "Unknown";
+const std::string UnknownDisc    = "";
 
 std::vector<std::string> Mpc::Song::Artists;
 std::map<std::string, uint32_t> Mpc::Song::ArtistMap;
@@ -70,6 +72,8 @@ Song::Song() :
    virtualEnd_  (0),
    uri_         (""),
    title_       (""),
+   name_        (""),
+   comment_     (""),
    lastFormat_  (""),
    formatted_   (""),
    entry_       (NULL)
@@ -87,6 +91,8 @@ Song::Song(Song const & song) :
    duration_    (song.duration_),
    uri_         (song.URI()),
    title_       (song.Title()),
+   name_        (song.Name()),
+   comment_     (song.Comment()),
    lastFormat_  (song.lastFormat_),
    formatted_   (song.formatted_)
 {
@@ -249,6 +255,44 @@ void Song::SetTitle(const char * title)
 std::string const & Song::Title() const
 {
    return title_;
+}
+
+void Song::SetName(const char * name)
+{
+   lastFormat_ = "";
+
+   if (name != NULL)
+   {
+      name_ = name;
+   }
+   else
+   {
+      name_ = UnknownName;
+   }
+}
+
+std::string const & Song::Name() const
+{
+   return name_;
+}
+
+void Song::SetComment(const char * comment)
+{
+   lastFormat_ = "";
+
+   if (comment != NULL)
+   {
+      comment_ = comment;
+   }
+   else
+   {
+      comment_ = UnknownComment;
+   }
+}
+
+std::string const & Song::Comment() const
+{
+   return comment_;
 }
 
 void Song::SetTrack(const char * track)
@@ -431,10 +475,12 @@ std::string Song::FormatString(std::string fmt) const
    SongInfo['t'] = &Mpc::Song::Title;
    SongInfo['n'] = &Mpc::Song::Track;
    SongInfo['N'] = &Mpc::Song::ZeroPaddedTrack;
+   SongInfo['P'] = &Mpc::Song::Name;
    SongInfo['f'] = &Mpc::Song::URI;
    SongInfo['d'] = &Mpc::Song::Date;
    SongInfo['y'] = &Mpc::Song::Year;
    SongInfo['c'] = &Mpc::Song::Disc;
+   SongInfo['C'] = &Mpc::Song::Comment;
 
    SongInfo['r'] = &Mpc::Song::Artist;
    SongInfo['R'] = &Mpc::Song::Artist;
@@ -457,6 +503,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
 {
    std::string result;
    bool tmp_valid = false;
+   bool parse_next = true;
 
    if (SongInfo.empty() == true)
    {
@@ -475,15 +522,18 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
       {
          *++it;
          uint32_t len = result.length();
-         result += ParseString(it, valid);
+         result += ParseString(it, valid && parse_next);
 
-         if (result.length() != len)
+         if (parse_next)
          {
-             tmp_valid = true;
-         }
-         else
-         {
-             tmp_valid = false;
+            if (result.length() != len)
+            {
+                tmp_valid = true;
+            }
+            else
+            {
+                tmp_valid = false;
+            }
          }
       }
       else if (*it == '}')
@@ -494,8 +544,7 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
       }
       else if (*it == '|')
       {
-         valid = (valid) ? tmp_valid : valid;
-         valid = !valid;
+         parse_next = !tmp_valid;
       }
       else if (*it == '%')
       {
@@ -509,8 +558,9 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
                   (*it == 'r') || (*it == 'R') ||
                   (*it == 'm') || (*it == 'M') ||
                   (*it == 'l') || (*it == 't') ||
-                  (*it == 'n') || (*it == 'f') ||
-                  (*it == 'd') || (*it == 'c') ||
+                  (*it == 'n') || (*it == 'P') ||
+                  (*it == 'f') || (*it == 'd') ||
+                  (*it == 'c') || (*it == 'C') ||
                   (*it == 'y') || (*it == 'N'))
          {
             SongFunction Function = SongInfo[*it];
