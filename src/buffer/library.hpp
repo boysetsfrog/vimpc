@@ -232,6 +232,7 @@ namespace Mpc
 
       void ForEachChild(uint32_t index, FUNCTION<void (Mpc::Song *)> callback) const;
       void ForEachChild(uint32_t index, FUNCTION<void (Mpc::LibraryEntry *)> callback) const;
+      void ForEachChild(Mpc::LibraryEntry *, FUNCTION<void (Mpc::LibraryEntry *)> callback) const;
       void ForEachSong(FUNCTION<void (Mpc::Song *)> callback) const;
       void ForEachParent(FUNCTION<void (Mpc::LibraryEntry *)> callback) const;
 

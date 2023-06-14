@@ -79,7 +79,7 @@
    /* Library format string */ \
    X(ArtistFormat,     "artistformat", "%A",  ".*") \
    /* Library format string */ \
-   X(LibraryFormat,    "libraryformat", "$I%n \\| $D$H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
+   X(LibraryFormat,    "libraryformat", " \\| $D$H[$H%l$H]$H {%t}|{%f}$E$R ", ".*") \
    /* Library format string */ \
    X(LocalMusicDir,    "local-music-dir", "", ".*") \
    /* Lyrics strip regex */ \

@@ -484,6 +484,10 @@ std::string Song::ParseString(std::string::const_iterator & it, bool valid) cons
             {
                SwapThe(val);
             }
+            if (val.size() < pad)
+            {
+               val.insert(0, std::string(pad - val.size(), ' ')); 
+            }
 
             if ((val == "") || (val.substr(0, strlen("Unknown")) == "Unknown"))
             {
